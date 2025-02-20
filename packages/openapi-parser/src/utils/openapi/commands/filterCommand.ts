@@ -10,7 +10,6 @@ import { queueTask } from '../utils/queueTask.ts'
 import { dereferenceCommand } from './dereferenceCommand.ts'
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands {
     filter: {
       task: {
@@ -25,10 +24,7 @@ declare global {
 /**
  * Filter the given OpenAPI document
  */
-export function filterCommand<T extends Task[]>(
-  previousQueue: Queue<T>,
-  options?: FilterCallback,
-) {
+export function filterCommand<T extends Task[]>(previousQueue: Queue<T>, options?: FilterCallback) {
   const task: Task = {
     name: 'filter',
     options,
@@ -37,8 +33,7 @@ export function filterCommand<T extends Task[]>(
   const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
 
   return {
-    dereference: (dereferenceOptions?: DereferenceOptions) =>
-      dereferenceCommand(queue, dereferenceOptions),
+    dereference: (dereferenceOptions?: DereferenceOptions) => dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
     get: () => get(queue),

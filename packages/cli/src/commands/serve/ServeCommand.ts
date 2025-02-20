@@ -4,12 +4,7 @@ import { Hono } from 'hono'
 import { stream } from 'hono/streaming'
 import kleur from 'kleur'
 
-import {
-  getHtmlDocument,
-  loadOpenApiFile,
-  useGivenFileOrConfiguration,
-  watchFile,
-} from '../../utils'
+import { getHtmlDocument, loadOpenApiFile, useGivenFileOrConfiguration, watchFile } from '../../utils'
 import { printSpecificationBanner } from '../../utils/printSpecificationBanner'
 
 export function ServeCommand() {
@@ -21,15 +16,9 @@ export function ServeCommand() {
   cmd.argument('[file|url]', 'OpenAPI file or URL to show the reference for')
   cmd.option('-w, --watch', 'watch the file for changes')
   cmd.option('-o, --once', 'run the server only once and exit after that')
-  cmd.option(
-    '-p, --port <port>',
-    'set the HTTP port for the API reference server',
-  )
+  cmd.option('-p, --port <port>', 'set the HTTP port for the API reference server')
   cmd.action(
-    async (
-      inputArgument: string,
-      { watch, once, port }: { watch?: boolean; once?: boolean; port?: number },
-    ) => {
+    async (inputArgument: string, { watch, once, port }: { watch?: boolean; once?: boolean; port?: number }) => {
       const input = useGivenFileOrConfiguration(inputArgument)
       const result = await loadOpenApiFile(input)
 
@@ -44,14 +33,8 @@ export function ServeCommand() {
         schema: result.schema,
       })
 
-      if (
-        specification?.paths === undefined ||
-        Object.keys(specification?.paths).length === 0
-      ) {
-        console.log(
-          kleur.bold().yellow('[WARN]'),
-          kleur.grey('Couldn’t find any paths in the OpenAPI file.'),
-        )
+      if (specification?.paths === undefined || Object.keys(specification?.paths).length === 0) {
+        console.log(kleur.bold().yellow('[WARN]'), kleur.grey('Couldn’t find any paths in the OpenAPI file.'))
       }
 
       const app = new Hono()
@@ -74,15 +57,10 @@ export function ServeCommand() {
             watchFile(input, async () => {
               const newResult = await loadOpenApiFile(input)
               const specificationHasChanged =
-                newResult?.specification &&
-                JSON.stringify(specification) !==
-                  JSON.stringify(newResult.specification)
+                newResult?.specification && JSON.stringify(specification) !== JSON.stringify(newResult.specification)
 
               if (specificationHasChanged) {
-                console.log(
-                  kleur.bold().white('[INFO]'),
-                  kleur.grey('OpenAPI file modified'),
-                )
+                console.log(kleur.bold().white('[INFO]'), kleur.grey('OpenAPI file modified'))
 
                 printSpecificationBanner({
                   version: newResult.version,
@@ -96,7 +74,6 @@ export function ServeCommand() {
             })
           }
 
-          // eslint-disable-next-line no-constant-condition
           while (true) {
             await new Promise((resolve) => setTimeout(resolve, 100))
           }

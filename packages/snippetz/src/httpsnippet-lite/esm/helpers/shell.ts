@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /**
  * Use 'strong quoting' using single quotes so that we only need to deal with nested single quote characters.

@@ -24,11 +24,7 @@ type Options = {
  * Plugin to transform nodes in a Markdown AST
  */
 const transformNodes =
-  (
-    options?: Readonly<Options> | null | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ..._ignored: any[]
-  ) =>
+  (options?: Readonly<Options> | null | undefined, ..._ignored: any[]) =>
   (tree: Node) => {
     if (!options?.transform || !options?.type) {
       return
@@ -57,10 +53,9 @@ export function htmlFromMarkdown(
 ) {
   // Add permitted tags and remove stripped ones
   const removeTags = options?.removeTags ?? []
-  const tagNames = [
-    ...(defaultSchema.tagNames ?? []),
-    ...(options?.allowTags ?? []),
-  ].filter((t) => !removeTags.includes(t))
+  const tagNames = [...(defaultSchema.tagNames ?? []), ...(options?.allowTags ?? [])].filter(
+    (t) => !removeTags.includes(t),
+  )
 
   const html = unified()
     // Parses markdown

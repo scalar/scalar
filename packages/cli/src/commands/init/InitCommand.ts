@@ -1,9 +1,9 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { cancel, confirm, isCancel, text } from '@clack/prompts'
 import { Command } from 'commander'
 import GithubSlugger from 'github-slugger'
 import kleur from 'kleur'
-import fs from 'node:fs'
-import path from 'node:path'
 
 import { CONFIG_FILE } from '../../utils'
 
@@ -44,9 +44,7 @@ export type ScalarSidebarEntry = {
 export function InitCommand() {
   const cmd = new Command('init')
 
-  cmd.description(
-    'Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.',
-  )
+  cmd.description('Create a new `scalar.config.json` file to configure where your OpenAPI file is placed.')
   cmd.option('-f, --file [file]', 'your OpenAPI file')
   cmd.option('-s, --subdomain [url]', 'subdomain to publish on')
   cmd.option('--force', 'override existing configuration')
@@ -58,24 +56,12 @@ export function InitCommand() {
 
     const nextSteps = () => {
       console.log('What to do next:')
-      console.log(
-        `  ${kleur.cyan('scalar format')} ${kleur.gray('[options] [file|url]')} to format your OpenAPI file`,
-      )
-      console.log(
-        `  ${kleur.cyan('scalar validate')} ${kleur.gray('[file|url]')} to validate your OpenAPI file`,
-      )
-      console.log(
-        `  ${kleur.cyan('scalar bundle')} ${kleur.gray('[options] [file]')} to bundle your OpenAPI file`,
-      )
-      console.log(
-        `  ${kleur.cyan('scalar serve')} ${kleur.gray('[options] [file|url]')} to serve your OpenAPI file`,
-      )
+      console.log(`  ${kleur.cyan('scalar format')} ${kleur.gray('[options] [file|url]')} to format your OpenAPI file`)
+      console.log(`  ${kleur.cyan('scalar validate')} ${kleur.gray('[file|url]')} to validate your OpenAPI file`)
+      console.log(`  ${kleur.cyan('scalar bundle')} ${kleur.gray('[options] [file]')} to bundle your OpenAPI file`)
+      console.log(`  ${kleur.cyan('scalar serve')} ${kleur.gray('[options] [file|url]')} to serve your OpenAPI file`)
       console.log()
-      console.log(
-        kleur.white(
-          `Run ${kleur.magenta('scalar --help')} to see all available commands.`,
-        ),
-      )
+      console.log(kleur.white(`Run ${kleur.magenta('scalar --help')} to see all available commands.`))
     }
 
     // Handle cancel from the user
@@ -94,9 +80,7 @@ export function InitCommand() {
 
     // Check if `scalar.config.json` already exists
     if (fs.existsSync(configFile)) {
-      console.log(
-        `${kleur.green('⚠')} Found existing configuration: ${kleur.reset().green(`${CONFIG_FILE}`)}`,
-      )
+      console.log(`${kleur.green('⚠')} Found existing configuration: ${kleur.reset().green(`${CONFIG_FILE}`)}`)
 
       if (force) {
         console.log(`${kleur.green('✔')} Overwriting existing file…`)
@@ -151,7 +135,6 @@ export function InitCommand() {
       const slugger = new GithubSlugger()
       const slug = slugger.slug(response.toString())
 
-      // eslint-disable-next-line no-param-reassign
       subdomain = `${slug}.apidocumentation.com`
 
       console.log(`${kleur.green('✔')} Subdomain: ${kleur.green(subdomain)}`)
@@ -166,10 +149,7 @@ export function InitCommand() {
       const validExtensions = ['.json', '.yaml', '.yml']
       const extension = path.extname(input).toLowerCase()
       if (!validExtensions.includes(extension)) {
-        console.log(
-          kleur.red('✖'),
-          `Please enter a valid file path ${validExtensions.join(', ')}.`,
-        )
+        console.log(kleur.red('✖'), `Please enter a valid file path ${validExtensions.join(', ')}.`)
       }
     }
 
@@ -197,10 +177,7 @@ export function InitCommand() {
       if (isValidFile(input)) {
         validInput = true
       } else {
-        console.log(
-          kleur.red('✖'),
-          `Invalid file extension. Expected: ${['.json', '.yaml', '.yml'].join(', ')}.`,
-        )
+        console.log(kleur.red('✖'), `Invalid file extension. Expected: ${['.json', '.yaml', '.yml'].join(', ')}.`)
       }
     }
 

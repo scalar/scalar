@@ -6,7 +6,6 @@ import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-// eslint-disable-next-line vue/no-unused-properties
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
@@ -33,7 +32,7 @@ const layouts = {
       #[name]="slotProps">
       <slot
         :name="name"
-        v-bind="slotProps || {}"></slot>
+        v-bind="slotProps || {}" />
     </template>
   </component>
 </template>

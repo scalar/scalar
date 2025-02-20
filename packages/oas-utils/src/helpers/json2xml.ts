@@ -2,7 +2,7 @@
  * This function converts an object to XML.
  */
 export function json2xml(data: Record<string, any>, tab?: string) {
-  const toXml = function (value: any, key: string, indentation: string) {
+  const toXml = (value: any, key: string, indentation: string) => {
     let xml = ''
 
     if (value instanceof Array) {
@@ -14,8 +14,7 @@ export function json2xml(data: Record<string, any>, tab?: string) {
       xml += indentation + '<' + key
 
       for (const m in value) {
-        if (m.charAt(0) == '@')
-          xml += ' ' + m.substr(1) + '="' + value[m].toString() + '"'
+        if (m.charAt(0) == '@') xml += ' ' + m.substr(1) + '="' + value[m].toString() + '"'
         else hasChild = true
       }
 
@@ -25,14 +24,9 @@ export function json2xml(data: Record<string, any>, tab?: string) {
         for (const m in value) {
           if (m == '#text') xml += value[m]
           else if (m == '#cdata') xml += '<![CDATA[' + value[m] + ']]>'
-          else if (m.charAt(0) != '@')
-            xml += toXml(value[m], m, indentation + '\t')
+          else if (m.charAt(0) != '@') xml += toXml(value[m], m, indentation + '\t')
         }
-        xml +=
-          (xml.charAt(xml.length - 1) == '\n' ? indentation : '') +
-          '</' +
-          key +
-          '>'
+        xml += (xml.charAt(xml.length - 1) == '\n' ? indentation : '') + '</' + key + '>'
       }
     } else {
       xml += indentation + '<' + key + '>' + value.toString() + '</' + key + '>'
@@ -42,7 +36,7 @@ export function json2xml(data: Record<string, any>, tab?: string) {
 
   let xml = ''
 
-  // eslint-disable-next-line guard-for-in
+  // biome-ignore lint/nursery/useGuardForIn: Yeah, it’s ok. But feel free to fix it.
   for (const key in data) {
     xml += toXml(data[key], key, '')
   }

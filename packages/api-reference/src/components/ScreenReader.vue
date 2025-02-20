@@ -1,7 +1,6 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    // eslint-disable-next-line vue/no-unused-properties
     if?: boolean
   }>(),
   {

@@ -22,7 +22,6 @@ export async function request<T>({
   // Normalize headers
   const headers: { [x: string]: string } = {}
 
-  // eslint-disable-next-line guard-for-in
   for (const headerKey in config.headers) {
     if (config.headers[headerKey]) headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
   }

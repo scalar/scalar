@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /**
  * @license https://raw.githubusercontent.com/node-fetch/node-fetch/master/LICENSE.md

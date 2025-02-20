@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /**
  * Create a string corresponding to a valid declaration and initialization of an Objective-C object literal.

@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 /**
  * Given a headers object retrieve a specific header out of it via a case-insensitive key.

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import Heading from '@theme/Heading'
 import clsx from 'clsx'
 

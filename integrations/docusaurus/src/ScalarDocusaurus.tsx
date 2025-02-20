@@ -1,5 +1,5 @@
 import BrowserOnly from '@docusaurus/BrowserOnly'
-import { type ReferenceProps } from '@scalar/api-reference-react'
+import type { ReferenceProps } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
 import Layout from '@theme/Layout'
 import React from 'react'
@@ -16,7 +16,6 @@ export const ScalarDocusaurus = ({ route }: Props) => {
       <BrowserOnly>
         {() => {
           const ApiReferenceReact =
-            // eslint-disable-next-line @typescript-eslint/no-var-requires
             require('@scalar/api-reference-react').ApiReferenceReact
           return <ApiReferenceReact configuration={route.configuration} />
         }}

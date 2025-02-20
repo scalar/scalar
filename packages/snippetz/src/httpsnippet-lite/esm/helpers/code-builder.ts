@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 const DEFAULT_INDENTATION_CHARACTER = ''
 const DEFAULT_LINE_JOIN = '\n'

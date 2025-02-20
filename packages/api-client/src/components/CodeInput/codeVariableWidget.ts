@@ -1,4 +1,3 @@
-/* eslint-disable vue/one-component-per-file */
 import { parseEnvVariables } from '@/libs'
 import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
@@ -50,14 +49,11 @@ class PillWidget extends WidgetType {
       props: { variableName: { type: String, default: null } },
       render: () => {
         const val = this.envVariables
-          ? parseEnvVariables(this.envVariables).find(
-              (thing) => thing.key === this.variableName,
-            )
+          ? parseEnvVariables(this.envVariables).find((thing) => thing.key === this.variableName)
           : undefined
 
         // Set the pill color based on the environment or fallback to grey
-        const pillColor =
-          val && this.environment ? getEnvColor(this.environment) : '#8E8E8E'
+        const pillColor = val && this.environment ? getEnvColor(this.environment) : '#8E8E8E'
 
         span.style.setProperty('--tw-bg-base', pillColor || '#8E8E8E')
 
@@ -135,9 +131,7 @@ class PillWidget extends WidgetType {
   }
 
   override eq(other: WidgetType) {
-    return (
-      other instanceof PillWidget && other.variableName === this.variableName
-    )
+    return other instanceof PillWidget && other.variableName === this.variableName
   }
 
   override ignoreEvent() {

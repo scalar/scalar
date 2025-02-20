@@ -8,7 +8,6 @@ import { toYaml } from '../actions/toYaml.ts'
 import { queueTask } from '../utils/queueTask.ts'
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands {
     dereference: {
       task: {
@@ -23,10 +22,7 @@ declare global {
 /**
  * Dereference the given OpenAPI document
  */
-export function dereferenceCommand<T extends Task[]>(
-  previousQueue: Queue<T>,
-  options?: DereferenceOptions,
-) {
+export function dereferenceCommand<T extends Task[]>(previousQueue: Queue<T>, options?: DereferenceOptions) {
   const task: Task = {
     name: 'dereference',
     options: {
