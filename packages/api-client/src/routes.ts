@@ -50,14 +50,6 @@ const requestRoutes = [
   {
     name: 'request.root',
     path: '',
-    redirect: (to) => ({
-      name: 'request',
-      params: { ...to.params, request: 'default' },
-    }),
-  },
-  {
-    name: 'request.root',
-    path: '',
     component: () => import('@/views/Request/RequestRoot.vue'),
     redirect: (to) => ({
       name: 'request',
@@ -87,8 +79,7 @@ const requestRoutes = [
           {
             name: 'collection.overview',
             path: 'overview',
-            component: () =>
-              import('@/views/Collection/CollectionOverview.vue'),
+            component: () => import('@/views/Collection/CollectionOverview.vue'),
           },
           {
             name: 'collection.servers',
@@ -98,22 +89,19 @@ const requestRoutes = [
               {
                 name: 'collection.servers.edit',
                 path: `:${PathId.Servers}`,
-                component: () =>
-                  import('@/views/Collection/CollectionServers.vue'),
+                component: () => import('@/views/Collection/CollectionServers.vue'),
               },
             ],
           },
           {
             name: 'collection.environment',
             path: `environment`,
-            component: () =>
-              import('@/views/Collection/CollectionEnvironment.vue'),
+            component: () => import('@/views/Collection/CollectionEnvironment.vue'),
           },
           {
             name: 'collection.authentication',
             path: `authentication`,
-            component: () =>
-              import('@/views/Collection/CollectionAuthentication.vue'),
+            component: () => import('@/views/Collection/CollectionAuthentication.vue'),
           },
           {
             name: 'collection.cookies',
@@ -133,8 +121,7 @@ const requestRoutes = [
           {
             name: 'collection.settings',
             path: `settings`,
-            component: () =>
-              import('@/views/Collection/CollectionSettings.vue'),
+            component: () => import('@/views/Collection/CollectionSettings.vue'),
           },
         ],
       },
