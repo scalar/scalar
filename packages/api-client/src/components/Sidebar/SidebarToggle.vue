@@ -1,18 +1,14 @@
 <script setup lang="ts">
-defineProps<{
-  modelValue: boolean
-}>()
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 
-defineEmits<{
-  (e: 'update:modelValue', v: boolean): void
-}>()
+const { isSidebarOpen, toggleSidebar } = useSidebarToggle()
 </script>
 <template>
   <button
-    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded-lg"
+    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded-lg p-2"
     type="button"
-    @click="$emit('update:modelValue', !modelValue)">
-    <span class="sr-only">{{ modelValue ? 'Hide' : 'Show' }} sidebar</span>
+    @click="toggleSidebar">
+    <span class="sr-only">{{ isSidebarOpen ? 'Hide' : 'Show' }} sidebar</span>
     <svg
       class="size-4"
       fill="none"
@@ -28,7 +24,7 @@ defineEmits<{
       <g clip-path="url(#mask)">
         <path
           class="transition-transform duration-300"
-          :class="modelValue ? 'translate-x-0' : '-translate-x-1/2'"
+          :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-1/2'"
           d="M1 3.2h8v17.5H1z"
           fill="currentColor" />
       </g>
