@@ -23,9 +23,10 @@ import { useBindCx } from '../../hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
-import { useSidebarGroups } from './useSidebarGroups'
+import { useSidebarGroups, type SidebarGroupLevel } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<{
+  /** Override the element tag */
   is?: Component | string
 }>()
 
@@ -33,11 +34,11 @@ const open = defineModel<boolean>()
 
 defineSlots<{
   /** The text content of the toggle */
-  default?: () => any
+  default?: (props: { open: boolean }) => any
   /** Override the entire toggle button */
-  button?: () => any
+  button?: (props: { open: boolean; level: SidebarGroupLevel }) => any
   /** The list of sidebar subitems */
-  items?: () => any
+  items?: (props: { open: boolean }) => any
 }>()
 
 const { level } = useSidebarGroups({ increment: true })
@@ -50,7 +51,7 @@ const { cx } = useBindCx()
     <slot
       :level="level"
       name="button"
-      :open="open">
+      :open="!!open">
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
@@ -67,7 +68,7 @@ const { cx } = useBindCx()
             class="text-c-3"
             :open="open" />
         </template>
-        <slot :open="open" />
+        <slot :open="!!open" />
       </ScalarSidebarButton>
     </slot>
     <component
@@ -76,7 +77,7 @@ const { cx } = useBindCx()
       v-bind="cx('flex flex-col gap-px')">
       <slot
         name="items"
-        :open="open" />
+        :open="!!open" />
     </component>
   </li>
 </template>

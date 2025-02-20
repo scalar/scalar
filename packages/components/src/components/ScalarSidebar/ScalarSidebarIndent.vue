@@ -12,9 +12,11 @@ import type { SidebarGroupLevel } from './useSidebarGroups'
 import { useBindCx } from '../../hooks/useBindCx'
 import { computed } from 'vue'
 
-const { indent = 0 } = defineProps<{
+const { indent = 0, selected = false } = defineProps<{
+  /** The number of indents to render @default 0 */
+  indent?: SidebarGroupLevel
+  /** Whether the indent is selected @default false */
   selected?: boolean
-  indent: SidebarGroupLevel
 }>()
 
 const indents = computed<number[]>(() => {
