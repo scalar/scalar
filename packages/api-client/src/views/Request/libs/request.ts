@@ -71,3 +71,8 @@ export const parameterIsInvalid = (item: RequestExampleParameter) => {
     return false
   })
 }
+
+/**
+ * Checks if a RequestExampleParameter is required and has an empty value
+ */
+export const hasEmptyRequiredParameter = (item: RequestExampleParameter) => Boolean(item.required && item.value === '')
