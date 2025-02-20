@@ -63,6 +63,8 @@ export default {
         4: 'var(--scalar-background-3)',
         accent: 'var(--scalar-background-accent)',
         btn: 'var(--scalar-button-1)',
+        danger: 'var(--scalar-background-danger)',
+        alert: 'var(--scalar-background-alert)',
       },
 
       // Foreground / Text Colors
@@ -74,7 +76,8 @@ export default {
         ghost: 'var(--scalar-color-ghost)',
         disabled: 'var(--scalar-color-disabled)',
         btn: 'var(--scalar-button-1-color)',
-        danger: 'var(--scalar-danger-color)',
+        danger: 'var(--scalar-color-danger)',
+        alert: 'var(--scalar-color-alert)',
       },
 
       // Hover Colors
