@@ -1,4 +1,4 @@
-import { nanoidSchema, selectedSecuritySchemeUidSchema, type ENTITY_BRANDS } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
@@ -103,7 +103,7 @@ export const oasRequestSchema = z.object({
  */
 const extendedRequestSchema = z.object({
   type: z.literal('request').optional().default('request'),
-  uid: nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(),
+  uid: nanoidSchema.brand<ENTITY_BRANDS['OPERATION']>(),
   /** Path Key */
   path: z.string().optional().default(''),
   /** Request Method */

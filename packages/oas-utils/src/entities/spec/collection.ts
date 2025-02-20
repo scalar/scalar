@@ -1,4 +1,4 @@
-import { nanoidSchema, selectedSecuritySchemeUidSchema, type ENTITY_BRANDS } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -56,12 +56,12 @@ export const extendedCollectionSchema = z.object({
   /** UIDs which refer to servers on the workspace base */
   servers: z.string().brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** Request UIDs associated with a collection */
-  requests: z.string().brand<ENTITY_BRANDS['REQUEST']>().array().default([]),
+  requests: z.string().brand<ENTITY_BRANDS['OPERATION']>().array().default([]),
   /** Tag UIDs associated with the collection */
   tags: z.string().brand<ENTITY_BRANDS['TAG']>().array().default([]),
   /** List of requests without tags and top level tag "folders" */
   children: z
-    .union([z.string().brand<ENTITY_BRANDS['REQUEST']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
+    .union([z.string().brand<ENTITY_BRANDS['OPERATION']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
     .array()
     .default([]),
   /**

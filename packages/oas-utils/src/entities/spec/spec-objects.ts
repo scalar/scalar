@@ -1,4 +1,4 @@
-import { nanoidSchema, type ENTITY_BRANDS } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 import { z } from 'zod'
 
 /**
@@ -109,7 +109,7 @@ export const oasTagSchema = z.object({
 export const tagSchema = oasTagSchema.extend({
   uid: nanoidSchema.brand<ENTITY_BRANDS['TAG']>(),
   children: z
-    .union([z.string().brand<ENTITY_BRANDS['REQUEST']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
+    .union([z.string().brand<ENTITY_BRANDS['OPERATION']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
     .array()
     .default([]),
 })
