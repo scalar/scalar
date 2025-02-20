@@ -61,9 +61,10 @@ const emit = defineEmits<{
   (e: 'submit', v: string): void
   (e: 'update:modelValue', v: string): void
   (e: 'curl', v: string): void
+  (e: 'blur', v: string): void
 }>()
 
-const attrs = useAttrs()
+const attrs = useAttrs() as { id?: string }
 const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
@@ -118,6 +119,7 @@ function handleSubmit(value: string) {
 function handleBlur(value: string) {
   isFocused.value = false
   if (props.emitOnBlur && props.modelValue) handleSubmit(value)
+  emit('blur', value)
 }
 
 // ---------------------------------------------------------------------------

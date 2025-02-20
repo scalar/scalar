@@ -1,22 +1,4 @@
 <script setup lang="ts">
-import Rabbit from '@/assets/rabbit.ascii?raw'
-import RabbitJump from '@/assets/rabbitjump.ascii?raw'
-import { Sidebar } from '@/components'
-import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
-import { useSearch } from '@/components/Search/useSearch'
-import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
-import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
-import { useLayout, useSidebar } from '@/hooks'
-import type { HotKeyEvent } from '@/libs'
-import { PathId } from '@/routes'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import { createInitialRequest } from '@/store/requests'
-import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
-import { dragHandlerFactory } from '@/views/Request/handle-drag'
-import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarButton,
   ScalarIcon,
@@ -39,20 +21,37 @@ import {
 } from 'vue'
 import { useRouter } from 'vue-router'
 
+import Rabbit from '@/assets/rabbit.ascii?raw'
+import RabbitJump from '@/assets/rabbitjump.ascii?raw'
+import { Sidebar } from '@/components'
+import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
+import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
+import { useSearch } from '@/components/Search/useSearch'
+import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
+import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
+import { useLayout, useSidebar } from '@/hooks'
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import type { HotKeyEvent } from '@/libs'
+import { PathId } from '@/routes'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
+import { createInitialRequest } from '@/store/requests'
+import { dragHandlerFactory } from '@/views/Request/handle-drag'
+import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
+import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
+
+import { WorkspaceDropdown } from './components'
 import { isGettingStarted } from './RequestSection/helpers/getting-started'
 import RequestSidebarItem from './RequestSidebarItem.vue'
-import { WorkspaceDropdown } from './components'
-
-const props = defineProps<{
-  isSidebarOpen: boolean
-}>()
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', v: boolean): void
-  (e: 'update:isSidebarOpen', v: boolean): void
   (e: 'newTab', { name, uid }: { name: string; uid: string }): void
   (e: 'clearDrafts'): void
 }>()
+
+const { isSidebarOpen, toggleSidebar } = useSidebarToggle()
+
 const { layout } = useLayout()
 
 const workspaceContext = useWorkspace()
@@ -112,8 +111,13 @@ const {
 const handleHotKey = (event?: HotKeyEvent) => {
   if (!event) return
 
-  if (event.toggleSidebar) emit('update:isSidebarOpen', props.isSidebarOpen)
-  if (event.focusRequestSearch) searchInputRef.value?.focus()
+  if (event.toggleSidebar) {
+    toggleSidebar()
+  }
+
+  if (event.focusRequestSearch) {
+    searchInputRef.value?.focus()
+  }
 }
 
 onMounted(() => events.hotKeys.on(handleHotKey))
@@ -242,20 +246,15 @@ const showGettingStarted = computed(() => {
 <template>
   <Sidebar
     v-show="isSidebarOpen"
-    :class="[isSidebarOpen ? 'sidebar-active-width' : '']"
-    :isSidebarOpen="isSidebarOpen"
-    @update:isSidebarOpen="$emit('update:isSidebarOpen', $event)">
+    :class="[isSidebarOpen ? 'sidebar-active-width' : '']">
     <template
       v-if="layout !== 'modal'"
-      #header>
-    </template>
+      #header />
     <template #content>
-      <div class="flex items-center h-12 px-3 top-0 bg-b-1 sticky z-20">
+      <div class="bg-b-1 sticky top-0 z-20 flex h-12 items-center px-3">
         <SidebarToggle
           class="xl:hidden"
-          :class="[{ '!flex': layout === 'modal' }]"
-          :modelValue="isSidebarOpen"
-          @update:modelValue="$emit('update:isSidebarOpen', $event)" />
+          :class="[{ '!flex': layout === 'modal' }]" />
         <WorkspaceDropdown v-if="layout !== 'modal'" />
         <span
           v-if="layout !== 'modal'"
@@ -268,13 +267,13 @@ const showGettingStarted = computed(() => {
           type="button"
           @click="toggleSearch">
           <ScalarIcon
-            class="text-c-3 text-sm hover:bg-b-2 p-1.75 rounded-lg max-w-8 max-h-8"
+            class="text-c-3 hover:bg-b-2 p-1.75 max-h-8 max-w-8 rounded-lg text-sm"
             icon="Search" />
         </button>
       </div>
       <div
         v-show="isSearchVisible"
-        class="search-button-fade sticky px-3 py-2.5 z-10 pt-0 top-12 focus-within:z-20"
+        class="search-button-fade sticky top-12 z-10 px-3 py-2.5 pt-0 focus-within:z-20"
         role="search">
         <ScalarSearchInput
           ref="searchInputRef"
@@ -328,7 +327,7 @@ const showGettingStarted = computed(() => {
         <nav
           v-else
           class="contents">
-          <!-- Collections -->
+          <!-- Collection -->
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
             :key="collection.uid"
@@ -350,7 +349,7 @@ const showGettingStarted = computed(() => {
                 thickness="2.25" />
               <LibraryIcon
                 v-else
-                class="min-w-3.5 text-sidebar-c-2 size-3.5 stroke-2 group-hover:hidden"
+                class="text-sidebar-c-2 size-3.5 min-w-3.5 stroke-2 group-hover:hidden"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
                 " />
@@ -359,7 +358,7 @@ const showGettingStarted = computed(() => {
                   'rotate-90': collapsedSidebarFolders[collection.uid],
                 }">
                 <ScalarIcon
-                  class="text-c-3 hidden text-sm group-hover:block hover:text-c-1"
+                  class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
                   icon="ChevronRight"
                   size="md" />
               </div>
@@ -374,15 +373,15 @@ const showGettingStarted = computed(() => {
           'empty-sidebar-item': showGettingStarted,
         }">
         <div class="empty-sidebar-item-content px-2.5 py-2.5">
-          <div class="w-[60px] h-[68px] m-auto rabbit-ascii mt-2 relative">
+          <div class="rabbit-ascii relative m-auto mt-2 h-[68px] w-[60px]">
             <ScalarAsciiArt
               :art="Rabbit"
-              class="font-bold rabbitsit" />
+              class="rabbitsit font-bold" />
             <ScalarAsciiArt
               :art="RabbitJump"
-              class="font-bold absolute top-0 left-0 rabbitjump" />
+              class="rabbitjump absolute left-0 top-0 font-bold" />
           </div>
-          <div class="text-center text-balance text-sm mb-2 mt-2">
+          <div class="mb-2 mt-2 text-balance text-center text-sm">
             <b class="font-medium">Let's Get Started</b>
             <p class="mt-2">
               Create request, folder, collection or import from OpenAPI/Postman
@@ -391,7 +390,7 @@ const showGettingStarted = computed(() => {
         </div>
         <ScalarButton
           v-if="layout !== 'modal'"
-          class="mb-1.5 w-full h-fit hidden opacity-0 p-1.5"
+          class="mb-1.5 hidden h-fit w-full p-1.5 opacity-0"
           :class="{
             'flex opacity-100': showGettingStarted,
           }"
@@ -402,7 +401,7 @@ const showGettingStarted = computed(() => {
           v-if="layout !== 'modal'"
           :click="events.commandPalette.emit"
           hotkey="K">
-          <template #title>Add Item</template>
+          <template #title> Add Item </template>
         </SidebarButton>
       </div>
     </template>
