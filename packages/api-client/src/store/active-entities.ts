@@ -1,18 +1,14 @@
 import { flattenEnvVars } from '@/libs/string-template'
 import { PathId } from '@/router'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import { environmentSchema, type Environment } from '@scalar/oas-utils/entities/environment'
+import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { type ComputedRef, type InjectionKey, computed, inject } from 'vue'
+import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 
 type CreateActiveEntitiesStoreParams = {
   collections: Record<string, Collection>
@@ -22,10 +18,6 @@ type CreateActiveEntitiesStoreParams = {
   servers: Record<string, Server>
   workspaces: Record<string, Workspace>
   router?: Router
-  /** Override the active request  */
-  activeRequestOverride?: ComputedRef<Request | undefined>
-  /** Override the active request example  */
-  activeExampleOverride?: ComputedRef<RequestExample | undefined>
 }
 
 type EnvVariable = {
@@ -46,9 +38,6 @@ export const createActiveEntitiesStore = ({
   router,
   servers,
   workspaces,
-  // TODO: these are temporary until we allow providing each entity individually
-  activeRequestOverride,
-  activeExampleOverride,
 }: CreateActiveEntitiesStoreParams) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
@@ -56,8 +45,7 @@ export const createActiveEntitiesStore = ({
   /** The currently selected workspace OR the first one */
   const activeWorkspace = computed(() => {
     const workspace =
-      workspaces[activeRouterParams.value[PathId.Workspace]] ??
-      workspaces[Object.keys(workspaces)[0] ?? '']
+      workspaces[activeRouterParams.value[PathId.Workspace]] ?? workspaces[Object.keys(workspaces)[0] ?? '']
 
     return workspace
   })
@@ -77,65 +65,51 @@ export const createActiveEntitiesStore = ({
 
   /** Simplified list of servers in the workspace for displaying */
   const activeWorkspaceServers = computed(() =>
-    activeWorkspaceCollections.value?.flatMap((collection) =>
-      collection.servers.map((uid) => servers[uid]),
-    ),
+    activeWorkspaceCollections.value?.flatMap((collection) => collection.servers.map((uid) => servers[uid])),
   )
 
   /** Simplified list of requests in the workspace for displaying */
   const activeWorkspaceRequests = computed(
-    () =>
-      activeWorkspaceCollections.value?.flatMap(
-        (collection) => collection.requests,
-      ) ?? [],
+    () => activeWorkspaceCollections.value?.flatMap((collection) => collection.requests) ?? [],
   )
 
   /** The currently selected environment */
   const activeEnvironment = computed(() => {
     if (!activeWorkspace.value?.activeEnvironmentId) {
-      return {
-        uid: '',
+      return environmentSchema.parse({
+        uid: 'default',
         color: '#0082D0',
         name: 'No Environment',
         value: JSON.stringify(activeWorkspace.value?.environments, null, 2),
-      }
+      })
     }
 
     const activeEnvironmentCollection = activeWorkspaceCollections.value.find(
-      (c) =>
-        c['x-scalar-environments']?.[
-          activeWorkspace.value?.activeEnvironmentId ?? ''
-        ],
+      (c) => c['x-scalar-environments']?.[activeWorkspace.value?.activeEnvironmentId ?? ''],
     )
 
-    if (
-      activeEnvironmentCollection &&
-      activeWorkspace.value?.activeEnvironmentId
-    ) {
-      return {
+    if (activeEnvironmentCollection && activeWorkspace.value?.activeEnvironmentId) {
+      return environmentSchema.parse({
         uid: activeWorkspace.value.activeEnvironmentId,
         name: activeWorkspace.value.activeEnvironmentId,
         value: JSON.stringify(
-          activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value?.activeEnvironmentId
-          ]?.variables,
+          activeEnvironmentCollection['x-scalar-environments']?.[activeWorkspace.value?.activeEnvironmentId]?.variables,
           null,
           2,
         ),
         color:
-          activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value?.activeEnvironmentId
-          ]?.color || '#0082D0',
+          activeEnvironmentCollection['x-scalar-environments']?.[activeWorkspace.value?.activeEnvironmentId]?.color ||
+          '#0082D0',
         isDefault: false,
-      }
+      })
     }
 
-    return {
-      uid: '',
+    return environmentSchema.parse({
+      uid: 'default',
       color: '#0082D0',
       name: 'No Environment',
       value: JSON.stringify(activeWorkspace.value.environments, null, 2),
-    }
+    })
   })
 
   /**
@@ -143,30 +117,25 @@ export const createActiveEntitiesStore = ({
    *
    * undefined must be handled as we may have no requests
    */
-  const activeRequest =
-    activeRequestOverride ??
-    computed(() => {
-      const key = activeRouterParams.value[PathId.Request]
+  const activeRequest = computed(() => {
+    const key = activeRouterParams.value[PathId.Request]
 
-      // Can use this fallback to get an active request
-      const collection =
-        collections[activeRouterParams.value.collection] ||
-        collections[activeWorkspace.value?.collections[0] ?? '']
+    // Can use this fallback to get an active request
+    const collection =
+      collections[activeRouterParams.value.collection] || collections[activeWorkspace.value?.collections[0] ?? '']
 
-      return requests[key] || requests[collection?.requests[0] ?? '']
-    })
+    return requests[key] || requests[collection?.requests[0] ?? '']
+  })
 
   /** Grabs the currently active example using the path param */
-  const activeExample =
-    activeExampleOverride ??
-    computed(() => {
-      const key =
-        activeRouterParams.value[PathId.Examples] === 'default'
-          ? activeRequest.value?.examples[0] || ''
-          : activeRouterParams.value[PathId.Examples]
+  const activeExample = computed(() => {
+    const key =
+      activeRouterParams.value[PathId.Examples] === 'default'
+        ? activeRequest.value?.examples[0] || ''
+        : activeRouterParams.value[PathId.Examples]
 
-      return requestExamples[key]
-    })
+    return requestExamples[key]
+  })
 
   /**
    * First collection that the active request is in
@@ -175,13 +144,9 @@ export const createActiveEntitiesStore = ({
    */
   const activeCollection = computed(() => {
     const requestUid = activeRequest.value?.uid
-    if (requestUid)
-      return Object.values(collections).find((c) =>
-        c.requests?.includes(requestUid),
-      )
+    if (requestUid) return Object.values(collections).find((c) => c.requests?.includes(requestUid))
 
-    const fallbackUid =
-      activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
+    const fallbackUid = activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
 
     return collections[fallbackUid]
   })
@@ -200,7 +165,7 @@ export const createActiveEntitiesStore = ({
   /** Cookie associated with the current route */
   const activeCookieId = computed(() =>
     activeRouterParams.value[PathId.Cookies] === 'default'
-      ? (activeWorkspace.value?.cookies[0] ?? 'default')
+      ? (activeWorkspace.value?.cookies[0] ?? ('default' as Cookie['uid']))
       : activeRouterParams.value[PathId.Cookies],
   )
 
@@ -210,21 +175,15 @@ export const createActiveEntitiesStore = ({
    */
   const activeEnvVariables = computed<EnvVariable[]>(() => {
     const globalEnvironment = activeWorkspace.value?.environments ?? {}
-    const collectionEnvironment = activeEnvironment.value.uid
-      ? JSON.parse(activeEnvironment.value.value)
-      : {}
+    const collectionEnvironment = activeEnvironment.value.uid ? JSON.parse(activeEnvironment.value.value) : {}
 
-    const globalEnvVars: EnvVariable[] = flattenEnvVars(globalEnvironment).map(
-      ([key, value]) => ({
-        key,
-        value,
-        source: 'global',
-      }),
-    )
+    const globalEnvVars: EnvVariable[] = flattenEnvVars(globalEnvironment).map(([key, value]) => ({
+      key,
+      value,
+      source: 'global',
+    }))
 
-    const collectionEnvVars: EnvVariable[] = flattenEnvVars(
-      collectionEnvironment,
-    ).map(([key, value]) => ({
+    const collectionEnvVars: EnvVariable[] = flattenEnvVars(collectionEnvironment).map(([key, value]) => ({
       key,
       value,
       source: 'collection',
@@ -262,8 +221,7 @@ export const createActiveEntitiesStore = ({
 }
 
 export type ActiveEntitiesStore = ReturnType<typeof createActiveEntitiesStore>
-export const ACTIVE_ENTITIES_SYMBOL =
-  Symbol() as InjectionKey<ActiveEntitiesStore>
+export const ACTIVE_ENTITIES_SYMBOL = Symbol() as InjectionKey<ActiveEntitiesStore>
 
 /**
  * The active entities store

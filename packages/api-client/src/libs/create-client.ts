@@ -1,28 +1,13 @@
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { loadAllResources } from '@/libs/local-storage'
-import {
-  ACTIVE_ENTITIES_SYMBOL,
-  createActiveEntitiesStore,
-} from '@/store/active-entities'
-import {
-  WORKSPACE_SYMBOL,
-  type WorkspaceStore,
-  createWorkspaceStore,
-} from '@/store/store'
+import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
+import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import {
-  LS_KEYS,
-  objectMerge,
-  prettyPrintJson,
-} from '@scalar/oas-utils/helpers'
+import { workspaceSchema, type Workspace } from '@scalar/oas-utils/entities/workspace'
+import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type {
-  OpenAPI,
-  ReferenceConfiguration,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { OpenAPI, ReferenceConfiguration, SpecConfiguration } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -90,20 +75,14 @@ export type CreateApiClientParams = {
  * We need to do this due to some typescript type propogation errors
  * This is pretty much add properties as they are needed
  */
-export type ApiClient = Omit<
-  Awaited<ReturnType<typeof createApiClient>>,
-  'app' | 'store'
-> & {
+export type ApiClient = Omit<Awaited<ReturnType<typeof createApiClient>>, 'app' | 'store'> & {
   /** Add properties as they are needed, see above */
   app: { unmount: () => void }
   /**
    * The main workspace store from the client
    * These refs don't wanna play nice with typescript, if we need them we can de-reference them
    */
-  store: Omit<
-    WorkspaceStore,
-    'router' | 'events' | 'sidebarWidth' | 'proxyUrl' | 'requestHistory'
-  >
+  store: Omit<WorkspaceStore, 'router' | 'events' | 'sidebarWidth' | 'proxyUrl' | 'requestHistory'>
 }
 
 /**
@@ -162,7 +141,7 @@ export const createApiClient = ({
   else if (!isReadOnly || !configuration.spec) {
     // Create default workspace
     store.workspaceMutators.add({
-      uid: 'default',
+      uid: 'default' as Workspace['uid'],
       name: 'Workspace',
       proxyUrl: configuration.proxyUrl,
     })
@@ -267,11 +246,7 @@ export const createApiClient = ({
         store.serverMutators.reset()
         store.tagMutators.reset()
 
-        workspaceMutators.edit(
-          activeWorkspace.value?.uid ?? '',
-          'collections',
-          [],
-        )
+        workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
 
         updateSpec(newConfig.spec)
       }
@@ -281,11 +256,7 @@ export const createApiClient = ({
       const server = Object.values(servers).find((s) => s.url === serverUrl)
 
       if (server && activeCollection.value)
-        collectionMutators.edit(
-          activeCollection.value?.uid,
-          'selectedServerUid',
-          server.uid,
-        )
+        collectionMutators.edit(activeCollection.value?.uid, 'selectedServerUid', server.uid)
     },
     /** Update the currently selected server via URL */
     onUpdateServer: (callback: (url: string) => void) => {
@@ -327,8 +298,7 @@ export const createApiClient = ({
         Object.values(requests).find((item) =>
           path && method && item.path && item.method
             ? // The given operation
-              item.path === path &&
-              item.method.toUpperCase() === method.toUpperCase()
+              item.path === path && item.method.toUpperCase() === method.toUpperCase()
             : // Or the first request
               true,
         )?.uid
@@ -355,8 +325,7 @@ export const createApiClient = ({
         Object.values(requests).find((item) =>
           path && method && item.path && item.method
             ? // The given operation
-              item.path === path &&
-              item.method.toUpperCase() === method.toUpperCase()
+              item.path === path && item.method.toUpperCase() === method.toUpperCase()
             : // Or the first request
               true,
         )?.uid
@@ -386,22 +355,15 @@ export const createApiClient = ({
       if (!exampleKey || !operationId) return
 
       const request = Object.values(requests).find(
-        ({ operationId: reqOperationId, path }) =>
-          reqOperationId === operationId || path === operationId,
+        ({ operationId: reqOperationId, path }) => reqOperationId === operationId || path === operationId,
       )
       if (!request) return
 
-      const contentType =
-        Object.keys(request.requestBody?.content || {})[0] || ''
-      const example =
-        request.requestBody?.content?.[contentType]?.examples[exampleKey]
+      const contentType = Object.keys(request.requestBody?.content || {})[0] || ''
+      const example = request.requestBody?.content?.[contentType]?.examples[exampleKey]
       if (!example) return
 
-      requestExampleMutators.edit(
-        request.examples[0] ?? '',
-        'body.raw.value',
-        prettyPrintJson(example.value),
-      )
+      requestExampleMutators.edit(request.examples[0], 'body.raw.value', prettyPrintJson(example.value))
     },
   }
 }

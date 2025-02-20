@@ -1,4 +1,4 @@
-import { nanoidSchema } from '@/entities/shared'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 import { z } from 'zod'
 
 /**
@@ -72,9 +72,7 @@ export const oasExternalDocumentationSchema = z.object({
   /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
   url: z.string().default(''),
 })
-export type ExternalDocumentation = z.infer<
-  typeof oasExternalDocumentationSchema
->
+export type ExternalDocumentation = z.infer<typeof oasExternalDocumentationSchema>
 
 export const xScalarNestedSchema = z
   .object({
@@ -109,8 +107,11 @@ export const oasTagSchema = z.object({
 })
 
 export const tagSchema = oasTagSchema.extend({
-  uid: nanoidSchema,
-  children: nanoidSchema.array().default([]),
+  uid: nanoidSchema.brand<ENTITY_BRANDS['TAG']>(),
+  children: z
+    .union([z.string().brand<ENTITY_BRANDS['OPERATION']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
+    .array()
+    .default([]),
 })
 
 export type Tag = z.infer<typeof tagSchema>

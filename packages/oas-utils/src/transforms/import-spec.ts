@@ -24,22 +24,14 @@ import { combineUrlAndPath, isDefined } from '@/helpers'
 import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
-import {
-  type LoadResult,
-  dereference,
-  load,
-  upgrade,
-} from '@scalar/openapi-parser'
+import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
-export const parseSchema = async (
-  spec: string | UnknownObject,
-  { shouldLoad = true } = {},
-) => {
+export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = true } = {}) => {
   if (spec === null || (typeof spec === 'string' && spec.trim() === '')) {
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
@@ -71,10 +63,7 @@ export const parseSchema = async (
   const { specification } = upgrade(filesystem)
   const { schema, errors: derefErrors = [] } = await dereference(specification)
 
-  if (!schema)
-    console.warn(
-      '[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined',
-    )
+  if (!schema) console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')
   return {
     /**
      * Temporary fix for the parser returning an empty array
@@ -87,34 +76,24 @@ export const parseSchema = async (
 
 /** Converts selected security requirements to uids */
 export const getSelectedSecuritySchemeUids = (
-  securityRequirements: SelectedSecuritySchemeUids,
-  preferredSecurityNames: SelectedSecuritySchemeUids = [],
-  securitySchemeMap: Record<string, string>,
+  securityRequirements: (string | string[])[],
+  preferredSecurityNames: (string | string[])[] = [],
+  securitySchemeMap: Record<string, SecurityScheme['uid']>,
 ): SelectedSecuritySchemeUids => {
   // Set the first security requirement if no preferred security schemes are set
   const names =
-    securityRequirements[0] && !preferredSecurityNames.length
-      ? [securityRequirements[0]]
-      : preferredSecurityNames
+    securityRequirements[0] && !preferredSecurityNames.length ? [securityRequirements[0]] : preferredSecurityNames
 
   // Map names to uids
   const uids = names.map((name) =>
-    Array.isArray(name)
-      ? name.map((k) => securitySchemeMap[k])
-      : securitySchemeMap[name],
+    Array.isArray(name) ? name.map((k) => securitySchemeMap[k]) : securitySchemeMap[name],
   )
 
   return uids
 }
 
-export type ImportSpecToWorkspaceArgs = Pick<
-  CollectionPayload,
-  'documentUrl' | 'watchMode'
-> &
-  Pick<
-    ReferenceConfiguration,
-    'authentication' | 'baseServerURL' | 'servers'
-  > & {
+export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
+  Pick<ReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -168,12 +147,9 @@ export async function importSpecToWorkspace(
   const requests: Request[] = []
 
   // Add the base server url to any relative servers
-  const servers: Server[] = getServersFromOpenApiDocument(
-    configuredServers || schema.servers,
-    {
-      baseServerURL,
-    },
-  )
+  const servers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
+    baseServerURL,
+  })
 
   // Fallback to the current window.location.origin if no servers are provided
   if (!servers.length) {
@@ -193,14 +169,9 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security =
-    schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
+  const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
 
-  const securitySchemes = (
-    Object.entries(security) as Entries<
-      Record<string, OpenAPIV3_1.SecuritySchemeObject>
-    >
-  )
+  const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_1.SecuritySchemeObject>>)
     .map?.(([nameKey, _scheme]) => {
       // Apply any transforms we need before parsing
       const payload = {
@@ -210,9 +181,7 @@ export async function importSpecToWorkspace(
 
       // For oauth2 we need to add the type to the flows + prefill from authentication
       if (payload.type === 'oauth2' && payload.flows) {
-        const flowKeys = Object.keys(payload.flows) as Array<
-          keyof typeof payload.flows
-        >
+        const flowKeys = Object.keys(payload.flows) as Array<keyof typeof payload.flows>
 
         flowKeys.forEach((key) => {
           if (!payload.flows?.[key]) return
@@ -223,8 +192,7 @@ export async function importSpecToWorkspace(
 
           // Prefill values from authorization config
           if (authentication?.oAuth2) {
-            if (authentication.oAuth2.accessToken)
-              flow.token = authentication.oAuth2.accessToken
+            if (authentication.oAuth2.accessToken) flow.token = authentication.oAuth2.accessToken
 
             if (flow.type === 'password') {
               flow.username = authentication.oAuth2.username
@@ -237,22 +205,16 @@ export async function importSpecToWorkspace(
           }
 
           // Convert scopes to an object
-          if (Array.isArray(flow.scopes))
-            flow.scopes = flow.scopes.reduce(
-              (prev, s) => ({ ...prev, [s]: '' }),
-              {},
-            )
+          if (Array.isArray(flow.scopes)) flow.scopes = flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
 
           // Handle x-defaultClientId
-          if (flow['x-defaultClientId'])
-            flow['x-scalar-client-id'] = flow['x-defaultClientId']
+          if (flow['x-defaultClientId']) flow['x-scalar-client-id'] = flow['x-defaultClientId']
         })
       }
       // Otherwise we just prefill
       else if (authentication) {
         // ApiKey
-        if (payload.type === 'apiKey' && authentication.apiKey?.token)
-          payload.value = authentication.apiKey.token
+        if (payload.type === 'apiKey' && authentication.apiKey?.token) payload.value = authentication.apiKey.token
         // HTTP
         else if (payload.type === 'http') {
           if (payload.scheme === 'basic' && authentication.http?.basic) {
@@ -271,7 +233,7 @@ export async function importSpecToWorkspace(
     .filter((v) => !!v)
 
   // Map of security scheme names to UIDs
-  const securitySchemeMap: Record<string, string> = {}
+  const securitySchemeMap: Record<string, SecurityScheme['uid']> = {}
   securitySchemes.forEach((s) => {
     securitySchemeMap[s.nameKey] = s.uid
   })
@@ -292,9 +254,7 @@ export async function importSpecToWorkspace(
 
     methods.forEach((method) => {
       const operation: OpenAPIV3_1.OperationObject = path[method]
-      const operationServers = serverSchema
-        .array()
-        .parse(operation.servers ?? [])
+      const operationServers = serverSchema.array().parse(operation.servers ?? [])
 
       servers.push(...operationServers)
 
@@ -303,14 +263,9 @@ export async function importSpecToWorkspace(
       operation.tags?.forEach((t: string) => tagNames.add(t))
 
       // Remove security here and add it correctly below
-      const { security: operationSecurity, ...operationWithoutSecurity } =
-        operation
+      const { security: operationSecurity, ...operationWithoutSecurity } = operation
 
-      const securityRequirements: SelectedSecuritySchemeUids = (
-        operationSecurity ??
-        schema.security ??
-        []
-      )
+      const securityRequirements: (string | string[])[] = (operationSecurity ?? schema.security ?? [])
         .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
           const keys = Object.keys(s)
           return keys.length > 1 ? keys : keys[0]
@@ -318,31 +273,21 @@ export async function importSpecToWorkspace(
         .filter(isDefined)
 
       // Filter the preferred security schemes to only include the ones that are in the security requirements
-      const preferredSecurityNames: SelectedSecuritySchemeUids = [
-        authentication?.preferredSecurityScheme ?? [],
-      ]
-        .flat()
-        .filter((name) => {
-          // Match up complex security requirements, array to array
-          if (Array.isArray(name)) {
-            // We match every element in the array
-            return securityRequirements.some(
-              (r) =>
-                Array.isArray(r) &&
-                r.length === name.length &&
-                r.every((v, i) => v === name[i]),
-            )
-          } else return securityRequirements.includes(name)
-        })
+      const preferredSecurityNames = [authentication?.preferredSecurityScheme ?? []].flat().filter((name) => {
+        // Match up complex security requirements, array to array
+        if (Array.isArray(name)) {
+          // We match every element in the array
+          return securityRequirements.some(
+            (r) => Array.isArray(r) && r.length === name.length && r.every((v, i) => v === name[i]),
+          )
+        }
+        return securityRequirements.includes(name)
+      })
 
       // Set the initially selected security scheme
       const selectedSecuritySchemeUids =
         securityRequirements.length && !setCollectionSecurity
-          ? getSelectedSecuritySchemeUids(
-              securityRequirements,
-              preferredSecurityNames,
-              securitySchemeMap,
-            )
+          ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
           : []
 
       const requestPayload: RequestPayload = {
@@ -352,43 +297,36 @@ export async function importSpecToWorkspace(
         security: operationSecurity,
         selectedSecuritySchemeUids,
         // Merge path and operation level parameters
-        parameters: [
-          ...(path?.parameters ?? []),
-          ...(operation.parameters ?? []),
-        ] as RequestParameterPayload[],
+        parameters: [...(path?.parameters ?? []), ...(operation.parameters ?? [])] as RequestParameterPayload[],
         servers: [...pathServers, ...operationServers].map((s) => s.uid),
       }
 
       // Remove any examples from the request payload as they conflict with our examples property and are not valid
       if (requestPayload.examples) {
-        console.warn(
-          '[@scalar/api-client] operation.examples is not a valid openapi property',
-        )
+        console.warn('[@scalar/api-client] operation.examples is not a valid openapi property')
         delete requestPayload.examples
       }
 
       // Add list of UIDs to associate security schemes
       // As per the spec if there is operation level security we ignore the top level requirements
       if (operationSecurity?.length)
-        requestPayload.security = operationSecurity.map(
-          (s: OpenAPIV3_1.SecurityRequirementObject) => {
-            const keys = Object.keys(s)
+        requestPayload.security = operationSecurity.map((s: OpenAPIV3_1.SecurityRequirementObject) => {
+          const keys = Object.keys(s)
 
-            // Handle the case of {} for optional
-            if (keys.length) {
-              const [key] = Object.keys(s)
-              return {
-                [key]: s[key],
-              }
-            } else return s
-          },
-        )
+          // Handle the case of {} for optional
+          if (keys.length) {
+            const [key] = Object.keys(s)
+            return {
+              [key]: s[key],
+            }
+          }
+          return s
+        })
 
       // Save parse the request
       const request = schemaModel(requestPayload, requestSchema, false)
 
-      if (!request)
-        importWarnings.push(`${method} Request at ${path} is invalid.`)
+      if (!request) importWarnings.push(`${method} Request at ${path} is invalid.`)
       else requests.push(request)
     })
   })
@@ -412,7 +350,7 @@ export async function importSpecToWorkspace(
   })
 
   // Add all tags by default. We will remove nested ones
-  const collectionChildren = new Set(tags.map((t) => t.uid))
+  const collectionChildren = new Set<Collection['children'][number]>(tags.map((t) => t.uid))
 
   // Nested folders go before any requests
   tags.forEach((t) => {
@@ -457,9 +395,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   // Grab the security requirements for this operation
-  const securityRequirements: SelectedSecuritySchemeUids = (
-    schema.security ?? []
-  )
+  const securityRequirements: SelectedSecuritySchemeUids = (schema.security ?? [])
     .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
       const keys = Object.keys(s)
       return keys.length > 1 ? keys : keys[0]
@@ -467,19 +403,12 @@ export async function importSpecToWorkspace(
     .filter(isDefined)
 
   // Here we do not filter these as we let the preferredSecurityScheme override the requirements
-  const preferredSecurityNames: SelectedSecuritySchemeUids = [
-    authentication?.preferredSecurityScheme ?? [],
-  ].flat()
+  const preferredSecurityNames = [authentication?.preferredSecurityScheme ?? []].flat()
 
   // Set the initially selected security scheme
   const selectedSecuritySchemeUids =
-    (securityRequirements.length || preferredSecurityNames?.length) &&
-    setCollectionSecurity
-      ? getSelectedSecuritySchemeUids(
-          securityRequirements,
-          preferredSecurityNames,
-          securitySchemeMap,
-        )
+    (securityRequirements.length || preferredSecurityNames?.length) && setCollectionSecurity
+      ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
       : []
 
   const collection = collectionSchema.parse({
@@ -537,10 +466,7 @@ export function getServersFromOpenApiDocument(
         if (parsedSchema?.url?.startsWith('/')) {
           // Use the base server URL (if provided)
           if (baseServerURL) {
-            parsedSchema.url = combineUrlAndPath(
-              baseServerURL,
-              parsedSchema.url,
-            )
+            parsedSchema.url = combineUrlAndPath(baseServerURL, parsedSchema.url)
 
             return parsedSchema
           }
@@ -549,10 +475,7 @@ export function getServersFromOpenApiDocument(
           const fallbackUrl = getFallbackUrl()
 
           if (fallbackUrl) {
-            parsedSchema.url = combineUrlAndPath(
-              fallbackUrl,
-              parsedSchema.url.replace(/^\//, ''),
-            )
+            parsedSchema.url = combineUrlAndPath(fallbackUrl, parsedSchema.url.replace(/^\//, ''))
 
             return parsedSchema
           }
@@ -561,7 +484,7 @@ export function getServersFromOpenApiDocument(
         // Must be good, return it
         return parsedSchema
       } catch (error) {
-        console.warn(`Oops, that’s an invalid server configuration.`)
+        console.warn('Oops, that’s an invalid server configuration.')
         console.warn('Server:', server)
         console.warn('Error:', error)
 

@@ -13,11 +13,7 @@ import { reactive } from 'vue'
 /** Initiate the workspace collections */
 export function createStoreCollections(useLocalStorage: boolean) {
   const collections = reactive<Record<string, Collection>>({})
-  const collectionMutators = mutationFactory(
-    collections,
-    reactive({}),
-    useLocalStorage && LS_KEYS.COLLECTION,
-  )
+  const collectionMutators = mutationFactory(collections, reactive({}), useLocalStorage && LS_KEYS.COLLECTION)
 
   return {
     collections,
@@ -38,14 +34,11 @@ export function extendedCollectionDataFactory({
   tagMutators,
   serverMutators,
 }: StoreContext) {
-  const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
+  const addCollection = (payload: CollectionPayload, workspaceUid: Workspace['uid']) => {
     const collection = collectionSchema.parse(payload)
     const workspace = workspaces[workspaceUid]
     if (workspace) {
-      workspaceMutators.edit(workspaceUid, 'collections', [
-        ...workspace.collections,
-        collection.uid,
-      ])
+      workspaceMutators.edit(workspaceUid, 'collections', [...workspace.collections, collection.uid])
     }
 
     collectionMutators.add(collection)
@@ -78,9 +71,7 @@ export function extendedCollectionDataFactory({
       if (!request) return
 
       requestMutators.delete(uid)
-      request.examples.forEach(
-        (e) => requestExamples[e] && requestExampleMutators.delete(e),
-      )
+      request.examples.forEach((e) => requestExamples[e] && requestExampleMutators.delete(e))
     })
 
     // Remove servers
@@ -103,7 +94,7 @@ export function extendedCollectionDataFactory({
   const addCollectionEnvironment = (
     environmentName: string,
     environment: XScalarEnvironment,
-    collectionUid: string,
+    collectionUid: Collection['uid'],
   ) => {
     const collection = collections[collectionUid]
     if (collection) {
@@ -115,20 +106,13 @@ export function extendedCollectionDataFactory({
     }
   }
 
-  const removeCollectionEnvironment = (
-    environmentName: string,
-    collectionUid: string,
-  ) => {
+  const removeCollectionEnvironment = (environmentName: string, collectionUid: Collection['uid']) => {
     const collection = collections[collectionUid]
     if (collection) {
       const currentEnvironments = collection['x-scalar-environments'] || {}
       if (environmentName in currentEnvironments) {
         delete currentEnvironments[environmentName]
-        collectionMutators.edit(
-          collectionUid,
-          'x-scalar-environments',
-          currentEnvironments,
-        )
+        collectionMutators.edit(collectionUid, 'x-scalar-environments', currentEnvironments)
       }
     }
   }

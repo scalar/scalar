@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import TestRequestButton from './TestRequestButton.vue'
+import { operationSchema } from '@scalar/oas-utils/entities/spec'
 
 const mockClient = ref({
   open: vi.fn(),
@@ -32,11 +33,10 @@ describe('TestRequestButton', () => {
         },
       },
       props: {
-        operation: {
+        operation: operationSchema.parse({
           method: 'get',
           path: '/test',
-          uid: '123',
-        },
+        }),
       },
     })
     expect(wrapper.text()).toBe('')
@@ -45,11 +45,10 @@ describe('TestRequestButton', () => {
   it('renders button with correct text and icon when operation is provided', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: {
+        operation: operationSchema.parse({
           method: 'get',
           path: '/test',
-          uid: '123',
-        },
+        }),
       },
     })
 
@@ -62,11 +61,10 @@ describe('TestRequestButton', () => {
   it('has correct button attributes', () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: {
+        operation: operationSchema.parse({
           method: 'post',
           path: '/users',
-          uid: '456',
-        },
+        }),
       },
     })
 
@@ -79,11 +77,11 @@ describe('TestRequestButton', () => {
   it('calls client.open with correct params when clicked', async () => {
     const wrapper = mount(TestRequestButton, {
       props: {
-        operation: {
+        operation: operationSchema.parse({
           method: 'delete',
           path: '/users/1',
           uid: 'my-random-uuid',
-        },
+        }),
       },
     })
 

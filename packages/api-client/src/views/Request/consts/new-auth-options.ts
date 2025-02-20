@@ -1,4 +1,4 @@
-import type { SecuritySchemePayload } from '@scalar/oas-utils/entities/spec'
+import type { SecurityScheme, SecuritySchemePayload } from '@scalar/oas-utils/entities/spec'
 import type { Entries } from 'type-fest'
 
 export type SecuritySchemeOption = {
@@ -115,7 +115,7 @@ const entries = Object.entries(ADD_AUTH_DICT) as Entries<typeof ADD_AUTH_DICT>
 export const ADD_AUTH_OPTIONS: SecuritySchemeOption[] = entries.map(
   ([id, value]) =>
     ({
-      id,
+      id: id as SecurityScheme['uid'],
       isDeletable: false,
       ...value,
     }) as const,

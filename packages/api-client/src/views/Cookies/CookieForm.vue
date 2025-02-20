@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
+import { computed } from 'vue'
+
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import { computed } from 'vue'
 
 const { activeCookieId } = useActiveEntities()
 const { cookies, cookieMutators } = useWorkspace()
@@ -18,18 +20,19 @@ const fields = [
 
 const activeCookie = computed<Cookie>(
   () =>
-    cookies[activeCookieId.value as string] || {
-      uid: '',
+    cookies[activeCookieId.value] ||
+    cookieSchema.parse({
       name: '',
       value: '',
       domain: '',
       path: '',
-    },
+    }),
 )
-const updateCookie = (key: any, value: any) => {
-  if (activeCookieId.value) {
-    cookieMutators.edit(activeCookieId.value, key, value)
-  }
+const updateCookie = <P extends Path<Cookie>>(
+  key: P,
+  value: NonNullable<PathValue<Cookie, P>>,
+) => {
+  cookieMutators.edit(activeCookieId.value, key, value)
 }
 </script>
 <template>

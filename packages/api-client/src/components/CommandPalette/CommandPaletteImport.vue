@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  ScalarButton,
+  ScalarCodeBlock,
+  ScalarIcon,
+  ScalarTooltip,
+  useLoadingState,
+} from '@scalar/components'
+import { useToasts } from '@scalar/use-toasts'
+import { computed, ref, watch } from 'vue'
+
 import { useFileDialog } from '@/hooks'
 import {
   convertPostmanToOpenApi,
@@ -9,15 +19,6 @@ import {
 } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import {
-  ScalarButton,
-  ScalarCodeBlock,
-  ScalarIcon,
-  ScalarTooltip,
-  useLoadingState,
-} from '@scalar/components'
-import { useToasts } from '@scalar/use-toasts'
-import { computed, ref, watch } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -39,9 +40,8 @@ const watchMode = ref(true)
 const documentDetails = computed(() => {
   if (isPostmanCollection(inputContent.value)) {
     return getPostmanDocumentDetails(inputContent.value)
-  } else {
-    return getOpenApiDocumentDetails(inputContent.value)
   }
+  return getOpenApiDocumentDetails(inputContent.value)
 })
 
 const documentType = computed(() =>
@@ -161,9 +161,9 @@ async function importCollection() {
     <template v-else>
       <!-- OpenAPI document preview -->
       <div class="flex justify-between">
-        <div class="pl-8 text-xs min-h-8 py-2 text-c-2">Preview</div>
+        <div class="text-c-2 min-h-8 py-2 pl-8 text-xs">Preview</div>
         <ScalarButton
-          class="ml-auto p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
+          class="hover:bg-b-2 relative ml-auto max-h-8 gap-1.5 p-2 text-xs"
           variant="ghost"
           @click="inputContent = ''">
           Clear
@@ -171,16 +171,16 @@ async function importCollection() {
       </div>
       <ScalarCodeBlock
         v-if="documentDetails && !isUrl(inputContent)"
-        class="border max-h-[40dvh] mt-1 bg-b-2 rounded [--scalar-small:--scalar-font-size-4]"
+        class="bg-b-2 mt-1 max-h-[40dvh] rounded border [--scalar-small:--scalar-font-size-4]"
         :content="inputContent"
         :copy="false"
         :lang="documentType" />
     </template>
     <template #options>
-      <div class="flex flex-row items-center justify-between gap-3 w-full">
+      <div class="flex w-full flex-row items-center justify-between gap-3">
         <!-- Upload -->
         <ScalarButton
-          class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
+          class="hover:bg-b-2 relative max-h-8 gap-1.5 p-2 text-xs"
           variant="outlined"
           @click="openSpecFileDialog">
           JSON, or YAML File
@@ -203,8 +203,8 @@ async function importCollection() {
           </template>
           <template #content>
             <div
-              class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-              <div class="flex items-center text-c-2">
+              class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
+              <div class="text-c-2 flex items-center">
                 <span
                   v-if="isInputUrl"
                   class="text-pretty">
@@ -230,9 +230,11 @@ async function importCollection() {
         <template v-if="documentDetails.title">
           "{{ documentDetails.title }}"
         </template>
-        <template v-else>{{ documentDetails.version }}</template>
+        <template v-else>
+          {{ documentDetails.version }}
+        </template>
       </template>
-      <template v-else>Collection</template>
+      <template v-else> Collection </template>
     </template>
   </CommandActionForm>
 </template>
