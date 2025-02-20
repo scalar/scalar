@@ -30,7 +30,7 @@ export function dragHandlerFactory(
     // Parent is the workspace
     if (!draggingParentUid) {
       workspaceMutators.edit(
-        activeWorkspace.value?.uid ?? '',
+        activeWorkspace.value?.uid,
         'collections',
         activeWorkspace.value?.collections.filter((uid) => uid !== draggingUid) ?? [],
       )
@@ -39,7 +39,7 @@ export function dragHandlerFactory(
     // Parent is collection
     else if (collections[draggingParentUid]) {
       collectionMutators.edit(
-        draggingParentUid,
+        draggingParentUid as Collection['uid'],
         'children',
         collections[draggingParentUid].children.filter((uid) => uid !== draggingUid),
       )
@@ -47,7 +47,7 @@ export function dragHandlerFactory(
     // Parent is a tag
     else if (tags[draggingParentUid]) {
       tagMutators.edit(
-        draggingParentUid,
+        draggingParentUid as Tag['uid'],
         'children',
         tags[draggingParentUid].children.filter((uid) => uid !== draggingUid),
       )
@@ -64,7 +64,7 @@ export function dragHandlerFactory(
       const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid as Collection['uid'])
 
-      workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'collections', newChildUids)
+      workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', newChildUids)
     }
     // Place it into the list at an index
     else {

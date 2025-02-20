@@ -1,4 +1,16 @@
 <script setup lang="ts">
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarModal,
+  useModal,
+} from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { useToasts } from '@scalar/use-toasts'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import Sidebar from '@/components/Sidebar/Sidebar.vue'
@@ -13,16 +25,6 @@ import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
-import { useToasts } from '@scalar/use-toasts'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
 import EnvironmentModal from './EnvironmentModal.vue'
@@ -70,7 +72,7 @@ function environmentNameToast(
 function addEnvironment(environment: {
   name: string
   color: string
-  collectionId: string | undefined
+  collectionId: Collection['uid'] | undefined
 }) {
   const environmentNameUsed = activeWorkspaceCollections.value.some(
     (collection) => {
@@ -114,7 +116,7 @@ function handleEnvironmentUpdate(raw: string) {
 
     if (currentEnvironmentId.value === 'default') {
       workspaceMutators.edit(
-        activeWorkspace.value?.uid ?? '',
+        activeWorkspace.value?.uid,
         'environments',
         updatedValue,
       )
@@ -390,14 +392,14 @@ function handleRename(newName: string) {
             <li
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
-              class="flex flex-col gap-1/2">
+              class="gap-1/2 flex flex-col">
               <button
-                class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                class="hover:bg-b-2 group flex w-full items-center gap-1.5 break-words rounded p-1.5 text-left text-sm font-medium"
                 type="button"
                 @click="toggleSidebarFolder(collection.uid)">
-                <span class="flex h-5 items-center justify-center max-w-[14px]">
+                <span class="flex h-5 max-w-[14px] items-center justify-center">
                   <LibraryIcon
-                    class="min-w-3.5 text-sidebar-c-2 size-3.5 stroke-2 group-hover:hidden"
+                    class="text-sidebar-c-2 size-3.5 min-w-3.5 stroke-2 group-hover:hidden"
                     :src="
                       collection['x-scalar-icon'] || 'interface-content-folder'
                     " />
@@ -406,7 +408,7 @@ function handleRename(newName: string) {
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
                     <ScalarIcon
-                      class="text-c-3 hidden text-sm group-hover:block hover:text-c-1"
+                      class="text-c-3 hover:text-c-1 hidden text-sm group-hover:block"
                       icon="ChevronRight"
                       size="md" />
                   </div>
@@ -416,7 +418,7 @@ function handleRename(newName: string) {
               <div
                 v-show="showChildren(collection.uid)"
                 :class="{
-                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative':
+                  'before:bg-border before:z-1 relative mb-[.5px] before:pointer-events-none before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full':
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length > 0,
                 }">
@@ -449,7 +451,7 @@ function handleRename(newName: string) {
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length === 0
                   "
-                  class="flex gap-1.5 h-8 text-c-1 pl-6 py-0 justify-start text-xs w-full hover:bg-b-2"
+                  class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 pl-6 text-xs"
                   variant="ghost"
                   @click="openEnvironmentModal(collection.uid)">
                   <ScalarIcon
@@ -466,7 +468,7 @@ function handleRename(newName: string) {
         <SidebarButton
           :click="openEnvironmentModal"
           hotkey="N">
-          <template #title>Add Environment</template>
+          <template #title> Add Environment </template>
         </SidebarButton>
       </template>
     </Sidebar>
@@ -481,7 +483,7 @@ function handleRename(newName: string) {
         </template>
         <CodeInput
           v-if="currentEnvironmentId"
-          class="border-t pl-px pr-2 md:px-4 py-2"
+          class="border-t py-2 pl-px pr-2 md:px-4"
           isCopyable
           language="json"
           lineNumbers

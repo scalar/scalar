@@ -246,7 +246,7 @@ export const createApiClient = ({
         store.serverMutators.reset()
         store.tagMutators.reset()
 
-        workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'collections', [])
+        workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
 
         updateSpec(newConfig.spec)
       }
@@ -363,7 +363,7 @@ export const createApiClient = ({
       const example = request.requestBody?.content?.[contentType]?.examples[exampleKey]
       if (!example) return
 
-      requestExampleMutators.edit(request.examples[0] ?? '', 'body.raw.value', prettyPrintJson(example.value))
+      requestExampleMutators.edit(request.examples[0], 'body.raw.value', prettyPrintJson(example.value))
     },
   }
 }
