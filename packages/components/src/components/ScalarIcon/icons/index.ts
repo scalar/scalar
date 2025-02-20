@@ -1,6 +1,7 @@
 export const ICONS = [
   'Add',
   'AddTab',
+  'Alert',
   'ArrowLeft',
   'ArrowRight',
   'Brackets',
