@@ -20,6 +20,7 @@ const { cx } = useBindCx()
         'max-h-8 min-h-8 min-w-8 border-l-0 border-t border-b-0 border-r flex text-sm last:border-r-0 group-last:border-b-transparent p-0 m-0 relative',
       )
     "
+    class="group-[.alert]:bg-b-alert"
     role="cell">
     <slot />
   </component>

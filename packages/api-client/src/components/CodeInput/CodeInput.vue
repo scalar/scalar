@@ -63,7 +63,7 @@ const emit = defineEmits<{
   (e: 'curl', v: string): void
 }>()
 
-const attrs = useAttrs()
+const attrs = useAttrs() as { id?: string }
 const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
@@ -258,7 +258,7 @@ export default {
       :id="uid"
       v-bind="$attrs"
       ref="codeMirrorRef"
-      class="font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
+      class="group-[.alert]:outline-orange font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
       :class="{
         'flow-code-input--error': error,
       }"
@@ -289,7 +289,7 @@ export default {
   <slot name="icon" />
   <div
     v-if="required"
-    class="required centered-y text-xxs text-c-3 bg-b-1 pointer-events-none absolute right-0 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[.cm-focused]:opacity-0">
+    class="required centered-y text-xxs text-c-3 bg-b-1 pointer-events-none absolute right-0 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.alert]:shadow-none peer-has-[.cm-focused]:opacity-0">
     Required
   </div>
   <EnvironmentVariableDropdown
