@@ -4,10 +4,10 @@ import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-g
 import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
 
+import type { ENTITY_BRANDS } from '@/entities/shared/utility'
 import type { RequestParameter } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'
-import type { ENTITY_BRANDS } from '@/entities/shared/utility'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
@@ -184,7 +184,7 @@ export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 export const requestExampleSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['EXAMPLE']>(),
   type: z.literal('requestExample').optional().default('requestExample'),
-  requestUid: z.string().brand<ENTITY_BRANDS['REQUEST']>().optional(),
+  requestUid: z.string().brand<ENTITY_BRANDS['OPERATION']>().optional(),
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
   parameters: z

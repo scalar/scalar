@@ -11,13 +11,13 @@ export const nanoidSchema = z
 /** UID format for objects */
 export type Nanoid = z.infer<typeof nanoidSchema>
 
-/** All of our zod brands for entities, used to brand nanoidSchemas */
+/** All of our Zod brands for entities, used to brand nanoidSchemas. */
 export type ENTITY_BRANDS = {
   COLLECTION: 'collection'
   COOKIE: 'cookie'
   ENVIRONMENT: 'environment'
   EXAMPLE: 'example'
-  REQUEST: 'request'
+  OPERATION: 'operation'
   SECURITY_SCHEME: 'securityScheme'
   SERVER: 'server'
   TAG: 'tag'
