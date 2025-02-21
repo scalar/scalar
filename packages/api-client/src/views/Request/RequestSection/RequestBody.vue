@@ -303,7 +303,7 @@ const updateActiveBody = (type: Content) => {
       headers[contentTypeIdx].value = header
     }
     // Remove header if we don't want one
-    else if (headers[contentTypeIdx]) {
+    else if (headers[contentTypeIdx] && activeBody !== 'raw') {
       headers.splice(contentTypeIdx, 1)
     }
   }
