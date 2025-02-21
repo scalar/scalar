@@ -138,12 +138,6 @@ function handleCurlImport(curl: string) {
       '!mb-0 !mr-0 !border-0': layout === 'modal',
     }">
     <div class="flex h-full">
-      <RequestSidebar
-        v-if="showSidebar"
-        :isSidebarOpen="isSidebarOpen"
-        @newTab="$emit('newTab', $event)"
-        @update:isSidebarOpen="(val: boolean) => (isSidebarOpen = val)" />
-
       <!-- Ensure we have a request for this view -->
       <div
         v-if="activeRequest"
