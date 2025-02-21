@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.52
+
+### Patch Changes
+
+- 143d2a9: fix: updates file upload row content and logic
+
 ## 2.2.51
 
 ### Patch Changes
