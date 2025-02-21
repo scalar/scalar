@@ -87,13 +87,23 @@ const item = computed<SidebarItem>(() => {
 
   if (collection)
     return {
-      title: collection.info?.title ?? 'Unknown title',
+      title: collection.info?.title || 'Untitled Collection',
       entity: collection,
       resourceTitle: 'Collection',
       children: collection.children,
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
       watchMode: collection.watchMode,
+      to:
+        collection.uid && collection?.info?.title !== 'Drafts'
+          ? {
+              name: 'collection',
+              params: {
+                [PathId.Workspace]: activeWorkspace.value?.uid,
+                [PathId.Collection]: collection.uid,
+              },
+            }
+          : undefined,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
@@ -123,7 +133,7 @@ const item = computed<SidebarItem>(() => {
   if (request)
     return {
       title: request.summary ?? request.path,
-      link: {
+      to: {
         name: 'request',
         params: {
           workspace: activeWorkspace.value?.uid,
@@ -145,7 +155,7 @@ const item = computed<SidebarItem>(() => {
   if (requestExample?.requestUid)
     return {
       title: requestExample.name,
-      link: {
+      to: {
         name: 'request.examples',
         params: {
           workspace: activeWorkspace.value?.uid,
@@ -212,6 +222,8 @@ const showChildren = computed(
 /** Since we have exact routing, we should check if the default request is active */
 const isDefaultActive = computed(
   () =>
+    typeof router.currentRoute.value.name === 'string' &&
+    router.currentRoute.value.name.startsWith('request') &&
     activeRouterParams.value[PathId.Request] === 'default' &&
     activeRequest.value?.uid === uid,
 )
@@ -265,7 +277,7 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
     const isModifierPressed = modifier.some((key) => event[key])
 
     if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
-    else if (_item.link) router.push(_item.link)
+    else if (_item.to) router.push(_item.to)
   }
 }
 
@@ -333,10 +345,14 @@ const shouldShowItem = computed(() => {
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
       <!-- Request -->
       <RouterLink
-        v-if="item.link"
+        v-if="
+          (item.entity.type === 'request' ||
+            item.entity.type === 'requestExample') &&
+          item.to
+        "
         v-slot="{ isExactActive }"
         class="group no-underline"
-        :to="item.link"
+        :to="item.to"
         @click.prevent="
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
@@ -391,7 +407,119 @@ const shouldShowItem = computed(() => {
         </div>
       </RouterLink>
 
-      <!-- Collection/Folder -->
+      <!-- Collection -->
+      <div
+        v-else-if="
+          (layout !== 'modal' || parentUids.length) &&
+          item.entity.type === 'collection'
+        "
+        :aria-expanded="Boolean(collapsedSidebarFolders[item.entity.uid])"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
+        :class="[
+          highlightClasses,
+          {
+            'bg-sidebar-active-b text-sidebar-active-c transition-none':
+              typeof router.currentRoute.value.name === 'string' &&
+              router.currentRoute.value.name.startsWith('collection') &&
+              router.currentRoute.value.params[PathId.Collection] ===
+                item.entity.uid,
+            'text-c-2': item.title === 'Untitled Collection',
+          },
+        ]">
+        <span
+          class="flex h-5 max-w-[14px] cursor-pointer items-center justify-center"
+          @click="toggleSidebarFolder(item.entity.uid)">
+          <slot name="leftIcon">
+            <ScalarSidebarGroupToggle
+              class="text-c-3 shrink-0"
+              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
+          </slot>
+          &hairsp;
+        </span>
+        <div class="flex flex-1 flex-row justify-between font-medium">
+          <RouterLink
+            v-if="item.to"
+            class="w-full no-underline"
+            :to="item.to"
+            @click.stop.prevent>
+            <span class="line-clamp-1 w-full break-all text-left">
+              {{ item.title }}
+            </span>
+          </RouterLink>
+          <template v-else>
+            {{ item.title }}
+          </template>
+          <div class="relative flex h-fit justify-end">
+            <div
+              class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
+              :class="{
+                flex: menuItem.open,
+                hidden:
+                  !menuItem.open ||
+                  menuItem.item?.entity.uid !== item.entity.uid,
+              }">
+              <ScalarButton
+                v-if="
+                  (layout !== 'modal' && !isDraftCollection) ||
+                  (isDraftCollection && hasDraftRequests)
+                "
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
+                size="sm"
+                variant="ghost"
+                @click.stop.prevent="
+                  (ev) =>
+                    $emit('openMenu', {
+                      item,
+                      parentUids,
+                      targetRef: ev.currentTarget.parentNode,
+                      open: true,
+                    })
+                ">
+                <ScalarIcon
+                  icon="Ellipses"
+                  size="md" />
+              </ScalarButton>
+              <ScalarButton
+                v-if="layout !== 'modal'"
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
+                size="sm"
+                variant="ghost"
+                @click.stop.prevent="openCommandPaletteRequest()">
+                <ScalarIcon
+                  icon="Add"
+                  size="md"
+                  thickness="2" />
+              </ScalarButton>
+            </div>
+            <ScalarTooltip
+              v-if="item.watchMode"
+              side="right"
+              :sideOffset="12">
+              <template #trigger>
+                <ScalarIcon
+                  class="ml-0.5 text-sm"
+                  :class="watchIconColor"
+                  icon="Watch"
+                  size="md"
+                  thickness="2" />
+              </template>
+              <template #content>
+                <div
+                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-10 gap-1.5 rounded p-2 leading-5 shadow-lg">
+                  <div class="text-c-2 flex items-center">
+                    <p class="text-pretty break-all">
+                      Watching: {{ item.documentUrl }}
+                    </p>
+                  </div>
+                </div>
+              </template>
+            </ScalarTooltip>
+            <span>&hairsp;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tag -->
       <button
         v-else-if="layout !== 'modal' || parentUids.length"
         :aria-expanded="Boolean(collapsedSidebarFolders[item.entity.uid])"

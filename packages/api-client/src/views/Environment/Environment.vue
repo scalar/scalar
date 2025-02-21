@@ -386,6 +386,12 @@ function handleRename(newName: string) {
               :key="'default'"
               class="text-xs"
               :isCopyable="false"
+              :to="{
+                name: 'environment.default',
+                params: {
+                  [PathId.Environment]: 'default',
+                },
+              }"
               type="environment"
               :variable="{
                 name: 'Global Environment',
@@ -436,6 +442,13 @@ function handleRename(newName: string) {
                   :isCopyable="false"
                   :isDeletable="true"
                   :isRenameable="true"
+                  :to="{
+                    name: 'collection.environment',
+                    params: {
+                      [PathId.Collection]: collection.uid,
+                      [PathId.Environment]: environmentName,
+                    },
+                  }"
                   type="environment"
                   :variable="{
                     name: environmentName,

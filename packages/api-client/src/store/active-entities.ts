@@ -136,13 +136,18 @@ export const createActiveEntitiesStore = ({
 
   /**
    * First collection that the active request is in
-   *
-   * TODO we should add collection to the route and grab this from the params
    */
   const activeCollection = computed(() => {
+    // Grab the collection from route parameters.
+    const collection = collections[activeRouterParams.value[PathId.Collection]]
+
+    if (collection) return collection
+
+    // If no collection is found, try to grab the collection from the request.
     const requestUid = activeRequest.value?.uid
     if (requestUid) return Object.values(collections).find((c) => c.requests?.includes(requestUid))
 
+    // If no collection is found, try to grab the collection from the workspace.
     const fallbackUid = activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
 
     return collections[fallbackUid]

@@ -7,12 +7,12 @@ describe('createApiClientApp', () => {
     const element = document.createElement('div')
     expect(element).not.toBeNull()
 
-    expect(element.innerHTML).not.toContain('request')
+    expect(element.innerHTML).not.toContain('Request')
 
     createApiClientApp(element, {
       proxyUrl: 'https://proxy.scalar.com',
     })
 
-    expect(element.innerHTML).toContain('request')
+    expect(element.innerHTML).toContain('Request')
   })
 })

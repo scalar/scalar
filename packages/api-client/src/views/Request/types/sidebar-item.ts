@@ -18,7 +18,7 @@ export type SidebarItem = {
   resourceTitle: string
   children: string[]
   method?: RequestMethod | undefined
-  link?: RouteLocationRaw
+  to?: RouteLocationRaw | undefined
   warning?: string
   icon?: string
   edit: (name: string, icon?: string) => void

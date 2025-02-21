@@ -43,11 +43,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./views/Servers": {
-      "import": "./dist/views/Servers/index.js",
-      "types": "./dist/views/Servers/index.d.ts",
-      "default": "./dist/views/Servers/index.js"
-    },
     "./views/Request/types": {
       "import": "./dist/views/Request/types/index.js",
       "types": "./dist/views/Request/types/index.d.ts",

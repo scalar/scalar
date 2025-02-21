@@ -38,9 +38,9 @@ export function redirectToActiveWorkspace() {
 
   // Redirect to active workspace
   return {
-    name: 'request.default',
+    name: 'request.root',
     params: {
-      workspace: activeWorkspace,
+      [PathId.Workspace]: activeWorkspace,
     },
   }
 }
@@ -50,28 +50,82 @@ const requestRoutes = [
   {
     name: 'request.root',
     path: '',
+    component: () => import('@/views/Request/RequestRoot.vue'),
     redirect: (to) => ({
       name: 'request',
       params: { ...to.params, request: 'default' },
     }),
-  },
-  {
-    name: 'request.default',
-    path: 'request',
-    redirect: (to) => ({
-      name: 'request',
-      params: { ...to.params, request: 'default' },
-    }),
-  },
-  {
-    name: 'request',
-    path: `request/:${PathId.Request}`,
-    component: () => import('@/views/Request/Request.vue'),
-  },
-  {
-    name: 'request.examples',
-    path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
-    component: () => import('@/views/Request/Request.vue'),
+    children: [
+      {
+        name: 'request',
+        path: `request/:${PathId.Request}`,
+        component: () => import('@/views/Request/Request.vue'),
+      },
+      {
+        name: 'request.examples',
+        path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
+        component: () => import('@/views/Request/Request.vue'),
+      },
+      {
+        name: 'collection',
+        path: `collection/:${PathId.Collection}`,
+        component: () => import('@/views/Collection/Collection.vue'),
+        redirect: () => {
+          return {
+            name: 'collection.overview',
+          }
+        },
+        children: [
+          {
+            name: 'collection.overview',
+            path: 'overview',
+            component: () => import('@/views/Collection/CollectionOverview.vue'),
+          },
+          {
+            name: 'collection.servers',
+            path: `servers`,
+            component: () => import('@/views/Collection/CollectionServers.vue'),
+            children: [
+              {
+                name: 'collection.servers.edit',
+                path: `:${PathId.Servers}`,
+                component: () => import('@/views/Collection/CollectionServers.vue'),
+              },
+            ],
+          },
+          {
+            name: 'collection.environment',
+            path: `environment`,
+            component: () => import('@/views/Collection/CollectionEnvironment.vue'),
+          },
+          {
+            name: 'collection.authentication',
+            path: `authentication`,
+            component: () => import('@/views/Collection/CollectionAuthentication.vue'),
+          },
+          {
+            name: 'collection.cookies',
+            path: `cookies`,
+            component: () => import('@/views/Collection/CollectionCookies.vue'),
+          },
+          {
+            name: 'collection.scripts',
+            path: `scripts`,
+            component: () => import('@/views/Collection/CollectionScripts.vue'),
+          },
+          {
+            name: 'collection.sync',
+            path: `sync`,
+            component: () => import('@/views/Collection/CollectionSync.vue'),
+          },
+          {
+            name: 'collection.settings',
+            path: `settings`,
+            component: () => import('@/views/Collection/CollectionSettings.vue'),
+          },
+        ],
+      },
+    ],
   },
 ] satisfies RouteRecordRaw[]
 
@@ -96,7 +150,7 @@ export const modalRoutes = [
     name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
     redirect: {
-      name: 'request.default',
+      name: 'request.root',
     },
     children: requestRoutes,
   },
@@ -113,7 +167,7 @@ export const routes = [
     name: 'workspace.default',
     path: '/workspace',
     redirect: {
-      name: 'request.default',
+      name: 'request.root',
       params: {
         [PathId.Workspace]: 'default',
       },
@@ -123,38 +177,10 @@ export const routes = [
     name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
     redirect: {
-      name: 'request.default',
+      name: 'request.root',
     },
     children: [
       ...requestRoutes,
-      // {
-      //   path: 'collection',
-      //   redirect: (to) =>
-      //     `${to.fullPath.replace(/\/$/, '')}/default`,
-      // },
-      // {
-      //   name: PathId.Collection,
-      //   path: `collection/:${PathId.Collection}`,
-      //   component: () => import('@/views/Collection/Collection.vue'),
-      //   children: [
-      //     // Nested collection request
-      //     {
-      //       path: `request/${PathId.Request}`,
-      //       component: () => import('@/views/Request/Request.vue'),
-      //     },
-      //   ],
-      // },
-      /** Components will map to each section of the spec components object */
-      // {
-      //   path: 'components',
-      //   redirect: '/components/schemas/default',
-      //   children: [
-      //     {
-      //       path: `schemas/:${PathId.Schema}`,
-      //       component: () => import('@/views/Components/Schemas/Schemas.vue'),
-      //     },
-      //   ],
-      // },
       {
         name: 'environment.default',
         path: 'environment',
@@ -198,12 +224,6 @@ export const routes = [
             [PathId.Servers]: 'default',
           },
         }),
-      },
-      {
-        name: 'servers',
-        path: `servers/:${PathId.Collection}/:${PathId.Servers}`,
-        component: () => import('@/views/Servers/Servers.vue'),
-        props: true,
       },
       {
         name: 'settings.default',
