@@ -8,6 +8,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
@@ -20,7 +21,7 @@ const { activeCollection } = useActiveEntities()
 const { servers, events, serverMutators } = useWorkspace()
 
 const deleteModal = useModal()
-const selectedServerUid = ref<string | null>(null)
+const selectedServerUid = ref<Server['uid'] | null>(null)
 
 const collectionServers = computed(() =>
   Object.values(servers || {}).filter((server) =>
@@ -42,7 +43,7 @@ const handleDeleteServer = () => {
   deleteModal.hide()
 }
 
-const openDeleteModal = (serverUid: string) => {
+const openDeleteModal = (serverUid: Server['uid']) => {
   selectedServerUid.value = serverUid
   deleteModal.show()
 }
@@ -104,8 +105,8 @@ const openDeleteModal = (serverUid: string) => {
         class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
         <ScalarButton
           class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
-          variant="ghost"
           size="sm"
+          variant="ghost"
           @click="handleAddServer">
           <ScalarIcon
             class="inline-flex"
