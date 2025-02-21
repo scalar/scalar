@@ -107,13 +107,13 @@ export const ApiReferenceConfigurationSchema = z.object({
   proxy: z.string().optional(),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
-  /** 
-    Whether the spec input should show 
+  /**
+    Whether the spec input should show
     @default false
   */
   isEditable: z.boolean().optional().default(false).catch(false),
-  /** 
-    Whether to show the sidebar 
+  /**
+    Whether to show the sidebar
     @default true
   */
   showSidebar: z.boolean().optional().default(true).catch(true),
@@ -268,4 +268,7 @@ export const ApiReferenceConfigurationSchema = z.object({
   hideClientButton: z.boolean().optional(),
 })
 
-export type ApiReferenceConfiguration = z.infer<typeof ApiReferenceConfigurationSchema>
+/** Configuration (after parsing) */
+export type ApiReferenceConfigurationSchema = z.infer<typeof ApiReferenceConfigurationSchema>
+/** Configuration (before parsing) */
+export type ApiReferenceConfiguration = z.input<typeof ApiReferenceConfigurationSchema>

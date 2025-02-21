@@ -71,7 +71,7 @@ export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
   theme?: ThemeId | undefined
   /** The layout to use for the references */
-  layout?: 'modern' | 'classic' | undefined
+  layout?: 'modern' | 'classic' | unknown
   /** The Swagger/OpenAPI spec to render */
   spec?: SpecConfiguration | undefined
   /**
@@ -83,39 +83,39 @@ export type ReferenceConfiguration = {
   /** URL to a request proxy for the API client */
   proxyUrl?: string | undefined
   /** Whether the spec input should show */
-  isEditable?: boolean | undefined
+  isEditable?: boolean | unknown
   /** Whether to show the sidebar */
-  showSidebar?: boolean | undefined
+  showSidebar?: boolean | undefined | unknown
   /**
    * Whether to show models in the sidebar, search, and content.
    *
    * @default false
    */
-  hideModels?: boolean | undefined
+  hideModels?: boolean | undefined | unknown
   /**
    * Whether to show the “Download OpenAPI Document” button
    *
    * @default false
    */
-  hideDownloadButton?: boolean | undefined
+  hideDownloadButton?: boolean | undefined | unknown
   /**
    * Whether to show the “Test Request” button
    *
    * @default: false
    */
-  hideTestRequestButton?: boolean | undefined
+  hideTestRequestButton?: boolean | undefined | unknown
   /**
    * Whether to show the sidebar search bar
    *
    * @default: false
    */
-  hideSearch?: boolean | undefined
+  hideSearch?: boolean | undefined | unknown
   /** Whether dark mode is on or off initially (light mode) */
-  darkMode?: boolean | undefined
+  darkMode?: boolean | undefined | unknown
   /** forceDarkModeState makes it always this state no matter what*/
   forceDarkModeState?: 'dark' | 'light' | undefined
   /** Whether to show the dark mode toggle */
-  hideDarkModeToggle?: boolean | undefined
+  hideDarkModeToggle?: boolean | undefined | unknown
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?:
     | 'a'
@@ -308,13 +308,13 @@ export type ReferenceConfiguration = {
    *
    * @default true
    */
-  withDefaultFonts?: boolean | undefined
+  withDefaultFonts?: boolean | undefined | unknown
   /**
    * By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
    *
    * @default false
    */
-  defaultOpenAllTags?: boolean | undefined
+  defaultOpenAllTags?: boolean | undefined | unknown
   /**
    * Sort tags alphabetically or with a custom sort function
    */
@@ -364,7 +364,7 @@ export type ReferenceConfiguration = {
    *
    * @default false
    */
-  hideClientButton?: boolean | undefined
+  hideClientButton?: boolean | undefined | unknown
 }
 
 export type BaseParameter = {
