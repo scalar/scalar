@@ -128,7 +128,7 @@ export const ApiReferenceConfigurationSchema = z.object({
    * Whether to show the "Test Request" button
    * @default false
    */
-  hideTestRequestButton: z.boolean().optional(),
+  hideTestRequestButton: z.boolean().optional().default(false).catch(false),
   /**
    * Whether to show the sidebar search bar
    * @default false
