@@ -2074,6 +2074,9 @@ importers:
       '@unhead/schema':
         specifier: ^1.11.11
         version: 1.11.11
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2081,6 +2084,9 @@ importers:
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/use-codemirror:
     dependencies:
