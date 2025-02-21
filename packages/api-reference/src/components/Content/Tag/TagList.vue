@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { Lazy } from '@/components/Content/Lazy'
-import { Operation } from '@/features/Operation'
-import { useNavState, useSidebar } from '@/hooks'
 import { useActiveEntities } from '@scalar/api-client/store'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
+
+import { Lazy } from '@/components/Content/Lazy'
+import { Operation } from '@/features/Operation'
+import { useNavState, useSidebar } from '@/hooks'
 
 import { Tag, TagAccordion } from './'
 

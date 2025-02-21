@@ -32,12 +32,7 @@ export const normalizeSecuritySchemes = (definition: AnyObject) => {
     ) {
       const flows = scheme.flows as AnyObject
       for (const flow of Object.values(flows)) {
-        if (
-          typeof flow === 'object' &&
-          flow !== null &&
-          'scopes' in flow &&
-          Array.isArray(flow.scopes)
-        ) {
+        if (typeof flow === 'object' && flow !== null && 'scopes' in flow && Array.isArray(flow.scopes)) {
           flow.scopes = flow.scopes.reduce((acc: AnyObject, scope: string) => {
             acc[scope] = ''
             return acc

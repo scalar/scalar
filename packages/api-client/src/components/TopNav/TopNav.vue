@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import { ROUTES } from '@/constants'
-import type { HotKeyEvent } from '@/libs'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
-  type Icon,
   ScalarContextMenu,
   ScalarDropdownButton,
   ScalarDropdownMenu,
   ScalarFloating,
   ScalarIcon,
+  type Icon,
 } from '@scalar/components'
 import { capitalize } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import ScalarHotkey from '@/components/ScalarHotkey.vue'
+import { ROUTES } from '@/constants'
+import type { HotKeyEvent } from '@/libs'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import TopNavItem from './TopNavItem.vue'
 
@@ -156,11 +157,11 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
-  <nav class="flex relative h-10 pl-2 mac:pl-[72px] t-app__top-nav">
+  <nav class="mac:pl-[72px] t-app__top-nav relative flex h-10 pl-2">
     <!-- Add a draggable overlay -->
-    <div class="absolute inset-0 app-drag-region" />
+    <div class="app-drag-region absolute inset-0" />
     <div
-      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-2.5 relative overflow-hidden">
+      class="relative flex h-10 flex-1 items-center gap-1.5 overflow-hidden pr-2.5 text-sm font-medium">
       <template v-if="topNavItems.length === 1">
         <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu
@@ -220,7 +221,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           @newTab="addNavItem" />
       </template>
       <button
-        class="text-c-3 hover:bg-b-3 p-1.5 rounded app-no-drag-region"
+        class="text-c-3 hover:bg-b-3 app-no-drag-region rounded p-1.5"
         type="button"
         @click="addNavItem">
         <ScalarIcon

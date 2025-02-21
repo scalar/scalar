@@ -48,6 +48,6 @@ const integrationIcon = computed(() => {
 
 <template>
   <ScalarIcon
-    class="w-full h-full rounded-lg"
+    class="h-full w-full rounded-lg"
     :logo="integrationIcon" />
 </template>

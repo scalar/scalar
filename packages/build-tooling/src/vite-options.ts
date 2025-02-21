@@ -104,8 +104,7 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
           }
         })()`
 
-      const component =
-        bundle['index.js'] || bundle['index.cjs'] || bundle['index.mjs']
+      const component = bundle['index.js'] || bundle['index.cjs'] || bundle['index.mjs']
       if (component && 'code' in component) component.code += IIFEcss
     },
   })

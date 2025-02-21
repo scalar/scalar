@@ -29,22 +29,14 @@ test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
    */
 })
 
-test('@scalar/api-reference jsdelivr build (json content)', async ({
-  page,
-}) => {
-  await page.goto(
-    `http://${HOST}:3173/api-reference-jsdelivr-json-content.html`,
-  )
+test('@scalar/api-reference jsdelivr build (json content)', async ({ page }) => {
+  await page.goto(`http://${HOST}:3173/api-reference-jsdelivr-json-content.html`)
   await testHelloWorld(page)
 })
 
 // TODO: Will be fixed with the next release.
-test.skip('@scalar/api-reference jsdelivr build (yaml content)', async ({
-  page,
-}) => {
-  await page.goto(
-    `http://${HOST}:3173/api-reference-jsdelivr-yaml-content.html`,
-  )
+test.skip('@scalar/api-reference jsdelivr build (yaml content)', async ({ page }) => {
+  await page.goto(`http://${HOST}:3173/api-reference-jsdelivr-yaml-content.html`)
   await testHelloWorld(page)
 })
 

@@ -1,10 +1,11 @@
 'use client'
 
-import {
-  type ReferenceProps,
-  createScalarReferences,
-} from '@scalar/api-reference'
+import type { ReferenceProps } from '@scalar/api-reference'
+
+import { createScalarReferences } from '@scalar/api-reference'
+
 import '@scalar/api-reference/style.css'
+
 import React, { useEffect, useRef, useState } from 'react'
 
 // These are required for the vue bundler version
@@ -18,9 +19,7 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
 export const ApiReferenceReact = (props: ReferenceProps) => {
   const el = useRef<HTMLDivElement | null>(null)
 
-  const [reference, setReference] = useState<ReturnType<
-    typeof createScalarReferences
-  > | null>(null)
+  const [reference, setReference] = useState<ReturnType<typeof createScalarReferences> | null>(null)
 
   useEffect(() => {
     if (!el.current) return reference?.unmount

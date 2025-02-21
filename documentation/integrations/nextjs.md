@@ -71,6 +71,7 @@ npm add @scalar/api-reference-react
 
 ```js
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+
 import '@scalar/api-reference-react/style.css'
 
 export default function References() {

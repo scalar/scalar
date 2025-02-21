@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
   ApiReferenceLayout,
-  type ReferenceConfiguration,
   useReactiveSpec,
+  type ReferenceConfiguration,
 } from '@scalar/api-reference'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 

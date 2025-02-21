@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
-import { type ModalState, ScalarModal } from '@scalar/components'
+import { ScalarModal, type ModalState } from '@scalar/components'
 import { ref } from 'vue'
+
+import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
@@ -34,7 +35,7 @@ const handleSubmit = () => {
     <div class="flex flex-col gap-4">
       <EnvironmentColors
         :activeColor="newColor || props.selectedColor"
-        class="p-1 w-full"
+        class="w-full p-1"
         @select="handleColorSelect" />
       <SidebarListElementForm
         @cancel="emit('cancel')"

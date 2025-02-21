@@ -7,11 +7,7 @@ import { isUrl } from './isUrl'
 /**
  * Watch a foobar for changes and call a callback when it does.
  */
-export async function watchFile(
-  file: string,
-  callback: () => void,
-  options?: { immediate?: boolean },
-) {
+export async function watchFile(file: string, callback: () => void, options?: { immediate?: boolean }) {
   // Poll URLs
   if (isUrl(file)) {
     setInterval(callback, 5000)

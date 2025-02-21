@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { formatMs } from '@/libs/formatters'
-import { PathId } from '@/routes'
-import { useWorkspace } from '@/store'
 import {
   Listbox,
   ListboxButton,
@@ -17,6 +14,10 @@ import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { formatMs } from '@/libs/formatters'
+import { PathId } from '@/routes'
+import { useWorkspace } from '@/store'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import { getStatusCodeColor } from './httpStatusCodeColors'
@@ -88,7 +89,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
       <!-- History -->
       <ListboxButton
         v-if="history?.length"
-        class="addressbar-history-button z-context-plus mr-1 rounded-lg p-1.5 text-c-3 focus:text-c-1">
+        class="addressbar-history-button z-context-plus text-c-3 focus:text-c-1 mr-1 rounded-lg p-1.5">
         <ScalarIcon
           icon="History"
           size="sm"
@@ -101,12 +102,12 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
         #floating="{ width }">
         <!-- History Item -->
         <ListboxOptions
-          class="address-bg-states border-t custom-scroll max-h-[inherit] p-0.75 grid grid-cols-[44px,1fr,repeat(3,auto)] items-center"
+          class="address-bg-states custom-scroll p-0.75 grid max-h-[inherit] grid-cols-[44px,1fr,repeat(3,auto)] items-center border-t"
           :style="{ width }">
           <ListboxOption
             v-for="(entry, index) in history"
             :key="entry.timestamp"
-            class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
+            class="font-code *:ui-active:bg-b-2 text-c-2 contents text-sm font-medium *:flex *:h-8 *:cursor-pointer *:items-center *:rounded-none *:px-1.5 first:*:rounded-l last:*:rounded-r"
             :value="index"
             @click="handleHistoryClick(entry)">
             <HttpMethod
@@ -114,7 +115,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
               class="text-[11px]"
               :method="entry.response.method" />
             <div class="min-w-0">
-              <div class="min-w-0 truncate text-c-1">
+              <div class="text-c-1 min-w-0 truncate">
                 {{ entry.response.path }}
               </div>
             </div>

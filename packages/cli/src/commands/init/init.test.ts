@@ -7,13 +7,9 @@ import { ScalarCli } from '../../../tests/invoke-cli'
 
 const cwd = fileURLToPath(new URL('./', import.meta.url))
 
-const configFile = fileURLToPath(
-  new URL('./scalar.config.json', import.meta.url),
-)
+const configFile = fileURLToPath(new URL('./scalar.config.json', import.meta.url))
 
-const openApiDocument = fileURLToPath(
-  new URL('../validate/valid.json', import.meta.url),
-)
+const openApiDocument = fileURLToPath(new URL('../validate/valid.json', import.meta.url))
 
 describe('init', () => {
   it('creates a config file', () => {
@@ -28,14 +24,7 @@ describe('init', () => {
     // Create config file
     const [exitCode, logs] = ScalarCli()
       .setCwd(cwd)
-      .invoke([
-        'init',
-        '--file',
-        openApiDocument,
-        '--force',
-        '--subdomain',
-        'foobar.apidocumentation.com',
-      ])
+      .invoke(['init', '--file', openApiDocument, '--force', '--subdomain', 'foobar.apidocumentation.com'])
 
     // Output
     logs.should.contain(`"subdomain": "foobar.apidocumentation.com"`)

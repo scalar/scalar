@@ -61,6 +61,7 @@ And then, add a new component or just replace the `App.jsx` with the following c
 ```jsx
 // src/App.jsx
 import { ApiReferenceReact } from '@scalar/api-reference-react'
+
 import '@scalar/api-reference-react/style.css'
 
 function App() {

@@ -42,9 +42,7 @@ describe('HTTP Basic Authentication', () => {
     const response = await server.request('/basic-auth-test')
 
     expect(response.status).toBe(401)
-    expect(response.headers.get('WWW-Authenticate')).toBe(
-      'Basic realm="Scalar Mock Server", charset="UTF-8"',
-    )
+    expect(response.headers.get('WWW-Authenticate')).toBe('Basic realm="Scalar Mock Server", charset="UTF-8"')
     expect(await response.json()).toMatchObject({
       error: expect.any(String),
     })

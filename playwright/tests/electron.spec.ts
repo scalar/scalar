@@ -6,11 +6,7 @@ import { waitFor } from './utils/waitFor'
 
 // Helper function to find the frontend build
 const findFolder = () => {
-  const possiblePaths = [
-    '../../packages/scalar-app',
-    '../packages/scalar-app',
-    './packages/scalar-app',
-  ]
+  const possiblePaths = ['../../packages/scalar-app', '../packages/scalar-app', './packages/scalar-app']
 
   for (const path of possiblePaths) {
     try {
@@ -64,17 +60,13 @@ test.describe('Electron', () => {
     // Wait for the main window to be created
     await waitFor(
       () => {
-        const mainWindow = app
-          .windows()
-          .find((win) => win.url().includes('index.html'))
+        const mainWindow = app.windows().find((win) => win.url().includes('index.html'))
 
         if (!mainWindow) {
           return false
         }
 
-        expect(mainWindow.url()).toContain(
-          'packages/scalar-app/dist/renderer/index.html',
-        )
+        expect(mainWindow.url()).toContain('packages/scalar-app/dist/renderer/index.html')
 
         return true
       },

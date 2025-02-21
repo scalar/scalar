@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { Icon } from '@scalar/components'
+import { RouterLink } from 'vue-router'
+
 import SideNavLink from '@/components/SideNav/SideNavLink.vue'
 import type { ROUTES } from '@/constants'
 import { PathId } from '@/routes'
 import { useActiveEntities } from '@/store/active-entities'
-import type { Icon } from '@scalar/components'
-import { RouterLink } from 'vue-router'
 
 defineProps<{
   icon: Icon

@@ -18,9 +18,7 @@ describe('check', () => {
     console.log(result.errors)
   })
   it('checks the comprehensive invalid json file', () => {
-    const file = fileURLToPath(
-      new URL('./invalid-comprehensive.json', import.meta.url),
-    )
+    const file = fileURLToPath(new URL('./invalid-comprehensive.json', import.meta.url))
     const result = check(file)
     expect(result.valid).toBe(false)
     console.log(result.errors)

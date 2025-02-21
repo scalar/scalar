@@ -8,11 +8,7 @@ describe('unescapeJsonPointer', async () => {
   })
 
   it('unescapes multiple slashes', () => {
-    expect(
-      unescapeJsonPointer(
-        '#/paths/~1upload/post/responses/401/content/application~1problem+json/schema',
-      ),
-    ).toBe(
+    expect(unescapeJsonPointer('#/paths/~1upload/post/responses/401/content/application~1problem+json/schema')).toBe(
       '#/paths//upload/post/responses/401/content/application/problem+json/schema',
     )
   })

@@ -16,11 +16,7 @@ export function getListOfReferences(specification: AnyObject) {
 
   // Traverse the specification and collect all references
   traverse(specification, (value: any) => {
-    if (
-      value.$ref &&
-      typeof value.$ref === 'string' &&
-      !value.$ref.startsWith('#')
-    ) {
+    if (value.$ref && typeof value.$ref === 'string' && !value.$ref.startsWith('#')) {
       references.push(value.$ref.split('#')[0])
     }
 

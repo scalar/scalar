@@ -21,7 +21,7 @@ const updateServerVariable = (key: string, value: string) => {
 }
 </script>
 <template>
-  <label class="bg-b-2 flex font-medium items-center h-8 px-3 py-2.5 text-sm">
+  <label class="bg-b-2 flex h-8 items-center px-3 py-2.5 text-sm font-medium">
     Server
   </label>
   <div :id="id">
@@ -38,6 +38,6 @@ const updateServerVariable = (key: string, value: string) => {
   <!-- Description -->
   <ScalarMarkdown
     v-if="activeServer?.description"
-    class="px-3 py-1.5 text-c-3"
+    class="text-c-3 px-3 py-1.5"
     :value="activeServer.description" />
 </template>

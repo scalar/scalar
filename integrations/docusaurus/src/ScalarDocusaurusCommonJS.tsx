@@ -1,6 +1,7 @@
 // Workaround to handle commonjs failing with older react version
-import BrowserOnly from '@docusaurus/BrowserOnly'
 import type { ReferenceProps } from '@scalar/api-reference-react'
+
+import BrowserOnly from '@docusaurus/BrowserOnly'
 import Layout from '@theme/Layout'
 import React, { Component } from 'react'
 
@@ -32,16 +33,10 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
       if (mutation.type === 'childList') {
         const container = document.getElementById('api-reference-container')
 
-        if (
-          container &&
-          this.props.route.configuration &&
-          !document.getElementById('api-reference')
-        ) {
+        if (container && this.props.route.configuration && !document.getElementById('api-reference')) {
           console.log('Loading Scalar script...')
           // Deep copy the configuration
-          const config = JSON.parse(
-            JSON.stringify(this.props.route.configuration),
-          )
+          const config = JSON.parse(JSON.stringify(this.props.route.configuration))
 
           // Create and append a script element to mount the Scalar app
           const apiReferenceScript = document.createElement('script')

@@ -556,12 +556,7 @@
                 "properties": {
                   "style": {
                     "default": "form",
-                    "enum": [
-                      "form",
-                      "spaceDelimited",
-                      "pipeDelimited",
-                      "deepObject"
-                    ]
+                    "enum": ["form", "spaceDelimited", "pipeDelimited", "deepObject"]
                   },
                   "allowReserved": {
                     "default": false,

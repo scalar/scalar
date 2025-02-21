@@ -30,9 +30,7 @@ export function useGivenFileOrConfiguration(file?: string) {
   console.error(kleur.red('No file provided.'))
   console.log()
   console.log(
-    kleur.white(
-      'Try `scalar init` or add the file as an argument. Read `scalar --help` for more information.',
-    ),
+    kleur.white('Try `scalar init` or add the file as an argument. Read `scalar --help` for more information.'),
   )
   console.log()
 

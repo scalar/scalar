@@ -11,15 +11,11 @@ const port = process.env.PORT || 5052
  * Load the specification from the workspace.
  * We do not want a circular depedency as galaxy uses mock server for its playground
  */
-const specification = await fs
-  .readFile('../galaxy/src/documents/3.1.yaml', 'utf8')
-  .catch(() => {
-    console.error(
-      '[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.',
-    )
+const specification = await fs.readFile('../galaxy/src/documents/3.1.yaml', 'utf8').catch(() => {
+  console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
 
-    return ''
-  })
+  return ''
+})
 
 // Create the server instance
 const app = await createMockServer({

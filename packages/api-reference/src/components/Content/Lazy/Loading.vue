@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Operation } from '@/features/Operation'
 import { useActiveEntities } from '@scalar/api-client/store'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
@@ -8,6 +7,8 @@ import type {
   TransformedOperation,
 } from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
+
+import { Operation } from '@/features/Operation'
 
 import { getModels, scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'

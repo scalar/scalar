@@ -32,8 +32,7 @@ export async function respondWithOpenApiDocument(
       return c.json(
         {
           error: 'Failed to convert specification to YAML',
-          message:
-            error instanceof Error ? error.message : 'Unknown error occurred',
+          message: error instanceof Error ? error.message : 'Unknown error occurred',
         },
         500,
       )
@@ -42,8 +41,7 @@ export async function respondWithOpenApiDocument(
     return c.json(
       {
         error: 'Failed to parse OpenAPI specification',
-        message:
-          error instanceof Error ? error.message : 'Unknown error occurred',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
       },
       400,
     )

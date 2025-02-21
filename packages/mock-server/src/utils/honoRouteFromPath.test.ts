@@ -12,15 +12,11 @@ describe('honoRouteFromPath', () => {
   })
 
   it('returns correct route for a path with multiple parameters', () => {
-    expect(honoRouteFromPath('/users/{userId}/posts/{postId}')).toBe(
-      '/users/:userId/posts/:postId',
-    )
+    expect(honoRouteFromPath('/users/{userId}/posts/{postId}')).toBe('/users/:userId/posts/:postId')
   })
 
   it('returns correct route for a path with a parameter in the middle', () => {
-    expect(honoRouteFromPath('/api/{version}/users')).toBe(
-      '/api/:version/users',
-    )
+    expect(honoRouteFromPath('/api/{version}/users')).toBe('/api/:version/users')
   })
 
   it('returns correct route for a path with special characters', () => {
@@ -28,9 +24,7 @@ describe('honoRouteFromPath', () => {
   })
 
   it('returns correct route for a path with numbers', () => {
-    expect(honoRouteFromPath('/v1/products/{productId}')).toBe(
-      '/v1/products/:productId',
-    )
+    expect(honoRouteFromPath('/v1/products/{productId}')).toBe('/v1/products/:productId')
   })
 
   it.skip('handles invalid parameter syntax gracefully', () => {
@@ -38,14 +32,10 @@ describe('honoRouteFromPath', () => {
   })
 
   it('handles multiple consecutive parameters', () => {
-    expect(honoRouteFromPath('/users/{userId}{postId}')).toBe(
-      '/users/:userId:postId',
-    )
+    expect(honoRouteFromPath('/users/{userId}{postId}')).toBe('/users/:userId:postId')
   })
 
   it('handles parameters with special naming patterns', () => {
-    expect(honoRouteFromPath('/api/{api.version}/{user_id}')).toBe(
-      '/api/:api.version/:user_id',
-    )
+    expect(honoRouteFromPath('/api/{api.version}/{user_id}')).toBe('/api/:api.version/:user_id')
   })
 })

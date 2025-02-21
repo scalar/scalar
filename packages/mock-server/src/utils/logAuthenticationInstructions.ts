@@ -5,9 +5,7 @@ import { getPathFromUrl } from './getOpenAuthTokenUrls'
 /**
  * Log authentication instructions for different security schemes
  */
-export function logAuthenticationInstructions(
-  securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>,
-) {
+export function logAuthenticationInstructions(securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>) {
   if (!securitySchemes || Object.keys(securitySchemes).length === 0) {
     return
   }
@@ -26,9 +24,7 @@ export function logAuthenticationInstructions(
           console.log()
         } else if (scheme.in === 'query') {
           console.log('✅ API Key Authentication')
-          console.log(
-            `   Use any API key in the ${scheme.name} query parameter:`,
-          )
+          console.log(`   Use any API key in the ${scheme.name} query parameter:`)
           console.log()
           console.log(`   ?${scheme.name}=YOUR_API_KEY_HERE`)
           console.log()
@@ -45,9 +41,7 @@ export function logAuthenticationInstructions(
       case 'http':
         if (scheme.scheme === 'basic') {
           console.log('✅ HTTP Basic Authentication')
-          console.log(
-            '   Use an Authorization header with any credentials ("username:password" in base64):',
-          )
+          console.log('   Use an Authorization header with any credentials ("username:password" in base64):')
           console.log()
           console.log('   Authorization: Basic dXNlcm5hbWU6cGFzc3dvcmQ=')
           console.log()
@@ -68,9 +62,7 @@ export function logAuthenticationInstructions(
             switch (flow) {
               case 'implicit':
                 console.log('✅ OAuth 2.0 Implicit Flow')
-                console.log(
-                  '   Use the following URL to initiate the OAuth 2.0 Implicit Flow:',
-                )
+                console.log('   Use the following URL to initiate the OAuth 2.0 Implicit Flow:')
                 console.log()
                 console.log(
                   `   GET ${scheme?.flows?.implicit?.authorizationUrl || '/oauth/authorize'}?response_type=token&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=YOUR_SCOPES`,
@@ -79,16 +71,10 @@ export function logAuthenticationInstructions(
                 break
               case 'password':
                 console.log('✅ OAuth 2.0 Password Flow')
-                console.log(
-                  '   Use the following URL to obtain an access token:',
-                )
+                console.log('   Use the following URL to obtain an access token:')
                 console.log()
-                console.log(
-                  `   POST ${getPathFromUrl(scheme?.flows?.password?.tokenUrl || '/oauth/token')}`,
-                )
-                console.log(
-                  '   Content-Type: application/x-www-form-urlencoded',
-                )
+                console.log(`   POST ${getPathFromUrl(scheme?.flows?.password?.tokenUrl || '/oauth/token')}`)
+                console.log('   Content-Type: application/x-www-form-urlencoded')
                 console.log()
                 console.log(
                   '   grant_type=password&username=YOUR_USERNAME&password=YOUR_PASSWORD&client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET',
@@ -97,16 +83,10 @@ export function logAuthenticationInstructions(
                 break
               case 'clientCredentials':
                 console.log('✅ OAuth 2.0 Client Credentials Flow')
-                console.log(
-                  '   Use the following URL to obtain an access token:',
-                )
+                console.log('   Use the following URL to obtain an access token:')
                 console.log()
-                console.log(
-                  `   POST ${getPathFromUrl(scheme?.flows?.clientCredentials?.tokenUrl || '/oauth/token')}`,
-                )
-                console.log(
-                  '   Content-Type: application/x-www-form-urlencoded',
-                )
+                console.log(`   POST ${getPathFromUrl(scheme?.flows?.clientCredentials?.tokenUrl || '/oauth/token')}`)
+                console.log('   Content-Type: application/x-www-form-urlencoded')
                 console.log()
                 console.log(
                   '   grant_type=client_credentials&client_id=YOUR_CLIENT_ID&client_secret=YOUR_CLIENT_SECRET',
@@ -115,9 +95,7 @@ export function logAuthenticationInstructions(
                 break
               case 'authorizationCode':
                 console.log('✅ OAuth 2.0 Authorization Code Flow')
-                console.log(
-                  '   Use the following URL to initiate the OAuth 2.0 Authorization Code Flow:',
-                )
+                console.log('   Use the following URL to initiate the OAuth 2.0 Authorization Code Flow:')
                 console.log()
                 console.log(
                   '   GET',
@@ -135,9 +113,7 @@ export function logAuthenticationInstructions(
         console.log('✅ OpenID Connect Authentication')
         console.log('   Use the following OpenID Connect discovery URL:')
         console.log()
-        console.log(
-          `   ${getPathFromUrl(scheme.openIdConnectUrl || '/.well-known/openid-configuration')}`,
-        )
+        console.log(`   ${getPathFromUrl(scheme.openIdConnectUrl || '/.well-known/openid-configuration')}`)
         console.log()
         break
       default:

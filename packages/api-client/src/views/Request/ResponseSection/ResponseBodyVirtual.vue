@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useResponseBody } from '@/hooks/useResponseBody'
 import { ScalarVirtualText } from '@scalar/components'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
+
+import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { useResponseBody } from '@/hooks/useResponseBody'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 
@@ -22,7 +23,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
 </script>
 
 <template>
-  <ViewLayoutCollapse class="!max-h-100% overflow-x-auto response-body-virtual">
+  <ViewLayoutCollapse class="!max-h-100% response-body-virtual overflow-x-auto">
     <template #title>Body</template>
     <template
       v-if="dataUrl"
@@ -33,7 +34,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
         :type="mimeType.essence" />
     </template>
     <div
-      class="py-1.5 px-2.5 font-code text-xxs border-1/2 rounded-t border-b-0">
+      class="font-code text-xxs border-1/2 rounded-t border-b-0 px-2.5 py-1.5">
       This response body is massive! Syntax highlighting won’t work here.
     </div>
     <ScalarVirtualText

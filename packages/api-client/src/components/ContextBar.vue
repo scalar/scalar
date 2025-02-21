@@ -20,15 +20,15 @@ const model = computed<string>({
 </script>
 <template>
   <fieldset
-    class="hidden lg:flex ml-auto filter-hover context-bar-group lg:w-[120px]">
+    class="filter-hover context-bar-group ml-auto hidden lg:flex lg:w-[120px]">
     <legend class="sr-only">Filter Sections</legend>
     <div
-      class="request-section-content request-section-content-filter fade-request-section-content text-c-3 hidden xl:flex justify-end rounded text-xs gap-[1.5px] pointer-events-auto relative w-full py-2">
+      class="request-section-content request-section-content-filter fade-request-section-content text-c-3 pointer-events-auto relative hidden w-full justify-end gap-[1.5px] rounded py-2 text-xs xl:flex">
       <label
         v-for="section in sections"
         :key="section"
-        class="filter-hover-item flex items-center hover:bg-b-2 rounded p-1 px-2 cursor-pointer text-center font-medium w-fit whitespace-nowrap has-[:focus-visible]:outline"
-        :class="[model === section ? 'text-c-1  pointer-events-none' : '']">
+        class="filter-hover-item hover:bg-b-2 flex w-fit cursor-pointer items-center whitespace-nowrap rounded p-1 px-2 text-center font-medium has-[:focus-visible]:outline"
+        :class="[model === section ? 'text-c-1 pointer-events-none' : '']">
         {{ section }}
         <input
           v-model="model"
@@ -38,8 +38,8 @@ const model = computed<string>({
           :value="section" />
       </label>
       <div
-        class="flex items-center context-bar-group-hover:text-c-1 absolute -right-[30px] top-1/2 -translate-y-1/2">
-        <span class="mr-1.5 context-bar-group-hover:hidden">{{ model }}</span>
+        class="context-bar-group-hover:text-c-1 absolute -right-[30px] top-1/2 flex -translate-y-1/2 items-center">
+        <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
         <ScalarIcon
           icon="FilterList"
           size="md"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ThemeId, availableThemes } from '@scalar/themes'
+import { availableThemes, type ThemeId } from '@scalar/themes'
 import { computed } from 'vue'
 
 type ApiClientConfig = {

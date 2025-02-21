@@ -6,9 +6,7 @@ import { workThroughQueue } from '../utils/workThroughQueue.ts'
 /**
  * Run the chained tasks and return the results
  */
-export async function toYaml<T extends Task[]>(
-  queue: Queue<T>,
-): Promise<string> {
+export async function toYaml<T extends Task[]>(queue: Queue<T>): Promise<string> {
   const { filesystem } = await workThroughQueue(queue)
 
   return toYamlUtility(getEntrypoint(filesystem).specification)

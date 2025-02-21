@@ -45,11 +45,7 @@ export function CheckCommand() {
       console.log()
       console.log(
         kleur.green('Scalar Configuration validated'),
-        kleur.grey(
-          `in ${kleur.white(
-            `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
-          )}`,
-        ),
+        kleur.grey(`in ${kleur.white(`${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`)}`),
       )
       console.log()
     } else {
