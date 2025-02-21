@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/packages'
 import { watch } from 'vue'
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
@@ -9,7 +9,7 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 /**
  * Warns the user about deprecated configurations in the browser console.
  */
-export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
+export function useDeprecationWarnings(configuration: ApiReferenceConfiguration) {
   watch(
     () => configuration,
     () => {
