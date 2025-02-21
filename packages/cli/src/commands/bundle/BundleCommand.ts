@@ -15,7 +15,7 @@ export function BundleCommand() {
 
     const startTime = performance.now()
 
-    const file = useGivenFileOrConfiguration(fileArgument)
+    const file = useGivenFileOrConfiguration(fileArgument)[0]
 
     const { specification: newContent } = await loadOpenApiFile(file)
 

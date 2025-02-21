@@ -19,7 +19,7 @@ export function ServeCommand() {
   cmd.option('-p, --port <port>', 'set the HTTP port for the API reference server')
   cmd.action(
     async (inputArgument: string, { watch, once, port }: { watch?: boolean; once?: boolean; port?: number }) => {
-      const input = useGivenFileOrConfiguration(inputArgument)
+      const input = useGivenFileOrConfiguration(inputArgument)[0]
       const result = await loadOpenApiFile(input)
 
       if (!result.valid) {

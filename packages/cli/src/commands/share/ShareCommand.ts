@@ -13,7 +13,7 @@ export function ShareCommand() {
     'pass a token to update an existing sandbox',
   )
   cmd.action(async (fileArgument: string, { token }: { token?: string }) => {
-    const file = useGivenFileOrConfiguration(fileArgument)
+    const file = useGivenFileOrConfiguration(fileArgument)[0]
 
     const url =
       'https://sandbox.scalar.com/api/share' + (token ? `?token=${token}` : '')

@@ -7,6 +7,14 @@ import prettyjson from 'prettyjson'
 
 import { useGivenFileOrConfiguration } from '../../utils'
 
+const validateFile = async (filePath: string) => {
+  const { filesystem } = await load(filePath, {
+    plugins: [fetchUrls(), readFiles()],
+  })
+
+  return validate(filesystem)
+}
+
 /**
  * Validate an OpenAPI file against the OpenAPI specifications
  */
@@ -18,59 +26,48 @@ export function ValidateCommand() {
   cmd.action(async (inputArgument: string) => {
     const startTime = performance.now()
 
-    // Read file
-    const input = useGivenFileOrConfiguration(inputArgument)
+    // Get file paths
+    const paths = useGivenFileOrConfiguration(inputArgument)
 
-    // Validate
-    const { filesystem } = await load(input, {
-      plugins: [fetchUrls(), readFiles()],
-    })
+    for (const path of paths) {
+      const validationResult = await validateFile(path);
 
-    const result = await validate(filesystem)
+      if (!validationResult.valid) {
+        console.log(prettyjson.render(validationResult.errors))
+        console.log()
+        console.error(
+          kleur.red(
+            `File does not match the OpenAPI ${validationResult.version ? `${validationResult.version} ` : ''}specification.`,
+          ),
+        )
+        console.log()
+        console.error(
+          kleur.red(
+            `${kleur.bold(
+              `${validationResult.errors?.length} error${validationResult.errors && validationResult.errors.length > 1 ? 's' : ''
+              }`,
+            )} found.`,
+          ),
+        )
+        console.log()
 
-    if (result.valid && result.version) {
-      console.log(
-        kleur.green(
-          `Matches the OpenAPI specification${kleur.white(
-            ` (OpenAPI ${kleur.bold(result.version)})`,
-          )}`,
-        ),
-      )
-
-      const endTime = performance.now()
-
-      console.log()
-      console.log(
-        kleur.green('File validated'),
-        kleur.grey(
-          `in ${kleur.white(
-            `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
-          )}`,
-        ),
-      )
-      console.log()
-    } else {
-      console.log(prettyjson.render(result.errors))
-      console.log()
-      console.error(
-        kleur.red(
-          `File does not match the OpenAPI ${result.version ? `${result.version} ` : ''}specification.`,
-        ),
-      )
-      console.log()
-      console.error(
-        kleur.red(
-          `${kleur.bold(
-            `${result.errors?.length} error${
-              result.errors && result.errors.length > 1 ? 's' : ''
-            }`,
-          )} found.`,
-        ),
-      )
-      console.log()
-
-      process.exit(1)
+        process.exit(1)
+      }
     }
+
+    const endTime = performance.now()
+
+    console.log()
+    console.log(
+      kleur.green(`${paths.length > 1 ? "Files" : "File"} validated`),
+      kleur.grey(
+        `in ${kleur.white(
+          `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
+        )}`,
+      ),
+    )
+    console.log()
+
   })
 
   return cmd

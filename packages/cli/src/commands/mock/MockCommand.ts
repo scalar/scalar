@@ -30,7 +30,7 @@ export function MockCommand() {
       let server: ReturnType<typeof serve>
 
       // Configuration
-      const input = useGivenFileOrConfiguration(fileArgument)
+      const input = useGivenFileOrConfiguration(fileArgument)[0]
 
       // Load OpenAPI file
       const result = await loadOpenApiFile(input)

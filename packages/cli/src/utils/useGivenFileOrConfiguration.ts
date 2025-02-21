@@ -1,29 +1,36 @@
 import kleur from 'kleur'
-
 import { readFile } from './readFile'
+import { check, type ScalarConfig } from '@scalar/config'
+import { ERRORS } from '../libs/errors'
 
 export const CONFIG_FILE = 'scalar.config.json'
 
 export function useGivenFileOrConfiguration(file?: string) {
   // If a specific file is given, use it.
   if (file) {
-    return file
+    return [file]
   }
 
   // Try to load the configuration
   try {
-    const content = readFile(CONFIG_FILE)
+    const config = readFile(CONFIG_FILE)
 
-    if (!content) {
+    if (!config) {
       throw new Error('No configuration file found.')
     }
 
-    const configuration = JSON.parse(content)
-
-    if (configuration?.reference?.file) {
-      return configuration.reference.file
+    if (!check(CONFIG_FILE).valid) {
+      console.error(kleur.red(ERRORS.INVALID_SCALAR_CONFIGURATION))
+      return process.exit(1)
     }
-  } catch {
+
+    const configuration = JSON.parse(config) as ScalarConfig
+
+    if (configuration.references.length > 0) {
+      return configuration.references.map(it => it.path)
+    }
+
+  } catch(err) {
     // Do nothing
   }
 

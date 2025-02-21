@@ -17,7 +17,7 @@ export function FormatCommand() {
   cmd.action(async (inputArgument: string, { output }: { output?: string }) => {
     const startTime = performance.now()
 
-    const input = useGivenFileOrConfiguration(inputArgument)
+    const input = useGivenFileOrConfiguration(inputArgument)[0]
     const specification = await getFileOrUrl(input)
 
     if (!specification) {
