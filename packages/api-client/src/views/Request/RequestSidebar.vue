@@ -45,10 +45,6 @@ import { WorkspaceDropdown } from './components'
 import { isGettingStarted } from './RequestSection/helpers/getting-started'
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-const props = defineProps<{
-  isSidebarOpen: boolean
-}>()
-
 const emit = defineEmits<{
   (e: 'newTab', { name, uid }: { name: string; uid: string }): void
   (e: 'clearDrafts'): void
