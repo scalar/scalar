@@ -137,5 +137,4 @@ export const tagSchema = oasTagSchema.extend({
 })
 
 export type Tag = z.infer<typeof tagSchema>
-/** @deprecated Use `Tag` instead */
 export type TagPayload = z.input<typeof tagSchema>
