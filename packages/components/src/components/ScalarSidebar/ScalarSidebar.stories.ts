@@ -79,6 +79,12 @@ export const WithNavItems: Story = {
 }
 
 export const WithNestedGroups: Story = {
+  argTypes: {
+    indent: { control: 'number' },
+  },
+  args: {
+    indent: 18,
+  },
   render: (args) => ({
     components: {
       ScalarSidebar,
@@ -87,55 +93,73 @@ export const WithNestedGroups: Story = {
       ScalarSidebarGroup,
     },
     setup() {
-      return { args }
+      const selected = ref('')
+      return { args, selected }
     },
     template: `
-<div class="flex h-screen">
+
+<div class="flex h-screen" 
+  :style="{ 
+    '--scalar-sidebar-indent': args.indent + 'px', 
+    '--scalar-sidebar-indent-border-hover': 'var(--scalar-color-3)',
+    '--scalar-sidebar-indent-border-active': 'var(--scalar-color-accent)'
+  }">
   <ScalarSidebar>
     <ScalarSidebarItems class="custom-scroll">
-      <ScalarSidebarGroup>
-        Item Group
+      <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 1'" @click="selected = 'Item 1'">Item 1</ScalarSidebarItem>
+      <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 2'" @click="selected = 'Item 2'">Item 2</ScalarSidebarItem>
+      <ScalarSidebarGroup>  
+        Level 1 Group 
         <template #items>
-          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 1'" @click="selected = 'Subitem 1'">Subitem 1</ScalarSidebarItem>
+          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 2'" @click="selected = 'Subitem 2'">Subitem 2</ScalarSidebarItem>
             <ScalarSidebarGroup>
-              Item Group
+              Level 2 Group
               <template #items>
-                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 3'" @click="selected = 'Subitem 3'">Subitem 3</ScalarSidebarItem>
+                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 4'" @click="selected = 'Subitem 4'">Subitem 4</ScalarSidebarItem>
                   <ScalarSidebarGroup>
-                  Item Group
+                  Level 3 Group
                   <template #items>
-                    <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                    <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 5'" @click="selected = 'Subitem 5'">Subitem 5</ScalarSidebarItem>
+                    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 6'" @click="selected = 'Subitem 6'">Subitem 6</ScalarSidebarItem>
                       <ScalarSidebarGroup>
-                        Item Group
+                        Level 4 Group
                         <template #items>
-                          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 7'" @click="selected = 'Subitem 7'">Subitem 7</ScalarSidebarItem>
+                          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 8'" @click="selected = 'Subitem 8'">Subitem 8</ScalarSidebarItem>
                             <ScalarSidebarGroup>
-                              Item Group
+                              Level 5 Group
                               <template #items>
-                                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 9'" @click="selected = 'Subitem 9'">Subitem 9</ScalarSidebarItem>
+                                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 10'" @click="selected = 'Subitem 10'">Subitem 10</ScalarSidebarItem>
+                                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 11'" @click="selected = 'Subitem 11'">Subitem 11</ScalarSidebarItem>
                               </template>
                             </ScalarSidebarGroup>
-                          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 12'" @click="selected = 'Subitem 12'">Subitem 12</ScalarSidebarItem>
                         </template>
                       </ScalarSidebarGroup>
-                    <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 13'" @click="selected = 'Subitem 13'">Subitem 13</ScalarSidebarItem>
                   </template>
                 </ScalarSidebarGroup>
-                <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 14'" @click="selected = 'Subitem 14'">Subitem 14</ScalarSidebarItem>
               </template>
             </ScalarSidebarGroup>
-          <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+          <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 15'" @click="selected = 'Subitem 15'">Subitem 15</ScalarSidebarItem>
         </template>
       </ScalarSidebarGroup>
+      <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 3'" @click="selected = 'Item 3'">Item 3</ScalarSidebarItem>
+      <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 4'" @click="selected = 'Item 4'">Item 4</ScalarSidebarItem>
     </ScalarSidebarItems>
   </ScalarSidebar>
-  <div class="placeholder flex-1">Main content</div>
+  <div class="flex items-center justify-center flex-1 text-c-2">
+    <template v-if="selected">
+      {{ selected }} Selected
+    </template>
+    <template v-else>
+      Select an item in the sidebar
+    </template>
+  </div>
 </div>
 `,
   }),

@@ -24,6 +24,7 @@
 export default {}
 </script>
 <script setup lang="ts">
+import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import { cva } from '../../cva'
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarIcon } from '../ScalarIcon'
@@ -34,24 +35,15 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['rounded p-1.5 font-medium text-c-2 no-underline'],
+  base: ['group/button flex rounded px-1.5 font-medium text-c-2 no-underline'],
   variants: {
     selected: { true: 'cursor-auto bg-b-2 text-c-1' },
     disabled: { true: 'cursor-auto' },
-    indent: {
-      0: 'pl-[6px]',
-      1: 'pl-[24px]',
-      2: 'pl-[42px]',
-      3: 'pl-[60px]',
-      4: 'pl-[78px]',
-      5: 'pl-[96px]',
-      6: 'pl-[114px]',
-    },
   },
   compoundVariants: [
     { selected: false, disabled: false, class: 'hover:bg-b-2' },
   ],
-  defaultVariants: { selected: false, disabled: false, indent: 0 },
+  defaultVariants: { selected: false, disabled: false },
 })
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -60,9 +52,15 @@ const { cx } = useBindCx()
   <component
     :is="is"
     :aria-level="indent"
+    :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
-    v-bind="cx(variants({ selected, disabled, indent }))">
-    <div class="flex items-center gap-1 flex-1">
+    v-bind="cx(variants({ selected, disabled }))">
+    <slot name="indent">
+      <ScalarSidebarIndent
+        :indent="indent"
+        :selected="selected" />
+    </slot>
+    <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
         v-if="icon || $slots.icon"
         class="size-3.5">

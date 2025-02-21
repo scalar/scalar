@@ -22,9 +22,11 @@ import type { Component } from 'vue'
 import { useBindCx } from '../../hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
-import { useSidebarGroups } from './useSidebarGroups'
+import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
+import { useSidebarGroups, type SidebarGroupLevel } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<{
+  /** Override the element tag */
   is?: Component | string
 }>()
 
@@ -32,11 +34,11 @@ const open = defineModel<boolean>()
 
 defineSlots<{
   /** The text content of the toggle */
-  default?: () => any
+  default?: (props: { open: boolean }) => any
   /** Override the entire toggle button */
-  button?: () => any
+  button?: (props: { open: boolean; level: SidebarGroupLevel }) => any
   /** The list of sidebar subitems */
-  items?: () => any
+  items?: (props: { open: boolean }) => any
 }>()
 
 const { level } = useSidebarGroups({ increment: true })
@@ -45,28 +47,37 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="contents">
+  <li class="group/item contents">
     <slot
+      :level="level"
       name="button"
-      :open="open">
+      :open="!!open">
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
+        class="text-c-1 bg-b-1"
         :indent="level"
         @click="open = !open">
-        <template #icon>
-          <ScalarSidebarGroupToggle :open="open" />
+        <template #indent>
+          <ScalarSidebarIndent
+            class="mr-0"
+            :indent="level" />
         </template>
-        <slot :open="open" />
+        <template #icon>
+          <ScalarSidebarGroupToggle
+            class="text-c-3"
+            :open="open" />
+        </template>
+        <slot :open="!!open" />
       </ScalarSidebarButton>
     </slot>
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col')">
+      v-bind="cx('flex flex-col gap-px')">
       <slot
         name="items"
-        :open="open" />
+        :open="!!open" />
     </component>
   </li>
 </template>

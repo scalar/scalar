@@ -19,6 +19,42 @@ export default {
   ],
   theme: {
     extend: {
+      colors: {
+        // Sidebar
+        sidebar: {
+          b: {
+            1: 'var(--scalar-sidebar-background-1, var(--scalar-background-1))',
+          },
+          c: {
+            1: 'var(--scalar-sidebar-color-1, var(--scalar-color-1))',
+            2: 'var(--scalar-sidebar-color-2, var(--scalar-color-2))',
+          },
+          h: {
+            b: 'var(--scalar-sidebar-item-hover-background, var(--scalar-background-2))',
+            c: 'var(--scalar-sidebar-item-hover-color, currentColor)',
+          },
+          active: {
+            b: 'var(--scalar-sidebar-item-active-background, var(--scalar-background-2))',
+            c: 'var(--scalar-sidebar-color-active, currentColor)',
+          },
+          border:
+            'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
+          indent: {
+            border:
+              'var(--scalar-sidebar-indent-border, var(--scalar-border-color))',
+            hover:
+              'var(--scalar-sidebar-indent-border-hover, var(--scalar-border-color))',
+            active:
+              'var(--scalar-sidebar-indent-border-active, var(--scalar-color-accent))',
+          },
+          search: {
+            b: 'var(--scalar-sidebar-search-background, var(--scalar-background-2))',
+            c: 'var(--scalar-sidebar-search-color, var(--scalar-color-3))',
+            border:
+              'var(--scalar-sidebar-search-border-color, var(--scalar-border-color))',
+          },
+        },
+      },
       maxWidth: {
         'screen-xxs': '360px',
         'screen-xs': '480px',
