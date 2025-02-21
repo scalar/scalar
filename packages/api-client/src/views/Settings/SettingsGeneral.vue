@@ -115,7 +115,6 @@ const setProxy = (newProxy: string | undefined) =>
                 )
               "
               @click="setProxy(DEFAULT_PROXY_URL)">
-              ">
               <div
                 class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
@@ -142,7 +141,6 @@ const setProxy = (newProxy: string | undefined) =>
                 )
               "
               @click="setProxy(proxyUrl)">
-              ">
               <div
                 class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
