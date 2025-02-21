@@ -133,7 +133,7 @@ export const ApiReferenceConfigurationSchema = z.object({
    * Whether to show the sidebar search bar
    * @default false
    */
-  hideSearch: z.boolean().optional(),
+  hideSearch: z.boolean().optional().default(false).catch(false),
   /** Whether dark mode is on or off initially (light mode) */
   darkMode: z.boolean().optional(),
   /** forceDarkModeState makes it always this state no matter what */
