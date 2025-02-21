@@ -4,13 +4,13 @@ import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { type ImportSpecToWorkspaceArgs, importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { toRaw } from 'vue'
 
 /** Maps the specs by URL */
 export const specDictionary: Record<string, { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }> = {}
 
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ReferenceConfiguration, 'servers'>
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ApiReferenceConfiguration, 'servers'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -73,7 +73,10 @@ export function importSpecFileFactory({
   async function importSpecFromUrl(
     url: string,
     workspaceUid: string,
-    { proxyUrl, ...options }: Omit<ImportSpecFileArgs, 'documentUrl'> & Pick<ReferenceConfiguration, 'proxyUrl'> = {},
+    {
+      proxyUrl,
+      ...options
+    }: Omit<ImportSpecFileArgs, 'documentUrl'> & Pick<ApiReferenceConfiguration, 'proxyUrl'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
       const spec = await fetchSpecFromUrl(url, proxyUrl)

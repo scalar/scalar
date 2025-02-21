@@ -26,7 +26,7 @@ import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -93,7 +93,7 @@ export const getSelectedSecuritySchemeUids = (
 }
 
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
-  Pick<ReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers'> & {
+  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -461,7 +461,7 @@ export async function importSpecToWorkspace(
  */
 export function getServersFromOpenApiDocument(
   servers: OpenAPIV3_1.ServerObject[] | undefined,
-  { baseServerURL }: Pick<ReferenceConfiguration, 'baseServerURL'> = {},
+  { baseServerURL }: Pick<ApiReferenceConfiguration, 'baseServerURL'> = {},
 ): Server[] {
   if (!servers || !Array.isArray(servers)) return []
 

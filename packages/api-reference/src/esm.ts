@@ -3,7 +3,7 @@ import type { SpecConfiguration } from '@scalar/types/legacy'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
-import type { ApiReferenceConfiguration } from '@scalar/types/packages'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import ApiReference from './components/ApiReference.vue'
 
 /** Initialize Scalar References */

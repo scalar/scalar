@@ -9,6 +9,10 @@ import {
 import '@scalar/api-reference/style.css'
 
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import {
+  ApiReferenceConfigurationSchema,
+  type ApiReferenceConfiguration,
+} from '@scalar/types/api-reference'
 import type { SpecConfiguration } from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createHead, useSeoMeta } from 'unhead'
@@ -17,7 +21,7 @@ import { computed, ref, toRef, watch, watchEffect } from 'vue'
 import EditorInput from './EditorInput.vue'
 
 const props = defineProps<{
-  configuration?: ReferenceConfiguration & {
+  configuration?: ApiReferenceConfiguration & {
     /** Option to manage the state externally and have the spec reactively update  */
     useExternalState?: boolean
   }
@@ -81,21 +85,10 @@ function handleInput(evt: CustomEvent<{ value: string }>) {
     editorContent.value = evt.detail.value
 }
 
-// ---------------------------------------------------------------------------
-
 // Set defaults as needed on the provided configuration
-const configuration = computed<ReferenceConfiguration>(() => {
-  return {
-    theme: 'default',
-    showSidebar: true,
-    isEditable: true,
-    ...props.configuration,
-    /** If we are managing the dynamic state internally we override the spec */
-    spec: props.configuration?.useExternalState
-      ? props.configuration.spec
-      : { content: editorContent.value },
-  }
-})
+const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+  ApiReferenceConfigurationSchema.parse(props.configuration),
+)
 
 // Create the head tag if the configuration has meta data
 if (configuration.value?.metaData) {
@@ -103,13 +96,12 @@ if (configuration.value?.metaData) {
   useSeoMeta(configuration.value.metaData)
 }
 
-// ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
     () => configuration.value?.[key],
