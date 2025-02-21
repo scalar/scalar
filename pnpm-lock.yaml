@@ -7563,9 +7563,6 @@ packages:
   '@types/estree-jsx@1.0.5':
     resolution: {integrity: sha512-52CcUVNFyfb1A2ALocQw/Dd1BQFNmSdkuC3BkZ6iqhdMfQz7JWOFRuJFloOzjk+6WijU56m9oKXFAXc7o3Towg==}
 
-  '@types/estree@1.0.5':
-    resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
-
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
@@ -8368,11 +8365,6 @@ packages:
 
   acorn@7.4.1:
     resolution: {integrity: sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
-  acorn@8.12.1:
-    resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
     engines: {node: '>=0.4.0'}
     hasBin: true
 
@@ -9414,9 +9406,6 @@ packages:
   conf@7.1.2:
     resolution: {integrity: sha512-r8/HEoWPFn4CztjhMJaWNAe5n+gPUCSaJ0oufbqDLFKsA1V8JjAG7G+p0pgoDFAws9Bpk2VtVLLXqOBA7WxLeg==}
     engines: {node: '>=10'}
-
-  confbox@0.1.7:
-    resolution: {integrity: sha512-uJcB/FKZtBMCJpK8MQji6bJHgu1tixKPxRLeGkNzBoOZzpnZUJm0jm2/sBDWcuBx1dYgxV4JU+g5hmNxCyAmdA==}
 
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
@@ -14192,9 +14181,6 @@ packages:
   pkg-pr-new@0.0.39:
     resolution: {integrity: sha512-ItcsHK+4uO0qmjK4RNs6vTWv3xFhbPZd5U6RoYbxRURWNZfH7KvpyqRzaw4GR7de/IjkdHVZHCzQkjnp3VOVdg==}
     hasBin: true
-
-  pkg-types@1.1.1:
-    resolution: {integrity: sha512-ko14TjmDuQJ14zsotODv7dBlwxKhUKQEhuhmbqo1uCi9BB0Z2alo/wAXg6q1dTR5TyuqYyWhjtfe/Tsh+X28jQ==}
 
   pkg-types@1.1.3:
     resolution: {integrity: sha512-+JrgthZG6m3ckicaOB74TwQ+tBWsFl3qVQg7mN8ulwSOElJ7gBhKzj2VkCPnZ4NlF6kEquYU+RIYNVAvzd54UA==}
@@ -23051,7 +23037,7 @@ snapshots:
       global-directory: 4.0.1
       magicast: 0.3.5
       pathe: 1.1.2
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       prompts: 2.4.2
       rc9: 2.1.2
       semver: 7.6.3
@@ -23064,7 +23050,7 @@ snapshots:
       global-directory: 4.0.1
       magicast: 0.3.5
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       prompts: 2.4.2
       rc9: 2.1.2
       semver: 7.6.3
@@ -23142,7 +23128,7 @@ snapshots:
       ohash: 1.1.4
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       rc9: 2.1.2
       scule: 1.3.0
       semver: 7.6.3
@@ -23266,9 +23252,9 @@ snapshots:
       jiti: 2.4.0
       klona: 2.0.6
       knitwork: 1.1.0
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       scule: 1.3.0
       semver: 7.6.3
       ufo: 1.5.4
@@ -23325,7 +23311,7 @@ snapshots:
       defu: 6.1.4
       hookable: 5.5.3
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       scule: 1.3.0
       std-env: 3.7.0
       ufo: 1.5.4
@@ -23424,11 +23410,11 @@ snapshots:
       jiti: 2.4.0
       knitwork: 1.1.0
       magic-string: 0.30.12
-      mlly: 1.7.3
+      mlly: 1.7.4
       ohash: 1.1.4
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       postcss: 8.4.47
       rollup-plugin-visualizer: 5.12.0(rollup@4.24.4)
       std-env: 3.7.0
@@ -24290,7 +24276,7 @@ snapshots:
 
   '@rollup/pluginutils@5.1.0(rollup@3.29.4)':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 2.3.1
     optionalDependencies:
@@ -24298,7 +24284,7 @@ snapshots:
 
   '@rollup/pluginutils@5.1.0(rollup@4.24.4)':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       estree-walker: 2.0.2
       picomatch: 2.3.1
     optionalDependencies:
@@ -25557,8 +25543,6 @@ snapshots:
     dependencies:
       '@types/estree': 1.0.6
 
-  '@types/estree@1.0.5': {}
-
   '@types/estree@1.0.6': {}
 
   '@types/express-serve-static-core@4.19.3':
@@ -26701,8 +26685,6 @@ snapshots:
 
   acorn@7.4.1: {}
 
-  acorn@8.12.1: {}
-
   acorn@8.14.0: {}
 
   address@1.2.2: {}
@@ -27449,16 +27431,16 @@ snapshots:
   c12@1.11.1(magicast@0.3.4):
     dependencies:
       chokidar: 3.6.0
-      confbox: 0.1.7
+      confbox: 0.1.8
       defu: 6.1.4
       dotenv: 16.4.5
       giget: 1.2.3
       jiti: 1.21.6
-      mlly: 1.7.1
+      mlly: 1.7.4
       ohash: 1.1.3
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       rc9: 2.1.2
     optionalDependencies:
       magicast: 0.3.4
@@ -27466,16 +27448,16 @@ snapshots:
   c12@1.11.1(magicast@0.3.5):
     dependencies:
       chokidar: 3.6.0
-      confbox: 0.1.7
+      confbox: 0.1.8
       defu: 6.1.4
       dotenv: 16.4.5
       giget: 1.2.3
       jiti: 1.21.6
-      mlly: 1.7.1
+      mlly: 1.7.4
       ohash: 1.1.3
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       rc9: 2.1.2
     optionalDependencies:
       magicast: 0.3.5
@@ -27483,16 +27465,16 @@ snapshots:
   c12@2.0.1(magicast@0.3.5):
     dependencies:
       chokidar: 4.0.1
-      confbox: 0.1.7
+      confbox: 0.1.8
       defu: 6.1.4
       dotenv: 16.4.5
       giget: 1.2.3
       jiti: 2.4.0
-      mlly: 1.7.3
+      mlly: 1.7.4
       ohash: 1.1.4
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       rc9: 2.1.2
     optionalDependencies:
       magicast: 0.3.5
@@ -27971,8 +27953,6 @@ snapshots:
       onetime: 5.1.2
       pkg-up: 3.1.0
       semver: 7.6.3
-
-  confbox@0.1.7: {}
 
   confbox@0.1.8: {}
 
@@ -29389,7 +29369,7 @@ snapshots:
 
   estree-walker@3.0.3:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   esutils@2.0.3: {}
 
@@ -29590,7 +29570,7 @@ snapshots:
   externality@1.0.2:
     dependencies:
       enhanced-resolve: 5.17.1
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
       ufo: 1.5.4
 
@@ -30955,7 +30935,7 @@ snapshots:
   impound@0.2.0(rollup@4.24.4):
     dependencies:
       '@rollup/pluginutils': 5.1.3(rollup@4.24.4)
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
       unenv: 1.10.0
       unplugin: 1.16.0
@@ -32247,7 +32227,7 @@ snapshots:
       h3: 1.13.0
       http-shutdown: 1.2.2
       jiti: 2.4.0
-      mlly: 1.7.3
+      mlly: 1.7.4
       node-forge: 1.3.1
       pathe: 1.1.2
       std-env: 3.7.0
@@ -32276,12 +32256,12 @@ snapshots:
 
   local-pkg@0.5.0:
     dependencies:
-      mlly: 1.7.3
-      pkg-types: 1.2.1
+      mlly: 1.7.4
+      pkg-types: 1.3.1
 
   local-pkg@1.0.0:
     dependencies:
-      mlly: 1.7.3
+      mlly: 1.7.4
       pkg-types: 1.3.1
 
   locate-path@3.0.0:
@@ -32414,7 +32394,7 @@ snapshots:
     dependencies:
       estree-walker: 3.0.3
       magic-string: 0.30.12
-      mlly: 1.7.1
+      mlly: 1.7.4
       regexp-tree: 0.1.27
       type-level-regexp: 0.1.17
       ufo: 1.5.4
@@ -33187,10 +33167,10 @@ snapshots:
       fs-extra: 11.2.0
       globby: 14.0.2
       jiti: 1.21.6
-      mlly: 1.7.3
+      mlly: 1.7.4
       mri: 1.2.0
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       postcss: 8.4.47
       postcss-nested: 6.0.1(postcss@8.4.47)
       semver: 7.6.3
@@ -33202,14 +33182,14 @@ snapshots:
     dependencies:
       acorn: 8.14.0
       pathe: 1.1.2
-      pkg-types: 1.1.1
+      pkg-types: 1.3.1
       ufo: 1.5.4
 
   mlly@1.7.3:
     dependencies:
       acorn: 8.14.0
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       ufo: 1.5.4
 
   mlly@1.7.4:
@@ -33395,14 +33375,14 @@ snapshots:
       magic-string: 0.30.12
       magicast: 0.3.5
       mime: 4.0.4
-      mlly: 1.7.3
+      mlly: 1.7.4
       node-fetch-native: 1.6.4
       ofetch: 1.4.1
       ohash: 1.1.4
       openapi-typescript: 7.4.3(encoding@0.1.13)(typescript@5.6.2)
       pathe: 1.1.2
       perfect-debounce: 1.0.0
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       pretty-bytes: 6.1.1
       radix3: 1.1.2
       rollup: 4.24.4
@@ -33698,7 +33678,7 @@ snapshots:
       consola: 3.2.3
       execa: 8.0.1
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       ufo: 1.5.4
 
   nypm@0.3.8:
@@ -33715,7 +33695,7 @@ snapshots:
       consola: 3.2.3
       execa: 8.0.1
       pathe: 1.1.2
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       ufo: 1.5.4
 
   object-assign@4.1.1: {}
@@ -34212,22 +34192,16 @@ snapshots:
       query-registry: 3.0.1
       tinyglobby: 0.2.10
 
-  pkg-types@1.1.1:
-    dependencies:
-      confbox: 0.1.7
-      mlly: 1.7.3
-      pathe: 1.1.2
-
   pkg-types@1.1.3:
     dependencies:
-      confbox: 0.1.7
-      mlly: 1.7.1
+      confbox: 0.1.8
+      mlly: 1.7.4
       pathe: 1.1.2
 
   pkg-types@1.2.1:
     dependencies:
       confbox: 0.1.8
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
 
   pkg-types@1.3.1:
@@ -37442,9 +37416,9 @@ snapshots:
       jiti: 1.21.6
       magic-string: 0.30.12
       mkdist: 1.5.3(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
-      mlly: 1.7.1
+      mlly: 1.7.4
       pathe: 1.1.2
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       pretty-bytes: 6.1.1
       rollup: 3.29.4
       rollup-plugin-dts: 6.1.1(rollup@3.29.4)(typescript@5.6.2)
@@ -37588,9 +37562,9 @@ snapshots:
       fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       scule: 1.3.0
       strip-literal: 2.1.0
       unplugin: 1.16.0
@@ -37606,9 +37580,9 @@ snapshots:
       fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
-      mlly: 1.7.1
+      mlly: 1.7.4
       pathe: 1.1.2
-      pkg-types: 1.1.3
+      pkg-types: 1.3.1
       scule: 1.3.0
       strip-literal: 2.1.0
       unplugin: 1.11.0
@@ -37694,7 +37668,7 @@ snapshots:
       json5: 2.2.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
       scule: 1.3.0
       unplugin: 1.16.0
@@ -37777,9 +37751,9 @@ snapshots:
     dependencies:
       knitwork: 1.1.0
       magic-string: 0.30.12
-      mlly: 1.7.3
+      mlly: 1.7.4
       pathe: 1.1.2
-      pkg-types: 1.2.1
+      pkg-types: 1.3.1
       unplugin: 1.16.0
 
   update-browserslist-db@1.1.0(browserslist@4.23.2):
@@ -38454,7 +38428,7 @@ snapshots:
   webpack-bundle-analyzer@4.10.2:
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
-      acorn: 8.12.1
+      acorn: 8.14.0
       acorn-walk: 8.3.3
       commander: 7.2.0
       debounce: 1.2.1
