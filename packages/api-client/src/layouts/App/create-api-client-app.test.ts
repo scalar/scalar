@@ -7,8 +7,6 @@ describe('createApiClientApp', () => {
     const element = document.createElement('div')
     expect(element).not.toBeNull()
 
-    console.log(element.innerHTML)
-
     expect(element.innerHTML).not.toContain('Request')
 
     createApiClientApp(element, {
