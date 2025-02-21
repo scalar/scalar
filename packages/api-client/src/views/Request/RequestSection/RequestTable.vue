@@ -189,7 +189,7 @@ const flattenValue = (item: RequestExampleParameter) => {
             size="sm"
             variant="outlined"
             @click="handleFileUpload(idx)">
-            <span>File</span>
+            <span>Upload File</span>
             <ScalarIcon
               class="ml-1"
               icon="UploadSimple"
