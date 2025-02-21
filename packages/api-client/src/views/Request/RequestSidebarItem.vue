@@ -427,7 +427,7 @@ const shouldShowItem = computed(() => {
           },
         ]">
         <span
-          class="flex h-5 items-center justify-center max-w-[14px]"
+          class="flex h-5 max-w-[14px] cursor-pointer items-center justify-center"
           @click="toggleSidebarFolder(item.entity.uid)">
           <slot name="leftIcon">
             <ScalarSidebarGroupToggle
@@ -436,22 +436,22 @@ const shouldShowItem = computed(() => {
           </slot>
           &hairsp;
         </span>
-        <div class="flex flex-1 flex-row justify-between">
+        <div class="flex flex-1 flex-row justify-between font-medium">
           <RouterLink
             v-if="item.to"
-            class="no-underline w-full"
+            class="w-full no-underline"
             :to="item.to"
             @click.stop.prevent>
-            <span class="break-all line-clamp-1 font-medium text-left w-full">
+            <span class="line-clamp-1 w-full break-all text-left">
               {{ item.title }}
             </span>
           </RouterLink>
           <template v-else>
             {{ item.title }}
           </template>
-          <div class="relative flex justify-end h-fit">
+          <div class="relative flex h-fit justify-end">
             <div
-              class="items-center opacity-0 gap-px group-hover:opacity-100 group-hover:flex group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
+              class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
               :class="{
                 flex: menuItem.open,
                 hidden:
@@ -463,7 +463,7 @@ const shouldShowItem = computed(() => {
                   (layout !== 'modal' && !isDraftCollection) ||
                   (isDraftCollection && hasDraftRequests)
                 "
-                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
@@ -481,7 +481,7 @@ const shouldShowItem = computed(() => {
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
-                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="openCommandPaletteRequest()">
@@ -505,8 +505,8 @@ const shouldShowItem = computed(() => {
               </template>
               <template #content>
                 <div
-                  class="grid gap-1.5 pointer-events-none max-w-10 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-                  <div class="flex items-center text-c-2">
+                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-10 gap-1.5 rounded p-2 leading-5 shadow-lg">
+                  <div class="text-c-2 flex items-center">
                     <p class="text-pretty break-all">
                       Watching: {{ item.documentUrl }}
                     </p>
