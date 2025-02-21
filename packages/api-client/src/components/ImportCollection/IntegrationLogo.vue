@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
 const props = defineProps<{
@@ -9,7 +9,7 @@ const props = defineProps<{
 
 /** All available framework logos */
 const availableIntegrationIcons: Exclude<
-  ReferenceConfiguration['_integration'],
+  ApiReferenceConfiguration['_integration'],
   null | undefined | 'html'
 >[] = [
   'adonisjs',
@@ -48,6 +48,6 @@ const integrationIcon = computed(() => {
 
 <template>
   <ScalarIcon
-    class="w-full h-full rounded-lg"
+    class="h-full w-full rounded-lg"
     :logo="integrationIcon" />
 </template>

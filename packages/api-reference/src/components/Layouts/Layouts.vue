@@ -2,7 +2,8 @@
 /**
  * This component allows dynamic selection of various layout configurations
  */
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
+import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
+
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 

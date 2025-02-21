@@ -3,7 +3,7 @@
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
 import type { ReferenceProps } from '@/types'
-import type { ApiReferenceConfiguration } from '@scalar/types/packages'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
