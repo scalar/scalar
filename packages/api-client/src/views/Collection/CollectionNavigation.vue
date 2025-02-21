@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// import type { Icon } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
 import { computed } from 'vue'
 import { RouterLink, useRouter, type RouteLocationNamedRaw } from 'vue-router'
 
@@ -7,6 +7,10 @@ import { PathId } from '@/routes'
 import { useActiveEntities } from '@/store'
 
 import CollectionInfoForm from './CollectionInfoForm.vue'
+
+defineProps<{
+  isSticky: boolean
+}>()
 
 const { currentRoute } = useRouter()
 const { activeCollection } = useActiveEntities()
@@ -95,27 +99,50 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
 ])
 </script>
 <template>
-  <div class="mx-auto w-full md:max-w-[50dvw]">
+  <div class="bg-b-1 sticky -top-[104px] z-10 mx-auto w-full">
     <CollectionInfoForm />
     <div
-      class="gap-1/2 bg-b-1 sticky top-0 flex h-fit items-center text-sm font-medium">
-      <RouterLink
-        v-for="({ to, displayName }, i) in routes"
-        :key="i"
-        class="-ml-0.5 flex h-11 cursor-pointer items-center whitespace-nowrap px-2 text-center text-sm font-medium no-underline -outline-offset-1 has-[:focus-visible]:outline"
-        :to="to">
+      class="items-center text-sm font-medium"
+      :class="
+        isSticky
+          ? 'h-fit border-b md:grid md:grid-cols-[1fr_720px_1fr] md:px-4'
+          : 'flex md:mx-auto md:max-w-[720px]'
+      ">
+      <div
+        class="flex max-w-40 items-center"
+        v-if="isSticky">
+        <LibraryIcon
+          class="text-c-2 hidden size-3.5 md:block"
+          :src="
+            activeCollection?.['x-scalar-icon'] || 'interface-content-folder'
+          "
+          stroke-width="2" />
         <span
-          class="flex-center h-full w-full border-b"
-          :class="
-            typeof to.name === 'string' &&
-            typeof currentRoute.name === 'string' &&
-            currentRoute.name?.startsWith(to.name)
-              ? 'text-c-1 border-c-1'
-              : 'text-c-2 hover:text-c-1 border-transparent'
-          ">
-          {{ displayName }}
-        </span>
-      </RouterLink>
+          class="text-c-1 mr-[6.25px] hidden overflow-hidden text-ellipsis whitespace-nowrap px-2 font-medium md:block"
+          >{{ activeCollection?.info?.title }}</span
+        >
+      </div>
+      <div
+        class="flex w-full max-w-[720px] gap-2 pl-1.5 md:ml-1.5 md:pl-0"
+        :class="!isSticky && 'border-b'">
+        <RouterLink
+          v-for="({ to, displayName }, i) in routes"
+          :key="i"
+          class="-ml-2 flex h-10 cursor-pointer items-center whitespace-nowrap px-2 text-center text-sm font-medium no-underline -outline-offset-1 has-[:focus-visible]:outline"
+          :to="to">
+          <span
+            class="flex-center h-full w-full border-b"
+            :class="
+              typeof to.name === 'string' &&
+              typeof currentRoute.name === 'string' &&
+              currentRoute.name?.startsWith(to.name)
+                ? 'text-c-1 border-c-1'
+                : 'text-c-2 hover:text-c-1 border-transparent'
+            ">
+            {{ displayName }}
+          </span>
+        </RouterLink>
+      </div>
     </div>
   </div>
 </template>

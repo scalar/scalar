@@ -49,7 +49,7 @@ const data = computed(() => {
 <template>
   <div
     :aria-label="`Collection: ${data.title}`"
-    class="mx-auto flex h-fit w-full flex-col gap-2 pb-3 pt-6">
+    class="mx-auto flex h-fit w-full flex-col gap-2 pb-3 pt-6 md:mx-auto md:max-w-[720px]">
     <IconSelector
       :modelValue="icon"
       placement="bottom-start"

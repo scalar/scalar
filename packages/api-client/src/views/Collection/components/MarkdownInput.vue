@@ -30,21 +30,37 @@ watch(mode, (newMode) => {
 </script>
 
 <template>
-  <div
-    class="mx-auto flex h-full w-full flex-col gap-2 py-6 md:max-h-[82dvh] md:max-w-[50dvw]">
+  <div class="flex h-full w-full flex-col gap-2 pt-8">
+    <div class="flex min-h-8 items-center justify-between gap-2 pl-1.5">
+      <h3 class="font-bold">Description</h3>
+      <ScalarButton
+        v-if="mode === 'preview'"
+        class="text-c-2 hover:text-c-1 flex items-center gap-2"
+        type="button"
+        size="sm"
+        variant="outlined"
+        @click="mode = 'edit'">
+        <ScalarIcon
+          icon="Pencil"
+          size="sm"
+          thickness="1.5" />
+        <span>Edit</span>
+      </ScalarButton>
+    </div>
     <div
-      class="has-[:focus-visible]:bg-b-1 z-1 group relative flex flex-col overflow-hidden rounded-lg">
-      <div class="h-full min-h-[calc(1rem*4)] overflow-y-auto">
+      class="has-[:focus-visible]:bg-b-1 z-1 group relative flex flex-col rounded-lg">
+      <div class="h-full min-h-[calc(1rem*4)]">
         <!-- Preview -->
         <template v-if="mode === 'preview'">
           <template v-if="modelValue">
             <ScalarMarkdown
               v-if="modelValue"
-              class="hover:border-b-3 h-full rounded-lg border border-transparent p-1.5"
+              withImages
+              class="hover:border-b-3 h-full rounded border border-transparent p-1.5"
               :value="modelValue"
               @dblclick="mode = 'edit'" />
             <div
-              class="brightness-lifted -z-1 bg-b-1 absolute inset-0 hidden rounded shadow-lg group-hover:block group-has-[:focus-visible]:hidden" />
+              class="brightness-lifted -z-1 bg-b-1 absolute inset-0 hidden rounded group-hover:block group-has-[:focus-visible]:hidden" />
           </template>
           <div
             v-else
@@ -67,7 +83,7 @@ watch(mode, (newMode) => {
         <template v-if="mode === 'edit'">
           <CodeInput
             ref="codeInputRef"
-            class="h-full !rounded-lg border px-1 py-0"
+            class="h-full border px-0.5 py-0"
             :modelValue="modelValue"
             :environment="environment"
             :envVariables="envVariables"
@@ -82,5 +98,10 @@ watch(mode, (newMode) => {
 <style scoped>
 :deep(.cm-content) {
   min-height: fit-content;
+}
+:deep(.cm-scroller) {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 </style>

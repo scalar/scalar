@@ -34,14 +34,8 @@ const {
   activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
-const {
-  modalState,
-  requestHistory,
-  requestMutators,
-  serverMutators,
-  servers,
-  showSidebar,
-} = workspaceContext
+const { modalState, requestHistory, requestMutators, serverMutators, servers } =
+  workspaceContext
 
 // Extend the RequestPayload type to include url
 type ExtendedRequestPayload = RequestPayload & {
