@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
-import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
-  WORKSPACE_SYMBOL,
   createActiveEntitiesStore,
   createWorkspaceStore,
+  WORKSPACE_SYMBOL,
 } from '@scalar/api-client/store'
 import {
-  ScalarErrorBoundary,
   addScalarClassesToHeadless,
+  ScalarErrorBoundary,
 } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
-  type ThemeId,
   getThemeStyles,
   hasObtrusiveScrollbars,
+  type ThemeId,
 } from '@scalar/themes'
-import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
+import type { SSRState } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/packages'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -34,6 +33,9 @@ import {
   useSSRContext,
   watch,
 } from 'vue'
+
+import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
@@ -281,9 +283,9 @@ provide(CONFIGURATION_SYMBOL, props.configuration ?? {})
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
     () => props.configuration[key],
@@ -312,7 +314,7 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  <div v-html="themeStyleTag"></div>
+  <div v-html="themeStyleTag" />
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
