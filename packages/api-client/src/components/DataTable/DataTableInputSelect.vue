@@ -89,7 +89,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
 
 <template>
   <div
-    class="group-[.alert]:outline-orange w-full pr-4 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
+    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full pr-4 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
     <template v-if="type === 'array'">
       <ScalarComboboxMultiselect
         :modelValue="selectedArrayOptions"

@@ -1,7 +1,7 @@
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { hasItemProperties, parameterIsInvalid } from './request'
+import { hasEmptyRequiredParameter, hasItemProperties, parameterIsInvalid } from './request'
 
 describe('hasAllowedProperties', () => {
   it('should return true if item has a description', () => {
@@ -179,5 +179,37 @@ describe('parameterIsValid', () => {
       }
       expect(parameterIsInvalid(item).value).toBe(false)
     })
+  })
+})
+
+describe('hasEmptyRequiredParameter', () => {
+  it('returns true if required item has empty value', () => {
+    const item: RequestExampleParameter = {
+      key: 'A key',
+      value: '',
+      required: true,
+      enabled: true,
+    }
+    expect(hasEmptyRequiredParameter(item)).toBe(true)
+  })
+
+  it('returns false if required item has value', () => {
+    const item: RequestExampleParameter = {
+      key: 'A key',
+      value: 'A value',
+      required: true,
+      enabled: true,
+    }
+    expect(hasEmptyRequiredParameter(item)).toBe(false)
+  })
+
+  it('returns false if non-required item has empty value', () => {
+    const item: RequestExampleParameter = {
+      key: 'A key',
+      value: '',
+      required: false,
+      enabled: true,
+    }
+    expect(hasEmptyRequiredParameter(item)).toBe(false)
   })
 })

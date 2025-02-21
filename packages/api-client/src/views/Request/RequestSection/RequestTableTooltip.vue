@@ -12,9 +12,10 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
     class="w-full pr-px"
     :delay="0"
     side="left"
-    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 group-[.alert]:before:to-b-alert before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
+    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 group-[.alert]:before:to-b-alert group-[.error]:before:to-b-danger before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
     <template #trigger>
-      <div class="bg-b-1 mr-0.25 pl-1 pr-1.5 group-[.alert]:bg-transparent">
+      <div
+        class="bg-b-1 mr-0.25 pl-1 pr-1.5 group-[.alert]:bg-transparent group-[.error]:bg-transparent">
         <ScalarIcon
           :class="
             parameterIsInvalid(item).value
