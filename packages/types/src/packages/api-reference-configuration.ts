@@ -97,7 +97,7 @@ export const ApiReferenceConfigurationSchema = z.object({
   /** A string to use one of the color presets */
   theme: z.union([ThemeIdEnum, z.undefined()]).optional(),
   /** The layout to use for the references */
-  layout: z.enum(['modern', 'classic']).optional(),
+  layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
   /** The Swagger/OpenAPI spec to render */
   spec: SpecConfigurationSchema.optional(),
   /**
