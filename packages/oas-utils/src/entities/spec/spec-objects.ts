@@ -20,7 +20,7 @@ export const omitUndefinedValues = <T extends object>(data: T): T => {
 export const oasLicenseSchema = z
   .object({
     /** REQUIRED. The license name used for the API. */
-    name: z.string().optional().catch(undefined),
+    name: z.string().optional().nullable().catch(null),
     /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
     identifier: z.string().optional().catch(undefined),
     /**
