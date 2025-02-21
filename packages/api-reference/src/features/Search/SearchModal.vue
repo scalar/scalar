@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
+  type Icon,
+  type ModalState,
   ScalarModal,
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
-  type Icon,
-  type ModalState,
 } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
@@ -16,7 +16,7 @@ import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
 import { scrollToId } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { useSearchIndex, type EntryType, type FuseData } from './useSearchIndex'
+import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
 const props = defineProps<{
   parsedSpec: Spec

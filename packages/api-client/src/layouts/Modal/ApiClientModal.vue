@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
-  addScalarClassesToHeadless,
   ScalarTeleportRoot,
+  addScalarClassesToHeadless,
 } from '@scalar/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
@@ -13,10 +16,6 @@ import {
   watch,
 } from 'vue'
 import { RouterView } from 'vue-router'
-
-import { handleHotKeyDown, type HotKeyEvent } from '@/libs'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 
 const { activeWorkspace } = useActiveEntities()
 const { modalState, events } = useWorkspace()

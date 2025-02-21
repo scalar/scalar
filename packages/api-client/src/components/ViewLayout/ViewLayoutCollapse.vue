@@ -23,24 +23,24 @@ const {
     <div class="bg-b-2 flex items-center">
       <DisclosureButton
         :class="[
-          'hover:text-c-1 group flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',
+          'group hover:text-c-1 flex flex-1 items-center gap-2.5 overflow-hidden py-1.5 text-sm font-medium max-h-8 px-1 md:px-1.5 xl:pl-2 xl:pr-0.5 outline-none',
           { '!pl-3': layout === 'reference' },
         ]"
         :disabled="layout === 'reference'">
         <ScalarIcon
           v-if="layout !== 'reference'"
           :class="[
-            'text-c-3 group-hover:text-c-1 ui-open:rotate-90 ui-not-open:rotate-0 rounded-px outline-offset-2 group-focus-visible:outline',
+            'text-c-3 group-hover:text-c-1 group-focus-visible:outline ui-open:rotate-90 ui-not-open:rotate-0 rounded-px outline-offset-2',
           ]"
           icon="ChevronRight"
           size="md" />
-        <div class="text-c-1 flex flex-1 items-center gap-1.5">
+        <div class="flex flex-1 items-center gap-1.5 text-c-1">
           <slot
             name="title"
             :open="open" />
           <span
             v-if="!open && itemCount"
-            class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full border font-semibold">
+            class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full font-semibold border">
             {{ itemCount }}
           </span>
         </div>
@@ -56,7 +56,7 @@ const {
 
     <DisclosurePanel
       v-bind="$attrs"
-      class="diclosure-panel h-full max-h-fit rounded-b">
+      class="h-full max-h-fit rounded-b diclosure-panel">
       <slot :open="open" />
     </DisclosurePanel>
   </Disclosure>

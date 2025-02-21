@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarTooltip } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import {
-  requestExampleParametersSchema,
-  type RequestExample,
-} from '@scalar/oas-utils/entities/spec'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import type { RouteLocationRaw } from 'vue-router'
-
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
+import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import {
+  type RequestExample,
+  requestExampleParametersSchema,
+} from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 
 const {
   example,
@@ -163,7 +162,7 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
     <template #title>{{ title }}</template>
     <template #actions>
       <div
-        class="text-c-2 request-meta-buttons flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100">
+        class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100 request-meta-buttons">
         <ScalarTooltip
           v-if="showTooltip"
           side="right"
@@ -180,8 +179,8 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
           </template>
           <template #content>
             <div
-              class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none z-10 grid min-w-48 gap-1.5 rounded p-2 leading-5 shadow-lg">
-              <div class="text-c-2 flex items-center">
+              class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 p-2 text-xxs leading-5 z-10 text-c-1">
+              <div class="flex items-center text-c-2">
                 <span>Clear optional parameters</span>
               </div>
             </div>

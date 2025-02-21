@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 // TODO: We don’t need this button in Electron
+import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { computed } from 'vue'
-
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 
 const props = defineProps<{
   source?: string | null

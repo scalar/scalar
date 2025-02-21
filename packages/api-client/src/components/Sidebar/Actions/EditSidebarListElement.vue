@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 import { ScalarTextField } from '@scalar/components'
 import { ref } from 'vue'
-
-import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
 const props = defineProps<{
   name: string

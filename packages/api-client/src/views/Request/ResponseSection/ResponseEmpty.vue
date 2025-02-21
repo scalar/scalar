@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-
 import Computer from '@/assets/computer.ascii?raw'
 import EmptyState from '@/components/EmptyState.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
@@ -9,6 +6,8 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { onBeforeUnmount, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const { numWorkspaceRequests } = defineProps<{
   numWorkspaceRequests: number
@@ -34,7 +33,7 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
-  <div class="col-1 flex-center relative gap-6 border-t p-2 capitalize">
+  <div class="border-t relative col-1 flex-center gap-6 p-2 capitalize">
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
       :class="{
@@ -64,7 +63,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     </div>
     <div
       v-if="layout !== 'modal'"
-      class="hidden h-[calc(100%_-_50px)] items-center justify-center pb-5"
+      class="h-[calc(100%_-_50px)] items-center justify-center hidden pb-5"
       :class="{
         '!flex opacity-100': numWorkspaceRequests == 1,
       }">

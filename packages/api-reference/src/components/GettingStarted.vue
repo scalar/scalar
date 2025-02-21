@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { themeLabels, type ThemeId } from '@scalar/themes'
+import { type ThemeId, themeLabels } from '@scalar/themes'
 
 defineProps<{
   theme: ThemeId

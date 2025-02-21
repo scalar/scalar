@@ -1,12 +1,11 @@
 <script lang="ts" setup>
+import HelpfulLink from '@/components/HelpfulLink.vue'
+import { useWorkspace } from '@/store'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { httpStatusCodes, type HttpStatusCode } from '@scalar/oas-utils/helpers'
+import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils/helpers'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'
 import { computed, ref } from 'vue'
-
-import HelpfulLink from '@/components/HelpfulLink.vue'
-import { useWorkspace } from '@/store'
 
 const props = defineProps<{ response: ResponseInstance }>()
 
@@ -47,7 +46,7 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
 })
 </script>
 <template>
-  <div class="text-c-1 flex gap-1.5">
+  <div class="flex gap-1.5 text-c-1">
     <span v-if="interval && stopwatch">{{
       prettyMilliseconds(stopwatch)
     }}</span>

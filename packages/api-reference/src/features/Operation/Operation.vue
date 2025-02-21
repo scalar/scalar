@@ -1,10 +1,9 @@
 <script lang="ts" setup>
+import { getPointer } from '@/blocks/helpers/getPointer'
+import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { useWorkspace } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-
-import { getPointer } from '@/blocks/helpers/getPointer'
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'

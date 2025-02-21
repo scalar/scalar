@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ref } from 'vue'
-
-import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 
 const { variable } = defineProps<{
   variable: {
@@ -48,7 +47,7 @@ function handleDelete(id: string) {
 }
 </script>
 <template>
-  <div class="absolute right-1 flex opacity-0 group-hover:opacity-100">
+  <div class="absolute flex right-1 opacity-0 group-hover:opacity-100">
     <button
       v-if="isCopyable"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-[5px]"

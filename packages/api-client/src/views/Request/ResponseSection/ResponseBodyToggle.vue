@@ -8,7 +8,7 @@ defineEmits<{
 </script>
 <template>
   <div
-    class="text-c-3 text-xxs -my-1 flex justify-center gap-0.5 rounded p-0.5">
+    class="text-c-3 flex -my-1 justify-center rounded text-xxs p-0.5 gap-0.5">
     <button
       class="hover:bg-b-3 rounded px-1"
       :class="{ 'bg-b-3 text-c-1 cursor-default': modelValue }"

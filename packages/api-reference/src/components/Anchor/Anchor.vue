@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-
 import { useNavState } from '@/hooks'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import ScreenReader from '../ScreenReader.vue'
 

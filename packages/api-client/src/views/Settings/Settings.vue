@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, type DefineComponent } from 'vue'
-
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import { type DefineComponent, ref } from 'vue'
 
 import SettingsGeneral from './SettingsGeneral.vue'
 

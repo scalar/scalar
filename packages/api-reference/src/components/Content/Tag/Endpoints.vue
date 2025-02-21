@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { isOperationDeprecated } from '@/helpers/operation'
 import { ScalarMarkdown } from '@scalar/components'
 import type { Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
-
-import { isOperationDeprecated } from '@/helpers/operation'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { Anchor } from '../../Anchor'

@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { Target, TargetId } from '@scalar/snippetz/types'
 import { ref } from 'vue'
 
-import { useHttpClientStore, type HttpClientState } from '../../../stores'
+import { type HttpClientState, useHttpClientStore } from '../../../stores'
 
 // Use the template store to keep it accessible globally
 const {

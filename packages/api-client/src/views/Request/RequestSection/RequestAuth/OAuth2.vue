@@ -1,20 +1,19 @@
 <script setup lang="ts">
+import { DataTableRow } from '@/components/DataTable'
+import type { EnvVariable } from '@/store/active-entities'
+import { type UpdateScheme, useWorkspace } from '@/store/store'
+import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
-  pkceOptions,
   type Collection,
   type Oauth2Flow,
   type SecuritySchemeOauth2,
   type Server,
+  pkceOptions,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useToasts } from '@scalar/use-toasts'
-
-import { DataTableRow } from '@/components/DataTable'
-import type { EnvVariable } from '@/store/active-entities'
-import { useWorkspace, type UpdateScheme } from '@/store/store'
-import { authorizeOauth2 } from '@/views/Request/libs'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -91,9 +90,9 @@ const dataTableInputProps = {
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow class="min-w-full">
-      <div class="flex h-8 items-center justify-self-end">
+      <div class="h-8 flex items-center justify-self-end">
         <ScalarButton
-          class="mr-1 p-0 px-2 py-0.5"
+          class="p-0 py-0.5 px-2 mr-1"
           :loading="loadingState"
           size="sm"
           variant="outlined"
@@ -240,9 +239,9 @@ const dataTableInputProps = {
   </template>
   <template v-if="!flow.token">
     <DataTableRow class="min-w-full">
-      <div class="border-t-1/2 flex h-8 w-full items-center justify-end">
+      <div class="h-8 flex items-center justify-end border-t-1/2 w-full">
         <ScalarButton
-          class="mr-1 p-0 px-2 py-0.5"
+          class="p-0 py-0.5 px-2 mr-1"
           :loading="loadingState"
           size="sm"
           variant="outlined"

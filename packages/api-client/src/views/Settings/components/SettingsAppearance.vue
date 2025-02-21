@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, cva, cx } from '@scalar/components'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
 const { colorMode, setColorMode } = useColorMode()
@@ -20,9 +20,9 @@ const buttonStyles = cva({
       :class="cx(buttonStyles({ active: colorMode === 'system' }))"
       @click="setColorMode('system')">
       <div
-        class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
         :class="{
-          'bg-c-accent text-b-1 border-transparent': colorMode === 'system',
+          'bg-c-accent border-transparent text-b-1': colorMode === 'system',
         }">
         <ScalarIcon
           v-if="colorMode === 'system'"
@@ -36,9 +36,9 @@ const buttonStyles = cva({
       :class="cx(buttonStyles({ active: colorMode === 'light' }))"
       @click="setColorMode('light')">
       <div
-        class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
         :class="{
-          'bg-c-accent text-b-1 border-transparent': colorMode === 'light',
+          'bg-c-accent border-transparent text-b-1': colorMode === 'light',
         }">
         <ScalarIcon
           v-if="colorMode === 'light'"
@@ -52,9 +52,9 @@ const buttonStyles = cva({
       :class="cx(buttonStyles({ active: colorMode === 'dark' }))"
       @click="setColorMode('dark')">
       <div
-        class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
         :class="{
-          'bg-c-accent text-b-1 border-transparent': colorMode === 'dark',
+          'bg-c-accent border-transparent text-b-1': colorMode === 'dark',
         }">
         <ScalarIcon
           v-if="colorMode === 'dark'"

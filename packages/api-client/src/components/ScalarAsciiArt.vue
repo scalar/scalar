@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type StyleValue } from 'vue'
+import { type StyleValue, computed } from 'vue'
 
 const props = defineProps<{ art: string; animate?: boolean }>()
 

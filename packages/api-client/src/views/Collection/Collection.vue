@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
@@ -12,6 +10,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities } from '@/store/active-entities'
+import { reactive } from 'vue'
 
 const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
   { key: 'key 1', value: 'value 1', enabled: true },

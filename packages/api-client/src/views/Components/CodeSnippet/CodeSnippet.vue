@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
   Operation,
@@ -9,8 +10,6 @@ import type {
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import { computed } from 'vue'
-
-import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 const {
   target,
@@ -72,7 +71,7 @@ const language = computed(() => {
 <template>
   <div
     v-if="content.error"
-    class="text-c-3 flex min-h-16 items-center justify-center px-4 text-sm">
+    class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center">
     {{ content.error.message }}
   </div>
   <ScalarCodeBlock

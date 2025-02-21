@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import ContextBar from '@/components/ContextBar.vue'
+import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { useLayout } from '@/hooks'
+import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
+import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
+import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
+import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
@@ -11,16 +20,6 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
-
-import ContextBar from '@/components/ContextBar.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useLayout } from '@/hooks'
-import { matchesDomain } from '@/libs/send-request/set-request-cookies'
-import { useWorkspace } from '@/store'
-import type { EnvVariable } from '@/store/active-entities'
-import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
-import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
-import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
 import RequestCodeExample from './RequestCodeExample.vue'
@@ -121,21 +120,21 @@ const activeWorkspaceCookies = computed(() =>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
     <template #title>
       <div
-        class="group pointer-events-none flex flex-1 items-center gap-1 lg:pr-24">
+        class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
           v-if="layout !== 'modal'"
-          class="pointer-events-auto absolute left-0 top-0 h-full w-full cursor-text opacity-0"
+          class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
           for="requestname" />
         <input
           v-if="layout !== 'modal'"
           id="requestname"
-          class="text-c-1 pl-1.25 md:-ml-1.25 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
+          class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 h-8 group-hover-input has-[:focus-visible]:outline z-10"
           placeholder="Request Name"
           :value="operation.summary"
           @input="updateRequestNameHandler" />
         <span
           v-else
-          class="text-c-1 flex h-8 items-center">
+          class="flex items-center text-c-1 h-8">
           {{ operation.summary }}
         </span>
       </div>
@@ -145,7 +144,7 @@ const activeWorkspaceCookies = computed(() =>
         @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="request-section-content custom-scroll relative flex flex-1 flex-col">
+      class="request-section-content custom-scroll flex flex-1 flex-col relative">
       <RequestAuth
         v-if="
           collection &&

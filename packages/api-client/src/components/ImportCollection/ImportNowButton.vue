@@ -1,12 +1,11 @@
 <script lang="ts" setup>
+import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { useRouter } from 'vue-router'
-
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 
 const props = defineProps<{
   source?: string | null
@@ -76,7 +75,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <!-- Button -->
     <ScalarButton
       v-if="variant === 'button'"
-      class="mt-3 h-fit w-full rounded-lg px-6 py-2.5 font-bold"
+      class="py-2.5 px-6 rounded-lg font-bold h-fit mt-3 w-full"
       size="md"
       type="button"
       @click="importCollection">
@@ -85,7 +84,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <!-- Link -->
     <ScalarButton
       v-else
-      class="h-fit rounded-lg px-6 py-2.5 text-[21px] font-bold"
+      class="text-[21px] py-2.5 px-6 rounded-lg font-bold h-fit"
       size="md"
       type="button"
       variant="ghost"

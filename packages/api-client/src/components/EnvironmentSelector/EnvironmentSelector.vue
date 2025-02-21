@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useLayout } from '@/hooks'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -10,10 +13,6 @@ import {
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { useLayout } from '@/hooks'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 
 const { activeCollection, activeWorkspace, activeEnvironment } =
   useActiveEntities()
@@ -86,10 +85,10 @@ onMounted(() => {
   <div>
     <ScalarDropdown placement="bottom-end">
       <ScalarButton
-        class="text-c-1 hover:bg-b-2 h-auto w-fit justify-start px-1.5 py-1.5 pl-2 font-normal"
+        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 w-fit"
         fullWidth
         variant="ghost">
-        <h2 class="m-0 flex items-center gap-1.5 whitespace-nowrap font-medium">
+        <h2 class="font-medium m-0 flex gap-1.5 items-center whitespace-nowrap">
           {{ selectedEnvironment }}
         </h2>
       </ScalarButton>
@@ -98,7 +97,7 @@ onMounted(() => {
         <ScalarDropdownItem
           v-for="environment in availableEnvironments"
           :key="environment.uid"
-          class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
+          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
           @click.stop="updateSelected(environment.uid)">
           <ScalarListboxCheckbox
             :selected="
@@ -108,10 +107,10 @@ onMounted(() => {
           {{ environment.name }}
         </ScalarDropdownItem>
         <ScalarDropdownItem
-          class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
+          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
           @click.stop="updateSelected('')">
           <div
-            class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
+            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
               activeEnvironment?.uid === '' &&
               activeCollection?.['x-scalar-active-environment'] === ''
@@ -131,7 +130,7 @@ onMounted(() => {
           v-if="layout !== 'modal'"
           class="flex items-center gap-1.5"
           @click="createNewEnvironment">
-          <div class="flex h-4 w-4 items-center justify-center">
+          <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               icon="Brackets"
               size="sm" />

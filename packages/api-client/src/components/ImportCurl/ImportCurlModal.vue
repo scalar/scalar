@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
+  type ScalarComboboxOption,
   ScalarIcon,
   ScalarListbox,
   ScalarModal,
   ScalarTextField,
-  type ScalarComboboxOption,
 } from '@scalar/components'
 import type {
   RequestMethod,
@@ -13,9 +15,6 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
-
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { useActiveEntities } from '@/store/active-entities'
 
 const props = defineProps<{
   parsedCurl: RequestPayload | null
@@ -97,7 +96,7 @@ watch(
       placeholder="Request Name"
       @keyup.enter="handleImportClick" />
     <div
-      class="mb-4 mt-2 flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
+      class="border flex flex-row gap-2 h-9 items-center mb-4 mt-2 p-[3px] rounded text-sm">
       <div class="flex h-full">
         <HttpMethod
           :isEditable="false"
@@ -109,12 +108,12 @@ watch(
         }}{{ props.parsedCurl?.path || '' }}
       </span>
     </div>
-    <div class="flex justify-between gap-10">
+    <div class="flex gap-10 justify-between">
       <ScalarListbox
         v-model="selectedCollection"
         :options="collections">
         <ScalarButton
-          class="hover:bg-b-2 max-h-8 justify-between gap-1 p-2 text-xs"
+          class="justify-between p-2 max-h-8 gap-1 text-xs hover:bg-b-2"
           variant="outlined">
           <span
             class="whitespace-nowrap"
@@ -132,7 +131,7 @@ watch(
         </ScalarButton>
       </ScalarListbox>
       <ScalarButton
-        class="h-8 gap-1.5 whitespace-nowrap px-2.5 font-medium shadow-none focus:outline-none"
+        class="gap-1.5 font-medium px-2.5 h-8 shadow-none focus:outline-none whitespace-nowrap"
         :disabled="isRequestNameEmpty"
         type="submit"
         @click="handleImportClick">

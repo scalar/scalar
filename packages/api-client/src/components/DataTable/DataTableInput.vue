@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import type { EnvVariable } from '@/store/active-entities'
+import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
-
-import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import type { EnvVariable } from '@/store/active-entities'
-import type { VueClassProp } from '@/types/vue'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -60,7 +59,7 @@ const inputType = computed(() =>
 </script>
 <template>
   <DataTableCell
-    class="row relative"
+    class="relative row"
     :class="containerClass">
     <div
       v-if="$slots.default"
@@ -80,7 +79,7 @@ const inputType = computed(() =>
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
-          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-2"
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.25 -outline-offset-2"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
@@ -96,7 +95,7 @@ const inputType = computed(() =>
           v-else
           v-bind="$attrs"
           :id="id"
-          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none"
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer"
           disableCloseBrackets
           disableTabIndent
           :envVariables="envVariables"
@@ -114,14 +113,14 @@ const inputType = computed(() =>
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
           v-if="required"
-          class="scalar-input-required centered-y text-xxs text-c-3 bg-b-1 absolute right-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[:focus-visible]:opacity-0">
+          class="scalar-input-required absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
           Required
         </div>
       </template>
     </div>
     <div
       v-if="$slots.warning"
-      class="centered-y text-orange absolute right-7 text-xs">
+      class="absolute centered-y right-7 text-orange text-xs">
       <slot name="warning" />
     </div>
     <slot name="icon" />

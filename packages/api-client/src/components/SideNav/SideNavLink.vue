@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ScalarIcon, type Icon } from '@scalar/components'
-import type { Component } from 'vue'
-
 import { useLayout } from '@/hooks'
+import { type Icon, ScalarIcon } from '@scalar/components'
+import type { Component } from 'vue'
 
 defineProps<{
   is?: Component | string
@@ -15,9 +14,9 @@ const { layout } = useLayout()
 <template>
   <component
     :is="is ?? 'a'"
-    class="hover:bg-b-3 dark:hover:bg-b-2 flex min-w-[37px] max-w-[37px] items-center justify-center rounded-lg p-2 no-underline"
+    class="hover:bg-b-3 dark:hover:bg-b-2 no-underline min-w-[37px] max-w-[37px] flex items-center justify-center rounded-lg p-2"
     :class="{
-      'bg-b-3 dark:bg-b-2 text-c-1 transition-none hover:cursor-default':
+      'bg-b-3 dark:bg-b-2 transition-none hover:cursor-default text-c-1':
         active,
       'sm:min-w-max sm:max-w-max sm:rounded sm:py-1.5': layout === 'web',
     }">
@@ -28,7 +27,7 @@ const { layout } = useLayout()
         thickness="1.5" />
     </slot>
     <span
-      class="sr-only text-sm font-medium"
+      class="text-sm font-medium sr-only"
       :class="{ 'sm:not-sr-only': layout === 'web' }">
       <slot />
     </span>

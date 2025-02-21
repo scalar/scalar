@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useExampleStore } from '#legacy'
 import { useWorkspace } from '@scalar/api-client/store'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
@@ -10,7 +11,6 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { useExampleStore } from '#legacy'
 import { computed, ref, useId, watch } from 'vue'
 
 import {
@@ -22,7 +22,7 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
 import { useConfig } from '../../hooks/useConfig'
-import { useHttpClientStore, type HttpClientState } from '../../stores'
+import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 

@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { computed, ref } from 'vue'
-
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import { computed, ref } from 'vue'
 
 import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
@@ -115,12 +114,12 @@ const shouldVirtualize = computed(() => {
 <template>
   <ViewLayoutSection aria-label="Response">
     <template #title>
-      <div class="flex h-8 flex-1 items-center">
+      <div class="flex items-center flex-1 h-8">
         <div
           aria-live="polite"
           class="flex items-center"
           :class="{ 'animate-response-heading': response }">
-          <span class="response-heading pointer-events-none absolute">
+          <span class="response-heading absolute pointer-events-none">
             Response
           </span>
           <ResponseMetaInformation
@@ -135,7 +134,7 @@ const shouldVirtualize = computed(() => {
       </div>
     </template>
     <div
-      class="custom-scroll relative grid h-full justify-stretch"
+      class="custom-scroll h-full relative grid justify-stretch"
       :class="{
         'content-start': response,
       }">

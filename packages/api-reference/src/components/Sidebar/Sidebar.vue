@@ -3,7 +3,7 @@ import type { Spec } from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
-import { useNavState, useSidebar, type SorterOption } from '../../hooks'
+import { type SorterOption, useNavState, useSidebar } from '../../hooks'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 

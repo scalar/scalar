@@ -3,7 +3,7 @@ defineProps<{ href: string }>()
 </script>
 <template>
   <a
-    class="decoration-c-3 cursor-help underline underline-offset-2"
+    class="cursor-help decoration-c-3 underline underline-offset-2"
     :href="href"
     rel="noopener noreferrer"
     target="_blank">

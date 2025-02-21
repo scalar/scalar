@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import { useConfig } from '@/hooks/useConfig'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
-
-import { useConfig } from '@/hooks/useConfig'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'

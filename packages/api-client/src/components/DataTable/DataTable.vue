@@ -17,8 +17,8 @@ const { cx } = useBindCx()
       )
     ">
     <table
-      class="mb-0 grid min-h-8 auto-rows-auto"
-      :class="{ 'w-max min-w-full': scroll }"
+      class="grid auto-rows-auto min-h-8 mb-0"
+      :class="{ 'min-w-full w-max': scroll }"
       :style="{
         gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
       }">

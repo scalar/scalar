@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { scrollToId, sleep } from '@/helpers'
 import {
+  type Icon,
   ScalarIcon,
   ScalarSidebarGroupToggle,
-  type Icon,
 } from '@scalar/components'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
-
-import { scrollToId, sleep } from '@/helpers'
 
 import { useNavState } from '../../hooks'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'

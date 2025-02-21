@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import { BaseUrl } from '@/features/BaseUrl'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
-
-import { BaseUrl } from '@/features/BaseUrl'
 
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
@@ -69,7 +68,7 @@ const introCardsSlot = computed(() =>
             :class="{ 'introduction-card-row': layout === 'classic' }">
             <div
               v-if="activeCollection?.servers?.length"
-              class="scalar-client introduction-card-item divide-y text-sm [--scalar-address-bar-height:0px]">
+              class="scalar-client introduction-card-item [--scalar-address-bar-height:0px] divide-y text-sm">
               <BaseUrl />
             </div>
             <div

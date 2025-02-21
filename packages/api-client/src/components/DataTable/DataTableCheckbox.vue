@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cva, ScalarIcon } from '@scalar/components'
+import { ScalarIcon, cva } from '@scalar/components'
 
 import DataTableCell from './DataTableCell.vue'
 
@@ -32,16 +32,16 @@ const variants = cva({
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
       :checked="modelValue"
-      class="peer absolute inset-0 cursor-pointer opacity-0 disabled:cursor-default"
+      class="peer absolute inset-0 opacity-0 disabled:cursor-default cursor-pointer"
       :disabled="Boolean(disabled)"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
     <div :class="variants({ align })">
       <div
-        class="absolute m-auto size-3/4 rounded border-[1px] opacity-0"
+        class="absolute opacity-0 border-[1px] rounded size-3/4 m-auto"
         :class="
           !disabled &&
-          'group-has-[:focus-visible]/cell:border-c-accent group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100'
+          'group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100 group-has-[:focus-visible]/cell:border-c-accent'
         " />
       <ScalarIcon
         icon="Checkmark"

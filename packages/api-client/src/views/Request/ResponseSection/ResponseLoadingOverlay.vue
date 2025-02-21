@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarLoading,
   useLoadingState,
 } from '@scalar/components'
 import { ref } from 'vue'
-
-import { useWorkspace } from '@/store'
 
 const { events } = useWorkspace()
 const loading = useLoadingState()
@@ -26,7 +25,7 @@ events.requestStatus.on((status) => {
   <Transition>
     <div
       v-if="loading.isLoading"
-      class="bg-b-1 absolute inset-0 flex flex-col items-center justify-center gap-6">
+      class="absolute inset-0 bg-b-1 flex flex-col gap-6 items-center justify-center">
       <ScalarLoading
         class="text-c-3"
         :loadingState="loading"

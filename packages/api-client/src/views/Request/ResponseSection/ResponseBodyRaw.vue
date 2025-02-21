@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
+import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ref, toRef } from 'vue'
 

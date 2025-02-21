@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { OpenAPI } from '@scalar/openapi-types'
-import { computed, type Component } from 'vue'
+import { type Component, computed } from 'vue'
 
 import { requestMethodAbbreviations, requestMethodColors } from './constants'
 import { isRequestMethod } from './utils/isRequestMethod'

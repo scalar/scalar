@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import DataTable from '@/components/DataTable/DataTable.vue'
+import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { useWorkspace } from '@/store'
+import { CodeSnippet } from '@/views/Components/CodeSnippet'
 import {
   ScalarButton,
   ScalarCombobox,
-  ScalarIcon,
   type ScalarComboboxOption,
+  ScalarIcon,
 } from '@scalar/components'
 import type { Workspace } from '@scalar/oas-utils/entities'
 import type {
@@ -12,14 +17,8 @@ import type {
   RequestExample,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { snippetz, type ClientId, type TargetId } from '@scalar/snippetz'
+import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
-
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store'
-import { CodeSnippet } from '@/views/Components/CodeSnippet'
 
 import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
@@ -120,14 +119,14 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
       :hasIcon="false">
       <template #title>Code Snippet</template>
       <template #actions>
-        <div class="-mx-1 flex flex-1">
+        <div class="flex flex-1 -mx-1">
           <ScalarCombobox
             :modelValue="selectedPlugin"
             :options="snippets.options"
             placement="bottom-end"
             @update:modelValue="selectClient">
             <ScalarButton
-              class="py-0.75 text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 font-normal"
+              class="flex gap-1.5 h-full px-1.5 py-0.75 font-normal text-c-1 w-fit hover:bg-b-3"
               fullWidth
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>
@@ -141,7 +140,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
       <DataTable :columns="['']">
         <DataTableRow>
           <div
-            class="bg-b-1 flex items-center justify-center overflow-hidden border-t">
+            class="bg-b-1 border-t flex items-center justify-center overflow-hidden">
             <CodeSnippet
               class="px-3 py-1.5"
               :client="selectedClient"

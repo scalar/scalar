@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ScalarColorModeToggleIcon } from '@scalar/components'
-import { computed } from 'vue'
-
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { SearchButton } from '@/features/Search'
 import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
+import { ScalarColorModeToggleIcon } from '@scalar/components'
+import { computed } from 'vue'
 
 const props = defineProps<ReferenceLayoutProps>()
 

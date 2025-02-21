@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { useWorkspace } from '@/store'
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { useWorkspace } from '@/store'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'

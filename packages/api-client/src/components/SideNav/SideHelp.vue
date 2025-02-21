@@ -20,12 +20,12 @@ import SideNavLink from './SideNavLink.vue'
 
     <!-- Help Menu -->
     <template #items>
-      <span class="text-c-2 px-2.5 py-1.5 text-xs font-medium">Support</span>
+      <span class="px-2.5 py-1.5 text-xs text-c-2 font-medium">Support</span>
       <a
-        class="block no-underline"
+        class="no-underline block"
         href="https://discord.gg/scalar"
         target="_blank">
-        <ScalarDropdownItem class="flex w-full items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="DiscordLine"
@@ -36,10 +36,10 @@ import SideNavLink from './SideNavLink.vue'
         </ScalarDropdownItem>
       </a>
       <a
-        class="block no-underline"
+        class="no-underline block"
         href="https://github.com/scalar/scalar"
         target="_blank">
-        <ScalarDropdownItem class="flex w-full items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="GitHubLine"
@@ -50,10 +50,10 @@ import SideNavLink from './SideNavLink.vue'
         </ScalarDropdownItem>
       </a>
       <a
-        class="block no-underline"
+        class="no-underline block"
         href="mailto:support@scalar.com"
         target="_blank">
-        <ScalarDropdownItem class="flex w-full items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="Email"
@@ -62,12 +62,12 @@ import SideNavLink from './SideNavLink.vue'
           <span>Email</span>
         </ScalarDropdownItem>
       </a>
-      <span class="text-c-2 px-2.5 py-1.5 text-xs font-medium">Product</span>
+      <span class="px-2.5 py-1.5 text-xs text-c-2 font-medium">Product</span>
       <a
-        class="block no-underline"
+        class="no-underline block"
         href="https://scalar.com/changelog"
         target="_blank">
-        <ScalarDropdownItem class="flex w-full items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="Changelog"
@@ -78,10 +78,10 @@ import SideNavLink from './SideNavLink.vue'
         </ScalarDropdownItem>
       </a>
       <a
-        class="block no-underline"
+        class="no-underline block"
         href="https://github.com/scalar/scalar/issues/2669"
         target="_blank">
-        <ScalarDropdownItem class="flex w-full items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="Roadmap"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { useExampleStore } from '#legacy'
 import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { useWorkspace } from '@scalar/api-client/store'
 import { watchDebounced } from '@vueuse/core'
-import { useExampleStore } from '#legacy'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from './useApiClient'

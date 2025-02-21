@@ -16,16 +16,16 @@ const emit = defineEmits<{
     class="flex flex-col gap-4 text-base"
     @submit.prevent="emit('submit')">
     <slot />
-    <div class="flex justify-between gap-10">
+    <div class="flex gap-10 justify-between">
       <ScalarButton
-        class="flex h-8 cursor-pointer items-center gap-1.5 px-2.5 shadow-none focus:outline-none"
+        class="gap-1.5 px-2.5 h-8 shadow-none focus:outline-none flex items-center cursor-pointer"
         type="button"
         variant="outlined"
         @click="emit('cancel')">
         Cancel
       </ScalarButton>
       <ScalarButton
-        class="custom-scroll h-8 gap-1.5 whitespace-nowrap px-2.5 font-medium shadow-none focus:outline-none"
+        class="gap-1.5 font-medium px-2.5 h-8 shadow-none focus:outline-none custom-scroll whitespace-nowrap"
         type="submit"
         :variant="danger ? 'danger' : 'solid'">
         {{ label ?? 'Save' }}

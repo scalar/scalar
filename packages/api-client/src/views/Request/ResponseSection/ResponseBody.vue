@@ -1,9 +1,8 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
-
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
 import { mediaTypes } from '@/views/Request/consts'
+import { computed, ref } from 'vue'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
@@ -47,9 +46,9 @@ const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
     </template>
     <div
       v-if="data"
-      class="border-t-1/2 bg-b-1 flex max-h-[calc(100%-32px)] flex-col overflow-hidden">
-      <div class="border-b-1/2 flex items-center justify-between px-3 py-1.5">
-        <span class="text-xxs font-code leading-3">
+      class="max-h-[calc(100%-32px)] border-t-1/2 flex flex-col bg-b-1 overflow-hidden">
+      <div class="flex justify-between items-center border-b-1/2 px-3 py-1.5">
+        <span class="text-xxs leading-3 font-code">
           {{ mimeType.essence }}
         </span>
         <ResponseBodyToggle

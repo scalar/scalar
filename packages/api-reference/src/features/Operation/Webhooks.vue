@@ -1,9 +1,4 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Webhooks } from '@scalar/types/legacy'
-import { computed } from 'vue'
-
 import { Lazy } from '@/components/Content/Lazy'
 import {
   CompactSection,
@@ -13,6 +8,10 @@ import {
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useNavState, useSidebar } from '@/hooks'
+import { ScalarMarkdown } from '@scalar/components'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { Webhooks } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
 import Webhook from './components/Webhook.vue'
 

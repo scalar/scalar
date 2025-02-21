@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
-
 import { ROUTES } from '@/constants'
 import { useLayout } from '@/hooks'
+import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
 
 import DownloadAppButton from './DownloadAppButton.vue'
 import SideHelp from './SideHelp.vue'
@@ -16,14 +15,14 @@ const { layout } = useLayout()
 <template>
   <nav
     aria-label="App Navigation"
-    class="app-drag-region flex items-center justify-center gap-1.5 pt-2 sm:justify-between"
+    class="flex items-center justify-center sm:justify-between gap-1.5 app-drag-region pt-2"
     :class="
-      layout === 'web' ? 'h-header border !pt-0' : 'px-2 pb-2 sm:flex-col'
+      layout === 'web' ? 'border h-header !pt-0' : 'sm:flex-col px-2 pb-2'
     "
     role="navigation">
     <SideNavGroup class="app-no-drag-region">
       <a
-        class="ml-1 mr-3 hidden items-center"
+        class="hidden items-center mr-3 ml-1"
         :class="{
           'sm:flex': layout === 'web',
         }"
@@ -62,7 +61,7 @@ const { layout } = useLayout()
       </li>
       <li
         v-if="layout !== 'desktop'"
-        class="hidden items-center justify-center sm:ml-1.5 sm:flex">
+        class="hidden sm:ml-1.5 sm:flex items-center justify-center">
         <DownloadAppButton />
       </li>
     </SideNavGroup>

@@ -24,11 +24,11 @@ const modelValue = computed({
 
 <template>
   <label
-    class="text-c-2 flex select-none items-center gap-2 rounded p-3 py-1.5 text-sm"
+    class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-2 select-none"
     :class="disabled ? 'cursor-default' : 'cursor-pointer'"
     for="watch-toggle">
     <span
-      class="text-c-1 flex items-center gap-1 text-xs font-medium"
+      class="text-c-1 flex gap-1 items-center font-medium text-xs"
       :class="{ 'text-c-3': !modelValue }">
       <ScalarIcon
         icon="Watch"

@@ -14,7 +14,7 @@ const requestMethod = computed(() => {
 
 <template>
   <div
-    :class="`font-code inline-flex items-center gap-2 whitespace-nowrap rounded px-2.5 py-1.5 text-sm font-medium ${requestMethod.color} ${requestMethod.backgroundColor} bg-mix-transparent bg-mix-amount-90`">
+    :class="`inline-flex items-center gap-2 py-1.5 px-2.5 text-sm font-medium font-code rounded whitespace-nowrap ${requestMethod.color} ${requestMethod.backgroundColor} bg-mix-transparent bg-mix-amount-90`">
     <div class="text-xs">{{ requestMethod.short }}</div>
     <div>{{ name }}</div>
   </div>

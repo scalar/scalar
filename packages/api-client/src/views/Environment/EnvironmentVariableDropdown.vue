@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import { parseEnvVariables } from '@/libs'
+import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
 import { ScalarButton, ScalarIcon, ScalarTeleport } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, onMounted, ref, type CSSProperties } from 'vue'
+import { type CSSProperties, computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { parseEnvVariables } from '@/libs'
-import { getEnvColor, type EnvVariables } from '@/libs/env-helpers'
 
 const props = defineProps<{
   query: string
@@ -121,16 +120,16 @@ onClickOutside(
     class="scalar-client">
     <div
       ref="dropdownRef"
-      class="p-0.75 custom-scroll fixed left-0 top-0 flex max-h-[60svh] w-56 flex-col rounded border"
+      class="fixed left-0 top-0 flex flex-col p-0.75 max-h-[60svh] w-56 rounded border custom-scroll"
       :style="dropdownStyle">
       <ul
         v-if="filteredVariables.length"
-        class="gap-1/2 flex flex-col">
+        class="flex flex-col gap-1/2">
         <template
           v-for="(item, index) in filteredVariables"
           :key="item.key">
           <li
-            class="font-code text-xxs hover:bg-b-2 flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
+            class="h-8 font-code text-xxs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
             :class="{ 'bg-b-2': index === selectedVariableIndex }"
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-1.5 whitespace-nowrap">
@@ -147,7 +146,7 @@ onClickOutside(
               {{ item.key }}
             </div>
             <span
-              class="w-20 overflow-hidden text-ellipsis whitespace-nowrap text-right">
+              class="w-20 overflow-hidden text-ellipsis text-right whitespace-nowrap">
               {{ item.value }}
             </span>
           </li>
@@ -165,7 +164,7 @@ onClickOutside(
       </ScalarButton>
       <!-- Backdrop for the dropdown -->
       <div
-        class="-z-1 bg-b-1 brightness-lifted absolute inset-0 rounded shadow-lg" />
+        class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
     </div>
   </ScalarTeleport>
 </template>

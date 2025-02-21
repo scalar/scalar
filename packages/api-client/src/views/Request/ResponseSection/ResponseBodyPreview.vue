@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
-
 import type { MediaPreview } from '@/views/Request/consts'
+import { ref, watch } from 'vue'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 
@@ -28,7 +27,7 @@ watch(
   <div
     v-if="!error && src"
     class="flex justify-center overflow-auto rounded-b"
-    :class="{ 'bg-preview p-2': alpha }">
+    :class="{ 'p-2 bg-preview': alpha }">
     <img
       v-if="mode === 'image'"
       class="h-full max-w-full"
@@ -56,7 +55,7 @@ watch(
     </audio>
     <object
       v-else
-      class="aspect-[4/3] w-full"
+      class="w-full aspect-[4/3]"
       :data="src"
       :type="type"
       @error="error = true" />
