@@ -118,7 +118,7 @@ export const ApiReferenceConfigurationSchema = z.object({
    * Whether to show models in the sidebar, search, and content.
    * @default false
    */
-  hideModels: z.boolean().optional(),
+  hideModels: z.boolean().optional().default(false).catch(false),
   /**
    * Whether to show the "Download OpenAPI Document" button
    * @default false
