@@ -39,9 +39,7 @@ if (configuration.value?.metaData) {
 }
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxyUrl: toRef(
-    () => configuration.value.proxyUrl || configuration.value.proxy || '',
-  ),
+  proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
 

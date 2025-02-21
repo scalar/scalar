@@ -172,8 +172,19 @@ describe('api-reference-configuration', () => {
     })
   })
 
-  describe('migrate theme variables', () => {
-    it('migrates theme variables', () => {
+  describe('migrations', () => {
+    it('migrates proxy to proxyUrl', () => {
+      const config = {
+        proxy: 'https://proxy.example.com',
+      }
+
+      const migratedConfig = ApiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.proxyUrl).toBe('https://proxy.example.com')
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
+    it('migrates legacy theme variables', () => {
       const config = {
         theme: 'default',
         customCss: '--theme-color-red: red;',
