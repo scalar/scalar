@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
+import { safeJSON } from '@scalar/object-utils/parse'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
+import { useToasts } from '@scalar/use-toasts'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+import EmptyState from '@/components/EmptyState.vue'
 import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
@@ -9,17 +18,10 @@ import { createRequestOperation } from '@/libs/send-request'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
-import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
-import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
-import { isDefined } from '@scalar/oas-utils/helpers'
-import { safeJSON } from '@scalar/object-utils/parse'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 import RequestSidebar from './RequestSidebar.vue'
 
@@ -225,10 +227,10 @@ function handleCurlImport(curl: string) {
 </script>
 <template>
   <div
-    v-if="activeCollection && activeRequest && activeWorkspace"
-    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative z-0 overflow-hidden"
+    v-if="activeCollection && activeWorkspace"
+    class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
-      '!mr-0 !mb-0 !border-0': layout === 'modal',
+      '!mb-0 !mr-0 !border-0': layout === 'modal',
     }">
     <div class="flex h-full">
       <RequestSidebar
@@ -236,7 +238,11 @@ function handleCurlImport(curl: string) {
         :isSidebarOpen="isSidebarOpen"
         @newTab="$emit('newTab', $event)"
         @update:isSidebarOpen="(val) => (isSidebarOpen = val)" />
-      <div class="flex flex-1 flex-col h-full">
+
+      <!-- Ensure we have a request for this view -->
+      <div
+        v-if="activeRequest"
+        class="flex h-full flex-1 flex-col">
         <RequestSubpageHeader
           v-model="isSidebarOpen"
           :collection="activeCollection"
@@ -268,8 +274,15 @@ function handleCurlImport(curl: string) {
           </ViewLayoutContent>
         </ViewLayout>
       </div>
+
+      <!-- No active request -->
+      <EmptyState v-else />
     </div>
   </div>
+
+  <!-- No Collection or Workspace -->
+  <EmptyState v-else />
+
   <ImportCurlModal
     v-if="parsedCurl"
     :collectionUid="activeCollection?.uid ?? ''"

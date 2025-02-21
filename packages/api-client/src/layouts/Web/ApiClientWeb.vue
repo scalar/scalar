@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ImportCollectionListener } from '@/components/ImportCollection'
-import MainLayout from '@/layouts/App/MainLayout.vue'
-import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
+
+import { ImportCollectionListener } from '@/components/ImportCollection'
+import MainLayout from '@/layouts/App/MainLayout.vue'
+import { handleHotKeyDown, type HotKeyEvent } from '@/libs'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 // Initialize color mode state globally
 useColorMode()
@@ -54,7 +55,7 @@ const themeStyleTag = computed(
 <template>
   <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
   <ImportCollectionListener>
-    <div v-html="themeStyleTag"></div>
+    <div v-html="themeStyleTag" />
 
     <!-- Ensure we have the workspace loaded from localStorage above -->
     <MainLayout v-if="activeWorkspace?.uid">

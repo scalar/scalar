@@ -43,12 +43,9 @@ export const createActiveEntitiesStore = ({
   const activeRouterParams = computed(getRouterParams(router))
 
   /** The currently selected workspace OR the first one */
-  const activeWorkspace = computed(() => {
-    const workspace =
-      workspaces[activeRouterParams.value[PathId.Workspace]] ?? workspaces[Object.keys(workspaces)[0] ?? '']
-
-    return workspace
-  })
+  const activeWorkspace = computed(
+    () => workspaces[activeRouterParams.value[PathId.Workspace]] ?? Object.values(workspaces)[0],
+  )
 
   /** Ordered list of the active workspace's collections with drafts last */
   const activeWorkspaceCollections = computed(
@@ -124,7 +121,7 @@ export const createActiveEntitiesStore = ({
     const collection =
       collections[activeRouterParams.value.collection] || collections[activeWorkspace.value?.collections[0] ?? '']
 
-    return requests[key] || requests[collection?.requests[0] ?? '']
+    return requests[key] || requests[collection?.requests[0] ?? ''] || Object.values(requests)[0]
   })
 
   /** Grabs the currently active example using the path param */
