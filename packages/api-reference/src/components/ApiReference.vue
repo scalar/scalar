@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  ApiReferenceConfigurationSchema,
-  type ApiReferenceConfiguration,
-} from '@scalar/types/packages'
+import { ApiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
@@ -19,19 +16,19 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
+const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+  ApiReferenceConfigurationSchema.parse(props.configuration),
+)
+
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
-  overrideColorMode: props.configuration?.forceDarkModeState,
+  initialColorMode: configuration.value.darkMode ? 'dark' : undefined,
+  overrideColorMode: configuration.value.forceDarkModeState,
 })
 
 /** Update the dark mode state when props change */
 watch(
-  () => props.configuration?.darkMode,
+  () => configuration.value.darkMode,
   (isDark) => (isDarkMode.value = !!isDark),
-)
-
-const configuration = computed<ApiReferenceConfiguration>(() =>
-  ApiReferenceConfigurationSchema.parse(props.configuration),
 )
 
 if (configuration.value?.metaData) {

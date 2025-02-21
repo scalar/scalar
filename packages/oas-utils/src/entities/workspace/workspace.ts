@@ -1,8 +1,8 @@
 import { themeIds } from '@scalar/themes'
 import { z } from 'zod'
 
-import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys'
 import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
+import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys'
 
 const modifier = z
   .enum(['Meta', 'Control', 'Shift', 'Alt', 'default'] as const)
@@ -46,7 +46,7 @@ export const workspaceSchema = z.object({
   /** Workspace level proxy for all requests to be sent through */
   proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */
-  themeId: z.enum(themeIds).optional().default('default'),
+  themeId: z.enum(themeIds).optional().default('default').catch('default'),
   /** Currently selected snippet client */
   selectedHttpClient: z
     .object({

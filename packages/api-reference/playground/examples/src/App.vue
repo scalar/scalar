@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ApiReferenceConfiguration } from '@scalar/types/packages'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { onMounted, reactive, ref, watch } from 'vue'
 
 import { ApiReference } from '../../../src'
