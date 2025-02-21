@@ -95,7 +95,7 @@ const PathRoutingSchema = z.object({
 
 export const ApiReferenceConfigurationSchema = z.object({
   /** A string to use one of the color presets */
-  theme: z.union([ThemeIdEnum, z.undefined()]).optional(),
+  theme: ThemeIdEnum.optional(),
   /** The layout to use for the references */
   layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
   /** The Swagger/OpenAPI spec to render */
@@ -268,7 +268,7 @@ export const ApiReferenceConfigurationSchema = z.object({
   hideClientButton: z.boolean().optional(),
 })
 
-/** Configuration (after parsing) */
+/** Configuration (after parsing, internal) */
 export type ApiReferenceConfigurationSchema = z.infer<typeof ApiReferenceConfigurationSchema>
-/** Configuration (before parsing) */
+/** Configuration (before parsing, for users) */
 export type ApiReferenceConfiguration = z.input<typeof ApiReferenceConfigurationSchema>
