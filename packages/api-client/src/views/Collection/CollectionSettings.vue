@@ -58,10 +58,11 @@ function handleDeleteCollection() {
 </script>
 
 <template>
-  <div
-    class="mx-auto flex h-full w-full flex-col gap-12 px-1.5 py-8 md:max-h-[82dvh] md:max-w-[50dvw]">
-    <div class="flex flex-col gap-4">
-      <h3 class="font-bold">Features</h3>
+  <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
+    <div class="flex flex-col gap-2">
+      <div class="flex h-8 items-center">
+        <h3 class="font-bold">Features</h3>
+      </div>
       <!-- Watch Mode -->
       <div class="bg-b-2 rounded-lg border text-sm">
         <div
