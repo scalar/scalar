@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import type { TargetId } from '../external/index.ts'
+import { migrateProxyUrl } from './helpers/migrateProxyUrl.ts'
 import { migrateThemeVariables } from './helpers/migrateThemeVariables.ts'
 
 /** Available theme presets for the API reference */
@@ -269,11 +270,20 @@ export const ApiReferenceConfigurationSchema = z
     /** Whether to hide the client button */
     hideClientButton: z.boolean().optional(),
   })
-  .transform((config) => {
-    if (config.customCss) {
-      config.customCss = migrateThemeVariables(config.customCss)
+  .transform((originalConfiguration) => {
+    const configuration = originalConfiguration
+
+    // Migrate legacy theme variables
+    if (configuration.customCss) {
+      configuration.customCss = migrateThemeVariables(configuration.customCss)
     }
-    return config
+
+    // Migrate proxy URL
+    if (configuration.proxy) {
+      migrateProxyUrl(configuration)
+    }
+
+    return configuration
   })
 
 /** Configuration (after parsing, internal) */

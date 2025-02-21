@@ -39,7 +39,7 @@ import { useHttpClientStore } from '@/stores/useHttpClientStore'
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
-import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
+import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -258,7 +258,7 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  proxyUrl: props.configuration.proxyUrl || props.configuration.proxy,
+  proxyUrl: props.configuration.proxyUrl,
   themeId: props.configuration.theme,
   useLocalStorage: false,
   hideClientButton: props.configuration.hideClientButton,
@@ -314,8 +314,6 @@ mapConfigToState('hiddenClients', setExcludedClients)
 
 hideModels.value = props.configuration.hideModels ?? false
 defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
-
-useDeprecationWarnings(props.configuration)
 
 const themeStyleTag = computed(
   () => `<style>
