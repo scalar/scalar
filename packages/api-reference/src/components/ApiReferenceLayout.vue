@@ -17,11 +17,11 @@ import {
   hasObtrusiveScrollbars,
   type ThemeId,
 } from '@scalar/themes'
-import type { SSRState } from '@scalar/types/legacy'
 import {
   ApiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
-} from '@scalar/types/packages'
+} from '@scalar/types/api-reference'
+import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
