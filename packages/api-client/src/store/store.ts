@@ -13,7 +13,8 @@ import { createStoreWorkspaces, extendedWorkspaceDataFactory } from '@/store/wor
 import { useModal } from '@scalar/components'
 import type { RequestEvent, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ThemeId } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type InjectionKey, inject, reactive, ref, toRaw } from 'vue'
 
 export type UpdateScheme = <P extends Path<SecurityScheme>>(
@@ -35,10 +36,10 @@ type CreateWorkspaceStoreOptions = {
    */
   useLocalStorage: boolean
   /** Should be renamed to theme to match the references config */
-  themeId: ReferenceConfiguration['theme']
+  themeId: ApiReferenceConfiguration['theme']
   /** Specifies the integration being used. This is primarily for internal purposes and should not be manually set. */
-  integration: ReferenceConfiguration['_integration']
-} & Pick<ReferenceConfiguration, 'proxyUrl' | 'showSidebar' | 'hideClientButton'>
+  integration: ApiReferenceConfiguration['_integration']
+} & Pick<ApiReferenceConfiguration, 'proxyUrl' | 'showSidebar' | 'hideClientButton'>
 
 /**
  /**
@@ -126,7 +127,7 @@ export const createWorkspaceStore = ({
   // Set some defaults on all workspaces
   Object.values(workspaces).forEach(({ uid }) => {
     if (proxyUrl) workspaceMutators.edit(uid, 'proxyUrl', proxyUrl)
-    if (themeId) workspaceMutators.edit(uid, 'themeId', themeId)
+    if (themeId) workspaceMutators.edit(uid, 'themeId', themeId as ThemeId)
   })
 
   /**

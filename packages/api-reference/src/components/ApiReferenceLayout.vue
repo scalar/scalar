@@ -1,25 +1,27 @@
 <script setup lang="ts">
-import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
-import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
-  WORKSPACE_SYMBOL,
   createActiveEntitiesStore,
   createWorkspaceStore,
+  WORKSPACE_SYMBOL,
 } from '@scalar/api-client/store'
 import {
-  ScalarErrorBoundary,
   addScalarClassesToHeadless,
+  ScalarErrorBoundary,
 } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
-  type ThemeId,
   getThemeStyles,
   hasObtrusiveScrollbars,
+  type ThemeId,
 } from '@scalar/themes'
-import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
+import {
+  ApiReferenceConfigurationSchema,
+  type ApiReferenceConfiguration,
+} from '@scalar/types/api-reference'
+import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -35,9 +37,12 @@ import {
   watch,
 } from 'vue'
 
+import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
+
 import { ApiClientModal } from '../features/ApiClientModal'
 import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
-import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
+import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -56,6 +61,10 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+  ApiReferenceConfigurationSchema.parse(props.configuration),
+)
 
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
@@ -104,7 +113,7 @@ const {
   replaceUrlState,
 } = useNavState()
 
-pathRouting.value = props.configuration.pathRouting
+pathRouting.value = configuration.value.pathRouting
 
 // Ideally this triggers absolutely first on the client so we can set hash value
 onBeforeMount(() => updateHash())
@@ -158,15 +167,15 @@ onMounted(() => {
 })
 
 const showRenderedContent = computed(
-  () => isLargeScreen.value || !props.configuration.isEditable,
+  () => isLargeScreen.value || !configuration.value.isEditable,
 )
 
 // To clear hash when scrolled to the top
 const debouncedScroll = useDebounceFn((value) => {
   const scrollDistance = value.target.scrollTop ?? 0
   if (scrollDistance < 50) {
-    const basePath = props.configuration.pathRouting
-      ? props.configuration.pathRouting.basePath
+    const basePath = configuration.value.pathRouting
+      ? configuration.value.pathRouting.basePath
       : window.location.pathname
 
     replaceUrlState('', basePath + window.location.search)
@@ -195,7 +204,7 @@ onServerPrefetch(() => {
   ctx.payload.data ||= defaultStateFactory()
 
   // Set initial hash value
-  if (props.configuration.pathRouting) {
+  if (configuration.value.pathRouting) {
     const id = getPathRoutingId(ctx.url)
     hash.value = id
     ctx.payload.data.hash = id
@@ -245,11 +254,11 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  proxyUrl: props.configuration.proxyUrl || props.configuration.proxy,
-  themeId: props.configuration.theme,
+  proxyUrl: configuration.value.proxyUrl,
+  themeId: configuration.value.theme,
   useLocalStorage: false,
-  hideClientButton: props.configuration.hideClientButton,
-  integration: props.configuration._integration,
+  hideClientButton: configuration.value.hideClientButton,
+  integration: configuration.value._integration,
 })
 // Populate the workspace store
 watch(
@@ -258,9 +267,9 @@ watch(
     spec &&
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
-      documentUrl: props.configuration.spec?.url,
+      documentUrl: configuration.value.spec?.url,
       setCollectionSecurity: true,
-      ...props.configuration,
+      ...configuration.value,
     }),
   { immediate: true },
 )
@@ -275,18 +284,18 @@ provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
-provide(CONFIGURATION_SYMBOL, props.configuration ?? {})
+provide(CONFIGURATION_SYMBOL, configuration.value)
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
-    () => props.configuration[key],
+    () => configuration.value[key],
     (newValue) => {
       if (typeof newValue !== 'undefined') setter(newValue)
     },
@@ -299,20 +308,18 @@ const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
 mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
 
-hideModels.value = props.configuration.hideModels ?? false
-defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
-
-useDeprecationWarnings(props.configuration)
+hideModels.value = configuration.value.hideModels ?? false
+defaultOpenAllTags.value = configuration.value.defaultOpenAllTags ?? false
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(props.configuration.theme, {
-    fonts: props.configuration.withDefaultFonts,
+  ${getThemeStyles(configuration.value.theme, {
+    fonts: configuration.value.withDefaultFonts,
   })}</style>`,
 )
 </script>
 <template>
-  <div v-html="themeStyleTag"></div>
+  <div v-html="themeStyleTag" />
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
