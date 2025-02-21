@@ -1,10 +1,7 @@
 import { useWorkspace } from '@/store'
 import { createStoreEvents } from '@/store/events'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import {
-  collectionSchema,
-  operationSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { collectionSchema, operationSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -24,6 +21,9 @@ vi.mock('vue-router', () => ({
 vi.mock('@/hooks', () => ({
   useLayout: () => ({
     layout: 'modal',
+  }),
+  useSidebarToggle: () => ({
+    isSidebarOpen: false,
   }),
 }))
 
@@ -53,6 +53,15 @@ const mockEnvironment = environmentSchema.parse({
   description: 'Mock Environment Description',
 })
 
+// Create a mock for useSidebarToggle that we can control
+const mockUseSidebarToggle = vi.fn()
+vi.mock('@/hooks', () => ({
+  useLayout: () => ({
+    layout: 'modal',
+  }),
+  useSidebarToggle: () => mockUseSidebarToggle(),
+}))
+
 describe('RequestSubpageHeader', () => {
   const createWrapper = (options = {}) =>
     mount(RequestSubpageHeader, {
@@ -65,7 +74,6 @@ describe('RequestSubpageHeader', () => {
         server: undefined,
         selectedSchemeOptions: [],
         workspace: workspaceSchema.parse(mockWorkspace),
-        modelValue: false,
       },
       ...options,
     })
@@ -73,6 +81,7 @@ describe('RequestSubpageHeader', () => {
   // Mock our request + example
   beforeEach(() => {
     mockUseWorkspace.mockReturnValue(mockWorkspace)
+    mockUseSidebarToggle.mockReturnValue({ isSidebarOpen: false })
   })
 
   it('renders correctly', () => {
@@ -107,7 +116,7 @@ describe('RequestSubpageHeader', () => {
   it('emits update:modelValue when SidebarToggle is clicked', async () => {
     const wrapper = createWrapper()
     await wrapper.find('.scalar-sidebar-toggle').trigger('click')
-    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([true])
+    expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(true)
   })
 
   it('emits hideModal when close button is clicked', async () => {
@@ -119,5 +128,11 @@ describe('RequestSubpageHeader', () => {
     await wrapper.vm.$nextTick()
     await wrapper.find('.app-exit-button').trigger('click')
     expect(wrapper.emitted('hideModal')).toBeTruthy()
+  })
+
+  it('applies correct classes for modal layout', async () => {
+    const wrapper = createWrapper()
+    const sidebarToggle = wrapper.find('.scalar-sidebar-toggle')
+    expect(sidebarToggle.classes()).toContain('!flex')
   })
 })

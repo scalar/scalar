@@ -25,7 +25,6 @@ const { collection, operation, server, environment, envVariables, workspace } =
     environment: Environment
     envVariables: EnvVariable[]
     workspace: Workspace
-    modelValue: boolean
   }>()
 
 defineEmits<{
