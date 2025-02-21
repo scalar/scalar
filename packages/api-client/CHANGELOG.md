@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.51
+
+### Patch Changes
+
+- 58a8efd: fix: empty state with no collection requests
+
 ## 2.2.50
 
 ### Patch Changes
