@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import type { ApiReferenceConfiguration } from '@scalar/types/packages'
 import { onMounted, reactive, ref, watch } from 'vue'
 
-import { ApiReference, type ReferenceConfiguration } from '../../../src'
+import { ApiReference } from '../../../src'
 
 const LIST_OF_OPENAPI_EXAMPLES =
   'https://raw.githubusercontent.com/scalar/awesome-openapi/refs/heads/main/data/openapi-document-urls.json'
@@ -35,7 +36,7 @@ onMounted(async () => {
 })
 
 /** Configuration */
-const configuration = reactive<ReferenceConfiguration>({
+const configuration = reactive<ApiReferenceConfiguration>({
   proxyUrl: 'https://proxy.scalar.com',
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',

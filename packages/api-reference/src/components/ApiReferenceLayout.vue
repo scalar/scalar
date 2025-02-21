@@ -17,7 +17,8 @@ import {
   hasObtrusiveScrollbars,
   type ThemeId,
 } from '@scalar/themes'
-import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
+import type { SSRState } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/packages'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -293,9 +294,9 @@ provide(CONFIGURATION_SYMBOL, props.configuration ?? {})
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
     () => props.configuration[key],

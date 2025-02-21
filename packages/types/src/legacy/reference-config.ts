@@ -69,7 +69,7 @@ export type ThemeId =
  */
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
-  theme?: ThemeId | undefined
+  theme?: ThemeId | undefined | unknown
   /** The layout to use for the references */
   layout?: 'modern' | 'classic' | unknown
   /** The Swagger/OpenAPI spec to render */

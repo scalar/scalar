@@ -1,5 +1,5 @@
 import type { ReferenceProps } from '@/types'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
@@ -10,12 +10,12 @@ const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 /**
  * Reading the configuration from the data-attributes.
  */
-export function getConfigurationFromDataAttributes(doc: Document): ReferenceConfiguration {
+export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceConfiguration {
   const specElement = doc.querySelector('[data-spec]')
   const specUrlElement = doc.querySelector('[data-spec-url]')
   const configurationScriptElement = doc.querySelector('#api-reference[data-configuration]')
 
-  const getConfiguration = (): ReferenceConfiguration => {
+  const getConfiguration = (): ApiReferenceConfiguration => {
     // <script data-configuration="{ … }" />
     if (configurationScriptElement) {
       const configurationFromElement = configurationScriptElement.getAttribute('data-configuration')
@@ -116,7 +116,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
-    } satisfies ReferenceConfiguration
+    } satisfies ApiReferenceConfiguration
   }
 
   return {}
@@ -126,7 +126,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function mountScalarApiReference(doc: Document, configuration: ReferenceConfiguration) {
+export function mountScalarApiReference(doc: Document, configuration: ApiReferenceConfiguration) {
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */

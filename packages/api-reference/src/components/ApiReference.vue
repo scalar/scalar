@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { migrateThemeVariables } from '@scalar/themes'
 import {
   ApiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
@@ -31,35 +30,9 @@ watch(
   (isDark) => (isDarkMode.value = !!isDark),
 )
 
-//TODO: Move this to zod
-const customCss = computed(() => {
-  if (!props.configuration?.customCss) return undefined
-  return migrateThemeVariables(props.configuration?.customCss)
-})
-
-// Set defaults as needed on the provided configuration
-// const configuration = computed<ReferenceConfiguration>(() => ({
-//   spec: {
-//     content: undefined,
-//     url: undefined,
-//     ...props.configuration?.spec,
-//   },
-//   proxyUrl: undefined,
-//   theme: 'default',
-//   showSidebar: true,
-//   isEditable: false,
-//   ...props.configuration,
-//   customCss: customCss.value,
-// }))
-
-const configuration = computed<ApiReferenceConfiguration>(() => {
-  const config = ApiReferenceConfigurationSchema.parse(props.configuration)
-
-  return {
-    ...config,
-    customCss: customCss.value,
-  }
-})
+const configuration = computed<ApiReferenceConfiguration>(() =>
+  ApiReferenceConfigurationSchema.parse(props.configuration),
+)
 
 if (configuration.value?.metaData) {
   useSeoMeta(configuration.value.metaData)
