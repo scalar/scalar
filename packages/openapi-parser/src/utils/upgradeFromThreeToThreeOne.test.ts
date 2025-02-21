@@ -1,45 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  isSchemaPath,
-  upgradeFromThreeToThreeOne,
-} from './upgradeFromThreeToThreeOne.ts'
+import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne.ts'
 
 describe('isSchemaPath', () => {
   it('correctly identifies schema paths', () => {
     expect(isSchemaPath(['components', 'schemas', 'User'])).toBe(true)
-    expect(
-      isSchemaPath([
-        'paths',
-        '/users',
-        'get',
-        'responses',
-        '200',
-        'content',
-        'application/json',
-        'schema',
-      ]),
-    ).toBe(true)
-    expect(
-      isSchemaPath([
-        'paths',
-        '/users',
-        'post',
-        'requestBody',
-        'content',
-        'application/json',
-        'schema',
-      ]),
-    ).toBe(true)
-    expect(
-      isSchemaPath(['components', 'schemas', 'User', 'properties', 'address']),
-    ).toBe(true)
-    expect(isSchemaPath(['components', 'schemas', 'User', 'allOf', '0'])).toBe(
+    expect(isSchemaPath(['paths', '/users', 'get', 'responses', '200', 'content', 'application/json', 'schema'])).toBe(
       true,
     )
-    expect(
-      isSchemaPath(['paths', '/users', 'get', 'parameters', '0', 'schema']),
-    ).toBe(true)
+    expect(isSchemaPath(['paths', '/users', 'post', 'requestBody', 'content', 'application/json', 'schema'])).toBe(true)
+    expect(isSchemaPath(['components', 'schemas', 'User', 'properties', 'address'])).toBe(true)
+    expect(isSchemaPath(['components', 'schemas', 'User', 'allOf', '0'])).toBe(true)
+    expect(isSchemaPath(['paths', '/users', 'get', 'parameters', '0', 'schema'])).toBe(true)
   })
 
   it('correctly identifies non-schema paths', () => {
@@ -120,10 +92,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/test'].get.responses['200'].content['application/json']
-          .schema,
-      ).toEqual({
+      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
         type: ['string', 'null'],
       })
     })
@@ -161,10 +130,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/test'].get.responses['200'].content['application/json']
-          .schema,
-      ).toEqual({
+      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
         type: 'integer',
         exclusiveMinimum: 1,
         exclusiveMaximum: 100,
@@ -201,10 +167,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/test'].get.responses['200'].content['application/json']
-          .schema,
-      ).toEqual({
+      expect(result.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
         type: 'integer',
         examples: [1],
       })
@@ -299,8 +262,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/users'].post.requestBody.content['application/json']
-          .schema.properties.foobar,
+        result.paths['/users'].post.requestBody.content['application/json'].schema.properties.foobar,
       ).toStrictEqual({
         type: 'array',
         examples: [['Portfolio1', 'Portfolio2']],
@@ -337,11 +299,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/upload'].post.requestBody.content[
-          'application/octet-stream'
-        ],
-      ).toEqual({})
+      expect(result.paths['/upload'].post.requestBody.content['application/octet-stream']).toEqual({})
     })
 
     it('migrates base64 format to contentEncoding for image uploads', async () => {
@@ -369,9 +327,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/upload'].post.requestBody.content['image/png'],
-      ).toEqual({
+      expect(result.paths['/upload'].post.requestBody.content['image/png']).toEqual({
         schema: {
           type: 'string',
           contentEncoding: 'base64',
@@ -412,9 +368,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         },
       })
 
-      expect(
-        result.paths['/upload'].post.requestBody.content['multipart/form-data'],
-      ).toEqual({
+      expect(result.paths['/upload'].post.requestBody.content['multipart/form-data']).toEqual({
         schema: {
           type: 'object',
           properties: {
@@ -494,9 +448,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/images/edits'].post.requestBody.content[
-          'multipart/form-data'
-        ].schema.properties.image.oneOf[0],
+        result.paths['/images/edits'].post.requestBody.content['multipart/form-data'].schema.properties.image.oneOf[0],
       ).toEqual({
         type: 'string',
         contentMediaType: 'application/octet-stream',

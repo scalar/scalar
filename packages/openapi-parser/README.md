@@ -91,7 +91,10 @@ const specification = `{
   "paths": {}
 }`
 
-const { specification } = filter(specification, (schema) => !schema?.['x-internal'])
+const { specification } = filter(
+  specification,
+  (schema) => !schema?.['x-internal'],
+)
 ```
 
 ### Upgrade your OpenAPI document

@@ -33,10 +33,7 @@ const setCreateClient = (client: typeof CreateApiClientModalSync) => {
 }
 
 /** Add a client to the client dict */
-const addClient = (
-  url: string,
-  client: ReturnType<typeof CreateApiClientModalSync>,
-) => {
+const addClient = (url: string, client: ReturnType<typeof CreateApiClientModalSync>) => {
   state = { ...state, clientDict: { ...state.clientDict, [url]: client } }
   emit()
 }

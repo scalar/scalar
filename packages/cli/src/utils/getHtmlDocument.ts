@@ -1,9 +1,6 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-export function getHtmlDocument(
-  specification: OpenAPI.Document,
-  watch = false,
-) {
+export function getHtmlDocument(specification: OpenAPI.Document, watch = false) {
   return `<!doctype html>
     <html>
       <head>
@@ -35,9 +32,7 @@ export function getHtmlDocument(
         <script
           id="api-reference"
           type="application/json"
-          data-proxy-url="https://proxy.scalar.com">${JSON.stringify(
-            specification,
-          )}</script>
+          data-proxy-url="https://proxy.scalar.com">${JSON.stringify(specification)}</script>
         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
       </body>
     </html>`

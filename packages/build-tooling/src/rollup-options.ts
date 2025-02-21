@@ -39,12 +39,9 @@ export function createRollupConfig(props: {
   emptyOutDir?: boolean
 }): RollupOptions {
   /** Load the pkg file if not provided */
-  const pkgFile =
-    props.pkgFile ?? JSON.parse(readFileSync('./package.json', 'utf-8'))
+  const pkgFile = props.pkgFile ?? JSON.parse(readFileSync('./package.json', 'utf-8'))
 
-  const plugins = Array.isArray(props.options?.plugins)
-    ? [...props.options.plugins]
-    : []
+  const plugins = Array.isArray(props.options?.plugins) ? [...props.options.plugins] : []
 
   // Remove the ./dist folder by default
   if (props?.emptyOutDir !== false) {
@@ -77,16 +74,11 @@ export function createRollupConfig(props: {
     }),
   )
 
-  const external = Array.isArray(props.options?.external)
-    ? props.options.external
-    : []
+  const external = Array.isArray(props.options?.external) ? props.options.external : []
 
-  if ('dependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.dependencies))
-  if ('devDependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.devDependencies))
-  if ('peerDependencies' in pkgFile)
-    external.push(...Object.keys(pkgFile.peerDependencies))
+  if ('dependencies' in pkgFile) external.push(...Object.keys(pkgFile.dependencies))
+  if ('devDependencies' in pkgFile) external.push(...Object.keys(pkgFile.devDependencies))
+  if ('peerDependencies' in pkgFile) external.push(...Object.keys(pkgFile.peerDependencies))
 
   return {
     treeshake: {
@@ -108,9 +100,7 @@ export function createRollupConfig(props: {
     },
     ...props.options,
     // Do not bundle any dependencies by default.
-    external: external.map(
-      (packageName) => new RegExp(`^${packageName}(/.*)?`),
-    ),
+    external: external.map((packageName) => new RegExp(`^${packageName}(/.*)?`)),
     plugins,
   }
 }

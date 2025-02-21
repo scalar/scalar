@@ -11,10 +11,7 @@ import type { AnyObject } from '../types/index.ts'
 import { load } from './load/load.ts'
 import { resolveReferences } from './resolveReferences.ts'
 
-const EXAMPLE_FILE = path.join(
-  new URL(import.meta.url).pathname,
-  '../../../tests/filesystem/api/openapi.yaml',
-)
+const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../tests/filesystem/api/openapi.yaml')
 
 describe('resolveReferences', () => {
   it('resolves a single reference', async () => {
@@ -67,9 +64,7 @@ describe('resolveReferences', () => {
     // Assertion
     expect(errors).not.toBe(undefined)
     expect(errors).not.toStrictEqual([])
-    expect(errors[0].message).toBe(
-      'Can’t resolve reference: #/components/WrongReference',
-    )
+    expect(errors[0].message).toBe('Can’t resolve reference: #/components/WrongReference')
     expect(errors.length).toBe(1)
     expect(valid).toBe(false)
   })
@@ -95,9 +90,7 @@ describe('resolveReferences', () => {
     // Assertion
     expect(errors).not.toBe(undefined)
     expect(errors).not.toStrictEqual([])
-    expect(errors[0].message).toBe(
-      'Can’t resolve external reference: foo/bar/foobar.yaml',
-    )
+    expect(errors[0].message).toBe('Can’t resolve external reference: foo/bar/foobar.yaml')
     expect(errors.length).toBe(1)
     expect(valid).toBe(false)
   })
@@ -126,21 +119,18 @@ describe('resolveReferences', () => {
 
     // Run the specification through the old parser
     const oldSchema = (await new Promise((resolve, reject) => {
-      SwaggerParser.dereference(
-        structuredClone(specification) as never,
-        (error, result) => {
-          if (error) {
-            reject(error)
-          }
+      SwaggerParser.dereference(structuredClone(specification) as never, (error, result) => {
+        if (error) {
+          reject(error)
+        }
 
-          if (result === undefined) {
-            reject('Couldn’t parse the Swagger file.')
+        if (result === undefined) {
+          reject('Couldn’t parse the Swagger file.')
 
-            return
-          }
-          resolve(result)
-        },
-      )
+          return
+        }
+        resolve(result)
+      })
     }).catch((error) => {
       console.error('[@apidevtools/swagger-parser]', error)
     })) as any
@@ -183,21 +173,18 @@ describe('resolveReferences', () => {
 
     // Run the specification through the old parser
     const oldSchema = (await new Promise((resolve, reject) => {
-      SwaggerParser.dereference(
-        structuredClone(specification) as never,
-        (error, result) => {
-          if (error) {
-            reject(error)
-          }
+      SwaggerParser.dereference(structuredClone(specification) as never, (error, result) => {
+        if (error) {
+          reject(error)
+        }
 
-          if (result === undefined) {
-            reject('Couldn’t parse the Swagger file.')
+        if (result === undefined) {
+          reject('Couldn’t parse the Swagger file.')
 
-            return
-          }
-          resolve(result)
-        },
-      )
+          return
+        }
+        resolve(result)
+      })
     }).catch((error) => {
       console.error('[@apidevtools/swagger-parser]', error)
     })) as any
@@ -254,10 +241,7 @@ describe('resolveReferences', () => {
     const { schema } = resolveReferences(specification)
 
     // Assertion
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.oneOf[0],
-    ).toMatchObject({
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.oneOf[0]).toMatchObject({
       type: 'string',
       example: 'barfoo',
     })
@@ -306,10 +290,7 @@ describe('resolveReferences', () => {
     const { schema } = resolveReferences(specification)
 
     // Assertion
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.oneOf[0],
-    ).toMatchObject({
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.oneOf[0]).toMatchObject({
       type: 'string',
       example: 'barfoo',
       description: 'This is a barfoo',
@@ -378,8 +359,7 @@ describe('resolveReferences', () => {
     // Assertion
     expect(schema.swagger).toBe('2.0')
     expect(
-      schema.paths['/foobar'].post.responses[200].schema.properties.dictionaries
-        .additionalProperties,
+      schema.paths['/foobar'].post.responses[200].schema.properties.dictionaries.additionalProperties,
     ).toMatchObject({
       properties: {
         cityCode: {
@@ -439,10 +419,7 @@ describe('resolveReferences', () => {
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
 
     // Sky is the liit
-    expect(
-      schema.schemas.element.properties.element.properties.element.properties
-        .element,
-    ).toBeTypeOf('object')
+    expect(schema.schemas.element.properties.element.properties.element.properties.element).toBeTypeOf('object')
   })
 
   it('resolves an OpenAPI-like circular reference', async () => {
@@ -469,9 +446,7 @@ describe('resolveReferences', () => {
     // Circular dependency should be resolved
     expect(schema.properties.element.type).toBe('object')
     expect(schema.properties.element.properties.element.type).toBe('object')
-    expect(
-      schema.properties.element.properties.element.properties.element.type,
-    ).toBe('object')
+    expect(schema.properties.element.properties.element.properties.element.type).toBe('object')
 
     // Circular references can’t be JSON.stringify’d (easily)
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
@@ -518,10 +493,7 @@ describe('resolveReferences', () => {
 
     const { schema } = resolveReferences(filesystem)
 
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.example,
-    ).toBe('foobar')
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 
   it('resolves reference to a part of an external file', async () => {
@@ -570,10 +542,7 @@ describe('resolveReferences', () => {
     ]
 
     const { schema } = resolveReferences(filesystem)
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.example,
-    ).toBe('foobar')
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 
   it('resolves references in external files', async () => {
@@ -631,10 +600,7 @@ describe('resolveReferences', () => {
     ]
 
     const { schema } = resolveReferences(filesystem)
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.example,
-    ).toBe('foobar')
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 
   it('resolves from filesystem', async () => {
@@ -686,9 +652,6 @@ describe('resolveReferences', () => {
     ]
 
     const { schema } = resolveReferences(filesystem)
-    expect(
-      schema.paths['/foobar'].post.requestBody.content['application/json']
-        .schema.example,
-    ).toBe('foobar')
+    expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
 })

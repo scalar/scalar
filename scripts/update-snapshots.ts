@@ -16,14 +16,10 @@ const browsers = ['chromium', 'firefox', 'Mobile-Chrome', 'Mobile-Safari']
  * The intended use is to be run in the test-cdn-jsdelvr.yml GitHub action workflow
  */
 async function updateSnapshots() {
-  const testResultsFolders = await fs.readdir(
-    path.join(__dirname, '../playwright/test-results'),
-  )
+  const testResultsFolders = await fs.readdir(path.join(__dirname, '../playwright/test-results'))
 
   // filter out retry reports
-  const playwrightReports = testResultsFolders.filter(
-    (report) => !report.includes('retry'),
-  )
+  const playwrightReports = testResultsFolders.filter((report) => !report.includes('retry'))
 
   for await (const report of playwrightReports) {
     // find the browser name
@@ -32,14 +28,10 @@ async function updateSnapshots() {
       continue
     }
 
-    const snapshotReport = await fs.readdir(
-      path.join(__dirname, '../playwright/test-results', report),
-    )
+    const snapshotReport = await fs.readdir(path.join(__dirname, '../playwright/test-results', report))
 
     // Find the "actual" snapshot file
-    const actualSnapshot = snapshotReport.find((name) =>
-      name.includes('actual'),
-    )
+    const actualSnapshot = snapshotReport.find((name) => name.includes('actual'))
     if (!actualSnapshot) {
       continue
     }
@@ -47,12 +39,7 @@ async function updateSnapshots() {
     // Copy the actual snapshot to the snapshot folder
     // and rename the file with the browser name and platform (linux or macos)
     await fs.copyFile(
-      path.join(
-        __dirname,
-        '../playwright/test-results',
-        report,
-        actualSnapshot,
-      ),
+      path.join(__dirname, '../playwright/test-results', report, actualSnapshot),
       path.join(
         __dirname,
         '../playwright/tests/jsdelivr.spec.ts-snapshots/',

@@ -1,6 +1,9 @@
-import BrowserOnly from '@docusaurus/BrowserOnly'
 import type { ReferenceProps } from '@scalar/api-reference-react'
+
+import BrowserOnly from '@docusaurus/BrowserOnly'
+
 import '@scalar/api-reference-react/style.css'
+
 import Layout from '@theme/Layout'
 import React from 'react'
 
@@ -15,8 +18,7 @@ export const ScalarDocusaurus = ({ route }: Props) => {
     <Layout>
       <BrowserOnly>
         {() => {
-          const ApiReferenceReact =
-            require('@scalar/api-reference-react').ApiReferenceReact
+          const ApiReferenceReact = require('@scalar/api-reference-react').ApiReferenceReact
           return <ApiReferenceReact configuration={route.configuration} />
         }}
       </BrowserOnly>

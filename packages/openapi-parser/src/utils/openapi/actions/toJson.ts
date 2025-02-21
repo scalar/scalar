@@ -6,9 +6,7 @@ import { workThroughQueue } from '../utils/workThroughQueue.ts'
 /**
  * Run the chained tasks and return the results
  */
-export async function toJson<T extends Task[]>(
-  queue: Queue<T>,
-): Promise<string | undefined> {
+export async function toJson<T extends Task[]>(queue: Queue<T>): Promise<string | undefined> {
   const { filesystem } = await workThroughQueue(queue)
 
   return toJsonUtility(getEntrypoint(filesystem).specification)

@@ -12,11 +12,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   let specification = originalSpecification
 
   // Version
-  if (
-    specification !== null &&
-    typeof specification.swagger === 'string' &&
-    specification.swagger?.startsWith('2.0')
-  ) {
+  if (specification !== null && typeof specification.swagger === 'string' && specification.swagger?.startsWith('2.0')) {
     specification.openapi = '3.0.4'
     delete specification.swagger
   } else {
@@ -31,9 +27,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   // Servers
   if (specification.host) {
     const schemes =
-      Array.isArray(specification.schemes) && specification.schemes?.length
-        ? specification.schemes
-        : ['http']
+      Array.isArray(specification.schemes) && specification.schemes?.length ? specification.schemes : ['http']
 
     specification.servers = schemes.map((scheme: string[]) => ({
       url: `${scheme}://${specification.host}${specification.basePath ?? ''}`,
@@ -55,10 +49,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     // Rewrite $refs to definitions
     specification = traverse(specification, (schema) => {
       if (schema.$ref?.startsWith('#/definitions/')) {
-        schema.$ref = schema.$ref.replace(
-          /^#\/definitions\//,
-          '#/components/schemas/',
-        )
+        schema.$ref = schema.$ref.replace(/^#\/definitions\//, '#/components/schemas/')
       }
 
       return schema
@@ -78,18 +69,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
             // Request bodies
             if (operationItem.parameters) {
               const bodyParameter = structuredClone(
-                operationItem.parameters.find(
-                  (parameter: OpenAPIV3.ParameterObject) =>
-                    parameter.in === 'body',
-                ) ?? {},
+                operationItem.parameters.find((parameter: OpenAPIV3.ParameterObject) => parameter.in === 'body') ?? {},
               )
 
               if (bodyParameter && Object.keys(bodyParameter).length) {
                 delete bodyParameter.name
                 delete bodyParameter.in
 
-                const consumes = specification.consumes ??
-                  operationItem.consumes ?? ['application/json']
+                const consumes = specification.consumes ?? operationItem.consumes ?? ['application/json']
 
                 if (typeof operationItem.requestBody !== 'object') {
                   operationItem.requestBody = {}
@@ -115,16 +102,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
               // Delete body parameter
               operationItem.parameters = operationItem.parameters.filter(
-                (parameter: OpenAPIV2.ParameterObject) =>
-                  parameter.in !== 'body',
+                (parameter: OpenAPIV2.ParameterObject) => parameter.in !== 'body',
               )
 
               delete operationItem.consumes
 
               // formData parameters
               const formDataParameters = operationItem.parameters.filter(
-                (parameter: OpenAPIV2.ParameterObject) =>
-                  parameter.in === 'formData',
+                (parameter: OpenAPIV2.ParameterObject) => parameter.in === 'formData',
               )
 
               if (formDataParameters.length > 0) {
@@ -136,9 +121,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   operationItem.requestBody.content = {}
                 }
 
-                operationItem.requestBody.content[
-                  'application/x-www-form-urlencoded'
-                ] = {
+                operationItem.requestBody.content['application/x-www-form-urlencoded'] = {
                   schema: {
                     type: 'object',
                     properties: {},
@@ -147,25 +130,23 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                 }
 
                 for (const param of formDataParameters) {
-                  operationItem.requestBody.content[
-                    'application/x-www-form-urlencoded'
-                  ].schema.properties[param.name] = {
-                    type: param.type,
-                    description: param.description,
-                  }
+                  operationItem.requestBody.content['application/x-www-form-urlencoded'].schema.properties[param.name] =
+                    {
+                      type: param.type,
+                      description: param.description,
+                    }
 
                   // Add to required array if param is required
                   if (param.required) {
-                    operationItem.requestBody.content[
-                      'application/x-www-form-urlencoded'
-                    ].schema.required.push(param.name)
+                    operationItem.requestBody.content['application/x-www-form-urlencoded'].schema.required.push(
+                      param.name,
+                    )
                   }
                 }
 
                 // Remove formData parameters from the parameters array
                 operationItem.parameters = operationItem.parameters.filter(
-                  (parameter: OpenAPIV2.ParameterObject) =>
-                    parameter.in !== 'formData',
+                  (parameter: OpenAPIV2.ParameterObject) => parameter.in !== 'formData',
                 )
               }
             }
@@ -177,8 +158,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   const responseItem = operationItem.responses[response]
 
                   if (responseItem.schema) {
-                    const produces = specification.produces ??
-                      operationItem.produces ?? ['application/json']
+                    const produces = specification.produces ?? operationItem.produces ?? ['application/json']
 
                     if (typeof responseItem.content !== 'object') {
                       responseItem.content = {}
@@ -215,49 +195,39 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     }
 
     // Assert that components is of type OpenAPIV3.ComponentsObject
-    specification.components =
-      specification.components as OpenAPIV3.ComponentsObject
+    specification.components = specification.components as OpenAPIV3.ComponentsObject
 
     Object.assign(specification.components, { securitySchemes: {} })
 
-    for (const [key, securityScheme] of Object.entries(
-      specification.securityDefinitions,
-    )) {
+    for (const [key, securityScheme] of Object.entries(specification.securityDefinitions)) {
       if (typeof securityScheme === 'object') {
         if ('type' in securityScheme && securityScheme.type === 'oauth2') {
-          const { flow, authorizationUrl, tokenUrl, scopes } =
-            securityScheme as {
-              type: 'oauth2'
-              flow?: string
-              authorizationUrl?: string
-              tokenUrl?: string
-              scopes?: Record<string, string>
-            }
+          const { flow, authorizationUrl, tokenUrl, scopes } = securityScheme as {
+            type: 'oauth2'
+            flow?: string
+            authorizationUrl?: string
+            tokenUrl?: string
+            scopes?: Record<string, string>
+          }
 
           // Assert that securitySchemes is of type OpenAPIV3.SecuritySchemeObject
-          Object.assign(
-            (specification.components as OpenAPIV3.ComponentsObject)
-              .securitySchemes,
-            {
-              [key]: {
-                type: 'oauth2',
-                flows: {
-                  [flow as string]: Object.assign(
-                    {},
-                    authorizationUrl && { authorizationUrl },
-                    tokenUrl && { tokenUrl },
-                    scopes && { scopes },
-                  ),
-                },
+          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
+            [key]: {
+              type: 'oauth2',
+              flows: {
+                [flow as string]: Object.assign(
+                  {},
+                  authorizationUrl && { authorizationUrl },
+                  tokenUrl && { tokenUrl },
+                  scopes && { scopes },
+                ),
               },
             },
-          )
+          })
         } else {
-          Object.assign(
-            (specification.components as OpenAPIV3.ComponentsObject)
-              .securitySchemes,
-            { [key]: securityScheme },
-          )
+          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
+            [key]: securityScheme,
+          })
         }
       }
     }

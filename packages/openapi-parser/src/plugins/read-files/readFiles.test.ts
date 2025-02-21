@@ -20,8 +20,6 @@ describe('readFiles', async () => {
   })
 
   it('returns false for an url', async () => {
-    expect(
-      readFiles().check('http://example.com/specification/openapi.yaml'),
-    ).toBe(false)
+    expect(readFiles().check('http://example.com/specification/openapi.yaml')).toBe(false)
   })
 })

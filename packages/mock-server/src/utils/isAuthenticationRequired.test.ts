@@ -20,14 +20,10 @@ describe('isAuthenticationRequired', () => {
   })
 
   it('returns true when security has multiple schemes', () => {
-    expect(
-      isAuthenticationRequired([{ apiKey: [] }, { oauth2: ['read', 'write'] }]),
-    ).toBe(true)
+    expect(isAuthenticationRequired([{ apiKey: [] }, { oauth2: ['read', 'write'] }])).toBe(true)
   })
 
   it('returns false when security is an array with an empty object among non-empty objects', () => {
-    expect(
-      isAuthenticationRequired([{ apiKey: [] }, {}, { oauth2: ['read'] }]),
-    ).toBe(false)
+    expect(isAuthenticationRequired([{ apiKey: [] }, {}, { oauth2: ['read'] }])).toBe(false)
   })
 })

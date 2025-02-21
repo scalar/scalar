@@ -27,12 +27,7 @@ function createHeader(text: string) {
   document.body.appendChild(header)
 }
 
-function createCodeBlock(
-  content: string,
-  name: string,
-  lang: string,
-  mask?: string[],
-) {
+function createCodeBlock(content: string, name: string, lang: string, mask?: string[]) {
   createHeader(name)
   const el = document.createElement('div')
   el.innerHTML = syntaxHighlight(content, {
@@ -88,12 +83,7 @@ xhr.send(data);
   'js',
 )
 
-createCodeBlock(
-  codeExampleLarge,
-  'Longer Codeblock with Credential Masking',
-  'ts',
-  ['javascript'],
-)
+createCodeBlock(codeExampleLarge, 'Longer Codeblock with Credential Masking', 'ts', ['javascript'])
 
 // ---------------------------------------------------------------------------
 // HTML

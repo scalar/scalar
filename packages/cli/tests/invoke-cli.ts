@@ -9,10 +9,7 @@ import { createLogsMatcher } from './matcher'
 const builtCliLocation = join(__dirname, '..', 'dist', 'index.js')
 
 type CreateLogsMatcherReturn = ReturnType<typeof createLogsMatcher>
-export type InvokeResult = [
-  exitCode: number,
-  logsMatcher: CreateLogsMatcherReturn,
-]
+export type InvokeResult = [exitCode: number, logsMatcher: CreateLogsMatcherReturn]
 
 export function ScalarCli() {
   let cwd = ''
@@ -26,31 +23,19 @@ export function ScalarCli() {
       const NODE_ENV = 'production'
 
       try {
-        const results = execaSync(
-          process.execPath,
-          [builtCliLocation].concat(args),
-          {
-            cwd,
-            env: { NODE_ENV },
-          },
-        )
+        const results = execaSync(process.execPath, [builtCliLocation].concat(args), {
+          cwd,
+          env: { NODE_ENV },
+        })
 
-        return [
-          results.exitCode,
-          createLogsMatcher(
-            strip(results.stderr.toString() + results.stdout.toString()),
-          ),
-        ]
+        return [results.exitCode, createLogsMatcher(strip(results.stderr.toString() + results.stdout.toString()))]
       } catch (e) {
         const execaError = e as ExecaSyncError
 
         // Console output for CI
         console.error('ERROR', e)
 
-        return [
-          execaError.exitCode,
-          createLogsMatcher(strip(execaError.stdout?.toString() || '')),
-        ]
+        return [execaError.exitCode, createLogsMatcher(strip(execaError.stdout?.toString() || ''))]
       }
     },
   }

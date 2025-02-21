@@ -2,18 +2,8 @@ import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 import Ajv2020 from 'ajv/dist/2020.js'
 
-import {
-  ERRORS,
-  OpenApiSpecifications,
-  type OpenApiVersion,
-  OpenApiVersions,
-} from '../../configuration/index.ts'
-import type {
-  AnyObject,
-  Filesystem,
-  ThrowOnErrorOption,
-  ValidateResult,
-} from '../../types/index.ts'
+import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '../../configuration/index.ts'
+import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '../../types/index.ts'
 import { details as getOpenApiVersion } from '../../utils/details.ts'
 import { resolveReferences } from '../../utils/resolveReferences.ts'
 import { transformErrors } from '../../utils/transformErrors.ts'
@@ -50,10 +40,7 @@ export class Validator {
   /**
    * Checks whether a specification is valid and all references can be resolved.
    */
-  async validate(
-    filesystem: Filesystem,
-    options?: ThrowOnErrorOption,
-  ): Promise<ValidateResult> {
+  async validate(filesystem: Filesystem, options?: ThrowOnErrorOption): Promise<ValidateResult> {
     const entrypoint = filesystem.find((file) => file.isEntrypoint)
     const specification = entrypoint?.specification
 
@@ -80,8 +67,7 @@ export class Validator {
       }
 
       // Meta data about the specification
-      const { version, specificationType, specificationVersion } =
-        getOpenApiVersion(specification)
+      const { version, specificationType, specificationVersion } = getOpenApiVersion(specification)
 
       this.version = version
       this.specificationVersion = specificationVersion
@@ -95,10 +81,7 @@ export class Validator {
 
         return {
           valid: false,
-          errors: transformErrors(
-            entrypoint,
-            ERRORS.OPENAPI_VERSION_NOT_SUPPORTED,
-          ),
+          errors: transformErrors(entrypoint, ERRORS.OPENAPI_VERSION_NOT_SUPPORTED),
         }
       }
 

@@ -24,10 +24,7 @@ const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
 /**
  * Scalar's Docusaurus plugin for Api References
  */
-const ScalarDocusaurus = (
-  context: LoadContext,
-  options: ScalarOptions,
-): Plugin<ReferenceProps> => {
+const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<ReferenceProps> => {
   const defaultOptions = createDefaultScalarOptions(options)
 
   return {

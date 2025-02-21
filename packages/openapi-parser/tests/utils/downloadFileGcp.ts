@@ -1,10 +1,7 @@
 import { Storage } from '@google-cloud/storage'
 
 // Function to download the GCP file to memory
-export const downloadFileToMemory = async (
-  bucketName: string,
-  fileName: string,
-) => {
+export const downloadFileToMemory = async (bucketName: string, fileName: string) => {
   // Create a client
   const storage = new Storage()
   try {
@@ -24,19 +21,12 @@ export const downloadFileToMemory = async (
   return ''
 }
 
-export const downloadFile = async (
-  bucketName: string,
-  fileName: string,
-  destFileName: string,
-) => {
+export const downloadFile = async (bucketName: string, fileName: string, destFileName: string) => {
   // Create a client
   const storage = new Storage()
   try {
     // Download the file
-    await storage
-      .bucket(bucketName)
-      .file(fileName)
-      .download({ destination: destFileName })
+    await storage.bucket(bucketName).file(fileName).download({ destination: destFileName })
 
     console.log(`File ${fileName} downloaded to ${destFileName} successfully!`)
   } catch (error) {

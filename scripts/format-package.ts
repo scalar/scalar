@@ -82,24 +82,13 @@ async function formatPackage(filepath: string) {
   const data = JSON.parse(file)
 
   if (data.type !== 'module' && !NO_MODULE_PACKAGES.includes(data.name)) {
-    printColor(
-      'brightRed',
-      `Package ${data.name} must be an ECMAScript module with "type": "module"`,
-    )
+    printColor('brightRed', `Package ${data.name} must be an ECMAScript module with "type": "module"`)
   }
-  if (
-    !data.name.startsWith('@scalar/') &&
-    !data.name.startsWith('@scalar-examples/')
-  ) {
-    printColor(
-      'yellow',
-      `Package ${data.name} is not in the @scalar/* or @scalar-examples/* scope.`,
-    )
+  if (!data.name.startsWith('@scalar/') && !data.name.startsWith('@scalar-examples/')) {
+    printColor('yellow', `Package ${data.name} is not in the @scalar/* or @scalar-examples/* scope.`)
   }
 
-  const unsortedKeys = Object.keys(data).filter(
-    (key) => !restrictedKeys.includes(key),
-  )
+  const unsortedKeys = Object.keys(data).filter((key) => !restrictedKeys.includes(key))
 
   const formattedData: Record<string, any> = {}
 
@@ -119,10 +108,7 @@ async function formatPackage(filepath: string) {
   })
 
   // Repository URL
-  const directory = path.relative(
-    path.join(__dirname, '..'),
-    path.dirname(filepath),
-  )
+  const directory = path.relative(path.join(__dirname, '..'), path.dirname(filepath))
 
   formattedData['repository'] = {
     type: 'git',
@@ -147,18 +133,12 @@ async function formatPackage(filepath: string) {
   }
 
   // Update the package.json
-  await fs
-    .writeFile(filepath, JSON.stringify(formattedData, null, 2) + '\n')
-    .catch((err) => console.error(err))
+  await fs.writeFile(filepath, JSON.stringify(formattedData, null, 2) + '\n').catch((err) => console.error(err))
 }
 
 async function formatDirectoryPackageFiles(folder: PackageType) {
   const packages = await fs.readdir(__dirname + `/../${folder}`)
-  await Promise.all(
-    packages.map((dir) =>
-      formatPackage(__dirname + `/../${folder}/${dir}/package.json`),
-    ),
-  )
+  await Promise.all(packages.map((dir) => formatPackage(__dirname + `/../${folder}/${dir}/package.json`)))
 }
 /**
  * Lint all package.json files in the project. Sorts keys and checks critical fields like
@@ -187,10 +167,7 @@ function sortObjectKeys(obj: Record<string, any>) {
 }
 
 /** Validate that required package scripts exists */
-function validatePackageScripts(
-  scripts: Record<string, string>,
-  packageName: string,
-) {
+function validatePackageScripts(scripts: Record<string, string>, packageName: string) {
   if (!scripts) {
     printColor('yellow', `WARNING: No scripts detected for ${packageName}`)
     return
@@ -202,10 +179,7 @@ function validatePackageScripts(
 
     // Require basic scripts for top level formatting
     if (!command) {
-      printColor(
-        'yellow',
-        `[${packageName}] package.json is missing a required script: ${scriptName}`,
-      )
+      printColor('yellow', `[${packageName}] package.json is missing a required script: ${scriptName}`)
       return
     }
   })

@@ -20,11 +20,7 @@ export function traverse(
 
         return item
       })
-    } else if (
-      typeof value === 'object' &&
-      !Array.isArray(value) &&
-      value !== null
-    ) {
+    } else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
       result[key] = traverse(value, transform, currentPath)
     } else {
       result[key] = value

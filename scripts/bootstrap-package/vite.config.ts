@@ -27,8 +27,7 @@ export default defineConfig({
       external: [...Object.keys((pkg as any).peerDependencies || {})],
       output: {
         // Create a separate file for the dependency bundle
-        manualChunks: (id) =>
-          id.includes('node_modules') ? 'vendor' : undefined,
+        manualChunks: (id) => (id.includes('node_modules') ? 'vendor' : undefined),
       },
     },
   },

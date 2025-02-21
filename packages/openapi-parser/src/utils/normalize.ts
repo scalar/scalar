@@ -9,9 +9,7 @@ import { isFilesystem } from './isFilesystem.ts'
  *
  * Doesn’t modify the object if it’s a `Filesystem` (multiple files) already.
  */
-export function normalize(
-  specification: string | UnknownObject | Filesystem,
-): UnknownObject | Filesystem {
+export function normalize(specification: string | UnknownObject | Filesystem): UnknownObject | Filesystem {
   if (specification === null) {
     return {}
   }

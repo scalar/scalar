@@ -30,11 +30,7 @@ export function ValidateCommand() {
 
     if (result.valid && result.version) {
       console.log(
-        kleur.green(
-          `Matches the OpenAPI specification${kleur.white(
-            ` (OpenAPI ${kleur.bold(result.version)})`,
-          )}`,
-        ),
+        kleur.green(`Matches the OpenAPI specification${kleur.white(` (OpenAPI ${kleur.bold(result.version)})`)}`),
       )
 
       const endTime = performance.now()
@@ -42,28 +38,20 @@ export function ValidateCommand() {
       console.log()
       console.log(
         kleur.green('File validated'),
-        kleur.grey(
-          `in ${kleur.white(
-            `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
-          )}`,
-        ),
+        kleur.grey(`in ${kleur.white(`${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`)}`),
       )
       console.log()
     } else {
       console.log(prettyjson.render(result.errors))
       console.log()
       console.error(
-        kleur.red(
-          `File does not match the OpenAPI ${result.version ? `${result.version} ` : ''}specification.`,
-        ),
+        kleur.red(`File does not match the OpenAPI ${result.version ? `${result.version} ` : ''}specification.`),
       )
       console.log()
       console.error(
         kleur.red(
           `${kleur.bold(
-            `${result.errors?.length} error${
-              result.errors && result.errors.length > 1 ? 's' : ''
-            }`,
+            `${result.errors?.length} error${result.errors && result.errors.length > 1 ? 's' : ''}`,
           )} found.`,
         ),
       )

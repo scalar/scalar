@@ -31,10 +31,7 @@ export default class EnumValidationError extends BaseValidationError {
       params: { allowedValues },
     } = this.options
 
-    const currentValue =
-      this.instancePath === ''
-        ? this.data
-        : pointer.get(this.data, this.instancePath)
+    const currentValue = this.instancePath === '' ? this.data : pointer.get(this.data, this.instancePath)
 
     if (!currentValue) {
       return null
@@ -45,13 +42,8 @@ export default class EnumValidationError extends BaseValidationError {
         value,
         weight: leven(value, currentValue.toString()),
       }))
-      .sort((x, y) =>
-        x.weight > y.weight ? 1 : x.weight < y.weight ? -1 : 0,
-      )[0]
+      .sort((x, y) => (x.weight > y.weight ? 1 : x.weight < y.weight ? -1 : 0))[0]
 
-    return allowedValues.length === 1 ||
-      bestMatch.weight < bestMatch.value.length
-      ? bestMatch.value
-      : null
+    return allowedValues.length === 1 || bestMatch.weight < bestMatch.value.length ? bestMatch.value : null
   }
 }

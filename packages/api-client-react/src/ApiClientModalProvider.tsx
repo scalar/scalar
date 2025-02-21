@@ -1,25 +1,16 @@
 'use client'
 
 import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
-import type {
-  ClientConfiguration,
-  OpenClientPayload,
-} from '@scalar/api-client/libs'
-import React, {
-  PropsWithChildren,
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useSyncExternalStore,
-} from 'react'
+import type { ClientConfiguration, OpenClientPayload } from '@scalar/api-client/libs'
+import type { PropsWithChildren } from 'react'
+
+import React, { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
 import { clientStore } from './client-store'
+
 import './style.css'
 
-const ApiClientModalContext = createContext<ReturnType<
-  typeof CreateApiClientModalSync
-> | null>(null)
+const ApiClientModalContext = createContext<ReturnType<typeof CreateApiClientModalSync> | null>(null)
 
 type Props = PropsWithChildren<{
   /** Choose a request to initially route to */
@@ -32,10 +23,7 @@ type Props = PropsWithChildren<{
 let isLoading = false
 
 /** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
-const clientDict: Record<
-  string,
-  ReturnType<typeof CreateApiClientModalSync>
-> = {}
+const clientDict: Record<string, ReturnType<typeof CreateApiClientModalSync>> = {}
 
 /**
  * Api Client Modal React
@@ -43,27 +31,17 @@ const clientDict: Record<
  * Provider which mounts the Scalar Api Client Modal vue app.
  * Rebuilt to support multiple instances when using a unique spec.url
  */
-export const ApiClientModalProvider = ({
-  children,
-  initialRequest,
-  configuration = {},
-}: Props) => {
+export const ApiClientModalProvider = ({ children, initialRequest, configuration = {} }: Props) => {
   const key = configuration.spec?.url || 'default'
   const el = useRef<HTMLDivElement | null>(null)
 
-  const state = useSyncExternalStore(
-    clientStore.subscribe,
-    clientStore.getSnapshot,
-    clientStore.getSnapshot,
-  )
+  const state = useSyncExternalStore(clientStore.subscribe, clientStore.getSnapshot, clientStore.getSnapshot)
 
   // Lazyload the js to create the client, but we only wanna call this once
   useEffect(() => {
     const loadApiClientJs = async () => {
       isLoading = true
-      const { createApiClientModalSync } = await import(
-        '@scalar/api-client/layouts/Modal'
-      )
+      const { createApiClientModalSync } = await import('@scalar/api-client/layouts/Modal')
       clientStore.setCreateClient(createApiClientModalSync)
     }
     if (!isLoading) loadApiClientJs()

@@ -59,11 +59,7 @@
     "*": true
   },
   "html-css-class-completion.CSSLanguages": ["css"],
-  "cssPeek.peekToExclude": [
-    "**/node_modules/**",
-    "**/bower_components/**",
-    "**/dist/**"
-  ],
+  "cssPeek.peekToExclude": ["**/node_modules/**", "**/bower_components/**", "**/dist/**"],
   "git.pullTags": false,
   "vue.complete.casing.props": "camel",
   "vue.complete.casing.tags": "pascal",

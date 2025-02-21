@@ -20,11 +20,7 @@ export function respondWithToken(c: Context) {
   }
 
   // Validate supported grant types
-  const supportedGrantTypes = [
-    'authorization_code',
-    'client_credentials',
-    'refresh_token',
-  ]
+  const supportedGrantTypes = ['authorization_code', 'client_credentials', 'refresh_token']
 
   if (!supportedGrantTypes.includes(grantType)) {
     return c.json(

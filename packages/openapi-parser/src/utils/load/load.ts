@@ -35,10 +35,7 @@ export type LoadOptions = {
  * It builds a filesystem representation of all loaded content and collects any errors
  * encountered during the process.
  */
-export async function load(
-  value: AnyApiDefinitionFormat,
-  options?: LoadOptions,
-): Promise<LoadResult> {
+export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
   // Don’t load a reference twice, check the filesystem before fetching something
@@ -60,17 +57,12 @@ export async function load(
       content = normalize(await plugin.get(value))
     } catch (error) {
       if (options?.throwOnError) {
-        throw new Error(
-          ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string),
-        )
+        throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
       }
 
       errors.push({
         code: 'EXTERNAL_REFERENCE_NOT_FOUND',
-        message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace(
-          '%s',
-          value as string,
-        ),
+        message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string),
       })
 
       return {
@@ -124,9 +116,7 @@ export async function load(
   // Load other external references
   for (const reference of listOfReferences) {
     // Find a matching plugin
-    const otherPlugin = options?.plugins?.find((thisPlugin) =>
-      thisPlugin.check(reference),
-    )
+    const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(reference))
 
     // Skip if no plugin is found (internal references don’t need a plugin for example)
     if (!otherPlugin) {
@@ -134,24 +124,19 @@ export async function load(
     }
 
     const target =
-      otherPlugin.check(reference) && otherPlugin.resolvePath
-        ? otherPlugin.resolvePath(value, reference)
-        : reference
+      otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
 
     // Don’t load a reference twice, check the filesystem before fetching something
     if (filesystem.find((entry) => entry.filename === reference)) {
       continue
     }
 
-    const { filesystem: referencedFiles, errors: newErrors } = await load(
-      target,
-      {
-        ...options,
-        // Make the filename the exact same value as the $ref
-        // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
-        filename: reference,
-      },
-    )
+    const { filesystem: referencedFiles, errors: newErrors } = await load(target, {
+      ...options,
+      // Make the filename the exact same value as the $ref
+      // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
+      filename: reference,
+    })
 
     errors.push(...newErrors)
 

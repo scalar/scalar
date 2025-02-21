@@ -31,11 +31,7 @@ export type ConfigSidebarFolder = Static<typeof ConfigSidebarFolderSchema>
 export const SidebarItemSchema = Type.Recursive(
   (This) =>
     Type.Composite([
-      Type.Union([
-        ConfigSidebarPageSchema,
-        ConfigSidebarFolderSchema,
-        ConfigSidebarLinkSchema,
-      ]),
+      Type.Union([ConfigSidebarPageSchema, ConfigSidebarFolderSchema, ConfigSidebarLinkSchema]),
       Type.Object({
         children: Type.Optional(Type.Array(This)),
       }),
@@ -58,10 +54,7 @@ export const ConfigGuideExplicitSchema = Type.Object({
 })
 
 // TODO: Currently only using the explicit guide schema
-export const ConfigGuideSchema = Type.Union([
-  ConfigGuideDirectorySchema,
-  ConfigGuideExplicitSchema,
-])
+export const ConfigGuideSchema = Type.Union([ConfigGuideDirectorySchema, ConfigGuideExplicitSchema])
 
 export type ConfigGuide = Static<typeof ConfigGuideSchema>
 

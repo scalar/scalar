@@ -1,7 +1,9 @@
 'use client'
 
 import { ApiClientModalProvider } from '@scalar/api-client-react'
+
 import '@scalar/api-client-react/style.css'
+
 import type { PropsWithChildren } from 'react'
 
 export const ClientWrapper = ({ children }: PropsWithChildren) => {

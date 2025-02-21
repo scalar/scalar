@@ -2,10 +2,13 @@
 *.scss
 *.js
 *.ts
+*.tsx
 *.json
 !package.json
 *.jsonc
 *.mov
+*.cjs
+
 
 .git
 .venv
@@ -37,3 +40,7 @@ integrations/nuxt/src/runtime/plugins/hydrateClient.d.mts
 packages/components/storybook-static/**/*
 packages/openapi-parser/tests/**/*.yaml
 packages/snippetz/src/httpsnippet-lite/**/*
+
+# TODO: [error] [prettier-plugin-sort-imports]: import sorting aborted due to babel parsing error.
+*.md
+*.mdx

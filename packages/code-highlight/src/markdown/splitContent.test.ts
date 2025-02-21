@@ -16,14 +16,8 @@ describe('splitContent', () => {
   })
 
   it('splits multiple headings', () => {
-    const sections = splitContent(
-      '# Example Heading\n\n## Other Heading\n\nFoobar',
-    )
+    const sections = splitContent('# Example Heading\n\n## Other Heading\n\nFoobar')
 
-    expect(sections).toMatchObject([
-      '# Example Heading',
-      '## Other Heading',
-      'Foobar',
-    ])
+    expect(sections).toMatchObject(['# Example Heading', '## Other Heading', 'Foobar'])
   })
 })

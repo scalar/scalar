@@ -8,9 +8,5 @@ export default defineConfig({
   build: createViteBuildOptions({
     entry: ['src/index.ts'],
   }),
-  plugins: [
-    react(),
-    dts({ insertTypesEntry: true, rollupTypes: true }),
-    preserveDirective(),
-  ],
+  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true }), preserveDirective()],
 })

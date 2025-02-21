@@ -44,11 +44,7 @@ export function BundleCommand() {
 
     console.log(
       kleur.green('OpenAPI Schema bundled'),
-      kleur.grey(
-        `in ${kleur.white(
-          `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
-        )}`,
-      ),
+      kleur.grey(`in ${kleur.white(`${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`)}`),
     )
     console.log()
   })

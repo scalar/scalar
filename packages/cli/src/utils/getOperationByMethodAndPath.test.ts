@@ -14,13 +14,7 @@ describe('getOperationByMethodAndPath', () => {
         },
       },
     }
-    expect(
-      getOperationByMethodAndPath(
-        schema as unknown as OpenAPI.Document,
-        'get',
-        '/foo',
-      ),
-    ).toMatchObject({
+    expect(getOperationByMethodAndPath(schema as unknown as OpenAPI.Document, 'get', '/foo')).toMatchObject({
       operationId: 'getFoo',
     })
   })
@@ -35,13 +29,7 @@ describe('getOperationByMethodAndPath', () => {
         },
       },
     }
-    expect(
-      getOperationByMethodAndPath(
-        schema as unknown as OpenAPI.Document,
-        'get',
-        '/foo/123',
-      ),
-    ).toMatchObject({
+    expect(getOperationByMethodAndPath(schema as unknown as OpenAPI.Document, 'get', '/foo/123')).toMatchObject({
       operationId: 'getFooById',
     })
   })

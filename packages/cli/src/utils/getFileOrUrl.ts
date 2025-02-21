@@ -11,10 +11,7 @@ export async function getFileOrUrl(input: string): Promise<string> {
     const response = await fetch(input)
 
     if (!response.ok) {
-      console.error(
-        kleur.bold().red('[ERROR]'),
-        kleur.bold().red('Failed to fetch OpenAPI specification from URL.'),
-      )
+      console.error(kleur.bold().red('[ERROR]'), kleur.bold().red('Failed to fetch OpenAPI specification from URL.'))
 
       return ''
     }

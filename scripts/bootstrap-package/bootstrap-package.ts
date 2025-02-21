@@ -18,10 +18,7 @@ const readline = createInterface({
 const name = await readline.question('Package name: @scalar/')
 const description = await readline.question('Package description: ')
 const keywords = await readline.question('Package keywords (comma separated): ')
-const useVue = (await readline.question('Add Vue as a dependency (y/n): '))
-  .trim()
-  .toLocaleLowerCase()
-  .startsWith('y')
+const useVue = (await readline.question('Add Vue as a dependency (y/n): ')).trim().toLocaleLowerCase().startsWith('y')
 
 // Create the new package file with appropriate commands
 const newPackageFile: Record<string, any> = {
@@ -43,21 +40,15 @@ if (!useVue) {
   delete newPackageFile.devDependencies['vite-svg-loader']
 
   // Need to switch type checker from vue-tsc to tsc
-  newPackageFile.scripts['types:build'] = newPackageFile.scripts[
-    'types:build'
-  ].replaceAll('vue-tsc', 'tsc')
-  newPackageFile.scripts['types:check'] = newPackageFile.scripts[
-    'types:check'
-  ].replaceAll('vue-tsc', 'tsc')
+  newPackageFile.scripts['types:build'] = newPackageFile.scripts['types:build'].replaceAll('vue-tsc', 'tsc')
+  newPackageFile.scripts['types:check'] = newPackageFile.scripts['types:check'].replaceAll('vue-tsc', 'tsc')
 }
 
 // Ensure peerDependencies is defined
 newPackageFile.peerDependencies = newPackageFile.peerDependencies || {}
 
 // Read the existing directories in the packages folder
-const dirs = (await fs.readdir('./packages', { withFileTypes: true }))
-  .filter((e) => e.isDirectory())
-  .map((e) => e.name)
+const dirs = (await fs.readdir('./packages', { withFileTypes: true })).filter((e) => e.isDirectory()).map((e) => e.name)
 
 // Check if the package name conflicts with an existing package
 if (dirs.includes(name)) {
@@ -72,20 +63,11 @@ if (dirs.includes(name)) {
   await fs.mkdir(newDirName)
   await fs.mkdir(`${newDirName}/src`)
 
-  await fs.copyFile(
-    `${prefix}/${useVue ? 'vue-vite-config.ts' : 'vite.config.ts'}`,
-    `${newDirName}/vite.config.ts`,
-  )
+  await fs.copyFile(`${prefix}/${useVue ? 'vue-vite-config.ts' : 'vite.config.ts'}`, `${newDirName}/vite.config.ts`)
   await fs.copyFile(`${prefix}/tsconfig.json`, `${newDirName}/tsconfig.json`)
-  await fs.copyFile(
-    `${prefix}/tsconfig.build.json`,
-    `${newDirName}/tsconfig.build.json`,
-  )
+  await fs.copyFile(`${prefix}/tsconfig.build.json`, `${newDirName}/tsconfig.build.json`)
 
-  await fs.writeFile(
-    `${newDirName}/package.json`,
-    JSON.stringify(newPackageFile, null, 2),
-  )
+  await fs.writeFile(`${newDirName}/package.json`, JSON.stringify(newPackageFile, null, 2))
 
   await fs.writeFile(`${newDirName}/src/index.ts`, '')
 

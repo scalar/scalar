@@ -13,9 +13,7 @@ export const OpenApiSpecifications = {
 
 export type OpenApiVersion = keyof typeof OpenApiSpecifications
 
-export const OpenApiVersions = Object.keys(
-  OpenApiSpecifications,
-) as OpenApiVersion[]
+export const OpenApiVersions = Object.keys(OpenApiSpecifications) as OpenApiVersion[]
 
 /**
  * List of error messages used in the Validator

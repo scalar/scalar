@@ -97,9 +97,7 @@ export const ApiReference = (options: ApiReferenceOptions) => {
     <script
       id="api-reference"
       type="application/json"
-      data-configuration="${JSON.stringify(configuration)
-        .split('"')
-        .join('&quot;')}">${
+      data-configuration="${JSON.stringify(configuration).split('"').join('&quot;')}">${
         configuration.spec?.content
           ? typeof configuration.spec?.content === 'function'
             ? JSON.stringify(configuration.spec?.content())

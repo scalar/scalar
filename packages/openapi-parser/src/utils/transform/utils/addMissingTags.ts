@@ -10,11 +10,7 @@ export const addMissingTags = (definition: AnyObject) => {
   for (const path of Object.values(definition.paths)) {
     if (typeof path === 'object' && path !== null) {
       for (const operation of Object.values(path)) {
-        if (
-          typeof operation === 'object' &&
-          operation !== null &&
-          'tags' in operation
-        ) {
+        if (typeof operation === 'object' && operation !== null && 'tags' in operation) {
           const tags = operation.tags
 
           if (Array.isArray(tags)) {
@@ -28,22 +24,15 @@ export const addMissingTags = (definition: AnyObject) => {
   // Convert tags to array of tag objects if not already present
   const existingTags = new Set(
     (Array.isArray(definition.tags) ? definition.tags : [])
-      .map((tag) =>
-        typeof tag === 'object' && tag !== null ? String(tag.name) : null,
-      )
+      .map((tag) => (typeof tag === 'object' && tag !== null ? String(tag.name) : null))
       .filter(Boolean),
   )
 
   // Add missing tags
-  const missingTags = [...usedTags]
-    .filter((tag) => !existingTags.has(tag))
-    .map((name) => ({ name }))
+  const missingTags = [...usedTags].filter((tag) => !existingTags.has(tag)).map((name) => ({ name }))
 
   return {
     ...definition,
-    tags: [
-      ...(Array.isArray(definition.tags) ? definition.tags : []),
-      ...missingTags,
-    ],
+    tags: [...(Array.isArray(definition.tags) ? definition.tags : []), ...missingTags],
   }
 }

@@ -11,9 +11,7 @@ describe('fetchUrls', async () => {
   })
 
   it('returns true for an url', async () => {
-    expect(
-      fetchUrls().check('http://example.com/specification/openapi.yaml'),
-    ).toBe(true)
+    expect(fetchUrls().check('http://example.com/specification/openapi.yaml')).toBe(true)
   })
 
   it('returns false for a filename', async () => {
@@ -44,9 +42,7 @@ describe('fetchUrls', async () => {
       },
     }))
 
-    expect(
-      await fetchUrls().get('http://example.com/specification/openapi.yaml'),
-    ).toBe('OK')
+    expect(await fetchUrls().get('http://example.com/specification/openapi.yaml')).toBe('OK')
   })
 
   it('rewrites the URL', async () => {

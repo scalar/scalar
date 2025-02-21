@@ -24,9 +24,7 @@ export function syntaxHighlight(
 ) {
   // Simple restriction on credentials to prevent unexpected behavior
   const credentials = (
-    typeof options?.maskCredentials === 'string'
-      ? [options.maskCredentials]
-      : (options?.maskCredentials ?? [])
+    typeof options?.maskCredentials === 'string' ? [options.maskCredentials] : (options?.maskCredentials ?? [])
   ).filter((c) => {
     // Credentials must be at least 3 characters to mask.
     if (c.length < 3) {
@@ -62,10 +60,7 @@ export function syntaxHighlight(
   // Replace any credentials with a wrapper element
   return credentials.length
     ? credentials.reduce(
-        (acc, credential) =>
-          acc
-            .split(credential)
-            .join(`<span class="credentials">${credential}</span>`),
+        (acc, credential) => acc.split(credential).join(`<span class="credentials">${credential}</span>`),
         htmlString,
       )
     : htmlString

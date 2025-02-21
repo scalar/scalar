@@ -33,8 +33,7 @@ export async function createMockServer(options: MockServerOptions) {
   setupAuthenticationRoutes(app, schema)
 
   logAuthenticationInstructions(
-    schema?.components?.securitySchemes ||
-      ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
+    schema?.components?.securitySchemes || ({} as Record<string, OpenAPIV3_1.SecuritySchemeObject>),
   )
 
   /** Paths specified in the OpenAPI document */
@@ -59,14 +58,10 @@ export async function createMockServer(options: MockServerOptions) {
   })
 
   // OpenAPI JSON file
-  app.get('/openapi.json', (c) =>
-    respondWithOpenApiDocument(c, options?.specification, 'json'),
-  )
+  app.get('/openapi.json', (c) => respondWithOpenApiDocument(c, options?.specification, 'json'))
 
   // OpenAPI YAML file
-  app.get('/openapi.yaml', (c) =>
-    respondWithOpenApiDocument(c, options?.specification, 'yaml'),
-  )
+  app.get('/openapi.yaml', (c) => respondWithOpenApiDocument(c, options?.specification, 'yaml'))
 
   return app
 }

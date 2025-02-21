@@ -1,28 +1,21 @@
+import type { ReferenceProps } from '../src'
+
 import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
-import { ApiReferenceReact, type ReferenceProps } from '../src'
+import { ApiReferenceReact } from '../src'
 
 function App() {
-  const [auth, setAuth] = useState<
-    Required<ReferenceProps>['configuration']['authentication']
-  >({})
+  const [auth, setAuth] = useState<Required<ReferenceProps>['configuration']['authentication']>({})
 
-  const apiKeys = [
-    'apiKeyHeader',
-    'apiKeyQuery',
-    'apiKeyCookie',
-    'basicAuth',
-    'bearerAuth',
-  ]
+  const apiKeys = ['apiKeyHeader', 'apiKeyQuery', 'apiKeyCookie', 'basicAuth', 'bearerAuth']
 
   useEffect(() => {
     // Update the document periodically to test reactivity
     const changeInt = setInterval(() => {
       setAuth({
-        preferredSecurityScheme:
-          apiKeys[Math.floor(Math.random() * apiKeys.length)],
+        preferredSecurityScheme: apiKeys[Math.floor(Math.random() * apiKeys.length)],
         http: {
           basic: {
             username: (generate(2) as string[]).join('_'),

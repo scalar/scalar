@@ -91,10 +91,7 @@ describe('load', async () => {
   })
 
   it('loads file', async () => {
-    const EXAMPLE_FILE = path.join(
-      new URL(import.meta.url).pathname,
-      '../../examples/openapi.yaml',
-    )
+    const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles(), fetchUrls()],
@@ -111,10 +108,7 @@ describe('load', async () => {
   })
 
   it('loads referenced files in files', async () => {
-    const EXAMPLE_FILE = path.join(
-      new URL(import.meta.url).pathname,
-      '../../../../tests/filesystem/api/openapi.yaml',
-    )
+    const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../../tests/filesystem/api/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles()],
@@ -364,10 +358,7 @@ describe('load', async () => {
       },
     )
 
-    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([
-      null,
-      'https://example.com/foobar.json',
-    ])
+    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([null, 'https://example.com/foobar.json'])
 
     expect(filesystem[0].specification).toMatchObject({
       openapi: '3.1.0',

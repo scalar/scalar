@@ -25,45 +25,29 @@ export function lineBreak(): Text {
  */
 export function codeBlockLinesPlugin() {
   return (tree: Root) => {
-    visit(
-      tree,
-      'element',
-      (node: Element, _i, parent: Root | Element | null) => {
-        if (
-          parent?.type === 'element' &&
-          parent.tagName === 'pre' &&
-          node.tagName === 'code'
-        ) {
-          let numLines = 0
+    visit(tree, 'element', (node: Element, _i, parent: Root | Element | null) => {
+      if (parent?.type === 'element' && parent.tagName === 'pre' && node.tagName === 'code') {
+        let numLines = 0
 
-          // Wraps each line in a span
-          node.children = addLines(node)
+        // Wraps each line in a span
+        node.children = addLines(node)
 
-          // Adds a line break to the end of each line
-          node.children.forEach((child: ElementContent) => {
-            if (child.type === 'element' && child.tagName === 'span') {
-              const lastChild: ElementContent | undefined =
-                child.children[child.children.length - 1]
+        // Adds a line break to the end of each line
+        node.children.forEach((child: ElementContent) => {
+          if (child.type === 'element' && child.tagName === 'span') {
+            const lastChild: ElementContent | undefined = child.children[child.children.length - 1]
 
-              if (
-                lastChild &&
-                (!isText(lastChild) ||
-                  (isText(lastChild) && !hasLineBreak(lastChild)))
-              ) {
-                child.children.push(lineBreak())
-                numLines++
-              }
+            if (lastChild && (!isText(lastChild) || (isText(lastChild) && !hasLineBreak(lastChild)))) {
+              child.children.push(lineBreak())
+              numLines++
             }
-          })
+          }
+        })
 
-          // We need to maintain a count of the total lines to allow space for the labels
-          node.properties.style = [
-            `--line-count: ${numLines};`,
-            `--line-digits: ${numLines.toString().length};`,
-          ]
-        }
-      },
-    )
+        // We need to maintain a count of the total lines to allow space for the labels
+        node.properties.style = [`--line-count: ${numLines};`, `--line-digits: ${numLines.toString().length};`]
+      }
+    })
 
     // console.log('NUMBER OF LINES IS: ', numLines)
   }
@@ -76,14 +60,8 @@ export function codeBlockLinesPlugin() {
  * @param lines - The current lines
  * @param copyParent - Whether to copy the parent node to save the original node styles
  */
-function addLines(
-  node: Element,
-  lines: Element[] = [],
-  copyParent?: boolean,
-): Element[] {
-  const line = () =>
-    lines[lines.length - 1] ??
-    (lines.push(createLine()) && lines[lines.length - 1])
+function addLines(node: Element, lines: Element[] = [], copyParent?: boolean): Element[] {
+  const line = () => lines[lines.length - 1] ?? (lines.push(createLine()) && lines[lines.length - 1])
 
   node.children.forEach((child: ElementContent) => {
     if (isText(child) && hasLineBreak(child)) {
@@ -126,8 +104,5 @@ function createLine(...children: ElementContent[]): Element {
  * @param node - The node to check
  */
 function hasLineBreak(node: ElementContent): boolean {
-  return (
-    (isText(node) && /\r?\n/.test(node.value)) ||
-    (isElement(node) && node.children.some(hasLineBreak))
-  )
+  return (isText(node) && /\r?\n/.test(node.value)) || (isElement(node) && node.children.some(hasLineBreak))
 }

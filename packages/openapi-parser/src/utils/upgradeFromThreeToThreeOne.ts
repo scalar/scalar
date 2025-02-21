@@ -8,17 +8,11 @@ import { traverse } from './traverse.ts'
  *
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
  */
-export function upgradeFromThreeToThreeOne(
-  originalSpecification: UnknownObject,
-) {
+export function upgradeFromThreeToThreeOne(originalSpecification: UnknownObject) {
   let specification = originalSpecification
 
   // Version
-  if (
-    specification !== null &&
-    typeof specification.openapi === 'string' &&
-    specification.openapi.startsWith('3.0')
-  ) {
+  if (specification !== null && typeof specification.openapi === 'string' && specification.openapi.startsWith('3.0')) {
     specification.openapi = '3.1.1'
   } else {
     // Skip if it’s something else than 3.0.x
@@ -81,9 +75,7 @@ export function upgradeFromThreeToThreeOne(
       // Check if this is a multipart request body schema
       const parentPath = path.slice(0, -1)
       const isMultipart = parentPath.some((segment, index) => {
-        return (
-          segment === 'content' && path[index + 1] === 'multipart/form-data'
-        )
+        return segment === 'content' && path[index + 1] === 'multipart/form-data'
       })
 
       if (isMultipart) {
@@ -91,11 +83,7 @@ export function upgradeFromThreeToThreeOne(
         const entries: [string, any][] = Object.entries(schema.properties)
 
         for (const [_, value] of entries) {
-          if (
-            typeof value === 'object' &&
-            value.type === 'string' &&
-            value.format === 'binary'
-          ) {
+          if (typeof value === 'object' && value.type === 'string' && value.format === 'binary') {
             value.contentMediaType = 'application/octet-stream'
             delete value.format
           }

@@ -8,9 +8,7 @@ import { validate } from '../../validate.ts'
 /**
  * Takes a queue of tasks and works through them
  */
-export async function workThroughQueue<T extends Task[]>(
-  queue: Queue<T>,
-): Promise<CommandChain<T>> {
+export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promise<CommandChain<T>> {
   const { input } = {
     ...queue,
   }
@@ -41,10 +39,7 @@ export async function workThroughQueue<T extends Task[]>(
     else if (name === 'filter') {
       result = {
         ...result,
-        ...filter(
-          currentSpecification,
-          options as Commands['filter']['task']['options'],
-        ),
+        ...filter(currentSpecification, options as Commands['filter']['task']['options']),
       } as Merge<typeof result, ReturnType<typeof filter>>
     }
 
@@ -52,10 +47,7 @@ export async function workThroughQueue<T extends Task[]>(
     else if (name === 'dereference') {
       result = {
         ...result,
-        ...(await dereference(
-          currentSpecification,
-          options as Commands['dereference']['task']['options'],
-        )),
+        ...(await dereference(currentSpecification, options as Commands['dereference']['task']['options'])),
       } as Merge<typeof result, Awaited<typeof dereference>>
     }
 
@@ -71,10 +63,7 @@ export async function workThroughQueue<T extends Task[]>(
     else if (name === 'validate') {
       result = {
         ...result,
-        ...(await validate(
-          currentSpecification,
-          options as Commands['validate']['task']['options'],
-        )),
+        ...(await validate(currentSpecification, options as Commands['validate']['task']['options'])),
       } as Merge<typeof result, Awaited<typeof validate>>
     }
 

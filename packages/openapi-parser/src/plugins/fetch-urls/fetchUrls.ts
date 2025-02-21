@@ -39,22 +39,15 @@ export const fetchUrls: (customConfiguration?: {
     },
     async get(value?: any) {
       // Limit ht enumber of requests
-      if (
-        configuration?.limit !== false &&
-        numberOfRequests >= configuration?.limit
-      ) {
-        console.warn(
-          `[fetchUrls] Maximum number of requests reeached (${configuration?.limit}), skipping request`,
-        )
+      if (configuration?.limit !== false && numberOfRequests >= configuration?.limit) {
+        console.warn(`[fetchUrls] Maximum number of requests reeached (${configuration?.limit}), skipping request`)
         return undefined
       }
 
       try {
         numberOfRequests++
 
-        const response = await (configuration?.fetch
-          ? configuration.fetch(value)
-          : fetch(value))
+        const response = await (configuration?.fetch ? configuration.fetch(value) : fetch(value))
 
         return await response.text()
       } catch (error) {

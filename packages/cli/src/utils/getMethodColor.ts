@@ -1,14 +1,4 @@
-export type KleurColor =
-  | 'black'
-  | 'red'
-  | 'green'
-  | 'yellow'
-  | 'blue'
-  | 'magenta'
-  | 'cyan'
-  | 'white'
-  | 'gray'
-  | 'grey'
+export type KleurColor = 'black' | 'red' | 'green' | 'yellow' | 'blue' | 'magenta' | 'cyan' | 'white' | 'gray' | 'grey'
 
 export function getMethodColor(method: string) {
   const colors: Record<string, KleurColor> = {

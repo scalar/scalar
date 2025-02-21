@@ -21,10 +21,7 @@ export function FormatCommand() {
     const specification = await getFileOrUrl(input)
 
     if (!specification) {
-      console.error(
-        kleur.bold().red('[ERROR]'),
-        kleur.red('Couldn’t read file.'),
-      )
+      console.error(kleur.bold().red('[ERROR]'), kleur.red('Couldn’t read file.'))
       process.exit(1)
     }
 
@@ -40,9 +37,7 @@ export function FormatCommand() {
     } else {
       console.error(
         kleur.bold().red('[ERROR]'),
-        kleur.red(
-          'Output file is required for URLs. Try passing --output file flag.',
-        ),
+        kleur.red('Output file is required for URLs. Try passing --output file flag.'),
       )
       process.exit(1)
     }
@@ -51,11 +46,7 @@ export function FormatCommand() {
 
     console.log(
       kleur.green('File formatted'),
-      kleur.grey(
-        `in ${kleur.white(
-          `${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`,
-        )}`,
-      ),
+      kleur.grey(`in ${kleur.white(`${kleur.bold(`${Math.round(endTime - startTime)}`)} ms`)}`),
     )
     console.log()
   })

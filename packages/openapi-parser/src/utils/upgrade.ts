@@ -9,9 +9,7 @@ import { upgradeFromTwoToThree } from './upgradeFromTwoToThree.ts'
 /**
  * Upgrade specification to OpenAPI 3.1.0
  */
-export function upgrade(
-  value: string | AnyObject | Filesystem,
-): UpgradeResult<OpenAPIV3_1.Document> {
+export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<OpenAPIV3_1.Document> {
   if (!value) {
     return {
       specification: null,

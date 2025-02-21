@@ -18,24 +18,17 @@ describe('htmlFromMarkdown', () => {
   })
 
   it('removes script tags', () => {
-    const html = htmlFromMarkdown(
-      `# Example Heading<script>alert('foobar');</script>`,
-    )
+    const html = htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`)
 
     expect(html.trim()).toEqual('<h1>Example Heading</h1>')
   })
 
   it('allows given tags', () => {
-    const html = htmlFromMarkdown(
-      `# Example Heading<script>alert('foobar');</script>`,
-      {
-        allowTags: ['script'],
-      },
-    )
+    const html = htmlFromMarkdown(`# Example Heading<script>alert('foobar');</script>`, {
+      allowTags: ['script'],
+    })
 
-    expect(html.trim()).toEqual(
-      `<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>`,
-    )
+    expect(html.trim()).toEqual(`<h1>Example Heading\n  <script>alert('foobar');</script>\n</h1>`)
   })
 
   it('allows to add ids', () => {
