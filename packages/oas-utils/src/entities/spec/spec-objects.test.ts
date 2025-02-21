@@ -164,7 +164,7 @@ describe('spec-objects', () => {
         })
       })
 
-      it('ignores invalid attributes', () => {
+      it('keeps invalid emails', () => {
         const info = oasInfoSchema.parse({
           contact: {
             name: 'John Doe',
@@ -176,6 +176,7 @@ describe('spec-objects', () => {
 
         expect(info.contact).toStrictEqual({
           name: 'John Doe',
+          email: 'invalid',
         })
       })
     })
