@@ -65,7 +65,9 @@ export type ThemeId =
   | 'none'
 
 /**
- * @deprecated Use `ApiReferenceConfiguration` instead
+ * @deprecated Use ApiReferenceConfiguration instead
+ *
+ * @example import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
  */
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
