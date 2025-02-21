@@ -28,10 +28,7 @@ export function printSpecificationBanner(result: {
   )
 
   // Statistics
-  console.log(
-    kleur.bold().white('[INFO]'),
-    kleur.grey(`${pathsCount} paths, ${operationsCount} operations`),
-  )
+  console.log(kleur.bold().white('[INFO]'), kleur.grey(`${pathsCount} paths, ${operationsCount} operations`))
 
   console.log()
 }

@@ -568,9 +568,7 @@ describe('createMockServer', () => {
 
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*')
 
-    const allowMethodsHeader = response.headers.get(
-      'Access-Control-Allow-Methods',
-    )
+    const allowMethodsHeader = response.headers.get('Access-Control-Allow-Methods')
     expect(allowMethodsHeader).toBeTypeOf('string')
     expect(allowMethodsHeader?.split(',').sort()).toStrictEqual(
       ['GET', 'HEAD', 'PUT', 'POST', 'DELETE', 'PATCH'].sort(),

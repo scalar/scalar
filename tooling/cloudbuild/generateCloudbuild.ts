@@ -14,9 +14,7 @@ export default async function generateCloudBuild(
 
   console.log(`Reading from ${inputPath}`)
 
-  const serviceEnv = await fs
-    .readFile(`./${inputPath}`, 'utf-8')
-    .then((data) => JSON.parse(data))
+  const serviceEnv = await fs.readFile(`./${inputPath}`, 'utf-8').then((data) => JSON.parse(data))
 
   const containerImage = {
     name: 'gcr.io/cloud-builders/docker',
@@ -64,10 +62,7 @@ export default async function generateCloudBuild(
       name: 'gcr.io/cloud-builders/docker',
       id: `push-${service.name}`,
       waitFor: [`build-${service.name}`],
-      args: [
-        'push',
-        'gcr.io/${_PROJECT_ID}/' + '${' + `${service.cloudBuildName}` + '}',
-      ],
+      args: ['push', 'gcr.io/${_PROJECT_ID}/' + '${' + `${service.cloudBuildName}` + '}'],
     }
     cloudbuildSteps.push(pushStep)
 
@@ -80,10 +75,7 @@ export default async function generateCloudBuild(
         'run',
         'deploy',
         '$' + `${service.cloudBuildName}`,
-        '--image=gcr.io/${_PROJECT_ID}/' +
-          '${' +
-          `${service.cloudBuildName}` +
-          '}',
+        '--image=gcr.io/${_PROJECT_ID}/' + '${' + `${service.cloudBuildName}` + '}',
         '--region=$_REGION',
         '--platform=managed',
         '--allow-unauthenticated',
@@ -108,11 +100,7 @@ export default async function generateCloudBuild(
 
   console.log(`Writing to ${outputPath}`)
 
-  await fs.writeFile(
-    `./${outputPath}`,
-    JSON.stringify(cloudbuild, null, 2),
-    'utf-8',
-  )
+  await fs.writeFile(`./${outputPath}`, JSON.stringify(cloudbuild, null, 2), 'utf-8')
 }
 
 await generateCloudBuild()

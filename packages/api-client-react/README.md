@@ -22,8 +22,8 @@ First we need to add the provider, you should add it in the highest place you ha
 
 ```tsx
 import { ApiClientModalProvider } from '@scalar/api-client-react'
-import '@scalar/api-client-react/style.css'
 
+import '@scalar/api-client-react/style.css'
 ;<ApiClientModalProvider
   configuration={{
     spec: {
@@ -42,8 +42,7 @@ import { useApiClientModal } from '@scalar/api-client-react'
 const client = useApiClientModal()
 
 return (
-  <button
-    onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
+  <button onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
     Click me to open the Api Client
   </button>
 )

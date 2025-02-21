@@ -1,13 +1,7 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import { ERRORS } from '../configuration/index.ts'
-import type {
-  AnyObject,
-  ErrorObject,
-  Filesystem,
-  FilesystemEntry,
-  ThrowOnErrorOption,
-} from '../types/index.ts'
+import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '../types/index.ts'
 import { getEntrypoint } from './getEntrypoint.ts'
 import { getSegmentsFromPath } from './getSegmentsFromPath.ts'
 import { makeFilesystem } from './makeFilesystem.ts'
@@ -62,22 +56,11 @@ export function resolveReferences(
   const finalInput = file?.specification ?? entrypoint.specification
 
   // Recursively resolve all references
-  dereference(
-    finalInput,
-    filesystem,
-    file ?? entrypoint,
-    new WeakSet(),
-    errors,
-    options,
-  )
+  dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
 
   // Remove duplicats (according to message) from errors
   errors = errors.filter(
-    (error, index, self) =>
-      index ===
-      self.findIndex(
-        (t) => t.message === error.message && t.code === error.code,
-      ),
+    (error, index, self) => index === self.findIndex((t) => t.message === error.message && t.code === error.code),
   )
 
   // Return the resolved specification
@@ -106,28 +89,14 @@ function dereference(
   resolvedSchemas.add(schema)
 
   function resolveExternal(externalFile: FilesystemEntry) {
-    dereference(
-      externalFile.specification,
-      filesystem,
-      externalFile,
-      resolvedSchemas,
-      errors,
-      options,
-    )
+    dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
 
     return externalFile
   }
 
   while (schema.$ref !== undefined) {
     // Find the referenced content
-    const resolved = resolveUri(
-      schema.$ref,
-      options,
-      entrypoint,
-      filesystem,
-      resolveExternal,
-      errors,
-    )
+    const resolved = resolveUri(schema.$ref, options, entrypoint, filesystem, resolveExternal, errors)
 
     // invalid
     if (typeof resolved !== 'object' || resolved === null) break
@@ -150,14 +119,7 @@ function dereference(
   // Iterate over the whole object
   for (const value of Object.values(schema)) {
     if (typeof value === 'object' && value !== null) {
-      dereference(
-        value,
-        filesystem,
-        entrypoint,
-        resolvedSchemas,
-        errors,
-        options,
-      )
+      dereference(value, filesystem, entrypoint, resolvedSchemas, errors, options)
     }
   }
 }
@@ -209,9 +171,7 @@ function resolveUri(
 
     if (!externalReference) {
       if (options?.throwOnError) {
-        throw new Error(
-          ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', prefix),
-        )
+        throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', prefix))
       }
 
       errors.push({
@@ -228,14 +188,7 @@ function resolveUri(
 
     // $ref: 'other-file.yaml#/foo/bar'
     // resolve refs first before accessing properties directly
-    return resolveUri(
-      `#${path}`,
-      options,
-      resolve(externalReference),
-      filesystem,
-      resolve,
-      errors,
-    )
+    return resolveUri(`#${path}`, options, resolve(externalReference), filesystem, resolve, errors)
   }
 
   // Pointers

@@ -71,10 +71,7 @@ describe('getOpenAuthTokenUrls', () => {
         },
       },
     })
-    expect(getOpenAuthTokenUrls(schema)).toEqual([
-      '/oauth/password_token',
-      '/oauth/client_token',
-    ])
+    expect(getOpenAuthTokenUrls(schema)).toEqual(['/oauth/password_token', '/oauth/client_token'])
   })
 
   it('ignores non-OAuth2 security schemes', () => {

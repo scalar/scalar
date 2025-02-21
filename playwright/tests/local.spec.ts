@@ -5,10 +5,7 @@ import { testPlayButton } from './testPlayButton'
 
 const HOST = process.env.HOST || 'localhost'
 
-test('@scalar/api-reference local build (data-url)', async ({
-  page,
-  isMobile,
-}) => {
+test('@scalar/api-reference local build (data-url)', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/api-reference-local.html`)
   await testApiReference(page, isMobile)
 

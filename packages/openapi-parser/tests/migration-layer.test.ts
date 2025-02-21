@@ -124,9 +124,7 @@ describe('dereference', () => {
       },
     }))
 
-    const api = await SwaggerParser.dereference(
-      'http://example.com/specification/openapi.yaml',
-    )
+    const api = await SwaggerParser.dereference('http://example.com/specification/openapi.yaml')
 
     // The `api` object is a normal JavaScript object,
     // so you can easily access any part of the API using simple dot notation
@@ -134,10 +132,7 @@ describe('dereference', () => {
   })
 
   it('dereferences files', async () => {
-    const EXAMPLE_FILE = path.join(
-      new URL(import.meta.url).pathname,
-      '../../tests/migration-layer.json',
-    )
+    const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../tests/migration-layer.json')
 
     const api = await SwaggerParser.dereference(EXAMPLE_FILE)
 

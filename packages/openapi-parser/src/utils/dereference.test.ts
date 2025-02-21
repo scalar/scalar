@@ -145,20 +145,12 @@ describe('dereference', async () => {
     expect(result.errors).toStrictEqual([])
 
     // Original
-    expect(
-      result.specification.paths['/test'].get.responses['200'].content[
-        'application/json'
-      ].schema,
-    ).toEqual({
+    expect(result.specification.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
       $ref: '#/components/schemas/Test',
     })
 
     // Resolved references
-    expect(
-      result.schema.paths['/test'].get.responses['200'].content[
-        'application/json'
-      ].schema,
-    ).toEqual({
+    expect(result.schema.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
       type: 'object',
       properties: {
         id: {
@@ -188,9 +180,7 @@ describe('dereference', async () => {
           throwOnError: true,
         },
       )
-    }).rejects.toThrowError(
-      'Can’t resolve reference: #/components/requestBodies/DoesNotExist',
-    )
+    }).rejects.toThrowError('Can’t resolve reference: #/components/requestBodies/DoesNotExist')
   })
 
   it('resolves external file references', async () => {

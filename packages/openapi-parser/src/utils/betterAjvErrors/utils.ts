@@ -16,13 +16,11 @@ export const getErrors = (node) => node?.errors || []
 // Node
 export const getChildren = (node) => (node && getValues(node.children)) || []
 
-export const getSiblings =
-  (parent /*: Node */) => (node /*: Node */) /*: $ReadOnlyArray<Node> */ =>
-    getChildren(parent).filter(not(eq(node)))
+export const getSiblings = (parent /*: Node */) => (node /*: Node */) /*: $ReadOnlyArray<Node> */ =>
+  getChildren(parent).filter(not(eq(node)))
 
 export const concatAll =
   /* ::<T> */
 
-  (xs /*: $ReadOnlyArray<T> */) =>
-    (ys /* : $ReadOnlyArray<T> */) /* : $ReadOnlyArray<T> */ =>
-      ys.reduce((zs, z) => zs.concat(z), xs)
+  (xs /*: $ReadOnlyArray<T> */) => (ys /* : $ReadOnlyArray<T> */) /* : $ReadOnlyArray<T> */ =>
+    ys.reduce((zs, z) => zs.concat(z), xs)

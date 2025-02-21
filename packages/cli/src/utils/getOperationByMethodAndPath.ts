@@ -1,22 +1,8 @@
-import type {
-  OpenAPI,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
-type PathItemObject = Record<
-  string,
-  | OpenAPIV2.PathItemObject
-  | OpenAPIV3.PathItemObject
-  | OpenAPIV3_1.PathItemObject
->
+type PathItemObject = Record<string, OpenAPIV2.PathItemObject | OpenAPIV3.PathItemObject | OpenAPIV3_1.PathItemObject>
 
-export function getOperationByMethodAndPath(
-  schema: OpenAPI.Document,
-  method: string,
-  path: string,
-) {
+export function getOperationByMethodAndPath(schema: OpenAPI.Document, method: string, path: string) {
   // Normalization
   const normalizedMethod = method.toString().toLowerCase()
   const pathObject = schema.paths?.[path] as PathItemObject
@@ -35,17 +21,13 @@ export function getOperationByMethodAndPath(
     .map((operationPath) => {
       return {
         path: operationPath,
-        regex: new RegExp(
-          operationPath.replace(/{([^}]+)}/g, (_, name) => `(?<${name}>[^/]+)`),
-        ),
+        regex: new RegExp(operationPath.replace(/{([^}]+)}/g, (_, name) => `(?<${name}>[^/]+)`)),
       }
     })
 
   // Find a Regex that matches the given path
   const matchedPath = pathRegex.find(({ regex }) => regex.test(path))
-  const matchedPathObject = schema.paths?.[
-    matchedPath?.path as string
-  ] as PathItemObject
+  const matchedPathObject = schema.paths?.[matchedPath?.path as string] as PathItemObject
 
   // Return the operation
   if (matchedPath?.path) {

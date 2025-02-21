@@ -12,11 +12,7 @@ import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey'
 /**
  * Mock any response
  */
-export function mockAnyResponse(
-  c: Context,
-  operation: OpenAPI.Operation,
-  options: MockServerOptions,
-) {
+export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, options: MockServerOptions) {
   // Call onRequest callback
   if (options?.onRequest) {
     options.onRequest({
@@ -27,12 +23,8 @@ export function mockAnyResponse(
 
   // Response
   // default, 200, 201 …
-  const preferredResponseKey = findPreferredResponseKey(
-    Object.keys(operation.responses ?? {}),
-  )
-  const preferredResponse = preferredResponseKey
-    ? operation.responses?.[preferredResponseKey]
-    : null
+  const preferredResponseKey = findPreferredResponseKey(Object.keys(operation.responses ?? {}))
+  const preferredResponse = preferredResponseKey ? operation.responses?.[preferredResponseKey] : null
 
   if (!preferredResponse) {
     c.status(500)
@@ -45,9 +37,7 @@ export function mockAnyResponse(
   // Headers
   const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    const value = headers[header].schema
-      ? getExampleFromSchema(headers[header].schema)
-      : null
+    const value = headers[header].schema ? getExampleFromSchema(headers[header].schema) : null
     if (value !== null) {
       c.header(header, value)
     }
@@ -57,9 +47,7 @@ export function mockAnyResponse(
   const acceptedContentType = accepts(c, {
     header: 'Accept',
     supports: supportedContentTypes,
-    default: supportedContentTypes.includes('application/json')
-      ? 'application/json'
-      : supportedContentTypes[0],
+    default: supportedContentTypes.includes('application/json') ? 'application/json' : supportedContentTypes[0],
   })
 
   c.header('Content-Type', acceptedContentType)
@@ -79,9 +67,7 @@ export function mockAnyResponse(
 
   // Status code
   const statusCode = Number.parseInt(
-    preferredResponseKey === 'default'
-      ? '200'
-      : (preferredResponseKey ?? '200'),
+    preferredResponseKey === 'default' ? '200' : (preferredResponseKey ?? '200'),
     10,
   ) as StatusCode
 

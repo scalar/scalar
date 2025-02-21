@@ -29,15 +29,11 @@ describe('code-frame', () => {
     const segments = pointer.substring(1).split('/').slice(1)
     const node = segments.reduce((acc, key) => {
       if (acc?.type === 'Object') {
-        return acc.children.find(
-          (child) => child.type === 'Property' && child.key.value === key,
-        )
+        return acc.children.find((child) => child.type === 'Property' && child.key.value === key)
       }
 
       if (acc?.value?.type === 'Object') {
-        return acc.value.children.find(
-          (child) => child.type === 'Property' && child.key.value === key,
-        )
+        return acc.value.children.find((child) => child.type === 'Property' && child.key.value === key)
       }
     }, ast)
 
@@ -56,8 +52,7 @@ describe('code-frame', () => {
     console.log('ERROR')
     const result = codeFrameColumns(json, location, {
       highlightCode: true,
-      message:
-        'This is the location of the key "title" in the OpenAPI document.',
+      message: 'This is the location of the key "title" in the OpenAPI document.',
     })
     console.log()
 

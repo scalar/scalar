@@ -9,8 +9,7 @@ describe('validate', async () => {
     expect(result.valid).toBe(false)
     expect(result.errors).toMatchObject([
       {
-        message:
-          'Can’t find supported Swagger/OpenAPI version in specification, version must be a string.',
+        message: 'Can’t find supported Swagger/OpenAPI version in specification, version must be a string.',
       },
     ])
   })
@@ -64,9 +63,7 @@ paths: {}
     }`)
 
     expect(result.errors).toHaveLength(1)
-    expect(result.errors[0].message).toContain(
-      'Can’t find supported Swagger/OpenAPI version in specification',
-    )
+    expect(result.errors[0].message).toContain('Can’t find supported Swagger/OpenAPI version in specification')
   })
 
   it('throws an error', async () => {

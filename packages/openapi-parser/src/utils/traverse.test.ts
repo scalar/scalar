@@ -48,10 +48,7 @@ describe('traverse', () => {
       return Object.fromEntries(
         Object.entries(schema).map(([key, value]) => {
           if (Array.isArray(value)) {
-            return [
-              key,
-              value.map((v: any) => (typeof v === 'number' ? v * 2 : v)),
-            ]
+            return [key, value.map((v: any) => (typeof v === 'number' ? v * 2 : v))]
           }
 
           if (typeof value !== 'number') {

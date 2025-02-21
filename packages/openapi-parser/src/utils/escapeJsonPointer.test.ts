@@ -8,8 +8,6 @@ describe('escapeJsonPointer', async () => {
   })
 
   it('should escape multiple slashes', () => {
-    expect(escapeJsonPointer('/api/users/{id}/reports')).toBe(
-      '~1api~1users~1{id}~1reports',
-    )
+    expect(escapeJsonPointer('/api/users/{id}/reports')).toBe('~1api~1users~1{id}~1reports')
   })
 })

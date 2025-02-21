@@ -18,9 +18,7 @@ describe('format', () => {
     fs.writeFileSync(jsonFile, notWellFormatted)
 
     // Format
-    const [exitCode, logs] = ScalarCli()
-      .setCwd(path.resolve('./'))
-      .invoke(['format', jsonFile])
+    const [exitCode, logs] = ScalarCli().setCwd(path.resolve('./')).invoke(['format', jsonFile])
 
     // Output
     logs.should.contain('File formatted')
@@ -47,9 +45,7 @@ describe('format', () => {
     fs.writeFileSync(yamlFile, notWellFormatted)
 
     // Format
-    const [exitCode, logs] = ScalarCli()
-      .setCwd(path.resolve('./'))
-      .invoke(['format', yamlFile])
+    const [exitCode, logs] = ScalarCli().setCwd(path.resolve('./')).invoke(['format', yamlFile])
 
     // Output
     logs.should.contain('File formatted')

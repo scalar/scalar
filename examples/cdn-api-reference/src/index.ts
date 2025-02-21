@@ -22,19 +22,13 @@ app.get('/ping', (_request, reply) => {
 // @scalar/api-reference bundle
 
 app.get('/api-reference/standalone.js', (_request, reply) => {
-  reply
-    .code(200)
-    .header('Content-Type', 'text/javascript; charset=utf-8')
-    .send(apiReferenceBundle)
+  reply.code(200).header('Content-Type', 'text/javascript; charset=utf-8').send(apiReferenceBundle)
 })
 
 // @scalar/play-button bundle
 
 app.get('/play-button/standalone.js', (_request, reply) => {
-  reply
-    .code(200)
-    .header('Content-Type', 'text/javascript; charset=utf-8')
-    .send(playButtonBundle)
+  reply.code(200).header('Content-Type', 'text/javascript; charset=utf-8').send(playButtonBundle)
 })
 
 // Run the server!

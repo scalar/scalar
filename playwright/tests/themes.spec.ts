@@ -28,19 +28,11 @@ test.describe('theme tests', () => {
 
   layouts.forEach((layout) =>
     themes.forEach((theme) =>
-      test(`Renders the ${theme} with the ${layout} layout`, async ({
-        page,
-      }) => {
+      test(`Renders the ${theme} with the ${layout} layout`, async ({ page }) => {
         await page.goto(`${baseUrl}/${layout}/${theme}`)
-        await expect(page).toHaveScreenshot(
-          `${layout}-${theme}-light-snapshot.png`,
-          testOpts,
-        )
+        await expect(page).toHaveScreenshot(`${layout}-${theme}-light-snapshot.png`, testOpts)
         await page.goto(`${baseUrl}/${layout}/${theme}?darkMode=true`)
-        await expect(page).toHaveScreenshot(
-          `${layout}-${theme}-dark-snapshot.png`,
-          testOpts,
-        )
+        await expect(page).toHaveScreenshot(`${layout}-${theme}-dark-snapshot.png`, testOpts)
       }),
     ),
   )

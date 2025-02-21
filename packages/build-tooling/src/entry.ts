@@ -24,9 +24,7 @@ const cssExports = {
 }
 
 /** Search for ALL index.ts files in the repo and export them as nested exports */
-export async function findEntryPoints({
-  allowCss,
-}: { allowCss?: boolean } = {}) {
+export async function findEntryPoints({ allowCss }: { allowCss?: boolean } = {}) {
   const entries: string[] = []
   glob.sync('./src/**/index.ts').forEach((e) => entries.push(e))
 
@@ -76,9 +74,7 @@ export async function addPackageFileExports({
     const filepath = [...namespace, filename].join('/')
 
     if (filepath.includes('playground')) {
-      console.info(
-        'INFO: will not add ./playground file exports to package.json',
-      )
+      console.info('INFO: will not add ./playground file exports to package.json')
       return
     }
 
@@ -99,8 +95,5 @@ export async function addPackageFileExports({
   // Green text
   console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
 
-  await fs.writeFile(
-    './package.json',
-    `${JSON.stringify(packageFile, null, 2)}\n`,
-  )
+  await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
 }

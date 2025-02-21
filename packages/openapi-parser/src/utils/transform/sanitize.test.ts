@@ -39,9 +39,7 @@ describe('sanitize', () => {
         sanitize({
           swagger: '2.0',
         }),
-      ).toThrow(
-        'Swagger 2.0 documents are not supported. Please upgrade to OpenAPI 3.x.',
-      )
+      ).toThrow('Swagger 2.0 documents are not supported. Please upgrade to OpenAPI 3.x.')
     })
   })
 
@@ -98,8 +96,7 @@ describe('sanitize', () => {
             },
             openIdConnect: {
               type: 'OPENIDCONNECT',
-              openIdConnectUrl:
-                'https://example.com/.well-known/openid-configuration',
+              openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
             },
           },
         },
@@ -131,8 +128,7 @@ describe('sanitize', () => {
         },
         openIdConnect: {
           type: 'openIdConnect',
-          openIdConnectUrl:
-            'https://example.com/.well-known/openid-configuration',
+          openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
         },
       })
     })
@@ -155,10 +151,7 @@ describe('sanitize', () => {
         },
       })
 
-      expect(
-        result.components?.securitySchemes?.oauth2.flows.authorizationCode
-          .scopes,
-      ).toStrictEqual({
+      expect(result.components?.securitySchemes?.oauth2.flows.authorizationCode.scopes).toStrictEqual({
         'read:data': '',
         'write:data': '',
       })
