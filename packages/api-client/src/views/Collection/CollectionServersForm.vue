@@ -52,21 +52,15 @@ const openDeleteModal = (serverUid: string) => {
   <div
     class="mx-auto flex h-full w-full flex-col gap-12 px-1.5 py-8 md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="flex flex-col gap-4">
-      <div class="flex justify-between gap-2">
+      <div class="flex items-start justify-between gap-2">
         <div class="flex flex-col gap-2">
-          <h3>Servers</h3>
+          <h3 class="font-bold">Servers</h3>
           <p class="text-sm">
             Add different base URLs for your API. You can use
             <code class="font-code text-c-2">{variables}</code> for dynamic
             parts.
           </p>
         </div>
-        <ScalarButton
-          class="hover:bg-b-2 ml-auto inline-flex max-h-8 w-fit cursor-pointer items-center justify-center rounded border p-2 text-xs"
-          variant="outlined"
-          @click="handleAddServer">
-          Add Server
-        </ScalarButton>
       </div>
       <div
         v-for="(server, index) in collectionServers"
@@ -105,6 +99,21 @@ const openDeleteModal = (serverUid: string) => {
             :collectionId="activeCollection.uid"
             :serverUid="server.uid" />
         </div>
+      </div>
+      <div
+        class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
+        <ScalarButton
+          class="hover:bg-b-2 hover:text-c-1 flex items-center gap-2"
+          variant="ghost"
+          size="sm"
+          @click="handleAddServer">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Add"
+            size="sm"
+            thickness="1.5" />
+          <span>Add Server</span>
+        </ScalarButton>
       </div>
     </div>
     <ScalarModal
