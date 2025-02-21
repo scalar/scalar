@@ -107,8 +107,11 @@ export const ApiReferenceConfigurationSchema = z.object({
   proxy: z.string().optional(),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
-  /** Whether the spec input should show */
-  isEditable: z.boolean().optional(),
+  /** 
+    Whether the spec input should show 
+    @default false
+  */
+  isEditable: z.boolean().optional().default(false).catch(false),
   /** 
     Whether to show the sidebar 
     @default true
