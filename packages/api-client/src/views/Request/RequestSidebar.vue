@@ -31,6 +31,7 @@ import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout, useSidebar } from '@/hooks'
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
@@ -44,16 +45,13 @@ import { WorkspaceDropdown } from './components'
 import { isGettingStarted } from './RequestSection/helpers/getting-started'
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
-const props = defineProps<{
-  isSidebarOpen: boolean
-}>()
-
 const emit = defineEmits<{
-  (e: 'update:modelValue', v: boolean): void
-  (e: 'update:isSidebarOpen', v: boolean): void
   (e: 'newTab', { name, uid }: { name: string; uid: string }): void
   (e: 'clearDrafts'): void
 }>()
+
+const { isSidebarOpen, toggleSidebar } = useSidebarToggle()
+
 const { layout } = useLayout()
 
 const workspaceContext = useWorkspace()
@@ -113,8 +111,13 @@ const {
 const handleHotKey = (event?: HotKeyEvent) => {
   if (!event) return
 
-  if (event.toggleSidebar) emit('update:isSidebarOpen', props.isSidebarOpen)
-  if (event.focusRequestSearch) searchInputRef.value?.focus()
+  if (event.toggleSidebar) {
+    toggleSidebar()
+  }
+
+  if (event.focusRequestSearch) {
+    searchInputRef.value?.focus()
+  }
 }
 
 onMounted(() => events.hotKeys.on(handleHotKey))
@@ -243,9 +246,7 @@ const showGettingStarted = computed(() =>
 <template>
   <Sidebar
     v-show="isSidebarOpen"
-    :class="[isSidebarOpen ? 'sidebar-active-width' : '']"
-    :isSidebarOpen="isSidebarOpen"
-    @update:isSidebarOpen="$emit('update:isSidebarOpen', $event)">
+    :class="[isSidebarOpen ? 'sidebar-active-width' : '']">
     <template
       v-if="layout !== 'modal'"
       #header />
@@ -253,9 +254,7 @@ const showGettingStarted = computed(() =>
       <div class="bg-b-1 sticky top-0 z-20 flex h-12 items-center px-3">
         <SidebarToggle
           class="xl:hidden"
-          :class="[{ '!flex': layout === 'modal' }]"
-          :modelValue="isSidebarOpen"
-          @update:modelValue="$emit('update:isSidebarOpen', $event)" />
+          :class="[{ '!flex': layout === 'modal' }]" />
         <WorkspaceDropdown v-if="layout !== 'modal'" />
         <span
           v-if="layout !== 'modal'"
@@ -328,7 +327,7 @@ const showGettingStarted = computed(() =>
         <nav
           v-else
           class="contents">
-          <!-- Collections -->
+          <!-- Collection -->
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
             :key="collection.uid"

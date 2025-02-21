@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
-import { useActiveEntities } from '@/store/active-entities'
 import { type Icon, ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
+import { type RouteLocationRaw, useRouter } from 'vue-router'
 
 const props = defineProps<{
   variable: {
@@ -12,12 +11,11 @@ const props = defineProps<{
     icon?: Icon
     isDefault?: boolean
   }
-  collectionId?: string
   warningMessage?: string
+  to: RouteLocationRaw
   isDeletable?: boolean
   isCopyable?: boolean
   isRenameable?: boolean
-  type: 'environment' | 'cookies' | 'servers'
 }>()
 
 const emit = defineEmits<{
@@ -27,25 +25,12 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-const { activeWorkspace } = useActiveEntities()
-const handleNavigation = (
-  event: MouseEvent,
-  uid: string,
-  collectionId?: string,
-) => {
-  const params = {
-    workspaceId: activeWorkspace.value?.uid,
-    type: props.type,
-    collectionId: collectionId || undefined,
-    uid: uid,
-  }
-  const path = collectionId
-    ? `/workspace/${params.workspaceId}/${params.type}/${params.collectionId}/${params.uid}`
-    : `/workspace/${params.workspaceId}/${params.type}/${params.uid}`
+
+const handleNavigation = (event: MouseEvent) => {
   if (event.metaKey) {
-    window.open(path, '_blank')
+    window.open(router.resolve(props.to).href, '_blank')
   } else {
-    router.push({ path })
+    router.push(props.to)
   }
 }
 
@@ -61,20 +46,16 @@ const handleRename = (id: string) => {
   emit('rename', id)
 }
 </script>
+
 <template>
   <li>
-    <!-- TODO: Use named routes instead -->
     <router-link
-      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
+      class="h-8 text-c-2 hover:bg-b-2 group relative flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-1.5']"
-      exactActiveClass="active-link"
+      exactActiveClass="bg-b-2 text-c-1"
       role="button"
-      :to="
-        collectionId
-          ? `/workspace/${activeWorkspace?.uid}/${type}/${collectionId}/${variable.uid}`
-          : `/workspace/${activeWorkspace?.uid}/${type}/${variable.uid}`
-      "
-      @click.prevent="handleNavigation($event, variable.uid, collectionId)">
+      :to="to"
+      @click.prevent="handleNavigation($event)">
       <button
         v-if="variable.color"
         class="hover:bg-b-3 rounded p-1.5"
@@ -103,10 +84,8 @@ const handleRename = (id: string) => {
     </router-link>
   </li>
 </template>
+
 <style scoped>
-.active-link {
-  @apply bg-b-2 text-c-1;
-}
 .empty-variable-name:empty:before {
   content: 'Untitled';
   color: var(--scalar-color-3);

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import { useId } from 'vue'
 
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
@@ -24,10 +26,13 @@ defineProps<{
 
 const { activeEnvVariables, activeEnvironment, activeWorkspace } =
   useActiveEntities()
+const id = useId()
 </script>
 <template>
   <ViewLayoutSection>
-    <template #title>
+    <template
+      v-if="title || $slots.title"
+      #title>
       <span v-if="title">{{ title }}</span>
       <slot
         v-else
@@ -42,13 +47,27 @@ const { activeEnvVariables, activeEnvironment, activeWorkspace } =
           :key="index"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
+            :id="id"
             :envVariables="activeEnvVariables"
             :environment="activeEnvironment"
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
             :workspace="activeWorkspace"
             @update:modelValue="onUpdate(option.key as Path<Cookie>, $event)">
-            {{ option.label }}
+            <template #default>
+              <label :for="id">
+                {{ option.label }}
+              </label>
+            </template>
+            <template
+              #icon
+              v-if="option.key === 'description'">
+              <div class="bg-b-2 flex-center border-l px-2">
+                <ScalarIcon
+                  icon="Markdown"
+                  size="lg" />
+              </div>
+            </template>
           </DataTableInput>
         </DataTableRow>
       </DataTable>
