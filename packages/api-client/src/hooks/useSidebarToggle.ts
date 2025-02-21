@@ -9,7 +9,7 @@
  * responsive on different devices.
  */
 
-import { useLayout } from '@/hooks'
+import { useLayout } from '@/hooks/useLayout'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ref, watch } from 'vue'
 
