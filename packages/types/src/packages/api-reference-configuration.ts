@@ -123,7 +123,7 @@ export const ApiReferenceConfigurationSchema = z.object({
    * Whether to show the "Download OpenAPI Document" button
    * @default false
    */
-  hideDownloadButton: z.boolean().optional(),
+  hideDownloadButton: z.boolean().optional().default(false).catch(false),
   /**
    * Whether to show the "Test Request" button
    * @default false
