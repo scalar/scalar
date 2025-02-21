@@ -105,13 +105,13 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
         class="-ml-0.5 flex h-11 cursor-pointer items-center whitespace-nowrap px-2 text-center text-sm font-medium no-underline -outline-offset-1 has-[:focus-visible]:outline"
         :to="to">
         <span
-          class="flex-center h-full w-full border-b border-transparent"
+          class="flex-center h-full w-full border-b"
           :class="
             typeof to.name === 'string' &&
             typeof currentRoute.name === 'string' &&
             currentRoute.name?.startsWith(to.name)
               ? 'text-c-1 border-c-1'
-              : 'text-c-2 hover:text-c-1'
+              : 'text-c-2 hover:text-c-1 border-transparent'
           ">
           {{ displayName }}
         </span>

@@ -61,13 +61,13 @@ function handleDeleteCollection() {
   <div
     class="mx-auto flex h-full w-full flex-col gap-12 px-1.5 py-8 md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="flex flex-col gap-4">
-      Features
+      <h3 class="font-bold">Features</h3>
       <!-- Watch Mode -->
       <div class="bg-b-2 rounded-lg border text-sm">
         <div
           class="bg-b-1 -m-1/2 flex items-center justify-between gap-4 rounded-t-lg border p-3">
           <div>
-            <h3>Watch Mode</h3>
+            <h4>Watch Mode</h4>
             <p class="text-c-2 mt-1">
               When enabled, the OpenAPI document will be polled for changes. The
               collection will be updated automatically.
@@ -111,11 +111,11 @@ function handleDeleteCollection() {
 
     <!-- Danger Zone -->
     <div class="flex flex-col gap-4">
-      <div>Danger Zone</div>
+      <h3 class="font-bold">Danger Zone</h3>
       <div
         class="flex items-center justify-between rounded-lg border p-3 text-sm">
         <div>
-          <h3>Delete Collection</h3>
+          <h4>Delete Collection</h4>
           <p class="text-c-2 mt-1">
             Be careful, my friend. Once deleted, there is no way to recover the
             collection.

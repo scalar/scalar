@@ -50,27 +50,26 @@ const data = computed(() => {
   <div
     :aria-label="`Collection: ${data.title}`"
     class="mx-auto flex h-fit w-full flex-col gap-2 pb-3 pt-6">
-    <div class="relative">
-      <IconSelector
-        :modelValue="icon"
-        placement="bottom-start"
-        @update:modelValue="(value) => updateCollectionIcon(value)">
-        <ScalarButton
-          class="p-0.25 hover:bg-b-2 absolute -left-6 top-1/2 aspect-square h-6 w-6 -translate-y-1/2 cursor-pointer rounded"
-          variant="ghost">
-          <LibraryIcon
-            class="text-c-2 size-4 stroke-[1.75]"
-            :src="icon" />
-        </ScalarButton>
-      </IconSelector>
-      <div class="ml-1.25 group">
-        <LabelInput
-          inputId="collectionName"
-          placeholder="Untitled Collection"
-          :value="data.title"
-          class="text-[18px]"
-          @updateValue="updateCollectionTitle" />
-      </div>
+    <IconSelector
+      :modelValue="icon"
+      placement="bottom-start"
+      @update:modelValue="(value) => updateCollectionIcon(value)">
+      <ScalarButton
+        class="hover:bg-b-2 aspect-square h-7 w-7 cursor-pointer rounded border border-transparent p-0 hover:border-inherit"
+        variant="ghost">
+        <LibraryIcon
+          class="text-c-2 size-5"
+          :src="icon"
+          stroke-width="2" />
+      </ScalarButton>
+    </IconSelector>
+    <div class="ml-1.25 group relative">
+      <LabelInput
+        inputId="collectionName"
+        placeholder="Untitled Collection"
+        :value="data.title"
+        class="text-xl font-bold"
+        @updateValue="updateCollectionTitle" />
     </div>
   </div>
 </template>
