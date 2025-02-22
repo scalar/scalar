@@ -8,6 +8,7 @@ import {
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { useFileDialog } from '@/hooks'
 import {
@@ -17,6 +18,7 @@ import {
   isPostmanCollection,
   isUrl,
 } from '@/libs'
+import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -28,6 +30,8 @@ const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
 }>()
+
+const router = useRouter()
 
 const { activeWorkspace } = useActiveEntities()
 const { importSpecFile, importSpecFromUrl } = useWorkspace()
@@ -48,6 +52,18 @@ const documentType = computed(() =>
   documentDetails.value ? documentDetails.value.type : 'json',
 )
 
+function navigateToCollectionPage(collection?: { uid: string }) {
+  if (!collection) return
+
+  router.push({
+    name: 'collection',
+    params: {
+      [PathId.Workspace]: activeWorkspace.value?.uid,
+      [PathId.Collection]: collection.uid,
+    },
+  })
+}
+
 const isInputUrl = computed(() => isUrl(inputContent.value))
 const isInputDocument = computed(() => !!documentDetails.value)
 
@@ -60,12 +76,17 @@ const { open: openSpecFileDialog } = useFileDialog({
         const text = e.target?.result as string
         try {
           if (isPostmanCollection(text)) {
-            await importSpecFile(
+            const workspace = await importSpecFile(
               await convertPostmanToOpenApi(text),
               activeWorkspace.value?.uid ?? '',
             )
+            navigateToCollectionPage(workspace?.collection)
           } else {
-            await importSpecFile(text, activeWorkspace.value?.uid ?? '')
+            const workspace = await importSpecFile(
+              text,
+              activeWorkspace.value?.uid ?? '',
+            )
+            navigateToCollectionPage(workspace?.collection)
           }
           toast('Import successful', 'info')
           emits('close')
@@ -98,7 +119,7 @@ async function importCollection() {
   loader.startLoading()
   try {
     if (isInputUrl.value) {
-      const [error] = await importSpecFromUrl(
+      const [error, workspace] = await importSpecFromUrl(
         inputContent.value,
         activeWorkspace.value?.uid ?? '',
         {
@@ -106,6 +127,8 @@ async function importCollection() {
           watchMode: watchMode.value,
         },
       )
+
+      navigateToCollectionPage(workspace?.collection)
 
       if (error) {
         toast(
@@ -118,16 +141,18 @@ async function importCollection() {
       }
     } else if (isInputDocument.value) {
       if (isPostmanCollection(inputContent.value)) {
-        await importSpecFile(
+        const workspace = await importSpecFile(
           await convertPostmanToOpenApi(inputContent.value),
           activeWorkspace.value?.uid ?? '',
         )
+        navigateToCollectionPage(workspace?.collection)
         toast('Successfully converted Postman collection', 'info')
       } else {
-        await importSpecFile(
+        const workspace = await importSpecFile(
           inputContent.value,
           activeWorkspace.value?.uid ?? '',
         )
+        navigateToCollectionPage(workspace?.collection)
       }
     } else {
       toast('Import failed: Invalid URL or OpenAPI document', 'error')
