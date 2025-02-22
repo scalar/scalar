@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
-import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
-  WORKSPACE_SYMBOL,
   createActiveEntitiesStore,
   createWorkspaceStore,
+  WORKSPACE_SYMBOL,
 } from '@scalar/api-client/store'
 import {
-  ScalarErrorBoundary,
   addScalarClassesToHeadless,
+  ScalarErrorBoundary,
 } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
-  type ThemeId,
   getThemeStyles,
   hasObtrusiveScrollbars,
+  type ThemeId,
 } from '@scalar/themes'
 import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
@@ -34,6 +32,9 @@ import {
   useSSRContext,
   watch,
 } from 'vue'
+
+import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'

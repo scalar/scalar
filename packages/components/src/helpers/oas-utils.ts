@@ -27,10 +27,7 @@ const json = {
     return jsonObject
   },
   /** Parse and return a fallback on failure */
-  parseSafe<T extends PrimitiveOrObject>(
-    val: string,
-    fallback: T | ((err: any) => T),
-  ): AnyObject | T {
+  parseSafe<T extends PrimitiveOrObject>(val: string, fallback: T | ((err: any) => T)): AnyObject | T {
     try {
       return json.parse(val)
     } catch (err) {
@@ -43,9 +40,7 @@ const json = {
 /**
  * Takes JSON and formats it.
  */
-export const prettyPrintJson = (
-  value: string | number | any[] | Record<any, any>,
-) => {
+export const prettyPrintJson = (value: string | number | any[] | Record<any, any>) => {
   if (typeof value === 'string') {
     // JSON string
     if (isJsonString(value)) {

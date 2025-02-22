@@ -26,9 +26,7 @@ $ pnpm dev:proxy-server
 
 describe('fetchSpecFromUrl', () => {
   it('fetches specifications (without a proxy)', async () => {
-    const spec = await fetchSpecFromUrl(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    const spec = await fetchSpecFromUrl('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
 
     expect(typeof spec).toEqual('string')
     expect(spec.length).toBeGreaterThan(100)

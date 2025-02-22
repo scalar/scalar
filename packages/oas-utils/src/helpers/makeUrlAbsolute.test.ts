@@ -24,9 +24,7 @@ describe('makeUrlAbsolute', () => {
     })
 
     expect(makeUrlAbsolute('relative')).toBe('http://example.com/path/relative')
-    expect(makeUrlAbsolute('/absolute-path')).toBe(
-      'http://example.com/absolute-path',
-    )
+    expect(makeUrlAbsolute('/absolute-path')).toBe('http://example.com/absolute-path')
 
     // Restore original window.location.href
     Object.defineProperty(window, 'location', {
@@ -77,9 +75,7 @@ describe('makeUrlAbsolute', () => {
       writable: true,
     })
 
-    expect(makeUrlAbsolute('../openapi.json')).toBe(
-      'http://example.com/path/to/openapi.json',
-    )
+    expect(makeUrlAbsolute('../openapi.json')).toBe('http://example.com/path/to/openapi.json')
 
     // Restore original window.location.href
     Object.defineProperty(window, 'location', {

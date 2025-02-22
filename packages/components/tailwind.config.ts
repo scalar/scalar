@@ -37,21 +37,16 @@ export default {
             b: 'var(--scalar-sidebar-item-active-background, var(--scalar-background-2))',
             c: 'var(--scalar-sidebar-color-active, currentColor)',
           },
-          border:
-            'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
+          border: 'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
           indent: {
-            border:
-              'var(--scalar-sidebar-indent-border, var(--scalar-border-color))',
-            hover:
-              'var(--scalar-sidebar-indent-border-hover, var(--scalar-border-color))',
-            active:
-              'var(--scalar-sidebar-indent-border-active, var(--scalar-color-accent))',
+            border: 'var(--scalar-sidebar-indent-border, var(--scalar-border-color))',
+            hover: 'var(--scalar-sidebar-indent-border-hover, var(--scalar-border-color))',
+            active: 'var(--scalar-sidebar-indent-border-active, var(--scalar-color-accent))',
           },
           search: {
             b: 'var(--scalar-sidebar-search-background, var(--scalar-background-2))',
             c: 'var(--scalar-sidebar-search-color, var(--scalar-color-3))',
-            border:
-              'var(--scalar-sidebar-search-border-color, var(--scalar-border-color))',
+            border: 'var(--scalar-sidebar-search-border-color, var(--scalar-border-color))',
           },
         },
       },

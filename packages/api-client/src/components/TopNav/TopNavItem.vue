@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import {
-  type Icon,
   ScalarContextMenu,
   ScalarDropdownButton,
   ScalarDropdownDivider,
@@ -9,7 +7,10 @@ import {
   ScalarFloating,
   ScalarIcon,
   ScalarTooltip,
+  type Icon,
 } from '@scalar/components'
+
+import ScalarHotkey from '@/components/ScalarHotkey.vue'
 
 defineProps<{
   hotkey?: string

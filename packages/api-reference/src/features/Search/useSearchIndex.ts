@@ -5,12 +5,7 @@ import { type Ref, computed, ref, watch } from 'vue'
 
 import { getHeadingsFromMarkdown, getModels } from '../../helpers'
 import { extractRequestBody } from '../../helpers/specHelpers'
-import {
-  type ParamMap,
-  useNavState,
-  useOperation,
-  useSidebar,
-} from '../../hooks'
+import { type ParamMap, useNavState, useOperation, useSidebar } from '../../hooks'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -35,8 +30,7 @@ export function useSearchIndex({
 }: {
   specification: Ref<Spec>
 }) {
-  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } =
-    useNavState()
+  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
 
   const { hideModels } = useSidebar()
 
@@ -68,22 +62,20 @@ export function useSearchIndex({
     searchResults.value = []
   }
 
-  const searchResultsWithPlaceholderResults = computed<FuseResult<FuseData>[]>(
-    (): FuseResult<FuseData>[] => {
-      // Rendering a lot of items is slow, so we limit the results.
-      const LIMIT = 25
+  const searchResultsWithPlaceholderResults = computed<FuseResult<FuseData>[]>((): FuseResult<FuseData>[] => {
+    // Rendering a lot of items is slow, so we limit the results.
+    const LIMIT = 25
 
-      if (searchText.value.length === 0) {
-        return fuseDataArray.value.slice(0, LIMIT).map((item) => {
-          return {
-            item: item,
-          } as FuseResult<FuseData>
-        })
-      }
+    if (searchText.value.length === 0) {
+      return fuseDataArray.value.slice(0, LIMIT).map((item) => {
+        return {
+          item: item,
+        } as FuseResult<FuseData>
+      })
+    }
 
-      return searchResults.value.slice(0, LIMIT)
-    },
-  )
+    return searchResults.value.slice(0, LIMIT)
+  })
 
   watch(
     specification.value,
@@ -92,19 +84,14 @@ export function useSearchIndex({
 
       // Likely an incomplete/invalid spec
       // TODO: Or just an OpenAPI document without tags and webhooks?
-      if (
-        !specification.value?.tags?.length &&
-        !specification.value?.webhooks?.length
-      ) {
+      if (!specification.value?.tags?.length && !specification.value?.webhooks?.length) {
         fuse.setCollection([])
         return
       }
 
       // Headings from the description
       const headingsData: FuseData[] = []
-      const headings = getHeadingsFromMarkdown(
-        specification.value?.info?.description ?? '',
-      )
+      const headings = getHeadingsFromMarkdown(specification.value?.info?.description ?? '')
 
       if (headings.length) {
         headings.forEach((heading) => {
@@ -170,9 +157,7 @@ export function useSearchIndex({
 
       if (webhooks) {
         Object.keys(webhooks).forEach((name) => {
-          const httpVerbs = Object.keys(
-            webhooks[name],
-          ) as OpenAPIV3_1.HttpMethods[]
+          const httpVerbs = Object.keys(webhooks[name]) as OpenAPIV3_1.HttpMethods[]
 
           httpVerbs.forEach((httpVerb) => {
             webhookData.push({

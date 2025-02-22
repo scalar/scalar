@@ -38,9 +38,7 @@ describe('ScalarFloating', () => {
       await nextTick()
 
       expect(wrapper.vm.targetRef).toBe(wrapper.vm.wrapperRef)
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('non-existent-id'),
-      )
+      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('non-existent-id'))
 
       consoleSpy.mockRestore()
     })

@@ -32,17 +32,17 @@ const value = computed<string>({
         v-model="value"
         class="flex flex-col">
         <div class="flex text-sm">
-          <RadioGroupLabel class="text-c-2 py-1 px-1">
+          <RadioGroupLabel class="text-c-2 px-1 py-1">
             <slot name="title">Select an icon</slot>
           </RadioGroupLabel>
         </div>
         <ul
-          class="grid grid-cols-[repeat(auto-fill,minmax(32px,1fr))] auto-rows-[32px] justify-between content-between rounded bg-b-1 border p-1 max-w-[420px] w-dvw custom-scroll">
+          class="bg-b-1 custom-scroll grid w-dvw max-w-[420px] auto-rows-[32px] grid-cols-[repeat(auto-fill,minmax(32px,1fr))] content-between justify-between rounded border p-1">
           <RadioGroupOption
             v-for="icon in libraryIcons"
             :key="icon.src"
             as="li"
-            class="p-2 rounded flex items-center justify-center text-c-3 cursor-pointer hover:text-c-2 hover:bg-b-2 ui-checked:bg-b-3 ui-active:bg-b-2"
+            class="text-c-3 hover:text-c-2 hover:bg-b-2 ui-checked:bg-b-3 ui-active:bg-b-2 flex cursor-pointer items-center justify-center rounded p-2"
             :value="icon.src"
             @click="close">
             <RadioGroupLabel class="sr-only">

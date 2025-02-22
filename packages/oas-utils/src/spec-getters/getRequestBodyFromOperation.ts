@@ -64,19 +64,13 @@ export function getRequestBodyFromOperation(
    * TODO: This is very fragile. There needs to be significantly more support for
    * vendor specific content types (like application/vnd.github+json)
    */
-  const mimeType =
-    mimeTypes.find(
-      (currentMimeType: ContentType) => !!content?.[currentMimeType],
-    ) ?? 'application/json'
+  const mimeType = mimeTypes.find((currentMimeType: ContentType) => !!content?.[currentMimeType]) ?? 'application/json'
 
   /** Examples */
-  const examples =
-    content?.[mimeType]?.examples ?? content?.['application/json']?.examples
+  const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
   // Let’s use the first example
-  const selectedExample = (examples ?? {})?.[
-    selectedExampleKey ?? Object.keys(examples ?? {})[0]
-  ]
+  const selectedExample = (examples ?? {})?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
 
   if (selectedExample) {
     return {
@@ -119,11 +113,7 @@ export function getRequestBodyFromOperation(
    *   submit-name. This type of form parameters is more commonly used for file transfers.”
    */
 
-  const formDataParameters = getParametersFromOperation(
-    operation,
-    'formData',
-    false,
-  )
+  const formDataParameters = getParametersFromOperation(operation, 'formData', false)
 
   if (formDataParameters.length > 0) {
     return {
@@ -136,10 +126,7 @@ export function getRequestBodyFromOperation(
          *
          * JSON.stringify is a TEMPORARY fix
          */
-        value:
-          typeof parameter.value === 'string'
-            ? parameter.value
-            : JSON.stringify(parameter.value),
+        value: typeof parameter.value === 'string' ? parameter.value : JSON.stringify(parameter.value),
       })),
     }
   }
@@ -153,9 +140,7 @@ export function getRequestBodyFromOperation(
   const requestBodyObject = content?.[mimeType]
 
   // Get example from operation
-  const example = requestBodyObject?.example
-    ? requestBodyObject?.example
-    : undefined
+  const example = requestBodyObject?.example ? requestBodyObject?.example : undefined
 
   // JSON
   if (mimeType === 'application/json') {
@@ -213,10 +198,7 @@ export function getRequestBodyFromOperation(
   }
 
   // URL encoded data
-  if (
-    mimeType === 'multipart/form-data' ||
-    mimeType === 'application/x-www-form-urlencoded'
-  ) {
+  if (mimeType === 'multipart/form-data' || mimeType === 'application/x-www-form-urlencoded') {
     const exampleFromSchema = requestBodyObject?.schema
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,

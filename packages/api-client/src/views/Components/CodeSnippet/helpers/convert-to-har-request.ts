@@ -50,10 +50,7 @@ export const convertToHarRequest = ({
   // Convert headers
   if (headers.length)
     harRequest.headers = headers
-      .filter(
-        (h) =>
-          h.enabled && !(h.key.toLowerCase() === 'accept' && h.value === '*/*'),
-      )
+      .filter((h) => h.enabled && !(h.key.toLowerCase() === 'accept' && h.value === '*/*'))
       .map(({ key, value }) => ({
         name: key.replace(/\b\w/g, (letter) => letter.toUpperCase()),
         value,
@@ -71,9 +68,7 @@ export const convertToHarRequest = ({
   // Handle request body if present
   if (body) {
     try {
-      const contentType =
-        headers.find((h) => h.key.toLowerCase() === 'content-type')?.value ||
-        'application/json'
+      const contentType = headers.find((h) => h.key.toLowerCase() === 'content-type')?.value || 'application/json'
 
       // For form-data, convert to object while handling File objects
       if (body.activeBody === 'formData' && body.formData) {
@@ -96,8 +91,7 @@ export const convertToHarRequest = ({
           else {
             // If key already exists, make an array and append
             if (formDataObject[key]) {
-              if (!Array.isArray(formDataObject[key]))
-                formDataObject[key] = [formDataObject[key]]
+              if (!Array.isArray(formDataObject[key])) formDataObject[key] = [formDataObject[key]]
 
               formDataObject[key].push(value)
             }

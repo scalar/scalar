@@ -1,11 +1,7 @@
 /**
  * Check for duplicate titles, and iterate title
  */
-export const iterateTitle = (
-  title: string,
-  checkDuplicates: (title: string) => boolean,
-  separator = ' #',
-): string => {
+export const iterateTitle = (title: string, checkDuplicates: (title: string) => boolean, separator = ' #'): string => {
   // If the title is not a duplicate return
   if (!checkDuplicates(title)) return title
 

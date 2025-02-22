@@ -8,6 +8,4 @@ export type ServerVariableValues = {
   [variable: string]: string
 }
 
-export type ServerVariable =
-  | OpenAPIV3.ServerVariableObject
-  | OpenAPIV3_1.ServerVariableObject
+export type ServerVariable = OpenAPIV3.ServerVariableObject | OpenAPIV3_1.ServerVariableObject

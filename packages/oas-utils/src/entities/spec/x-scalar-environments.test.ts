@@ -8,8 +8,6 @@ describe('x-scalar-environments', () => {
   it('Handles spec definition', () => {
     const parsed = parseJsonOrYaml(baseDefinition)
 
-    expect(
-      xScalarEnvironmentsSchema.parse(parsed['x-scalar-environments']),
-    ).toEqual(parsed['x-scalar-environments'])
+    expect(xScalarEnvironmentsSchema.parse(parsed['x-scalar-environments'])).toEqual(parsed['x-scalar-environments'])
   })
 })

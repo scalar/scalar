@@ -2,12 +2,7 @@
  * Pass an URL or a relative URL and get an absolute URL
  */
 export const makeUrlAbsolute = (url?: string, baseUrl?: string) => {
-  if (
-    !url ||
-    url.startsWith('http://') ||
-    url.startsWith('https://') ||
-    (typeof window === 'undefined' && !baseUrl)
-  ) {
+  if (!url || url.startsWith('http://') || url.startsWith('https://') || (typeof window === 'undefined' && !baseUrl)) {
     return url
   }
 

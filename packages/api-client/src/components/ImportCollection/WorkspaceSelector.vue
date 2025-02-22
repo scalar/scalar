@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -13,6 +11,9 @@ import {
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 const { activeWorkspace } = useActiveEntities()
 const { workspaces, workspaceMutators } = useWorkspace()
@@ -57,14 +58,14 @@ const handleCreateWorkspace = () => {
 }
 </script>
 <template>
-  <div class="flex items-center text-sm w-[inherit]">
+  <div class="flex w-[inherit] items-center text-sm">
     <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-full justify-start line-clamp-1 py-1 px-1.5 text-c-1 hover:bg-b-2 w-fit text-c-3"
+        class="text-c-1 hover:bg-b-2 text-c-3 line-clamp-1 h-full w-fit justify-start px-1.5 py-1 font-normal"
         fullWidth
         variant="ghost">
-        <div class="font-medium m-0 text-sm flex gap-1 items-center">
-          <h2 class="line-clamp-1 text-left w-[calc(100%-10px)] text-xs">
+        <div class="m-0 flex items-center gap-1 text-sm font-medium">
+          <h2 class="line-clamp-1 w-[calc(100%-10px)] text-left text-xs">
             {{ activeWorkspace?.name }}
           </h2>
           <ScalarIcon
@@ -78,10 +79,10 @@ const handleCreateWorkspace = () => {
         <ScalarDropdownItem
           v-for="(workspace, uid) in workspaces"
           :key="uid"
-          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
+          class="group/item flex w-full items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
           @click.stop="updateSelected(uid)">
           <div
-            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
+            class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
             :class="
               activeWorkspace?.uid === uid
                 ? 'bg-c-accent text-b-1'
@@ -92,7 +93,7 @@ const handleCreateWorkspace = () => {
               icon="Checkmark"
               thickness="3" />
           </div>
-          <span class="text-ellipsis overflow-hidden">{{
+          <span class="overflow-hidden text-ellipsis">{{
             workspace.name
           }}</span>
         </ScalarDropdownItem>
@@ -102,7 +103,7 @@ const handleCreateWorkspace = () => {
         <ScalarDropdownItem
           class="flex items-center gap-1.5"
           @click="modal.show()">
-          <div class="flex items-center justify-center h-4 w-4">
+          <div class="flex h-4 w-4 items-center justify-center">
             <ScalarIcon
               icon="Add"
               size="sm" />
@@ -114,7 +115,7 @@ const handleCreateWorkspace = () => {
   </div>
   <ScalarModal
     bodyClass="m-0 p-1 rounded-lg border-t-0"
-    class="absolute z-overlay"
+    class="z-overlay absolute"
     :size="'xxs'"
     :state="modal"
     variant="form">
@@ -123,11 +124,11 @@ const handleCreateWorkspace = () => {
       @submit.prevent="handleCreateWorkspace">
       <input
         v-model="workspaceName"
-        class="border-none outline-none flex-1 w-full text-sm min-h-8 p-1.5"
+        class="min-h-8 w-full flex-1 border-none p-1.5 text-sm outline-none"
         placeholder="New Workspace"
         type="text" />
       <ScalarButton
-        class="max-h-8 text-xs p-0 px-3"
+        class="max-h-8 p-0 px-3 text-xs"
         :disabled="!workspaceName.trim()"
         type="submit">
         Continue

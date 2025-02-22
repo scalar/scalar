@@ -205,8 +205,7 @@ describe('useHttpClientStore', () => {
   })
 
   it.sequential('uses the specified HTTP client as the default', () => {
-    const { httpClient, resetState, setDefaultHttpClient } =
-      useHttpClientStore()
+    const { httpClient, resetState, setDefaultHttpClient } = useHttpClientStore()
 
     resetState()
 
@@ -222,8 +221,7 @@ describe('useHttpClientStore', () => {
   })
 
   it.sequential('uses the first available HTTP client', () => {
-    const { httpClient, resetState, setExcludedClients, setDefaultHttpClient } =
-      useHttpClientStore()
+    const { httpClient, resetState, setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
 
     resetState()
 

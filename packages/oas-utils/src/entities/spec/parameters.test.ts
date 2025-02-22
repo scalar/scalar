@@ -10,9 +10,7 @@ describe('oasParameterSchema', () => {
       example: 10,
     }
 
-    expect(() =>
-      oasParameterSchema.parse(validParameterWithExample),
-    ).not.toThrow()
+    expect(() => oasParameterSchema.parse(validParameterWithExample)).not.toThrow()
   })
 
   it('should validate examples as a record with correct structure', () => {

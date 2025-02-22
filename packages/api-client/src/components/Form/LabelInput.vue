@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import type { ClientLayout } from '@/hooks/useLayout'
 import { useBindCx } from '@scalar/components'
+
+import type { ClientLayout } from '@/hooks/useLayout'
 
 defineProps<{
   inputId: string

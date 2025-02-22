@@ -90,15 +90,7 @@ export namespace v_0_0_0 {
     name: string
     body: {
       raw: {
-        encoding:
-          | 'json'
-          | 'text'
-          | 'html'
-          | 'text'
-          | 'javascript'
-          | 'xml'
-          | 'yaml'
-          | 'edn'
+        encoding: 'json' | 'text' | 'html' | 'text' | 'javascript' | 'xml' | 'yaml' | 'edn'
         value: string
       }
       formData: {
@@ -297,16 +289,7 @@ export namespace v_0_0_0 {
   }
   export type Request = {
     path: string
-    method:
-      | 'CONNECT'
-      | 'DELETE'
-      | 'GET'
-      | 'HEAD'
-      | 'OPTIONS'
-      | 'PATCH'
-      | 'POST'
-      | 'PUT'
-      | 'TRACE'
+    method: 'CONNECT' | 'DELETE' | 'GET' | 'HEAD' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT' | 'TRACE'
     uid: string
     ref: {
       path: string
@@ -478,9 +461,7 @@ export namespace v_0_0_0 {
           hotKeys?:
             | {
                 [x: string]: {
-                  modifiers?:
-                    | ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[]
-                    | undefined
+                  modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[] | undefined
                   event:
                     | 'closeModal'
                     | 'navigateSearchResultsDown'

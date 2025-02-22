@@ -56,9 +56,7 @@ describe('getHarRequest', () => {
 
     const example = requestExampleSchema.parse({
       parameters: {
-        headers: [
-          { key: 'Content-Type', value: 'application/json', enabled: true },
-        ],
+        headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
         cookies: [{ key: 'session', value: '123', enabled: true }],
         query: [{ key: 'filter', value: 'active', enabled: true }],
       },

@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import {
+  ScalarIcon,
+  ScalarIconButton,
+  ScalarMarkdown,
+} from '@scalar/components'
+import type {
+  Collection,
+  Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import type { TransformedOperation } from '@scalar/types/legacy'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
@@ -13,18 +26,6 @@ import {
   isOperationDeprecated,
 } from '@/helpers'
 import { useConfig } from '@/hooks/useConfig'
-import {
-  ScalarIcon,
-  ScalarIconButton,
-  ScalarMarkdown,
-} from '@scalar/components'
-import type {
-  Collection,
-  Operation,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
-import type { TransformedOperation } from '@scalar/types/legacy'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'

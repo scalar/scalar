@@ -18,8 +18,6 @@ describe('getUrlFromServerState', () => {
       },
     })
 
-    expect(xml).toMatchObject(
-      '<urls><url>https://example.com</url><url>https://example.com</url></urls>',
-    )
+    expect(xml).toMatchObject('<urls><url>https://example.com</url><url>https://example.com</url></urls>')
   })
 })

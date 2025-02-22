@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ScalarListbox, cva, cx } from '@scalar/components'
+import { cva, cx, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
-import { REQUEST_METHODS, getHttpMethodInfo } from '@scalar/oas-utils/helpers'
+import { getHttpMethodInfo, REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -49,7 +49,7 @@ const httpLabel = computed(() => method.value.short)
   <ScalarListbox
     v-if="isEditable"
     v-model="selectedMethod"
-    class="mt-1 font-code text-sm scalar-client"
+    class="font-code scalar-client mt-1 text-sm"
     :options="methodOptions">
     <div
       class="h-full"

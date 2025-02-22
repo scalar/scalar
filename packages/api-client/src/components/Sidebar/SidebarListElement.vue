@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { ScalarIcon, type Icon } from '@scalar/components'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
+
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
-import { type Icon, ScalarIcon } from '@scalar/components'
-import { type RouteLocationRaw, useRouter } from 'vue-router'
 
 const props = defineProps<{
   variable: {
@@ -50,7 +51,7 @@ const handleRename = (id: string) => {
 <template>
   <li>
     <router-link
-      class="h-8 text-c-2 hover:bg-b-2 group relative flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
+      class="text-c-2 hover:bg-b-2 group relative flex h-8 items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-1.5']"
       exactActiveClass="bg-b-2 text-c-1"
       role="button"
@@ -70,7 +71,7 @@ const handleRename = (id: string) => {
         class="text-sidebar-c-2 size-3.5 stroke-[2.25]"
         :icon="variable.icon" />
       <span
-        class="empty-variable-name text-sm line-clamp-1 break-all group-hover:pr-5">
+        class="empty-variable-name line-clamp-1 break-all text-sm group-hover:pr-5">
         {{ variable.name }}
       </span>
       <SidebarListElementActions

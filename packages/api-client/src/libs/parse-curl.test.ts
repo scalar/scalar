@@ -44,8 +44,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles URLs with special characters', () => {
-      const curlCommand =
-        'curl "http://example.com/path?key=value&special=!@$%^*()"'
+      const curlCommand = 'curl "http://example.com/path?key=value&special=!@$%^*()"'
       const result = parseCurlCommand(curlCommand)
       expect(result.url).toBe('http://example.com/path')
       expect(result.queryParameters).toStrictEqual([
@@ -69,9 +68,7 @@ describe('parseCurlCommand', () => {
     it('handles URLs with multiple consecutive spaces', () => {
       const curlCommand = 'curl "http://example.com/path    with    spaces"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe(
-        'http://example.com/path%20%20%20%20with%20%20%20%20spaces',
-      )
+      expect(result.url).toBe('http://example.com/path%20%20%20%20with%20%20%20%20spaces')
     })
 
     it('handles URLs with line breaks', () => {
@@ -79,9 +76,7 @@ describe('parseCurlCommand', () => {
 ?param=value'`
       const result = parseCurlCommand(curlCommand)
       expect(result.url).toBe('http://example.com/path')
-      expect(result.queryParameters).toStrictEqual([
-        { key: 'param', value: 'value' },
-      ])
+      expect(result.queryParameters).toStrictEqual([{ key: 'param', value: 'value' }])
     })
   })
 
@@ -129,9 +124,7 @@ describe('parseCurlCommand', () => {
     it('parses query parameters correctly', () => {
       const curlCommand = 'curl http://example.com?name=example'
       const result = parseCurlCommand(curlCommand)
-      expect(result.queryParameters).toStrictEqual([
-        { key: 'name', value: 'example' },
-      ])
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'example' }])
     })
 
     it('parses multiple query parameters from URL correctly', () => {
@@ -144,8 +137,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('parses query parameters with -G and -d flags correctly', () => {
-      const curlCommand =
-        'curl -G -d "name=value1" -d "age=value2" http://httpbin.org/get'
+      const curlCommand = 'curl -G -d "name=value1" -d "age=value2" http://httpbin.org/get'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'name', value: 'value1' },
@@ -165,9 +157,7 @@ describe('parseCurlCommand', () => {
     it('parses single query parameter from body data correctly', () => {
       const curlCommand = "curl --data 'name=value1' https://example.com"
       const result = parseCurlCommand(curlCommand)
-      expect(result.queryParameters).toStrictEqual([
-        { key: 'name', value: 'value1' },
-      ])
+      expect(result.queryParameters).toStrictEqual([{ key: 'name', value: 'value1' }])
     })
 
     it('parses empty query parameters gracefully', () => {
@@ -180,8 +170,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles query parameters with special characters correctly', () => {
-      const curlCommand =
-        'curl "http://example.com?name=hello%20world&email=test%40example.com"'
+      const curlCommand = 'curl "http://example.com?name=hello%20world&email=test%40example.com"'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'name', value: 'hello world' },
@@ -200,8 +189,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles deeply nested query parameters correctly', () => {
-      const curlCommand =
-        'curl "http://example.com?filter[name][first]=John&filter[name][last]=Doe"'
+      const curlCommand = 'curl "http://example.com?filter[name][first]=John&filter[name][last]=Doe"'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'filter[name][first]', value: 'John' },
@@ -210,8 +198,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles query parameters with symbols correctly', () => {
-      const curlCommand =
-        'curl "http://example.com?range=>10&price=\\$100&discount=20%"'
+      const curlCommand = 'curl "http://example.com?range=>10&price=\\$100&discount=20%"'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'range', value: '>10' },
@@ -234,16 +221,13 @@ describe('parseCurlCommand', () => {
       const longValue = 'a'.repeat(2000)
       const curlCommand = `curl "http://example.com?data=${longValue}"`
       const result = parseCurlCommand(curlCommand)
-      expect(result.queryParameters).toStrictEqual([
-        { key: 'data', value: longValue },
-      ])
+      expect(result.queryParameters).toStrictEqual([{ key: 'data', value: longValue }])
     })
   })
 
   describe('headers', () => {
     it('parses headers correctly', () => {
-      const curlCommand =
-        'curl -H "Content-Type: application/json" http://example.com'
+      const curlCommand = 'curl -H "Content-Type: application/json" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'Content-Type': 'application/json',
@@ -251,8 +235,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('parses multiple headers correctly', () => {
-      const curlCommand =
-        'curl -H "Content-Type: application/json" -H "Accept: */*" http://example.com'
+      const curlCommand = 'curl -H "Content-Type: application/json" -H "Accept: */*" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'Content-Type': 'application/json',
@@ -261,8 +244,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles headers with special characters correctly', () => {
-      const curlCommand =
-        'curl -H "X-Custom-Header: value!@#$%^&*()" http://example.com'
+      const curlCommand = 'curl -H "X-Custom-Header: value!@#$%^&*()" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'X-Custom-Header': 'value!@#$%^&*()',
@@ -294,8 +276,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles headers with unicode characters correctly', () => {
-      const curlCommand =
-        'curl -H "X-Emoji: 🚀" -H "X-Unicode: 你好" http://example.com'
+      const curlCommand = 'curl -H "X-Emoji: 🚀" -H "X-Unicode: 你好" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'X-Emoji': '🚀',
@@ -304,8 +285,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles headers with quoted values correctly', () => {
-      const curlCommand =
-        'curl -H \'Content-Type: "quoted value"\' http://example.com'
+      const curlCommand = 'curl -H \'Content-Type: "quoted value"\' http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'Content-Type': '"quoted value"',
@@ -313,8 +293,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles headers with backslashes correctly', () => {
-      const curlCommand =
-        'curl -H "Path: C:\\Windows\\System32" http://example.com'
+      const curlCommand = 'curl -H "Path: C:\\Windows\\System32" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         Path: 'C:\\Windows\\System32',
@@ -331,8 +310,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('parses headers with --header flag correctly', () => {
-      const curlCommand =
-        'curl --header "Content-Type: application/json" http://example.com'
+      const curlCommand = 'curl --header "Content-Type: application/json" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'Content-Type': 'application/json',
@@ -340,8 +318,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('parses multiple headers with --header flag correctly', () => {
-      const curlCommand =
-        'curl --header "Content-Type: application/json" --header "Accept: */*" http://example.com'
+      const curlCommand = 'curl --header "Content-Type: application/json" --header "Accept: */*" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toStrictEqual({
         'Content-Type': 'application/json',
@@ -358,8 +335,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles basic auth with special characters correctly', () => {
-      const curlCommand =
-        'curl -u "user@domain.com:p@ssw#rd123" http://example.com'
+      const curlCommand = 'curl -u "user@domain.com:p@ssw#rd123" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers?.Authorization).toMatch(/^Basic /)
     })
@@ -371,15 +347,13 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles bearer token authentication correctly', () => {
-      const curlCommand =
-        'curl -H "Authorization: Bearer abc123" http://example.com'
+      const curlCommand = 'curl -H "Authorization: Bearer abc123" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers?.Authorization).toBe('Bearer abc123')
     })
 
     it('handles multiple authentication methods correctly', () => {
-      const curlCommand =
-        'curl -u user:pass -H "Authorization: Bearer token" http://example.com'
+      const curlCommand = 'curl -u user:pass -H "Authorization: Bearer token" http://example.com'
       const result = parseCurlCommand(curlCommand)
       // The last one should take precedence
       expect(result.headers?.Authorization).toBe('Bearer token')
@@ -408,23 +382,15 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles multiple cookies correctly', () => {
-      const curlCommand =
-        'curl -b "name1=value1; name2=value2" http://example.com'
+      const curlCommand = 'curl -b "name1=value1; name2=value2" http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.headers).toHaveProperty(
-        'Cookie',
-        'name1=value1; name2=value2',
-      )
+      expect(result.headers).toHaveProperty('Cookie', 'name1=value1; name2=value2')
     })
 
     it('handles cookies with special characters correctly', () => {
-      const curlCommand =
-        'curl -b "name=value with spaces; special@cookie=!@#$%" http://example.com'
+      const curlCommand = 'curl -b "name=value with spaces; special@cookie=!@#$%" http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.headers).toHaveProperty(
-        'Cookie',
-        'name=value with spaces; special@cookie=!@#$%',
-      )
+      expect(result.headers).toHaveProperty('Cookie', 'name=value with spaces; special@cookie=!@#$%')
     })
 
     it('handles cookies with equals signs in value correctly', () => {
@@ -440,13 +406,9 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles quoted cookie values correctly', () => {
-      const curlCommand =
-        'curl -b \'session="j:{\\"user\\":\\"123\\"}";\' http://example.com'
+      const curlCommand = 'curl -b \'session="j:{\\"user\\":\\"123\\"}";\' http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.headers).toHaveProperty(
-        'Cookie',
-        'session="j:{\\"user\\":\\"123\\"}"',
-      )
+      expect(result.headers).toHaveProperty('Cookie', 'session="j:{\\"user\\":\\"123\\"}"')
     })
 
     it('handles cookies with unicode characters correctly', () => {
@@ -463,13 +425,9 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles multiple cookie parameters correctly', () => {
-      const curlCommand =
-        'curl -b "name1=value1" -b "name2=value2" http://example.com'
+      const curlCommand = 'curl -b "name1=value1" -b "name2=value2" http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.headers).toHaveProperty(
-        'Cookie',
-        'name1=value1; name2=value2',
-      )
+      expect(result.headers).toHaveProperty('Cookie', 'name1=value1; name2=value2')
     })
 
     it('parses cookies with --cookie flag correctly', () => {
@@ -479,13 +437,9 @@ describe('parseCurlCommand', () => {
     })
 
     it('handles multiple cookies with --cookie flag correctly', () => {
-      const curlCommand =
-        'curl --cookie "name1=value1; name2=value2" http://example.com'
+      const curlCommand = 'curl --cookie "name1=value1; name2=value2" http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.headers).toHaveProperty(
-        'Cookie',
-        'name1=value1; name2=value2',
-      )
+      expect(result.headers).toHaveProperty('Cookie', 'name1=value1; name2=value2')
     })
   })
 })

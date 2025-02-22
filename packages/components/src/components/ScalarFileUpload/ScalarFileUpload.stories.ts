@@ -60,9 +60,7 @@ export const Files: Story = {
       ScalarFileUploadFileList,
     },
     setup() {
-      const files = ref<File[]>([
-        new File(['test'], 'test.txt', { type: 'text/plain' }),
-      ])
+      const files = ref<File[]>([new File(['test'], 'test.txt', { type: 'text/plain' })])
       return { args, files }
     },
     template: `

@@ -15,9 +15,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     script.id = 'api-reference'
     script.type = 'application/json'
 
-    const inlineCode = document.createTextNode(
-      `{ "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }`,
-    )
+    const inlineCode = document.createTextNode(`{ "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }`)
     script.appendChild(inlineCode)
     document.body.appendChild(script)
 

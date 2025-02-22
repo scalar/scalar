@@ -1,8 +1,5 @@
 import type { OpenAPI } from '@scalar/openapi-types'
-import type {
-  RequestBodyMimeTypes,
-  TransformedOperation,
-} from '@scalar/types/legacy'
+import type { RequestBodyMimeTypes, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 /**

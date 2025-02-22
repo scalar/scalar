@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import SideNavLink from '@/components/SideNav/SideNavLink.vue'
 import type { Icon } from '@scalar/components'
-import { type RouteLocationRaw, RouterLink } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
+
+import SideNavLink from '@/components/SideNav/SideNavLink.vue'
 
 defineProps<{
   icon: Icon

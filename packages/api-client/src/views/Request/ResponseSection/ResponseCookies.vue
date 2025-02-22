@@ -26,7 +26,7 @@ defineProps<{
       <!-- Empty state -->
       <div
         v-else
-        class="text-c-3 px-4 text-sm border-t-1/2 min-h-16 justify-center flex items-center bg-b-1">
+        class="text-c-3 border-t-1/2 bg-b-1 flex min-h-16 items-center justify-center px-4 text-sm">
         No cookies
       </div>
     </template>

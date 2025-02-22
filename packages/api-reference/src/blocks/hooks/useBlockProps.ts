@@ -1,8 +1,5 @@
 import type { createWorkspaceStore } from '@scalar/api-client/store'
-import type {
-  Collection,
-  Request as RequestEntity,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import { type ComputedRef, computed } from 'vue'
 
@@ -71,9 +68,7 @@ export function useBlockProps({ store, location }: BlockProps): {
       const specifiedPath = unescapeJsonPointer(location.split('/')[2])
       const specifiedMethod = location.split('/')[3].toLocaleLowerCase()
 
-      return (
-        request.method === specifiedMethod && request.path === specifiedPath
-      )
+      return request.method === specifiedMethod && request.path === specifiedPath
     })
 
     return result

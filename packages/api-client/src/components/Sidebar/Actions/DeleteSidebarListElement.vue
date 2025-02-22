@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 import { computed } from 'vue'
+
+import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
 const props = defineProps<{
   variableName: string
@@ -27,7 +28,7 @@ const truncatedName = computed(() => {
     @submit="emit('delete')">
     <p
       v-if="warningMessage"
-      class="leading-normal text-c-2 text-sm text-pretty">
+      class="text-c-2 text-pretty text-sm leading-normal">
       {{ warningMessage }}
     </p>
   </SidebarListElementForm>

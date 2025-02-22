@@ -1,7 +1,4 @@
-import type {
-  Collection,
-  SecurityScheme,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 
 /**
@@ -14,9 +11,7 @@ export const filterSecurityRequirements = (
 ): SecurityScheme[] => {
   // Create a Set of required security combinations for O(1) lookup
   const requiredCombinations = new Set(
-    securityRequirements.map((requirement) =>
-      Object.keys(requirement).sort().join(','),
-    ),
+    securityRequirements.map((requirement) => Object.keys(requirement).sort().join(',')),
   )
 
   // Process all schemes in a single pass
@@ -30,11 +25,7 @@ export const filterSecurityRequirements = (
 
     // Only add schemes if their combination is required
     if (requiredCombinations.has(key)) {
-      acc.push(
-        ...schemeUids
-          .map((scheme) => securitySchemes[scheme])
-          .filter(isDefined),
-      )
+      acc.push(...schemeUids.map((scheme) => securitySchemes[scheme]).filter(isDefined))
     }
 
     return acc

@@ -32,7 +32,7 @@ const selected = computed<ScalarListboxOption | undefined>({
     :options="options">
     <ScalarButton
       :aria-controls="controls"
-      class="h-8 p-0 py-1.5 w-full font-normal"
+      class="h-8 w-full p-0 py-1.5 font-normal"
       variant="ghost">
       <span :class="{ 'text-c-1': value }">
         <span

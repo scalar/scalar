@@ -35,13 +35,11 @@ export default {
             b: 'var(--scalar-sidebar-item-active-background, var(--scalar-background-2))',
             c: 'var(--scalar-sidebar-color-active, currentColor)',
           },
-          border:
-            'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
+          border: 'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
           search: {
             b: 'var(--scalar-sidebar-search-background, var(--scalar-background-2))',
             c: 'var(--scalar-sidebar-search-color, var(--scalar-color-3))',
-            border:
-              'var(--scalar-sidebar-search-border-color, var(--scalar-border-color))',
+            border: 'var(--scalar-sidebar-search-border-color, var(--scalar-border-color))',
           },
         },
       },

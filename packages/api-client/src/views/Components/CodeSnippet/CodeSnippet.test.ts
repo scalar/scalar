@@ -110,8 +110,7 @@ describe('CodeSnippet', () => {
 
     const code = wrapper.find('pre')
 
-    expect(code.text())
-      .toContain(`fetch('https://api.example.com/{version}/users?search=John', {
+    expect(code.text()).toContain(`fetch('https://api.example.com/{version}/users?search=John', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',

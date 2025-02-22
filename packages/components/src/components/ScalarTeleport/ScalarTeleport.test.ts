@@ -33,9 +33,7 @@ describe('ScalarTeleport', () => {
     expect(wrapper.find('.container #teleported').exists()).toBe(false)
 
     // Check that the content is in the teleport root
-    expect(
-      wrapper.find('.scalar-teleport-root #teleported').exists(),
-    ).toBeTruthy()
+    expect(wrapper.find('.scalar-teleport-root #teleported').exists()).toBeTruthy()
 
     wrapper.unmount()
   })

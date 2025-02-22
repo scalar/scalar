@@ -57,9 +57,7 @@ describe('mergeSearchParams', () => {
     const url = new URLSearchParams('special=@#$%')
 
     const result = mergeSearchParams(base, path, url)
-    expect(decodeURIComponent(result.toString())).toBe(
-      'q=hello+world&filter=type:123&special=@#$%',
-    )
+    expect(decodeURIComponent(result.toString())).toBe('q=hello+world&filter=type:123&special=@#$%')
   })
 
   it('handles complex overwriting scenarios', () => {
@@ -109,11 +107,7 @@ describe('mergeSearchParams', () => {
 
   describe('edge cases', () => {
     it('handles all empty params', () => {
-      const result = mergeSearchParams(
-        new URLSearchParams(),
-        new URLSearchParams(),
-        new URLSearchParams(),
-      )
+      const result = mergeSearchParams(new URLSearchParams(), new URLSearchParams(), new URLSearchParams())
       expect(result.toString()).toBe('')
     })
 
@@ -128,11 +122,7 @@ describe('mergeSearchParams', () => {
 
     it('preserves plus signs in values', () => {
       const base = new URLSearchParams('q=c++')
-      const result = mergeSearchParams(
-        base,
-        new URLSearchParams(),
-        new URLSearchParams(),
-      )
+      const result = mergeSearchParams(base, new URLSearchParams(), new URLSearchParams())
       expect(result.toString()).toBe('q=c++')
     })
   })
@@ -162,14 +152,8 @@ describe('mergeUrls', () => {
 
   it('merges query parameters from all sources', () => {
     const params = new URLSearchParams('token=123')
-    const result = mergeUrls(
-      'https://api.example.com?version=1',
-      '/users?role=admin',
-      params,
-    )
-    expect(result).toBe(
-      'https://api.example.com/users?version=1&role=admin&token=123',
-    )
+    const result = mergeUrls('https://api.example.com?version=1', '/users?role=admin', params)
+    expect(result).toBe('https://api.example.com/users?version=1&role=admin&token=123')
   })
 
   it('handles multiple values for same parameter', () => {
@@ -178,35 +162,22 @@ describe('mergeUrls', () => {
       ['filter', 'verified'],
     ])
     const result = mergeUrls('https://api.example.com', '/users', params)
-    expect(result).toBe(
-      'https://api.example.com/users?filter=active&filter=verified',
-    )
+    expect(result).toBe('https://api.example.com/users?filter=active&filter=verified')
   })
 
   it('later sources overwrite earlier ones', () => {
     const params = new URLSearchParams('version=3')
-    const result = mergeUrls(
-      'https://api.example.com?version=1',
-      '/users?version=2',
-      params,
-    )
+    const result = mergeUrls('https://api.example.com?version=1', '/users?version=2', params)
     expect(result).toBe('https://api.example.com/users?version=3')
   })
 
   it('handles URLs with template variables', () => {
     const result = mergeUrls('{protocol}://api.example.com', '/users')
-    expect(result).toBe(
-      'http://localhost:3000/{protocol}://api.example.com/users',
-    )
+    expect(result).toBe('http://localhost:3000/{protocol}://api.example.com/users')
   })
 
   it('handles URLs with template variables and disableOriginPrefix', () => {
-    const result = mergeUrls(
-      '{protocol}://api.example.com',
-      '/users',
-      undefined,
-      true,
-    )
+    const result = mergeUrls('{protocol}://api.example.com', '/users', undefined, true)
     expect(result).toBe('{protocol}://api.example.com/users')
   })
 
@@ -247,20 +218,14 @@ describe('mergeUrls', () => {
         ['c', '3'],
         ['d', '4'],
       ])
-      const result = mergeUrls(
-        'https://api.example.com?a=1',
-        '/users?b=2',
-        params,
-      )
+      const result = mergeUrls('https://api.example.com?a=1', '/users?b=2', params)
       expect(result).toBe('https://api.example.com/users?a=1&b=2&c=3&d=4')
     })
 
     it('handles special characters in parameters', () => {
       const params = new URLSearchParams([['q', 'hello world&special=true']])
       const result = mergeUrls('https://api.example.com', '/search', params)
-      expect(result).toBe(
-        'https://api.example.com/search?q=hello+world%26special%3Dtrue',
-      )
+      expect(result).toBe('https://api.example.com/search?q=hello+world%26special%3Dtrue')
     })
 
     it('handles empty parameters', () => {
@@ -275,9 +240,7 @@ describe('mergeUrls', () => {
         ['undefined', 'undefined'],
       ])
       const result = mergeUrls('https://api.example.com', '/users', params)
-      expect(result).toBe(
-        'https://api.example.com/users?null=null&undefined=undefined',
-      )
+      expect(result).toBe('https://api.example.com/users?null=null&undefined=undefined')
     })
   })
 
@@ -304,14 +267,8 @@ describe('mergeUrls', () => {
 
     it('handles complex URLs', () => {
       const params = new URLSearchParams('token=123')
-      const result = mergeUrls(
-        'https://user:pass@api.example.com:8080?version=1',
-        '/users?role=admin',
-        params,
-      )
-      expect(result).toBe(
-        'https://user:pass@api.example.com:8080/users?version=1&role=admin&token=123',
-      )
+      const result = mergeUrls('https://user:pass@api.example.com:8080?version=1', '/users?role=admin', params)
+      expect(result).toBe('https://user:pass@api.example.com:8080/users?version=1&role=admin&token=123')
     })
   })
 
@@ -336,91 +293,63 @@ describe('mergeUrls', () => {
 describe('combineUrlAndPath', () => {
   describe('basic path joining', () => {
     it('combines base and path with single slash', () => {
-      expect(combineUrlAndPath('http://example.com', 'api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com', 'api')).toBe('http://example.com/api')
     })
 
     it('returns base when paths are identical', () => {
-      expect(
-        combineUrlAndPath('http://example.com', 'http://example.com'),
-      ).toBe('http://example.com')
+      expect(combineUrlAndPath('http://example.com', 'http://example.com')).toBe('http://example.com')
     })
 
     it('returns base when path is empty', () => {
-      expect(combineUrlAndPath('http://example.com', '')).toBe(
-        'http://example.com',
-      )
+      expect(combineUrlAndPath('http://example.com', '')).toBe('http://example.com')
     })
 
     it('returns base when path is undefined', () => {
-      expect(
-        combineUrlAndPath('http://example.com', undefined as unknown as string),
-      ).toBe('http://example.com')
+      expect(combineUrlAndPath('http://example.com', undefined as unknown as string)).toBe('http://example.com')
     })
   })
 
   describe('slash handling', () => {
     it('removes trailing slash from base', () => {
-      expect(combineUrlAndPath('http://example.com/', 'api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com/', 'api')).toBe('http://example.com/api')
     })
 
     it('removes leading slash from path', () => {
-      expect(combineUrlAndPath('http://example.com', '/api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com', '/api')).toBe('http://example.com/api')
     })
 
     it('handles both trailing and leading slashes', () => {
-      expect(combineUrlAndPath('http://example.com/', '/api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com/', '/api')).toBe('http://example.com/api')
     })
 
     it('removes multiple trailing slashes', () => {
-      expect(combineUrlAndPath('http://example.com///', 'api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com///', 'api')).toBe('http://example.com/api')
     })
 
     it('removes multiple leading slashes', () => {
-      expect(combineUrlAndPath('http://example.com', '///api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com', '///api')).toBe('http://example.com/api')
     })
 
     it('handles multiple slashes in both base and path', () => {
-      expect(combineUrlAndPath('http://example.com///', '///api')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com///', '///api')).toBe('http://example.com/api')
     })
   })
 
   describe('path segments', () => {
     it('preserves multiple path segments', () => {
-      expect(combineUrlAndPath('http://example.com', 'api/v1/users')).toBe(
-        'http://example.com/api/v1/users',
-      )
+      expect(combineUrlAndPath('http://example.com', 'api/v1/users')).toBe('http://example.com/api/v1/users')
     })
 
     it('preserves query parameters in base', () => {
-      expect(combineUrlAndPath('http://example.com?version=1', 'api')).toBe(
-        'http://example.com?version=1/api',
-      )
+      expect(combineUrlAndPath('http://example.com?version=1', 'api')).toBe('http://example.com?version=1/api')
     })
 
     it('preserves query parameters in path', () => {
-      expect(combineUrlAndPath('http://example.com', 'api?version=1')).toBe(
-        'http://example.com/api?version=1',
-      )
+      expect(combineUrlAndPath('http://example.com', 'api?version=1')).toBe('http://example.com/api?version=1')
     })
 
     it('preserves hash fragments', () => {
-      expect(combineUrlAndPath('http://example.com#section', 'api')).toBe(
-        'http://example.com#section/api',
-      )
+      expect(combineUrlAndPath('http://example.com#section', 'api')).toBe('http://example.com#section/api')
     })
   })
 
@@ -438,41 +367,29 @@ describe('combineUrlAndPath', () => {
     })
 
     it('removes extra spaces', () => {
-      expect(combineUrlAndPath('http://example.com ', '  api  ')).toBe(
-        'http://example.com/api',
-      )
+      expect(combineUrlAndPath('http://example.com ', '  api  ')).toBe('http://example.com/api')
     })
 
     it('handles URLs with ports', () => {
-      expect(combineUrlAndPath('http://example.com:8080', 'api')).toBe(
-        'http://example.com:8080/api',
-      )
+      expect(combineUrlAndPath('http://example.com:8080', 'api')).toBe('http://example.com:8080/api')
     })
 
     it('handles URLs with authentication', () => {
-      expect(combineUrlAndPath('http://user:pass@example.com', 'api')).toBe(
-        'http://user:pass@example.com/api',
-      )
+      expect(combineUrlAndPath('http://user:pass@example.com', 'api')).toBe('http://user:pass@example.com/api')
     })
   })
 
   describe('template variables', () => {
     it('preserves variables in base', () => {
-      expect(combineUrlAndPath('{protocol}://example.com', 'api')).toBe(
-        '{protocol}://example.com/api',
-      )
+      expect(combineUrlAndPath('{protocol}://example.com', 'api')).toBe('{protocol}://example.com/api')
     })
 
     it('preserves variables in path', () => {
-      expect(combineUrlAndPath('http://example.com', '{version}/api')).toBe(
-        'http://example.com/{version}/api',
-      )
+      expect(combineUrlAndPath('http://example.com', '{version}/api')).toBe('http://example.com/{version}/api')
     })
 
     it('preserves variables in both', () => {
-      expect(combineUrlAndPath('{host}/base', '{version}/api')).toBe(
-        '{host}/base/{version}/api',
-      )
+      expect(combineUrlAndPath('{host}/base', '{version}/api')).toBe('{host}/base/{version}/api')
     })
   })
 
@@ -482,9 +399,7 @@ describe('combineUrlAndPath', () => {
     })
 
     it('handles no base url', () => {
-      expect(combineUrlAndPath('', 'https://example.com/api')).toBe(
-        'https://example.com/api',
-      )
+      expect(combineUrlAndPath('', 'https://example.com/api')).toBe('https://example.com/api')
     })
 
     it('handles both empty strings', () => {
@@ -492,21 +407,17 @@ describe('combineUrlAndPath', () => {
     })
 
     it('handles root paths', () => {
-      expect(combineUrlAndPath('http://example.com', '/')).toBe(
-        'http://example.com/',
-      )
+      expect(combineUrlAndPath('http://example.com', '/')).toBe('http://example.com/')
     })
 
     it('handles special characters in paths', () => {
-      expect(combineUrlAndPath('http://example.com', 'path with spaces')).toBe(
-        'http://example.com/path with spaces',
-      )
+      expect(combineUrlAndPath('http://example.com', 'path with spaces')).toBe('http://example.com/path with spaces')
     })
 
     it('preserves URL encoded characters', () => {
-      expect(
-        combineUrlAndPath('http://example.com', 'path%20with%20spaces'),
-      ).toBe('http://example.com/path%20with%20spaces')
+      expect(combineUrlAndPath('http://example.com', 'path%20with%20spaces')).toBe(
+        'http://example.com/path%20with%20spaces',
+      )
     })
   })
 })

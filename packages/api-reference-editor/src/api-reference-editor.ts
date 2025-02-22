@@ -1,9 +1,6 @@
 import ApiReferenceEditor from '@/components/ApiReferenceEditor.vue'
 import { UPDATE_EVENT } from '@/constants'
-import type {
-  ReferenceConfiguration,
-  ReferenceProps,
-} from '@scalar/api-reference'
+import type { ReferenceConfiguration, ReferenceProps } from '@scalar/api-reference'
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import { createApp, h, reactive } from 'vue'
 
@@ -32,9 +29,7 @@ export function mountApiReferenceEditable(
     const mountEl = typeof el === 'string' ? document.querySelector(el) : el
 
     if (!mountEl) {
-      console.error(
-        'INVALID HTML ELEMENT PROVIDED: Can not mount Scalar API References',
-      )
+      console.error('INVALID HTML ELEMENT PROVIDED: Can not mount Scalar API References')
     } else {
       app.mount(mountEl)
 
@@ -49,10 +44,7 @@ export function mountApiReferenceEditable(
 
   // Attempt to mount if an element is provided
   if (elementOrSelector) {
-    const el =
-      typeof elementOrSelector === 'string'
-        ? document.querySelector(elementOrSelector)
-        : elementOrSelector
+    const el = typeof elementOrSelector === 'string' ? document.querySelector(elementOrSelector) : elementOrSelector
     if (el) mount(elementOrSelector)
   }
 

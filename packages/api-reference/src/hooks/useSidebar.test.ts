@@ -7,10 +7,7 @@ import { type SorterOption, useSidebar } from './useSidebar'
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
  */
-async function getItemsForDocument(
-  definition: Record<string, any>,
-  options?: SorterOption,
-) {
+async function getItemsForDocument(definition: Record<string, any>, options?: SorterOption) {
   const parsedSpec = await parse(definition)
 
   const { items } = useSidebar({
@@ -1007,8 +1004,7 @@ describe('useSidebar', async () => {
         {
           operationsSorter: (a, b) => {
             const methodOrder = ['GET', 'POST', 'DELETE']
-            const methodComparison =
-              methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+            const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
 
             if (methodComparison !== 0) {
               return methodComparison

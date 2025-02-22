@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import IconSelector from '@/components/IconSelector.vue'
-import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 import { ScalarButton, ScalarTextField } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { ref } from 'vue'
+
+import IconSelector from '@/components/IconSelector.vue'
+import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
 const props = defineProps<{
   name: string
@@ -22,16 +23,16 @@ const newIcon = ref(props.icon)
   <SidebarListElementForm
     @cancel="emit('close')"
     @submit="emit('edit', newName, newIcon)">
-    <div class="grid gap-2 grid-cols-[auto,1fr]">
+    <div class="grid grid-cols-[auto,1fr] gap-2">
       <div class="flex aspect-square">
         <IconSelector
           v-model="newIcon"
           placement="bottom-start">
           <ScalarButton
-            class="aspect-square px-0 h-auto"
+            class="aspect-square h-auto px-0"
             variant="outlined">
             <LibraryIcon
-              class="size-4 text-c-2"
+              class="text-c-2 size-4"
               :src="newIcon" />
           </ScalarButton>
         </IconSelector>

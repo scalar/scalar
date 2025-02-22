@@ -5,20 +5,20 @@ import ScalarAsciiArt from './ScalarAsciiArt.vue'
 import ScalarHotkey from './ScalarHotkey.vue'
 </script>
 <template>
-  <div class="scale-75 flex flex-center w-full">
+  <div class="flex-center flex w-full scale-75">
     <div class="relative">
       <ScalarHotkey
-        class="keycap-hotkey border-transparent right-14 text-xl"
+        class="keycap-hotkey right-14 border-transparent text-xl"
         hotkey="" />
       <ScalarAsciiArt
         :art="Keycap"
-        class="!leading-[6px] text-c-3" />
+        class="text-c-3 !leading-[6px]" />
     </div>
     <div class="relative -ml-12">
       <div class="keycap-hotkey right-16 text-xl">K</div>
       <ScalarAsciiArt
         :art="Keycap"
-        class="!leading-[6px] keycap-n" />
+        class="keycap-n !leading-[6px]" />
     </div>
   </div>
 </template>

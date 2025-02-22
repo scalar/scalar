@@ -1,13 +1,6 @@
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  SecurityScheme,
-  Server,
-  Tag,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Request, RequestExample, SecurityScheme, Server, Tag } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Mutators } from '@scalar/object-utils/mutator-record'
 

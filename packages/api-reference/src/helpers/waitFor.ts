@@ -1,11 +1,7 @@
 /**
  * Wait for a condition to be met
  */
-export const waitFor = async (
-  checkFn: () => boolean,
-  timeout = 4000,
-  interval = 50,
-): Promise<void> => {
+export const waitFor = async (checkFn: () => boolean, timeout = 4000, interval = 50): Promise<void> => {
   return new Promise((resolve, reject) => {
     const startTime = Date.now()
 

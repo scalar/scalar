@@ -63,10 +63,7 @@ const migrateSecurityScheme = (
     }
 
     // Client Credentials
-    if (
-      flow.type === 'clientCredentials' &&
-      auth.type === 'oauth-clientCredentials'
-    ) {
+    if (flow.type === 'clientCredentials' && auth.type === 'oauth-clientCredentials') {
       return {
         ..._scheme,
         flows: {
@@ -82,10 +79,7 @@ const migrateSecurityScheme = (
     }
 
     // Authorization Code
-    if (
-      flow.type === 'authorizationCode' &&
-      auth.type === 'oauth-authorizationCode'
-    ) {
+    if (flow.type === 'authorizationCode' && auth.type === 'oauth-authorizationCode') {
       return {
         ..._scheme,
         flows: {
@@ -105,25 +99,22 @@ const migrateSecurityScheme = (
 }
 
 /** V-2.1.0 to V-2.2.0 migration */
-export const migrate_v_2_2_0 = (
-  data: v_2_1_0.DataRecord,
-): v_2_2_0.DataRecord => {
+export const migrate_v_2_2_0 = (data: v_2_1_0.DataRecord): v_2_2_0.DataRecord => {
   console.info('Performing data migration v-2.1.0 to v-2.2.0')
 
-  const securitySchemes = Object.values(data.securitySchemes).reduce<
-    v_2_2_0.DataRecord['securitySchemes']
-  >((prev, s) => {
-    const collection = Object.values(data.collections).find((c) =>
-      c.securitySchemes.includes(s.uid),
-    )
-    const auth = collection?.auth?.[s.uid]
-    if (!auth) return prev
+  const securitySchemes = Object.values(data.securitySchemes).reduce<v_2_2_0.DataRecord['securitySchemes']>(
+    (prev, s) => {
+      const collection = Object.values(data.collections).find((c) => c.securitySchemes.includes(s.uid))
+      const auth = collection?.auth?.[s.uid]
+      if (!auth) return prev
 
-    const newScheme = migrateSecurityScheme(s, auth)
-    if (newScheme) prev[s.uid] = newScheme
+      const newScheme = migrateSecurityScheme(s, auth)
+      if (newScheme) prev[s.uid] = newScheme
 
-    return prev
-  }, {})
+      return prev
+    },
+    {},
+  )
 
   // No changes to servers
   const servers = data.servers as v_2_2_0.DataRecord['servers']

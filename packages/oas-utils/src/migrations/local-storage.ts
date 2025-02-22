@@ -6,9 +6,7 @@ import { parse } from 'flatted'
 /**
  * Supports pre-flatted local storage
  */
-export const parseLocalStorage = (
-  lsKey: (typeof LS_KEYS)[keyof typeof LS_KEYS],
-): Record<string, unknown> => {
+export const parseLocalStorage = (lsKey: (typeof LS_KEYS)[keyof typeof LS_KEYS]): Record<string, unknown> => {
   const item = localStorage.getItem(lsKey) || '[{}]'
   const data = item[0] === '[' ? parse(item) : JSON.parse(item)
 
@@ -26,9 +24,7 @@ export const getLocalStorageVersion = (): string => {
 
   // Flatted + types means > 2.1.0 but we should have a data version
   try {
-    const [collection] = Object.values(
-      parse(collectionStr) ?? {},
-    ) as v_2_1_0.Collection[]
+    const [collection] = Object.values(parse(collectionStr) ?? {}) as v_2_1_0.Collection[]
     if (collection?.type === 'collection') return '2.1.0'
 
     return '0.0.0'

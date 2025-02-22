@@ -51,10 +51,7 @@ describe('multipleSlashesRegex', () => {
   })
 
   it('matches multiple slashes in the path', () => {
-    const text = 'http://example.com/api//users////{id}'.replace(
-      REGEX.MULTIPLE_SLASHES,
-      '/',
-    )
+    const text = 'http://example.com/api//users////{id}'.replace(REGEX.MULTIPLE_SLASHES, '/')
     expect(text).toBe('http://example.com/api/users/{id}')
   })
 
@@ -65,9 +62,7 @@ describe('multipleSlashesRegex', () => {
 
   it('does not do anything to the query params', () => {
     const text = 'http://example.com/api/users/{id}?query=param'
-    expect(text.replace(REGEX.MULTIPLE_SLASHES, '/')).toBe(
-      'http://example.com/api/users/{id}?query=param',
-    )
+    expect(text.replace(REGEX.MULTIPLE_SLASHES, '/')).toBe('http://example.com/api/users/{id}?query=param')
   })
 })
 

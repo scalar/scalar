@@ -22,17 +22,13 @@ describe('Routes', () => {
   })
 
   it('should contain the workspace route', () => {
-    const workspaceRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'workspace')
+    const workspaceRoute = router.getRoutes().find((route) => route.name === 'workspace')
     expect(workspaceRoute).toBeDefined()
     expect(workspaceRoute?.path).toBe('/workspace/:workspace')
   })
 
   it('should contain the default workspace redirect', () => {
-    const workspaceDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'workspace.default')
+    const workspaceDefaultRoute = router.getRoutes().find((route) => route.name === 'workspace.default')
     expect(workspaceDefaultRoute).toBeDefined()
 
     const redirectResult =
@@ -49,17 +45,13 @@ describe('Routes', () => {
   })
 
   it('should contain the request route', () => {
-    const requestRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'request')
+    const requestRoute = router.getRoutes().find((route) => route.name === 'request')
     expect(requestRoute).toBeDefined()
     expect(requestRoute?.path).toBe('/workspace/:workspace/request/:request')
   })
 
   it('should contain the request root redirect', () => {
-    const requestDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'request.root')
+    const requestDefaultRoute = router.getRoutes().find((route) => route.name === 'request.root')
     expect(requestDefaultRoute).toBeDefined()
 
     const redirectResult =
@@ -76,19 +68,13 @@ describe('Routes', () => {
   })
 
   it('should contain the environment route', () => {
-    const environmentRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'environment')
+    const environmentRoute = router.getRoutes().find((route) => route.name === 'environment')
     expect(environmentRoute).toBeDefined()
-    expect(environmentRoute?.path).toBe(
-      '/workspace/:workspace/environment/:environment',
-    )
+    expect(environmentRoute?.path).toBe('/workspace/:workspace/environment/:environment')
   })
 
   it('should contain the default environment redirect', () => {
-    const environmentDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'environment.default')
+    const environmentDefaultRoute = router.getRoutes().find((route) => route.name === 'environment.default')
     expect(environmentDefaultRoute).toBeDefined()
 
     const redirectResult =
@@ -105,17 +91,13 @@ describe('Routes', () => {
   })
 
   it('should contain the cookies route', () => {
-    const cookiesRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'cookies')
+    const cookiesRoute = router.getRoutes().find((route) => route.name === 'cookies')
     expect(cookiesRoute).toBeDefined()
     expect(cookiesRoute?.path).toBe('/workspace/:workspace/cookies/:cookies')
   })
 
   it('should contain the default cookies redirect', () => {
-    const cookiesDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'cookies.default')
+    const cookiesDefaultRoute = router.getRoutes().find((route) => route.name === 'cookies.default')
     expect(cookiesDefaultRoute).toBeDefined()
 
     const redirectResult =
@@ -132,9 +114,7 @@ describe('Routes', () => {
   })
 
   it('should contain the default servers redirect', () => {
-    const serversDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'servers.default')
+    const serversDefaultRoute = router.getRoutes().find((route) => route.name === 'servers.default')
     expect(serversDefaultRoute).toBeDefined()
 
     const redirectResult =
@@ -151,17 +131,13 @@ describe('Routes', () => {
   })
 
   it('should contain the settings route', () => {
-    const settingsRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'settings')
+    const settingsRoute = router.getRoutes().find((route) => route.name === 'settings')
     expect(settingsRoute).toBeDefined()
     expect(settingsRoute?.path).toBe('/workspace/:workspace/settings/:settings')
   })
 
   it('should contain the default settings redirect', () => {
-    const settingsDefaultRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'settings.default')
+    const settingsDefaultRoute = router.getRoutes().find((route) => route.name === 'settings.default')
     expect(settingsDefaultRoute).toBeDefined()
 
     const redirectResult =

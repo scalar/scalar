@@ -1,8 +1,7 @@
 import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-const downloadSpecEventBusKey: EventBusKey<{ id: string; specTitle?: string }> =
-  Symbol('downloadSpec')
+const downloadSpecEventBusKey: EventBusKey<{ id: string; specTitle?: string }> = Symbol('downloadSpec')
 export const downloadSpecBus = useEventBus(downloadSpecEventBusKey)
 
 /** Download the OAS file string */

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiClient } from '@/features/ApiClientModal'
-import { useConfig } from '@/hooks/useConfig'
 import { ScalarIcon } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
+
+import ScreenReader from '@/components/ScreenReader.vue'
+import { useApiClient } from '@/features/ApiClientModal'
+import { useConfig } from '@/hooks/useConfig'
 
 const { operation } = defineProps<{
   operation?: Pick<RequestEntity, 'method' | 'path' | 'uid'>

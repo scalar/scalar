@@ -38,23 +38,15 @@ const updateHash = () => {
   hash.value = pathRouting.value
     ? getPathRoutingId(window.location.pathname)
     : // Must remove the prefix from the hash as the internal hash value should be pure
-      decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(
-        hashPrefix.value.length,
-      )
+      decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(hashPrefix.value.length)
 }
 
-const replaceUrlState = (
-  replacementHash: string,
-  url = window.location.href,
-) => {
+const replaceUrlState = (replacementHash: string, url = window.location.href) => {
   const newUrl = new URL(url)
 
   // If we are pathrouting, set path instead of hash
   if (pathRouting.value) {
-    newUrl.pathname = combineUrlAndPath(
-      pathRouting.value.basePath,
-      replacementHash,
-    )
+    newUrl.pathname = combineUrlAndPath(pathRouting.value.basePath, replacementHash)
   } else {
     newUrl.hash = hashPrefix.value + replacementHash
   }
@@ -67,11 +59,7 @@ const replaceUrlState = (
   window.history.replaceState({}, '', newUrl)
 }
 
-const getHashedUrl = (
-  replacementHash: string,
-  url = window.location.href,
-  search = window.location.search,
-) => {
+const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
   const newUrl = new URL(url)
   newUrl.hash = hashPrefix.value + replacementHash
   newUrl.search = search
@@ -87,10 +75,7 @@ const getFullHash = (hashTarget: string = hash.value) => {
  *
  * @returns The hash without the prefix
  */
-const getReferenceHash = () =>
-  decodeURIComponent(
-    window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length),
-  )
+const getReferenceHash = () => decodeURIComponent(window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length))
 
 /**
  * Hook which provides reactive hash state from the URL

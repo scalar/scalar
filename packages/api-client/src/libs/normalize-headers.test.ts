@@ -22,10 +22,7 @@ describe('normalizeHeaders', () => {
 
     const normalizedHeaders = normalizeHeaders(headers)
 
-    expect(Object.keys(normalizedHeaders)).toStrictEqual([
-      'Access-Control-Allow-Origin',
-      'Content-Type',
-    ])
+    expect(Object.keys(normalizedHeaders)).toStrictEqual(['Access-Control-Allow-Origin', 'Content-Type'])
   })
 
   it('restores original headers', () => {

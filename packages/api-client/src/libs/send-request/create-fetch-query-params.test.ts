@@ -65,9 +65,7 @@ describe('createFetchQueryParams', () => {
         headers: [],
         path: [],
         cookies: [],
-        query: [
-          { key: 'key', value: 'one, two', enabled: true, type: 'array' },
-        ],
+        query: [{ key: 'key', value: 'one, two', enabled: true, type: 'array' }],
       },
     }
 

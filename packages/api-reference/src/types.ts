@@ -1,10 +1,6 @@
 import type { HarRequest } from '@scalar/snippetz/types'
 import type { ThemeId } from '@scalar/themes'
-import type {
-  ContentType,
-  ReferenceConfiguration,
-  Spec,
-} from '@scalar/types/legacy'
+import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
 export type { ReferenceConfiguration }

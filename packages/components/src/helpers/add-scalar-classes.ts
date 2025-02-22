@@ -14,9 +14,7 @@ export const addScalarClassesToHeadless = () => {
   else {
     const observer = new MutationObserver((records: MutationRecord[]) => {
       const headlessMutation = records.find((record) =>
-        Array.from(record.addedNodes).find(
-          (node) => (node as HTMLDivElement).id === 'headlessui-portal-root',
-        ),
+        Array.from(record.addedNodes).find((node) => (node as HTMLDivElement).id === 'headlessui-portal-root'),
       )
       if (headlessMutation) {
         const el = headlessMutation.addedNodes[0] as HTMLDivElement

@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+
 import SideNavLink from '@/components/SideNav/SideNavLink.vue'
 import { useLayout } from '@/hooks'
-import { ScalarIcon } from '@scalar/components'
 
 const { layout } = useLayout()
 </script>
 <template>
   <SideNavLink
-    class="download-app-button sm:px-3 gap-2 !px-3 !py-1.5"
+    class="download-app-button gap-2 !px-3 !py-1.5 sm:px-3"
     href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
     icon="Download"
     target="_blank">
@@ -18,7 +19,7 @@ const { layout } = useLayout()
         thickness="2" />
     </template>
     <span
-      class="text-sm font-medium sr-only"
+      class="sr-only text-sm font-medium"
       :class="{ 'sm:not-sr-only': layout === 'web' }">
       Download App
     </span>

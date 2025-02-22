@@ -82,13 +82,9 @@ describe('ApiReferenceLayout', () => {
       `$title ($url)`,
       async ({ url, title }) => {
         // Spy for console.error to avoid errors in the console
-        const consoleErrorSpy = vi
-          .spyOn(console, 'error')
-          .mockImplementation(() => {})
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-        const consoleWarnSpy = vi
-          .spyOn(console, 'warn')
-          .mockImplementation(() => {})
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
         const definition = await fetch(url).then((res) => res.text())
 

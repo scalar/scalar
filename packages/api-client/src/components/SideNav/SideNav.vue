@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
+
 import { ROUTES } from '@/constants'
 import { useLayout } from '@/hooks'
 import { PathId } from '@/routes'
 import { useActiveEntities } from '@/store'
-import { ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
 
 import DownloadAppButton from './DownloadAppButton.vue'
 import SideHelp from './SideHelp.vue'
@@ -19,14 +20,14 @@ const { activeWorkspace } = useActiveEntities()
 <template>
   <nav
     aria-label="App Navigation"
-    class="flex items-center justify-center sm:justify-between gap-1.5 app-drag-region pt-2"
+    class="app-drag-region flex items-center justify-center gap-1.5 pt-2 sm:justify-between"
     :class="
-      layout === 'web' ? 'border h-header !pt-0' : 'sm:flex-col px-2 pb-2'
+      layout === 'web' ? 'h-header border !pt-0' : 'px-2 pb-2 sm:flex-col'
     "
     role="navigation">
     <SideNavGroup class="app-no-drag-region">
       <a
-        class="hidden items-center mr-3 ml-1"
+        class="ml-1 mr-3 hidden items-center"
         :class="{
           'sm:flex': layout === 'web',
         }"
@@ -79,7 +80,7 @@ const { activeWorkspace } = useActiveEntities()
       </li>
       <li
         v-if="layout !== 'desktop'"
-        class="hidden sm:ml-1.5 sm:flex items-center justify-center">
+        class="hidden items-center justify-center sm:ml-1.5 sm:flex">
         <DownloadAppButton />
       </li>
     </SideNavGroup>

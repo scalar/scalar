@@ -30,7 +30,7 @@ body.sb-show-main,
   color: var(--scalar-color-2);
 }
 
-:where(#storybook-docs) tr [title='Required'] {
+:where(#storybook-docs) tr [title="Required"] {
   color: var(--scalar-text-color-1);
 }
 

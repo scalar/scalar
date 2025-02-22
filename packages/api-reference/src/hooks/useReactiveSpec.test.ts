@@ -163,9 +163,7 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(rawSpec.value).toBe(
-      prettyPrintJson(basicSpecString.replace('Example', 'My Changed Title')),
-    )
+    expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString.replace('Example', 'My Changed Title')))
 
     // Change the configuration to empty
     Object.assign(configurationRef, { content: '' })

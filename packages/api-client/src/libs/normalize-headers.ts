@@ -8,10 +8,7 @@
  * - converts to an object
  *
  */
-export const normalizeHeaders = (
-  _headers: Headers,
-  removeProxyHeaders = false,
-): Record<string, string> => {
+export const normalizeHeaders = (_headers: Headers, removeProxyHeaders = false): Record<string, string> => {
   // Convert headers to an object
   const headers = Object.fromEntries(_headers)
 
@@ -25,15 +22,11 @@ export const normalizeHeaders = (
       'Access-Control-Expose-Headers',
     ]
 
-    headersToRemove
-      .map((header) => header.toLowerCase())
-      .forEach((header) => delete headers[header])
+    headersToRemove.map((header) => header.toLowerCase()).forEach((header) => delete headers[header])
   }
 
   /** Exact key of the modified headers header */
-  const modifiedHeaderKey = Object.keys(headers).find(
-    (key) => key.toLowerCase() === 'x-scalar-modified-headers',
-  )
+  const modifiedHeaderKey = Object.keys(headers).find((key) => key.toLowerCase() === 'x-scalar-modified-headers')
 
   /** List of modified headers */
   const modifiedHeaders = modifiedHeaderKey
@@ -79,9 +72,7 @@ export const normalizeHeaders = (
   })
 
   // Sort headers alphebetically by key
-  return Object.fromEntries(
-    Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)),
-  )
+  return Object.fromEntries(Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)))
 }
 
 /** Make the first letter and all letters after a dash uppercase */
