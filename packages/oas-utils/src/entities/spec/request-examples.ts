@@ -432,7 +432,6 @@ export function createExampleFromRequest(request: Request, name: string, server?
 
   const serverVariables = server ? getServerVariableExamples(server) : {}
 
-  console.log('okay whats going on', JSON.parse(JSON.stringify(parameters)), JSON.parse(JSON.stringify(body)))
   // safe parse the example
   const example = schemaModel(
     {
@@ -445,8 +444,6 @@ export function createExampleFromRequest(request: Request, name: string, server?
     requestExampleSchema,
     false,
   )
-
-  console.log('okay whats going on2', JSON.parse(JSON.stringify(example)))
 
   if (!example) {
     console.warn(`Example at ${request.uid} is invalid.`)
