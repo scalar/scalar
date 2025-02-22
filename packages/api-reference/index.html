@@ -11,10 +11,7 @@
   <body>
     <!-- Add your own OpenAPI/Swagger specification URL here: -->
     <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
-    <script
-      id="api-reference"
-      data-proxy-url="https://proxy.scalar.com"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
+    <script id="api-reference"></script>
 
     <!-- Optional: You can set a full configuration object like this: -->
     <script>
@@ -23,6 +20,13 @@
         //   targetKey: 'node',
         //   clientKey: 'undici',
         // },
+        specs: [
+          {
+            url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+            name: 'PET STORE',
+          },
+          { url: 'https://galaxy.scalar.com/openapi.yaml', name: 'GALAXY' },
+        ],
       }
 
       document.getElementById('api-reference').dataset.configuration =

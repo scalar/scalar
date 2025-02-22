@@ -71,6 +71,8 @@ export type ReferenceConfiguration = {
   layout?: 'modern' | 'classic'
   /** The Swagger/OpenAPI spec to render */
   spec?: SpecConfiguration
+  /** The Swagger/OpenAPI specs to render */
+  specs?: SpecConfiguration[]
   /**
    * URL to a request proxy for the API client
    *
@@ -474,6 +476,10 @@ export type SpecConfiguration = {
    * @remark It’s recommended to pass an `url` instead of `content`.
    */
   content?: string | Record<string, any> | (() => Record<string, any>) | null
+  /**
+   * The name of the API.
+   */
+  name?: string
 }
 
 export type Schema = {

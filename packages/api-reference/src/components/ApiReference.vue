@@ -33,19 +33,40 @@ const customCss = computed(() => {
   return migrateThemeVariables(props.configuration?.customCss)
 })
 
+// Replace useRoute with direct URL parsing
+const selectedApiName = computed(() => {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('selectedAPI') || ''
+})
+
+// Find matching spec or fallback to first spec
+const specOverRide = computed(() => {
+  if (!selectedApiName.value || !props.configuration?.specs?.length) {
+    return props.configuration?.specs?.[0]
+  }
+
+  return (
+    props.configuration?.specs?.find(
+      (spec) =>
+        spec.name?.toLowerCase() === selectedApiName.value.toLowerCase(),
+    ) ?? props.configuration?.specs?.[0]
+  )
+})
+
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
-  spec: {
-    content: undefined,
-    url: undefined,
-    ...props.configuration?.spec,
-  },
   proxyUrl: undefined,
   theme: 'default',
   showSidebar: true,
   isEditable: false,
   ...props.configuration,
   customCss: customCss.value,
+  spec: {
+    content: undefined,
+    url: undefined,
+    ...props.configuration?.spec,
+    ...specOverRide.value,
+  },
 }))
 
 if (configuration.value?.metaData) {
