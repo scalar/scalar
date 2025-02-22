@@ -38,122 +38,7 @@ onMounted(async () => {
 const configuration = reactive<ReferenceConfiguration>({
   proxyUrl: 'https://proxy.scalar.com',
   spec: {
-    content: {
-      openapi: '3.0.1',
-      info: {
-        title: 'OpenAPI definition',
-        version: 'v0',
-      },
-      servers: [
-        {
-          url: '/',
-        },
-      ],
-      paths: {
-        '/api/widgets/{id}': {
-          get: {
-            tags: ['Widgets'],
-            summary: "Doesn't Work",
-            operationId: 'read',
-            parameters: [
-              {
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: {
-                  type: 'integer',
-                  format: 'int64',
-                },
-              },
-            ],
-            responses: {
-              '200': {
-                description: 'OK',
-                content: {
-                  '*/*': {
-                    schema: {
-                      $ref: '#/components/schemas/WidgetResponseDto',
-                    },
-                  },
-                },
-              },
-            },
-          },
-          put: {
-            tags: ['Widgets'],
-            summary: 'Works',
-            operationId: 'read',
-            parameters: [
-              {
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: {
-                  type: 'integer',
-                  format: 'int64',
-                },
-              },
-            ],
-            responses: {
-              '200': {
-                description: 'OK',
-                content: {
-                  'application/json': {
-                    schema: {
-                      $ref: '#/components/schemas/WidgetResponseDto',
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      components: {
-        schemas: {
-          WidgetResponseDto: {
-            type: 'object',
-            properties: {
-              id: {
-                type: 'integer',
-                format: 'int64',
-              },
-              position: {
-                type: 'integer',
-                format: 'int32',
-              },
-              type: {
-                type: 'string',
-                enum: [
-                  'PRODUCT_GRID',
-                  'PRODUCT_SLIDER',
-                  'PRODUCT_CAROUSEL',
-                  'IMAGE_CAROUSEL',
-                  'IMAGE_SLIDER',
-                  'IMAGE_GRID',
-                  'IMAGE_BANNER',
-                  'VIDEO_BANNER',
-                  'EXPANDABLE_VIEW',
-                ],
-              },
-              config: {
-                type: 'object',
-                additionalProperties: {
-                  type: 'object',
-                },
-              },
-            },
-          },
-        },
-        securitySchemes: {
-          JWT: {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'JWT',
-          },
-        },
-      },
-    },
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
 })
 
@@ -174,6 +59,13 @@ function selectRandomExample() {
 }
 
 /** Update configuration when URL changes */
+watch(url, (newUrl) => {
+  Object.assign(configuration, {
+    spec: {
+      url: newUrl,
+    },
+  })
+})
 </script>
 
 <template>

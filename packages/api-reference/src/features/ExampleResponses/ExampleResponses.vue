@@ -51,8 +51,6 @@ const currentJsonResponse = computed(() => {
     currentResponse.value?.content,
   )
 
-  console.log('marc', normalizedContent)
-
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
