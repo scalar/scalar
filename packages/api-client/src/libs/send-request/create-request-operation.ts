@@ -5,10 +5,7 @@ import { createFetchBody } from '@/libs/send-request/create-fetch-body'
 import { createFetchHeaders } from '@/libs/send-request/create-fetch-headers'
 import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-params'
 import { decodeBuffer } from '@/libs/send-request/decode-buffer'
-import {
-  getCookieHeader,
-  setRequestCookies,
-} from '@/libs/send-request/set-request-cookies'
+import { getCookieHeader, setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
@@ -64,11 +61,8 @@ export const createRequestOperation = ({
     const controller = new AbortController()
 
     /** Parsed and evaluated values for path parameters */
-    const pathVariables = example.parameters.path.reduce<
-      Record<string, string>
-    >((vars, param) => {
-      if (param.enabled)
-        vars[param.key] = replaceTemplateVariables(param.value, env)
+    const pathVariables = example.parameters.path.reduce<Record<string, string>>((vars, param) => {
+      if (param.enabled) vars[param.key] = replaceTemplateVariables(param.value, env)
 
       return vars
     }, {})
@@ -106,37 +100,30 @@ export const createRequestOperation = ({
 
     // We flatten the array of arrays for complex auth
     const flatSelectedSecuritySchemeUids = selectedSecuritySchemeUids.flat()
-    const selectedSecuritySchemes = flatSelectedSecuritySchemeUids
-      .map((uid) => securitySchemes[uid])
-      .filter(isDefined)
+    const selectedSecuritySchemes = flatSelectedSecuritySchemeUids.map((uid) => securitySchemes[uid]).filter(isDefined)
 
     // Grab the security headers, cookies and url params
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // For securityheaders, we lowercase them so they can be uppercased later (in normalizeHeaders)
-    const normalizedSecurityHeaders = Object.entries(security.headers).reduce<
-      Record<string, string>
-    >((acc, [key, value]) => {
-      acc[key.toLowerCase()] = value
-      return acc
-    }, {})
+    const normalizedSecurityHeaders = Object.entries(security.headers).reduce<Record<string, string>>(
+      (acc, [key, value]) => {
+        acc[key.toLowerCase()] = value
+        return acc
+      },
+      {},
+    )
 
     // Populate all forms of auth to the request segments
     const headers = { ...normalizedSecurityHeaders, ..._headers }
     const cookieParams = [..._cookieParams, ...security.cookies]
-    const urlParams = new URLSearchParams([
-      ..._urlParams,
-      ...security.urlParams,
-    ])
+    const urlParams = new URLSearchParams([..._urlParams, ...security.urlParams])
 
     // Combine the url with the path and server + query params
     url = mergeUrls(url, pathString, urlParams)
 
     /** Cookie header */
-    const cookieHeader = replaceTemplateVariables(
-      getCookieHeader(cookieParams, headers['Cookie']),
-      env,
-    )
+    const cookieHeader = replaceTemplateVariables(getCookieHeader(cookieParams, headers['Cookie']), env)
 
     if (cookieHeader) {
       // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
@@ -162,9 +149,7 @@ export const createRequestOperation = ({
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-    const proxiedUrl = shouldUseProxy(proxyUrl, url)
-      ? `${proxyUrl}?${proxyPath.toString()}`
-      : url
+    const proxiedUrl = shouldUseProxy(proxyUrl, url) ? `${proxyUrl}?${proxyPath.toString()}` : url
 
     const proxiedRequest = new Request(proxiedUrl, {
       method: request.method.toUpperCase(),
@@ -191,12 +176,8 @@ export const createRequestOperation = ({
 
         status?.emit('stop')
 
-        const responseHeaders = normalizeHeaders(
-          response.headers,
-          shouldUseProxy(proxyUrl, url),
-        )
-        const responseType =
-          response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
+        const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
+        const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
         const arrayBuffer = await response.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
@@ -204,8 +185,7 @@ export const createRequestOperation = ({
         // Safely check for cookie headers
         // TODO: polyfill
         const cookieHeaderKeys =
-          'getSetCookie' in response.headers &&
-          typeof response.headers.getSetCookie === 'function'
+          'getSetCookie' in response.headers && typeof response.headers.getSetCookie === 'function'
             ? response.headers.getSetCookie()
             : []
 

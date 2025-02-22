@@ -38,11 +38,7 @@ export const useOpenApiWatcher = () => {
   const { collectionMutators } = store
 
   /** Little toast helper */
-  const toastError = (type: string) =>
-    toast(
-      `[useOpenApiWatcher] Changes to the ${type} were not applied`,
-      'error',
-    )
+  const toastError = (type: string) => toast(`[useOpenApiWatcher] Changes to the ${type} were not applied`, 'error')
 
   // Transforms and applies the diff to our mutators
   const applyDiff = (d: Difference) => {
@@ -81,18 +77,10 @@ export const useOpenApiWatcher = () => {
 
     try {
       // Grab the new spec
-      const spec = await fetchSpecFromUrl(
-        url,
-        activeWorkspace.value?.proxyUrl,
-        false,
-      )
+      const spec = await fetchSpecFromUrl(url, activeWorkspace.value?.proxyUrl, false)
       const hash = createHash(spec)
 
-      collectionMutators.edit(
-        activeCollection.value.uid,
-        'watchModeStatus',
-        'WATCHING',
-      )
+      collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'WATCHING')
 
       // If we have no previous copy then store this one
       if (!old?.hash) {
@@ -130,15 +118,8 @@ export const useOpenApiWatcher = () => {
       console.info('[useOpenApiWatcher] Pausing watcher for 60 seconds')
 
       pause()
-      collectionMutators.edit(
-        activeCollection.value.uid,
-        'watchModeStatus',
-        'ERROR',
-      )
-      toast(
-        `[useOpenApiWatcher] Unable to fetch the spec file, paused the watcher for 60 seconds`,
-        'error',
-      )
+      collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'ERROR')
+      toast(`[useOpenApiWatcher] Unable to fetch the spec file, paused the watcher for 60 seconds`, 'error')
 
       setTimeout(() => {
         console.info('[useOpenApiWatcher] Resuming watcher')
@@ -149,21 +130,14 @@ export const useOpenApiWatcher = () => {
 
   // Ensure we are only polling when we should watchMode
   watch(
-    [
-      () => activeCollection.value?.documentUrl,
-      () => activeCollection.value?.watchMode,
-    ],
+    [() => activeCollection.value?.documentUrl, () => activeCollection.value?.watchMode],
     ([documentUrl, watchMode]) => {
       if (documentUrl && watchMode) {
         console.info(`[useOpenApiWatcher] Watching ${documentUrl} …`)
         resume()
       } else if (activeCollection.value) {
         pause()
-        collectionMutators.edit(
-          activeCollection.value.uid,
-          'watchModeStatus',
-          'IDLE',
-        )
+        collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'IDLE')
       }
     },
     { immediate: true },

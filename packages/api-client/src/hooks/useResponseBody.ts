@@ -13,27 +13,19 @@ export function useResponseBody(props: {
   const isBlob = (b: any): b is Blob => b instanceof Blob
 
   const mimeType = computed(() => {
-    const contentType =
-      props.headers.find(
-        (header) => header.name.toLowerCase() === 'content-type',
-      )?.value ?? ''
+    const contentType = props.headers.find((header) => header.name.toLowerCase() === 'content-type')?.value ?? ''
     return new MimeType(contentType)
   })
 
   const attachmentFilename = computed(() => {
-    const value =
-      props.headers.find(
-        (header) => header.name.toLowerCase() === 'content-disposition',
-      )?.value ?? ''
+    const value = props.headers.find((header) => header.name.toLowerCase() === 'content-disposition')?.value ?? ''
     return extractFilename(value)
   })
 
   const dataUrl = computed<string>(() => {
     if (isBlob(props.data)) return URL.createObjectURL(props.data)
     if (typeof props.data === 'string')
-      return URL.createObjectURL(
-        new Blob([props.data], { type: mimeType.value.toString() }),
-      )
+      return URL.createObjectURL(new Blob([props.data], { type: mimeType.value.toString() }))
     if (props.data instanceof Object && Object.keys(props.data).length)
       return URL.createObjectURL(
         new Blob([JSON.stringify(props.data)], {

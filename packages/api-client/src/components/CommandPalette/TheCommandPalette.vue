@@ -46,8 +46,8 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { ROUTES } from '@/constants'
 
+import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 
 const modalState = useModal()

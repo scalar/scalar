@@ -12,12 +12,7 @@ describe('isDefined type', () => {
   })
 
   it('should work with complex types', () => {
-    const array = [
-      { foo: 'a', bar: 1 },
-      null,
-      { foo: 'b', bar: 2 },
-      undefined,
-    ] as const
+    const array = [{ foo: 'a', bar: 1 }, null, { foo: 'b', bar: 2 }, undefined] as const
 
     const filtered = array.filter(isDefined)
 

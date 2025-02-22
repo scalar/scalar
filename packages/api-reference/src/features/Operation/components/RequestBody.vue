@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { Schema } from '@/components/Content/Schema'
 import { ScalarMarkdown } from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
+
+import { Schema } from '@/components/Content/Schema'
 
 const { requestBody } = defineProps<{ requestBody?: RequestBody }>()
 

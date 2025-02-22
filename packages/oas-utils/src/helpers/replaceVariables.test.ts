@@ -20,11 +20,9 @@ describe('replaceVariables', () => {
   })
 
   it('replaces variables with a custom callback', () => {
-    expect(
-      replaceVariables('foo{{bar}}foo', (match) =>
-        match === 'bar' ? `<span>foo</span>` : '',
-      ),
-    ).toMatchObject('foo<span>foo</span>foo')
+    expect(replaceVariables('foo{{bar}}foo', (match) => (match === 'bar' ? `<span>foo</span>` : ''))).toMatchObject(
+      'foo<span>foo</span>foo',
+    )
   })
 
   it('returns variable in curly braces when value is empty', () => {

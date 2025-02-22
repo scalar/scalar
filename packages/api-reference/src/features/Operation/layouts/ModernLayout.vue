@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import type {
+  Collection,
+  Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import type { TransformedOperation } from '@scalar/types/legacy'
+import { defineProps } from 'vue'
+
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import OperationPath from '@/components/OperationPath.vue'
@@ -17,14 +26,6 @@ import {
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@/helpers/operation'
-import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import type {
-  Collection,
-  Operation,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
-import type { TransformedOperation } from '@scalar/types/legacy'
-import { defineProps } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'

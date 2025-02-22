@@ -1,17 +1,18 @@
 <script setup lang="ts">
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
-import TopNav from '@/components/TopNav/TopNav.vue'
-import MainLayout from '@/layouts/App/MainLayout.vue'
-import { DEFAULT_HOTKEYS, type HotKeyEvent, handleHotKeyDown } from '@/libs'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
+
+import TopNav from '@/components/TopNav/TopNav.vue'
+import MainLayout from '@/layouts/App/MainLayout.vue'
+import { DEFAULT_HOTKEYS, handleHotKeyDown, type HotKeyEvent } from '@/libs'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import { APP_HOTKEYS } from './hotkeys'
 

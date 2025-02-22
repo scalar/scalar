@@ -13,9 +13,7 @@ import { DATA_VERSION } from '@/migrations/data-version'
 import { writeFile } from 'fs'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 
-console.warn(
-  'Make sure the generate types file is updated for the current version',
-)
+console.warn('Make sure the generate types file is updated for the current version')
 console.info('Generating...')
 
 const entities = [
@@ -62,9 +60,6 @@ typeString += `
 `
 
 // Write to file
-writeFile(
-  __dirname + `/v-${DATA_VERSION}/types.generated.ts`,
-  typeString,
-  { flag: 'w' },
-  (err) => (err ? console.error(err) : console.log('Generation complete!')),
+writeFile(__dirname + `/v-${DATA_VERSION}/types.generated.ts`, typeString, { flag: 'w' }, (err) =>
+  err ? console.error(err) : console.log('Generation complete!'),
 )

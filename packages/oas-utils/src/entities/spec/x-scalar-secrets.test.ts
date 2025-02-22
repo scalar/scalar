@@ -8,8 +8,6 @@ describe('x-scalar-secrets', () => {
   it('Handles spec definition', () => {
     const parsed = parseJsonOrYaml(baseDefinition)
 
-    expect(xScalarSecretsSchema.parse(parsed['x-scalar-secrets'])).toEqual(
-      parsed['x-scalar-secrets'],
-    )
+    expect(xScalarSecretsSchema.parse(parsed['x-scalar-secrets'])).toEqual(parsed['x-scalar-secrets'])
   })
 })

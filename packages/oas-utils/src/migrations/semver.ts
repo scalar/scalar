@@ -3,12 +3,8 @@
  */
 export const semverLessThan = (left: string, right: string): boolean => {
   // Parse the strings into numbers
-  const parseSemver = (
-    version: string,
-  ): { major: number; minor: number; patch: number } => {
-    const [major, minor = 0, patch = 0] = version
-      .split('.')
-      .map((part) => parseInt(part, 10))
+  const parseSemver = (version: string): { major: number; minor: number; patch: number } => {
+    const [major, minor = 0, patch = 0] = version.split('.').map((part) => parseInt(part, 10))
     return { major, minor, patch }
   }
 

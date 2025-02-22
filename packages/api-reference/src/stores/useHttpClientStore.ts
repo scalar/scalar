@@ -16,10 +16,7 @@ const { clients } = snippetz()
  * { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
  */
 function getTargetTitle(client: HttpClientState) {
-  return (
-    availableTargets.value.find((target) => target.key === client.targetKey)
-      ?.title ?? client.targetKey
-  )
+  return availableTargets.value.find((target) => target.key === client.targetKey)?.title ?? client.targetKey
 }
 
 /**
@@ -30,8 +27,7 @@ function getClientTitle(client: HttpClientState) {
   return (
     availableTargets.value
       .find((target) => target.key === client.targetKey)
-      ?.clients.find((item) => item.client === client.clientKey)?.title ??
-    client.clientKey
+      ?.clients.find((item) => item.client === client.clientKey)?.title ?? client.clientKey
   )
 }
 
@@ -48,10 +44,7 @@ const httpClientTitle = computed(() => {
 /**
  * Filters out hidden clients from the available targets (based on the given configuration).
  */
-export function filterHiddenClients(
-  targets: Target[],
-  exclude: Ref<HiddenClients>,
-): Target[] {
+export function filterHiddenClients(targets: Target[], exclude: Ref<HiddenClients>): Target[] {
   // Just remove all clients
   if (exclude.value === true) {
     return []
@@ -155,8 +148,7 @@ function isClientAvailable(httpClient?: HttpClientState) {
 
   return !!availableTargets.value.find(
     (target) =>
-      target.key === httpClient.targetKey &&
-      target.clients.find((client) => client.client === httpClient.clientKey),
+      target.key === httpClient.targetKey && target.clients.find((client) => client.client === httpClient.clientKey),
   )
 }
 

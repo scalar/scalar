@@ -8,9 +8,7 @@ import { isRelativePath } from './redirectToProxy'
  * within each source, but later sources overwrite earlier ones completely
  * This should de-dupe our query params while allowing multiple keys for "arrays"
  */
-export const mergeSearchParams = (
-  ...params: URLSearchParams[]
-): URLSearchParams => {
+export const mergeSearchParams = (...params: URLSearchParams[]): URLSearchParams => {
   // We keep a merged record to ensure the next group will overwrite the previous
   const merged: Record<string, string | string[]> = {}
 
@@ -80,15 +78,10 @@ export const mergeUrls = (
     const pathParams = new URLSearchParams(pathQuery || '')
 
     // Merge the baseUrl and path
-    const mergedUrl =
-      url === path ? baseUrl : combineUrlAndPath(baseUrl, pathWithoutQuery)
+    const mergedUrl = url === path ? baseUrl : combineUrlAndPath(baseUrl, pathWithoutQuery)
 
     // Merge all search params
-    const mergedSearchParams = mergeSearchParams(
-      baseParams,
-      pathParams,
-      urlParams,
-    )
+    const mergedSearchParams = mergeSearchParams(baseParams, pathParams, urlParams)
 
     // Build the final URL
     const search = mergedSearchParams.toString()

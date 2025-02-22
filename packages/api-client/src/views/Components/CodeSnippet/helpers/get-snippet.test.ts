@@ -7,11 +7,7 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import {
-  AVAILABLE_CLIENTS,
-  type ClientId,
-  type TargetId,
-} from '@scalar/snippetz'
+import { AVAILABLE_CLIENTS, type ClientId, type TargetId } from '@scalar/snippetz'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { getSnippet } from './get-snippet'
@@ -193,9 +189,7 @@ $.ajax(settings).done(function (response) {
     })
 
     expect(error).toBeNull()
-    expect(result).toEqual(
-      `fetch('https://example.com/users?query-param=query-value')`,
-    )
+    expect(result).toEqual(`fetch('https://example.com/users?query-param=query-value')`)
   })
 
   it('should show the security headers, cookies and query', async () => {
@@ -231,8 +225,7 @@ $.ajax(settings).done(function (response) {
     })
 
     expect(error).toBeNull()
-    expect(result)
-      .toEqual(`fetch('https://example.com/users?query-api-key=33333', {
+    expect(result).toEqual(`fetch('https://example.com/users?query-api-key=33333', {
   headers: {
     'X-Header-Token': '22222',
     Authorization: 'Bearer 44444',

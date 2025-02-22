@@ -9,6 +9,5 @@
  *
  * @see https://jaketrent.com/post/typescript-type-safe-filter-boolean/
  */
-export const isDefined = <T>(
-  value: T | null | undefined,
-): value is NonNullable<T> => value !== null && value !== undefined
+export const isDefined = <T>(value: T | null | undefined): value is NonNullable<T> =>
+  value !== null && value !== undefined

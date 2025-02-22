@@ -1,8 +1,5 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
-import type {
-  RequestMethod,
-  RequestParameterPayload,
-} from '@scalar/oas-utils/entities/spec'
+import type { RequestMethod, RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
 
 /** Define curlCommandResult type */
 type CurlCommandResult = {
@@ -46,19 +43,10 @@ function parseData(data: string): Record<string, any> {
 /** Make a usable object from a curl command to create a request */
 export function importCurlCommand(curlCommand: string): CurlCommandResult {
   const parsedCommand = parseCurlCommand(curlCommand)
-  const {
-    method = 'get',
-    url,
-    body = '',
-    headers = {},
-    servers,
-    queryParameters = [],
-  } = parsedCommand
+  const { method = 'get', url, body = '', headers = {}, servers, queryParameters = [] } = parsedCommand
   const path = new URL(url).pathname
   const contentType =
-    body?.includes('=') && !body.startsWith('{')
-      ? 'application/x-www-form-urlencoded'
-      : headers['Content-Type'] || ''
+    body?.includes('=') && !body.startsWith('{') ? 'application/x-www-form-urlencoded' : headers['Content-Type'] || ''
   const requestBody = body ? parseData(body) : {}
 
   // Create parameters following request schema
@@ -91,10 +79,7 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
             schema: {
               type: 'object',
               properties: Object.fromEntries(
-                Object.entries(requestBody).map(([key, value]) => [
-                  key,
-                  { type: typeof value },
-                ]),
+                Object.entries(requestBody).map(([key, value]) => [key, { type: typeof value }]),
               ),
             },
             example: requestBody,

@@ -56,8 +56,7 @@ function recursiveLogger(obj: ContentSchema): string[] {
 function extractRequestBody(operation: Operation): string[] | boolean {
   try {
     // Using optional chaining here as well
-    const body =
-      operation?.information?.requestBody?.content?.['application/json']
+    const body = operation?.information?.requestBody?.content?.['application/json']
     if (!body) {
       throw new Error('Body not found')
     }

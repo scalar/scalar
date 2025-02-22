@@ -92,9 +92,7 @@ describe('ExampleResponses', () => {
     expect(tabs[0].text()).toContain('200')
     expect(codeBlock.length).toBe(1)
     expect(wrapper.text()).toContain('XML response')
-    expect(wrapper.text()).toContain(
-      '<user><name>John</name><age>30</age></user>',
-    )
+    expect(wrapper.text()).toContain('<user><name>John</name><age>30</age></user>')
     expect(examplePicker.exists()).toBe(false)
   })
 

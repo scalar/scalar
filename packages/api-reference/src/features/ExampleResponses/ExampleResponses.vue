@@ -1,4 +1,10 @@
 <script lang="ts" setup>
+import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { Operation } from '@scalar/oas-utils/entities/spec'
+import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed, ref, useId } from 'vue'
+
 import {
   Card,
   CardContent,
@@ -6,11 +12,6 @@ import {
   CardTab,
   CardTabHeader,
 } from '@/components/Card'
-import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { Operation } from '@scalar/oas-utils/entities/spec'
-import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, ref, useId } from 'vue'
 
 import { ExamplePicker } from '../ExampleRequest'
 import ExampleResponse from './ExampleResponse.vue'

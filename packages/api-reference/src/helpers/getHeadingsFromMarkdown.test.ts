@@ -36,9 +36,7 @@ describe('getHeadingsFromMarkdown', () => {
 \`\`\`
 `
 
-    expect(getHeadingsFromMarkdown(markdown)).toMatchObject([
-      { depth: 1, value: 'Heading' },
-    ])
+    expect(getHeadingsFromMarkdown(markdown)).toMatchObject([{ depth: 1, value: 'Heading' }])
   })
 
   it('has slugs', () => {
@@ -48,9 +46,6 @@ describe('getHeadingsFromMarkdown', () => {
 ## Hello World
 `
 
-    expect(getHeadingsFromMarkdown(markdown)).toMatchObject([
-      { slug: 'hello-world' },
-      { slug: 'hello-world-1' },
-    ])
+    expect(getHeadingsFromMarkdown(markdown)).toMatchObject([{ slug: 'hello-world' }, { slug: 'hello-world-1' }])
   })
 })

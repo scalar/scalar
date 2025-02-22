@@ -21,7 +21,5 @@ export const desktopVariants = plugin(function ({ addVariant }) {
 
   // Add support for `mac`, `windows` and `linux` modifiers
   // Usage: <div class="mac:hidden">...</div>
-  platformVariants.forEach((variant) =>
-    addVariant(variant, `.app-platform-${variant} &`),
-  )
+  platformVariants.forEach((variant) => addVariant(variant, `.app-platform-${variant} &`))
 })

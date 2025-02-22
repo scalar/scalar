@@ -1,9 +1,6 @@
 import { isUrl } from '@/libs'
 import { resolve } from '@scalar/import'
-import {
-  fetchWithProxyFallback,
-  redirectToProxy,
-} from '@scalar/oas-utils/helpers'
+import { fetchWithProxyFallback, redirectToProxy } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
 export type PrefetchResult = {
@@ -129,10 +126,7 @@ export function useUrlPrefetcher() {
     }
   }
 
-  async function prefetchUrlAndUpdateState(
-    input: string | null,
-    proxy?: string,
-  ) {
+  async function prefetchUrlAndUpdateState(input: string | null, proxy?: string) {
     Object.assign(prefetchResult, {
       state: 'loading',
       content: null,

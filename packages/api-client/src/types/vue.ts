@@ -8,8 +8,5 @@ import type { MaybeRefOrGetter } from 'vue'
  * @see https://vuejs.org/guide/essentials/class-and-style.html#class-and-style-bindings
  */
 export type VueClassProp = MaybeRefOrGetter<
-  | string
-  | Record<string, boolean>
-  | (string | Record<string, boolean>)[]
-  | false
+  string | Record<string, boolean> | (string | Record<string, boolean>)[] | false
 >

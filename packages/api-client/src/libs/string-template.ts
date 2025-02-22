@@ -7,10 +7,7 @@ import { REGEX } from '@scalar/oas-utils/helpers'
 export function getDotPathValue(path: string, context: object) {
   const pathKeys = path.split('.')
 
-  const result = pathKeys.reduce(
-    (nested: any, currentKey) => nested?.[currentKey],
-    context,
-  )
+  const result = pathKeys.reduce((nested: any, currentKey) => nested?.[currentKey], context)
   return typeof result === 'string' ? result : JSON.stringify(result)
 }
 
@@ -21,10 +18,7 @@ export function getDotPathValue(path: string, context: object) {
  * - { single curly }
  * - :colon
  */
-export function replaceTemplateVariables(
-  templateString: string,
-  context: object,
-) {
+export function replaceTemplateVariables(templateString: string, context: object) {
   const matches = templateString.match(REGEX.TEMPLATE_VARIABLE) ?? []
 
   let substitutedString = templateString
@@ -33,8 +27,7 @@ export function replaceTemplateVariables(
 
     const value = getDotPathValue(key, context)
     // value can be an empty string but not null or undefined
-    if (value !== null && value !== undefined)
-      substitutedString = substitutedString.replaceAll(m, value)
+    if (value !== null && value !== undefined) substitutedString = substitutedString.replaceAll(m, value)
   })
 
   return substitutedString

@@ -13,11 +13,7 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const {
-    activeWorkspace,
-    activeWorkspaceRequests,
-    activeWorkspaceCollections,
-  } = useActiveEntities()
+  const { activeWorkspace, activeWorkspaceRequests, activeWorkspaceCollections } = useActiveEntities()
   const { requests, tags } = useWorkspace()
 
   type FuseData = {
@@ -57,9 +53,8 @@ export function useSearch() {
       // Check if the request is in a tag that is marked has hidden/internal
       .filter((request) => {
         // Find the collection for the request
-        const collection = activeWorkspaceCollections.value?.find(
-          (activeWorkspaceCollection) =>
-            activeWorkspaceCollection.requests.includes(request.uid),
+        const collection = activeWorkspaceCollections.value?.find((activeWorkspaceCollection) =>
+          activeWorkspaceCollection.requests.includes(request.uid),
         )
 
         const hasIgnoredTags = Boolean(
@@ -108,8 +103,7 @@ export function useSearch() {
     const length = searchResultsWithPlaceholderResults.value.length
 
     // Ensures we loop around the array by using the remainder
-    selectedSearchResult.value =
-      (selectedSearchResult.value + offset + length) % length
+    selectedSearchResult.value = (selectedSearchResult.value + offset + length) % length
 
     // Scroll the selected item into view
     nextTick(() => {
@@ -125,17 +119,14 @@ export function useSearch() {
 
   const selectSearchResult = () => {
     if (selectedSearchResult.value >= 0) {
-      const selectedResult =
-        searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+      const selectedResult = searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
       if (selectedResult) {
         onSearchResultClick(selectedResult)
       }
     }
   }
 
-  const validRequests = computed(() =>
-    activeWorkspaceRequests.value.map((uid) => requests[uid]).filter(isDefined),
-  )
+  const validRequests = computed(() => activeWorkspaceRequests.value.map((uid) => requests[uid]).filter(isDefined))
 
   // Populate our fuseDataArray with the request items
   watch(
@@ -151,19 +142,17 @@ export function useSearch() {
     resetSearch()
   }
 
-  const searchResultsWithPlaceholderResults = computed(
-    (): FuseResult<FuseData>[] => {
-      if (searchText.value.length === 0) {
-        return fuseDataArray.value.map((item) => {
-          return {
-            item: item,
-          } as FuseResult<FuseData>
-        })
-      }
+  const searchResultsWithPlaceholderResults = computed((): FuseResult<FuseData>[] => {
+    if (searchText.value.length === 0) {
+      return fuseDataArray.value.map((item) => {
+        return {
+          item: item,
+        } as FuseResult<FuseData>
+      })
+    }
 
-      return searchResults.value
-    },
-  )
+    return searchResults.value
+  })
 
   return {
     searchText,

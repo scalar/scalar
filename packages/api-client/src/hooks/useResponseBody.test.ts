@@ -10,9 +10,7 @@ describe('useResponseBody', () => {
   it('extracts the correct MimeType from headers', () => {
     const props = {
       data: null,
-      headers: [
-        { name: 'Content-Type', value: 'application/json', required: true },
-      ],
+      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     }
     const { mimeType } = useResponseBody(props)
     expect(mimeType.value.essence).toBe('application/json')
@@ -55,9 +53,7 @@ describe('useResponseBody', () => {
   it('generates a data URL for an object', () => {
     const props = {
       data: { key: 'value' },
-      headers: [
-        { name: 'Content-Type', value: 'application/json', required: true },
-      ],
+      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('mockedBlobURL')
@@ -66,9 +62,7 @@ describe('useResponseBody', () => {
   it('returns an empty string for unsupported data types', () => {
     const props = {
       data: null,
-      headers: [
-        { name: 'Content-Type', value: 'application/json', required: true },
-      ],
+      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('')

@@ -90,7 +90,7 @@ const selectColor = (color: string) => {
       </div>
       <div
         v-if="showSelector || !props.selector"
-        class="color-selector flex flex-row gap-1.5 items-center justify-between space-x-1"
+        class="color-selector flex flex-row items-center justify-between gap-1.5 space-x-1"
         :class="props.selector ? 'h-4' : 'min-h-10 min-w-[296px]'">
         <div
           v-for="option in colorOptions"
@@ -106,9 +106,9 @@ const selectColor = (color: string) => {
             icon="Checkmark"
             size="xs" />
         </div>
-        <hr class="w-0.5 h-5 border-ghost border-l" />
+        <hr class="border-ghost h-5 w-0.5 border-l" />
         <label
-          class="cursor-pointer flex flex-row justify-center gap-2 items-center rounded-full z-10"
+          class="z-10 flex cursor-pointer flex-row items-center justify-center gap-2 rounded-full"
           :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
           :style="backgroundStyle"
           @click="handleClick">
@@ -127,25 +127,25 @@ const selectColor = (color: string) => {
     </template>
     <div
       v-if="showCustomInput"
-      class="color-selector flex flex-1 gap-2 items-center rounded"
+      class="color-selector flex flex-1 items-center gap-2 rounded"
       :class="props.selector ? 'h-4' : 'min-h-10'">
       <span
-        class="absolute border border-dashed rounded-full"
+        class="absolute rounded-full border border-dashed"
         :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'" />
       <span
-        class="rounded-full z-[1]"
+        class="z-[1] rounded-full"
         :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
         :style="backgroundStyle">
       </span>
       <input
         ref="customColorInputRef"
         v-model="customColor"
-        class="border-transparent flex-1 outline-none w-full text-sm"
+        class="w-full flex-1 border-transparent text-sm outline-none"
         :placeholder="activeColor || '#000000'"
         type="text"
         @input="selectColor(customColor)" />
       <button
-        class="text-c-3 hover:bg-b-2 p-1.5 rounded-lg"
+        class="text-c-3 hover:bg-b-2 rounded-lg p-1.5"
         type="button"
         @click="handleClick">
         <ScalarIcon

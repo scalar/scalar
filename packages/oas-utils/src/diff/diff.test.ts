@@ -5,12 +5,7 @@ import { describe, it } from 'vitest'
 import { diffSpec } from './diff'
 
 function loadYaml(name: string) {
-  return parseJsonOrYaml(
-    fs.readFileSync(
-      `${import.meta.dirname}/fixtures/${name}.test.yaml`,
-      'utf-8',
-    ),
-  )
+  return parseJsonOrYaml(fs.readFileSync(`${import.meta.dirname}/fixtures/${name}.test.yaml`, 'utf-8'))
 }
 
 const a = loadYaml('a-basic')

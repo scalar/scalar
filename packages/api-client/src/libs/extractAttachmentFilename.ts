@@ -13,9 +13,7 @@ export function extractFilename(contentDisposition: string) {
   let filename = ''
 
   if (contentDisposition) {
-    const fileNameMatch = contentDisposition.match(
-      /filename\s*=\s*"?([^";]+)"?/,
-    )
+    const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^";]+)"?/)
 
     if (typeof fileNameMatch?.[1] === 'string') {
       // Decode filename

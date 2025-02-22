@@ -21,9 +21,7 @@ describe('ensureProtocol', () => {
     })
 
     it('preserves file protocol', () => {
-      expect(ensureProtocol('file:///path/to/file')).toBe(
-        'file:///path/to/file',
-      )
+      expect(ensureProtocol('file:///path/to/file')).toBe('file:///path/to/file')
     })
   })
 
@@ -37,9 +35,7 @@ describe('ensureProtocol', () => {
     })
 
     it('adds http protocol to domain with query', () => {
-      expect(ensureProtocol('example.com?query=1')).toBe(
-        'http://example.com?query=1',
-      )
+      expect(ensureProtocol('example.com?query=1')).toBe('http://example.com?query=1')
     })
 
     it('adds http protocol to domain with port', () => {
@@ -53,9 +49,7 @@ describe('ensureProtocol', () => {
 
   describe('template variables', () => {
     it('prepends http:// to template variables', () => {
-      expect(ensureProtocol('{protocol}://example.com')).toBe(
-        'http://{protocol}://example.com',
-      )
+      expect(ensureProtocol('{protocol}://example.com')).toBe('http://{protocol}://example.com')
     })
 
     it('preserves path templates', () => {
@@ -63,9 +57,7 @@ describe('ensureProtocol', () => {
     })
 
     it('prepends http:// to full URL templates', () => {
-      expect(ensureProtocol('{protocol}://{host}/{path}')).toBe(
-        'http://{protocol}://{host}/{path}',
-      )
+      expect(ensureProtocol('{protocol}://{host}/{path}')).toBe('http://{protocol}://{host}/{path}')
     })
   })
 
@@ -79,9 +71,7 @@ describe('ensureProtocol', () => {
     })
 
     it('handles URLs with authentication', () => {
-      expect(ensureProtocol('user:pass@example.com')).toBe(
-        'http://user:pass@example.com',
-      )
+      expect(ensureProtocol('user:pass@example.com')).toBe('http://user:pass@example.com')
     })
 
     it('handles IP addresses', () => {
@@ -93,9 +83,7 @@ describe('ensureProtocol', () => {
     })
 
     it('handles URLs with fragments', () => {
-      expect(ensureProtocol('example.com#section')).toBe(
-        'http://example.com#section',
-      )
+      expect(ensureProtocol('example.com#section')).toBe('http://example.com#section')
     })
   })
 })

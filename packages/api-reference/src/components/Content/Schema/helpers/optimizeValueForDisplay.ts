@@ -5,9 +5,7 @@ export const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
 /**
  * Optimize the value by removing nulls from discriminators.
  */
-export function optimizeValueForDisplay(
-  value: UnknownObject | undefined,
-): Record<string, any> | undefined {
+export function optimizeValueForDisplay(value: UnknownObject | undefined): Record<string, any> | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }
@@ -55,10 +53,7 @@ export function optimizeValueForDisplay(
   }
 
   // Overwrite the original schemas with the new schemas
-  if (
-    Array.isArray(newValue?.[discriminatorType]) &&
-    newValue?.[discriminatorType]?.length > 1
-  ) {
+  if (Array.isArray(newValue?.[discriminatorType]) && newValue?.[discriminatorType]?.length > 1) {
     newValue[discriminatorType] = newSchemas
   }
 

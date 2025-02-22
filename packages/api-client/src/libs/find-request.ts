@@ -18,11 +18,7 @@ export const pathToRegex = (path: string) => {
  *
  * @example path can be /planets/{planetId} OR /planets/1
  */
-export const findRequestByPathMethod = (
-  path: string,
-  method: string,
-  requests: Request[],
-) => {
+export const findRequestByPathMethod = (path: string, method: string, requests: Request[]) => {
   let pathParams: { key: string; value: string }[] = []
 
   const request = requests.find((r) => {

@@ -62,8 +62,7 @@ describe('ScalarCodeBlock', () => {
     expect(code.element.nodeName.toLowerCase()).toBe('code')
 
     // Confirm the syntax highlighting has been applied
-    expect(code.html())
-      .toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
+    expect(code.html()).toBe(`<code class="hljs language-json"><span class="hljs-punctuation">{</span>
   <span class="hljs-attr">"description"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"successful operation"</span><span class="hljs-punctuation">,</span>
   <span class="hljs-attr">"schema"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
     <span class="hljs-attr">"type"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"object"</span><span class="hljs-punctuation">,</span>

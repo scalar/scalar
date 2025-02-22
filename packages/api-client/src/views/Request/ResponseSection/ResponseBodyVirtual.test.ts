@@ -10,9 +10,7 @@ describe('ResponseBodyVirtual', () => {
   it('displays the download link button when dataUrl is present', () => {
     const mockResponseInstance = {
       data: 'data:application/json;base64,eyJrZXkiOiAidmFsdWUifQ==',
-      headers: [
-        { name: 'Content-Type', value: 'application/json', required: true },
-      ],
+      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
     }
 
     const wrapper = mount(ResponseBodyVirtual, {

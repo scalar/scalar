@@ -1,9 +1,4 @@
-import {
-  ViteWatchWorkspace,
-  alias,
-  createViteBuildOptions,
-  findEntryPoints,
-} from '@scalar/build-tooling'
+import { ViteWatchWorkspace, alias, createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'

@@ -26,16 +26,7 @@ describe('Tests finding all parents of a request', () => {
 
     const findRequestParentss = findRequestParentsFactory({ tags, collections })
 
-    expect(findRequestParentss(request)).toEqual([
-      'c-0',
-      't-1',
-      't-2',
-      't-3',
-      't-4',
-      't-5',
-      't-6',
-      't-7',
-    ])
+    expect(findRequestParentss(request)).toEqual(['c-0', 't-1', 't-2', 't-3', 't-4', 't-5', 't-6', 't-7'])
   })
 
   it('Handles mixed folders', () => {

@@ -220,9 +220,7 @@ describe('convertToHarRequest', () => {
     })
 
     expect(harRequest.postData?.mimeType).toContain('multipart/form-data')
-    expect(harRequest.postData?.text).toEqual(
-      '{"name":"John Doe","occupation":"Engineer"}',
-    )
+    expect(harRequest.postData?.text).toEqual('{"name":"John Doe","occupation":"Engineer"}')
   })
 
   it('converts a request with multiple of the same key in form-data as an array', () => {
@@ -253,9 +251,7 @@ describe('convertToHarRequest', () => {
     })
 
     expect(harRequest.postData?.mimeType).toContain('multipart/form-data')
-    expect(harRequest.postData?.text).toEqual(
-      '{"name":["John Doe","Jane Doe","Jimmy Doe"]}',
-    )
+    expect(harRequest.postData?.text).toEqual('{"name":["John Doe","Jane Doe","Jimmy Doe"]}')
   })
 
   it('converts a request with form-data body with a file', () => {

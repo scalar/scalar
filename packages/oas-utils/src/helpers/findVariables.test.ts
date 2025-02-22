@@ -16,9 +16,7 @@ describe('findVariables', () => {
   })
 
   it('works with special characters', async () => {
-    expect(findVariables('http://{Example123_}/foobar')).toEqual([
-      'Example123_',
-    ])
+    expect(findVariables('http://{Example123_}/foobar')).toEqual(['Example123_'])
   })
 
   it('returns an empty array if there’s no variable', async () => {

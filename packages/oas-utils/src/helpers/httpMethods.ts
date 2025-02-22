@@ -63,9 +63,8 @@ const BODY_METHODS = ['post', 'put', 'patch', 'delete'] as const
 type BodyMethod = (typeof BODY_METHODS)[number]
 
 /** Makes a check to see if this method CAN have a body */
-export const canMethodHaveBody = (
-  method: RequestMethod,
-): method is BodyMethod => BODY_METHODS.includes(method as BodyMethod)
+export const canMethodHaveBody = (method: RequestMethod): method is BodyMethod =>
+  BODY_METHODS.includes(method as BodyMethod)
 
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
@@ -82,7 +81,5 @@ export const getHttpMethodInfo = (methodName: string) => {
 }
 
 /** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
-export const isHttpMethod = (
-  method?: string | undefined,
-): method is RequestMethod =>
+export const isHttpMethod = (method?: string | undefined): method is RequestMethod =>
   method ? requestMethods.includes(method as RequestMethod) : false

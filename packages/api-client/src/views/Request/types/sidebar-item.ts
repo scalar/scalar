@@ -1,20 +1,9 @@
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  RequestMethod,
-  Tag,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Request, RequestExample, RequestMethod, Tag } from '@scalar/oas-utils/entities/spec'
 import type { RouteLocationRaw } from 'vue-router'
 
 export type SidebarItem = {
   title: string
-  entity:
-    | Collection
-    | Tag
-    | Request
-    | RequestExample
-    | { type: 'unknown'; uid: string }
+  entity: Collection | Tag | Request | RequestExample | { type: 'unknown'; uid: string }
   resourceTitle: string
   children: string[]
   method?: RequestMethod | undefined

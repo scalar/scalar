@@ -1,10 +1,5 @@
 import { buildRequestSecurity } from '@/libs/send-request/build-request-security'
-import type {
-  Operation,
-  RequestExample,
-  SecurityScheme,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import type { Operation, RequestExample, SecurityScheme, Server } from '@scalar/oas-utils/entities/spec'
 import type { HarRequest } from '@scalar/snippetz'
 
 import { convertToHarRequest } from './convert-to-har-request'
@@ -26,11 +21,7 @@ export const getHarRequest = ({
   securitySchemes?: SecurityScheme[]
 }): HarRequest => {
   // Grab the security headers, cookies and url params
-  const security = buildRequestSecurity(
-    securitySchemes,
-    {},
-    EMPTY_TOKEN_PLACEHOLDER,
-  )
+  const security = buildRequestSecurity(securitySchemes, {}, EMPTY_TOKEN_PLACEHOLDER)
 
   // Merge the security headers, cookies and query with example parameters
   const headers = [

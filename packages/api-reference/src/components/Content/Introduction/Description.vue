@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import IntersectionObserver from '@/components/IntersectionObserver.vue'
-import { useNavState } from '@/hooks/useNavState'
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
 import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
+
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
+import { useNavState } from '@/hooks/useNavState'
 
 const props = defineProps<{
   /** Markdown document */

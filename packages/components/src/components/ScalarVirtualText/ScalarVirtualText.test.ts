@@ -26,15 +26,9 @@ describe('ScalarVirtualText', () => {
       },
     })
 
-    expect(wrapper.find('.scalar-virtual-text').classes()).toContain(
-      'custom-container',
-    )
-    expect(wrapper.find('.scalar-virtual-text-content').classes()).toContain(
-      'custom-content',
-    )
-    expect(wrapper.find('.scalar-virtual-text-line').classes()).toContain(
-      'custom-line',
-    )
+    expect(wrapper.find('.scalar-virtual-text').classes()).toContain('custom-container')
+    expect(wrapper.find('.scalar-virtual-text-content').classes()).toContain('custom-content')
+    expect(wrapper.find('.scalar-virtual-text-line').classes()).toContain('custom-line')
   })
 
   it('respects custom line height', () => {
@@ -99,16 +93,10 @@ describe('ScalarVirtualText', () => {
       },
     })
 
-    expect(window.addEventListener).toHaveBeenCalledWith(
-      'resize',
-      expect.any(Function),
-    )
+    expect(window.addEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
 
     wrapper.unmount()
 
-    expect(window.removeEventListener).toHaveBeenCalledWith(
-      'resize',
-      expect.any(Function),
-    )
+    expect(window.removeEventListener).toHaveBeenCalledWith('resize', expect.any(Function))
   })
 })

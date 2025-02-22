@@ -16,9 +16,7 @@ export function isGroup(option: Option | OptionGroup): option is OptionGroup {
 }
 
 /** Type guard to check if an array of options is an array of groups */
-export function isGroups(
-  options: Option[] | OptionGroup[],
-): options is OptionGroup[] {
+export function isGroups(options: Option[] | OptionGroup[]): options is OptionGroup[] {
   return isGroup(options[0])
 }
 

@@ -5,8 +5,7 @@ export function isPostmanCollection(content: string): boolean {
   try {
     const parsed = JSON.parse(content)
     const isPostman =
-      parsed.info?._postman_id !== undefined &&
-      new URL(parsed.info?.schema).host === 'schema.getpostman.com'
+      parsed.info?._postman_id !== undefined && new URL(parsed.info?.schema).host === 'schema.getpostman.com'
     return isPostman
   } catch (error) {
     return false
@@ -14,9 +13,7 @@ export function isPostmanCollection(content: string): boolean {
 }
 
 /** Converts a Postman collection JSON string to an OpenAPI JSON string */
-export async function convertPostmanToOpenApi(
-  postmanJson: string,
-): Promise<string> {
+export async function convertPostmanToOpenApi(postmanJson: string): Promise<string> {
   try {
     const postmanCollection = JSON.parse(postmanJson)
     const openApiDoc = convert(postmanCollection)

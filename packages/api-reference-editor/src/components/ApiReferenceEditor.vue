@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {
   Layouts,
-  type ReferenceConfiguration,
   useHttpClientStore,
   useReactiveSpec,
+  type ReferenceConfiguration,
 } from '@scalar/api-reference'
+
 import '@scalar/api-reference/style.css'
+
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'

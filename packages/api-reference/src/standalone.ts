@@ -12,15 +12,12 @@ import { default as ApiReference } from './components/ApiReference.vue'
 const getSpecScriptTag = () => document.getElementById('api-reference')
 const specElement = document.querySelector('[data-spec]')
 const specUrlElement = document.querySelector('[data-spec-url]')
-const configurationScriptElement = document.querySelector(
-  '#api-reference[data-configuration]',
-)
+const configurationScriptElement = document.querySelector('#api-reference[data-configuration]')
 
 const getConfiguration = (): ReferenceConfiguration => {
   // <script data-configuration="{ … }" />
   if (configurationScriptElement) {
-    const configurationFromElement =
-      configurationScriptElement.getAttribute('data-configuration')
+    const configurationFromElement = configurationScriptElement.getAttribute('data-configuration')
 
     if (configurationFromElement) {
       return {
@@ -113,9 +110,7 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
     'font-family: monospace;',
   )
 } else {
-  const specOrSpecUrl = getSpec()
-    ? { content: getSpec() }
-    : { url: getSpecUrl() }
+  const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
 
   Object.assign(props, {
     configuration: {

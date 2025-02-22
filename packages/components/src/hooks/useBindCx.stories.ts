@@ -6,9 +6,7 @@ import { useBindCx } from './useBindCx'
 
 const attrsToList = (attrs?: Record<string, any>) =>
   Object.entries(attrs || {})
-    .map(([key, value]) =>
-      typeof value === 'string' ? `${key}="${value}"` : `:${key}="${value}"`,
-    )
+    .map(([key, value]) => (typeof value === 'string' ? `${key}="${value}"` : `:${key}="${value}"`))
     .join(' ')
 
 const variants = cva({

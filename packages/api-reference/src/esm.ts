@@ -1,8 +1,5 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import type {
-  ReferenceConfiguration,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { ReferenceConfiguration, SpecConfiguration } from '@scalar/types/legacy'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
@@ -29,9 +26,7 @@ export function createScalarReferences(
 
   function mount(mountingEl = el) {
     if (!mountingEl) {
-      console.warn(
-        'Invalid HTML element provided. Cannot mount Scalar References',
-      )
+      console.warn('Invalid HTML element provided. Cannot mount Scalar References')
       return
     }
     app.mount(mountingEl)

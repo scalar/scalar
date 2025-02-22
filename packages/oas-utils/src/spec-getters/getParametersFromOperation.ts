@@ -15,18 +15,13 @@ export function getParametersFromOperation(
   where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
   requiredOnly: boolean = true,
 ): BaseParameter[] {
-  const parameters = [
-    ...(operation.pathParameters || []),
-    ...(operation.information?.parameters || []),
-  ]
+  const parameters = [...(operation.pathParameters || []), ...(operation.information?.parameters || [])]
 
   const params = parameters
     // query, path, header, cookie?
     .filter((parameter) => parameter.in === where)
     // don’t add optional parameters
-    .filter(
-      (parameter) => (requiredOnly && parameter.required) || !requiredOnly,
-    )
+    .filter((parameter) => (requiredOnly && parameter.required) || !requiredOnly)
     // transform them
     .map((parameter) => ({
       name: parameter.name,

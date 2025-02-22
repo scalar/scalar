@@ -21,9 +21,7 @@ describe('cx utility', () => {
   it('should handle conditional classes', () => {
     const isActive = true
     const isDisabled = false
-    expect(cx('base', isActive && 'active', isDisabled && 'disabled')).toBe(
-      'base active',
-    )
+    expect(cx('base', isActive && 'active', isDisabled && 'disabled')).toBe('base active')
   })
 
   it('should handle tailwind conflicts', () => {
@@ -58,12 +56,8 @@ describe('cva utility', () => {
     })
 
     expect(button()).toBe('px-4 py-2 rounded bg-blue text-white text-sm')
-    expect(button({ intent: 'secondary' })).toBe(
-      'px-4 py-2 rounded bg-gray text-black text-sm',
-    )
-    expect(button({ size: 'lg' })).toBe(
-      'px-4 py-2 rounded bg-blue text-white text-lg',
-    )
+    expect(button({ intent: 'secondary' })).toBe('px-4 py-2 rounded bg-gray text-black text-sm')
+    expect(button({ size: 'lg' })).toBe('px-4 py-2 rounded bg-blue text-white text-lg')
   })
 
   it('should handle compound variants', () => {

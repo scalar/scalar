@@ -19,10 +19,7 @@ export function getModels(spec?: Spec) {
           ? spec?.definitions
           : // Fallback
             {}
-    ) as
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
+    ) as OpenAPIV2.DefinitionsObject | Record<string, OpenAPIV3.SchemaObject> | Record<string, OpenAPIV3_1.SchemaObject>
 
   // Filter out all schemas with `x-internal: true`
   Object.keys(models ?? {}).forEach((key) => {

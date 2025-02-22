@@ -12,10 +12,7 @@ export const yaml = {
     return yamlObject as UnknownObject
   },
   /** Parse and return a fallback on failure */
-  parseSafe<T extends PrimitiveOrObject>(
-    val: string,
-    fallback: T | ((err: any) => T),
-  ): UnknownObject | T {
+  parseSafe<T extends PrimitiveOrObject>(val: string, fallback: T | ((err: any) => T)): UnknownObject | T {
     try {
       return yaml.parse(val)
     } catch (err: any) {
@@ -34,10 +31,7 @@ export const json = {
     return jsonObject
   },
   /** Parse and return a fallback on failure */
-  parseSafe<T extends PrimitiveOrObject>(
-    val: string,
-    fallback: T | ((err: any) => T),
-  ): UnknownObject | T {
+  parseSafe<T extends PrimitiveOrObject>(val: string, fallback: T | ((err: any) => T)): UnknownObject | T {
     try {
       return json.parse(val)
     } catch (err) {
@@ -80,9 +74,7 @@ export function formatJsonOrYamlString(value: string) {
 }
 
 /** Parse JSON or YAML into an object */
-export const parseJsonOrYaml = (
-  value: string | UnknownObject,
-): UnknownObject => {
+export const parseJsonOrYaml = (value: string | UnknownObject): UnknownObject => {
   if (typeof value !== 'string') return value
 
   const jsonObject = json.parseSafe(value, null)

@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ScalarIcon } from '@scalar/components'
+import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
+
 import {
   DataTableCell,
   DataTableCheckbox,
   DataTableRow,
 } from '@/components/DataTable'
 import type { UpdateScheme } from '@/store'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
-import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
-import { computed } from 'vue'
 
 const { flow, updateScheme } = defineProps<{
   flow: Oauth2Flow
@@ -43,16 +44,16 @@ function setScope(id: string, checked: boolean) {
 </script>
 
 <template>
-  <DataTableCell class="items-center min-h-8 h-auto !max-h-[initial]">
+  <DataTableCell class="h-auto !max-h-[initial] min-h-8 items-center">
     <div class="flex h-fit w-full">
-      <div class="text-c-1 items-center h-full"></div>
+      <div class="text-c-1 h-full items-center"></div>
       <Disclosure
         as="div"
-        class="flex flex-col w-full bl">
+        class="bl flex w-full flex-col">
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-3 pr-2 hover:text-c-1 cursor-pointer',
+            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 pr-2 text-left',
             (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
@@ -75,7 +76,7 @@ function setScope(id: string, checked: boolean) {
               class="text-c-2"
               @click="setScope(id, !selectedScopes.includes(id))">
               <DataTableCell
-                class="w-full px-3 py-1.5 hover:text-c-1 cursor-pointer !max-h-[initial]">
+                class="hover:text-c-1 !max-h-[initial] w-full cursor-pointer px-3 py-1.5">
                 <span>
                   <span v-if="description">
                     <span class="font-code text-xs">{{ label }}</span>

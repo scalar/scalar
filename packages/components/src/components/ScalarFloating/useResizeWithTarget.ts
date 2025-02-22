@@ -33,11 +33,7 @@ export function useResizeWithTarget(
   )
 
   return {
-    width: computed(() =>
-      toValue(opts.enabled) ? `${targetWidth.value}px` : undefined,
-    ),
-    height: computed(() =>
-      toValue(opts.enabled) ? `${targetHeight.value}px` : undefined,
-    ),
+    width: computed(() => (toValue(opts.enabled) ? `${targetWidth.value}px` : undefined)),
+    height: computed(() => (toValue(opts.enabled) ? `${targetHeight.value}px` : undefined)),
   }
 }

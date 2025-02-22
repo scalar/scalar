@@ -10,9 +10,7 @@ const DEFAULT_REQUEST_METHOD = 'get'
 export const normalizeRequestMethod = (method?: string): RequestMethod => {
   // Make sure it’s a string
   if (typeof method !== 'string') {
-    console.warn(
-      `Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`,
-    )
+    console.warn(`Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
 
     return DEFAULT_REQUEST_METHOD
   }
@@ -21,9 +19,7 @@ export const normalizeRequestMethod = (method?: string): RequestMethod => {
   const normalizedMethod = method.trim().toUpperCase()
 
   if (!isRequestMethod(normalizedMethod)) {
-    console.warn(
-      `${method} is not a valid request method. Using ${DEFAULT_REQUEST_METHOD} as the default.`,
-    )
+    console.warn(`${method} is not a valid request method. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
 
     return DEFAULT_REQUEST_METHOD
   }

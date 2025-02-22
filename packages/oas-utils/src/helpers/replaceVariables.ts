@@ -3,9 +3,7 @@
  */
 export function replaceVariables(
   value: string,
-  variablesOrCallback:
-    | Record<string, string | number>
-    | ((match: string) => string),
+  variablesOrCallback: Record<string, string | number> | ((match: string) => string),
 ) {
   // Replace all variables (example: {{ baseurl }} with an HTML tag)
   const doubleCurlyBrackets = /{{\s*([\w.-]+)\s*}}/g
@@ -20,7 +18,5 @@ export function replaceVariables(
   }
 
   // Loop through all matches and replace the match with the variable value
-  return value
-    .replace(doubleCurlyBrackets, callback)
-    .replace(singleCurlyBrackets, callback)
+  return value.replace(doubleCurlyBrackets, callback).replace(singleCurlyBrackets, callback)
 }

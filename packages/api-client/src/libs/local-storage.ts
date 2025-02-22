@@ -11,11 +11,7 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { schemaModel } from '@scalar/oas-utils/helpers'
-import {
-  DATA_VERSION,
-  DATA_VERSION_LS_LEY,
-  migrator,
-} from '@scalar/oas-utils/migrations'
+import { DATA_VERSION, DATA_VERSION_LS_LEY, migrator } from '@scalar/oas-utils/migrations'
 import type { ZodSchema, ZodTypeDef } from 'zod'
 
 /** Loads the migrated resource into the mutator safely */
@@ -70,18 +66,10 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
     loadResources(collections, collectionSchema, collectionMutators.rawAdd)
     loadResources(cookies, cookieSchema, cookieMutators.add)
     loadResources(environments, environmentSchema, environmentMutators.add)
-    loadResources(
-      requestExamples,
-      requestExampleSchema,
-      requestExampleMutators.rawAdd,
-    )
+    loadResources(requestExamples, requestExampleSchema, requestExampleMutators.rawAdd)
     loadResources(requests, requestSchema, requestMutators.rawAdd)
     loadResources(servers, serverSchema, serverMutators.rawAdd)
-    loadResources(
-      securitySchemes,
-      securitySchemeSchema,
-      securitySchemeMutators.rawAdd,
-    )
+    loadResources(securitySchemes, securitySchemeSchema, securitySchemeMutators.rawAdd)
     loadResources(tags, tagSchema, tagMutators.rawAdd)
     loadResources(workspaces, workspaceSchema, workspaceMutators.rawAdd)
 

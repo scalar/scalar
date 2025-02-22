@@ -58,12 +58,9 @@ function setParsedSpec(spec: Spec) {
     return titleA.localeCompare(titleB)
   }
   // Sort function for operations by method
-  const sortByMethod = (a: TransformedOperation, b: TransformedOperation) =>
-    a.httpVerb.localeCompare(b.httpVerb)
+  const sortByMethod = (a: TransformedOperation, b: TransformedOperation) => a.httpVerb.localeCompare(b.httpVerb)
 
-  let operationSorterFunc:
-    | ((a: TransformedOperation, b: TransformedOperation) => number)
-    | undefined
+  let operationSorterFunc: ((a: TransformedOperation, b: TransformedOperation) => number) | undefined
 
   // Sort operations alphabetically
   if (optionsRef.operationsSorter === 'alpha') {
@@ -93,9 +90,7 @@ const defaultOpenAllTags = ref(false)
 // Track which sidebar items are collapsed
 type CollapsedSidebarItems = Record<string, boolean>
 
-const collapsedSidebarItems = reactive<CollapsedSidebarItems>(
-  ssrState['useSidebarContent-collapsedSidebarItems'] ?? {},
-)
+const collapsedSidebarItems = reactive<CollapsedSidebarItems>(ssrState['useSidebarContent-collapsedSidebarItems'] ?? {})
 
 function toggleCollapsedSidebarItem(key: string) {
   collapsedSidebarItems[key] = !collapsedSidebarItems[key]
@@ -126,8 +121,7 @@ function updateHeadings(description: string) {
 const items = computed(() => {
   if (!navState.value) return { entries: [], titles: {} }
 
-  const { getHeadingId, getModelId, getOperationId, getTagId, getWebhookId } =
-    navState.value
+  const { getHeadingId, getModelId, getOperationId, getTagId, getWebhookId } = navState.value
 
   // Check whether the API client is visible
   const titlesById: Record<string, string> = {}
@@ -163,9 +157,7 @@ const items = computed(() => {
 
   // Check whether there is more than one default tag
   const moreThanOneDefaultTag = (tags?: Tag[]) =>
-    tags?.length !== 1 ||
-    tags[0].name !== 'default' ||
-    tags[0].description !== ''
+    tags?.length !== 1 || tags[0].name !== 'default' || tags[0].description !== ''
 
   const operationEntries: SidebarEntry[] | undefined =
     firstTag && moreThanOneDefaultTag(parsedSpec.value?.tags)
@@ -178,22 +170,20 @@ const items = computed(() => {
               title: tag.name,
               displayTitle: tag['x-displayName'] ?? tag.name,
               show: true,
-              children: tag.operations?.map(
-                (operation: TransformedOperation) => {
-                  const id = getOperationId(operation, tag)
-                  const title = operation.name ?? operation.path
-                  titlesById[id] = title
+              children: tag.operations?.map((operation: TransformedOperation) => {
+                const id = getOperationId(operation, tag)
+                const title = operation.name ?? operation.path
+                titlesById[id] = title
 
-                  return {
-                    id,
-                    title,
-                    httpVerb: operation.httpVerb,
-                    deprecated: isOperationDeprecated(operation),
-                    show: true,
-                    select: () => {},
-                  }
-                },
-              ),
+                return {
+                  id,
+                  title,
+                  httpVerb: operation.httpVerb,
+                  deprecated: isOperationDeprecated(operation),
+                  show: true,
+                  select: () => {},
+                }
+              }),
             }
           })
       : firstTag?.operations?.map((operation) => {
@@ -219,19 +209,16 @@ const items = computed(() => {
             id: getModelId(),
             title: 'Models',
             show: true,
-            children: Object.keys(getModels(parsedSpec.value) ?? {}).map(
-              (name) => {
-                const id = getModelId({ name })
-                titlesById[id] = name
+            children: Object.keys(getModels(parsedSpec.value) ?? {}).map((name) => {
+              const id = getModelId({ name })
+              titlesById[id] = name
 
-                return {
-                  id,
-                  title:
-                    (getModels(parsedSpec.value)?.[name] as any).title ?? name,
-                  show: true,
-                }
-              },
-            ),
+              return {
+                id,
+                title: (getModels(parsedSpec.value)?.[name] as any).title ?? name,
+                show: true,
+              }
+            }),
           },
         ]
       : []
@@ -248,27 +235,23 @@ const items = computed(() => {
               const id = getWebhookId({ name })
               titlesById[id] = name
 
-              return (
-                Object.keys(
-                  parsedSpec.value?.webhooks?.[name] ?? {},
-                ) as OpenAPIV3_1.HttpMethods[]
-              ).map((httpVerb) => {
-                return {
-                  id: getWebhookId({ name, method: httpVerb }),
-                  title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
-                  httpVerb: httpVerb as string,
-                  show: true,
-                }
-              })
+              return (Object.keys(parsedSpec.value?.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]).map(
+                (httpVerb) => {
+                  return {
+                    id: getWebhookId({ name, method: httpVerb }),
+                    title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
+                    httpVerb: httpVerb as string,
+                    show: true,
+                  }
+                },
+              )
             })
             .flat() as SidebarEntry[],
         },
       ]
     : []
 
-  const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.[
-    'x-tagGroups'
-  ]
+  const groupOperations: SidebarEntry[] | undefined = parsedSpec.value?.['x-tagGroups']
     ? parsedSpec.value?.['x-tagGroups']?.map((tagGroup) => {
         const children: SidebarEntry[] = []
         tagGroup.tags?.map((tagName: string) => {
@@ -283,9 +266,7 @@ const items = computed(() => {
             // Don’t show default webhooks entry
             webhookEntries = []
           } else {
-            const tag = operationEntries?.find(
-              (entry) => entry.title === tagName,
-            )
+            const tag = operationEntries?.find((entry) => entry.title === tagName)
 
             if (tag) {
               children.push(tag)
@@ -329,9 +310,7 @@ const items = computed(() => {
  */
 const isSidebarOpen = ref(false)
 
-const breadcrumb = computed(
-  () => items.value?.titles?.[navState.value?.hash ?? ''] ?? '',
-)
+const breadcrumb = computed(() => items.value?.titles?.[navState.value?.hash ?? ''] ?? '')
 
 export type ParsedSpecOption = {
   parsedSpec: Spec
@@ -339,10 +318,7 @@ export type ParsedSpecOption = {
 
 export type SorterOption = {
   tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number)
-  operationsSorter?:
-    | 'alpha'
-    | 'method'
-    | ((a: TransformedOperation, b: TransformedOperation) => number)
+  operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number)
 }
 
 /**

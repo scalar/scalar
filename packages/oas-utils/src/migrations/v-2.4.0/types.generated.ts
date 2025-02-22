@@ -130,14 +130,7 @@ export namespace v_2_4_0 {
     body: {
       raw?:
         | {
-            encoding:
-              | 'json'
-              | 'text'
-              | 'html'
-              | 'javascript'
-              | 'xml'
-              | 'yaml'
-              | 'edn'
+            encoding: 'json' | 'text' | 'html' | 'javascript' | 'xml' | 'yaml' | 'edn'
             value: string
           }
         | undefined
@@ -259,15 +252,7 @@ export namespace v_2_4_0 {
           schema?: unknown | undefined
           content?: unknown | undefined
           style?:
-            | (
-                | 'matrix'
-                | 'simple'
-                | 'form'
-                | 'label'
-                | 'spaceDelimited'
-                | 'pipeDelimited'
-                | 'deepObject'
-              )
+            | ('matrix' | 'simple' | 'form' | 'label' | 'spaceDelimited' | 'pipeDelimited' | 'deepObject')
             | undefined
           example?: unknown | undefined
           examples?:
@@ -297,16 +282,7 @@ export namespace v_2_4_0 {
     'type': 'request'
     'uid': string
     'path': string
-    'method':
-      | 'connect'
-      | 'delete'
-      | 'get'
-      | 'head'
-      | 'options'
-      | 'patch'
-      | 'post'
-      | 'put'
-      | 'trace'
+    'method': 'connect' | 'delete' | 'get' | 'head' | 'options' | 'patch' | 'post' | 'put' | 'trace'
     'servers': string[]
     'selectedServerUid': string
     'examples': string[]
@@ -440,9 +416,7 @@ export namespace v_2_4_0 {
           hotKeys?:
             | {
                 [x: string]: {
-                  modifiers?:
-                    | ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[]
-                    | undefined
+                  modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[] | undefined
                   event:
                     | 'addTopNav'
                     | 'closeModal'

@@ -30,9 +30,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
 
         // Folder -> tag
         else if (oldData.folders[uid]) {
-          const { requestUids, tagUids, authUids } = flattenChildren(
-            oldData.folders[uid].childUids ?? [],
-          )
+          const { requestUids, tagUids, authUids } = flattenChildren(oldData.folders[uid].childUids ?? [])
           prev.tagUids.add(uid)
           requestUids.forEach((r) => prev.requestUids.add(r))
           tagUids.forEach((t) => prev.tagUids.add(t))
@@ -49,9 +47,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
     )
 
   /** Migrate values from old securitySchemes to the new auth */
-  const migrateAuth = (
-    scheme: v_0_0_0.SecurityScheme,
-  ): NonNullable<v_2_1_0.Collection['auth']>[string] => {
+  const migrateAuth = (scheme: v_0_0_0.SecurityScheme): NonNullable<v_2_1_0.Collection['auth']>[string] => {
     if (scheme.type === 'apiKey')
       // ApiKey
       return { type: 'apiKey', name: scheme.name, value: scheme.value ?? '' }
@@ -110,18 +106,11 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   const requestSecurityDict: Record<string, string[]> = {}
 
   // Collections
-  const collections = Object.values(oldData.collections ?? {}).reduce<
-    v_2_1_0.DataRecord['collections']
-  >((prev, c) => {
-    const { requestUids, tagUids, authUids } = flattenChildren(
-      c.childUids ?? [],
-    )
+  const collections = Object.values(oldData.collections ?? {}).reduce<v_2_1_0.DataRecord['collections']>((prev, c) => {
+    const { requestUids, tagUids, authUids } = flattenChildren(c.childUids ?? [])
 
     // Ensure we got unique uids
-    const securitySchemesSet = new Set([
-      ...authUids,
-      ...Object.values(c.securitySchemeDict ?? {}),
-    ])
+    const securitySchemesSet = new Set([...authUids, ...Object.values(c.securitySchemeDict ?? {})])
     const securitySchemes = [...securitySchemesSet]
 
     // Add this auth to each request
@@ -163,20 +152,19 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   const cookies = oldData.cookies ?? {}
 
   // Environments
-  const environments = Object.values(oldData.environments ?? {}).reduce<
-    v_2_1_0.DataRecord['environments']
-  >((prev, e) => {
-    prev[e.uid] = {
-      ...e,
-      value: e.raw ?? '',
-    }
-    return prev
-  }, {})
+  const environments = Object.values(oldData.environments ?? {}).reduce<v_2_1_0.DataRecord['environments']>(
+    (prev, e) => {
+      prev[e.uid] = {
+        ...e,
+        value: e.raw ?? '',
+      }
+      return prev
+    },
+    {},
+  )
 
   // Requests
-  const requests = Object.values(oldData.requests ?? {}).reduce<
-    v_2_1_0.DataRecord['requests']
-  >((prev, r) => {
+  const requests = Object.values(oldData.requests ?? {}).reduce<v_2_1_0.DataRecord['requests']>((prev, r) => {
     // Convert parameters
     const parameters: v_2_1_0.Request['parameters'] = [
       ...Object.values(r.parameters?.path ?? {}),
@@ -186,9 +174,9 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
     ].filter((p) => p)
 
     // Ensure this request can access these schemes
-    const selectedSecuritySchemeUids = (
-      r.selectedSecuritySchemeUids || []
-    ).filter((s) => requestSecurityDict[r.uid]?.includes(s))
+    const selectedSecuritySchemeUids = (r.selectedSecuritySchemeUids || []).filter((s) =>
+      requestSecurityDict[r.uid]?.includes(s),
+    )
 
     prev[r.uid] = {
       ...r,
@@ -204,20 +192,18 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   }, {})
 
   // Request Examples
-  const requestExamples = Object.values(oldData.requestExamples ?? {}).reduce<
-    v_2_1_0.DataRecord['requestExamples']
-  >((prev, e) => {
-    prev[e.uid] = {
-      ...e,
-      type: 'requestExample',
-    }
-    return prev
-  }, {})
+  const requestExamples = Object.values(oldData.requestExamples ?? {}).reduce<v_2_1_0.DataRecord['requestExamples']>(
+    (prev, e) => {
+      prev[e.uid] = {
+        ...e,
+        type: 'requestExample',
+      }
+      return prev
+    },
+    {},
+  )
 
-  type Oauth2 = Exclude<
-    v_2_1_0.SecurityScheme,
-    { type: 'http' } | { type: 'apiKey' } | { type: 'openIdConnect' }
-  >
+  type Oauth2 = Exclude<v_2_1_0.SecurityScheme, { type: 'http' } | { type: 'apiKey' } | { type: 'openIdConnect' }>
 
   type Flow = Extract<v_0_0_0.SecurityScheme, { type: 'oauth2' }>['flow']
 
@@ -234,8 +220,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
         ...flow,
         ...base,
         'type': 'implicit',
-        'x-scalar-redirect-uri':
-          ('redirectUri' in flow ? flow.redirectUri : '') || '',
+        'x-scalar-redirect-uri': ('redirectUri' in flow ? flow.redirectUri : '') || '',
       }
     if (flow.type === 'password')
       return {
@@ -254,8 +239,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
       ...flow,
       ...base,
       'x-usePkce': 'no',
-      'x-scalar-redirect-uri':
-        ('redirectUri' in flow ? flow.redirectUri : '') || '',
+      'x-scalar-redirect-uri': ('redirectUri' in flow ? flow.redirectUri : '') || '',
       'authorizationUrl': flow.authorizationUrl || '',
       'tokenUrl': flow.tokenUrl || '',
     }
@@ -279,28 +263,24 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   }
 
   // Security Schemes
-  const securitySchemes = Object.values(oldData.securitySchemes ?? {}).reduce<
-    v_2_1_0.DataRecord['securitySchemes']
-  >((prev, s) => {
-    prev[s.uid] =
-      s.type === 'oauth2'
-        ? ({
-            ...s,
-            'nameKey': getNameKey(s),
-            'x-scalar-client-id': s.clientId || '',
-            'flow': migrateFlow(s.flow),
-          } satisfies Oauth2)
-        : ({ ...s, nameKey: getNameKey(s) } satisfies Exclude<
-            v_2_1_0.SecurityScheme,
-            { type: 'oauth2' }
-          >)
-    return prev
-  }, {})
+  const securitySchemes = Object.values(oldData.securitySchemes ?? {}).reduce<v_2_1_0.DataRecord['securitySchemes']>(
+    (prev, s) => {
+      prev[s.uid] =
+        s.type === 'oauth2'
+          ? ({
+              ...s,
+              'nameKey': getNameKey(s),
+              'x-scalar-client-id': s.clientId || '',
+              'flow': migrateFlow(s.flow),
+            } satisfies Oauth2)
+          : ({ ...s, nameKey: getNameKey(s) } satisfies Exclude<v_2_1_0.SecurityScheme, { type: 'oauth2' }>)
+      return prev
+    },
+    {},
+  )
 
   // Servers
-  const servers = Object.values(oldData.servers ?? {}).reduce<
-    v_2_1_0.DataRecord['servers']
-  >((prev, s) => {
+  const servers = Object.values(oldData.servers ?? {}).reduce<v_2_1_0.DataRecord['servers']>((prev, s) => {
     prev[s.uid] = {
       ...s,
       variables: s.variables ?? {},
@@ -309,9 +289,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   }, {})
 
   // Tags
-  const tags = Object.values(oldData.folders ?? {}).reduce<
-    v_2_1_0.DataRecord['tags']
-  >((prev, f) => {
+  const tags = Object.values(oldData.folders ?? {}).reduce<v_2_1_0.DataRecord['tags']>((prev, f) => {
     prev[f.uid] = {
       'type': 'tag',
       'uid': f.uid,
@@ -324,9 +302,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   }, {})
 
   // Workspaces
-  const workspaces = Object.values(oldData.workspaces ?? {}).reduce<
-    v_2_1_0.DataRecord['workspaces']
-  >((prev, w) => {
+  const workspaces = Object.values(oldData.workspaces ?? {}).reduce<v_2_1_0.DataRecord['workspaces']>((prev, w) => {
     prev[w.uid] = {
       ...w,
       description: w.description ?? 'Basic Scalar Workspace',

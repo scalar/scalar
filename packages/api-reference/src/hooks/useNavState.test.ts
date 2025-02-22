@@ -48,9 +48,7 @@ describe('useNavState', () => {
     })
 
     it('should generate model ID', () => {
-      expect(navState.getModelId({ name: 'Test Model' })).toBe(
-        'model/test-model',
-      )
+      expect(navState.getModelId({ name: 'Test Model' })).toBe('model/test-model')
     })
 
     it('should generate tag ID', () => {
@@ -72,15 +70,11 @@ describe('useNavState', () => {
         description: 'Test Description',
         operations: [],
       } satisfies Tag
-      expect(navState.getOperationId(operation, parentTag)).toBe(
-        'tag/test-tag/GET/test',
-      )
+      expect(navState.getOperationId(operation, parentTag)).toBe('tag/test-tag/GET/test')
     })
 
     it('should generate webhook ID', () => {
-      expect(
-        navState.getWebhookId({ name: 'Test Webhook', method: 'POST' }),
-      ).toBe('webhook/POST/test-webhook')
+      expect(navState.getWebhookId({ name: 'Test Webhook', method: 'POST' })).toBe('webhook/POST/test-webhook')
     })
   })
 
@@ -107,9 +101,7 @@ describe('useNavState', () => {
     })
 
     it('should use custom model slug generator', () => {
-      expect(navState.getModelId({ name: 'Test Model' })).toBe(
-        'model/custom-model',
-      )
+      expect(navState.getModelId({ name: 'Test Model' })).toBe('model/custom-model')
     })
 
     it('should use custom tag slug generator', () => {

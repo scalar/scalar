@@ -43,20 +43,13 @@ export function parseCurlCommand(curlCommand: string) {
       arg === '--data-ascii'
     ) {
       parseData(iterator as Iterator<string>, result, curlCommand)
-    } else if (
-      typeof arg === 'string' &&
-      !result.url &&
-      (arg.startsWith('http') || arg.startsWith('www.'))
-    ) {
+    } else if (typeof arg === 'string' && !result.url && (arg.startsWith('http') || arg.startsWith('www.'))) {
       // Extract URL e.g curl https://example.com
       parseUrl([arg][Symbol.iterator]() as Iterator<string>, result)
     } else if (arg === '-P') {
       // Extract path variables e.g -P 'foo=bar'
       parsePathVariables(iterator as Iterator<string>, result)
-    } else if (
-      typeof arg === 'string' &&
-      arg.toLowerCase().includes('content-type')
-    ) {
+    } else if (typeof arg === 'string' && arg.toLowerCase().includes('content-type')) {
       // Extract Content-Type header e.g -H 'Content-Type: application/json'
       parseContentType(arg, result)
     } else if (arg === '-u' || arg === '--user') {
@@ -151,11 +144,7 @@ function parseAuth(iterator: Iterator<string>, result: any) {
 
     result.headers['Authorization'] = `Basic ${encodedAuth}`
   } catch (error) {
-    console.warn(
-      'Could not base64 encode these HTTP basic auth credentials:',
-      auth,
-      error,
-    )
+    console.warn('Could not base64 encode these HTTP basic auth credentials:', auth, error)
   }
 }
 
@@ -171,11 +160,7 @@ function parseCookie(iterator: Iterator<string>, result: any) {
 }
 
 /** Parse data from a curl command */
-function parseData(
-  iterator: Iterator<string>,
-  result: any,
-  curlCommand: string,
-) {
+function parseData(iterator: Iterator<string>, result: any, curlCommand: string) {
   const nextArg = iterator.next().value
   if (typeof nextArg === 'string') {
     if (nextArg.startsWith('@')) {
@@ -187,9 +172,7 @@ function parseData(
     // Parse query parameters from body if URL is not present
     if (!result.url || curlCommand.includes('-G')) {
       const newQueryParams = parseQueryParameters(`?${result.body}`)
-      result.queryParameters = result.queryParameters
-        ? [...result.queryParameters, ...newQueryParams]
-        : newQueryParams
+      result.queryParameters = result.queryParameters ? [...result.queryParameters, ...newQueryParams] : newQueryParams
     }
   }
 }

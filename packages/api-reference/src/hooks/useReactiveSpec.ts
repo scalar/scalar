@@ -1,8 +1,4 @@
-import {
-  fetchSpecFromUrl,
-  isValidUrl,
-  prettyPrintJson,
-} from '@scalar/oas-utils/helpers'
+import { fetchSpecFromUrl, isValidUrl, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/legacy'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
@@ -18,10 +14,7 @@ import { parse } from '../helpers/parse'
  * 4. If the content is a function, call it and get the content.
  * 5. Otherwise, return an empty string.
  */
-const getSpecContent = async (
-  { url, content }: SpecConfiguration,
-  proxyUrl?: string,
-): Promise<string | undefined> => {
+const getSpecContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string): Promise<string | undefined> => {
   // If the URL is provided, fetch the API definition from the URL
   if (url) {
     const start = performance.now()
@@ -31,9 +24,7 @@ const getSpecContent = async (
 
       // If the url is not valid, we can assume its a path and
       // if it’s a path we can skip the proxy.
-      const result = !isValidUrl(url)
-        ? await fetchSpecFromUrl(url)
-        : await fetchSpecFromUrl(url, proxyUrl)
+      const result = !isValidUrl(url) ? await fetchSpecFromUrl(url) : await fetchSpecFromUrl(url, proxyUrl)
 
       const end = performance.now()
       console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
@@ -108,9 +99,7 @@ export function useReactiveSpec({
     () => toValue(specConfig),
     async (newConfig) => {
       if (newConfig) {
-        const specContent = (
-          await getSpecContent(newConfig, toValue(proxyUrl))
-        )?.trim()
+        const specContent = (await getSpecContent(newConfig, toValue(proxyUrl)))?.trim()
         if (typeof specContent === 'string') rawSpec.value = specContent
       }
     },

@@ -19,10 +19,9 @@ describe('useSearchIndex', () => {
       }),
     )
 
-    const { searchText, fuseSearch, searchResultsWithPlaceholderResults } =
-      useSearchIndex({
-        specification: toRef(specification),
-      })
+    const { searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearchIndex({
+      specification: toRef(specification),
+    })
 
     searchText.value = 'request'
 

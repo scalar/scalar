@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  flattenEnvVars,
-  getDotPathValue,
-  replaceTemplateVariables,
-} from './string-template'
+import { flattenEnvVars, getDotPathValue, replaceTemplateVariables } from './string-template'
 
 describe('Gets nested values from an object', () => {
   it('Gets basic value', () => {
@@ -39,31 +35,19 @@ describe('Replaces template vars with context values', () => {
     },
   }
   it('Handles double curly variable substitution', () => {
-    const res = replaceTemplateVariables(
-      'My name is {{name}} from {{address.city}}',
-      ctx,
-    )
+    const res = replaceTemplateVariables('My name is {{name}} from {{address.city}}', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
   it('Handles single curly variable substitution', () => {
-    const res = replaceTemplateVariables(
-      'My name is {name} from { address.city }',
-      ctx,
-    )
+    const res = replaceTemplateVariables('My name is {name} from { address.city }', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
   it('Handles colon variable substitution', () => {
-    const res = replaceTemplateVariables(
-      'My name is :name from :address.city',
-      ctx,
-    )
+    const res = replaceTemplateVariables('My name is :name from :address.city', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
   it('Handles object conversion to string', () => {
-    const res = replaceTemplateVariables(
-      'My name is {{name}} from {{address}}',
-      ctx,
-    )
+    const res = replaceTemplateVariables('My name is {{name}} from {{address}}', ctx)
 
     expect(res).toEqual(`My name is Dave from ${JSON.stringify(ctx.address)}`)
   })
