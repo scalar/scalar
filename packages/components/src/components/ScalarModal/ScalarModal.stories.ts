@@ -40,9 +40,9 @@ export const Base: Story = {
         v-bind="args">
         <div class="col gap-4">
           <div>You can put some nice content here, or even ask a nice question</div>
-          <div class="col md:row gap-2">
-            <ScalarButton variant="outlined" @click="modalState.hide()" fullWidth>Cancel</ScalarButton>
-            <ScalarButton @click="modalState.hide()" fullWidth>Go ahead</ScalarButton>
+          <div class="flex *:flex-1 gap-2">
+            <ScalarButton variant="outlined" @click="modalState.hide()" >Cancel</ScalarButton>
+            <ScalarButton @click="modalState.hide()">Go ahead</ScalarButton>
           </div>
         </div>
       </ScalarModal>
@@ -62,8 +62,13 @@ export const Search: Story = {
     components: { ScalarButton, ScalarModal, ScalarSearchInput, ScalarSearchResultList, ScalarSearchResultItem },
     setup() {
       const modalState = useModal()
+      const results = Array.from({ length: 10 }, (_, i) => ({
+        title: `Result ${i + 1}`,
+        description: `This is a description for result ${i + 1}`,
+        addon: 'Addon',
+      }))
       modalState.show()
-      return { args, modalState }
+      return { args, modalState, results }
     },
     template: `
       <ScalarModal
@@ -75,20 +80,13 @@ export const Search: Story = {
           </div>
           <div class="custom-scroll p-3 min-h-0 flex-1">
             <ScalarSearchResultList>
-              <ScalarSearchResultItem icon="Search">
-                Result 1
-                <template #description>This is a description</template>
-                <template #addon>Addon</template>
-              </ScalarSearchResultItem>
-              <ScalarSearchResultItem icon="Search">
-                Result 2 - Extra long result title that might need to be truncated
-                <template #description>This is a really long description that might need to be truncated</template>
-                <template #addon>Addon</template>
-              </ScalarSearchResultItem>
-              <ScalarSearchResultItem icon="Search">
-                Result 3
-                <template #description>This is a description</template>
-                <template #addon>Addon</template>
+              <ScalarSearchResultItem
+                v-for="result in results"
+                :key="result.title"
+                icon="Search">
+                {{ result.title }}
+                <template #description>{{ result.description }}</template>
+                <template #addon>{{ result.addon }}</template>
               </ScalarSearchResultItem>
             </ScalarSearchResultList>
           </div>
@@ -106,7 +104,7 @@ export const Search: Story = {
 
 export const Scrolling: Story = {
   args: {
-    bodyClass: 'custom-scroll',
+    bodyClass: 'custom-scroll border-t mt-3',
   } as any,
   render: (args) => ({
     components: { ScalarButton, ScalarModal },

@@ -221,9 +221,13 @@ function getFullUrlFromHash(href: string) {
           </span>
         </template>
       </ScalarSearchResultItem>
-      <template #query>{{ searchText }}</template>
+      <template #query>
+        {{ searchText }}
+      </template>
     </ScalarSearchResultList>
-    <div class="ref-search-meta">
+    <div
+      aria-hidden="true"
+      class="ref-search-meta">
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
     </div>
