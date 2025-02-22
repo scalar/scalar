@@ -51,7 +51,7 @@ export const requestExampleParametersSchema = z
       data.nullable = true
     }
 
-    // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
+    // Hey, if it's just one value and 'null', we can make it a string and ditch the 'null'.
     if (Array.isArray(data.type) && data.type.length === 2 && data.type.includes('null')) {
       data.type = data.type.find((item) => item !== 'null')
     }
@@ -149,6 +149,7 @@ export const exampleRequestBodySchema = z.object({
     .object({
       encoding: z.enum(exampleRequestBodyEncoding),
       value: z.string().default(''),
+      mimeType: z.string().optional(),
     })
     .optional(),
   formData: z
@@ -396,11 +397,13 @@ export function createExampleFromRequest(request: Request, name: string, server?
 
     const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
 
-    if (contentType === 'application/json') {
+    // Handle JSON and JSON-like mimetypes
+    if (requestBody?.mimeType?.includes('/json') || requestBody?.mimeType?.endsWith('+json')) {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'json',
-        value: requestBody?.text ?? JSON.stringify({}),
+        mimeType: requestBody.mimeType,
+        value: requestBody.text ?? JSON.stringify({}),
       }
     }
 
@@ -445,6 +448,7 @@ export function createExampleFromRequest(request: Request, name: string, server?
 
   const serverVariables = server ? getServerVariableExamples(server) : {}
 
+  console.log('okay whats going on', JSON.parse(JSON.stringify(parameters)), JSON.parse(JSON.stringify(body)))
   // safe parse the example
   const example = schemaModel(
     {
@@ -457,6 +461,8 @@ export function createExampleFromRequest(request: Request, name: string, server?
     requestExampleSchema,
     false,
   )
+
+  console.log('okay whats going on2', JSON.parse(JSON.stringify(example)))
 
   if (!example) {
     console.warn(`Example at ${request.uid} is invalid.`)

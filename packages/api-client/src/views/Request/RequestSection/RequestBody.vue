@@ -68,6 +68,7 @@ const contentTypeOptions = (
 /** Match the activeBody to the contentTypeOptions */
 const activeExampleContentType = computed(() => {
   const { activeBody, formData, raw } = example.body
+  if (raw?.mimeType) return raw.mimeType
   // Form
   if (activeBody === 'formData')
     return formData?.encoding === 'urlencoded'
@@ -235,12 +236,16 @@ const getBodyType = (type: Content) => {
       encoding: undefined,
       header: 'application/octet-stream',
     } as const
-  if (type === 'json')
+  if (type === 'json' || type.endsWith('+json')) {
+    console.log('marc', type)
     return {
       activeBody: 'raw',
       encoding: 'json',
-      header: 'application/json',
+      header: type.endsWith('+json')
+        ? `application/${type}`
+        : 'application/json',
     } as const
+  }
   if (type === 'xml')
     return {
       activeBody: 'raw',
@@ -271,6 +276,7 @@ const getBodyType = (type: Content) => {
 
 /** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
+  console.log('marc', type)
   const { activeBody, encoding, header } = getBodyType(type)
   requestExampleMutators.edit(example.uid, 'body.activeBody', activeBody)
 
@@ -404,6 +410,11 @@ watch(
 watch(
   () => example.uid,
   () => {
+    console.log(
+      JSON.parse(JSON.stringify(example, null, 2)),
+      'marc',
+      JSON.parse(JSON.stringify(operation, null, 2)),
+    )
     operation.method &&
       canMethodHaveBody(operation.method) &&
       updateActiveBody(activeExampleContentType.value as Content)
