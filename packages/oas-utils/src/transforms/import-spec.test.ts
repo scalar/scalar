@@ -1,13 +1,6 @@
 /** @vitest-environment jsdom */
-import type {
-  SecurityScheme,
-  SecuritySchemeOauth2,
-} from '@/entities/spec/security'
-import {
-  getSelectedSecuritySchemeUids,
-  importSpecToWorkspace,
-  parseSchema,
-} from '@/transforms/import-spec'
+import type { SecurityScheme, SecuritySchemeOauth2 } from '@/entities/spec/security'
+import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it, vi } from 'vitest'
@@ -23,97 +16,58 @@ describe('getSelectedSecuritySchemeUids', () => {
 
   it('should return first security requirement when no preferred scheme is provided', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      undefined,
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, undefined, securitySchemeMap)
     expect(result).toEqual(['basic-uid'])
   })
 
   it('should use preferred security scheme when available and valid', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      ['api-key'],
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, ['api-key'], securitySchemeMap)
     expect(result).toEqual(['apikey-uid'])
   })
 
   it('preferred security scheme should override when not in requirements', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      ['oauth2'],
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, ['oauth2'], securitySchemeMap)
     expect(result).toEqual(['oauth-uid'])
   })
 
   it('should set the preferred security scheme when no requirements are provided', () => {
-    const result = getSelectedSecuritySchemeUids(
-      [],
-      ['basic-auth'],
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids([], ['basic-auth'], securitySchemeMap)
     expect(result).toEqual(['basic-uid'])
   })
 
   it('should select multiple security schemes when preferred scheme is an array', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      ['basic-auth', 'api-key'],
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, ['basic-auth', 'api-key'], securitySchemeMap)
     expect(result).toEqual(['basic-uid', 'apikey-uid'])
   })
 
   it('should select multiple security schemes when preferred scheme is an array including complex', () => {
-    const securityRequirements = [
-      'basic-auth',
-      'api-key',
-      ['basic-auth', 'api-key', 'oauth2'],
-    ]
+    const securityRequirements = ['basic-auth', 'api-key', ['basic-auth', 'api-key', 'oauth2']]
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
       [['basic-auth', 'api-key', 'oauth2'], 'api-key'],
       securitySchemeMap,
     )
-    expect(result).toEqual([
-      ['basic-uid', 'apikey-uid', 'oauth-uid'],
-      'apikey-uid',
-    ])
+    expect(result).toEqual([['basic-uid', 'apikey-uid', 'oauth-uid'], 'apikey-uid'])
   })
 
   it('should handle array-type security requirements', () => {
     const securityRequirements = [['basic-auth', 'api-key']]
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      undefined,
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, undefined, securitySchemeMap)
     expect(result).toEqual([['basic-uid', 'apikey-uid']])
   })
 
   it('should handle empty security requirements', () => {
     const securityRequirements: string[] = []
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      undefined,
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, undefined, securitySchemeMap)
     expect(result).toEqual([])
   })
 
   it('should handle undefined preferred scheme', () => {
     const securityRequirements = ['basic-auth']
-    const result = getSelectedSecuritySchemeUids(
-      securityRequirements,
-      undefined,
-      securitySchemeMap,
-    )
+    const result = getSelectedSecuritySchemeUids(securityRequirements, undefined, securitySchemeMap)
     expect(result).toEqual(['basic-uid'])
   })
 })
@@ -132,9 +86,7 @@ describe('importSpecToWorkspace', () => {
 
       expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
       expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
-      expect(
-        res.tags[0].children.includes(Object.values(res.requests)[0].uid),
-      ).toEqual(true)
+      expect(res.tags[0].children.includes(Object.values(res.requests)[0].uid)).toEqual(true)
     })
 
     it('handles a weird Petstore example', async () => {
@@ -186,6 +138,117 @@ describe('importSpecToWorkspace', () => {
         'getToken',
         'getMe',
       ])
+    })
+  })
+
+  describe('info', () => {
+    it('handles missing info object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        // Missing info object
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'API',
+        version: '1.0',
+      })
+    })
+
+    it('handles wrong format for info.title', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          title: 123,
+        },
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'API',
+        version: '1.0',
+      })
+    })
+
+    it('handles wrong format for info.version', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          title: 'My API',
+          version: 123,
+        },
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'My API',
+        version: '1.0',
+      })
+    })
+
+    describe('contact', () => {
+      it('leaves invalid email in contact object as is', async () => {
+        const result = await importSpecToWorkspace({
+          openapi: '3.1.0',
+          info: {
+            contact: {
+              name: 'John Doe',
+              url: 'not-actually-an-url',
+              email: 'invalid @ email.com',
+            },
+          },
+        })
+
+        expect(result.error).toBe(false)
+        expect(result.collection?.info?.contact).toEqual({
+          name: 'John Doe',
+          email: 'invalid @ email.com',
+        })
+      })
+    })
+
+    it('throws away the contact if it’s not even strings', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 123,
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual(undefined)
+    })
+
+    it('deals with incomeplete contact object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 'John Doe',
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual({
+        name: 'John Doe',
+      })
+    })
+
+    it('ignores additional properties in the contact object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 'John Doe',
+            extra: 'extra',
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual({
+        name: 'John Doe',
+      })
     })
   })
 
@@ -348,8 +411,7 @@ describe('importSpecToWorkspace', () => {
       {
         description: 'OpenID Connect Authentication',
         nameKey: 'openIdConnect',
-        openIdConnectUrl:
-          'https://galaxy.scalar.com/.well-known/openid-configuration',
+        openIdConnectUrl: 'https://galaxy.scalar.com/.well-known/openid-configuration',
         type: 'openIdConnect',
       },
     ]
@@ -358,24 +420,19 @@ describe('importSpecToWorkspace', () => {
       const res = await importSpecToWorkspace(galaxy)
       if (res.error) throw res.error
 
-      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(
-        testSchemes,
-      )
+      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(testSchemes)
     })
 
     it('supports the x-defaultClientId extension', async () => {
       const clonedGalaxy: any = structuredClone(galaxy)
-      clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode[
-        'x-defaultClientId'
-      ] = 'test-default-client-id'
+      clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode['x-defaultClientId'] =
+        'test-default-client-id'
 
       const res = await importSpecToWorkspace(clonedGalaxy)
       if (res.error) throw res.error
 
       const authScheme = res.securitySchemes[5] as SecuritySchemeOauth2
-      expect(
-        authScheme.flows.authorizationCode?.['x-scalar-client-id'],
-      ).toEqual('test-default-client-id')
+      expect(authScheme.flows.authorizationCode?.['x-scalar-client-id']).toEqual('test-default-client-id')
     })
 
     it('prefills from the authentication property', async () => {
@@ -432,28 +489,20 @@ describe('importSpecToWorkspace', () => {
       flows.password.username = 'test-username'
       flows.password.password = 'test-password'
 
-      const apiKey = res.securitySchemes.find(
-        ({ nameKey }) => nameKey === 'apiKeyHeader',
-      )
+      const apiKey = res.securitySchemes.find(({ nameKey }) => nameKey === 'apiKeyHeader')
 
-      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(
-        clonedSchemes,
-      )
+      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(clonedSchemes)
       expect(res.collection.selectedSecuritySchemeUids).toEqual([apiKey!.uid])
     })
 
     it('converts scope arrays to objects', async () => {
       const clonedGalaxy: any = structuredClone(galaxy)
-      clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode.scopes =
-        ['read:account', 'read:planets']
+      clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode.scopes = ['read:account', 'read:planets']
 
       const res = await importSpecToWorkspace(clonedGalaxy)
       if (res.error) throw res.error
 
-      expect(
-        (res.securitySchemes[5] as SecuritySchemeOauth2).flows!
-          .authorizationCode!.scopes,
-      ).toEqual({
+      expect((res.securitySchemes[5] as SecuritySchemeOauth2).flows!.authorizationCode!.scopes).toEqual({
         'read:account': '',
         'read:planets': '',
       })
@@ -554,9 +603,7 @@ describe('importSpecToWorkspace', () => {
         },
       }
 
-      const res = await importSpecToWorkspace(
-        specWithGlobalAndOperationSecurity,
-      )
+      const res = await importSpecToWorkspace(specWithGlobalAndOperationSecurity)
       if (res.error) throw res.error
 
       // Operation level security should override global security
@@ -573,9 +620,7 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       expect(res.collection.selectedSecuritySchemeUids).toHaveLength(1)
-      const scheme = res.securitySchemes.find(
-        (s) => s.uid === res.collection.selectedSecuritySchemeUids[0],
-      )
+      const scheme = res.securitySchemes.find((s) => s.uid === res.collection.selectedSecuritySchemeUids[0])
       expect(scheme?.nameKey).toBe('basicAuth')
     })
 
@@ -591,8 +636,7 @@ describe('importSpecToWorkspace', () => {
       })
       if (res.error) throw res.error
 
-      const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows
-        .authorizationCode
+      const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows.authorizationCode
       expect(flow?.['x-scalar-client-id']).toBe('test-client')
       expect(flow?.selectedScopes).toEqual(['read:account'])
     })
@@ -644,14 +688,9 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       const selectedSecuritySchemeUids = [
-        [
-          findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
-          findSchemeUidByKey('basicAuth', res.securitySchemes),
-        ],
+        [findSchemeUidByKey('apiKeyHeader', res.securitySchemes), findSchemeUidByKey('basicAuth', res.securitySchemes)],
       ]
-      expect(res.requests[0].selectedSecuritySchemeUids).toEqual(
-        selectedSecuritySchemeUids,
-      )
+      expect(res.requests[0].selectedSecuritySchemeUids).toEqual(selectedSecuritySchemeUids)
     })
 
     it('handles AND security requirements with setCollectionSecurity', async () => {
@@ -673,15 +712,10 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       const selectedSecuritySchemeUids = [
-        [
-          findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
-          findSchemeUidByKey('basicAuth', res.securitySchemes),
-        ],
+        [findSchemeUidByKey('apiKeyHeader', res.securitySchemes), findSchemeUidByKey('basicAuth', res.securitySchemes)],
       ]
 
-      expect(res.collection.selectedSecuritySchemeUids).toEqual(
-        selectedSecuritySchemeUids,
-      )
+      expect(res.collection.selectedSecuritySchemeUids).toEqual(selectedSecuritySchemeUids)
     })
 
     it('selects the first required scheme as selected', async () => {
@@ -734,8 +768,7 @@ describe('importSpecToWorkspace', () => {
 
   describe('servers', () => {
     it('handles servers with different formats', async () => {
-      const originalLocation =
-        typeof window !== 'undefined' ? window.location : { origin: undefined }
+      const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
       vi.stubGlobal('window', {
         location: {
           origin: 'http://localhost:3000',
@@ -875,11 +908,7 @@ describe('parseSchema', () => {
         name: { type: 'string' },
       },
     })
-    expect(
-      schema.paths?.['/foobar']?.get?.responses?.['200'].content[
-        'application/json'
-      ].schema,
-    ).toMatchObject({
+    expect(schema.paths?.['/foobar']?.get?.responses?.['200'].content['application/json'].schema).toMatchObject({
       type: 'object',
       properties: {
         name: { type: 'string' },
@@ -918,8 +947,7 @@ describe('getServersFromOpenApiDocument', () => {
   })
 
   it('prefixes relative servers with window.location.origin', async () => {
-    const originalLocation =
-      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -932,9 +960,7 @@ describe('getServersFromOpenApiDocument', () => {
 
     if (result.error) throw result.error
 
-    expect(result.servers).toMatchObject([
-      { url: 'http://localhost:3000/api/v1' },
-    ])
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000/api/v1' }])
 
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)
@@ -985,21 +1011,14 @@ describe('getServersFromOpenApiDocument', () => {
 
     if (result.error) throw result.error
 
-    expect(result.servers[0].url).toBe(
-      '{protocol}://api.example.com/{basePath}',
-    )
+    expect(result.servers[0].url).toBe('{protocol}://api.example.com/{basePath}')
     expect(result.servers[0].variables).toBeDefined()
   })
 
   it('handles multiple servers with mixed formats', async () => {
     const result = await importSpecToWorkspace(
       {
-        servers: [
-          { url: 'https://prod.example.com' },
-          { url: '/api/v1' },
-          { url: '{protocol}://dev.example.com' },
-          {},
-        ],
+        servers: [{ url: 'https://prod.example.com' }, { url: '/api/v1' }, { url: '{protocol}://dev.example.com' }, {}],
       },
       {
         baseServerURL: 'https://scalar.com',
@@ -1065,8 +1084,7 @@ describe('getServersFromOpenApiDocument', () => {
 
   it('works without window.location', async () => {
     // Mock window.location for SSR/SSG environments
-    const originalLocation =
-      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', undefined)
 
     const result = await importSpecToWorkspace({
@@ -1082,8 +1100,7 @@ describe('getServersFromOpenApiDocument', () => {
   })
 
   it('uses current window.location.origin servers is empty', async () => {
-    const originalLocation =
-      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',
@@ -1103,8 +1120,7 @@ describe('getServersFromOpenApiDocument', () => {
   })
 
   it('uses current window.location.origin when servers is undefined', async () => {
-    const originalLocation =
-      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    const originalLocation = typeof window !== 'undefined' ? window.location : { origin: undefined }
     vi.stubGlobal('window', {
       location: {
         origin: 'http://localhost:3000',

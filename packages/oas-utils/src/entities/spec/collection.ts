@@ -1,4 +1,5 @@
-import { type ENTITY_BRANDS, nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
+import type { ENTITY_BRANDS } from '@/entities/shared/utility'
+import { nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -18,7 +19,10 @@ export const oasCollectionSchema = z.object({
     .optional()
     .default('3.1.0'),
   'jsonSchemaDialect': z.string().optional(),
-  'info': oasInfoSchema.optional(),
+  'info': oasInfoSchema.catch({
+    title: 'API',
+    version: '1.0',
+  }),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
