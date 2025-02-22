@@ -237,7 +237,6 @@ const getBodyType = (type: Content) => {
       header: 'application/octet-stream',
     } as const
   if (type === 'json' || type.endsWith('+json')) {
-    console.log('marc', type)
     return {
       activeBody: 'raw',
       encoding: 'json',
@@ -276,7 +275,6 @@ const getBodyType = (type: Content) => {
 
 /** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
-  console.log('marc', type)
   const { activeBody, encoding, header } = getBodyType(type)
   requestExampleMutators.edit(example.uid, 'body.activeBody', activeBody)
 
@@ -410,11 +408,6 @@ watch(
 watch(
   () => example.uid,
   () => {
-    console.log(
-      JSON.parse(JSON.stringify(example, null, 2)),
-      'marc',
-      JSON.parse(JSON.stringify(operation, null, 2)),
-    )
     operation.method &&
       canMethodHaveBody(operation.method) &&
       updateActiveBody(activeExampleContentType.value as Content)

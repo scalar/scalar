@@ -398,12 +398,12 @@ export function createExampleFromRequest(request: Request, name: string, server?
     const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
 
     // Handle JSON and JSON-like mimetypes
-    if (requestBody?.mimeType?.includes('/json') || requestBody?.mimeType?.endsWith('+json')) {
+    if (contentType?.includes('/json') || contentType?.endsWith('+json')) {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'json',
-        mimeType: requestBody.mimeType,
-        value: requestBody.text ?? JSON.stringify({}),
+        mimeType: contentType,
+        value: requestBody?.text ?? JSON.stringify({}),
       }
     }
 
