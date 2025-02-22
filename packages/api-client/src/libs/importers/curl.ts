@@ -66,7 +66,7 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
     })),
   ] as RequestParameterPayload[]
 
-  return {
+  const a =  {
     method,
     url,
     path,
@@ -89,4 +89,6 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
     }),
     parameters,
   }
+  console.log(a, 'marc')
+  return a
 }

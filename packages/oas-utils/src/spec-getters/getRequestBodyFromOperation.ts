@@ -1,7 +1,6 @@
 import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
 import { json2xml } from '../helpers/json2xml'
-import { normalizeMimeTypeObject } from '../helpers/normalizeMimeTypeObject'
 import { prettyPrintJson } from '../helpers/prettyPrintJson'
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
@@ -29,15 +28,15 @@ function getParamsFromObject(
     return [{ name: newKey, value }]
   })
 }
-// Define all supported mime types
-const mimeTypes = [
+// Define preferred standard mime types (order indicates preference)
+const standardMimeTypes: ContentType[] = [
   'application/json',
   'application/octet-stream',
   'application/x-www-form-urlencoded',
   'application/xml',
   'multipart/form-data',
   'text/plain',
-] as const
+]
 
 /**
  * Get the request body from the operation.
@@ -47,30 +46,36 @@ export function getRequestBodyFromOperation(
   selectedExampleKey?: string | number,
   omitEmptyAndOptionalProperties?: boolean,
 ): {
-  mimeType: (typeof mimeTypes)[number]
+  mimeType: ContentType
   text?: string
   params?: {
     name: string
     value?: string
   }[]
 } | null {
-  // Get the content object from the operation
   const originalContent = operation.information?.requestBody?.content
-  const content = normalizeMimeTypeObject(originalContent)
+  const content = originalContent
 
-  /**
-   *  Find the first mime type that is supported
-   *
-   * TODO: This is very fragile. There needs to be significantly more support for
-   * vendor specific content types (like application/vnd.github+json)
-   */
-  const mimeType = mimeTypes.find((currentMimeType: ContentType) => !!content?.[currentMimeType]) ?? 'application/json'
+  // First try to find a standard mime type
+  let mimeType = standardMimeTypes.find((currentMimeType) => !!content?.[currentMimeType])
+
+  // If no standard mime type is found, use the first available content type
+  if (!mimeType && content) {
+    const availableTypes = Object.keys(content)
+    mimeType = availableTypes[0] as ContentType
+  }
+
+  // Fallback to application/json if nothing is found
+  mimeType = mimeType ?? ('application/json' as ContentType)
+
+  // Handle JSON-like content types (e.g., application/vnd.github+json)
+  const isJsonLike = mimeType.includes('json') || mimeType.endsWith('+json')
 
   /** Examples */
   const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
-  // Let’s use the first example
-  const selectedExample = (examples ?? {})?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
+  // Let's use the first example
+  const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
 
   if (selectedExample) {
     return {
@@ -82,14 +87,15 @@ export function getRequestBodyFromOperation(
   /**
    * Body Parameters (Swagger 2.0)
    *
-   * ”The payload that's appended to the HTTP request. Since there can only be one payload, there can only
+   * "The payload that's appended to the HTTP request. Since there can only be one payload, there can only
    * be one body parameter. The name of the body parameter has no effect on the parameter itself and is used
    * for documentation purposes only. Since Form parameters are also in the payload, body and form
-   * parameters cannot exist together for the same operation.”
+   * parameters cannot exist together for the same operation."
    */
   const bodyParameters = getParametersFromOperation(operation, 'body', false)
 
   if (bodyParameters.length > 0) {
+    console.log('here1')
     return {
       mimeType: 'application/json',
       text: prettyPrintJson(bodyParameters[0].value),
@@ -99,7 +105,7 @@ export function getRequestBodyFromOperation(
   /**
    * FormData Parameters (Swagger 2.0)
    *
-   * “Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
+   * "Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
    * multipart/form-data or both are used as the content type of the request (in Swagger's definition, the
    * consumes property of an operation). This is the only parameter type that can be used to send files,
    * thus supporting the file type. Since form parameters are sent in the payload, they cannot be declared
@@ -110,7 +116,7 @@ export function getRequestBodyFromOperation(
    *   parameters that are being transferred.
    * - multipart/form-data - each parameter takes a section in the payload with an internal header.
    *   For example, for the header Content-Disposition: form-data; name="submit-name" the name of the parameter is
-   *   submit-name. This type of form parameters is more commonly used for file transfers.”
+   *   submit-name. This type of form parameters is more commonly used for file transfers."
    */
 
   const formDataParameters = getParametersFromOperation(operation, 'formData', false)
@@ -142,8 +148,10 @@ export function getRequestBodyFromOperation(
   // Get example from operation
   const example = requestBodyObject?.example ? requestBodyObject?.example : undefined
 
-  // JSON
-  if (mimeType === 'application/json') {
+  console.log(isJsonLike, 'marc')
+
+  // Update the JSON handling section
+  if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
       ? getExampleFromSchema(requestBodyObject?.schema, {
           mode: 'write',
@@ -152,6 +160,8 @@ export function getRequestBodyFromOperation(
       : null
 
     const body = example ?? exampleFromSchema
+
+    console.log(mimeType, 'marc', body)
 
     return {
       mimeType,
