@@ -148,7 +148,6 @@ export function getRequestBodyFromOperation(
   // Get example from operation
   const example = requestBodyObject?.example ? requestBodyObject?.example : undefined
 
-  console.log(isJsonLike, 'marc')
 
   // Update the JSON handling section
   if (isJsonLike) {
@@ -161,7 +160,6 @@ export function getRequestBodyFromOperation(
 
     const body = example ?? exampleFromSchema
 
-    console.log(mimeType, 'marc', body)
 
     return {
       mimeType,
