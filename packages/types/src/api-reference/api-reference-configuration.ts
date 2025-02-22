@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
 import type { TargetId } from '../external/index.ts'
-import { migrateProxyUrl } from './helpers/migrateProxyUrl.ts'
-import { migrateThemeVariables } from './helpers/migrateThemeVariables.ts'
+import { migrateProxyUrl } from './helpers/migrate-proxy-url.ts'
+import { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
 
 /** Available theme presets for the API reference */
 const ThemeIdEnum = z.enum([

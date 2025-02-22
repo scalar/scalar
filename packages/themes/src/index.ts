@@ -14,6 +14,7 @@ import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
 
+export { migrateThemeVariables } from '@scalar/types/api-reference'
 export { hasObtrusiveScrollbars } from './utilities/hasObtrusiveScrollbars'
 
 export const themeIds = [
