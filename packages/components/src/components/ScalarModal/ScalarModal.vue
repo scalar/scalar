@@ -35,10 +35,10 @@ const modal = cva({
   ].join(' '),
   variants: {
     size: {
-      xxs: 'mt-20 max-w-screen-xxs',
-      xs: 'mt-20 max-w-screen-xs',
-      sm: 'mt-20 max-w-screen-sm',
-      md: 'mt-20 max-w-screen-md',
+      xxs: 'mt-[20svh] max-w-screen-xxs',
+      xs: 'mt-[20svh] max-w-screen-xs',
+      sm: 'mt-[20svh] max-w-screen-sm',
+      md: 'mt-[20svh] max-w-screen-md',
       lg: 'm-auto max-w-screen-lg',
       xl: 'm-auto max-w-screen-xl',
       full: 'full-size-styles mt-0 lg:w-full',
@@ -54,7 +54,7 @@ const modal = cva({
 const body = cva({
   base: [
     'scalar-modal-body',
-    'relative max-h-[calc(100dvh-240px)] rounded-lg rounded-t-none border-t-1/2 bg-b-1 p-3',
+    'relative rounded-lg border-t-1/2 bg-b-1 p-3',
   ].join(' '),
   variants: {
     variant: {
@@ -64,12 +64,12 @@ const body = cva({
       error: 'overflow-y-scroll',
     },
     size: {
-      xxs: 'max-h-[calc(100dvh-240px)]',
-      xs: 'max-h-[calc(100dvh-240px)]',
-      sm: 'max-h-[calc(100dvh-240px)]',
-      md: 'max-h-[calc(100dvh-240px)]',
-      lg: 'max-h-[calc(100dvh-180px)]',
-      xl: 'm-0 max-h-[calc(100dvh-120px)] p-0',
+      xxs: 'max-h-[80svh]',
+      xs: 'max-h-[80svh]',
+      sm: 'max-h-[80svh]',
+      md: 'max-h-[80svh]',
+      lg: 'max-h-[90svh]',
+      xl: 'm-0 max-h-[95svh] p-0',
       full: 'max-h-dvh rounded-none',
     },
   },
@@ -168,10 +168,16 @@ export function useModal() {
   flex-direction: column;
   max-height: 440px;
 }
-@media (max-width: 1280px) {
+@media (max-height: 320px) {
+  /*
+   * Allow the modal to fill more space on
+   * very short (or very zoomed in) screens
+   */
   .scalar-modal {
-    max-height: calc(100% - 56px);
-    top: 28px;
+    margin-top: 5svh;
+  }
+  .scalar-modal-body {
+    max-height: 90svh;
   }
 }
 @keyframes fadein-layout {
