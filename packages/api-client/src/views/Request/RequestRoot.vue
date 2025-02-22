@@ -97,7 +97,8 @@ const executeRequest = async () => {
 
   // Send error toast
   if (sendRequestError) toast(sendRequestError.message, 'error')
-  else requestHistory.push(result)
+  // we need to deep clone the result because it's a ref and updates will break the history
+  else requestHistory.push(JSON.parse(JSON.stringify(result)))
 }
 
 /** Cancel a live request */
