@@ -51,12 +51,15 @@ const currentJsonResponse = computed(() => {
     currentResponse.value?.content,
   )
 
+  console.log('marc', normalizedContent)
+
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
     normalizedContent?.['application/xml'] ??
     normalizedContent?.['text/plain'] ??
     normalizedContent?.['text/html'] ??
+    normalizedContent?.['*/*'] ??
     // Swagger 2.0
     currentResponse.value
   )
@@ -124,7 +127,7 @@ const showSchema = ref(false)
             :aria-controls="id"
             class="scalar-card-checkbox-input"
             type="checkbox" />
-          <span class="scalar-card-checkbox-checkmark"></span>
+          <span class="scalar-card-checkbox-checkmark" />
         </label>
       </template>
     </CardTabHeader>
