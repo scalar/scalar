@@ -95,7 +95,6 @@ export function getRequestBodyFromOperation(
   const bodyParameters = getParametersFromOperation(operation, 'body', false)
 
   if (bodyParameters.length > 0) {
-    console.log('here1')
     return {
       mimeType: 'application/json',
       text: prettyPrintJson(bodyParameters[0].value),
