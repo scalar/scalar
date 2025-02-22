@@ -23,6 +23,7 @@ export type SidebarItem = {
   icon?: string
   edit: (name: string, icon?: string) => void
   delete: () => void
+  duplicate?: () => void | Request
   documentUrl?: string | undefined
   watchMode?: boolean
 }

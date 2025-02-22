@@ -93,7 +93,7 @@ export const createWorkspaceStore = ({
     workspaceMutators,
   }
   const { addTag, deleteTag } = extendedTagDataFactory(storeContext)
-  const { addRequest, deleteRequest, findRequestParents } = extendedRequestDataFactory(storeContext, addTag)
+  const { addRequest, deleteRequest, duplicateRequest, findRequestParents } = extendedRequestDataFactory(storeContext, addTag)
   const { deleteEnvironment } = extendedEnvironmentDataFactory(storeContext)
   const { addServer, deleteServer } = extendedServerDataFactory(storeContext)
   const { addCollection, deleteCollection } = extendedCollectionDataFactory(storeContext)
@@ -195,6 +195,7 @@ export const createWorkspaceStore = ({
       rawAdd: requestMutators.add,
       add: addRequest,
       delete: deleteRequest,
+      duplicate: duplicateRequest,
     },
     findRequestParents,
     requestExampleMutators: {

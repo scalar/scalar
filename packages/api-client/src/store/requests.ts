@@ -5,6 +5,7 @@ import {
   type RequestPayload,
   type Tag,
   createExampleFromRequest,
+  requestExampleSchema,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS, iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
@@ -12,6 +13,8 @@ import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 
 import type { StoreContext } from './store-context'
+import { nanoid } from 'nanoid'
+import type { BRAND } from 'zod'
 
 /** Create top level request handlers for a workspace */
 export function createStoreRequests(useLocalStorage: boolean) {
@@ -118,9 +121,103 @@ export function extendedRequestDataFactory(
     requestMutators.delete(request.uid)
   }
 
+  /** Duplicate Request */
+  const duplicateRequest = (requestData: Request, collectionUid: Collection['uid']) => {
+    /**
+     * Zod already creates a deep clone during safe parse,
+     * so we can avoid making a structured clone.
+     */
+    const newRequest = schemaModel(requestData, requestSchema, false)
+    if (!newRequest) return console.error('[REQUEST MUTATOR]: Invalid request data.', newRequest)
+
+    /**
+     * Assign a new UID to the request.
+     */
+    newRequest.uid = nanoid()
+
+    /**
+     * For every request example, we create a
+     * duplicate with a new UID.
+     */
+    const newExamples = newRequest.examples.map((uid) => {
+      /**
+       * Parse and create a deep clone of the
+       * existing example.
+       */
+      const newExample = schemaModel(requestExamples[uid], requestExampleSchema, false)
+      if (!newExample) return
+
+      /**
+       * Assign a new UID to the example
+       */
+      newExample.uid = nanoid()
+
+      /**
+       * Save new example to workspace.
+       */
+      requestExampleMutators.add(newExample)
+
+      return newExample.uid 
+    })
+
+    /**
+     * Assign any new valid examples to the new request.
+     */
+    newRequest.examples = newExamples.filter((e): e is string & BRAND<"example"> => Boolean(e))
+
+    /**
+     * Add new request instance to the workspace.
+     */
+    requestMutators.add(newRequest)
+
+    const collection = collections[collectionUid]
+    /**
+     * If a collection does not exist, we
+     * don't worry about tags or collection children.
+     */
+    if (!collection) return newRequest
+
+    /**
+     * Add new request to the collection.
+     */
+    collectionMutators.edit(collectionUid, 'requests', [...collection.requests, newRequest.uid])
+
+    /**
+     * If the request doesn't belong to any tags,
+     * we just append it to the collection children.
+     */
+    if (!newRequest.tags?.length) {
+       collectionMutators.edit(collectionUid, 'children', [...collection.children, newRequest.uid])
+       return newRequest
+    }
+
+    /**
+     * Add the new request to any tags the previous
+     * request belonged to.
+     */
+    newRequest.tags.forEach((requestTag) => {
+      const existingTag = collection.tags.find((collectionTag) => tags[collectionTag]?.name === requestTag)
+
+      /**
+       * We should not be creating new tags
+       * in request duplication, so we can
+       * return early.
+       */
+      if (!existingTag || !tags[existingTag]) return
+
+      /**
+       * Add request to existing tag.
+       */
+      tagMutators.edit(existingTag, 'children', [...tags[existingTag].children, newRequest.uid])
+    })
+
+    return newRequest
+  }
+
   return {
     addRequest,
     deleteRequest,
+    duplicateRequest,
     findRequestParents: findRequestParentsFactory({ collections, tags }),
   }
 }

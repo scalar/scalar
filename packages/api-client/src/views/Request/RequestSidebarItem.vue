@@ -150,6 +150,8 @@ const item = computed<SidebarItem>(() => {
       delete: () =>
         parentUids[0] &&
         requestMutators.delete(request, parentUids[0] as Collection['uid']),
+      duplicate: () =>
+        requestMutators.duplicate(request, parentUids[0] as Collection['uid']),
     }
 
   if (requestExample?.requestUid)

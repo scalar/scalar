@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import {
+  ScalarDropdownButton,
+  ScalarDropdownMenu,
+  ScalarFloating,
+  ScalarIcon,
+  ScalarModal,
+  useModal,
+  type ScalarDropdown,
+} from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { useToasts } from '@scalar/use-toasts'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarListCollection.vue'
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
@@ -7,18 +21,6 @@ import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
 import type { SidebarMenuItem } from '@/views/Request/types'
-import {
-  type ScalarDropdown,
-  ScalarDropdownButton,
-  ScalarDropdownMenu,
-  ScalarFloating,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
 
@@ -36,6 +38,8 @@ const {
 } = useActiveEntities()
 const { events, requestMutators } = useWorkspace()
 
+const { toast } = useToasts()
+
 const editModal = useModal()
 const deleteModal = useModal()
 const clearDraftsModal = useModal()
@@ -52,6 +56,28 @@ const handleAddExample = () =>
 const handleEdit = (newName: string, newIcon?: string) => {
   props.menuItem.item?.edit(newName, newIcon)
   editModal.hide()
+}
+
+const handleItemDuplicate = () => {
+  /**
+   * Not all request sidebar items
+   * currently support duplication.
+   */
+  if (!props.menuItem.item?.duplicate) return
+
+  const newItem = props.menuItem.item?.duplicate()
+
+  if (!newItem) return toast('Unable to duplicate item.', 'error')
+
+  /**
+   * Navigate to new request
+   */
+  replace({
+    name: 'request',
+    params: {
+      [PathId.Request]: newItem.uid,
+    },
+  })
 }
 
 /** Delete with redirect for both requests and requestExamples */
@@ -178,17 +204,17 @@ const isDraftsMenuItem = computed(() => {
         </ScalarDropdownButton>
 
         <!-- Duplicate -->
-        <!-- <ScalarDropdownButton
-        class="flex !gap-2"
-        @click="handleItemDuplicate">
-        <ScalarIcon
-          class="inline-flex"
-          thickness="1.5"
-          icon="Duplicate"
-          size="sm" />
-        <span>Duplicate</span>
-      </ScalarDropdownButton>
-      <ScalarDropdownDivider /> -->
+        <ScalarDropdownButton
+          v-if="menuItem.item?.entity?.type === 'request'"
+          class="flex !gap-2"
+          @click="handleItemDuplicate">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Duplicate"
+            size="sm"
+            thickness="1.5" />
+          <span>Duplicate</span>
+        </ScalarDropdownButton>
 
         <!-- Watch -->
         <ScalarDropdownButton
