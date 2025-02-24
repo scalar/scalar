@@ -368,4 +368,29 @@ describe('ExampleResponses', () => {
     expect(wrapper.text()).not.toContain('type')
     expect(wrapper.text()).not.toContain('properties')
   })
+
+  it('renders wildcard mimetype correctly', () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              '*/*': {
+                example: { message: 'Wildcard mimetype' },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const tabs = wrapper.findAllComponents({ name: 'CardTab' })
+    const codeBlock = wrapper.findAllComponents({ name: 'ScalarCodeBlock' })
+
+    expect(tabs.length).toBe(1)
+    expect(tabs[0].text()).toContain('200')
+    expect(codeBlock.length).toBe(1)
+    expect(wrapper.text()).toContain('Wildcard mimetype')
+  })
 })
