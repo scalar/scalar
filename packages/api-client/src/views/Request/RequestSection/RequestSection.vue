@@ -124,12 +124,12 @@ const activeWorkspaceCookies = computed(() =>
         class="group pointer-events-none flex flex-1 items-center gap-1 lg:pr-24">
         <label
           v-if="layout !== 'modal'"
-          class="pointer-events-auto absolute top-0 left-0 h-full w-full cursor-text opacity-0"
+          class="pointer-events-auto absolute left-0 top-0 h-full w-full cursor-text opacity-0"
           for="requestname" />
         <input
           v-if="layout !== 'modal'"
           id="requestname"
-          class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
+          class="text-c-1 group-hover-input pl-1.25 md:-ml-1.25 pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
           placeholder="Request Name"
           :value="operation.summary"
           @input="updateRequestNameHandler" />

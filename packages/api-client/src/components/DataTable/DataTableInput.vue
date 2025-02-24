@@ -72,7 +72,7 @@ const handleLabelClick = () => {
     :class="containerClass">
     <div
       v-if="$slots.default"
-      class="text-c-1 flex items-center pr-0 pl-3"
+      class="text-c-1 flex items-center pl-3 pr-0"
       :for="id ?? ''"
       @click="handleLabelClick">
       <slot />:
@@ -90,7 +90,7 @@ const handleLabelClick = () => {
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
-          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none px-2 py-1.25 -outline-offset-2"
+          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-2"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
