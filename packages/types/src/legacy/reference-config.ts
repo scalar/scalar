@@ -356,6 +356,8 @@ export type ContentType =
   | `application/x-www-form-urlencoded${OptionalCharset}`
   | `multipart/form-data${OptionalCharset}`
   | `*/*${OptionalCharset}`
+  | `application/vnd.${string}+json${OptionalCharset}`
+
 export type Cookie = {
   name: string
   value: string
