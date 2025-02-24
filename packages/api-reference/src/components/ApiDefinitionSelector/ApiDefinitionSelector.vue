@@ -4,18 +4,35 @@ import { computed } from 'vue'
 
 const { options } = defineProps<{
   options?: SpecConfiguration[]
+  modelValue?: number
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: number): void
 }>()
 
 // Show the selector if there are multiple options
 const showSelector = computed(() => options && options?.length > 1)
+
+// Emit the selected option
+const handleChange = (event: Event) => {
+  emit(
+    'update:modelValue',
+    Number.parseInt((event.target as HTMLSelectElement).value, 10),
+  )
+}
 </script>
 
 <template>
   <template v-if="showSelector">
-    <select class="w-full">
+    <select
+      class="w-full"
+      :value="modelValue"
+      @change="handleChange">
       <option
         v-for="(option, index) in options"
-        :key="index">
+        :key="index"
+        :value="index">
         #{{ index }}
       </option>
     </select>
