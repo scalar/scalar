@@ -12,6 +12,7 @@
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
     "@nuxt/eslint-config": "^0.7.3",
     "@playwright/test": "^1.49.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^20.17.10",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/eslint-config-typescript": "^14.1.3",
