@@ -43,6 +43,7 @@ defineOptions({ inheritAttrs: false })
 
 const mask = ref(true)
 const interactingWithDropdown = ref(false)
+const codeInput = ref<InstanceType<typeof CodeInput> | null>(null)
 
 const handleBlur = () => {
   if (!interactingWithDropdown.value) {
@@ -57,6 +58,13 @@ const inputType = computed(() =>
       : 'text'
     : (props.type ?? 'text'),
 )
+
+// If not an enum nor read only, focus the code input
+const handleLabelClick = () => {
+  if (!props.enum?.length && !props.readOnly) {
+    codeInput.value?.focus()
+  }
+}
 </script>
 <template>
   <DataTableCell
@@ -64,11 +72,9 @@ const inputType = computed(() =>
     :class="containerClass">
     <div
       v-if="$slots.default"
-      class="text-c-1 flex items-center pl-3 pr-0"
+      class="text-c-1 flex items-center pr-0 pl-3"
       :for="id ?? ''"
-      @click="
-        !props.enum?.length && !props.readOnly && $refs.codeInput?.focus()
-      ">
+      @click="handleLabelClick">
       <slot />:
     </div>
     <div class="row-1 overflow-x-auto">
@@ -84,7 +90,7 @@ const inputType = computed(() =>
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
-          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-2"
+          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none px-2 py-1.25 -outline-offset-2"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
