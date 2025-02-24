@@ -474,6 +474,12 @@ export type SpecConfiguration = {
    * @remark It’s recommended to pass an `url` instead of `content`.
    */
   content?: string | Record<string, any> | (() => Record<string, any>) | null
+  /**
+   * The title of the API definition used as an slug in the URL
+   *
+   * @example 'scalar-galaxy'
+   */
+  name?: string
 }
 
 export type Schema = {
