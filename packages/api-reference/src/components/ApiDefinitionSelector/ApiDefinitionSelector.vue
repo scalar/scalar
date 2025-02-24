@@ -36,7 +36,7 @@ const handleChange = (event: Event) => {
         <template v-if="option.name">
           {{ option.name }}
         </template>
-        <template v-else> #{{ index }} </template>
+        <template v-else> #{{ index + 1 }} </template>
       </option>
     </select>
   </template>
