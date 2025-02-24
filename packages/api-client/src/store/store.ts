@@ -9,6 +9,7 @@ import { createStoreSecuritySchemes, extendedSecurityDataFactory } from '@/store
 import { createStoreServers, extendedServerDataFactory } from '@/store/servers'
 import type { StoreContext } from '@/store/store-context'
 import { createStoreTags, extendedTagDataFactory } from '@/store/tags'
+import { createTopNavStore, extendedTopNavDataFactory } from '@/store/top-nav'
 import { createStoreWorkspaces, extendedWorkspaceDataFactory } from '@/store/workspace'
 import { useModal } from '@scalar/components'
 import type { RequestEvent, SecurityScheme } from '@scalar/oas-utils/entities/spec'
@@ -67,6 +68,7 @@ export const createWorkspaceStore = ({
   const { servers, serverMutators } = createStoreServers(useLocalStorage)
   const { securitySchemes, securitySchemeMutators } = createStoreSecuritySchemes(useLocalStorage)
   const { workspaces, workspaceMutators } = createStoreWorkspaces(useLocalStorage)
+  const { topNav, topNavItemMutator } = createTopNavStore(useLocalStorage)
 
   // ---------------------------------------------------------------------------
   // Extended Mutators - Adds side effects as needed
@@ -91,9 +93,14 @@ export const createWorkspaceStore = ({
     securitySchemeMutators,
     workspaces,
     workspaceMutators,
+    topNav,
+    topNavItemMutator,
   }
   const { addTag, deleteTag } = extendedTagDataFactory(storeContext)
-  const { addRequest, deleteRequest, duplicateRequest, findRequestParents } = extendedRequestDataFactory(storeContext, addTag)
+  const { addRequest, deleteRequest, duplicateRequest, findRequestParents } = extendedRequestDataFactory(
+    storeContext,
+    addTag,
+  )
   const { deleteEnvironment } = extendedEnvironmentDataFactory(storeContext)
   const { addServer, deleteServer } = extendedServerDataFactory(storeContext)
   const { addCollection, deleteCollection } = extendedCollectionDataFactory(storeContext)
@@ -101,6 +108,14 @@ export const createWorkspaceStore = ({
   const { addWorkspace, deleteWorkspace } = extendedWorkspaceDataFactory(storeContext)
   const { addSecurityScheme, deleteSecurityScheme } = extendedSecurityDataFactory(storeContext)
   const { addCollectionEnvironment, removeCollectionEnvironment } = extendedCollectionDataFactory(storeContext)
+  const {
+    getTopNavItem,
+    updateTopNavItem,
+    addTopNavItem,
+    setActiveTopNavItem,
+    deleteTopNavItem,
+    deleteOtherTopNavItems,
+  } = extendedTopNavDataFactory(storeContext)
 
   // ---------------------------------------------------------------------------
   // OTHER HELPER DATA
@@ -154,6 +169,7 @@ export const createWorkspaceStore = ({
     // ---------------------------------------------------------------------------
     // STATE
     workspaces,
+    topNav,
     collections,
     tags,
     cookies,
@@ -228,6 +244,14 @@ export const createWorkspaceStore = ({
       rawAdd: workspaceMutators.add,
       add: addWorkspace,
       delete: deleteWorkspace,
+    },
+    topNavMutators: {
+      getItem: getTopNavItem,
+      updateItem: updateTopNavItem,
+      addItem: addTopNavItem,
+      deleteItem: deleteTopNavItem,
+      deleteOtherItems: deleteOtherTopNavItems,
+      setActive: setActiveTopNavItem,
     },
     addCollectionEnvironment,
     removeCollectionEnvironment,

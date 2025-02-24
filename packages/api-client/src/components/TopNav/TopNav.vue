@@ -8,7 +8,7 @@ import {
   type Icon,
 } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
@@ -16,6 +16,7 @@ import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { TopNavItemStore } from '@/store/top-nav'
 
 import TopNavItem from './TopNavItem.vue'
 
@@ -24,64 +25,83 @@ const props = defineProps<{
 }>()
 const { activeRequest, activeCollection } = useActiveEntities()
 const router = useRouter()
-const { events } = useWorkspace()
+const { events, topNav, topNavMutators, collections, requests } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
-/** Nav Items list */
-const topNavItems = reactive([{ label: '', path: '', icon: 'Add' as Icon }])
-const activeNavItemIdx = ref(0)
-const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
-
+type DecoratedNavItem = { label: string; path: string; icon: Icon }
 /**
- * Logic to handle adding a nav item
- * based on the current route
+ * Retrieves tab label, path and icon from a top
+ * nav item. Defaults to active item.
  */
-function handleNavLabelAdd() {
-  // Collection
-  if (router.currentRoute.value.name?.toString().startsWith('collection.')) {
-    topNavItems[activeNavItemIdx.value] = {
-      label: activeCollection.value?.info?.title || 'Untitled Collection',
-      path: router.currentRoute.value.path,
-      icon: 'Collection',
-    }
+function getDecoratedNavItem(itemIdx?: number): DecoratedNavItem {
+  const { matchingItem } = topNavMutators.getItem(itemIdx)
 
-    return
+  const defaultDecoration: DecoratedNavItem = {
+    label: '',
+    path: '',
+    icon: 'Add',
   }
 
-  // Request
-  if (router.currentRoute.value.name?.toString().startsWith('request')) {
-    topNavItems[activeNavItemIdx.value] = {
-      label: activeRequest.value?.summary || '',
-      path: router.currentRoute.value.path,
+  if (!matchingItem) return defaultDecoration
+
+  if (matchingItem.requestUid) {
+    return {
+      label: requests[matchingItem.requestUid]?.summary || 'Untitled Request',
+      path: matchingItem.path,
       icon: 'ExternalLink',
     }
-
-    return
   }
 
-  // Something from the sidebar
+  if (matchingItem.collectionUid) {
+    return {
+      label:
+        collections[matchingItem.collectionUid]?.info?.title ||
+        'Untitled Collection',
+      path: matchingItem.path,
+      icon: 'Collection',
+    }
+  }
+
   const activeRoute = ROUTES.find((route) => {
-    return route.to.name.startsWith(
-      router.currentRoute.value.name?.toString() ?? '',
-    )
+    return route.to.name.startsWith(matchingItem.route)
   })
 
   if (activeRoute) {
-    topNavItems[activeNavItemIdx.value] = {
+    return {
       label: activeRoute.displayName,
-      path: router.currentRoute.value.path,
+      path: matchingItem.path,
       icon: activeRoute.icon,
     }
-
-    return
   }
+
+  return defaultDecoration
+}
+
+/**
+ * Logic to handle updating the current
+ * nav item based on the current route.
+ */
+function handleNavLabelAdd() {
+  const currentRoute = router.currentRoute.value
+
+  const { meta, path, name } = currentRoute
+
+  const isRequest = meta.isRequest
+  const isCollection = meta.isCollection
+
+  const topNavItem: Omit<TopNavItemStore, 'uid'> = {
+    path,
+    route: name?.toString() || '',
+    requestUid: isRequest ? (activeRequest?.value?.uid ?? null) : null,
+    collectionUid: isCollection ? (activeCollection?.value?.uid ?? null) : null,
+  }
+
+  topNavMutators.updateItem(topNavItem)
 }
 
 function handleNavRoute() {
-  const path = topNavItems[activeNavItemIdx.value]?.path
-  if (path) {
-    router.push(path)
-  }
+  const path = topNavMutators.getItem().matchingItem?.path
+  if (path) router.push(path)
 }
 
 /**
@@ -89,13 +109,12 @@ function handleNavRoute() {
  * based on the route
  */
 function addNavItem() {
-  topNavItems.push({ label: '', path: '', icon: 'Add' })
-  activeNavItemIdx.value = topNavItems.length - 1
+  topNavMutators.addItem({})
   handleNavLabelAdd()
 }
 
-function setNavItemIdx(idx: number) {
-  activeNavItemIdx.value = idx
+function setNavItemIdx(itemIdx: number) {
+  topNavMutators.setActive(itemIdx)
   handleNavRoute()
 }
 
@@ -108,27 +127,22 @@ watch(
   { immediate: true },
 )
 
-function removeNavItem(idx: number) {
-  topNavItems.splice(idx, 1)
-  activeNavItemIdx.value = Math.min(
-    activeNavItemIdx.value,
-    topNavItems.length - 1,
-  )
+function removeNavItem(itemIdx: number) {
+  topNavMutators.deleteItem(itemIdx)
   handleNavRoute()
 }
 
-const copyUrl = (idx: number) => {
-  if (!topNavItems[idx]?.path) return
+const copyUrl = (itemIdx: number) => {
+  const path = topNavMutators.getItem(itemIdx).matchingItem?.path
+  if (!path) return
 
   const fullUrl = new URL(window.location.href)
-  fullUrl.pathname = topNavItems[idx].path
+  fullUrl.pathname = path
   copyToClipboard(fullUrl.toString())
 }
 
-const closeOtherTabs = (idx: number) => {
-  topNavItems.splice(0, idx)
-  topNavItems.splice(1)
-  activeNavItemIdx.value = 0
+const closeOtherTabs = (itemIdx: number) => {
+  topNavMutators.deleteOtherItems(itemIdx)
   handleNavRoute()
 }
 
@@ -136,26 +150,29 @@ const closeOtherTabs = (idx: number) => {
 const handleHotKey = (event?: HotKeyEvent) => {
   if (!event) return
   if (event.addTopNav) addNavItem()
-  if (event.closeTopNav) removeNavItem(activeNavItemIdx.value)
+  if (event.closeTopNav) removeNavItem(topNav.activeItemIdx.value)
   if (event.navigateTopNavLeft)
-    setNavItemIdx(Math.max(activeNavItemIdx.value - 1, 0))
+    setNavItemIdx(Math.max(topNav.activeItemIdx.value - 1, 0))
   if (event.navigateTopNavRight)
-    setNavItemIdx(Math.min(activeNavItemIdx.value + 1, topNavItems.length - 1))
+    setNavItemIdx(
+      Math.min(topNav.activeItemIdx.value + 1, topNav.navState.length - 1),
+    )
   if (event.jumpToTab) {
     const tabIndex = Number(event.jumpToTab.key) - 1
-    if (tabIndex >= 0 && tabIndex < topNavItems.length) {
+    if (tabIndex >= 0 && tabIndex < topNav.navState.length) {
       setNavItemIdx(tabIndex)
     }
   }
-  if (event.jumpToLastTab) setNavItemIdx(topNavItems.length - 1)
+  if (event.jumpToLastTab) setNavItemIdx(topNav.navState.length - 1)
 }
 
 const addTopNavTab = (item: { name: string; uid: string }) => {
-  topNavItems.push({
-    label: item.name,
-    path: item.uid,
-    icon: 'ExternalLink',
-  })
+  topNavMutators.addItem(
+    {
+      path: item.uid,
+    },
+    false,
+  )
 }
 
 watch(
@@ -168,6 +185,14 @@ watch(
   { immediate: true },
 )
 
+const defaultTopNavItem = computed(() => {
+  return getDecoratedNavItem()
+})
+
+const mountedNavItems = computed(() => {
+  return topNav.navState.map((_, i) => getDecoratedNavItem(i))
+})
+
 onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
@@ -177,17 +202,17 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     <div class="app-drag-region absolute inset-0" />
     <div
       class="relative flex h-10 flex-1 items-center gap-1.5 overflow-hidden pr-2.5 text-sm font-medium">
-      <template v-if="topNavItems.length === 1">
+      <template v-if="topNav.navState.length === 1">
         <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
               <ScalarIcon
-                v-if="topNavItems[0]?.icon"
-                :icon="topNavItems[0]?.icon"
+                v-if="defaultTopNavItem?.icon"
+                :icon="defaultTopNavItem?.icon"
                 size="xs"
                 thickness="2.5" />
-              <span>{{ topNavItems[0]?.label }}</span>
+              <span>{{ defaultTopNavItem?.label }}</span>
             </template>
             <template #content>
               <ScalarFloating placement="right-start">
@@ -207,7 +232,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     </ScalarDropdownButton>
                     <ScalarDropdownButton
                       class="flex items-center gap-1.5"
-                      @click="copyUrl(activeNavItemIdxValue)">
+                      @click="copyUrl(topNav.activeItemIdx.value)">
                       <ScalarIcon
                         icon="Link"
                         size="sm"
@@ -223,9 +248,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       </template>
       <template v-else>
         <TopNavItem
-          v-for="(topNavItem, index) in topNavItems"
+          v-for="(topNavItem, index) in mountedNavItems"
           :key="topNavItem.path"
-          :active="index === activeNavItemIdxValue"
+          :active="index === topNav.activeItemIdx.value"
           :hotkey="(index + 1).toString()"
           :icon="topNavItem.icon"
           :label="topNavItem.label"

@@ -2,7 +2,7 @@ import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { describe, expect, it, vi } from 'vitest'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 
 import { createStoreCollections, extendedCollectionDataFactory } from './collections'
 import { createStoreServers } from './servers'
@@ -53,6 +53,8 @@ const createStoreContext = () => {
     servers,
     securitySchemes: {},
     securitySchemeMutators: mutationFactory({}, reactive({})),
+    topNav: { items: {}, navState: [], activeItemIdx: ref(0) },
+    topNavItemMutator: mutationFactory({}, reactive({})),
   }
 }
 

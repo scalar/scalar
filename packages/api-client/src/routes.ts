@@ -59,11 +59,17 @@ const requestRoutes = [
       {
         name: 'request',
         path: `request/:${PathId.Request}`,
+        meta: {
+          isRequest: true,
+        },
         component: () => import('@/views/Request/Request.vue'),
       },
       {
         name: 'request.examples',
         path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
+        meta: {
+          isRequest: true,
+        },
         component: () => import('@/views/Request/Request.vue'),
       },
       {
@@ -74,6 +80,9 @@ const requestRoutes = [
           return {
             name: 'collection.overview',
           }
+        },
+        meta: {
+          isCollection: true,
         },
         children: [
           {

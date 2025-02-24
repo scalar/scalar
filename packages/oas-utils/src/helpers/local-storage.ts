@@ -12,4 +12,5 @@ export const LS_KEYS = {
   SERVER: 'server',
   TAG: 'tag',
   WORKSPACE: 'workspace',
+  TOP_NAV: 'topNav',
 } as const

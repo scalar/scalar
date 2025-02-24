@@ -136,6 +136,11 @@ export function extendedRequestDataFactory(
     newRequest.uid = nanoid()
 
     /**
+     * Make it easier to see that it's a duplicate request.
+     */
+    if (newRequest.summary) newRequest.summary += ' #1'
+
+    /**
      * For every request example, we create a
      * duplicate with a new UID.
      */
@@ -157,13 +162,13 @@ export function extendedRequestDataFactory(
        */
       requestExampleMutators.add(newExample)
 
-      return newExample.uid 
+      return newExample.uid
     })
 
     /**
      * Assign any new valid examples to the new request.
      */
-    newRequest.examples = newExamples.filter((e): e is string & BRAND<"example"> => Boolean(e))
+    newRequest.examples = newExamples.filter((e): e is string & BRAND<'example'> => Boolean(e))
 
     /**
      * Add new request instance to the workspace.
@@ -187,8 +192,8 @@ export function extendedRequestDataFactory(
      * we just append it to the collection children.
      */
     if (!newRequest.tags?.length) {
-       collectionMutators.edit(collectionUid, 'children', [...collection.children, newRequest.uid])
-       return newRequest
+      collectionMutators.edit(collectionUid, 'children', [...collection.children, newRequest.uid])
+      return newRequest
     }
 
     /**

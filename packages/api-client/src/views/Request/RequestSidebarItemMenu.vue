@@ -36,7 +36,7 @@ const {
   activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
-const { events, requestMutators } = useWorkspace()
+const { events, requestMutators, topNavMutators, topNav } = useWorkspace()
 
 const { toast } = useToasts()
 
@@ -68,6 +68,14 @@ const handleItemDuplicate = () => {
   const newItem = props.menuItem.item?.duplicate()
 
   if (!newItem) return toast('Unable to duplicate item.', 'error')
+
+  /**
+   * Add new tab on duplicate
+   */
+  topNavMutators.addItem({
+    path: newItem.path,
+    requestUid: newItem.uid,
+  })
 
   /**
    * Navigate to new request
