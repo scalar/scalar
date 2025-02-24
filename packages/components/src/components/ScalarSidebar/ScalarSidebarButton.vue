@@ -24,10 +24,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import { cva } from '../../cva'
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarIcon } from '../ScalarIcon'
+import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 
 const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()

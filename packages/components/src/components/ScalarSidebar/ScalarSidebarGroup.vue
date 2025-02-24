@@ -23,7 +23,7 @@ import { useBindCx } from '../../hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
-import { useSidebarGroups, type SidebarGroupLevel } from './useSidebarGroups'
+import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<{
   /** Override the element tag */

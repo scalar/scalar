@@ -155,7 +155,7 @@ export function getRequestBodyFromOperation(
 
     return {
       mimeType,
-      text: body ? typeof body === 'string' ? body : JSON.stringify(body, null, 2) : undefined,
+      text: body ? (typeof body === 'string' ? body : JSON.stringify(body, null, 2)) : undefined,
     }
   }
 

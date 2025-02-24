@@ -544,12 +544,18 @@ describe('createExampleFromRequest', () => {
 
 describe('createExampleFromRequest with default body when Content-Type header is exists', () => {
   it.each([
-    { contentType: 'application/json', defaultBody: { activeBody: 'raw', raw: { encoding: 'json', value: '{}' } }},
-    { contentType: 'application/xml', defaultBody: { activeBody: 'raw', raw: { encoding: 'xml', value: '' } }},
-    { contentType: 'application/octet-stream', defaultBody: { activeBody: 'binary', binary: undefined }},
-    { contentType: 'application/x-www-form-urlencoded', defaultBody: { activeBody: 'formData', formData: { encoding: 'urlencoded', value: [] } }},
-    { contentType: 'multipart/form-data', defaultBody: { activeBody: 'formData', formData: { encoding: 'form-data', value: [] } }},
-  ]as const)('when Content-Type header is $contentType', ({ contentType, defaultBody }) => {
+    { contentType: 'application/json', defaultBody: { activeBody: 'raw', raw: { encoding: 'json', value: '{}' } } },
+    { contentType: 'application/xml', defaultBody: { activeBody: 'raw', raw: { encoding: 'xml', value: '' } } },
+    { contentType: 'application/octet-stream', defaultBody: { activeBody: 'binary', binary: undefined } },
+    {
+      contentType: 'application/x-www-form-urlencoded',
+      defaultBody: { activeBody: 'formData', formData: { encoding: 'urlencoded', value: [] } },
+    },
+    {
+      contentType: 'multipart/form-data',
+      defaultBody: { activeBody: 'formData', formData: { encoding: 'form-data', value: [] } },
+    },
+  ] as const)('when Content-Type header is $contentType', ({ contentType, defaultBody }) => {
     const operation = operationSchema.parse({
       uid: 'request-1',
       path: '/test',
@@ -561,7 +567,7 @@ describe('createExampleFromRequest with default body when Content-Type header is
           deprecated: false,
           schema: { type: 'string', default: contentType },
         },
-      ]
+      ],
     })
 
     const result = createExampleFromRequest(operation, 'Test Example')
@@ -590,7 +596,7 @@ describe('createExampleFromRequest with default body when Content-Type header is
           deprecated: false,
           schema: { type: 'string' },
         },
-      ]
+      ],
     })
 
     const result = createExampleFromRequest(operation, 'Test Example')

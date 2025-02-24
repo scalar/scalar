@@ -405,10 +405,7 @@ export function createExampleFromRequest(request: Request, name: string, server?
       body.binary = undefined
     }
 
-    if (
-      contentType === 'application/x-www-form-urlencoded' ||
-      contentType === 'multipart/form-data'
-    ) {
+    if (contentType === 'application/x-www-form-urlencoded' || contentType === 'multipart/form-data') {
       body.activeBody = 'formData'
       body.formData = {
         encoding: contentType === 'application/x-www-form-urlencoded' ? 'urlencoded' : 'form-data',

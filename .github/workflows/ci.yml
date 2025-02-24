@@ -137,15 +137,16 @@ jobs:
           cache: 'pnpm'
       - name: Install dev dependencies
         run: pnpm install --dev
+      # You might ask why we need a GitHub Action to install Biome.
+      # Well, it’s because GHA throws an error when it’s run through pnpm.# > Error: Cannot find module '@biomejs/cli-linux-x64/biome'
       - name: Setup Biome
         uses: biomejs/setup-biome@c016c38f26f2c4a6eb3662679143614a254263fd
         with:
           version: 1.9.4
       - name: Lint code
         run: biome lint --diagnostic-level=error
-      # TODO: Disabled until we applied the new formatting through Biome.
-      # - name: Check code style formatting
-      #   run: pnpm format:check
+      - name: Check formatting
+        run: pnpm prettier --check . && biome format
 
   types:
     needs: [build]

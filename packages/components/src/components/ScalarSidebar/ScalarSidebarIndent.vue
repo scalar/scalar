@@ -8,9 +8,10 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type { SidebarGroupLevel } from './useSidebarGroups'
-import { useBindCx } from '../../hooks/useBindCx'
 import { computed } from 'vue'
+
+import { useBindCx } from '../../hooks/useBindCx'
+import type { SidebarGroupLevel } from './useSidebarGroups'
 
 const { indent = 0, selected = false } = defineProps<{
   /** The number of indents to render @default 0 */

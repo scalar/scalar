@@ -3,9 +3,9 @@ pre-commit:
     package_format:
       glob: 'pnpm-lock.yaml'
       run: pnpm format:packages; git add \*package.json pnpm-lock.yaml; echo PACKAGE FILES FORMATTED
-    # biome-format:
-    #   glob: '*'
-    #   run: 'pnpm biome format --write && git add {staged_files}'
+    biome-format:
+      glob: '*'
+      run: 'pnpm biome format --write && git add {staged_files}'
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
