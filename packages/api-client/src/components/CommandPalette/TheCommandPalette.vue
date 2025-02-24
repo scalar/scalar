@@ -1,4 +1,5 @@
 <script lang="ts">
+import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -6,6 +7,7 @@ import { useActiveEntities } from '@/store/active-entities'
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
+import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteServer from './CommandPaletteServer.vue'
 import CommandPaletteTag from './CommandPaletteTag.vue'
@@ -28,6 +30,7 @@ export const PaletteComponents = {
   'Add Server': CommandPaletteServer,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
+  'Import from cURL': CommandPaletteImportCurl,
 } as const
 
 /** Infer the types from the commands  */
@@ -52,7 +55,7 @@ import type { HotKeyEvent } from '@/libs'
 
 const modalState = useModal()
 const router = useRouter()
-const { activeWorkspace } = useActiveEntities()
+const { activeWorkspace, activeCollection } = useActiveEntities()
 const { events } = useWorkspace()
 
 /** Available Commands for the Command Palette */
@@ -229,6 +232,20 @@ const handleHotKey = (event?: HotKeyEvent) => {
   if (event?.closeModal) closeHandler()
 }
 
+const handleInput = (value: string) => {
+  if (value.trim().toLowerCase().startsWith('curl')) {
+    events.commandPalette.emit({
+      commandName: 'Import from cURL',
+      metaData: {
+        parsedCurl: importCurlCommand(value),
+        collectionUid: activeCollection.value?.uid,
+      },
+    })
+    return
+  }
+  commandQuery.value = value
+}
+
 onMounted(() => {
   events.commandPalette.on(openCommandPalette)
   events.hotKeys.on(handleHotKey)
@@ -261,12 +278,13 @@ onBeforeUnmount(() => {
           <input
             id="commandmenu"
             ref="commandInputRef"
-            v-model="commandQuery"
+            :value="commandQuery"
             autocomplete="off"
             autofocus
             class="w-full rounded border-none bg-none py-1.5 text-sm focus:outline-none"
             placeholder="Search commands..."
             type="text"
+            @input="handleInput(($event.target as HTMLInputElement).value)"
             @keydown.down.stop="handleArrowKey('down', $event)"
             @keydown.enter.stop="handleSelect"
             @keydown.up.stop="handleArrowKey('up', $event)" />
@@ -317,7 +335,7 @@ onBeforeUnmount(() => {
         v-else
         class="flex-1 p-1.5">
         <button
-          class="p-0.75 hover:bg-b-3 text-c-3 active:text-c-1 my-1.25 z-1 absolute mr-1.5 rounded"
+          class="hover:bg-b-3 text-c-3 active:text-c-1 z-1 my-1.25 p-0.75 absolute mr-1.5 rounded"
           type="button"
           @click="activeCommand = null">
           <ScalarIcon
