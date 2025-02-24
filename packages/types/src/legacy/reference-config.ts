@@ -355,7 +355,7 @@ export type ContentType =
   | `application/octet-stream${OptionalCharset}`
   | `application/x-www-form-urlencoded${OptionalCharset}`
   | `multipart/form-data${OptionalCharset}`
-
+  | `*/*${OptionalCharset}`
 export type Cookie = {
   name: string
   value: string
