@@ -24,6 +24,7 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
+import { history, historyKeymap } from '@codemirror/commands'
 import { ScalarIcon } from '@scalar/components'
 import { type MaybeRefOrGetter, type Ref, computed, h, onBeforeUnmount, ref, render, toValue, watch } from 'vue'
 
@@ -280,6 +281,8 @@ function getCodeMirrorExtensions({
 }) {
   const extensions: Extension[] = [
     highlightSpecialChars(),
+    history(),
+    keymap.of(historyKeymap),
     syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
     EditorView.theme({
       '.cm-line': {
