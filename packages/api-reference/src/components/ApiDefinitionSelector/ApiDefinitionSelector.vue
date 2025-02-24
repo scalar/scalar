@@ -26,7 +26,7 @@ const handleChange = (event: Event) => {
 <template>
   <template v-if="showSelector">
     <select
-      class="w-full"
+      class="api-definition-selector w-full"
       :value="modelValue"
       @change="handleChange">
       <option

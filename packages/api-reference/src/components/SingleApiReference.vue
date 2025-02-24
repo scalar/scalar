@@ -69,7 +69,7 @@ const favicon = computed(() => configuration.value.favicon)
 useFavicon(favicon)
 </script>
 <template>
-  <!-- SingleApiReference-->
+  <!-- SingleApiReference -->
   <!-- Inject any custom CSS directly into a style tag -->
   <component
     :is="'style'"
