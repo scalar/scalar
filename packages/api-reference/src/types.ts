@@ -114,6 +114,10 @@ export type ReferenceLayoutSlots = {
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
 }
 
+export type ApiDefinitionSelectorSlot = {
+  'api-definition-selector': Slot<Record<string, never>>
+}
+
 export type ReferenceSlotProps = {
   spec: Spec
   breadcrumb: string

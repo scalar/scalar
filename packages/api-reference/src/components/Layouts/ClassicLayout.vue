@@ -5,7 +5,11 @@ import { computed } from 'vue'
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { SearchButton } from '@/features/Search'
-import type { InternalReferenceProps, ReferenceLayoutSlots } from '@/types'
+import type {
+  ApiDefinitionSelectorSlot,
+  InternalReferenceProps,
+  ReferenceLayoutSlots,
+} from '@/types'
 
 const props = defineProps<InternalReferenceProps>()
 
@@ -14,7 +18,7 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots>()
+const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
 
 // Override the sidebar value and hide it
 const config = computed(() => ({ ...props.configuration, showSidebar: false }))
@@ -35,6 +39,11 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
     </template>
     <template #content-start="{ spec }">
       <ClassicHeader>
+        <div
+          v-if="$slots['api-definition-selector']"
+          class="w-64">
+          <slot name="api-definition-selector" />
+        </div>
         <SearchButton
           v-if="!props.configuration.hideSearch"
           class="t-doc__sidebar"
