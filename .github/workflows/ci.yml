@@ -143,9 +143,8 @@ jobs:
           version: 1.9.4
       - name: Lint code
         run: biome lint --diagnostic-level=error
-      # TODO: Disabled until we applied the new formatting through Biome.
-      # - name: Check code style formatting
-      #   run: pnpm format:check
+      - name: Check code style formatting
+        run: pnpm format:check
 
   types:
     needs: [build]
