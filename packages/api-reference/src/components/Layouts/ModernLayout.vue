@@ -9,7 +9,11 @@ import { watch } from 'vue'
 
 import { SearchButton } from '../../features/Search'
 import { useNavState, useSidebar } from '../../hooks'
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
+import type {
+  ApiDefinitionSelectorSlot,
+  ReferenceLayoutProps,
+  ReferenceLayoutSlots,
+} from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import MobileHeader from '../MobileHeader.vue'
 
@@ -19,7 +23,7 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots>()
+const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
 const { isSidebarOpen } = useSidebar()
@@ -51,7 +55,7 @@ watch(hash, (newHash, oldHash) => {
       #[name]="slotProps">
       <slot
         :name="name"
-        v-bind="slotProps || {}"></slot>
+        v-bind="slotProps || {}" />
     </template>
     <template #header>
       <MobileHeader
@@ -59,6 +63,12 @@ watch(hash, (newHash, oldHash) => {
         v-model:open="isSidebarOpen" />
     </template>
     <template #sidebar-start="{ spec }">
+      <!-- Wrap in a div when slot is filled -->
+      <div
+        v-if="$slots['api-definition-selector']"
+        class="p-3 pb-0">
+        <slot name="api-definition-selector" />
+      </div>
       <div
         v-if="!props.configuration.hideSearch"
         class="scalar-api-references-standalone-search">

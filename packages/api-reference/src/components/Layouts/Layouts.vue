@@ -2,7 +2,13 @@
 /**
  * This component allows dynamic selection of various layout configurations
  */
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
+import { computed } from 'vue'
+
+import type {
+  ApiDefinitionSelectorSlot,
+  ReferenceLayoutProps,
+  ReferenceLayoutSlots,
+} from '../../types'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
@@ -12,7 +18,14 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots>()
+const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
+
+const referenceLayoutSlots = computed(
+  (): ReferenceLayoutSlots =>
+    Object.keys(slots).filter(
+      (key) => key !== 'api-definition-selector',
+    ) as unknown as ReferenceLayoutSlots,
+)
 
 const layouts = {
   modern: ModernLayout,
@@ -28,11 +41,14 @@ const layouts = {
     @updateContent="$emit('updateContent', $event)">
     <!-- Expose all layout slots upwards -->
     <template
-      v-for="(_, name) in slots"
+      v-for="(_, name) in referenceLayoutSlots"
       #[name]="slotProps">
       <slot
         :name="name"
         v-bind="slotProps || {}" />
+    </template>
+    <template #api-definition-selector>
+      <slot name="api-definition-selector" />
     </template>
   </component>
 </template>
