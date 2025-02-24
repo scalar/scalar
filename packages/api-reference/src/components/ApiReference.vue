@@ -4,7 +4,7 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import { ApiDefinitionSelector } from '@/components/ApiDefinitionSelector'
 import SingleApiReference from '@/components/SingleApiReference.vue'
@@ -29,12 +29,17 @@ const selectedConfiguration = computed(() =>
 const options = computed(() =>
   configurations.value.map((config) => config?.spec).filter(isDefined),
 )
+
+// The selected API definition
+const selectedOption = ref(0)
 </script>
 
 <template>
   <SingleApiReference :configuration="selectedConfiguration">
     <template #api-definition-selector>
-      <ApiDefinitionSelector :options="options" />
+      <ApiDefinitionSelector
+        v-model="selectedOption"
+        :options="options" />
     </template>
   </SingleApiReference>
 </template>
