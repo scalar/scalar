@@ -1,29 +1,31 @@
 <script setup lang="ts">
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
-import TopNav from '@/components/TopNav/TopNav.vue'
-import MainLayout from '@/layouts/App/MainLayout.vue'
-import { DEFAULT_HOTKEYS, type HotKeyEvent, handleHotKeyDown } from '@/libs'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, type RouteLocationNormalizedLoaded } from 'vue-router'
+
+import TopNav from '@/components/TopNav/TopNav.vue'
+import MainLayout from '@/layouts/App/MainLayout.vue'
+import { DEFAULT_HOTKEYS, handleHotKeyDown, type HotKeyEvent } from '@/libs'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
+import type { TopNavRoute } from '@/store/top-nav'
 
 import { APP_HOTKEYS } from './hotkeys'
 
 defineEmits<{
-  (e: 'newTab', item: { name: string; uid: string }): void
+  (e: 'newTab', route: TopNavRoute): void
 }>()
 
 const hotKeys = { ...DEFAULT_HOTKEYS, ...APP_HOTKEYS }
 
-const newTab = ref<{ name: string; uid: string } | null>(null)
+const newTab = ref<TopNavRoute | null>(null)
 
-const handleNewTab = (item: { name: string; uid: string }) => {
+const handleNewTab = (item: TopNavRoute) => {
   newTab.value = item
 }
 
@@ -73,7 +75,7 @@ const themeStyleTag = computed(
     class="contents">
     <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
     <!-- <ImportCollectionListener> -->
-    <div v-html="themeStyleTag"></div>
+    <div v-html="themeStyleTag" />
     <TopNav :openNewTab="newTab" />
 
     <!-- Ensure we have the workspace loaded from localStorage above -->

@@ -3,13 +3,13 @@ import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { nanoid } from 'nanoid'
 import { reactive, ref } from 'vue'
+import type { RouteLocation } from 'vue-router'
+
+export type TopNavRoute = RouteLocation
 
 export type TopNavItemStore = {
   uid: string
-  path: string
-  route: string
-  collectionUid: string | null
-  requestUid: string | null
+  route: TopNavRoute | null
 }
 
 /** Create storage objects for top nav items */
@@ -32,7 +32,7 @@ export function createTopNavStore(useLocalStorage: boolean) {
   /**
    * Add initial nav item
    */
-  topNavItemMutator.add({ uid: itemUid, path: '', route: '', collectionUid: null, requestUid: null })
+  topNavItemMutator.add({ uid: itemUid, route: null })
 
   /**
    * List of items in workspace (tabs)
@@ -64,10 +64,7 @@ export function extendedTopNavDataFactory({ topNav, topNavItemMutator }: StoreCo
   const addTopNavItem = (options: Partial<TopNavItemStore>, setAsActive: boolean = true) => {
     const newNavItem: TopNavItemStore = {
       uid: options.uid || nanoid(),
-      path: options.path || '',
-      route: options.route || '',
-      requestUid: null,
-      collectionUid: null,
+      route: options.route || null,
     }
 
     /**
@@ -144,20 +141,20 @@ export function extendedTopNavDataFactory({ topNav, topNavItemMutator }: StoreCo
     if (topNav.navState.length === 1) return console.error('[TOP_NAV_MUTATORS]: Cannot delete your only nav item.')
 
     /**
+     * Set new active nav item
+     */
+    const newNavStateIdx = itemIdx - 1 >= 0 ? itemIdx - 1 : 0
+
+    /**
      * Remove item from nav state
      */
     topNav.navState.splice(itemIdx, 1)
 
     /**
-     * Set new active nav item
-     */
-    const newNavStateIdx = itemIdx === 0 ? 1 : itemIdx - 1
-
-    /**
      * If the item being deleted is the currently active one,
      * we update the active item.
      */
-    if (matchingItem.uid === topNav.navState[topNav.activeItemIdx.value]) topNav.activeItemIdx.value = newNavStateIdx
+    if (itemIdx === topNav.activeItemIdx.value) topNav.activeItemIdx.value = newNavStateIdx
 
     /**
      * Remove nav item from state

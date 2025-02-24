@@ -10,11 +10,12 @@ import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { TopNavRoute } from '@/store/top-nav'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 
 import RequestSidebar from './RequestSidebar.vue'
 
-defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
+defineEmits<(e: 'newTab', item: TopNavRoute) => void>()
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
 const { layout } = useLayout()

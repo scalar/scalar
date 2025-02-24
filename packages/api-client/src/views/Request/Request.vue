@@ -13,11 +13,12 @@ import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { TopNavRoute } from '@/store/top-nav'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
+defineEmits<(e: 'newTab', item: TopNavRoute) => void>()
 
 const { isSidebarOpen } = useSidebarToggle()
 

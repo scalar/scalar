@@ -22,6 +22,7 @@ import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { TopNavRoute } from '@/store/top-nav'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 
 const {
@@ -53,7 +54,7 @@ const {
 
 const emit = defineEmits<{
   onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
-  newTab: [name: string, uid: string]
+  newTab: [route: TopNavRoute]
   openMenu: [menuItem: SidebarMenuItem]
 }>()
 
@@ -278,8 +279,9 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
     const modifier = getModifiers(['default'])
     const isModifierPressed = modifier.some((key) => event[key])
 
-    if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
-    else if (_item.to) router.push(_item.to)
+    if (isModifierPressed && _item.to) {
+      emit('newTab', router.resolve(_item.to))
+    } else if (_item.to) router.push(_item.to)
   }
 }
 
@@ -622,7 +624,7 @@ const shouldShowItem = computed(() => {
           :menuItem="menuItem"
           :parentUids="[...parentUids, uid]"
           :uid="childUid"
-          @newTab="(name, uid) => $emit('newTab', name, uid)"
+          @newTab="(route) => $emit('newTab', route)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)"
           @openMenu="(item) => $emit('openMenu', item)" />
         <ScalarButton

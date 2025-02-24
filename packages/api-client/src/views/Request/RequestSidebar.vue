@@ -37,6 +37,7 @@ import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
+import type { TopNavRoute } from '@/store/top-nav'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
 import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
@@ -46,7 +47,7 @@ import { isGettingStarted } from './RequestSection/helpers/getting-started'
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
 const emit = defineEmits<{
-  (e: 'newTab', { name, uid }: { name: string; uid: string }): void
+  (e: 'newTab', route: TopNavRoute): void
   (e: 'clearDrafts'): void
 }>()
 
@@ -338,7 +339,7 @@ const showGettingStarted = computed(() =>
             :menuItem="menuItem"
             :parentUids="[]"
             :uid="collection.uid"
-            @newTab="(name, uid) => emit('newTab', { name, uid })"
+            @newTab="(route) => emit('newTab', route)"
             @onDragEnd="handleDragEnd"
             @openMenu="(item) => Object.assign(menuItem, item)">
             <template #leftIcon>

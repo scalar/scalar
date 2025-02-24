@@ -9,26 +9,35 @@ import {
 } from '@scalar/components'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, type RouteParams } from 'vue-router'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import type { TopNavItemStore } from '@/store/top-nav'
+import type { TopNavRoute } from '@/store/top-nav'
 
 import TopNavItem from './TopNavItem.vue'
 
 const props = defineProps<{
-  openNewTab: { name: string; uid: string } | null
+  openNewTab: TopNavRoute | null
 }>()
-const { activeRequest, activeCollection } = useActiveEntities()
 const router = useRouter()
 const { events, topNav, topNavMutators, collections, requests } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
 type DecoratedNavItem = { label: string; path: string; icon: Icon }
+
+function getParam(params: RouteParams, key: string): string | null {
+  const matchingParam = params[key]
+
+  if (!matchingParam) return null
+
+  if (typeof matchingParam === 'object') return matchingParam.at(0) || null
+
+  return matchingParam
+}
+
 /**
  * Retrieves tab label, path and icon from a top
  * nav item. Defaults to active item.
@@ -42,34 +51,38 @@ function getDecoratedNavItem(itemIdx?: number): DecoratedNavItem {
     icon: 'Add',
   }
 
-  if (!matchingItem) return defaultDecoration
+  if (!matchingItem || !matchingItem.route) return defaultDecoration
 
-  if (matchingItem.requestUid) {
+  const requestUid = getParam(matchingItem.route.params, 'request')
+  if (requestUid) {
     return {
-      label: requests[matchingItem.requestUid]?.summary || 'Untitled Request',
-      path: matchingItem.path,
+      label: requests[requestUid]?.summary || 'Untitled Request',
+      path: matchingItem.route.path,
       icon: 'ExternalLink',
     }
   }
 
-  if (matchingItem.collectionUid) {
+  const collectionUid = getParam(matchingItem.route.params, 'collection')
+  if (collectionUid) {
     return {
-      label:
-        collections[matchingItem.collectionUid]?.info?.title ||
-        'Untitled Collection',
-      path: matchingItem.path,
+      label: collections[collectionUid]?.info?.title || 'Untitled Collection',
+      path: matchingItem.route.path,
       icon: 'Collection',
     }
   }
 
+  const routeName = matchingItem.route?.name?.toString()
+
+  if (!routeName) return defaultDecoration
+
   const activeRoute = ROUTES.find((route) => {
-    return route.to.name.startsWith(matchingItem.route)
+    return route.to.name.startsWith(routeName)
   })
 
   if (activeRoute) {
     return {
       label: activeRoute.displayName,
-      path: matchingItem.path,
+      path: matchingItem.route.path,
       icon: activeRoute.icon,
     }
   }
@@ -84,23 +97,13 @@ function getDecoratedNavItem(itemIdx?: number): DecoratedNavItem {
 function handleNavLabelAdd() {
   const currentRoute = router.currentRoute.value
 
-  const { meta, path, name } = currentRoute
-
-  const isRequest = meta.isRequest
-  const isCollection = meta.isCollection
-
-  const topNavItem: Omit<TopNavItemStore, 'uid'> = {
-    path,
-    route: name?.toString() || '',
-    requestUid: isRequest ? (activeRequest?.value?.uid ?? null) : null,
-    collectionUid: isCollection ? (activeCollection?.value?.uid ?? null) : null,
-  }
-
-  topNavMutators.updateItem(topNavItem)
+  topNavMutators.updateItem({
+    route: currentRoute,
+  })
 }
 
 function handleNavRoute() {
-  const path = topNavMutators.getItem().matchingItem?.path
+  const path = topNavMutators.getItem().matchingItem?.route?.path
   if (path) router.push(path)
 }
 
@@ -133,7 +136,7 @@ function removeNavItem(itemIdx: number) {
 }
 
 const copyUrl = (itemIdx: number) => {
-  const path = topNavMutators.getItem(itemIdx).matchingItem?.path
+  const path = topNavMutators.getItem(itemIdx).matchingItem?.route?.path
   if (!path) return
 
   const fullUrl = new URL(window.location.href)
@@ -166,10 +169,10 @@ const handleHotKey = (event?: HotKeyEvent) => {
   if (event.jumpToLastTab) setNavItemIdx(topNav.navState.length - 1)
 }
 
-const addTopNavTab = (item: { name: string; uid: string }) => {
+const addTopNavTab = (item: TopNavRoute) => {
   topNavMutators.addItem(
     {
-      path: item.uid,
+      route: item,
     },
     false,
   )
