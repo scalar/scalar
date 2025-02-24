@@ -430,7 +430,7 @@ Callback that triggers as soon as the references are lazy loaded.
 
 #### withDefaultFonts?: boolean
 
-By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: false` to the configuration.
+By default we’re using Inter and JetBrains Mono, served from our fonts CDN at `https://fonts.scalar.com`. If you use a different font or just don’t want to load web fonts, pass `withDefaultFonts: false` to the configuration.
 
 ```js
 {
