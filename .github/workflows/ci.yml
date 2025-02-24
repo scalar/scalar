@@ -143,8 +143,8 @@ jobs:
           version: 1.9.4
       - name: Lint code
         run: biome lint --diagnostic-level=error
-      - name: Check code style formatting
-        run: pnpm format:check
+      - name: Check formatting
+        run: pnpm prettier --check . && biome format
 
   types:
     needs: [build]
