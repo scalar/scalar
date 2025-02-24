@@ -33,16 +33,43 @@ describe('ApiReference', () => {
       await wrapper.vm.$nextTick()
 
       // Check whether it renders the SingleApiReference component
-      expect(wrapper.html()).toContain('<!-- SingleApiReference-->')
+      expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
 
       // Check the comment is only rendered once
       const commentCount = wrapper.html().match(/SingleApiReference/g)?.length
       expect(commentCount).toBe(1)
     })
-  })
 
-  describe('renders a select when multiple configurations are provided', () => {
-    it('renders a single API reference', async () => {
+    it('doesn’t render the select when there is only one configuration', async () => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: [
+            {
+              spec: {
+                content: {
+                  openapi: '3.1.0',
+                  info: {
+                    title: 'My API',
+                    version: '1.0.0',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      })
+
+      // Wait for the API reference to be rendered
+      await wrapper.vm.$nextTick()
+
+      // Check whether it renders the SingleApiReference component
+      expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
+
+      // Check whether it doesn’t render the select
+      expect(wrapper.html()).not.toContain('api-definition-selector')
+    })
+
+    it('renders a select when multiple configurations are provided', async () => {
       const wrapper = mount(ApiReference, {
         props: {
           configuration: [
@@ -76,7 +103,53 @@ describe('ApiReference', () => {
       await wrapper.vm.$nextTick()
 
       // Check whether it renders the SingleApiReference component
-      expect(wrapper.html()).toContain('<!-- SingleApiReference-->')
+      expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
+    })
+
+    it('renders a select with the names', async () => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: [
+            {
+              spec: {
+                name: 'my-api-1',
+                content: {
+                  openapi: '3.1.0',
+                  info: {
+                    title: 'My API #1',
+                    version: '1.0.0',
+                  },
+                },
+              },
+            },
+            {
+              spec: {
+                name: 'my-api-2',
+                content: {
+                  openapi: '3.1.0',
+                  info: {
+                    title: 'My API #2',
+                    version: '1.0.0',
+                  },
+                },
+              },
+            },
+          ],
+        },
+      })
+
+      // Wait for the API reference to be rendered
+      await wrapper.vm.$nextTick()
+
+      // Check whether it renders the SingleApiReference component
+      expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
+
+      // Check whether it renders the select
+      expect(wrapper.html()).toContain('api-definition-selector')
+
+      // Check whether it renders the names
+      expect(wrapper.html()).toContain('my-api-1')
+      expect(wrapper.html()).toContain('my-api-2')
     })
   })
 })
