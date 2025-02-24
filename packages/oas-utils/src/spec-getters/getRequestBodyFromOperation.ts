@@ -1,6 +1,7 @@
 import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
 import { json2xml } from '../helpers/json2xml'
+import { normalizeMimeTypeObject } from '../helpers/normalizeMimeTypeObject'
 import { prettyPrintJson } from '../helpers/prettyPrintJson'
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
@@ -54,19 +55,12 @@ export function getRequestBodyFromOperation(
   }[]
 } | null {
   const originalContent = operation.information?.requestBody?.content
-  const content = originalContent
+  const content = normalizeMimeTypeObject(originalContent)
 
   // First try to find a standard mime type
-  let mimeType = standardMimeTypes.find((currentMimeType) => !!content?.[currentMimeType])
-
-  // If no standard mime type is found, use the first available content type
-  if (!mimeType && content) {
-    const availableTypes = Object.keys(content)
-    mimeType = availableTypes[0] as ContentType
-  }
-
-  // Fallback to application/json if nothing is found
-  mimeType = mimeType ?? ('application/json' as ContentType)
+  const mimeType =
+    standardMimeTypes.find((currentMimeType) => !!content?.[currentMimeType]) ??
+    ((Object.keys(content ?? {})[0] || 'application/json') as ContentType)
 
   // Handle JSON-like content types (e.g., application/vnd.github+json)
   const isJsonLike = mimeType.includes('json') || mimeType.endsWith('+json')
@@ -74,7 +68,7 @@ export function getRequestBodyFromOperation(
   /** Examples */
   const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
-  // Let's use the first example
+  // Let’s use the first example
   const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
 
   if (selectedExample) {
@@ -87,10 +81,10 @@ export function getRequestBodyFromOperation(
   /**
    * Body Parameters (Swagger 2.0)
    *
-   * "The payload that's appended to the HTTP request. Since there can only be one payload, there can only
+   * ”The payload that's appended to the HTTP request. Since there can only be one payload, there can only
    * be one body parameter. The name of the body parameter has no effect on the parameter itself and is used
    * for documentation purposes only. Since Form parameters are also in the payload, body and form
-   * parameters cannot exist together for the same operation."
+   * parameters cannot exist together for the same operation.”
    */
   const bodyParameters = getParametersFromOperation(operation, 'body', false)
 
@@ -104,7 +98,7 @@ export function getRequestBodyFromOperation(
   /**
    * FormData Parameters (Swagger 2.0)
    *
-   * "Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
+   * ”Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
    * multipart/form-data or both are used as the content type of the request (in Swagger's definition, the
    * consumes property of an operation). This is the only parameter type that can be used to send files,
    * thus supporting the file type. Since form parameters are sent in the payload, they cannot be declared
@@ -115,7 +109,7 @@ export function getRequestBodyFromOperation(
    *   parameters that are being transferred.
    * - multipart/form-data - each parameter takes a section in the payload with an internal header.
    *   For example, for the header Content-Disposition: form-data; name="submit-name" the name of the parameter is
-   *   submit-name. This type of form parameters is more commonly used for file transfers."
+   *   submit-name. This type of form parameters is more commonly used for file transfers.”
    */
 
   const formDataParameters = getParametersFromOperation(operation, 'formData', false)
@@ -147,7 +141,6 @@ export function getRequestBodyFromOperation(
   // Get example from operation
   const example = requestBodyObject?.example ? requestBodyObject?.example : undefined
 
-
   // Update the JSON handling section
   if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
@@ -158,7 +151,6 @@ export function getRequestBodyFromOperation(
       : null
 
     const body = example ?? exampleFromSchema
-
 
     return {
       mimeType,
