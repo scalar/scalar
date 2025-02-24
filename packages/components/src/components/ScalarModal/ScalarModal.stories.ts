@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton } from '../ScalarButton'
 import ScalarModal, { useModal } from './ScalarModal.vue'
+import { ScalarSearchResultList, ScalarSearchResultItem } from '../ScalarSearchResults'
+import { ScalarSearchInput } from '../ScalarSearchInput'
 
 /**
  * Make sure to import the useModal hook from the ScalarModal component to open/close it
@@ -9,6 +11,7 @@ import ScalarModal, { useModal } from './ScalarModal.vue'
 const meta = {
   component: ScalarModal,
   tags: ['autodocs'],
+  parameters: { layout: 'fullscreen' },
   argTypes: {
     size: {
       control: 'select',
@@ -27,6 +30,7 @@ export const Base: Story = {
     components: { ScalarButton, ScalarModal },
     setup() {
       const modalState = useModal()
+      modalState.show()
       return { args, modalState }
     },
     template: `
@@ -36,23 +40,77 @@ export const Base: Story = {
         v-bind="args">
         <div class="col gap-4">
           <div>You can put some nice content here, or even ask a nice question</div>
-          <div class="col md:row gap-2">
-            <ScalarButton variant="outlined" @click="modalState.hide()" fullWidth>Cancel</ScalarButton>
-            <ScalarButton @click="modalState.hide()" fullWidth>Go ahead</ScalarButton>
+          <div class="flex *:flex-1 gap-2">
+            <ScalarButton variant="outlined" @click="modalState.hide()" >Cancel</ScalarButton>
+            <ScalarButton @click="modalState.hide()">Go ahead</ScalarButton>
           </div>
         </div>
       </ScalarModal>
-      <ScalarButton @click="modalState.show()">Click me</ScalarButton>
+      <div class="placeholder h-dvh flex-col gap-2">
+        <div>Main page content</div>
+        <ScalarButton size="sm" variant="outlined" @click="modalState.show()">
+          Show modal
+        </ScalarButton>
+      </div>
+    `,
+  }),
+}
+
+export const Search: Story = {
+  args: { variant: 'search' } as any,
+  render: (args) => ({
+    components: { ScalarButton, ScalarModal, ScalarSearchInput, ScalarSearchResultList, ScalarSearchResultItem },
+    setup() {
+      const modalState = useModal()
+      const results = Array.from({ length: 10 }, (_, i) => ({
+        title: `Result ${i + 1}`,
+        description: `This is a description for result ${i + 1}`,
+        addon: 'Addon',
+      }))
+      modalState.show()
+      return { args, modalState, results }
+    },
+    template: `
+      <ScalarModal
+        :state="modalState"
+        v-bind="args">
+        <div class="flex flex-col min-h-0">
+          <div class="p-3 pb-0">
+            <ScalarSearchInput />
+          </div>
+          <div class="custom-scroll p-3 min-h-0 flex-1">
+            <ScalarSearchResultList>
+              <ScalarSearchResultItem
+                v-for="result in results"
+                :key="result.title"
+                icon="Search">
+                {{ result.title }}
+                <template #description>{{ result.description }}</template>
+                <template #addon>{{ result.addon }}</template>
+              </ScalarSearchResultItem>
+            </ScalarSearchResultList>
+          </div>
+        </div>
+      </ScalarModal>
+      <div class="placeholder h-dvh flex-col gap-2">
+        <div>Main page content</div>
+        <ScalarButton size="sm" variant="outlined" @click="modalState.show()">
+          Show modal
+        </ScalarButton>
+      </div>
     `,
   }),
 }
 
 export const Scrolling: Story = {
-  args: {} as any,
+  args: {
+    bodyClass: 'custom-scroll border-t mt-3',
+  } as any,
   render: (args) => ({
     components: { ScalarButton, ScalarModal },
     setup() {
       const modalState = useModal()
+      modalState.show()
       return { args, modalState }
     },
     template: `
@@ -60,7 +118,7 @@ export const Scrolling: Story = {
         :state="modalState"
         title="Example modal"
         v-bind="args">
-        <div class="markdown">
+        <div class="custom-scroll max-h-[inherit] markdown">
 <h1>HTML Ipsum Presents</h1>
 
 				<p><strong>Pellentesque habitant morbi tristique</strong> senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. <em>Aenean ultricies mi vitae est.</em> Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, <code>commodo vitae</code>, ornare sit amet, wisi. Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. <a href="#">Donec non enim</a> in turpis pulvinar facilisis. Ut felis.</p>
@@ -88,7 +146,12 @@ export const Scrolling: Story = {
 }</code></pre>
         </div>
       </ScalarModal>
-      <ScalarButton @click="modalState.show()">Click me</ScalarButton>
+      <div class="placeholder h-dvh flex-col gap-2">
+        <div>Main page content</div>
+        <ScalarButton size="sm" variant="outlined" @click="modalState.show()">
+          Show modal
+        </ScalarButton>
+      </div>
     `,
   }),
 }

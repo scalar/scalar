@@ -11,9 +11,7 @@ import ScalarSidebarItems from './ScalarSidebarItems.vue'
 const meta: Meta = {
   component: ScalarSidebar,
   tags: ['autodocs'],
-  parameters: {
-    layout: 'fullscreen',
-  },
+  parameters: { layout: 'fullscreen' },
   argTypes: {
     class: { control: 'text' },
     icon: { control: 'select', options: ICONS },
