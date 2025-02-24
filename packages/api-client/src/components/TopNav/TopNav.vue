@@ -28,6 +28,9 @@ const { copyToClipboard } = useClipboard()
 
 type DecoratedNavItem = { label: string; path: string; icon: Icon }
 
+/**
+ * Get param from existing route location.
+ */
 function getParam(params: RouteParams, key: string): string | null {
   const matchingParam = params[key]
 
@@ -56,7 +59,8 @@ function getDecoratedNavItem(itemIdx?: number): DecoratedNavItem {
   const requestUid = getParam(matchingItem.route.params, 'request')
   if (requestUid) {
     return {
-      label: requests[requestUid]?.summary || 'Untitled Request',
+      label:
+        (requests[requestUid] || Object.values(requests)[0])?.summary || '',
       path: matchingItem.route.path,
       icon: 'ExternalLink',
     }

@@ -140,21 +140,30 @@ export function extendedTopNavDataFactory({ topNav, topNavItemMutator }: StoreCo
      */
     if (topNav.navState.length === 1) return console.error('[TOP_NAV_MUTATORS]: Cannot delete your only nav item.')
 
+    const activeItemIdx = topNav.activeItemIdx.value
+
     /**
-     * Set new active nav item
+     * When the item index is greater than the current item index,
+     * we need to shift it left.
+     *
+     * If it's equal and above 0, we also shift it to the
+     * tab on the left.
+     *
+     * If it's below the current item index, it does not need
+     * shifting and can remain the same.
      */
-    const newNavStateIdx = itemIdx - 1 >= 0 ? itemIdx - 1 : 0
+    const newNavStateIdx =
+      activeItemIdx > itemIdx || (activeItemIdx === itemIdx && itemIdx > 0) ? activeItemIdx - 1 : activeItemIdx
+
+    /**
+     * Update the currently active item
+     */
+    topNav.activeItemIdx.value = newNavStateIdx
 
     /**
      * Remove item from nav state
      */
     topNav.navState.splice(itemIdx, 1)
-
-    /**
-     * If the item being deleted is the currently active one,
-     * we update the active item.
-     */
-    if (itemIdx === topNav.activeItemIdx.value) topNav.activeItemIdx.value = newNavStateIdx
 
     /**
      * Remove nav item from state
