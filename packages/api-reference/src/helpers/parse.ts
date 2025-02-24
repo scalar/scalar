@@ -96,6 +96,31 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
     schema.paths = {}
   }
 
+  // Create empty components object
+  if (!schema.components) {
+    schema.components = {}
+  }
+
+  // Create empty webhooks object
+  if (!schema.webhooks) {
+    schema.webhooks = {}
+  }
+
+  // Servers
+  if (!schema.servers) {
+    schema.servers = []
+  }
+
+  // Security
+  if (!schema.security) {
+    schema.security = []
+  }
+
+  // External docs
+  if (!schema.externalDocs) {
+    schema.externalDocs = {}
+  }
+
   // Webhooks
   const newWebhooks: AnyObject = {}
 

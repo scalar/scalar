@@ -194,11 +194,7 @@ describe('useReactiveSpec', () => {
     // … but the content shouldn’t be overwritten
     expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
-})
 
-// ---------------------------------------------------------------------------
-
-describe('useParser', () => {
   it('returns the content', async () => {
     const { parsedSpec } = useReactiveSpec({
       specConfig: {
@@ -285,5 +281,46 @@ describe('useParser', () => {
     await new Promise((resolve) => setTimeout(resolve, 10))
 
     expect(specErrors.value).toContain('YAMLParseError')
+  })
+
+  it('resets schemas when the API definition changes', async () => {
+    const specConfig = ref({
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'API #1' },
+        paths: {},
+        components: {
+          schemas: {
+            Planet: { type: 'object' },
+          },
+        },
+      },
+    })
+
+    const { parsedSpec } = useReactiveSpec({
+      specConfig,
+    })
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 10))
+
+    expect(parsedSpec.info?.title).toBe('API #1')
+    expect(parsedSpec.components?.schemas).toBeDefined()
+    expect(Object.keys(parsedSpec.components?.schemas ?? {})).toStrictEqual(['Planet'])
+
+    // Change the configuration …
+    Object.assign(specConfig.value, {
+      content: {
+        openapi: '3.1.0',
+        info: { title: 'API #2' },
+        paths: {},
+      },
+    })
+
+    // Sleep for 10ms to wait for the parser to finish
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(parsedSpec.info?.title).toBe('API #2')
+    expect(Object.keys(parsedSpec.components?.schemas ?? {})).toStrictEqual([])
   })
 })
