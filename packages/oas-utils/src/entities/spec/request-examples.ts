@@ -51,7 +51,7 @@ export const requestExampleParametersSchema = z
       data.nullable = true
     }
 
-    // Hey, if it's just one value and 'null', we can make it a string and ditch the 'null'.
+    // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
     if (Array.isArray(data.type) && data.type.length === 2 && data.type.includes('null')) {
       data.type = data.type.find((item) => item !== 'null')
     }
