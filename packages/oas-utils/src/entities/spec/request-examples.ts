@@ -360,13 +360,17 @@ export function createExampleFromRequest(request: Request, name: string, server?
     parameters.header = []
   }
 
+  // Get content type header
+  const contentTypeHeader = parameters.headers.find((h) => h.key.toLowerCase() === 'content-type')
+
   // ---------------------------------------------------------------------------
   // Handle request body defaulting for various content type encodings
   const body: ExampleRequestBody = {
     activeBody: 'raw',
   }
 
-  if (request.requestBody) {
+  // If we have a request body or a content type header
+  if (request.requestBody || contentTypeHeader?.value) {
     const requestBody = getRequestBodyFromOperation({
       path: request.path,
       information: {
@@ -374,19 +378,21 @@ export function createExampleFromRequest(request: Request, name: string, server?
       },
     })
 
-    if (requestBody?.mimeType === 'application/json') {
+    const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
+
+    if (contentType === 'application/json') {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'json',
-        value: requestBody.text ?? JSON.stringify({}),
+        value: requestBody?.text ?? JSON.stringify({}),
       }
     }
 
-    if (requestBody?.mimeType === 'application/xml') {
+    if (contentType === 'application/xml') {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'xml',
-        value: requestBody.text ?? '',
+        value: requestBody?.text ?? '',
       }
     }
 
@@ -394,19 +400,19 @@ export function createExampleFromRequest(request: Request, name: string, server?
      *  TODO: Are we loading example files from somewhere based on the spec?
      *  How are we handling the body values
      */
-    if (requestBody?.mimeType === 'application/octet-stream') {
+    if (contentType === 'application/octet-stream') {
       body.activeBody = 'binary'
       body.binary = undefined
     }
 
     if (
-      requestBody?.mimeType === 'application/x-www-form-urlencoded' ||
-      requestBody?.mimeType === 'multipart/form-data'
+      contentType === 'application/x-www-form-urlencoded' ||
+      contentType === 'multipart/form-data'
     ) {
       body.activeBody = 'formData'
       body.formData = {
-        encoding: requestBody.mimeType === 'application/x-www-form-urlencoded' ? 'urlencoded' : 'form-data',
-        value: (requestBody.params || []).map((param) => ({
+        encoding: contentType === 'application/x-www-form-urlencoded' ? 'urlencoded' : 'form-data',
+        value: (requestBody?.params || []).map((param) => ({
           key: param.name,
           value: param.value || '',
           enabled: true,
@@ -415,7 +421,7 @@ export function createExampleFromRequest(request: Request, name: string, server?
     }
 
     // Add the content-type header if it doesn't exist
-    if (requestBody?.mimeType && !parameters.headers.find((h) => h.key.toLowerCase() === 'content-type')) {
+    if (requestBody?.mimeType && !contentTypeHeader) {
       parameters.headers.push({
         key: 'Content-Type',
         value: requestBody.mimeType,
