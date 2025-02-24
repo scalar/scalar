@@ -404,7 +404,7 @@ function handleRename(newName: string) {
               :key="collection.uid"
               class="gap-1/2 flex flex-col">
               <button
-                class="hover:bg-b-2 group flex w-full items-center gap-1.5 break-words rounded p-1.5 text-left text-sm font-medium"
+                class="hover:bg-b-2 group flex w-full items-center gap-1.5 rounded p-1.5 text-left text-sm font-medium break-words"
                 type="button"
                 @click="toggleSidebarFolder(collection.uid)">
                 <span class="flex h-5 max-w-[14px] items-center justify-center">
@@ -428,7 +428,7 @@ function handleRename(newName: string) {
               <div
                 v-show="showChildren(collection.uid)"
                 :class="{
-                  'before:bg-border before:z-1 relative mb-[.5px] before:pointer-events-none before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full':
+                  'before:bg-border relative mb-[.5px] before:pointer-events-none before:absolute before:top-0 before:left-3 before:z-1 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full':
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length > 0,
                 }">
@@ -500,7 +500,7 @@ function handleRename(newName: string) {
         </template>
         <CodeInput
           v-if="currentEnvironmentId && activeWorkspace"
-          class="border-t py-2 pl-px pr-2 md:px-4"
+          class="py-2 pr-2 pl-px md:px-4"
           :envVariables="activeEnvVariables"
           :environment="activeEnvironment"
           isCopyable

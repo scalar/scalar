@@ -40,8 +40,5 @@ const updateCookie = <P extends Path<Cookie>>(
     :data="activeCookie"
     :onUpdate="updateCookie"
     :options="fields">
-    <template #title>
-      <span class="text-c-2">Edit Cookie</span>
-    </template>
   </Form>
 </template>
