@@ -63,7 +63,7 @@ export function useReactiveSpec({
   proxyUrl?: MaybeRefOrGetter<string>
 }) {
   /** OAS spec as a string */
-  const rawSpec = ref('')
+  const rawSpec = ref<string>('')
   /** Fully parsed and resolved OAS object */
   const parsedSpec = reactive(createEmptySpecification())
   /** Parser error messages when parsing fails */
@@ -85,7 +85,6 @@ export function useReactiveSpec({
 
         // Some specs don’t have servers, make sure they are defined
         Object.assign(parsedSpec, {
-          servers: [],
           ...validSpec,
         })
       })
