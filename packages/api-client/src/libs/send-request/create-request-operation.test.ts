@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import {
   type RequestPayload,
   type ServerPayload,
