@@ -7,15 +7,15 @@ import {
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { watch } from 'vue'
 
-import { SearchButton } from '../../features/Search'
-import { useNavState, useSidebar } from '../../hooks'
+import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
+import { SearchButton } from '@/features/Search'
+import { useNavState, useSidebar } from '@/hooks'
 import type {
   ApiDefinitionSelectorSlot,
   ReferenceLayoutProps,
   ReferenceLayoutSlots,
-} from '../../types'
-import ApiReferenceLayout from '../ApiReferenceLayout.vue'
-import MobileHeader from '../MobileHeader.vue'
+} from '@/types'
 
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
