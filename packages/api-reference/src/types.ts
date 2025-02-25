@@ -1,7 +1,7 @@
 import type { ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { HarRequest } from '@scalar/types/snippetz'
+import type { ContentType, ReferenceConfiguration, Spec, SpecConfiguration } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
 export type { ApiReferenceConfiguration }
@@ -11,6 +11,12 @@ export type { ReferenceConfiguration }
 /**
  * Props for the ApiReference components, coming from user input
  */
+export type ReferenceConfigurationWithSources = ReferenceConfiguration & {
+  spec: {
+    sources: SpecConfiguration[]
+  }
+}
+
 export type ReferenceProps = {
   configuration?: Partial<ApiReferenceConfiguration> | ReferenceConfiguration
 }
