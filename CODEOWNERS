@@ -12,7 +12,7 @@
 /.changeset/*
 
 # Packages
-/packages/api-client @amritk
+/packages/api-client @amritk @hanspagel
 /packages/api-reference-editor @geoffgscott
 /packages/components @hwkr
 /packages/galaxy @hanspagel
