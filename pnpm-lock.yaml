@@ -1472,6 +1472,9 @@ importers:
 
   packages/fastify-api-reference:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -1488,9 +1491,6 @@ importers:
       '@fastify/swagger':
         specifier: ^8.10.1
         version: 8.14.0
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling

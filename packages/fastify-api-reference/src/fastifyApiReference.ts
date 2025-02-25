@@ -8,6 +8,21 @@ import { slug } from 'github-slugger'
 import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
+import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
+import type { ApiReferenceConfiguration } from './types.ts'
+
+/**
+ * Path to the bundled Scalar JavaScript file
+ */
+const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
+
+/**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'fastify',
+}
+
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route
 const schemaToHideRoute = {
@@ -20,6 +35,10 @@ const getRoutePrefix = (routePrefix?: string) => {
   // Remove trailing slash if present
   return prefix.endsWith('/') ? prefix.slice(0, -1) : prefix
 }
+
+/**
+ * Get the endpoints for the OpenAPI specification.
+ */
 const getOpenApiDocumentEndpoints = (
   openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints'],
 ) => {
@@ -27,15 +46,16 @@ const getOpenApiDocumentEndpoints = (
   return { json, yaml }
 }
 
-const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
-
+/**
+ * Get the URL for the Scalar JavaScript file.
+ */
 const getJavaScriptUrl = (routePrefix?: string) =>
   `${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(/\/\//g, '/')
 
 /**
- * The Fastify custom theme CSS
+ * The custom theme for Fastify
  */
-export const defaultCss = `
+export const customTheme = `
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #1c1e21;
@@ -109,50 +129,6 @@ export const defaultCss = `
 }
 `
 
-/**
- * The HTML to load the @scalar/api-reference JavaScript package.
- */
-export const javascript = (options: FastifyApiReferenceOptions) => {
-  const { configuration } = options
-
-  return `
-    <script
-      id="api-reference"
-      type="application/json"
-      data-configuration="${JSON.stringify(configuration ?? {})
-        .split('"')
-        .join('&quot;')}">${
-        configuration?.spec?.content
-          ? typeof configuration?.spec?.content === 'function'
-            ? JSON.stringify(configuration?.spec?.content())
-            : JSON.stringify(configuration?.spec?.content)
-          : ''
-      }</script>
-      <script src="${RELATIVE_JAVASCRIPT_PATH}"></script>
-  `
-}
-
-/**
- * The HTML template to render the API Reference.
- */
-export function htmlDocument(options: FastifyApiReferenceOptions) {
-  return `
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Scalar API Reference</title>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-    ${javascript(options)}
-  </body>
-</html>
-`
-}
-
 const fastifyApiReference = fp<
   FastifyApiReferenceOptions,
   RawServerDefault,
@@ -160,12 +136,12 @@ const fastifyApiReference = fp<
   FastifyBaseLogger
 >(
   async (fastify, options) => {
-    let { configuration } = options
+    const { configuration: givenConfiguration } = options
 
-    // Add _integration: 'fastify' to the configuration
-    configuration = {
-      _integration: 'fastify',
-      ...configuration,
+    // Merge the defaults
+    let configuration = {
+      ...DEFAULT_CONFIGURATION,
+      ...givenConfiguration,
     }
 
     const specSource = (() => {
@@ -236,6 +212,7 @@ const fastifyApiReference = fp<
         const spec = getLoadedSpecIfAvailable()
         const filename: string = await getSpecFilenameSlug(spec)
         const json = JSON.parse(await spec.toJson()) // parsing minifies the JSON
+
         return reply
           .header('Content-Type', 'application/json')
           .header('Content-Disposition', `filename=${filename}.json`)
@@ -310,7 +287,6 @@ const fastifyApiReference = fp<
          */
         if (specSource.type !== 'url') {
           configuration = {
-            _integration: 'fastify',
             ...configuration,
             spec: {
               // Use a relative URL in case we're proxied
@@ -319,18 +295,17 @@ const fastifyApiReference = fp<
           }
         }
 
-        // Add the default CSS
-        if (!configuration?.customCss && !configuration?.theme) {
-          configuration = {
-            _integration: 'fastify',
-            ...configuration,
-            customCss: defaultCss,
-          }
-        }
-
-        return reply
-          .header('Content-Type', 'text/html; charset=utf-8')
-          .send(htmlDocument({ ...options, configuration }))
+        // Respond with the HTML document
+        return reply.header('Content-Type', 'text/html; charset=utf-8').send(
+          getHtmlDocument(
+            {
+              // We’re using the bundled JS here by default, but the user can pass a CDN URL.
+              cdn: RELATIVE_JAVASCRIPT_PATH,
+              ...configuration,
+            },
+            customTheme,
+          ),
+        )
       },
     })
 

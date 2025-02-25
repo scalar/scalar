@@ -10,7 +10,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 }
 
 /**
- * The custom theme CSS for the Express theme.
+ * The custom theme CSS for the Express theme
  */
 export const customTheme = `
 /* basic theme */
