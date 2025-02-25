@@ -43,6 +43,7 @@ defineOptions({ inheritAttrs: false })
 
 const mask = ref(true)
 const interactingWithDropdown = ref(false)
+const codeInput = ref<InstanceType<typeof CodeInput> | null>(null)
 
 const handleBlur = () => {
   if (!interactingWithDropdown.value) {
@@ -57,6 +58,13 @@ const inputType = computed(() =>
       : 'text'
     : (props.type ?? 'text'),
 )
+
+// If not an enum nor read only, focus the code input
+const handleLabelClick = () => {
+  if (!props.enum?.length && !props.readOnly) {
+    codeInput.value?.focus()
+  }
+}
 </script>
 <template>
   <DataTableCell
@@ -66,9 +74,7 @@ const inputType = computed(() =>
       v-if="$slots.default"
       class="text-c-1 flex items-center pl-3 pr-0"
       :for="id ?? ''"
-      @click="
-        !props.enum?.length && !props.readOnly && $refs.codeInput?.focus()
-      ">
+      @click="handleLabelClick">
       <slot />:
     </div>
     <div class="row-1 overflow-x-auto">

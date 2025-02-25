@@ -115,9 +115,8 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
 <template>
   <div class="w-full">
     <ViewLayoutCollapse
-      class="group/preview -mt-0.25 w-full border-b-0"
-      :defaultOpen="false"
-      :hasIcon="false">
+      class="group/preview w-full border-b-0"
+      :defaultOpen="false">
       <template #title>Code Snippet</template>
       <template #actions>
         <div class="-mx-1 flex flex-1">
@@ -127,7 +126,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
             placement="bottom-end"
             @update:modelValue="selectClient">
             <ScalarButton
-              class="py-0.75 text-c-1 hover:bg-b-3 flex h-full w-fit gap-1.5 px-1.5 font-normal"
+              class="text-c-1 hover:bg-b-3 py-0.75 flex h-full w-fit gap-1.5 px-1.5 font-normal"
               fullWidth
               variant="ghost">
               <span>{{ selectedPlugin?.label }}</span>

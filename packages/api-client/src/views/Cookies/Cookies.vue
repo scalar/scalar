@@ -11,6 +11,7 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useActiveEntities, useWorkspace } from '@/store'
@@ -174,9 +175,12 @@ const hasCookies = computed(
 
     <ViewLayoutContent class="flex-1">
       <template v-if="hasCookies">
-        <CookieForm />
-        <!--  Untested and disabled for now. -->
-        <!-- <CookieRaw /> -->
+        <ViewLayoutSection class="*:border-b-0">
+          <template #title>Edit Cookie</template>
+          <CookieForm />
+          <!--  Untested and disabled for now. -->
+          <!-- <CookieRaw /> -->
+        </ViewLayoutSection>
       </template>
       <EmptyState v-else />
     </ViewLayoutContent>

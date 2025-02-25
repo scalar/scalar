@@ -129,7 +129,7 @@ const activeWorkspaceCookies = computed(() =>
         <input
           v-if="layout !== 'modal'"
           id="requestname"
-          class="text-c-1 pl-1.25 md:-ml-1.25 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
+          class="text-c-1 group-hover-input pl-1.25 md:-ml-1.25 pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
           placeholder="Request Name"
           :value="operation.summary"
           @input="updateRequestNameHandler" />
@@ -145,7 +145,7 @@ const activeWorkspaceCookies = computed(() =>
         @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="request-section-content custom-scroll relative flex flex-1 flex-col">
+      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y">
       <RequestAuth
         v-if="
           collection &&
@@ -219,7 +219,7 @@ const activeWorkspaceCookies = computed(() =>
         :workspace="workspace" />
 
       <!-- Spacer -->
-      <div class="flex flex-grow" />
+      <div class="-my-0.25 flex flex-grow" />
 
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
