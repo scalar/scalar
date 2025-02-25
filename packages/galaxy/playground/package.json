@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/galaxy",
-  "description": "OpenAPI example specification in YAML and JSON",
+  "name": "@scalar-examples/galaxy",
+  "description": "Playground for Scalar Galaxy",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -21,38 +21,29 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup && vite-node scripts/publish.ts",
-    "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
+    "build": "scalar-build-rollup",
+    "dev": "vite-node src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "playground": "vite-node playground/index.ts",
-    "test": "vitest",
-    "test:unit": "vitest",
-    "types:build": "tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.js",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./3.1.yaml": "./dist/3.1.yaml",
-    "./3.1.json": "./dist/3.1.json",
-    "./latest.yaml": "./dist/latest.yaml",
-    "./latest.json": "./dist/latest.json"
-  },
   "files": [
     "dist",
     "CHANGELOG.md"
   ],
   "module": "./dist/index.js",
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/hono-api-reference": "workspace:*",
+    "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "@types/node": "^20.17.10"
   }
 }
