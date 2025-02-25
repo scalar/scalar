@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ScalarColorModeToggleIcon } from '@scalar/components'
-import { computed } from 'vue'
+import { computed, type Slot } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { SearchButton } from '@/features/Search'
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
+import type {
+  DocumentSelectorSlot,
+  ReferenceLayoutProps,
+  ReferenceLayoutSlots,
+} from '@/types'
 
 const props = defineProps<ReferenceLayoutProps>()
 
@@ -14,7 +18,7 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots>()
+const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 // Override the sidebar value and hide it
 const config = computed(() => ({ ...props.configuration, showSidebar: false }))
@@ -31,10 +35,15 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
       #[name]="slotProps">
       <slot
         :name="name"
-        v-bind="slotProps || {}"></slot>
+        v-bind="slotProps || {}" />
     </template>
     <template #content-start="{ spec }">
       <ClassicHeader>
+        <div
+          v-if="$slots['document-selector']"
+          class="w-64">
+          <slot name="document-selector" />
+        </div>
         <SearchButton
           v-if="!props.configuration.hideSearch"
           class="t-doc__sidebar"
