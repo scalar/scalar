@@ -48,7 +48,7 @@
     ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
     "./browser/standalone.js": "./dist/browser/standalone.js",
-    "./lib/html-rendering": "./src/standalone/lib/html-rendering.ts"
+    "./lib/html-rendering": "./dist/standalone/lib/html-rendering.js"
   },
   "files": [
     "dist",
