@@ -42,6 +42,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
   <button
     class="sidebar-search"
     :class="$attrs.class"
+    role="search"
     type="button"
     @click="modalState.show">
     <ScalarIcon
@@ -50,12 +51,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
       size="sm"
       thickness="2.5" />
     <div class="sidebar-search-input">
-      <span class="sr-only">Open </span>
-      <span class="sidebar-search-placeholder">Search</span>
+      <span class="sr-only">Open Search</span>
+      <span
+        aria-hidden="true"
+        class="sidebar-search-placeholder">
+        Search
+      </span>
       <span class="sidebar-search-shortcut">
-        <span class="sr-only">(Keyboard Shortcut)</span>
+        <span class="sr-only">Keyboard Shortcut:</span>
         <kbd class="sidebar-search-key">
-          {{ isMacOs() ? '⌘' : '⌃' }}{{ searchHotKey }}
+          <template v-if="isMacOs()">⌘</template>
+          <template v-else>
+            <span class="sr-only">CTRL</span>
+            <span aria-hidden="true">⌃</span>
+          </template>
+          {{ searchHotKey }}
         </kbd>
       </span>
     </div>
