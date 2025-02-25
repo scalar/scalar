@@ -6,7 +6,7 @@ import { createApp, h, reactive } from 'vue'
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
 const getSpecScriptTag = (doc: Document) =>
-  doc.getElementById('api-reference') || doc.querySelector('[data-scalar-api-reference]')
+  doc.querySelector('[data-scalar-api-reference]') || doc.getElementById('api-reference')
 
 /**
  * Reading the configuration from the data-attributes.
@@ -14,7 +14,9 @@ const getSpecScriptTag = (doc: Document) =>
 export function getConfigurationFromDataAttributes(doc: Document): ReferenceConfiguration {
   const specElement = doc.querySelector('[data-spec]')
   const specUrlElement = doc.querySelector('[data-spec-url]')
-  const configurationScriptElement = doc.querySelector('#api-reference[data-configuration]')
+  const configurationScriptElement =
+    doc.querySelector('[data-scalar-api-reference][data-configuration]') ||
+    doc.querySelector('#api-reference[data-configuration]')
 
   const getConfiguration = (): ReferenceConfiguration => {
     // <script data-configuration="{ … }" />
@@ -38,7 +40,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
       return getConfiguration().spec?.url
     }
 
-    // <script id="api-reference" data-url="/scalar.json" />
+    // <script data-scalar-api-reference data-url="/scalar.json" />
     const specScriptTag = getSpecScriptTag(doc)
     if (specScriptTag) {
       const urlFromScriptTag = specScriptTag.getAttribute('data-url')?.trim()
@@ -51,7 +53,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
     // <div data-spec-url="/scalar.json" />
     if (specUrlElement) {
       console.warn(
-        '[@scalar/api-reference] The [data-spec-url] HTML API is deprecated. Use the new <script id="api-reference" data-url="/scalar.json" /> API instead.',
+        '[@scalar/api-reference] The [data-spec-url] HTML API is deprecated. Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead.',
       )
       const urlFromSpecUrlElement = specUrlElement.getAttribute('data-spec-url')
 
@@ -64,7 +66,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
   }
 
   const getSpec = (): string | undefined => {
-    // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
+    // <script data-scalar-api-reference type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
     const specScriptTag = getSpecScriptTag(doc)
     if (specScriptTag) {
       const specFromScriptTag = specScriptTag.innerHTML?.trim()
@@ -77,7 +79,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
     // <div data-spec='{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}' />
     if (specElement) {
       console.warn(
-        '[@scalar/api-reference] The [data-spec] HTML API is deprecated. Use the new <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script> API instead.',
+        '[@scalar/api-reference] The [data-spec] HTML API is deprecated. Use the new <script data-scalar-api-reference type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script> API instead.',
       )
       const specFromSpecElement = specElement.getAttribute('data-spec')?.trim()
 
@@ -90,7 +92,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
   }
 
   const getProxyUrl = () => {
-    // <script id="api-reference" data-proxy-url="https://proxy.scalar.com">…</script>
+    // <script data-scalar-api-reference data-proxy-url="https://proxy.scalar.com">…</script>
     const specScriptTag = getSpecScriptTag(doc)
     if (specScriptTag) {
       const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
@@ -106,7 +108,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
   // Ensure Reference Props are reactive
   if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
     console.error(
-      'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
+      'Couldn’t find a [data-spec], [data-spec-url] or <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
       'font-family: monospace;',
     )
   } else {
@@ -128,9 +130,9 @@ export function getConfigurationFromDataAttributes(doc: Document): ReferenceConf
  * Read the HTML data-attributes for configuration.
  */
 export function mountScalarApiReference(doc: Document, configuration: ReferenceConfiguration) {
-  /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
+  /** @deprecated Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
-  /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
+  /** @deprecated Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead. */
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
   const props = reactive<ReferenceProps>({
