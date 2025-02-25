@@ -1565,21 +1565,36 @@ importers:
 
   packages/galaxy:
     devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
+  packages/galaxy/playground:
+    devDependencies:
       '@hono/node-server':
         specifier: ^1.11.0
         version: 1.11.3
       '@scalar/build-tooling':
         specifier: workspace:*
-        version: link:../build-tooling
+        version: link:../../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/hono
+        version: link:../../../integrations/hono
       '@scalar/mock-server':
         specifier: workspace:*
-        version: link:../mock-server
+        version: link:../../mock-server
       '@scalar/openapi-parser':
         specifier: workspace:*
-        version: link:../openapi-parser
+        version: link:../../openapi-parser
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
