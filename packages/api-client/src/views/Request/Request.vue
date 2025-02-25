@@ -33,6 +33,10 @@ const {
 } = useActiveEntities()
 const { modalState, requestHistory } = workspaceContext
 
+const { invalidParams } = defineProps<{
+  invalidParams: Set<string>
+}>()
+
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
 )
@@ -96,6 +100,7 @@ function handleCurlImport(curl: string) {
               :envVariables="activeEnvVariables"
               :environment="activeEnvironment"
               :example="activeExample"
+              :invalidParams="invalidParams"
               :operation="activeRequest"
               :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
               :server="activeServer"
