@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>

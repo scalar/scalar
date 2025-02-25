@@ -26,7 +26,7 @@ public enum ScalarClient
     /// </summary>
     [Description("httpclient")]
     HttpClient,
-    
+
     /// <summary>
     /// Http client.
     /// </summary>
@@ -188,7 +188,7 @@ public enum ScalarClient
     /// </summary>
     [Description("wget")]
     Wget,
-    
+
     /// <summary>
     /// OFetch client.
     /// </summary>

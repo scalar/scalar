@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 
 namespace Scalar.AspNetCore;
@@ -8,24 +7,20 @@ namespace Scalar.AspNetCore;
 /// Represents all available options for the Scalar API reference.
 /// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
 /// </summary>
-public sealed partial class ScalarOptions
+public sealed class ScalarOptions
 {
-
-    [GeneratedRegex("^[a-zA-Z]+://.*", RegexOptions.IgnoreCase)]
-    private static partial Regex OpenApiRoutePatternIsUrlRegex();
-    
     /// <summary>
-    /// Returns whether the <see cref="OpenApiRoutePattern"/> is set to a URL (true) or a route/path (false).
+    /// Returns whether the <see cref="OpenApiRoutePattern" /> is set to a URL (true) or a route/path (false).
     /// </summary>
-    internal bool IsOpenApiRoutePatternUrl => OpenApiRoutePatternIsUrlRegex().IsMatch(OpenApiRoutePattern);
-    
-    internal List<string> DocumentNames { get; } = [];
+    internal bool IsOpenApiRoutePatternUrl => RegexHelper.IsUrlRegex().IsMatch(OpenApiRoutePattern);
+
+    internal List<string> Documents { get; } = [];
 
     /// <summary>
     /// Gets or sets a function that provides document names.
     /// </summary>
     /// <value>A function that returns an <see cref="IEnumerable{T}" /> of document names.</value>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents. If this property is set, the <see cref="DocumentNames" /> property will be ignored.</remarks>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents. If this property is set, the <see cref="Documents" /> property will be ignored.</remarks>
     internal Func<HttpContext, CancellationToken, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
 
     /// <summary>
@@ -56,11 +51,7 @@ public sealed partial class ScalarOptions
     /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
     /// </summary>
     /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
-    public string OpenApiRoutePattern
-    {
-        get => field.TrimStart('/');
-        set;
-    } = "/openapi/{documentName}.json";
+    public string OpenApiRoutePattern { get; set; } = "/openapi/{documentName}.json";
 
     /// <summary>
     /// Proxy URL for the API requests.

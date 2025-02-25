@@ -10,7 +10,7 @@ public class ScalarOptionsTests
         // Arrange
         var options = new ScalarOptions
         {
-            OpenApiRoutePattern = openApiRoute,
+            OpenApiRoutePattern = openApiRoute
         };
 
         // Act
@@ -19,7 +19,7 @@ public class ScalarOptionsTests
         // Assert
         result.Should().BeTrue();
     }
-    
+
     [Theory]
     [InlineData("relative/path/openapi.json")]
     [InlineData("/absolute/path/openapi.json")]
@@ -30,7 +30,7 @@ public class ScalarOptionsTests
         // Arrange
         var options = new ScalarOptions
         {
-            OpenApiRoutePattern = openApiRoute,
+            OpenApiRoutePattern = openApiRoute
         };
 
         // Act
