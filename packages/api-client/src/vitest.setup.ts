@@ -1,6 +1,6 @@
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
-import { afterEach, beforeEach, vi, type Mock } from 'vitest'
+import { afterEach, beforeEach, expect, vi, type Mock } from 'vitest'
 import { reactive, ref } from 'vue'
 
 // Mock the useLayout hook
@@ -17,10 +17,10 @@ export const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSideba
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')
+let isConsoleWarnEnabled = true
+
 /** Spy on console.error */
 export const consoleErrorSpy = vi.spyOn(console, 'error')
-/** Flag to disable console warning/error checks for specific tests */
-export let skipConsoleChecks = false
 
 /** Reset the spies */
 export const resetConsoleSpies = () => {
@@ -28,14 +28,9 @@ export const resetConsoleSpies = () => {
   consoleErrorSpy.mockClear()
 }
 
-/** Helper to disable console checks for specific tests */
-export const disableConsoleChecks = () => {
-  skipConsoleChecks = true
-}
-
 /** Helper to re-enable console checks */
-export const enableConsoleChecks = () => {
-  skipConsoleChecks = false
+export const enableConsoleWarn = () => {
+  isConsoleWarnEnabled = true
 }
 
 // Set default values for the mocks
@@ -63,16 +58,16 @@ afterEach(() => {
    *
    * To disable you can call `disableConsoleChecks()` in the test
    *
-   * TODO: uncomment this in a separate PR so all the tests can be fixed
+   * TODO: going to disable these as a lot of our tests have warnings and errors, we can enable them globally as we
+   * bring that number down
    */
-  // if (!skipConsoleChecks) {
-  //   expect(consoleWarnSpy).not.toHaveBeenCalled()
-  //   expect(consoleErrorSpy).not.toHaveBeenCalled()
-  // }
+
+  if (isConsoleWarnEnabled) {
+    expect(consoleWarnSpy).not.toHaveBeenCalled()
+  }
 
   // Reset the spies
-  // resetConsoleSpies()
-  // enableConsoleChecks()
+  resetConsoleSpies()
 
   vi.clearAllMocks()
 })
