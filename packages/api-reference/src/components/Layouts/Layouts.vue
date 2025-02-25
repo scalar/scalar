@@ -5,23 +5,21 @@
 import { computed } from 'vue'
 
 import type {
-  ApiDefinitionSelectorSlot,
-  InternalReferenceProps,
+  DocumentSelectorSlot,
+  ReferenceLayoutProps,
   ReferenceLayoutSlots,
-} from '@/types'
-
+} from '../../types'
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const props = defineProps<InternalReferenceProps>()
+const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
+const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
-// TODO: move to zod + safeParse to get typed instead of unknown
 const referenceLayoutSlots = computed(
   (): ReferenceLayoutSlots =>
     Object.keys(slots).filter(
@@ -49,8 +47,8 @@ const layouts = {
         :name="name"
         v-bind="slotProps || {}" />
     </template>
-    <template #api-definition-selector>
-      <slot name="api-definition-selector" />
+    <template #document-selector>
+      <slot name="document-selector" />
     </template>
   </component>
 </template>

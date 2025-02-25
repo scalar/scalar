@@ -114,8 +114,8 @@ export type ReferenceLayoutSlots = {
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
 }
 
-export type ApiDefinitionSelectorSlot = {
-  'api-definition-selector': any
+export type DocumentSelectorSlot = {
+  'document-selector': any
 }
 
 export type ReferenceSlotProps = {
