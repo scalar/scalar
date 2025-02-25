@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration } from '@scalar/types/packages'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type InjectionKey, inject } from 'vue'
 
 export const CONFIGURATION_SYMBOL = Symbol() as InjectionKey<ApiReferenceConfiguration>
