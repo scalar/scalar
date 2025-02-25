@@ -75,7 +75,7 @@ const { handleDragEnd, isDroppable } = dragHandlerFactory(
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
   events.commandPalette.emit({
-    commandName: 'Import from OpenAPI/Swagger/Postman',
+    commandName: 'Import from OpenAPI/Swagger/Postman/cURL',
   })
 }
 const searchResultsId = useId()

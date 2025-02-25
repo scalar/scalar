@@ -196,7 +196,7 @@ const handleInput = (value: string) => {
       <CommandActionInput
         :modelValue="inputContent"
         @update:modelValue="handleInput"
-        placeholder="OpenAPI/Swagger/Postman URL or document"
+        placeholder="OpenAPI/Swagger/Postman URL or cURL"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
