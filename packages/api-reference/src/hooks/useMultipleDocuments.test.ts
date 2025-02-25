@@ -105,4 +105,153 @@ describe('useMultipleDocuments', () => {
       expect(availableDocuments.value[0].name).toBe('valid-api')
     })
   })
+
+  describe('multiple sources', () => {
+    it('should select API using numeric index from query parameter', () => {
+      mockUrl = new URL('http://example.com?api=1')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                name: 'first-api',
+              },
+              {
+                url: '/openapi-2.yaml',
+                name: 'second-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
+
+      expect(selectedDocumentIndex.value).toBe(1)
+      expect(selectedConfiguration.value).toEqual({
+        spec: {
+          url: '/openapi-2.yaml',
+          name: 'second-api',
+        },
+      })
+    })
+
+    it('should select API using name from query parameter', () => {
+      mockUrl = new URL('http://example.com?api=second-api')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                name: 'first-api',
+              },
+              {
+                url: '/openapi-2.yaml',
+                name: 'second-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
+
+      expect(selectedDocumentIndex.value).toBe(1)
+      expect(selectedConfiguration.value).toEqual({
+        spec: {
+          url: '/openapi-2.yaml',
+          name: 'second-api',
+        },
+      })
+    })
+
+    it('should default to first API if query parameter is invalid', () => {
+      mockUrl = new URL('http://example.com?api=invalid-api')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                name: 'first-api',
+              },
+              {
+                url: '/openapi-2.yaml',
+                name: 'second-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
+
+      expect(selectedDocumentIndex.value).toBe(0)
+      expect(selectedConfiguration.value).toEqual({
+        spec: {
+          url: '/openapi-1.yaml',
+          name: 'first-api',
+        },
+      })
+    })
+
+    it('should update URL when selection changes', async () => {
+      mockUrl = new URL('http://example.com')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+      const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
+
+      const multiConfig = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                name: 'first-api',
+              },
+              {
+                url: '/openapi-2.yaml',
+                name: 'second-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { selectedDocumentIndex } = useMultipleDocuments(multiConfig)
+
+      selectedDocumentIndex.value = 1
+
+      expect(replaceStateSpy).toHaveBeenCalledWith({}, '', 'http://example.com/?api=second-api')
+    })
+
+    it('should filter out undefined sources', () => {
+      const configWithUndefinedSource = {
+        configuration: ref({
+          spec: {
+            sources: [
+              undefined,
+              {
+                url: '/openapi.yaml',
+                name: 'valid-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      // @ts-expect-error This is a test for the edge case
+      const { availableDocuments } = useMultipleDocuments(configWithUndefinedSource)
+
+      expect(availableDocuments.value).toHaveLength(1)
+      expect(availableDocuments.value[0].name).toBe('valid-api')
+    })
+  })
 })

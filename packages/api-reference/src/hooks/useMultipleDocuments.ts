@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@/types'
+import type { ReferenceConfiguration, ReferenceConfigurationWithSources } from '@/types'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { type Ref, computed, ref, watch } from 'vue'
 
@@ -6,7 +6,7 @@ import { type Ref, computed, ref, watch } from 'vue'
 const QUERY_PARAMETER = 'api'
 
 interface UseMultipleDocumentsProps {
-  configuration: Ref<ReferenceConfiguration | ReferenceConfiguration[] | undefined>
+  configuration: Ref<ReferenceConfiguration | ReferenceConfiguration[] | ReferenceConfigurationWithSources | undefined>
 }
 
 export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProps) => {
@@ -14,8 +14,18 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
    * All available API definitions that can be selected
    */
   const availableDocuments = computed(() => {
+    // Multiple configurations
     if (Array.isArray(configuration.value)) {
       return configuration.value.map((config) => config.spec).filter(isDefined)
+    }
+
+    // Multiple sources
+    if (
+      configuration.value?.spec &&
+      'sources' in configuration.value.spec &&
+      Array.isArray(configuration.value.spec.sources)
+    ) {
+      return configuration.value.spec.sources.filter(isDefined)
     }
 
     return configuration.value?.spec ? [configuration.value.spec] : []
@@ -27,6 +37,8 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
   const updateUrlParameter = (value: number) => {
     const url = new URL(window.location.href)
     const selectedDefinition = availableDocuments.value[value]
+
+    // Always use the name if available, otherwise fallback to index
     const parameterValue = selectedDefinition?.name ?? value.toString()
 
     url.searchParams.set(QUERY_PARAMETER, parameterValue)
@@ -40,16 +52,16 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
     const url = new URL(window.location.href)
     const parameter = url.searchParams.get(QUERY_PARAMETER) || '0'
 
-    // Try parsing as numeric index first
-    const numericIndex = Number.parseInt(parameter, 10)
-    if (!isNaN(numericIndex) && availableDocuments.value[numericIndex]) {
-      return numericIndex
-    }
-
-    // Try finding by name if numeric index fails
+    // Try finding by name first
     const indexByName = availableDocuments.value.findIndex((option) => option.name === parameter)
     if (indexByName !== -1) {
       return indexByName
+    }
+
+    // Try parsing as numeric index if name lookup fails
+    const numericIndex = Number.parseInt(parameter, 10)
+    if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
+      return numericIndex
     }
 
     // Default to first item if no match found
@@ -64,15 +76,29 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
   /**
    * The currently selected API configuration
    */
-  const selectedConfiguration = computed(() => {
+  const selectedConfiguration = computed((): ReferenceConfiguration => {
+    // Multiple configurations
     if (Array.isArray(configuration.value)) {
       return configuration.value[selectedDocumentIndex.value]
     }
-    return configuration.value
+
+    // Multiple sources
+    if (
+      configuration.value?.spec &&
+      'sources' in configuration.value.spec &&
+      Array.isArray(configuration.value.spec.sources)
+    ) {
+      return {
+        ...configuration.value,
+        spec: configuration.value.spec.sources[selectedDocumentIndex.value],
+      }
+    }
+
+    return configuration.value as ReferenceConfiguration
   })
 
   // Update URL when selection changes
-  watch(selectedDocumentIndex, updateUrlParameter, { immediate: true })
+  watch(selectedDocumentIndex, updateUrlParameter, { flush: 'sync', immediate: true })
 
   return {
     selectedConfiguration,

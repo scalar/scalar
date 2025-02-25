@@ -4,7 +4,7 @@ import ApiReference from '@/components/ApiReference.vue'
 import { mount } from '@vue/test-utils'
 
 describe('ApiReference', () => {
-  describe('multiple API definitions', () => {
+  describe('multiple configurations', () => {
     it('renders a single API reference', async () => {
       const wrapper = mount(ApiReference, {
         props: {
@@ -143,6 +143,39 @@ describe('ApiReference', () => {
 
       // Check whether it renders the SingleApiReference component
       expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
+
+      // Check whether it renders the select
+      expect(wrapper.html()).toContain('document-selector')
+
+      // Check whether it renders the names
+      expect(wrapper.html()).toContain('my-api-1')
+      expect(wrapper.html()).toContain('my-api-2')
+    })
+  })
+
+  describe('multiple sources', () => {
+    it('renders two URLs', async () => {
+      const wrapper = mount(ApiReference, {
+        props: {
+          configuration: {
+            spec: {
+              sources: [
+                {
+                  url: 'https://api.example.com/v1/openapi.yaml',
+                  name: 'my-api-1',
+                },
+                {
+                  url: 'https://api.example.com/v2/openapi.yaml',
+                  name: 'my-api-2',
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      // Wait for the API reference to be rendered
+      await wrapper.vm.$nextTick()
 
       // Check whether it renders the select
       expect(wrapper.html()).toContain('document-selector')
