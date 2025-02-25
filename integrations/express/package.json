@@ -44,10 +44,10 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/api-reference": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/supertest": "^2.0.12",
