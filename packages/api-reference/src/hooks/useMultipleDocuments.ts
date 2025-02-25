@@ -2,66 +2,52 @@ import type { ReferenceConfiguration } from '@/types'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { type Ref, computed, ref, watch } from 'vue'
 
-export const useMultipleDocuments = ({
-  configuration,
-}: { configuration: Ref<ReferenceConfiguration | ReferenceConfiguration[] | undefined> }) => {
-  const QUERY_PARAMETER_NAME = 'api'
+/** URL parameter name for the selected API document */
+const QUERY_PARAMETER = 'api'
 
+interface UseMultipleDocumentsProps {
+  configuration: Ref<ReferenceConfiguration | ReferenceConfiguration[] | undefined>
+}
+
+export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProps) => {
   /**
-   * The selected API definition (just a single configuration)
+   * All available API definitions that can be selected
    */
-  const selectedConfiguration = computed(() => {
-    if (Array.isArray(configuration.value)) {
-      return configuration.value[selectedOption.value]
-    }
-
-    return configuration.value
-  })
-
-  /**
-   * All available API definitions for the selector
-   */
-  const options = computed(() => {
-    // Create an array from all configurations
+  const availableDocuments = computed(() => {
     if (Array.isArray(configuration.value)) {
       return configuration.value.map((config) => config.spec).filter(isDefined)
     }
 
-    // Make it an array
-    if (configuration.value?.spec) {
-      return [configuration.value.spec]
-    }
-
-    return []
+    return configuration.value?.spec ? [configuration.value.spec] : []
   })
 
   /**
-   * The index of the selected API definition
+   * Updates the URL with the selected API definition
    */
-  const selectedOption = ref(
-    // Get from query parameter
-    getSelectedOptionFromQueryParameter(),
-  )
+  const updateUrlParameter = (value: number) => {
+    const url = new URL(window.location.href)
+    const selectedDefinition = availableDocuments.value[value]
+    const parameterValue = selectedDefinition?.name ?? value.toString()
+
+    url.searchParams.set(QUERY_PARAMETER, parameterValue)
+    window.history.replaceState({}, '', url.toString())
+  }
 
   /**
-   * Get the selected API definition from the query parameter
-   *
-   * @returns The index of the selected API definition
+   * Determines the initially selected API definition from the URL
    */
-  function getSelectedOptionFromQueryParameter() {
+  const getInitialSelection = (): number => {
     const url = new URL(window.location.href)
-    const parameter = url.searchParams.get(QUERY_PARAMETER_NAME) || '0'
+    const parameter = url.searchParams.get(QUERY_PARAMETER) || '0'
 
-    // First try parsing as numeric index
+    // Try parsing as numeric index first
     const numericIndex = Number.parseInt(parameter, 10)
-
-    if (!isNaN(numericIndex) && options.value[numericIndex]) {
+    if (!isNaN(numericIndex) && availableDocuments.value[numericIndex]) {
       return numericIndex
     }
 
-    // Then try finding by name
-    const indexByName = options.value.findIndex((option) => option.name === parameter)
-
+    // Try finding by name if numeric index fails
+    const indexByName = availableDocuments.value.findIndex((option) => option.name === parameter)
     if (indexByName !== -1) {
       return indexByName
     }
@@ -71,30 +57,26 @@ export const useMultipleDocuments = ({
   }
 
   /**
-   * Update the URL query parameter to reflect the selected API definition
+   * The index of the currently selected API definition
    */
-  watch(
-    selectedOption,
-    (value) => {
-      // Update the URL query parameter to reflect the selected API definition
-      const url = new URL(window.location.href)
+  const selectedDocumentIndex = ref(getInitialSelection())
 
-      // Use the API definition name if available, otherwise use the numeric index
-      const selectedDefinition = options.value[value]
-      const parameterValue = selectedDefinition?.name ?? value.toString()
+  /**
+   * The currently selected API configuration
+   */
+  const selectedConfiguration = computed(() => {
+    if (Array.isArray(configuration.value)) {
+      return configuration.value[selectedDocumentIndex.value]
+    }
+    return configuration.value
+  })
 
-      url.searchParams.set(QUERY_PARAMETER_NAME, parameterValue)
-
-      window.history.replaceState({}, '', url.toString())
-    },
-    {
-      immediate: true,
-    },
-  )
+  // Update URL when selection changes
+  watch(selectedDocumentIndex, updateUrlParameter, { immediate: true })
 
   return {
     selectedConfiguration,
-    options,
-    selectedOption,
+    availableDocuments,
+    selectedDocumentIndex,
   }
 }

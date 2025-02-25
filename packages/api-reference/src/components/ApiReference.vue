@@ -7,22 +7,25 @@ import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
 import type { ReferenceConfiguration } from '@/types'
 
 const props = defineProps<{
+  /**
+   * Configuration for the API reference.
+   * Can be a single configuration or an array of configurations for multiple documents.
+   */
   configuration?: ReferenceConfiguration | ReferenceConfiguration[]
 }>()
 
-const { selectedConfiguration, options, selectedOption } = useMultipleDocuments(
-  {
+const { selectedConfiguration, availableDocuments, selectedDocumentIndex } =
+  useMultipleDocuments({
     configuration: toRef(props, 'configuration'),
-  },
-)
+  })
 </script>
 
 <template>
   <SingleApiReference :configuration="selectedConfiguration">
     <template #document-selector>
       <DocumentSelector
-        v-model="selectedOption"
-        :options="options" />
+        v-model="selectedDocumentIndex"
+        :options="availableDocuments" />
     </template>
   </SingleApiReference>
 </template>
