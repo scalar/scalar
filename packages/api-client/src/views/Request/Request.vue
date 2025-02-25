@@ -37,6 +37,10 @@ const {
 const { modalState, requestHistory, requestMutators, serverMutators, servers } =
   workspaceContext
 
+const { invalidParams } = defineProps<{
+  invalidParams: Set<string>
+}>()
+
 // Extend the RequestPayload type to include url
 type ExtendedRequestPayload = RequestPayload & {
   url?: string
@@ -163,6 +167,7 @@ function handleCurlImport(curl: string) {
               :envVariables="activeEnvVariables"
               :environment="activeEnvironment"
               :example="activeExample"
+              :invalidParams="invalidParams"
               :operation="activeRequest"
               :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
               :server="activeServer"
