@@ -11,132 +11,145 @@ const getSpecScriptTag = (doc: Document) =>
 /**
  * Reading the configuration from the data-attributes.
  */
-export function getConfigurationFromDataAttributes(doc: Document): ReferenceConfiguration {
-  const specElement = doc.querySelector('[data-spec]')
-  const specUrlElement = doc.querySelector('[data-spec-url]')
-  const configurationScriptElement =
-    doc.querySelector('[data-scalar-api-reference][data-configuration]') ||
-    doc.querySelector('#api-reference[data-configuration]')
+export function getConfigurationFromDataAttributes(doc: Document): ReferenceConfiguration | ReferenceConfiguration[] {
+  const specElements = doc.querySelectorAll('[data-spec]')
+  const specUrlElements = doc.querySelectorAll('[data-spec-url]')
+  const configurationScriptElements = doc.querySelectorAll('[data-scalar-api-reference], #api-reference')
+
+  // If we have multiple elements, process them all
+  const totalElements = specElements.length + specUrlElements.length + configurationScriptElements.length
+  if (totalElements > 1) {
+    const configurations: ReferenceConfiguration[] = []
+
+    // Process modern script tags
+    configurationScriptElements.forEach((element) => {
+      const config = processElement(element)
+      if (config) configurations.push(config)
+    })
+
+    // Process deprecated elements in the correct order
+    specUrlElements.forEach((element) => {
+      showDeprecationWarning('data-spec-url')
+      const config = processElement(element)
+      if (config) configurations.push(config)
+    })
+
+    specElements.forEach((element) => {
+      showDeprecationWarning('data-spec')
+      const config = processElement(element)
+      if (config) configurations.push(config)
+    })
+
+    return configurations
+  }
+
+  // For single or no elements, maintain existing behavior
+  const element = getSpecScriptTag(doc) || specElements[0] || specUrlElements[0]
+
+  // Show appropriate warning for deprecated elements
+  if (element?.hasAttribute('data-spec')) {
+    showDeprecationWarning('data-spec')
+  } else if (element?.hasAttribute('data-spec-url')) {
+    showDeprecationWarning('data-spec-url')
+  }
+
+  const config = processElement(element) || {}
+
+  // Add error logging when no spec elements are found
+  if (!element) {
+    console.error(
+      'Could not find a <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
+      'font-family: monospace;',
+    )
+  }
+
+  return config
+}
+
+// Helper function to show consistent deprecation warnings
+function showDeprecationWarning(attribute: 'data-spec' | 'data-spec-url') {
+  console.warn(
+    `[@scalar/api-reference] The [${attribute}] HTML API is deprecated. Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead.`,
+  )
+}
+
+// Helper function to process a single element
+function processElement(element: Element | null): ReferenceConfiguration | null {
+  if (!element) return null
 
   const getConfiguration = (): ReferenceConfiguration => {
-    // <script data-configuration="{ … }" />
-    if (configurationScriptElement) {
-      const configurationFromElement = configurationScriptElement.getAttribute('data-configuration')
-
-      if (configurationFromElement) {
-        return {
-          _integration: 'html',
-          ...JSON.parse(configurationFromElement.split('&quot;').join('"')),
-        }
+    const configAttr = element.getAttribute('data-configuration')
+    if (configAttr) {
+      return {
+        _integration: 'html',
+        ...JSON.parse(configAttr.split('&quot;').join('"')),
       }
     }
-
     return { _integration: 'html' }
   }
 
   const getSpecUrl = () => {
-    // Let’s first check if the user passed a spec URL in the configuration.
+    // Check configuration first
     if (getConfiguration().spec?.url) {
       return getConfiguration().spec?.url
     }
 
-    // <script data-scalar-api-reference data-url="/scalar.json" />
-    const specScriptTag = getSpecScriptTag(doc)
-    if (specScriptTag) {
-      const urlFromScriptTag = specScriptTag.getAttribute('data-url')?.trim()
+    // Then check data-url attribute
+    const urlAttr = element.getAttribute('data-url')?.trim()
+    if (urlAttr) return urlAttr
 
-      if (urlFromScriptTag) {
-        return urlFromScriptTag
-      }
-    }
-
-    // <div data-spec-url="/scalar.json" />
-    if (specUrlElement) {
-      console.warn(
-        '[@scalar/api-reference] The [data-spec-url] HTML API is deprecated. Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead.',
-      )
-      const urlFromSpecUrlElement = specUrlElement.getAttribute('data-spec-url')
-
-      if (urlFromSpecUrlElement) {
-        return urlFromSpecUrlElement
-      }
-    }
+    // Finally check deprecated data-spec-url without showing warning here
+    // Warning will be shown when processing the element in getConfigurationFromDataAttributes
+    const specUrlAttr = element.getAttribute('data-spec-url')?.trim()
+    if (specUrlAttr) return specUrlAttr
 
     return undefined
   }
 
   const getSpec = (): string | undefined => {
-    // <script data-scalar-api-reference type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
-    const specScriptTag = getSpecScriptTag(doc)
-    if (specScriptTag) {
-      const specFromScriptTag = specScriptTag.innerHTML?.trim()
-
-      if (specFromScriptTag) {
-        return specFromScriptTag
-      }
+    if (element.tagName === 'SCRIPT') {
+      const content = element.innerHTML?.trim()
+      if (content) return content
     }
 
-    // <div data-spec='{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}' />
-    if (specElement) {
-      console.warn(
-        '[@scalar/api-reference] The [data-spec] HTML API is deprecated. Use the new <script data-scalar-api-reference type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script> API instead.',
-      )
-      const specFromSpecElement = specElement.getAttribute('data-spec')?.trim()
-
-      if (specFromSpecElement) {
-        return specFromSpecElement
-      }
+    const specAttr = element.getAttribute('data-spec')?.trim()
+    if (specAttr) {
+      return specAttr
     }
 
     return undefined
   }
 
   const getProxyUrl = () => {
-    // <script data-scalar-api-reference data-proxy-url="https://proxy.scalar.com">…</script>
-    const specScriptTag = getSpecScriptTag(doc)
-    if (specScriptTag) {
-      const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
-
-      if (proxyUrl) {
-        return proxyUrl.trim()
-      }
-    }
-
-    return undefined
+    return element.getAttribute('data-proxy-url')?.trim()
   }
 
-  // Ensure Reference Props are reactive
-  if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
-    console.error(
-      'Couldn’t find a [data-spec], [data-spec-url] or <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
-      'font-family: monospace;',
-    )
-  } else {
-    const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
+  const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
 
-    return {
-      _integration: 'html',
-      proxyUrl: getProxyUrl(),
-      ...getConfiguration(),
-      spec: { ...specOrSpecUrl },
-    } satisfies ReferenceConfiguration
+  return {
+    _integration: 'html',
+    proxyUrl: getProxyUrl(),
+    ...getConfiguration(),
+    spec: { ...specOrSpecUrl },
   }
-
-  return {}
 }
 
 /**
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function mountScalarApiReference(doc: Document, configuration: ReferenceConfiguration) {
+export function mountScalarApiReference(
+  doc: Document,
+  configuration: ReferenceConfiguration | ReferenceConfiguration[],
+) {
   /** @deprecated Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script data-scalar-api-reference data-url="/scalar.json" /> API instead. */
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
   const props = reactive<ReferenceProps>({
-    configuration,
+    // TODO: Just always use the first configuration for now. Once we support multiple configurations, we change this.
+    configuration: Array.isArray(configuration) ? configuration[0] : configuration,
   })
 
   if (props.configuration?.darkMode) {
@@ -145,7 +158,7 @@ export function mountScalarApiReference(doc: Document, configuration: ReferenceC
     doc.body?.classList.add('light-mode')
   }
 
-  // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
+  // If it's a script tag, we can't mount the Vue.js app inside that tag.
   // We need to add a new container element before the script tag.
   const createContainer = () => {
     let _container: Element | null = null

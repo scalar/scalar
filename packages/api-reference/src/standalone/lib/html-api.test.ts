@@ -142,7 +142,7 @@ describe('html-api', () => {
 
       expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({})
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Couldn’t find a [data-spec], [data-spec-url] or <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
+        'Could not find a <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
         'font-family: monospace;',
       )
       consoleSpy.mockRestore()
