@@ -54,10 +54,10 @@ const ENTRY_ICONS: { [x in EntryType]: Icon } = {
 
 const ENTRY_LABELS: { [x in EntryType]: string } = {
   heading: 'Document Heading',
-  model: '', // The title of the entry is already :"Model"
   req: 'Request',
   tag: 'Tag',
-  webhook: 'Webhook',
+  model: '', // The title of the entry is already "Model"
+  webhook: '', // The title of the entry is already "Webhook"
 }
 
 const searchModalRef = ref<HTMLElement | null>(null)
@@ -115,10 +115,27 @@ watch(selectedSearchResult, (index) => {
   })
 })
 
-const selectedSearchResultId = computed<string>(() => {
-  const index = selectedSearchResult.value
-  const result = searchResultsWithPlaceholderResults.value[index]
-  return getOptionId(result?.item.href)
+/** Screen reader label for the search input */
+const srLabel = computed<string>(() => {
+  const results = searchResultsWithPlaceholderResults.value
+  if (!results.length) return 'No results found'
+
+  const result = results[selectedSearchResult.value].item
+
+  const resultsFoundLabel = searchText.value.length
+    ? `${results.length} result${results.length === 1 ? '' : 's'} found, `
+    : ''
+
+  const selectedResultDescription =
+    result.type === 'tag'
+      ? ''
+      : result.type === 'req'
+        ? `, HTTP Method ${result.httpVerb}, Path ${result.path}`
+        : `, ${result.description}`
+
+  const selectedResultLabel = `${ENTRY_LABELS[result.type]} ${result.title} ${selectedResultDescription}`
+
+  return `${resultsFoundLabel}Selected: ${selectedResultLabel}`
 })
 
 /** Keyboard navigation */
@@ -143,18 +160,16 @@ function getFullUrlFromHash(href: string) {
 
   return newUrl.toString()
 }
+
+function onSearchResultEnter() {
+  const results = searchResultsWithPlaceholderResults.value
+  onSearchResultClick(results[selectedSearchResult.value])
+}
 </script>
 <template>
   <ScalarModal
     :state="modalState"
-    variant="search"
-    @keydown.down.stop.prevent="navigateSearchResults('down')"
-    @keydown.enter.stop.prevent="
-      onSearchResultClick(
-        searchResultsWithPlaceholderResults[selectedSearchResult],
-      )
-    "
-    @keydown.up.stop.prevent="navigateSearchResults('up')">
+    variant="search">
     <div
       ref="searchModalRef"
       aria-label="Reference Search"
@@ -162,14 +177,16 @@ function getFullUrlFromHash(href: string) {
       role="search">
       <ScalarSearchInput
         v-model="searchText"
-        :aria-activedescendant="selectedSearchResultId"
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
-        @input="fuseSearch" />
+        :label="srLabel"
+        @input="fuseSearch"
+        @keydown.down.stop.prevent="navigateSearchResults('down')"
+        @keydown.enter.stop.prevent="onSearchResultEnter"
+        @keydown.up.stop.prevent="navigateSearchResults('up')" />
     </div>
     <ScalarSearchResultList
       :id="listboxId"
-      :aria-describedby="instructionsId"
       aria-label="Reference Search Results"
       class="ref-search-results custom-scroll"
       :noResults="!searchResultsWithPlaceholderResults.length">
@@ -197,6 +214,7 @@ function getFullUrlFromHash(href: string) {
         </span>
         <template
           v-if="
+            entry.item.type !== 'webhook' &&
             (entry.item.httpVerb || entry.item.path) &&
             entry.item.path !== entry.item.title
           "
@@ -226,16 +244,18 @@ function getFullUrlFromHash(href: string) {
       </template>
     </ScalarSearchResultList>
     <div
-      aria-hidden="true"
-      class="ref-search-meta">
-      <span>↑↓ Navigate</span>
-      <span>⏎ Select</span>
-    </div>
-    <div
       :id="instructionsId"
-      class="sr-only">
-      Press up arrow / down arrow to navigate, enter to select, type to filter
-      results
+      class="ref-search-meta">
+      <span
+        aria-hidden="true"
+        class="contents">
+        <span>↑↓ Navigate</span>
+        <span>⏎ Select</span>
+      </span>
+      <span class="sr-only">
+        Press up arrow / down arrow to navigate, enter to select, type to filter
+        results
+      </span>
     </div>
   </ScalarModal>
 </template>
@@ -254,6 +274,8 @@ a {
 }
 .ref-search-meta {
   background: var(--scalar-background-3);
+  border-bottom-left-radius: var(--scalar-radius-lg);
+  border-bottom-right-radius: var(--scalar-radius-lg);
   padding: 6px 12px;
   font-size: var(--scalar-font-size-4);
   color: var(--scalar-color-3);

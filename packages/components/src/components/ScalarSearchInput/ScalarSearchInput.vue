@@ -23,6 +23,12 @@ function handleInput(e: Event) {
   emit('update:modelValue', (e.target as HTMLInputElement).value)
 }
 
+function handleClear() {
+  emit('update:modelValue', '')
+  // Push focus back to the input
+  if (inputRef.value) inputRef.value.focus()
+}
+
 defineOptions({ inheritAttrs: false })
 
 /* Extract the classes so they can be merged by `cx` */
@@ -82,7 +88,7 @@ defineExpose({
       icon="Close"
       label="Clear Search"
       :thickness="sidebar ? '1.75' : '1.5'"
-      @click="emit('update:modelValue', '')" />
+      @click.stop.prevent="handleClear" />
   </label>
 </template>
 <style scoped>
