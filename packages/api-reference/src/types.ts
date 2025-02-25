@@ -12,10 +12,23 @@ export type { ReferenceConfiguration }
  * Props for the ApiReference components, coming from user input
  */
 export type ReferenceProps = {
-  configuration?: ApiReferenceConfiguration
+  configuration?: ApiReferenceConfiguration | ReferenceConfiguration
 }
 
+/**
+ * Before the configuration is parsed, we can use the broader types.
+ */
 export type ReferenceLayoutProps = {
+  configuration: ApiReferenceConfiguration | ReferenceConfiguration
+  parsedSpec: Spec
+  rawSpec: string
+  isDark: boolean
+}
+
+/**
+ * After the configuration is parsed, we can use the stricter types.
+ */
+export type InternalReferenceProps = {
   configuration: ApiReferenceConfigurationSchema
   parsedSpec: Spec
   rawSpec: string
