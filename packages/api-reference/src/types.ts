@@ -23,8 +23,6 @@ export type PathRouting = {
   basePath: string
 }
 
-export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
-
 export type Parameter = {
   name: string
   required: boolean
