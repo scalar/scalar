@@ -395,6 +395,9 @@ importers:
       supertest:
         specifier: ^6.3.3
         version: 6.3.4
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)

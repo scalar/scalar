@@ -104,4 +104,63 @@ describe('apiReference', () => {
     // Check the URL is present
     expect(response.text).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
   })
+
+  it('applies custom theme CSS when no theme is provided', async () => {
+    const app = express()
+    app.use(apiReference({}))
+
+    const response = await request(app).get('/')
+    expect(response.text).toContain('--scalar-color-1: #353535')
+    expect(response.text).toContain('--scalar-color-accent: #8ab4f8')
+  })
+
+  it('does not include custom theme CSS when theme is provided', async () => {
+    const app = express()
+    app.use(apiReference({ theme: 'none' }))
+
+    const response = await request(app).get('/')
+    expect(response.text).not.toContain('--scalar-color-1: #353535')
+  })
+
+  it('includes _integration: "express" in configuration', async () => {
+    const app = express()
+    app.use(apiReference({}))
+
+    const response = await request(app).get('/')
+    expect(response.text).toContain('_integration&quot;:&quot;express&quot;')
+  })
+
+  it('handles content as function', async () => {
+    const app = express()
+    const contentFn = () => ({ info: { title: 'Function API' } })
+    app.use(apiReference({ spec: { content: contentFn } }))
+
+    const response = await request(app).get('/')
+    expect(response.text).toContain('Function API')
+  })
+
+  it('removes spec.content when spec.url is provided', async () => {
+    const app = express()
+    app.use(
+      apiReference({
+        spec: {
+          url: 'https://example.com/api.json',
+          content: { info: { title: 'Test API' } },
+        },
+      }),
+    )
+
+    const response = await request(app).get('/')
+    expect(response.text).toContain('https://example.com/api.json')
+    expect(response.text).not.toContain('Test API')
+  })
+
+  it('sets correct content type and status', async () => {
+    const app = express()
+    app.use(apiReference({}))
+
+    const response = await request(app).get('/')
+    expect(response.status).toBe(200)
+    expect(response.type).toBe('text/html')
+  })
 })
