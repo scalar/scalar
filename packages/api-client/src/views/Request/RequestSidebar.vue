@@ -30,8 +30,8 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
-import { useLayout, useSidebar } from '@/hooks'
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import { useLayout } from '@/hooks/useLayout'
+import { useSidebar } from '@/hooks/useSidebar'
 import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
@@ -50,8 +50,12 @@ const emit = defineEmits<{
   (e: 'clearDrafts'): void
 }>()
 
-const { isSidebarOpen, toggleSidebar } = useSidebarToggle()
-
+const {
+  collapsedSidebarFolders,
+  isSidebarOpen,
+  setCollapsedSidebarFolder,
+  toggleSidebarOpen,
+} = useSidebar()
 const { layout } = useLayout()
 
 const workspaceContext = useWorkspace()
@@ -68,7 +72,6 @@ const { handleDragEnd, isDroppable } = dragHandlerFactory(
   activeWorkspace,
   workspaceContext,
 )
-const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
   events.commandPalette.emit({
@@ -110,14 +113,8 @@ const {
 /** Handle hotkey events from the bus */
 const handleHotKey = (event?: HotKeyEvent) => {
   if (!event) return
-
-  if (event.toggleSidebar) {
-    toggleSidebar()
-  }
-
-  if (event.focusRequestSearch) {
-    searchInputRef.value?.focus()
-  }
+  if (event.toggleSidebar) toggleSidebarOpen()
+  if (event.focusRequestSearch) searchInputRef.value?.focus()
 }
 
 onMounted(() => events.hotKeys.on(handleHotKey))
