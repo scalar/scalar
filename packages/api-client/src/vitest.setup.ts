@@ -50,6 +50,7 @@ beforeEach(() => {
     setCollapsedSidebarFolder: vi.fn(),
     toggleSidebarFolder: vi.fn(),
     toggleSidebarOpen: vi.fn(),
+    setSidebarOpen: vi.fn(),
   })
 })
 

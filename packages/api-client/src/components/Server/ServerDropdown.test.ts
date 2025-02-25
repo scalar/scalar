@@ -6,7 +6,7 @@ import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vite
 
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
-import { mockUseLayout } from '@/vitest-setup'
+import { mockUseLayout } from '@/vitest.setup'
 
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({

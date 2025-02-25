@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { computed, onBeforeMount, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { ImportCollectionListener } from '@/components/ImportCollection'
+import { useSidebar } from '@/hooks/useSidebar'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { handleHotKeyDown, type HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
@@ -44,6 +46,14 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeyDown)
   events.hotKeys.off(handleHotKey)
+})
+
+const { mediaQueries } = useBreakpoints()
+const { setSidebarOpen } = useSidebar()
+
+// Single watcher instance for handling responsive behavior
+watch(mediaQueries.xl, setSidebarOpen, {
+  immediate: true,
 })
 
 const themeStyleTag = computed(
