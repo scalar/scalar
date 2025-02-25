@@ -16,7 +16,17 @@ export type CdnConfiguration = {
   cdn?: string
 }
 
-export type HtmlRenderingConfiguration = ReferenceConfiguration & CdnConfiguration
+/**
+ * The page title configuration for the Scalar API Reference.
+ */
+export type PageTitleConfiguration = {
+  /**
+   * The title of the page.
+   */
+  pageTitle?: string
+}
+
+export type HtmlRenderingConfiguration = ReferenceConfiguration & CdnConfiguration & PageTitleConfiguration
 
 /**
  * The HTML document to render the Scalar API reference.
@@ -26,7 +36,7 @@ export function getHtmlDocument(configuration: HtmlRenderingConfiguration, custo
     <!DOCTYPE html>
     <html>
       <head>
-        <title>Scalar API Reference</title>
+        <title>${getPageTitle(configuration)}</title>
         <meta charset="utf-8" />
         <meta
           name="viewport"
@@ -89,4 +99,11 @@ export function getScriptTagContent(configuration: HtmlRenderingConfiguration) {
  */
 export function getCdnUrl(configuration: HtmlRenderingConfiguration) {
   return configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+}
+
+/**
+ * The page title for the Scalar API Reference.
+ */
+export function getPageTitle(configuration: HtmlRenderingConfiguration) {
+  return configuration.pageTitle || 'Scalar API Reference'
 }

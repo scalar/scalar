@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { getCdnUrl, getConfiguration, getHtmlDocument, getScriptTagContent, getScriptTags } from './html-rendering'
+import {
+  getCdnUrl,
+  getConfiguration,
+  getHtmlDocument,
+  getPageTitle,
+  getScriptTagContent,
+  getScriptTags,
+} from './html-rendering'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
@@ -84,6 +91,18 @@ describe('html-rendering', () => {
     it('returns custom CDN URL when provided', () => {
       const url = getCdnUrl({ cdn: 'https://custom.cdn/script.js' })
       expect(url).toBe('https://custom.cdn/script.js')
+    })
+  })
+
+  describe('getPageTitle', () => {
+    it('returns default page title when not provided', () => {
+      const title = getPageTitle({})
+      expect(title).toBe('Scalar API Reference')
+    })
+
+    it('returns custom page title when provided', () => {
+      const title = getPageTitle({ pageTitle: 'Custom Title' })
+      expect(title).toBe('Custom Title')
     })
   })
 })
