@@ -5,7 +5,8 @@ import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
-const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
+const getSpecScriptTag = (doc: Document) =>
+  doc.getElementById('api-reference') || doc.querySelector('[data-scalar-api-reference]')
 
 /**
  * Reading the configuration from the data-attributes.
