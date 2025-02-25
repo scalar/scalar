@@ -12,7 +12,7 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
 import { useNavState, useSidebar } from '@/hooks'
 import type {
-  ApiDefinitionSelectorSlot,
+  DocumentSelectorSlot,
   ReferenceLayoutProps,
   ReferenceLayoutSlots,
 } from '@/types'
@@ -23,7 +23,7 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
+const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
 const { isSidebarOpen } = useSidebar()
@@ -65,9 +65,9 @@ watch(hash, (newHash, oldHash) => {
     <template #sidebar-start="{ spec }">
       <!-- Wrap in a div when slot is filled -->
       <div
-        v-if="$slots['api-definition-selector']"
+        v-if="$slots['document-selector']"
         class="p-3 pb-0">
-        <slot name="api-definition-selector" />
+        <slot name="document-selector" />
       </div>
       <div
         v-if="!props.configuration.hideSearch"

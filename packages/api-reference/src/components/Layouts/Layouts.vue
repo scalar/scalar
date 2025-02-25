@@ -5,7 +5,7 @@
 import { computed } from 'vue'
 
 import type {
-  ApiDefinitionSelectorSlot,
+  DocumentSelectorSlot,
   ReferenceLayoutProps,
   ReferenceLayoutSlots,
 } from '../../types'
@@ -18,12 +18,12 @@ defineEmits<{
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
+const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const referenceLayoutSlots = computed(
   (): ReferenceLayoutSlots =>
     Object.keys(slots).filter(
-      (key) => key !== 'api-definition-selector',
+      (key) => key !== 'document-selector',
     ) as unknown as ReferenceLayoutSlots,
 )
 
@@ -47,8 +47,8 @@ const layouts = {
         :name="name"
         v-bind="slotProps || {}" />
     </template>
-    <template #api-definition-selector>
-      <slot name="api-definition-selector" />
+    <template #document-selector>
+      <slot name="document-selector" />
     </template>
   </component>
 </template>
