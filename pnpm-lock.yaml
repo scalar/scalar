@@ -373,13 +373,13 @@ importers:
 
   integrations/express:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../../packages/api-reference
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -429,6 +429,9 @@ importers:
 
   integrations/hono:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types

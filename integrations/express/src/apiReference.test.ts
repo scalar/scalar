@@ -19,7 +19,7 @@ describe('apiReference', () => {
     expect(response.text).toContain('<title>Scalar API Reference</title>')
     expect(response.text).toContain('https://cdn.example.com')
     expect(response.text).toContain('Test API')
-    expect(response.text).toContain('--scalar-color-1: #353535;') // Check for default theme CSS
+    expect(response.text).toContain('--scalar-color-1: #353535;')
   })
 
   it('should not include default theme CSS when a theme is provided', async () => {
