@@ -107,7 +107,11 @@ export const ApiReferenceConfigurationSchema = z
      * URL to a request proxy for the API client
      * @deprecated Use proxyUrl instead
      */
-    proxy: z.string().optional(),
+    proxy: z
+      .string()
+      .optional()
+      // Remove from ApiReferenceConfigurationSchema type
+      .transform(() => undefined),
     /** URL to a request proxy for the API client */
     proxyUrl: z.string().optional(),
     /**
