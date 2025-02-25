@@ -3,21 +3,6 @@ import { describe, expect, it, vi } from 'vitest'
 
 describe('html-api', () => {
   describe('identifier', () => {
-    it('works with id="api-reference"', async () => {
-      const doc = createHtmlDocument(`
-    <html>
-      <body>
-        <script id="api-reference" data-url="/openapi.json"></script>
-    </html>
-  `)
-
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-        _integration: 'html',
-        proxyUrl: undefined,
-        spec: { url: '/openapi.json' },
-      })
-    })
-
     it('works with data-scalar-api-reference', async () => {
       const doc = createHtmlDocument(`
     <html>
@@ -39,7 +24,7 @@ describe('html-api', () => {
     const doc = createHtmlDocument(`
       <html>
         <body>
-          <script id="api-reference" type="application/json">{"openapi":"3.1.0"}</script>
+          <script data-scalar-api-reference type="application/json">{"openapi":"3.1.0"}</script>
         </body>
       </html>
     `)
@@ -56,7 +41,7 @@ describe('html-api', () => {
       const doc = createHtmlDocument(`
       <html>
         <body>
-          <script id="api-reference" data-proxy-url="https://proxy.example.com" data-url="/spec.json"></script>
+          <script data-scalar-api-reference data-proxy-url="https://proxy.example.com" data-url="/spec.json"></script>
         </body>
       </html>
     `)
@@ -74,7 +59,7 @@ describe('html-api', () => {
       const doc = createHtmlDocument(`
       <html>
         <body>
-          <script id="api-reference" data-configuration='{"darkMode":true,"spec":{"url":"/custom.json"}}'></script>
+          <script data-scalar-api-reference data-configuration='{"darkMode":true,"spec":{"url":"/custom.json"}}'></script>
         </body>
       </html>
     `)
@@ -89,6 +74,21 @@ describe('html-api', () => {
   })
 
   describe('deprecated', () => {
+    it('works with data-scalar-api-reference', async () => {
+      const doc = createHtmlDocument(`
+    <html>
+      <body>
+        <script data-scalar-api-reference data-url="/openapi.json"></script>
+    </html>
+  `)
+
+      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+        _integration: 'html',
+        proxyUrl: undefined,
+        spec: { url: '/openapi.json' },
+      })
+    })
+
     it('handles deprecated data-spec attribute with warning', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const doc = createHtmlDocument(`
@@ -142,7 +142,7 @@ describe('html-api', () => {
 
       expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({})
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
+        'Couldn’t find a [data-spec], [data-spec-url] or <script data-scalar-api-reference /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
         'font-family: monospace;',
       )
       consoleSpy.mockRestore()
@@ -153,7 +153,7 @@ describe('html-api', () => {
       <html>
         <body>
           <script
-            id="api-reference"
+            data-scalar-api-reference
             data-url="/spec.json"
             data-configuration='{"spec":{"url":"/priority.json"}}'>
           </script>
