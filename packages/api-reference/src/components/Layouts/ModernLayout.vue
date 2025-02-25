@@ -7,13 +7,13 @@ import {
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { watch } from 'vue'
 
-import { SearchButton } from '../../features/Search'
-import { useNavState, useSidebar } from '../../hooks'
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
-import ApiReferenceLayout from '../ApiReferenceLayout.vue'
-import MobileHeader from '../MobileHeader.vue'
+import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
+import { SearchButton } from '@/features/Search'
+import { useNavState, useSidebar } from '@/hooks'
+import type { InternalReferenceProps, ReferenceLayoutSlots } from '@/types'
 
-const props = defineProps<ReferenceLayoutProps>()
+const props = defineProps<InternalReferenceProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
   (e: 'updateContent', v: string): void
@@ -51,7 +51,7 @@ watch(hash, (newHash, oldHash) => {
       #[name]="slotProps">
       <slot
         :name="name"
-        v-bind="slotProps || {}"></slot>
+        v-bind="slotProps || {}" />
     </template>
     <template #header>
       <MobileHeader

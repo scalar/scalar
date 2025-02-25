@@ -2,7 +2,7 @@
 import {
   ApiReferenceLayout,
   useReactiveSpec,
-  type ReferenceConfiguration,
+  type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
@@ -13,7 +13,7 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 const content = ref('')
 
-const configuration = reactive<ReferenceConfiguration>({
+const configuration = reactive<ApiReferenceConfiguration>({
   theme: 'default',
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
@@ -49,7 +49,7 @@ const configProxy = computed({
 watch(
   () => configuration.darkMode,
   (isDark) => {
-    document.body.classList.toggle('dark-mode', isDark)
+    document.body.classList.toggle('dark-mode', !!isDark)
     document.body.classList.toggle('light-mode', !isDark)
   },
 )

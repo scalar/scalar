@@ -1,6 +1,6 @@
 'use client'
 
-import type { ReferenceProps } from '@scalar/api-reference'
+import type { ApiReferenceConfiguration, ReferenceProps } from '@scalar/api-reference'
 
 import { createScalarReferences } from '@scalar/api-reference'
 
@@ -26,7 +26,7 @@ export const ApiReferenceReact = (props: ReferenceProps) => {
 
     const defaultConfig = {
       _integration: 'react',
-    } as const
+    } satisfies ApiReferenceConfiguration
 
     const mergedConfig = { ...defaultConfig, ...props.configuration }
 
@@ -38,7 +38,7 @@ export const ApiReferenceReact = (props: ReferenceProps) => {
   }, [el])
 
   useEffect(() => {
-    const defaultConfig = { _integration: 'react' } as const
+    const defaultConfig = { _integration: 'react' } satisfies ApiReferenceConfiguration
     const mergedConfig = { ...defaultConfig, ...props.configuration }
 
     reference?.updateConfig(
