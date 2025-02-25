@@ -1,5 +1,6 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { HtmlRenderingConfiguration } from '@scalar/api-reference/lib/html-rendering'
 
-export type ApiReferenceOptions = ReferenceConfiguration & {
-  cdn?: string
-}
+/**
+ * The configuration for the Scalar API Reference for Express
+ */
+export type ApiReferenceConfiguration = HtmlRenderingConfiguration

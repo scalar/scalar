@@ -1,12 +1,11 @@
-import { getHtmlDocument } from '@/lib/static-rendering'
-import type { ApiReferenceOptions } from '@/types'
-import type { ReferenceConfiguration } from '@scalar/types'
+import type { ApiReferenceConfiguration } from '@/types'
+import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
 import type { Request, Response } from 'express'
 
 /**
  * The default configuration for the API Reference.
  */
-const DEFAULT_CONFIGURATION: Partial<ReferenceConfiguration> = {
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
   _integration: 'express',
 }
 
@@ -112,7 +111,7 @@ export const customTheme = `
 /**
  * The route handler to render the API Reference.
  */
-export function apiReference(givenConfiguration: ApiReferenceOptions) {
+export function apiReference(givenConfiguration: ApiReferenceConfiguration) {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,

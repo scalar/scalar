@@ -1,9 +1,27 @@
-import type { ApiReferenceOptions } from '@/types'
+import type { ReferenceConfiguration } from '@/types'
+
+/**
+ * The CDN configuration for the Scalar API Reference.
+ */
+export type CdnConfiguration = {
+  /**
+   * The URL to the Scalar API Reference JS CDN.
+   *
+   * Use this to pin a specific version of the Scalar API Reference.
+   *
+   * @default https://cdn.jsdelivr.net/npm/@scalar/api-reference
+   *
+   * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.122
+   */
+  cdn?: string
+}
+
+export type HtmlRenderingConfiguration = ReferenceConfiguration & CdnConfiguration
 
 /**
  * The HTML document to render the Scalar API reference.
  */
-export function getHtmlDocument(options: ApiReferenceOptions, customTheme?: string) {
+export function getHtmlDocument(configuration: HtmlRenderingConfiguration, customTheme?: string) {
   return `
     <!DOCTYPE html>
     <html>
@@ -14,11 +32,11 @@ export function getHtmlDocument(options: ApiReferenceOptions, customTheme?: stri
           name="viewport"
           content="width=device-width, initial-scale=1" />
         <style>
-          ${options.theme ? null : (customTheme ?? '')}
+          ${configuration.theme ? null : (customTheme ?? '')}
         </style>
       </head>
       <body>
-        ${getScriptTags(options)}
+        ${getScriptTags(configuration)}
       </body>
     </html>
   `
@@ -27,7 +45,7 @@ export function getHtmlDocument(options: ApiReferenceOptions, customTheme?: stri
 /**
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
-export function getScriptTags(configuration: ApiReferenceOptions) {
+export function getScriptTags(configuration: HtmlRenderingConfiguration) {
   return `
       <script
         id="api-reference"
@@ -40,7 +58,7 @@ export function getScriptTags(configuration: ApiReferenceOptions) {
 /**
  * The configuration to pass to the @scalar/api-reference package.
  */
-export function getConfiguration(givenConfiguration: ApiReferenceOptions) {
+export function getConfiguration(givenConfiguration: HtmlRenderingConfiguration) {
   // Clone before mutating
   const configuration = {
     ...givenConfiguration,
@@ -58,7 +76,7 @@ export function getConfiguration(givenConfiguration: ApiReferenceOptions) {
 /**
  * The content to pass to the @scalar/api-reference package as the <script> tag content.
  */
-export function getScriptTagContent(configuration: ApiReferenceOptions) {
+export function getScriptTagContent(configuration: HtmlRenderingConfiguration) {
   return configuration.spec?.content
     ? typeof configuration.spec?.content === 'function'
       ? JSON.stringify(configuration.spec?.content())
@@ -69,6 +87,6 @@ export function getScriptTagContent(configuration: ApiReferenceOptions) {
 /**
  * The CDN URL to load the @scalar/api-reference package from.
  */
-export function getCdnUrl(configuration: ApiReferenceOptions) {
+export function getCdnUrl(configuration: HtmlRenderingConfiguration) {
   return configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 }
