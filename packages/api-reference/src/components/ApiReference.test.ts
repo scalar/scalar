@@ -66,7 +66,7 @@ describe('ApiReference', () => {
       expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
 
       // Check whether it doesn’t render the select
-      expect(wrapper.html()).not.toContain('api-definition-selector')
+      expect(wrapper.html()).not.toContain('document-selector')
     })
 
     it('renders a select when multiple configurations are provided', async () => {
@@ -145,7 +145,7 @@ describe('ApiReference', () => {
       expect(wrapper.html()).toContain('<!-- SingleApiReference -->')
 
       // Check whether it renders the select
-      expect(wrapper.html()).toContain('api-definition-selector')
+      expect(wrapper.html()).toContain('document-selector')
 
       // Check whether it renders the names
       expect(wrapper.html()).toContain('my-api-1')

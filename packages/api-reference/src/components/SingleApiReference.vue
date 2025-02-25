@@ -8,7 +8,7 @@ import { computed, toRef, watch } from 'vue'
 
 import { useReactiveSpec } from '../hooks'
 import type {
-  ApiDefinitionSelectorSlot,
+  DocumentSelectorSlot,
   ReferenceLayoutSlots,
   ReferenceProps,
 } from '../types'
@@ -86,8 +86,8 @@ useFavicon(favicon)
     <template #footer><slot name="footer" /></template>
     <!-- Expose the content end slot as a slot for the footer -->
     <template #content-end><slot name="footer" /></template>
-    <template #api-definition-selector>
-      <slot name="api-definition-selector" />
+    <template #document-selector>
+      <slot name="document-selector" />
     </template>
   </Layouts>
 </template>

@@ -12,18 +12,18 @@ import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
 import { useNavState, useSidebar } from '@/hooks'
 import type {
-  ApiDefinitionSelectorSlot,
-  InternalReferenceProps,
+  DocumentSelectorSlot,
+  ReferenceLayoutProps,
   ReferenceLayoutSlots,
 } from '@/types'
 
-const props = defineProps<InternalReferenceProps>()
+const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
   (e: 'updateContent', v: string): void
 }>()
 
-const slots = defineSlots<ReferenceLayoutSlots & ApiDefinitionSelectorSlot>()
+const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
 const { isSidebarOpen } = useSidebar()
@@ -64,10 +64,8 @@ watch(hash, (newHash, oldHash) => {
     </template>
     <template #sidebar-start="{ spec }">
       <!-- Wrap in a div when slot is filled -->
-      <div
-        v-if="$slots['api-definition-selector']"
-        class="p-3 pb-0">
-        <slot name="api-definition-selector" />
+      <div v-if="$slots['document-selector']">
+        <slot name="document-selector" />
       </div>
       <div
         v-if="!props.configuration.hideSearch"
