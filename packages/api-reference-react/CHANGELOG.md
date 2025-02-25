@@ -1,5 +1,18 @@
 # @scalar/api-reference-react
 
+## 0.4.32
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+- Updated dependencies [b22f554]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [577602f]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+  - @scalar/api-reference@1.25.123
+
 ## 0.4.31
 
 ### Patch Changes

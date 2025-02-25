@@ -1,5 +1,26 @@
 # @scalar/cli
 
+## 0.2.306
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+- Updated dependencies [9fc97da]
+- Updated dependencies [b22f554]
+- Updated dependencies [12088f1]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [577602f]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+  - @scalar/oas-utils@0.2.108
+  - @scalar/api-reference@1.25.123
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/openapi-types@0.1.9
+  - @scalar/mock-server@0.2.115
+  - @scalar/config@0.1.3
+  - @scalar/void-server@2.0.15
+
 ## 0.2.305
 
 ### Patch Changes

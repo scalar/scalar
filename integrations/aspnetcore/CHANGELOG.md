@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.0.19
+
+### Patch Changes
+
+- 4db132a: chore: Cleanup and test improvements
+- Updated dependencies [b22f554]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [577602f]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+  - @scalar/api-reference@1.25.123
+
 ## 2.0.18
 
 ### Patch Changes
