@@ -4,14 +4,11 @@ using Scalar.AspNetCore.Tests.Api;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
-builder.Services.AddOpenApi();
 builder.Services.AddAuthentication("api-key")
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>("api-key", null);
 builder.Services.AddAuthorizationBuilder().AddFallbackPolicy("fallback", policyBuilder => policyBuilder.RequireAuthenticatedUser());
 
 var app = builder.Build();
-
-app.MapOpenApi();
 
 app.MapScalarApiReference().AllowAnonymous();
 

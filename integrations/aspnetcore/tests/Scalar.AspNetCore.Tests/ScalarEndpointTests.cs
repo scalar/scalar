@@ -35,7 +35,6 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                       <script src="scalar.aspnetcore.js"></script>
                                       <script>
                                           const basePath = getBasePath('/scalar/');
-                                          console.log(basePath)
                                           const openApiUrl = `${window.location.origin}${basePath}*`
                                           const reference = document.getElementById('api-reference')
                                           reference.dataset.url = openApiUrl;
@@ -112,7 +111,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldNotPrefixOpenApiUrlWithOrigin_WhenRouteIsUrl()
     {
@@ -193,7 +192,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         }).CreateClient();
 
         // Act
-        var index = await client.GetAsync($"/scalar", TestContext.Current.CancellationToken);
+        var index = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
 
         // Assert
         index.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -270,7 +269,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
         localFactory.Services.GetRequiredService<IOptions<ScalarOptions>>().Value.Theme.Should().Be(ScalarTheme.Mars);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldReplaceDocumentNamePlaceholder_WhenOnlyOneDocumentWasAdded()
     {

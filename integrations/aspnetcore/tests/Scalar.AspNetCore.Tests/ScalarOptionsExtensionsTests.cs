@@ -79,7 +79,7 @@ public class ScalarOptionsExtensionsTests
         options.Authentication!.Http!.Basic!.Username.Should().Contain("my-username");
         options.Authentication!.Http!.Basic!.Password.Should().Contain("my-password");
         options.Authentication!.Http!.Bearer!.Token.Should().Contain("my-bearer-token");
-        options.OpenApiRoutePattern.Should().Be("swagger/{documentName}");
+        options.OpenApiRoutePattern.Should().Be("/swagger/{documentName}");
         options.CdnUrl.Should().Be("http://localhost:8080");
         options.DefaultFonts.Should().BeFalse();
         options.DefaultOpenAllTags.Should().BeTrue();

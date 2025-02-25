@@ -35,7 +35,7 @@ app.MapStaticAssets();
 
 app.MapOpenApi();
 
-Action<ScalarOptions> configureOptions = options => 
+Action<ScalarOptions> configureOptions = options =>
     options
         .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
         .WithFavicon("/favicon.png")

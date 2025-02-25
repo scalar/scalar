@@ -53,7 +53,7 @@ public static class ScalarOptionsExtensions
     /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
     internal static ScalarOptions AddDocument(this ScalarOptions options, params IEnumerable<string> documentNames)
     {
-        options.DocumentNames.AddRange(documentNames);
+        options.Documents.AddRange(documentNames);
         return options;
     }
 
@@ -68,7 +68,7 @@ public static class ScalarOptionsExtensions
         options.DocumentNamesProvider = (context, _) => Task.FromResult(provider(context));
         return options;
     }
-    
+
     /// <summary>
     /// Sets a async document names provider.
     /// </summary>

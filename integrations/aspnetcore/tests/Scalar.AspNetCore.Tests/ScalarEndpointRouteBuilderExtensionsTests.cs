@@ -15,6 +15,5 @@ public class ScalarEndpointRouteBuilderExtensionsTests
 
         // Assert
         act.Should().Throw<ArgumentException>().WithMessage("The endpoint prefix cannot contain the '{documentName}' placeholder. (Parameter 'endpointPrefix')");
-        
     }
 }

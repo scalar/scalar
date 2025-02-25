@@ -11,7 +11,7 @@ internal static class BookEndpoints
             .HasApiVersion(new ApiVersion(1))
             .HasApiVersion(new ApiVersion(2))
             .Build();
-        
+
         var books = builder.MapGroup("v{version:apiVersion}/books")
             .WithTags("bookstore")
             .WithApiVersionSet(apiVersionSet)
