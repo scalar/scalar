@@ -83,7 +83,8 @@ export const Search: Story = {
               <ScalarSearchResultItem
                 v-for="result in results"
                 :key="result.title"
-                icon="Search">
+                icon="Search"
+                href="#">
                 {{ result.title }}
                 <template #description>{{ result.description }}</template>
                 <template #addon>{{ result.addon }}</template>

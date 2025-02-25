@@ -11,9 +11,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li
-    class="contents"
-    role="option">
+  <li class="contents">
     <a
       v-bind="
         cx(

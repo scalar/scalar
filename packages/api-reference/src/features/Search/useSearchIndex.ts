@@ -162,9 +162,9 @@ export function useSearchIndex({
           httpVerbs.forEach((httpVerb) => {
             webhookData.push({
               type: 'webhook',
-              title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
+              title: 'Webhook',
               href: `#${getWebhookId({ name, method: httpVerb })}`,
-              description: name,
+              description: `${webhooks[name][httpVerb]?.name}`,
               httpVerb,
               tag: name,
               body: '',
