@@ -2,7 +2,7 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { useLayout } from '@/hooks'
@@ -30,6 +30,7 @@ const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
 
 const requestAbortController = ref<AbortController>()
+const invalidParams = ref<Set<string>>(new Set())
 
 /**
  * Selected scheme UIDs
@@ -53,6 +54,19 @@ const selectedSecuritySchemeUids = computed(
 const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value)
     return
+
+  // Clear previous invalid parameter state
+  invalidParams.value.clear()
+
+  // Validate parameters and add to invalidParams if invalid
+  const paramTypes = ['path', 'query', 'headers', 'cookies'] as const
+  paramTypes.some((paramType) => {
+    return activeExample.value?.parameters[paramType].some((param) => {
+      if (param.required && param.value === '') {
+        invalidParams.value.add(param.key)
+      }
+    })
+  })
 
   // Parse the environment string
   const environmentValue =
@@ -118,6 +132,15 @@ useOpenApiWatcher()
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
 onBeforeUnmount(() => events.executeRequest.off(executeRequest))
+
+// Clear invalid params on parameter update
+watch(
+  () => activeExample.value?.parameters,
+  () => {
+    invalidParams.value.clear()
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -135,7 +158,7 @@ onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 
       <!-- Content -->
       <div class="flex h-full flex-1 flex-col">
-        <RouterView />
+        <RouterView :invalidParams="invalidParams" />
       </div>
     </div>
   </div>

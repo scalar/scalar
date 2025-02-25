@@ -26,6 +26,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   workspace: Workspace
+  invalidParams: Set<string>
 }>()
 
 const { requestMutators, requestExampleMutators } = useWorkspace()
@@ -120,6 +121,7 @@ watch(
       :environment="environment"
       :items="params"
       :workspace="workspace"
+      :invalidParams="invalidParams"
       @updateRow="updateRow" />
   </ViewLayoutCollapse>
 </template>
