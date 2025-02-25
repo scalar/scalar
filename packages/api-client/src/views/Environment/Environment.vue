@@ -500,7 +500,7 @@ function handleRename(newName: string) {
         </template>
         <CodeInput
           v-if="currentEnvironmentId && activeWorkspace"
-          class="border-t py-2 pl-px pr-2 md:px-4"
+          class="py-2 pl-px pr-2 md:px-4"
           :envVariables="activeEnvVariables"
           :environment="activeEnvironment"
           isCopyable
