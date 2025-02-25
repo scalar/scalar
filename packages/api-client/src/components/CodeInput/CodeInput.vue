@@ -235,7 +235,7 @@ export default {
     <div
       class="text-c-2 flex cursor-default items-center justify-center"
       :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'">
-      <span>{{ modelValue }}</span>
+      <span class="whitespace-nowrap">{{ modelValue }}</span>
     </div>
   </template>
   <template v-else-if="props.enum && props.enum.length">
