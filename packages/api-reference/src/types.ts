@@ -8,6 +8,9 @@ export type { ApiReferenceConfiguration }
 // TODO: Just here for backwards compatibility (2025-02-21)
 export type { ReferenceConfiguration }
 
+/**
+ * Props for the ApiReference components, coming from user input
+ */
 export type ReferenceProps = {
   configuration?: ApiReferenceConfiguration
 }

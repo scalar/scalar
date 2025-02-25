@@ -5,8 +5,9 @@ import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
-import { useReactiveSpec } from '../hooks'
-import type { ReferenceProps } from '../types'
+import { useReactiveSpec } from '@/hooks'
+import type { ReferenceProps } from '@/types'
+
 import { Layouts } from './Layouts'
 
 const props = defineProps<ReferenceProps>()
