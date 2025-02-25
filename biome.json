@@ -28,7 +28,9 @@
       "examples/nestjs-api-reference-express/**",
       "*/storybook-static/*",
       "**/httpsnippet-lite/**",
-      "**/.next/**"
+      "**/.next/**",
+      "**/aspnetcore/**/obj/**",
+      "**/aspnetcore/**/bin/**"
     ]
   },
   "formatter": {
