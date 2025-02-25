@@ -35,7 +35,6 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                       <script src="scalar.aspnetcore.js"></script>
                                       <script>
                                           const basePath = getBasePath('/scalar/');
-                                          console.log(basePath)
                                           const openApiUrl = `${window.location.origin}${basePath}*`
                                           const reference = document.getElementById('api-reference')
                                           reference.dataset.url = openApiUrl;
