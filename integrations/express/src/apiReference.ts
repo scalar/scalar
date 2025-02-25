@@ -109,7 +109,7 @@ export const customTheme = `
 `
 
 /**
- * The route handler to render the API Reference.
+ * The route handler to render the Scalar API Reference.
  */
 export function apiReference(givenConfiguration: ApiReferenceConfiguration) {
   // Merge the defaults
