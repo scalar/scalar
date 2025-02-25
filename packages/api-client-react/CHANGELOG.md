@@ -1,5 +1,22 @@
 # @scalar/api-client-react
 
+## 1.1.32
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [2be8986]
+- Updated dependencies [7017639]
+- Updated dependencies [143d2a9]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [eed78eb]
+- Updated dependencies [4a0e6b7]
+- Updated dependencies [5a46f1c]
+- Updated dependencies [48f24c9]
+  - @scalar/api-client@2.2.52
+
 ## 1.1.31
 
 ### Patch Changes

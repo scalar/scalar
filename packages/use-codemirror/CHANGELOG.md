@@ -1,5 +1,16 @@
 # @scalar/use-codemirror
 
+## 0.11.71
+
+### Patch Changes
+
+- 7dc4415: feat: adds code mirror history commands
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [e55bfd2]
+  - @scalar/components@0.13.26
+
 ## 0.11.70
 
 ### Patch Changes

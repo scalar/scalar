@@ -1,5 +1,45 @@
 # @scalar/api-reference
 
+## 1.25.123
+
+### Patch Changes
+
+- b22f554: refactor: move HTML data-attribute API to lib
+- c10bbf5: chore: code style
+- bd70ab6: fix(api-reference): improve search button and modal a11y
+- 577602f: fix: sidebar doesn’t clear state properly
+- cf14cbb: fix: show _/_ mimetype in example response
+- e55bfd2: fix(components): improve ScalarModal zoom handling
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [9fc97da]
+- Updated dependencies [2be8986]
+- Updated dependencies [7017639]
+- Updated dependencies [143d2a9]
+- Updated dependencies [12088f1]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [eed78eb]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [4a0e6b7]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+- Updated dependencies [5a46f1c]
+- Updated dependencies [48f24c9]
+- Updated dependencies [8d9a2c0]
+  - @scalar/components@0.13.26
+  - @scalar/themes@0.9.69
+  - @scalar/api-client@2.2.52
+  - @scalar/oas-utils@0.2.108
+  - @scalar/code-highlight@0.0.23
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/openapi-types@0.1.9
+  - @scalar/types@0.0.35
+  - @scalar/use-hooks@0.1.23
+  - @scalar/snippetz@0.2.14
+  - @scalar/use-toasts@0.7.9
+
 ## 1.25.122
 
 ### Patch Changes
