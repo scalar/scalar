@@ -17,16 +17,6 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
-// Mock useLayout
-vi.mock('@/hooks', () => ({
-  useLayout: () => ({
-    layout: 'modal',
-  }),
-  useSidebarToggle: () => ({
-    isSidebarOpen: false,
-  }),
-}))
-
 // Mock the useWorkspace hook
 vi.mock('@/store', () => ({
   useWorkspace: vi.fn(),
@@ -53,15 +43,6 @@ const mockEnvironment = environmentSchema.parse({
   description: 'Mock Environment Description',
 })
 
-// Create a mock for useSidebarToggle that we can control
-const mockUseSidebarToggle = vi.fn()
-vi.mock('@/hooks', () => ({
-  useLayout: () => ({
-    layout: 'modal',
-  }),
-  useSidebarToggle: () => mockUseSidebarToggle(),
-}))
-
 describe('RequestSubpageHeader', () => {
   const createWrapper = (options = {}) =>
     mount(RequestSubpageHeader, {
@@ -75,13 +56,13 @@ describe('RequestSubpageHeader', () => {
         selectedSchemeOptions: [],
         workspace: workspaceSchema.parse(mockWorkspace),
       },
+      attachTo: document.body,
       ...options,
     })
 
   // Mock our request + example
   beforeEach(() => {
     mockUseWorkspace.mockReturnValue(mockWorkspace)
-    mockUseSidebarToggle.mockReturnValue({ isSidebarOpen: false })
   })
 
   it('renders correctly', () => {
