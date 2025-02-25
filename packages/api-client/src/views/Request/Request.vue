@@ -8,7 +8,7 @@ import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import { useSidebar } from '@/hooks/useSidebar'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
@@ -19,10 +19,9 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 
-const { isSidebarOpen } = useSidebarToggle()
-
-const workspaceContext = useWorkspace()
+const { isSidebarOpen } = useSidebar()
 const { layout } = useLayout()
+
 const {
   activeCollection,
   activeExample,
@@ -34,6 +33,8 @@ const {
   activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
+
+const workspaceContext = useWorkspace()
 const { modalState, requestHistory, requestMutators, serverMutators, servers } =
   workspaceContext
 

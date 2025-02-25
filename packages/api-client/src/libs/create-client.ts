@@ -1,4 +1,5 @@
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
+import { createSidebarState, SIDEBAR_SYMBOL } from '@/hooks/useSidebar'
 import { loadAllResources } from '@/libs/local-storage'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
@@ -116,6 +117,9 @@ export const createApiClient = ({
   // Create the router based active entities store
   const activeEntities = createActiveEntitiesStore({ ...store, router })
 
+  // Create the sidebar state
+  const sidebarState = createSidebarState({ layout })
+
   // Load from localStorage if available
   // Check if we have localStorage data
   if (localStorage.getItem(LS_KEYS.WORKSPACE) && !isReadOnly) {
@@ -167,6 +171,8 @@ export const createApiClient = ({
   app.provide(LAYOUT_SYMBOL, layout)
   // Provide the active entities store
   app.provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
+  // Provide the sidebar state
+  app.provide(SIDEBAR_SYMBOL, sidebarState)
 
   const {
     collectionMutators,
