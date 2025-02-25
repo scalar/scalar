@@ -115,7 +115,7 @@ export type ReferenceLayoutSlots = {
 }
 
 export type ApiDefinitionSelectorSlot = {
-  'api-definition-selector': Slot<Record<string, never>>
+  'api-definition-selector': any
 }
 
 export type ReferenceSlotProps = {
