@@ -1,4 +1,5 @@
 <script lang="ts">
+import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -6,6 +7,7 @@ import { useActiveEntities } from '@/store/active-entities'
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
+import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteServer from './CommandPaletteServer.vue'
 import CommandPaletteTag from './CommandPaletteTag.vue'
@@ -21,13 +23,14 @@ export default {
 }
 
 export const PaletteComponents = {
-  'Import from OpenAPI/Swagger/Postman': CommandPaletteImport,
+  'Import from OpenAPI/Swagger/Postman/cURL': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Tag': CommandPaletteTag,
   'Add Server': CommandPaletteServer,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
+  'Import from cURL': CommandPaletteImportCurl,
 } as const
 
 /** Infer the types from the commands  */
@@ -52,7 +55,7 @@ import type { HotKeyEvent } from '@/libs'
 
 const modalState = useModal()
 const router = useRouter()
-const { activeWorkspace } = useActiveEntities()
+const { activeWorkspace, activeCollection } = useActiveEntities()
 const { events } = useWorkspace()
 
 /** Available Commands for the Command Palette */
@@ -65,7 +68,7 @@ const availableCommands = [
         icon: 'ExternalLink',
       },
       {
-        name: 'Import from OpenAPI/Swagger/Postman',
+        name: 'Import from OpenAPI/Swagger/Postman/cURL',
         icon: 'Import',
       },
       {
@@ -229,6 +232,20 @@ const handleHotKey = (event?: HotKeyEvent) => {
   if (event?.closeModal) closeHandler()
 }
 
+const handleInput = (value: string) => {
+  if (value.trim().toLowerCase().startsWith('curl')) {
+    events.commandPalette.emit({
+      commandName: 'Import from cURL',
+      metaData: {
+        parsedCurl: importCurlCommand(value),
+        collectionUid: activeCollection.value?.uid,
+      },
+    })
+    return
+  }
+  commandQuery.value = value
+}
+
 onMounted(() => {
   events.commandPalette.on(openCommandPalette)
   events.hotKeys.on(handleHotKey)
@@ -250,7 +267,7 @@ onBeforeUnmount(() => {
         v-if="!activeCommand"
         class="custom-scroll max-h-[50dvh] min-h-0 flex-1 rounded-lg p-1.5">
         <div
-          class="bg-b-2 focus-within:bg-b-1 focus-within:border-b-3 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)]">
+          class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-b-3">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
@@ -261,12 +278,13 @@ onBeforeUnmount(() => {
           <input
             id="commandmenu"
             ref="commandInputRef"
-            v-model="commandQuery"
+            :value="commandQuery"
             autocomplete="off"
             autofocus
             class="w-full rounded border-none bg-none py-1.5 text-sm focus:outline-none"
             placeholder="Search commands..."
             type="text"
+            @input="handleInput(($event.target as HTMLInputElement).value)"
             @keydown.down.stop="handleArrowKey('down', $event)"
             @keydown.enter.stop="handleSelect"
             @keydown.up.stop="handleArrowKey('up', $event)" />
@@ -280,7 +298,7 @@ onBeforeUnmount(() => {
                 command.name.toLowerCase().includes(commandQuery.toLowerCase()),
               ).length > 0
             "
-            class="text-c-3 mb-1 mt-2 px-2 text-xs font-medium">
+            class="text-c-3 mt-2 mb-1 px-2 text-xs font-medium">
             {{ group.label }}
           </div>
           <div
@@ -317,7 +335,7 @@ onBeforeUnmount(() => {
         v-else
         class="flex-1 p-1.5">
         <button
-          class="p-0.75 hover:bg-b-3 text-c-3 active:text-c-1 my-1.25 z-1 absolute mr-1.5 rounded"
+          class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 my-1.25 mr-1.5 rounded p-0.75"
           type="button"
           @click="activeCommand = null">
           <ScalarIcon

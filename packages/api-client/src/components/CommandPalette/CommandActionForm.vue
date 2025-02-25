@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ScalarButton, type useLoadingState } from '@scalar/components'
+import {
+  ScalarButton,
+  useBindCx,
+  type useLoadingState,
+} from '@scalar/components'
 
 const { loading, disabled = false } = defineProps<{
   loading?: ReturnType<typeof useLoadingState>
-  disabled: boolean
+  disabled?: boolean
 }>()
 
 defineEmits<{
@@ -11,13 +15,15 @@ defineEmits<{
   (event: 'cancel'): void
   (event: 'back', e: KeyboardEvent): void
 }>()
+
+const { cx } = useBindCx()
 </script>
 <template>
   <form
     class="flex w-full flex-col gap-3"
     @keydown.enter.stop
     @submit.prevent.stop="$emit('submit')">
-    <div class="relative flex min-h-20 flex-col rounded">
+    <div v-bind="cx('relative flex min-h-20 flex-col rounded')">
       <slot />
     </div>
     <div class="flex gap-2">
