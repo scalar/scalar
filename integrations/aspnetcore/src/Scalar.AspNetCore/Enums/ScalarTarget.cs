@@ -32,7 +32,7 @@ public enum ScalarTarget
     /// </summary>
     [Description("dart")]
     Dart,
-    
+
     /// <summary>
     /// Go programming language.
     /// </summary>
@@ -80,7 +80,7 @@ public enum ScalarTarget
     /// </summary>
     [Description("ocaml")]
     OCaml,
-    
+
     /// <summary>
     /// PHP programming language.
     /// </summary>

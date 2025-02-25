@@ -20,7 +20,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string LegacyPattern = $"/scalar/{DocumentName}";
     private const string DefaultEndpointPrefix = "/scalar";
     internal const string ScalarJavaScriptFile = "scalar.js";
-    internal const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
+    private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
 
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
 
@@ -143,61 +143,61 @@ public static class ScalarEndpointRouteBuilderExtensions
             var options = optionsSnapshot.Value;
             configureOptions?.Invoke(options, httpContext);
 
-            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
-
             // If a document name is provided as route parameter, clear the document names and add the provided document name
             if (!string.IsNullOrEmpty(documentName))
             {
-                options.DocumentNames.Clear();
+                options.Documents.Clear();
                 options.AddDocument(documentName);
             }
             // If a document names provider is provided, clear the document names and get the document names from the provider
             else if (options.DocumentNamesProvider is not null)
             {
-                options.DocumentNames.Clear();
+                options.Documents.Clear();
                 var documentNames = await options.DocumentNamesProvider.Invoke(httpContext, cancellationToken);
                 options.AddDocument(documentNames);
             }
             // If no document names or provider are provided, fallback to the default document name
-            else if (options.DocumentNames.Count == 0)
+            else if (options.Documents.Count == 0)
             {
                 options.AddDocument("v1");
             }
 
+            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
+
             var configuration = options.ToScalarConfiguration();
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
-            var title = options.DocumentNames.Count == 1 ? options.Title?.Replace(DocumentName, options.DocumentNames[0]) : options.Title;
-            
+            var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0]) : options.Title;
+
             // Workaround. Once we support multiple OpenAPI documents, we must update this.
             var documentUrl = configuration.Documents.First();
 
             return Results.Content(
-                $$"""
-                  <!doctype html>
-                  <html>
-                  <head>
-                      <title>{{title}}</title>
-                      <meta charset="utf-8" />
-                      <meta name="viewport" content="width=device-width, initial-scale=1" />
-                      {{options.HeadContent}}
-                  </head>
-                  <body>
-                      {{options.HeaderContent}}
-                      <script id="api-reference"></script>
-                      <script src="{{ScalarJavaScriptHelperFile}}"></script>
-                      <script>
-                          const basePath = getBasePath('{{httpContext.Request.Path}}');
-                          console.log(basePath)
-                          const openApiUrl = `{{(options.IsOpenApiRoutePatternUrl ? documentUrl : $"${{window.location.origin}}${{basePath}}/{documentUrl}")}}`
-                          const reference = document.getElementById('api-reference')
-                          reference.dataset.url = openApiUrl;
-                          reference.dataset.configuration = JSON.stringify({{serializedConfiguration}})
-                      </script>
-                      <script src="{{standaloneResourceUrl}}"></script>
-                  </body>
-                  </html>
-                  """, "text/html");
+                $"""
+                 <!doctype html>
+                 <html>
+                 <head>
+                     <title>{title}</title>
+                     <meta charset="utf-8" />
+                     <meta name="viewport" content="width=device-width, initial-scale=1" />
+                     {options.HeadContent}
+                 </head>
+                 <body>
+                     {options.HeaderContent}
+                     <script id="api-reference"></script>
+                     <script src="{ScalarJavaScriptHelperFile}"></script>
+                     <script>
+                         const basePath = getBasePath('{httpContext.Request.Path}');
+                         console.log(basePath)
+                         const openApiUrl = `{(options.IsOpenApiRoutePatternUrl ? documentUrl : $"${{window.location.origin}}${{basePath}}/{documentUrl}")}`
+                         const reference = document.getElementById('api-reference')
+                         reference.dataset.url = openApiUrl;
+                         reference.dataset.configuration = JSON.stringify({serializedConfiguration})
+                     </script>
+                     <script src="{standaloneResourceUrl}"></script>
+                 </body>
+                 </html>
+                 """, "text/html");
         });
     }
 
@@ -224,6 +224,5 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
         return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
-
     }
 }

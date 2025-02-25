@@ -24,12 +24,13 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.Swift, [ScalarClient.Nsurlsession] },
         { ScalarTarget.Go, [ScalarClient.Native] },
         { ScalarTarget.Kotlin, [ScalarClient.OkHttp] },
-        { ScalarTarget.Dart , [ScalarClient.Http]}
+        { ScalarTarget.Dart, [ScalarClient.Http] }
     };
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
-        var documentUrls = options.DocumentNames.Select(name => options.OpenApiRoutePattern.Replace(DocumentName, name));
+        var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
+        var documentUrls = options.Documents.Select(name => trimmedOpenApiRoutePattern.Replace(DocumentName, name));
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
