@@ -21,14 +21,8 @@ describe('normalizeMimeType', () => {
     expect(normalizeMimeType(content)).toBe('application/json')
   })
 
-  it('removes mimetype variants', async () => {
+  it('removes unsupported mimetype variants', async () => {
     const content = 'application/problem+json'
-
-    expect(normalizeMimeType(content)).toBe('application/json')
-  })
-
-  it('removes mimetype variants with special characters', async () => {
-    const content = 'application/vnd.api+json'
 
     expect(normalizeMimeType(content)).toBe('application/json')
   })
@@ -37,5 +31,17 @@ describe('normalizeMimeType', () => {
     const content = 'application/problem-foobar+json; charset=utf-8'
 
     expect(normalizeMimeType(content)).toBe('application/json')
+  })
+
+  it('keeps vendor specific mimetypes', async () => {
+    const content = 'application/vnd.api+json'
+
+    expect(normalizeMimeType(content)).toBe('application/vnd.api+json')
+  })
+
+  it('removes all the clutter but keeps vendor specific part', async () => {
+    const content = 'application/fhir+json; charset=utf-8'
+
+    expect(normalizeMimeType(content)).toBe('application/fhir+json')
   })
 })

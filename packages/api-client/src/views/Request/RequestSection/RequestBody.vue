@@ -68,6 +68,7 @@ const contentTypeOptions = (
 /** Match the activeBody to the contentTypeOptions */
 const activeExampleContentType = computed(() => {
   const { activeBody, formData, raw } = example.body
+  if (raw?.mimeType) return raw.mimeType
   // Form
   if (activeBody === 'formData')
     return formData?.encoding === 'urlencoded'
@@ -235,12 +236,15 @@ const getBodyType = (type: Content) => {
       encoding: undefined,
       header: 'application/octet-stream',
     } as const
-  if (type === 'json')
+  if (type === 'json' || type.endsWith('+json')) {
     return {
       activeBody: 'raw',
       encoding: 'json',
-      header: 'application/json',
+      header: type.endsWith('+json')
+        ? `application/${type}`
+        : 'application/json',
     } as const
+  }
   if (type === 'xml')
     return {
       activeBody: 'raw',

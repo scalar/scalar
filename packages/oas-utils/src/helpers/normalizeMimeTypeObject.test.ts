@@ -45,7 +45,7 @@ describe('normalizeMimeTypeObject', () => {
 
   it('removes mimetype variants with special characters', async () => {
     const content = {
-      'application/vnd.api+json': {},
+      'application/problem+json': {},
     }
 
     expect(normalizeMimeTypeObject(content)).toMatchObject({
