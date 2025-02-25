@@ -150,7 +150,7 @@ export function mountScalarApiReference(doc: Document, configuration: ReferenceC
     const specScriptTag = getSpecScriptTag(doc)
 
     if (specScriptTag) {
-      _container = doc.createElement('main')
+      _container = doc.createElement('div')
       specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
     } else {
       _container = specElement || specUrlElement || doc.body
