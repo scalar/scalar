@@ -12,7 +12,11 @@
     <!-- Add your own OpenAPI/Swagger specification URL here: -->
     <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
     <script
-      id="api-reference"
+      data-scalar-api-reference
+      data-proxy-url="https://proxy.scalar.com"
+      data-url="https://petstore.swagger.io/v2/swagger.json"></script>
+    <script
+      data-scalar-api-reference
       data-proxy-url="https://proxy.scalar.com"
       data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
 
@@ -25,8 +29,9 @@
         // },
       }
 
-      document.getElementById('api-reference').dataset.configuration =
-        JSON.stringify(configuration)
+      document.querySelector(
+        '[data-scalar-api-reference]',
+      ).dataset.configuration = JSON.stringify(configuration)
     </script>
 
     <script

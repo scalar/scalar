@@ -152,6 +152,14 @@ export function mountScalarApiReference(
     configuration: Array.isArray(configuration) ? configuration[0] : configuration,
   })
 
+  // TODO: Just always use the first configuration for now. Once we support multiple configurations, we change this.
+  if (Array.isArray(configuration) && configuration.length > 1) {
+    console.warn(
+      '[@scalar/api-reference] We found multiple <script data-scalar-api-reference /> elements. ' +
+        'We will only use the first one for now. But you’re ready for the future!',
+    )
+  }
+
   if (props.configuration?.darkMode) {
     doc.body?.classList.add('dark-mode')
   } else {
