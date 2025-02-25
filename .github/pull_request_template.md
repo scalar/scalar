@@ -15,4 +15,4 @@ I’ve gone through the following:
 - [ ] I’ve added tests for the regression or new feature.
 - [ ] I’ve updated the documentation.
 
-See the [contributing guide](https://github.com/scalar/scalar/blob/main/CONTRIBUTING.md) for more information.
+<!-- See the [contributing guide](https://github.com/scalar/scalar/blob/main/CONTRIBUTING.md) for more information. -->
