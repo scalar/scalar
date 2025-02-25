@@ -11,7 +11,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
 }
 
 /**
- * The custom theme CSS for the API Reference.
+ * The custom theme for Hono
  */
 export const customTheme = `
 .light-mode {

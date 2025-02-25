@@ -1,6 +1,6 @@
+import { URL, fileURLToPath } from 'node:url'
 import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
-import { URL, fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   build: createViteBuildOptions({
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/standalone/lib/html-rendering.ts'],
     options: {
       emptyOutDir: true,
       cssCodeSplit: false,
