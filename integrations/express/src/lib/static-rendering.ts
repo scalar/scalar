@@ -1,9 +1,4 @@
 import type { ApiReferenceOptions } from '@/types'
-import type { ReferenceConfiguration } from '@scalar/types'
-
-const DEFAULT_CONFIGURATION: Partial<ReferenceConfiguration> = {
-  _integration: 'express',
-}
 
 /**
  * The HTML document to render the Scalar API reference.
@@ -46,8 +41,8 @@ export function getScriptTags(configuration: ApiReferenceOptions) {
  * The configuration to pass to the @scalar/api-reference package.
  */
 export function getConfiguration(givenConfiguration: ApiReferenceOptions) {
+  // Clone before mutating
   const configuration = {
-    ...DEFAULT_CONFIGURATION,
     ...givenConfiguration,
   }
 
