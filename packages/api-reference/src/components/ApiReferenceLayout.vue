@@ -37,20 +37,19 @@ import {
   watch,
 } from 'vue'
 
+import { Content } from '@/components/Content'
+import GettingStarted from '@/components/GettingStarted.vue'
+import { Sidebar } from '@/components/Sidebar'
+import { ApiClientModal } from '@/features/ApiClientModal'
+import { downloadSpecBus, downloadSpecFile, sleep } from '@/helpers'
+import { useNavState, useSidebar } from '@/hooks'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
-
-import { ApiClientModal } from '../features/ApiClientModal'
-import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
-import { useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
-} from '../types'
-import { Content } from './Content'
-import GettingStarted from './GettingStarted.vue'
-import { Sidebar } from './Sidebar'
+} from '@/types'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 

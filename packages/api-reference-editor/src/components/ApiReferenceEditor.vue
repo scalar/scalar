@@ -3,7 +3,6 @@ import {
   Layouts,
   useHttpClientStore,
   useReactiveSpec,
-  type ReferenceConfiguration,
 } from '@scalar/api-reference'
 
 import '@scalar/api-reference/style.css'
@@ -13,7 +12,10 @@ import {
   ApiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
-import type { SpecConfiguration } from '@scalar/types/legacy'
+import type {
+  ReferenceConfiguration,
+  SpecConfiguration,
+} from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref, toRef, watch, watchEffect } from 'vue'
@@ -21,7 +23,7 @@ import { computed, ref, toRef, watch, watchEffect } from 'vue'
 import EditorInput from './EditorInput.vue'
 
 const props = defineProps<{
-  configuration?: ApiReferenceConfiguration & {
+  configuration?: (ApiReferenceConfiguration | ReferenceConfiguration) & {
     /** Option to manage the state externally and have the spec reactively update  */
     useExternalState?: boolean
   }
