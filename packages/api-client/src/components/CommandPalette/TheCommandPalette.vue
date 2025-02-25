@@ -162,13 +162,7 @@ const executeCommand = (
 ) => {
   // Route to the page
   if ('path' in command) {
-    router.push({
-      name: command.path,
-      params: {
-        [PathId.Workspace]: activeWorkspace.value?.uid,
-      },
-    })
-
+    router.push(command.path)
     closeHandler()
   }
 
