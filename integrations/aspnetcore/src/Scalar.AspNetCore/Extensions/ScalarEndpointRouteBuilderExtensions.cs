@@ -188,7 +188,6 @@ public static class ScalarEndpointRouteBuilderExtensions
                      <script src="{ScalarJavaScriptHelperFile}"></script>
                      <script>
                          const basePath = getBasePath('{httpContext.Request.Path}');
-                         console.log(basePath)
                          const openApiUrl = `{(options.IsOpenApiRoutePatternUrl ? documentUrl : $"${{window.location.origin}}${{basePath}}/{documentUrl}")}`
                          const reference = document.getElementById('api-reference')
                          reference.dataset.url = openApiUrl;
