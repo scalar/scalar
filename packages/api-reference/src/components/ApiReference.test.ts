@@ -112,7 +112,7 @@ describe('ApiReference', () => {
           configuration: [
             {
               spec: {
-                name: 'my-api-1',
+                slug: 'my-api-1',
                 content: {
                   openapi: '3.1.0',
                   info: {
@@ -124,7 +124,7 @@ describe('ApiReference', () => {
             },
             {
               spec: {
-                name: 'my-api-2',
+                slug: 'my-api-2',
                 content: {
                   openapi: '3.1.0',
                   info: {
@@ -162,11 +162,11 @@ describe('ApiReference', () => {
               sources: [
                 {
                   url: 'https://api.example.com/v1/openapi.yaml',
-                  name: 'my-api-1',
+                  slug: 'my-api-1',
                 },
                 {
                   url: 'https://api.example.com/v2/openapi.yaml',
-                  name: 'my-api-2',
+                  slug: 'my-api-2',
                 },
               ],
             },
