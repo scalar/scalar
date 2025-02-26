@@ -89,7 +89,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
       <!-- History -->
       <ListboxButton
         v-if="history?.length"
-        class="addressbar-history-button z-context-plus text-c-3 focus:text-c-1 mr-1 rounded-lg p-1.5">
+        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 mr-1 rounded-lg p-1.5">
         <ScalarIcon
           icon="History"
           size="sm"
@@ -102,7 +102,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
         #floating="{ width }">
         <!-- History Item -->
         <ListboxOptions
-          class="address-bg-states custom-scroll p-0.75 grid max-h-[inherit] grid-cols-[44px,1fr,repeat(3,auto)] items-center border-t"
+          class="custom-scroll p-0.75 grid max-h-[inherit] grid-cols-[44px,1fr,repeat(3,auto)] items-center border-t"
           :style="{ width }">
           <ListboxOption
             v-for="(entry, index) in history"
@@ -135,25 +135,10 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
   </Listbox>
 </template>
 <style scoped>
-.addressbar-history-button:hover {
+.address-bar-history-button:hover {
   background: var(--scalar-background-3);
 }
-.addressbar-history-button:focus-within {
+.address-bar-history-button:focus-within {
   background: var(--scalar-background-2);
-}
-.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
-  --scalar-background-1: var(--scalar-background-1);
-}
-.addressbar-bg-states {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    var(--scalar-background-2)
-  );
-}
-.addressbar-bg-states:has(.cm-focused) {
-  background: var(--scalar-background-1);
-  border-color: var(--scalar-border-color);
-  outline: 1px solid var(--scalar-color-accent);
 }
 </style>
