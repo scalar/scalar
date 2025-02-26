@@ -140,6 +140,7 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
         spec: {
           title: 'Petstore',
           slug: 'petstore',
+          url: 'https://petstore.swagger.io/v2/swagger.json',
         },
       },
     ],

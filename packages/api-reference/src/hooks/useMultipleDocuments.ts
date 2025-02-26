@@ -1,6 +1,9 @@
 import type { ReferenceConfiguration, ReferenceConfigurationWithSources } from '@/types'
 import { isDefined } from '@scalar/oas-utils/helpers'
+import type { SpecConfiguration } from '@scalar/types'
 import GithubSlugger from 'github-slugger'
+import type { Ref } from 'vue'
+
 import { computed, ref, watch } from 'vue'
 
 /** URL parameter name for the selected API document */
@@ -12,8 +15,18 @@ interface UseMultipleDocumentsProps {
 
 const slugger = new GithubSlugger()
 
-const processSpec = (spec: any, index: number) => {
+const processSpec = (spec: any, index: number): SpecConfiguration | undefined => {
   if (!spec) return undefined
+
+  if (!spec.sources && !spec.url && !spec.content) {
+    return undefined
+  }
+
+  if (spec.sources) {
+    const sources = spec.sources.map((source: any) => processSpec(source, index)).filter(isDefined)
+
+    return sources.length > 0 ? sources : undefined
+  }
 
   // Reset slugger to avoid duplicate handling
   slugger.reset()
@@ -47,11 +60,11 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
   /**
    * All available API definitions that can be selected
    */
-  const availableDocuments = computed(() => {
+  const availableDocuments = computed((): SpecConfiguration[] => {
     // Multiple configurations
     if (Array.isArray(configuration.value)) {
       return configuration.value
-        .map((config, index) => config.spec && processSpec(config.spec, index))
+        .map((config: ReferenceConfiguration, index: number) => config.spec && processSpec(config.spec, index))
         .filter(isDefined)
     }
 
@@ -62,11 +75,11 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
       Array.isArray(configuration.value.spec.sources)
     ) {
       return configuration.value.spec.sources
-        .map((source, index) => source && processSpec(source, index))
+        .map((source: SpecConfiguration, index: number) => source && processSpec(source, index))
         .filter(isDefined)
     }
 
-    return configuration.value?.spec ? [processSpec(configuration.value.spec, 0)] : []
+    return configuration.value?.spec ? [processSpec(configuration.value.spec, 0)].filter(isDefined) : []
   })
 
   /**
@@ -76,10 +89,15 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
     const url = new URL(window.location.href)
     const selectedDefinition = availableDocuments.value[value]
 
-    // Use slug if available, then name, then fallback to index
-    const parameterValue = selectedDefinition?.slug ?? selectedDefinition?.name ?? value.toString()
+    // Use slug if available, then fallback to index
+    const parameterValue = selectedDefinition?.slug ?? value.toString()
 
+    // Switch document
     url.searchParams.set(QUERY_PARAMETER, parameterValue)
+
+    // Reset location on the page
+    url.hash = ''
+
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -96,13 +114,7 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
       return indexBySlug
     }
 
-    // Try finding by name if slug lookup fails
-    const indexByName = availableDocuments.value.findIndex((option) => option.name === parameter)
-    if (indexByName !== -1) {
-      return indexByName
-    }
-
-    // Try parsing as numeric index if name lookup fails
+    // Try parsing as numeric index if slug lookup fails
     const numericIndex = Number.parseInt(parameter, 10)
     if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
       return numericIndex
