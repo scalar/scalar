@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import type { HarRequest } from '@/types'
 import { convertWithHttpSnippetLite } from './convertWithHttpSnippetLite'
 
 describe('convertWithHttpSnippetLite', () => {
   it('converts a basic GET request', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
@@ -21,7 +22,7 @@ describe('convertWithHttpSnippetLite', () => {
 
   it('handles query parameters', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
@@ -42,7 +43,7 @@ describe('convertWithHttpSnippetLite', () => {
 
   it('processes headers correctly', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
@@ -63,7 +64,7 @@ describe('convertWithHttpSnippetLite', () => {
 
   it('handles POST requests with JSON body', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
@@ -85,7 +86,7 @@ describe('convertWithHttpSnippetLite', () => {
 
   it('handles invalid JSON body gracefully', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
@@ -114,7 +115,7 @@ describe('convertWithHttpSnippetLite', () => {
 
   it('handles URLs with trailing slash correctly', () => {
     const mockClient = {
-      convert: (request) => JSON.stringify(request, null, 2),
+      convert: (request: HarRequest) => JSON.stringify(request, null, 2),
     }
 
     const result = convertWithHttpSnippetLite(mockClient, {
