@@ -17,6 +17,6 @@ test-*.json
 
 # Temporary Vite/Vitest config files
 *.config.ts.timestamp-*.mjs
-
+rollup.config-*.mjs
 
 .DS_Store
