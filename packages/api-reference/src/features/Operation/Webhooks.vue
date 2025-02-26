@@ -2,7 +2,7 @@
 import { ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Webhooks } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
 import {
@@ -24,6 +24,8 @@ const props = defineProps<{
 const webhookKeys = computed(() => {
   return Object.keys(props.webhooks ?? {})
 })
+
+const headerId = useId()
 
 const { getWebhookId } = useNavState()
 
@@ -48,9 +50,13 @@ const webhooksFiltered = computed(() => {
   <SectionContainer
     v-if="webhookKeys.length"
     id="webhooks">
-    <Section>
+    <Section :aria-labelledby="headerId">
       <SectionHeader>
-        <SectionHeaderTag :level="2">Webhooks</SectionHeaderTag>
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
+          Webhooks
+        </SectionHeaderTag>
       </SectionHeader>
       <Lazy
         id="webhooks"

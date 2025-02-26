@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import {
@@ -22,6 +22,8 @@ const props = defineProps<{
     | Record<string, OpenAPIV3_1.SchemaObject>
     | unknown
 }>()
+
+const headerId = useId()
 
 const MAX_MODELS_INITIALLY_SHOWN = 10
 
@@ -49,9 +51,13 @@ const models = computed(() => {
   <SectionContainer
     v-if="schemas"
     id="models">
-    <Section>
+    <Section :aria-labelledby="headerId">
       <SectionHeader>
-        <SectionHeaderTag :level="2">Models</SectionHeaderTag>
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
+          Models
+        </SectionHeaderTag>
       </SectionHeader>
       <Lazy
         id="models"
