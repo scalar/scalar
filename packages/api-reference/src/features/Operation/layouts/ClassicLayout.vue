@@ -48,7 +48,7 @@ const config = useConfig()
     class="reference-endpoint"
     transparent>
     <template #title>
-      <h3 class="operation-title">
+      <div class="operation-title">
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
@@ -57,7 +57,7 @@ const config = useConfig()
           <Anchor
             :id="id ?? ''"
             class="endpoint-anchor">
-            <div class="endpoint-label">
+            <h3 class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
                   :deprecated="isOperationDeprecated(transformedOperation)"
@@ -71,10 +71,10 @@ const config = useConfig()
                 :class="getOperationStabilityColor(transformedOperation)">
                 {{ getOperationStability(transformedOperation) }}
               </Badge>
-            </div>
+            </h3>
           </Anchor>
         </div>
-      </h3>
+      </div>
     </template>
     <template #actions="{ active }">
       <TestRequestButton

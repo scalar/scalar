@@ -9,6 +9,7 @@ import {
   Section,
   SectionContainer,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
@@ -49,11 +50,12 @@ const models = computed(() => {
     v-if="schemas"
     id="models">
     <Section>
-      <SectionHeader :level="2">Models</SectionHeader>
+      <SectionHeader>
+        <SectionHeaderTag :level="2">Models</SectionHeaderTag>
+      </SectionHeader>
       <Lazy
         id="models"
-        :isLazy="false">
-      </Lazy>
+        :isLazy="false" />
       <div
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
@@ -67,9 +69,11 @@ const models = computed(() => {
             class="models-list-item"
             :label="name">
             <template #heading>
-              <SchemaHeading
-                :name="name"
-                :value="(schemas as any)[name]" />
+              <SectionHeaderTag :level="3">
+                <SchemaHeading
+                  :name="name"
+                  :value="(schemas as any)[name]" />
+              </SectionHeaderTag>
             </template>
             <ScalarErrorBoundary>
               <Schema

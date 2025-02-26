@@ -10,6 +10,7 @@ import {
   Section,
   SectionContainer,
   SectionHeader,
+  SectionHeaderTag,
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
 import { useNavState, useSidebar } from '@/hooks'
@@ -48,11 +49,12 @@ const webhooksFiltered = computed(() => {
     v-if="webhookKeys.length"
     id="webhooks">
     <Section>
-      <SectionHeader :level="2">Webhooks</SectionHeader>
+      <SectionHeader>
+        <SectionHeaderTag :level="2">Webhooks</SectionHeaderTag>
+      </SectionHeader>
       <Lazy
         id="webhooks"
-        :isLazy="false">
-      </Lazy>
+        :isLazy="false" />
       <div
         class="webhooks-list"
         :class="{ 'webhooks-list-truncated': !showAllWebhooks }">
@@ -73,7 +75,9 @@ const webhooksFiltered = computed(() => {
               :label="name">
               <template #heading>
                 <!-- Title -->
-                {{ webhooks[name][httpVerb]?.name }}
+                <SectionHeaderTag :level="3">
+                  {{ webhooks[name][httpVerb]?.name }}
+                </SectionHeaderTag>
               </template>
               <!-- Description -->
               <ScalarMarkdown

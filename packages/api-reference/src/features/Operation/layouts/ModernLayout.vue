@@ -17,6 +17,7 @@ import {
   SectionColumns,
   SectionContent,
   SectionHeader,
+  SectionHeaderTag,
 } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
@@ -53,9 +54,11 @@ defineProps<{
         :class="
           isOperationDeprecated(transformedOperation) ? 'deprecated' : ''
         ">
-        <SectionHeader :level="3">
+        <SectionHeader>
           <Anchor :id="id ?? ''">
-            {{ transformedOperation.name }}
+            <SectionHeaderTag :level="3">
+              {{ transformedOperation.name }}
+            </SectionHeaderTag>
           </Anchor>
         </SectionHeader>
       </div>

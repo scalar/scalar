@@ -16,6 +16,7 @@ import {
   SectionColumns,
   SectionContent,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 
 const props = defineProps<{ id?: string; tag: Tag; isCollapsed?: boolean }>()
@@ -35,8 +36,12 @@ const scrollHandler = async (operation: TransformedOperation) => {
   <Section
     :id="id"
     :label="tag.name.toUpperCase()">
-    <SectionHeader :level="2">
-      <Anchor :id="getTagId(tag)">{{ tagName }}</Anchor>
+    <SectionHeader>
+      <Anchor :id="getTagId(tag)">
+        <SectionHeaderTag :level="2">
+          {{ tagName }}
+        </SectionHeaderTag>
+      </Anchor>
     </SectionHeader>
     <SectionContent>
       <SectionColumns>
