@@ -12,8 +12,8 @@ import { useRouter } from 'vue-router'
 import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
-import { useLayout } from '@/hooks'
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import { useLayout } from '@/hooks/useLayout'
+import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 
@@ -33,7 +33,7 @@ defineEmits<{
 }>()
 
 const { hideClientButton, showSidebar, integration } = useWorkspace()
-const { isSidebarOpen } = useSidebarToggle()
+const { isSidebarOpen } = useSidebar()
 
 const { layout } = useLayout()
 const { currentRoute } = useRouter()

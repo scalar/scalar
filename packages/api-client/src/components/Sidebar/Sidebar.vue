@@ -2,15 +2,15 @@
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ref } from 'vue'
 
-import { useLayout } from '@/hooks'
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import { useLayout } from '@/hooks/useLayout'
+import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
 
 defineProps<{
   title?: string
 }>()
 
-const { isSidebarOpen } = useSidebarToggle()
+const { isSidebarOpen } = useSidebar()
 const { sidebarWidth, setSidebarWidth } = useWorkspace()
 const { layout } = useLayout()
 const isDragging = ref(false)

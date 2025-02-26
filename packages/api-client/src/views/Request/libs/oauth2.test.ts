@@ -1,6 +1,3 @@
-/**
- * @vitest-environment jsdom
- */
 import { securityOauthSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'

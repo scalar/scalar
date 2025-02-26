@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
+import { useSidebar } from '@/hooks/useSidebar'
 
-const { isSidebarOpen, toggleSidebar } = useSidebarToggle()
+const { isSidebarOpen, toggleSidebarOpen } = useSidebar()
 </script>
 <template>
   <button
     class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded-lg p-2"
     type="button"
-    @click="toggleSidebar">
+    @click="toggleSidebarOpen">
     <span class="sr-only">{{ isSidebarOpen ? 'Hide' : 'Show' }} sidebar</span>
     <svg
       class="size-4"

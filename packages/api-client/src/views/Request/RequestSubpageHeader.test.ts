@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import RequestSubpageHeader from './RequestSubpageHeader.vue'
+import { mockUseLayout } from '@/vitest.setup'
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
@@ -14,16 +15,6 @@ vi.mock('vue-router', () => ({
     currentRoute: {
       query: {},
     },
-  }),
-}))
-
-// Mock useLayout
-vi.mock('@/hooks', () => ({
-  useLayout: () => ({
-    layout: 'modal',
-  }),
-  useSidebarToggle: () => ({
-    isSidebarOpen: false,
   }),
 }))
 
@@ -53,15 +44,6 @@ const mockEnvironment = environmentSchema.parse({
   description: 'Mock Environment Description',
 })
 
-// Create a mock for useSidebarToggle that we can control
-const mockUseSidebarToggle = vi.fn()
-vi.mock('@/hooks', () => ({
-  useLayout: () => ({
-    layout: 'modal',
-  }),
-  useSidebarToggle: () => mockUseSidebarToggle(),
-}))
-
 describe('RequestSubpageHeader', () => {
   const createWrapper = (options = {}) =>
     mount(RequestSubpageHeader, {
@@ -75,13 +57,13 @@ describe('RequestSubpageHeader', () => {
         selectedSchemeOptions: [],
         workspace: workspaceSchema.parse(mockWorkspace),
       },
+      attachTo: document.body,
       ...options,
     })
 
   // Mock our request + example
   beforeEach(() => {
     mockUseWorkspace.mockReturnValue(mockWorkspace)
-    mockUseSidebarToggle.mockReturnValue({ isSidebarOpen: false })
   })
 
   it('renders correctly', () => {
@@ -103,6 +85,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('shows OpenApiClientButton when layout is modal and document URL is present', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
       hideClientButton: false,
@@ -120,6 +103,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('emits hideModal when close button is clicked', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
     })
@@ -131,6 +115,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('applies correct classes for modal layout', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     const wrapper = createWrapper()
     const sidebarToggle = wrapper.find('.scalar-sidebar-toggle')
     expect(sidebarToggle.classes()).toContain('!flex')

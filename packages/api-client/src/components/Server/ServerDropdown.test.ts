@@ -1,4 +1,3 @@
-import { useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'
 import { PopoverPanel } from '@headlessui/vue'
 import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
@@ -7,17 +6,12 @@ import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vite
 
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
+import { mockUseLayout } from '@/vitest.setup'
 
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
   useWorkspace: vi.fn(),
 }))
-
-// Mock the useLayout hook
-vi.mock('@/hooks/useLayout', () => ({
-  useLayout: vi.fn(),
-}))
-const mockUseLayout = useLayout as Mock<[], ReturnType<typeof useLayout>>
 
 describe('ServerDropdown', () => {
   const defaultProps = {
@@ -73,7 +67,6 @@ describe('ServerDropdown', () => {
   afterEach(() => {
     // clean up
     document.body.innerHTML = ''
-    vi.clearAllMocks()
   })
 
   it('renders the server URL correctly', () => {
