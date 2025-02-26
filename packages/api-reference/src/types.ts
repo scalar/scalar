@@ -1,9 +1,15 @@
 import type { HarRequest } from '@scalar/snippetz/types'
 import type { ThemeId } from '@scalar/themes'
-import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
+import type { ContentType, ReferenceConfiguration, Spec, SpecConfiguration } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
 export type { ReferenceConfiguration }
+
+export type ReferenceConfigurationWithSources = ReferenceConfiguration & {
+  spec: {
+    sources: SpecConfiguration[]
+  }
+}
 
 export type ReferenceProps = {
   configuration?: ReferenceConfiguration
@@ -97,6 +103,10 @@ export type ReferenceLayoutSlot =
 
 export type ReferenceLayoutSlots = {
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
+}
+
+export type DocumentSelectorSlot = {
+  'document-selector': any
 }
 
 export type ReferenceSlotProps = {
