@@ -19,8 +19,7 @@ describe('html-rendering', () => {
     })
 
     it('excludes custom theme when theme is provided in config', () => {
-      // @ts-expect-error - theme is not provided
-      const html = getHtmlDocument({ theme: 'dark' }, 'body { color: red }')
+      const html = getHtmlDocument({ theme: 'kepler' }, 'body { color: red }')
       expect(html).not.toContain('body { color: red }')
     })
   })
@@ -40,7 +39,7 @@ describe('html-rendering', () => {
 
   describe('getConfiguration', () => {
     it('stringifies configuration and escapes quotes', () => {
-      const config = getConfiguration({ theme: 'dark' })
+      const config = getConfiguration({ theme: 'kepler' })
       expect(config).toBe('{&quot;theme&quot;:&quot;dark&quot;}')
     })
 
