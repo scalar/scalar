@@ -36,16 +36,16 @@ runs:
       # GitHub Actions runners have two cores, so we can run two tasks in parallel
       run: pnpm turbo --concurrency=2 build
       env:
-        NODE_OPTIONS: '--max_old_space_size=4096'
+        NODE_OPTIONS: '--max_old_space_size=8192'
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
       run: pnpm turbo --concurrency=2 --filter './packages/**' build
       env:
-        NODE_OPTIONS: '--max_old_space_size=4096'
+        NODE_OPTIONS: '--max_old_space_size=8192'
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
       name: Build package
       shell: bash
       run: pnpm turbo --concurrency=2 --filter './packages/${{inputs.packages-only}}' build
       env:
-        NODE_OPTIONS: '--max_old_space_size=4096'
+        NODE_OPTIONS: '--max_old_space_size=8192'

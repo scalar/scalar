@@ -3,6 +3,9 @@ FROM node:20-slim AS base
 # process init system
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
+# Set Node.js memory limit to 8GB
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+
 RUN npm install pnpm@9.2.0 --global
 RUN pnpm config set store-dir ~/.pnpm-store
 
