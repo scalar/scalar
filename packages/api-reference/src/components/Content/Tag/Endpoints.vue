@@ -40,6 +40,7 @@ const scrollHandler = async (operation: TransformedOperation) => {
       <Anchor :id="getTagId(tag)">
         <SectionHeaderTag :level="2">
           {{ tagName }}
+          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>
@@ -68,10 +69,18 @@ const scrollHandler = async (operation: TransformedOperation) => {
                     v-for="operation in tag.operations"
                     :key="getOperationId(operation, tag)"
                     class="contents">
+                    <!-- If collapsed add hidden headers so they show up for screen readers -->
+                    <SectionHeaderTag
+                      v-if="isCollapsed"
+                      class="sr-only"
+                      :level="3">
+                      {{ operation.name }} (Collapsed)
+                    </SectionHeaderTag>
                     <a
                       class="endpoint"
                       :href="`#${getOperationId(operation, tag)}`"
                       @click.prevent="scrollHandler(operation)">
+                      <ScreenReader>Operation: </ScreenReader>
                       <HttpMethod :method="operation.httpVerb" />
                       <span
                         class="endpoint-path"
