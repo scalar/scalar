@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@/types'
+import type { ApiReferenceConfiguration } from '@/types'
 
 /**
  * The CDN configuration for the Scalar API Reference.
@@ -26,7 +26,7 @@ export type PageTitleConfiguration = {
   pageTitle?: string
 }
 
-export type HtmlRenderingConfiguration = ReferenceConfiguration & CdnConfiguration & PageTitleConfiguration
+export type HtmlRenderingConfiguration = ApiReferenceConfiguration & CdnConfiguration & PageTitleConfiguration
 
 /**
  * The HTML document to render the Scalar API reference.
