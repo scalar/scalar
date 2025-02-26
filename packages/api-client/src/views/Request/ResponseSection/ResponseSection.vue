@@ -135,7 +135,7 @@ const shouldVirtualize = computed(() => {
       </div>
     </template>
     <div
-      class="custom-scroll relative grid h-full justify-stretch"
+      class="custom-scroll relative grid h-full justify-stretch divide-y"
       :class="{
         'content-start': response,
       }">
