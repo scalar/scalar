@@ -17,7 +17,7 @@ export const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSideba
 
 /** Spy on console.warn */
 export const consoleWarnSpy = vi.spyOn(console, 'warn')
-let isConsoleWarnEnabled = true
+let isConsoleWarnEnabled = false
 
 /** Spy on console.error */
 export const consoleErrorSpy = vi.spyOn(console, 'error')
@@ -28,10 +28,11 @@ export const resetConsoleSpies = () => {
   consoleErrorSpy.mockClear()
 }
 
-/** Helper to re-enable console checks */
-export const enableConsoleWarn = () => {
-  isConsoleWarnEnabled = true
-}
+/** Helper to re-enable console warn checks */
+export const enableConsoleWarn = () => (isConsoleWarnEnabled = true)
+
+/** Helper to disable console warn checks */
+export const disableConsoleWarn = () => (isConsoleWarnEnabled = false)
 
 // Set default values for the mocks
 beforeEach(() => {
@@ -68,6 +69,7 @@ afterEach(() => {
 
   // Reset the spies
   resetConsoleSpies()
+  disableConsoleWarn()
 
   vi.clearAllMocks()
 })
