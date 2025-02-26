@@ -47,7 +47,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
-    "./browser/standalone.js": "./dist/browser/standalone.js"
+    "./browser/standalone.js": "./dist/browser/standalone.js",
+    "./lib/html-rendering": "./dist/standalone/lib/html-rendering.js"
   },
   "files": [
     "dist",

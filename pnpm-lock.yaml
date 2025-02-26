@@ -373,13 +373,13 @@ importers:
 
   integrations/express:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
     devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../../packages/api-reference
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -395,6 +395,9 @@ importers:
       supertest:
         specifier: ^6.3.3
         version: 6.3.4
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
@@ -426,6 +429,9 @@ importers:
 
   integrations/hono:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -1466,6 +1472,9 @@ importers:
 
   packages/fastify-api-reference:
     dependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../api-reference
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
@@ -1482,9 +1491,6 @@ importers:
       '@fastify/swagger':
         specifier: ^8.10.1
         version: 8.14.0
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1559,21 +1565,36 @@ importers:
 
   packages/galaxy:
     devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
+  packages/galaxy/playground:
+    devDependencies:
       '@hono/node-server':
         specifier: ^1.11.0
         version: 1.11.3
       '@scalar/build-tooling':
         specifier: workspace:*
-        version: link:../build-tooling
+        version: link:../../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/hono
+        version: link:../../../integrations/hono
       '@scalar/mock-server':
         specifier: workspace:*
-        version: link:../mock-server
+        version: link:../../mock-server
       '@scalar/openapi-parser':
         specifier: workspace:*
-        version: link:../openapi-parser
+        version: link:../../openapi-parser
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)

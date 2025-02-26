@@ -1,16 +1,19 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { Env, MiddlewareHandler } from 'hono'
-import { html, raw } from 'hono/html'
 
-export type ApiReferenceOptions = ReferenceConfiguration & {
-  pageTitle?: string
-  cdn?: string
+import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
+import type { ApiReferenceConfiguration } from './types'
+
+/**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'hono',
 }
 
 /**
- * The custom theme CSS for the API Reference.
+ * The custom theme for Hono
  */
-export const customThemeCSS = `
+export const customTheme = `
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #2a2f45;
@@ -113,57 +116,17 @@ export const customThemeCSS = `
 `
 
 /**
- * The HTML to load the @scalar/api-reference JavaScript package.
+ * The Hono middleware for the Scalar API Reference.
  */
-export const javascript = (configuration: ApiReferenceOptions) => {
-  const defaultConfiguration: Partial<ReferenceConfiguration> = {
-    _integration: 'hono',
+export const apiReference = <E extends Env>(givenConfiguration: ApiReferenceConfiguration): MiddlewareHandler<E> => {
+  // Merge the defaults
+  const configuration = {
+    ...DEFAULT_CONFIGURATION,
+    ...givenConfiguration,
   }
 
-  return html`
-    <script
-      id="api-reference"
-      type="application/json"
-      data-configuration="${JSON.stringify({
-        ...defaultConfiguration,
-        ...configuration,
-      })
-        .split('"')
-        .join('&quot;')}">
-      ${raw(
-        configuration.spec?.content
-          ? typeof configuration.spec?.content === 'function'
-            ? JSON.stringify(configuration.spec?.content())
-            : JSON.stringify(configuration.spec?.content)
-          : '',
-      )}
-    </script>
-    <script src="${configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
-  `
+  // Respond with the HTML document
+  return async (c) => {
+    return c.html(/* html */ `${getHtmlDocument(configuration, customTheme)}`)
+  }
 }
-
-/**
- * The middleware for the API Reference.
- */
-export const apiReference =
-  <E extends Env>(options: ApiReferenceOptions): MiddlewareHandler<E> =>
-  async (c) => {
-    return c.html(/* html */ `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${options?.pageTitle ?? 'API Reference'}</title>
-          <meta charset="utf-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1" />
-          <style>
-            ${options.theme ? null : customThemeCSS}
-          </style>
-        </head>
-        <body>
-          ${javascript(options)}
-        </body>
-      </html>
-    `)
-  }

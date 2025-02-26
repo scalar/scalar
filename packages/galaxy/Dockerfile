@@ -2,10 +2,8 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-ENV BUILD_PLAYGROUND=1
-
 # Build the package with the BUILD_PLAYGROUND flag set
-RUN pnpm --filter @scalar/galaxy build
+RUN pnpm --filter @scalar-examples/galaxy build
 
 FROM node:20-bullseye-slim AS runner
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
@@ -26,4 +24,4 @@ COPY --from=builder /app/packages/openapi-parser /app/packages/openapi-parser
 COPY --from=builder /app/packages/galaxy /app/packages/galaxy
 WORKDIR /app/packages/galaxy
 
-CMD ["dumb-init", "node", "dist/playground/index.js"]
+CMD ["dumb-init", "node", "playground/dist/index.js"]
