@@ -1,26 +1,21 @@
 <script setup lang="ts">
 import LoadingSkeleton from '../LoadingSkeleton.vue'
 
-withDefaults(
-  defineProps<{ loading?: boolean; tight?: boolean; level?: number }>(),
-  {
-    loading: false,
-    tight: false,
-    level: 1,
-  },
-)
+defineProps<{
+  loading?: boolean
+  tight?: boolean
+}>()
 </script>
 
 <template>
   <div class="section-header-wrapper">
     <LoadingSkeleton v-if="loading" />
-    <component
-      :is="`h${level}`"
+    <div
       v-else
       class="section-header"
       :class="{ tight }">
       <slot />
-    </component>
+    </div>
   </div>
 </template>
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Spec, Tag } from '@scalar/types/legacy'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, useId } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { SectionContainer } from '../../Section'
@@ -15,6 +15,8 @@ const props = defineProps<{
 
 const sectionContainerRef = ref<HTMLElement>()
 const contentsRef = ref<HTMLElement>()
+
+const headerId = useId()
 
 const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
@@ -38,10 +40,13 @@ async function focusContents() {
 <template>
   <SectionContainer
     ref="sectionContainerRef"
-    class="tag-section-container">
+    :aria-labelledby="headerId"
+    class="tag-section-container"
+    role="region">
     <Endpoints
       v-if="moreThanOneDefaultTag"
       :id="id"
+      :headerId="headerId"
       :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
       :tag="tag" />
     <ShowMoreButton

@@ -6,5 +6,5 @@ export { default as SectionContainer } from './SectionContainer.vue'
 export { default as SectionContainerAccordion } from './SectionContainerAccordion.vue'
 export { default as SectionContent } from './SectionContent.vue'
 export { default as SectionHeader } from './SectionHeader.vue'
-
+export { default as SectionHeaderTag } from './SectionHeaderTag.vue'
 export { default as CompactSection } from './CompactSection.vue'

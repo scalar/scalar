@@ -73,7 +73,7 @@ onMounted(() => {
     <slot name="sidebar-start" />
     <nav
       ref="scrollerEl"
-      :aria-label="`Contents of ${parsedSpec.info?.title}`"
+      :aria-label="`Table of contents for ${parsedSpec.info?.title}`"
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template

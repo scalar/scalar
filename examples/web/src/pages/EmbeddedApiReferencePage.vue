@@ -15,14 +15,14 @@ const configuration = reactive<ReferenceConfiguration>({
 })
 </script>
 <template>
-  <main class="main">
+  <div class="main">
     <h1>This is my super duper web application</h1>
     <div class="container">
       <ApiReference :configuration="configuration">
         <template #footer><SlotPlaceholder>footer</SlotPlaceholder></template>
       </ApiReference>
     </div>
-  </main>
+  </div>
 </template>
 <style scoped>
 .main {

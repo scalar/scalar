@@ -4,7 +4,11 @@ import type { Tag } from '@scalar/types/legacy'
 
 import { useNavState } from '../../../hooks'
 import { Anchor } from '../../Anchor'
-import { SectionContainerAccordion, SectionHeader } from '../../Section'
+import {
+  SectionContainerAccordion,
+  SectionHeader,
+  SectionHeaderTag,
+} from '../../Section'
 
 defineProps<{
   tag: Tag
@@ -15,11 +19,11 @@ const { getTagId } = useNavState()
 <template>
   <SectionContainerAccordion class="tag-section">
     <template #title>
-      <SectionHeader
-        class="tag-name"
-        :level="2">
+      <SectionHeader class="tag-name">
         <Anchor :id="getTagId(tag)">
-          {{ tag.name }}
+          <SectionHeaderTag :level="2">
+            {{ tag.name }}
+          </SectionHeaderTag>
         </Anchor>
       </SectionHeader>
       <ScalarMarkdown

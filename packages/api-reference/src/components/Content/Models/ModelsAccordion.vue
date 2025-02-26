@@ -8,6 +8,7 @@ import {
   SectionAccordion,
   SectionContainerAccordion,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 import { SchemaHeading, SchemaProperty } from '../Schema'
 
@@ -48,10 +49,12 @@ const { getModelId } = useNavState()
         <Anchor
           :id="getModelId({ name })"
           class="reference-models-anchor">
-          <SchemaHeading
-            class="reference-models-label"
-            :name="name"
-            :value="schema" />
+          <SectionHeaderTag :level="3">
+            <SchemaHeading
+              class="reference-models-label"
+              :name="name"
+              :value="schema" />
+          </SectionHeaderTag>
         </Anchor>
       </template>
       <!-- Schema -->
