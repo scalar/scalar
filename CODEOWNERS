@@ -42,7 +42,7 @@
 # /packages/use-tooltip
 /packages/api-reference @hanspagel
 /packages/code-highlight @geoffgscott
-/packages/fastify-api-reference @hanspagel
+/integrations/fastify @hanspagel
 /integrations/nuxt @amritk
 /integrations/fastapi @marclave
 /packages/void-server @hanspagel

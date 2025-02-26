@@ -22,9 +22,9 @@ RUN chown node:node /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/packages/fastify-api-reference /app/packages/fastify-api-reference
+COPY --from=builder /app/integrations/fastify /app/integrations/fastify
 
-WORKDIR /app/packages/fastify-api-reference
+WORKDIR /app/integrations/fastify
 
 # dumb-init runs as PID 1 and ensures all signals are forwarded
 # to the spawned node process (ensures the server shuts down gracefully)

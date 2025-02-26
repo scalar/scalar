@@ -137,7 +137,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}",
         "-f",
-        "./packages/fastify-api-reference/Dockerfile",
+        "./integrations/fastify/Dockerfile",
         "."
       ]
     },

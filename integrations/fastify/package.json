@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/fastify-api-reference"
+    "directory": "integrations/fastify"
   },
   "keywords": [
     "api",

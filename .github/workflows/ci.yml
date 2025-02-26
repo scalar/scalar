@@ -347,7 +347,7 @@ jobs:
           ./packages/components
           ./integrations/docusaurus
           ./integrations/express
-          ./packages/fastify-api-reference
+          ./integrations/fastify
           ./integrations/hono
           ./integrations/nestjs
           ./integrations/nextjs
