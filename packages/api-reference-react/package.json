@@ -24,8 +24,6 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
     "playground": "vite ./playground -c ./vite.config.ts",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -36,19 +34,9 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./dist/index.d.ts"
     },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    }
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
@@ -70,6 +58,7 @@
     "random-words": "^2.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "rollup-preserve-directives": "^1.1.1",
     "vite": "^5.4.10",
     "vue": "^3.5.12"
   },

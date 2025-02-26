@@ -24,12 +24,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm types:check && pnpm build-only",
-    "build-only": "vite build",
-    "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "build": "scalar-build-vite",
+    "playground": "vite ./playground -c ./vite.config.ts",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -59,10 +57,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rollup-preserve-directives": "^1.1.1",
-    "vite": "^5.4.10",
-    "vite-plugin-dts": "^4.3.0"
+    "vite": "^5.4.10"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   }
 }
