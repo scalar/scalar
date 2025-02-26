@@ -37,7 +37,7 @@ export const disableConsoleWarn = () => (isConsoleWarnEnabled = false)
 // Set default values for the mocks
 beforeEach(() => {
   mockUseLayout.mockReturnValue({
-    layout: 'modal',
+    layout: 'desktop',
   })
 
   mockUseSidebar.mockReturnValue({
