@@ -7,6 +7,7 @@ import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import RequestSubpageHeader from './RequestSubpageHeader.vue'
+import { mockUseLayout } from '@/vitest.setup'
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
@@ -84,6 +85,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('shows OpenApiClientButton when layout is modal and document URL is present', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
       hideClientButton: false,
@@ -101,6 +103,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('emits hideModal when close button is clicked', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
     })
@@ -112,6 +115,7 @@ describe('RequestSubpageHeader', () => {
   })
 
   it('applies correct classes for modal layout', async () => {
+    mockUseLayout.mockReturnValue({ layout: 'modal' })
     const wrapper = createWrapper()
     const sidebarToggle = wrapper.find('.scalar-sidebar-toggle')
     expect(sidebarToggle.classes()).toContain('!flex')
