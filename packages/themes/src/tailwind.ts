@@ -35,6 +35,7 @@ export default {
     },
     fontFamily: {
       DEFAULT: 'var(--scalar-font)',
+      sans: 'var(--scalar-font)',
       code: 'var(--scalar-font-code)',
     },
     fontSize: {
