@@ -114,6 +114,14 @@ export function convertWithHttpSnippetLite(
     cookiesObj: cookiesObj ?? {},
   } as Request
 
+  if (convertRequest.postData?.mimeType === 'application/json' && convertRequest.postData?.text) {
+    try {
+      convertRequest.postData.jsonObj = JSON.parse(convertRequest.postData.text)
+    } catch (error) {
+      console.error('Error parsing JSON:', error)
+    }
+  }
+
   if (typeof client.convert === 'function') {
     return client.convert(convertRequest)
   }
