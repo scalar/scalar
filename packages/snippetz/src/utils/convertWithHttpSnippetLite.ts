@@ -3,6 +3,8 @@ import type { HarRequest } from '@/types'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
+ *
+ * @deprecated This a temporary wrapper around httpsnippet-lite. Let’s write all the generators ourselves instead.
  */
 export function convertWithHttpSnippetLite(
   // Couldn’t find the proper type, there was always a mismatch.
@@ -114,6 +116,7 @@ export function convertWithHttpSnippetLite(
     cookiesObj: cookiesObj ?? {},
   } as Request
 
+  // If the request is a JSON request, parse the text as JSON
   if (convertRequest.postData?.mimeType === 'application/json' && convertRequest.postData?.text) {
     try {
       convertRequest.postData.jsonObj = JSON.parse(convertRequest.postData.text)
