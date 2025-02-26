@@ -19,7 +19,7 @@ describe('useMultipleDocuments', () => {
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
       const multiConfig = {
-        configuration: ref([{ spec: { name: 'first-api' } }, { spec: { name: 'second-api' } }]),
+        configuration: ref([{ spec: { slug: 'first-api' } }, { spec: { slug: 'second-api' } }]),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
@@ -28,12 +28,12 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toEqual(multiConfig.configuration.value[1])
     })
 
-    it('should select API using name from query parameter', () => {
+    it('should select API using slug from query parameter', () => {
       mockUrl = new URL('http://example.com?api=second-api')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
       const multiConfig = {
-        configuration: ref([{ spec: { name: 'first-api' } }, { spec: { name: 'second-api' } }]),
+        configuration: ref([{ spec: { slug: 'first-api' } }, { spec: { slug: 'second-api' } }]),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
@@ -47,7 +47,7 @@ describe('useMultipleDocuments', () => {
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
       const multiConfig = {
-        configuration: ref([{ spec: { name: 'first-api' } }, { spec: { name: 'second-api' } }]),
+        configuration: ref([{ spec: { slug: 'first-api' } }, { spec: { slug: 'second-api' } }]),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
@@ -60,7 +60,7 @@ describe('useMultipleDocuments', () => {
   describe('URL management', () => {
     it('should update URL when initializing with a selection', () => {
       const multiConfig = {
-        configuration: ref([{ spec: { name: 'first-api' } }, { spec: { name: 'second-api' } }]),
+        configuration: ref([{ spec: { slug: 'first-api' } }, { spec: { slug: 'second-api' } }]),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
@@ -74,7 +74,7 @@ describe('useMultipleDocuments', () => {
   describe('edge cases', () => {
     it('should handle single API configuration', () => {
       const singleConfig = {
-        configuration: ref({ spec: { name: 'single-api' } }),
+        configuration: ref({ spec: { slug: 'single-api' } }),
       }
 
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(singleConfig)
@@ -96,13 +96,13 @@ describe('useMultipleDocuments', () => {
 
     it('should filter out APIs with undefined specs', () => {
       const configWithUndefinedSpec = {
-        configuration: ref([{ spec: undefined }, { spec: { name: 'valid-api' } }]),
+        configuration: ref([{ spec: undefined }, { spec: { slug: 'valid-api' } }]),
       }
 
       const { availableDocuments } = useMultipleDocuments(configWithUndefinedSpec)
 
       expect(availableDocuments.value).toHaveLength(1)
-      expect(availableDocuments.value[0].name).toBe('valid-api')
+      expect(availableDocuments.value[0].slug).toBe('valid-api')
     })
   })
 
@@ -117,11 +117,11 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-1.yaml',
-                name: 'first-api',
+                slug: 'first-api',
               },
               {
                 url: '/openapi-2.yaml',
-                name: 'second-api',
+                slug: 'second-api',
               },
             ],
           },
@@ -134,12 +134,12 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toEqual({
         spec: {
           url: '/openapi-2.yaml',
-          name: 'second-api',
+          slug: 'second-api',
         },
       })
     })
 
-    it('should select API using name from query parameter', () => {
+    it('should select API using slug from query parameter', () => {
       mockUrl = new URL('http://example.com?api=second-api')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -149,11 +149,11 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-1.yaml',
-                name: 'first-api',
+                slug: 'first-api',
               },
               {
                 url: '/openapi-2.yaml',
-                name: 'second-api',
+                slug: 'second-api',
               },
             ],
           },
@@ -166,7 +166,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toEqual({
         spec: {
           url: '/openapi-2.yaml',
-          name: 'second-api',
+          slug: 'second-api',
         },
       })
     })
@@ -181,11 +181,11 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-1.yaml',
-                name: 'first-api',
+                slug: 'first-api',
               },
               {
                 url: '/openapi-2.yaml',
-                name: 'second-api',
+                slug: 'second-api',
               },
             ],
           },
@@ -198,7 +198,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toEqual({
         spec: {
           url: '/openapi-1.yaml',
-          name: 'first-api',
+          slug: 'first-api',
         },
       })
     })
@@ -214,11 +214,11 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-1.yaml',
-                name: 'first-api',
+                slug: 'first-api',
               },
               {
                 url: '/openapi-2.yaml',
-                name: 'second-api',
+                slug: 'second-api',
               },
             ],
           },
@@ -240,7 +240,7 @@ describe('useMultipleDocuments', () => {
               undefined,
               {
                 url: '/openapi.yaml',
-                name: 'valid-api',
+                slug: 'valid-api',
               },
             ],
           },
@@ -251,7 +251,135 @@ describe('useMultipleDocuments', () => {
       const { availableDocuments } = useMultipleDocuments(configWithUndefinedSource)
 
       expect(availableDocuments.value).toHaveLength(1)
-      expect(availableDocuments.value[0].name).toBe('valid-api')
+      expect(availableDocuments.value[0].slug).toBe('valid-api')
+    })
+  })
+
+  describe('title and slug handling', () => {
+    it('should generate slug from title if only title exists', () => {
+      const config = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                title: 'My Cool API',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { availableDocuments } = useMultipleDocuments(config)
+
+      expect(availableDocuments.value[0]).toMatchObject({
+        title: 'My Cool API',
+        slug: 'my-cool-api',
+      })
+    })
+
+    it('should use slug as title if only slug exists', () => {
+      const config = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                slug: 'my-api',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { availableDocuments } = useMultipleDocuments(config)
+
+      expect(availableDocuments.value[0]).toMatchObject({
+        title: 'my-api',
+        slug: 'my-api',
+      })
+    })
+
+    it('should generate both title and slug from index if neither exists', () => {
+      const config = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+              },
+              {
+                url: '/openapi-2.yaml',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { availableDocuments } = useMultipleDocuments(config)
+
+      expect(availableDocuments.value[0]).toMatchObject({
+        title: 'API #1',
+        slug: 'api-1',
+      })
+      expect(availableDocuments.value[1]).toMatchObject({
+        title: 'API #2',
+        slug: 'api-2',
+      })
+    })
+
+    it('should preserve existing slug when title is present', () => {
+      const config = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                title: 'My Cool API',
+                slug: 'custom-slug',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { availableDocuments } = useMultipleDocuments(config)
+
+      expect(availableDocuments.value[0]).toMatchObject({
+        title: 'My Cool API',
+        slug: 'custom-slug',
+      })
+    })
+  })
+
+  describe('slugs', () => {
+    it('generates slugs from the title', () => {
+      mockUrl = new URL('http://example.com?slug=second-api')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref({
+          spec: {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                title: 'First API',
+              },
+              {
+                url: '/openapi-2.yaml',
+                title: 'Second API',
+              },
+            ],
+          },
+        }),
+      }
+
+      const { availableDocuments } = useMultipleDocuments(multiConfig)
+
+      expect(availableDocuments.value[0].slug).toBe('first-api')
+      expect(availableDocuments.value[1].slug).toBe('second-api')
+      expect(availableDocuments.value[0].title).toBe('First API')
+      expect(availableDocuments.value[1].title).toBe('Second API')
     })
   })
 })

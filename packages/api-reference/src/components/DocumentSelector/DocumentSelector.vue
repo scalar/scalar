@@ -33,10 +33,13 @@ const handleChange = (event: Event) => {
         v-for="(option, index) in options"
         :key="index"
         :value="index">
-        <template v-if="option.name">
-          {{ option.name }}
+        <template v-if="option.title">
+          {{ option.title }}
         </template>
-        <template v-else> #{{ index + 1 }} </template>
+        <template v-else-if="option.slug">
+          {{ option.slug }}
+        </template>
+        <template v-else>API #{{ index + 1 }}</template>
       </option>
     </select>
   </template>

@@ -509,11 +509,21 @@ export type SpecConfiguration = {
    */
   content?: string | Record<string, any> | (() => Record<string, any>) | null | undefined
   /**
-   * The title of the API definition used as an slug in the URL
+   * The title of the OpenAPI document.
+   *
+   * @example 'Scalar Galaxy'
+   */
+  title?: string
+  /**
+   * The slug of the OpenAPI document used in the URL.
+   *
+   * If none is passed, the title will be used.
+   *
+   * If no title is used, it’ll just use the index.
    *
    * @example 'scalar-galaxy'
    */
-  name?: string
+  slug?: string
 }
 
 export type Schema = {
