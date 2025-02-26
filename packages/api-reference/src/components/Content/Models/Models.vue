@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import {
@@ -9,6 +9,7 @@ import {
   Section,
   SectionContainer,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
@@ -21,6 +22,8 @@ const props = defineProps<{
     | Record<string, OpenAPIV3_1.SchemaObject>
     | unknown
 }>()
+
+const headerId = useId()
 
 const MAX_MODELS_INITIALLY_SHOWN = 10
 
@@ -48,12 +51,17 @@ const models = computed(() => {
   <SectionContainer
     v-if="schemas"
     id="models">
-    <Section>
-      <SectionHeader :level="2">Models</SectionHeader>
+    <Section :aria-labelledby="headerId">
+      <SectionHeader>
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
+          Models
+        </SectionHeaderTag>
+      </SectionHeader>
       <Lazy
         id="models"
-        :isLazy="false">
-      </Lazy>
+        :isLazy="false" />
       <div
         class="models-list"
         :class="{ 'models-list-truncated': !showAllModels }">
@@ -67,9 +75,11 @@ const models = computed(() => {
             class="models-list-item"
             :label="name">
             <template #heading>
-              <SchemaHeading
-                :name="name"
-                :value="(schemas as any)[name]" />
+              <SectionHeaderTag :level="3">
+                <SchemaHeading
+                  :name="name"
+                  :value="(schemas as any)[name]" />
+              </SectionHeaderTag>
             </template>
             <ScalarErrorBoundary>
               <Schema

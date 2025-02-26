@@ -15,6 +15,7 @@ import {
   SectionContainer,
   SectionContent,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 import Description from './Description.vue'
 
@@ -67,10 +68,11 @@ onMounted(() => onLoaded?.())
           <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
         </div>
         <SectionHeader
-          :level="1"
           :loading="!info.title"
           tight>
-          {{ info.title }}
+          <SectionHeaderTag :level="1">
+            {{ info.title }}
+          </SectionHeaderTag>
         </SectionHeader>
         <DownloadLink :specTitle="filenameFromTitle" />
         <SectionColumns>

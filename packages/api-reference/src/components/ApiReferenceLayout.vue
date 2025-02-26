@@ -313,7 +313,7 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  <div v-html="themeStyleTag"></div>
+  <div v-html="themeStyleTag" />
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
@@ -340,6 +340,7 @@ const themeStyleTag = computed(
     <!-- Navigation (sidebar) wrapper -->
     <aside
       v-if="configuration.showSidebar"
+      :aria-label="`Sidebar for ${parsedSpec.info?.title}`"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
@@ -374,7 +375,7 @@ const themeStyleTag = computed(
     </div>
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
-      <section
+      <main
         :aria-label="`Open API Documentation for ${parsedSpec.info?.title}`"
         class="references-rendered">
         <Content
@@ -401,7 +402,7 @@ const themeStyleTag = computed(
               name="content-end" />
           </template>
         </Content>
-      </section>
+      </main>
       <div
         v-if="$slots.footer"
         class="references-footer">

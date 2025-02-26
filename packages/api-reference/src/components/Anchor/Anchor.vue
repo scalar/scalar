@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { useId } from 'vue'
 
 import { useNavState } from '@/hooks'
 
@@ -9,6 +10,8 @@ defineProps<{
   id: string
 }>()
 
+const labelId = useId()
+
 const { copyToClipboard } = useClipboard()
 const { getHashedUrl } = useNavState()
 const getUrlWithId = (id: string) => {
@@ -17,16 +20,21 @@ const getUrlWithId = (id: string) => {
 </script>
 <template>
   <span class="label">
-    <slot />
+    <span
+      :id="labelId"
+      class="contents">
+      <slot />
+    </span>
     <span class="anchor">
       <!-- Position anchor to align the copy button to the last line of text  -->
       <span>&ZeroWidthSpace;</span>
       <button
+        :aria-describedby="labelId"
         class="anchor-copy"
         type="button"
         @click.stop="copyToClipboard(getUrlWithId(id))">
         <span aria-hidden="true">#</span>
-        <ScreenReader>Copy link to "<slot />"</ScreenReader>
+        <ScreenReader>Copy link</ScreenReader>
       </button>
     </span>
   </span>

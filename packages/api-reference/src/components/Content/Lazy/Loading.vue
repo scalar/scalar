@@ -18,6 +18,7 @@ import {
   SectionContainer,
   SectionContent,
   SectionHeader,
+  SectionHeaderTag,
 } from '../../Section'
 import { Schema } from '../Schema'
 import { Tag } from '../Tag'
@@ -180,12 +181,14 @@ onMounted(() => {
         :label="name">
         <template v-if="getModels(parsedSpec)?.[name]">
           <SectionContent>
-            <SectionHeader :level="2">
+            <SectionHeader>
               <Anchor :id="getModelId({ name })">
-                {{
-                  (getModels(parsedSpec)?.[name] as OpenAPIV3.SchemaObject)
-                    .title ?? name
-                }}
+                <SectionHeaderTag :level="2">
+                  {{
+                    (getModels(parsedSpec)?.[name] as OpenAPIV3.SchemaObject)
+                      .title ?? name
+                  }}
+                </SectionHeaderTag>
               </Anchor>
             </SectionHeader>
             <Schema
