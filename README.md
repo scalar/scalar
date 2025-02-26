@@ -117,7 +117,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Docusaurus](integrations/docusaurus/README.md)
 - [Express](integrations/express/README.md)
 - [FastAPI](integrations/fastapi/README.md)
-- [Fastify](packages/fastify-api-reference/README.md)
+- [Fastify](integrations/fastify/README.md)
 - [Go](documentation/integrations/go.md)
 - [Hono](integrations/hono/README.md)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)

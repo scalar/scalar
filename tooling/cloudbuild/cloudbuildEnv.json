@@ -12,7 +12,7 @@
   {
     "name": "fastify",
     "cloudBuildName": "_SERVICE_FASTIFY",
-    "dockerPath": "./packages/fastify-api-reference/Dockerfile"
+    "dockerPath": "./integrations/fastify/Dockerfile"
   },
   {
     "name": "hono",

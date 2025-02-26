@@ -1470,7 +1470,7 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
 
-  packages/fastify-api-reference:
+  integrations/fastify:
     dependencies:
       '@scalar/api-reference':
         specifier: workspace:*
@@ -1531,7 +1531,7 @@ importers:
         specifier: ^2.4.5
         version: 2.4.5
 
-  packages/fastify-api-reference/playground:
+  integrations/fastify/playground:
     dependencies:
       '@fastify/swagger':
         specifier: ^8.10.1
