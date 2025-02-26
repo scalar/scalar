@@ -101,9 +101,9 @@ if (configuration.value?.metaData) {
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfigurationSchema>(
   key: K,
-  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfigurationSchema[K]>) => any,
 ) {
   watch(
     () => configuration.value?.[key],
@@ -119,9 +119,7 @@ const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxyUrl: toRef(
-    () => configuration.value.proxyUrl || configuration.value.proxy || '',
-  ),
+  proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
 </script>

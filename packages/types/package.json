@@ -71,6 +71,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/snippetz": "workspace:*",
+    "vite": "^5.4.10",
     "vitest": "^1.6.0"
   }
 }

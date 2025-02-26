@@ -300,9 +300,9 @@ provide(CONFIGURATION_SYMBOL, configuration.value)
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfigurationSchema>(
   key: K,
-  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfigurationSchema[K]>) => any,
 ) {
   watch(
     () => configuration.value[key],

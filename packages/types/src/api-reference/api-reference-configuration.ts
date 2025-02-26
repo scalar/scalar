@@ -107,11 +107,7 @@ export const ApiReferenceConfigurationSchema = z
      * URL to a request proxy for the API client
      * @deprecated Use proxyUrl instead
      */
-    proxy: z
-      .string()
-      .optional()
-      // Remove from ApiReferenceConfigurationSchema type
-      .transform(() => undefined),
+    proxy: z.string().optional(),
     /** URL to a request proxy for the API client */
     proxyUrl: z.string().optional(),
     /**
@@ -291,6 +287,11 @@ export const ApiReferenceConfigurationSchema = z
   })
 
 /** Configuration (after parsing, internal) */
-export type ApiReferenceConfigurationSchema = z.infer<typeof ApiReferenceConfigurationSchema>
+export type ApiReferenceConfigurationSchema = Omit<
+  z.infer<typeof ApiReferenceConfigurationSchema>,
+  // Remove deprecated attributes
+  'proxy'
+>
+
 /** Configuration (before parsing, for users) */
 export type ApiReferenceConfiguration = z.input<typeof ApiReferenceConfigurationSchema>
