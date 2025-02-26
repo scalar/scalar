@@ -120,26 +120,38 @@ export const createApiClient = ({
   // Create the sidebar state
   const sidebarState = createSidebarState({ layout })
 
-  // Load from localStorage if available
-  // Check if we have localStorage data
-  if (localStorage.getItem(LS_KEYS.WORKSPACE) && !isReadOnly) {
-    const size: Record<string, string> = {}
-    let _lsTotal = 0
-    let _xLen = 0
-    let _key = ''
-
-    for (_key in localStorage) {
-      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
-        continue
-      }
-      _xLen = (localStorage[_key].length + _key.length) * 2
-      _lsTotal += _xLen
-      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+  // Safely check for localStorage availability
+  const hasLocalStorage = () => {
+    try {
+      return typeof window !== 'undefined' && window.localStorage !== undefined
+    } catch {
+      return false
     }
-    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
-    console.table(size)
+  }
 
-    loadAllResources(store)
+  // Load from localStorage if available and enabled
+  if (hasLocalStorage() && localStorage.getItem(LS_KEYS.WORKSPACE) && !isReadOnly) {
+    try {
+      const size: Record<string, string> = {}
+      let _lsTotal = 0
+      let _xLen = 0
+      let _key = ''
+
+      for (_key in localStorage) {
+        if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+          continue
+        }
+        _xLen = (localStorage[_key].length + _key.length) * 2
+        _lsTotal += _xLen
+        size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+      }
+      size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+      console.table(size)
+
+      loadAllResources(store)
+    } catch (error) {
+      console.warn('Failed to load from localStorage:', error)
+    }
   }
   // Create the default store
   else if (!isReadOnly || !configuration.spec) {
@@ -150,7 +162,13 @@ export const createApiClient = ({
       proxyUrl: configuration.proxyUrl,
     })
 
-    localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
+    if (hasLocalStorage()) {
+      try {
+        localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
+      } catch (error) {
+        console.warn('Failed to set localStorage version:', error)
+      }
+    }
   }
   // Add a barebones workspace if we want to load a spec in the modal
   else {
