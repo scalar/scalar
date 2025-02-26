@@ -14,7 +14,7 @@ npm install @scalar/api-reference-react
 ## Compatibility
 
 This package is compatible with React 19 and is untested on React 18. If you want guaranteed React 18 support please use
-version `0.3.166` of this package.
+version `0.3.166` of this package, or you can roll the dice and give the latest a try.
 
 ## Usage
 

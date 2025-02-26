@@ -1,12 +1,10 @@
 'use client'
 
 import type { ReferenceProps } from '@scalar/api-reference'
-
 import { createScalarReferences } from '@scalar/api-reference'
+import { useEffect, useRef, useState } from 'react'
 
-import '@scalar/api-reference/style.css'
-
-import React, { useEffect, useRef, useState } from 'react'
+import './style.css'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
