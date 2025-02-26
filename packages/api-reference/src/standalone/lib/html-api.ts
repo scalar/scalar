@@ -133,7 +133,16 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
   const props = reactive<ReferenceProps>({
-    configuration,
+    // @ts-expect-error TODO: TEMPORARY, REMOVE BEFORE MERGE
+    configuration: [
+      configuration,
+      {
+        spec: {
+          title: 'Petstore',
+          slug: 'petstore',
+        },
+      },
+    ],
   })
 
   if (props.configuration?.darkMode) {
