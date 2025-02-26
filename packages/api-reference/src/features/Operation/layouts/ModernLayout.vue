@@ -6,7 +6,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { defineProps } from 'vue'
+import { defineProps, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -39,10 +39,13 @@ defineProps<{
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
+
+const labelId = useId()
 </script>
 <template>
   <Section
     :id="id"
+    :aria-labelledby="labelId"
     :label="transformedOperation.name">
     <SectionContent>
       <Badge
@@ -56,7 +59,9 @@ defineProps<{
         ">
         <SectionHeader>
           <Anchor :id="id ?? ''">
-            <SectionHeaderTag :level="3">
+            <SectionHeaderTag
+              :id="labelId"
+              :level="3">
               {{ transformedOperation.name }}
             </SectionHeaderTag>
           </Anchor>

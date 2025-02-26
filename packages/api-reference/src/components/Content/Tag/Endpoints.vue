@@ -19,7 +19,12 @@ import {
   SectionHeaderTag,
 } from '../../Section'
 
-const props = defineProps<{ id?: string; tag: Tag; isCollapsed?: boolean }>()
+const props = defineProps<{
+  id?: string
+  tag: Tag
+  headerId?: string
+  isCollapsed?: boolean
+}>()
 
 const { getOperationId, getTagId } = useNavState()
 const { scrollToOperation } = useSidebar()
@@ -35,10 +40,13 @@ const scrollHandler = async (operation: TransformedOperation) => {
 <template>
   <Section
     :id="id"
-    :label="tag.name.toUpperCase()">
+    :label="tag.name.toUpperCase()"
+    role="none">
     <SectionHeader>
       <Anchor :id="getTagId(tag)">
-        <SectionHeaderTag :level="2">
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
           {{ tagName }}
           <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
         </SectionHeaderTag>
@@ -74,13 +82,12 @@ const scrollHandler = async (operation: TransformedOperation) => {
                       v-if="isCollapsed"
                       class="sr-only"
                       :level="3">
-                      {{ operation.name }} (Collapsed)
+                      {{ operation.name }} (Hidden)
                     </SectionHeaderTag>
                     <a
                       class="endpoint"
                       :href="`#${getOperationId(operation, tag)}`"
                       @click.prevent="scrollHandler(operation)">
-                      <ScreenReader>Operation: </ScreenReader>
                       <HttpMethod :method="operation.httpVerb" />
                       <span
                         class="endpoint-path"
