@@ -40,7 +40,7 @@ describe('html-rendering', () => {
   describe('getConfiguration', () => {
     it('stringifies configuration and escapes quotes', () => {
       const config = getConfiguration({ theme: 'kepler' })
-      expect(config).toBe('{&quot;theme&quot;:&quot;dark&quot;}')
+      expect(config).toBe('{&quot;theme&quot;:&quot;kepler&quot;}')
     })
 
     it('removes spec when url is not provided', () => {
