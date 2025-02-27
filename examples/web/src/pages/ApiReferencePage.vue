@@ -49,7 +49,7 @@ const configProxy = computed({
 watch(
   () => configuration.darkMode,
   (isDark) => {
-    document.body.classList.toggle('dark-mode', !!isDark)
+    document.body.classList.toggle('dark-mode', Boolean(isDark))
     document.body.classList.toggle('light-mode', !isDark)
   },
 )
