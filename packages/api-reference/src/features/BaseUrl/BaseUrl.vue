@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {
-  ServerDropdown,
+  ServerSelector,
   ServerVariablesForm,
 } from '@scalar/api-client/components/Server'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
@@ -25,10 +25,9 @@ const updateServerVariable = (key: string, value: string) => {
     Server
   </label>
   <div :id="id">
-    <ServerDropdown
+    <ServerSelector
       v-if="activeCollection?.servers?.length"
       :collection="activeCollection"
-      layout="reference"
       :server="activeServer"
       :target="id" />
   </div>

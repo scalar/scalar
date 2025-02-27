@@ -106,7 +106,7 @@ const updateServerVariable = (key: string, value: string) => {
     </ScalarButton>
     <template #popover="{ close }">
       <div
-        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 border-t p-1"
         @click="close">
         <!-- Request -->
         <ServerDropdownItem
