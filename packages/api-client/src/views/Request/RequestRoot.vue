@@ -6,6 +6,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { useLayout } from '@/hooks'
+import { useParameterValidation } from '@/hooks/useParameterValidation'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
@@ -31,6 +32,7 @@ const { cookies, requestHistory, showSidebar, securitySchemes, events } =
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
+const { validateParameters } = useParameterValidation()
 
 /**
  * Selected scheme UIDs
@@ -55,20 +57,8 @@ const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value)
     return
 
-  // Clear previous invalid parameter state
-  invalidParams.value.clear()
+  validateParameters(activeExample.value, invalidParams.value)
 
-  // Validate parameters and add to invalidParams if invalid
-  const paramTypes = ['path', 'query', 'headers', 'cookies'] as const
-  paramTypes.some((paramType) => {
-    return activeExample.value?.parameters[paramType].some((param) => {
-      if (param.required && param.value === '') {
-        invalidParams.value.add(param.key)
-      }
-    })
-  })
-
-  // Parse the environment string
   const environmentValue =
     typeof activeEnvironment.value === 'object'
       ? activeEnvironment.value.value
@@ -82,7 +72,6 @@ const executeRequest = async () => {
     activeWorkspace.value?.cookies.map((c) => cookies[c]).filter(isDefined) ??
     []
 
-  // Sets server to non drafts request only
   const server =
     activeCollection.value?.info?.title === 'Drafts'
       ? undefined
