@@ -103,16 +103,13 @@ describe('RequestAuth.vue', () => {
     // Find and click the combobox
     const dropdownButton = wrapper
       .findAll('button')
-      .filter((node) => node.text() === 'Auth Type')
+      .filter((node) => node.text().includes('Auth Type'))
       .at(0)
     expect(dropdownButton?.text()).toContain('Auth Type')
     await dropdownButton?.trigger('click')
 
     // Select a security scheme
-    const option = wrapper
-      .findAll('li')
-      .filter((node) => node.text() === 'bearerAuth')
-      .at(0)
+    const option = wrapper.findAll('li').find((node) => node.text().includes('bearerAuth'))
     expect(option?.text()).toContain('bearerAuth')
     await option?.trigger('click')
 
