@@ -281,7 +281,7 @@ const updateActiveBody = (type: Content) => {
       value: example.body.raw?.value ?? '',
     })
   } else if (encoding && activeBody === 'formData')
-    requestExampleMutators.edit(example.uid, `body.formData`, {
+    requestExampleMutators.edit(example.uid, 'body.formData', {
       encoding,
       value: example.body.formData?.value ?? [],
     })
@@ -303,7 +303,10 @@ const updateActiveBody = (type: Content) => {
       headers[contentTypeIdx].value = header
     }
     // Remove header if we don't want one
-    else if (headers[contentTypeIdx] && activeBody !== 'raw') {
+    else if (
+      headers[contentTypeIdx] &&
+      (activeBody !== 'raw' || type === 'none')
+    ) {
       headers.splice(contentTypeIdx, 1)
     }
   }
