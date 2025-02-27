@@ -42,6 +42,11 @@ info:
 
       ![Empty placeholder image showing the width/height](https://images.placeholders.dev/?width=1280&height=720)
 
+      **Alerts**
+
+      > [!tip]
+      > You can now use markdown alerts in your descriptions.
+
     </details>
   version: 1.0.0
   contact:
