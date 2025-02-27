@@ -178,6 +178,26 @@ export type ReferenceConfiguration = {
    */
   pathRouting?: PathRouting
   /**
+   * To handle redirects, pass a function that will recieve:
+   * - The current path with hash if pathRouting is enabled
+   * - The current hash if hashRouting (default)
+   *
+   * @example hashRouting (default)
+   * ```ts
+   * redirect: (hash: string) => hash.replace('#v1/old-path', '#v2/new-path')
+   * ```
+   * @example pathRouting
+   * ```ts
+   * redirect: (pathWithHash: string) => {
+   *   if (pathWithHash.includes('#')) {
+   *     return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+   *   }
+   *   return null
+   * }
+   * ```
+   */
+  redirect?: (pathWithHash: string) => string | null | undefined
+  /**
    * If you want to customize the heading portion of the hash you can pass in a function that receives the heading
    * and returns a string ID. This will then be used to generate the url hash. You control the whole hash with this
    * function.

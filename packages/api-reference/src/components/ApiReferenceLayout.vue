@@ -105,7 +105,18 @@ const {
   replaceUrlState,
 } = useNavState()
 
-pathRouting.value = props.configuration.pathRouting
+// Need to set these in navState as a hack
+if (props.configuration.pathRouting) {
+  pathRouting.value = props.configuration.pathRouting
+}
+
+// Front-end redirect
+if (props.configuration.redirect && typeof window !== 'undefined') {
+  const newPath = props.configuration.redirect(
+    window.location.pathname + window.location.hash,
+  )
+  history.replaceState({}, '', newPath)
+}
 
 // Ideally this triggers absolutely first on the client so we can set hash value
 onBeforeMount(() => updateHash())

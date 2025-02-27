@@ -25,6 +25,20 @@
         spec: {
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
+        pathRouting: {
+          basePath: '/v1',
+        },
+        redirect: (pathWithHash) => {
+          if (pathWithHash.includes('#')) {
+            const newPath = pathWithHash.replace(
+              '/#tag/planets/GET/planets/{planetId}',
+              '/v1/tag/planets/GET/planets/{planetId}',
+            )
+
+            return newPath
+          }
+          return null
+        },
         onLoaded: () => {
           console.log('references loaded')
         },
