@@ -80,7 +80,7 @@ const IntegrationEnum = z
 /** Configuration for the OpenAPI/Swagger specification */
 const SpecConfigurationSchema = z.object({
   /** URL to an OpenAPI/Swagger document */
-  url: z.string().url().optional(),
+  url: z.string().optional(),
   /**
    * Directly embed the OpenAPI document.
    * Can be a string, object, function returning an object, or null.
