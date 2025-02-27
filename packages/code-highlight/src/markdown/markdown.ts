@@ -14,7 +14,7 @@ import { SKIP, visit } from 'unist-util-visit'
 
 import { standardLanguages } from '@/languages'
 import { rehypeHighlight } from '@/rehype-highlight'
-
+import { rehypeAlert } from '@/rehype-alert'
 type Options = {
   transform?: (node: Record<string, any>) => Record<string, any>
   type?: string
@@ -88,6 +88,8 @@ export function htmlFromMarkdown(
       // Enable auto detection
       detect: true,
     })
+    // Adds GitHub alerts
+    .use(rehypeAlert)
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
     // Formats the HTML
