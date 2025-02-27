@@ -19,7 +19,6 @@ const props = defineProps<{
     label: string
   }
   type: 'collection' | 'request'
-  layout: 'client' | 'reference'
 }>()
 
 const emit = defineEmits<{
@@ -31,9 +30,7 @@ const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
 const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
-  if (hasVariables(serverUid) && props.layout !== 'reference') {
-    event?.stopPropagation()
-  }
+  if (hasVariables(serverUid)) event?.stopPropagation()
 
   // Set selected server on Collection
   if (props.type === 'collection' && props.collection) {
@@ -92,7 +89,7 @@ const updateServerVariable = (key: string, value: string) => {
     </button>
     <!-- Server variables -->
     <div
-      v-if="isExpanded && props.layout !== 'reference'"
+      v-if="isExpanded"
       :id="formId"
       class="bg-b-2 divide divide-y rounded-b border-t *:pl-4"
       @click.stop>

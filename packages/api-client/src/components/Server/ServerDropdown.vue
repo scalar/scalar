@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import {
-  cva,
-  cx,
   ScalarButton,
   ScalarDropdownDivider,
   ScalarFloatingBackdrop,
@@ -20,16 +18,15 @@ import { useWorkspace } from '@/store/store'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
-const { target, collection, layout, operation, server } = defineProps<{
+const { target, collection, operation, server } = defineProps<{
   collection: Collection
   operation?: Operation
   server: Server | undefined
-  layout: 'client' | 'reference'
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
 }>()
 
-const { layout: clientLayout } = useLayout()
+const { layout } = useLayout()
 const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
@@ -92,49 +89,30 @@ const updateServerVariable = (key: string, value: string) => {
 
   serverMutators.edit(server.uid, 'variables', variables)
 }
-
-// Define variants for the button
-const buttonVariants = cva({
-  base: 'gap-0.75 z-context-plus lg:text-sm text-xs whitespace-nowrap px-1.5 h-6.5',
-  variants: {
-    reference: {
-      true: '!font-normal justify-start px-3 py-1.5 rounded-b-lg text-c-1 w-full',
-      false: 'border hover:bg-b-2 font-code ml-0.75 rounded text-c-2',
-    },
-  },
-})
 </script>
 <template>
   <ScalarPopover
     class="max-h-[inherit] p-0 text-sm"
-    :offset="layout === 'reference' ? 6 : 0"
+    :offset="0"
     placement="bottom-start"
     resize
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      :class="cx(buttonVariants({ reference: layout === 'reference' }))"
+      class="gap-0.75 z-context-plus h-6.5 hover:bg-b-2 font-code ml-0.75 text-c-2 whitespace-nowrap rounded border px-1.5 text-xs lg:text-sm"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
-
-      <ScalarIcon
-        v-if="layout === 'reference'"
-        class="text-c-2"
-        icon="ChevronDown"
-        size="sm" />
     </ScalarButton>
     <template #popover="{ close }">
       <div
-        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
-        :class="layout !== 'reference' && 'border-t'"
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 border-t p-1"
         @click="close">
         <!-- Request -->
         <ServerDropdownItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
           :collection="collection"
-          :layout="layout"
           :operation="operation"
           :server="server"
           :serverOption="serverOption"
@@ -149,14 +127,13 @@ const buttonVariants = cva({
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
           :collection="collection"
-          :layout="layout"
           :operation="operation"
           :server="server"
           :serverOption="serverOption"
           type="collection"
           @update:variable="updateServerVariable" />
         <!-- Add Server -->
-        <template v-if="clientLayout !== 'modal'">
+        <template v-if="layout !== 'modal'">
           <button
             class="text-xxs p-1.75 hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded"
             type="button"
