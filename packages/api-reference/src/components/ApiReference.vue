@@ -17,7 +17,7 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+const configuration = computed(() =>
   ApiReferenceConfigurationSchema.parse(props.configuration),
 )
 

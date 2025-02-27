@@ -95,31 +95,48 @@ const PathRoutingSchema = z.object({
   basePath: z.string(),
 })
 
+/** Reference configuration for the Api Client, we will parse again in case we are not coming from references */
+export type ClientConfiguration = Pick<
+  ApiReferenceConfigurationPayload,
+  'baseServerURL' | 'hideClientButton' | 'searchHotKey' | 'servers' | 'theme' | '_integration'
+>
+
+/** Configuration for the Api Client */
+export const ApiClientConfigurationSchema = z.object({
+  /** Prefill authentication */
+  authentication: z.any().optional(), // Using any for Partial<AuthenticationState>
+  /** Base URL for the API server */
+  baseServerURL: z.string().optional(),
+  /** URL to a request proxy for the API client */
+  proxyUrl: z.string().optional(),
+  /** List of OpenAPI server objects */
+  servers: z.array(z.any()).optional(), // Using any for OpenAPIV3_1.ServerObject
+  /**
+   * Whether to show the sidebar
+   * @default true
+   */
+  showSidebar: z.boolean().optional().default(true).catch(true),
+  /** The Swagger/OpenAPI spec to render */
+  spec: SpecConfigurationSchema.optional(),
+  /** A string to use one of the color presets */
+  theme: ThemeIdEnum.optional().default('default').catch('default'),
+})
+
+/** Configuration for the Api Reference */
 export const ApiReferenceConfigurationSchema = z
   .object({
-    /** A string to use one of the color presets */
-    theme: ThemeIdEnum.optional().catch('default'),
     /** The layout to use for the references */
     layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
-    /** The Swagger/OpenAPI spec to render */
-    spec: SpecConfigurationSchema.optional(),
     /**
      * URL to a request proxy for the API client
      * @deprecated Use proxyUrl instead
      */
     proxy: z.string().optional(),
-    /** URL to a request proxy for the API client */
-    proxyUrl: z.string().optional(),
     /**
     Whether the spec input should show
     @default false
   */
     isEditable: z.boolean().optional().default(false).catch(false),
-    /**
-    Whether to show the sidebar
-    @default true
-  */
-    showSidebar: z.boolean().optional().default(true).catch(true),
     /**
      * Whether to show models in the sidebar, search, and content.
      * @default false
@@ -175,8 +192,6 @@ export const ApiReferenceConfigurationSchema = z
     customCss: z.string().optional(),
     /** onSpecUpdate is fired on spec/swagger content change */
     onSpecUpdate: z.function().returns(z.void()).optional(),
-    /** Prefill authentication */
-    authentication: z.any().optional(), // Using any for Partial<AuthenticationState>
     /**
      * Route using paths instead of hashes, your server MUST support this
      * @example '/standalone-api-reference/:custom(.*)?'
@@ -245,10 +260,6 @@ export const ApiReferenceConfigurationSchema = z
       .optional(),
     /** Callback fired when the reference is fully loaded */
     onLoaded: z.union([z.function().returns(z.void()), z.undefined()]).optional(),
-    /** Base URL for the API server */
-    baseServerURL: z.string().optional(),
-    /** List of OpenAPI server objects */
-    servers: z.array(z.any()).optional(), // Using any for OpenAPIV3_1.ServerObject
     /** Whether to include default fonts */
     withDefaultFonts: z.boolean().optional(),
     /** Whether to expand all tags by default */
@@ -286,12 +297,12 @@ export const ApiReferenceConfigurationSchema = z
     return configuration
   })
 
-/** Configuration (after parsing, internal) */
-export type ApiReferenceConfigurationSchema = Omit<
+/** Configuration after parsing, this is the main type */
+export type ApiReferenceConfiguration = Omit<
   z.infer<typeof ApiReferenceConfigurationSchema>,
   // Remove deprecated attributes
   'proxy'
 >
 
-/** Configuration (before parsing, for users) */
-export type ApiReferenceConfiguration = z.input<typeof ApiReferenceConfigurationSchema>
+/** Configuration before parsing, this should be used on input before parsing only  */
+export type ApiReferenceConfigurationPayload = z.input<typeof ApiReferenceConfigurationSchema>

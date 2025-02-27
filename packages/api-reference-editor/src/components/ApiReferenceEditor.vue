@@ -11,6 +11,7 @@ import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import {
   ApiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
+  type ApiReferenceConfigurationPayload,
 } from '@scalar/types/api-reference'
 import type {
   ReferenceConfiguration,
@@ -23,7 +24,10 @@ import { computed, ref, toRef, watch, watchEffect } from 'vue'
 import EditorInput from './EditorInput.vue'
 
 const props = defineProps<{
-  configuration?: (ApiReferenceConfiguration | ReferenceConfiguration) & {
+  configuration?: (
+    | ApiReferenceConfigurationPayload
+    | ReferenceConfiguration
+  ) & {
     /** Option to manage the state externally and have the spec reactively update  */
     useExternalState?: boolean
   }
@@ -88,7 +92,7 @@ function handleInput(evt: CustomEvent<{ value: string }>) {
 }
 
 // Set defaults as needed on the provided configuration
-const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+const configuration = computed(() =>
   ApiReferenceConfigurationSchema.parse(props.configuration),
 )
 
@@ -101,9 +105,9 @@ if (configuration.value?.metaData) {
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ApiReferenceConfigurationSchema>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ApiReferenceConfigurationSchema[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
     () => configuration.value?.[key],

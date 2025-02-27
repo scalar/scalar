@@ -9,22 +9,21 @@ import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/work
 import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfigurationPayload } from '@scalar/types/api-reference'
 import type { OpenAPI, SpecConfiguration } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
-/** Configuration options for the Scalar API client */
-export type ClientConfiguration = {
-  proxyUrl?: ApiReferenceConfiguration['proxyUrl']
-  themeId?: ApiReferenceConfiguration['theme']
-} & Pick<
-  ApiReferenceConfiguration,
+/** Reference configuration for the Api Client, we will parse again in case we are not coming from references */
+export type ClientConfiguration = Pick<
+  ApiReferenceConfigurationPayload,
   | 'spec'
+  | 'proxyUrl'
   | 'showSidebar'
   | 'servers'
   | 'searchHotKey'
   | 'authentication'
+  | 'theme'
   | 'baseServerURL'
   | 'hideClientButton'
   | '_integration'
@@ -109,7 +108,7 @@ export const createApiClient = ({
     _store ||
     createWorkspaceStore({
       proxyUrl: configuration.proxyUrl,
-      themeId: configuration.themeId,
+      theme: configuration.theme,
       showSidebar: configuration.showSidebar ?? true,
       hideClientButton: configuration.hideClientButton ?? false,
       integration: configuration._integration,
@@ -212,9 +211,9 @@ export const createApiClient = ({
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
-        `Invalid HTML element provided.`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        '[@scalar/api-client-modal] Could not create the API client.',
+        'Invalid HTML element provided.',
+        'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
 
       return
@@ -241,9 +240,9 @@ export const createApiClient = ({
       })
     } else {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
-        `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        '[@scalar/api-client-modal] Could not create the API client.',
+        'Please provide an OpenAPI document: { spec: { url: "…" } }',
+        'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
     }
   }

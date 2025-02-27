@@ -61,7 +61,7 @@ defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
 
-const configuration = computed<ApiReferenceConfigurationSchema>(() =>
+const configuration = computed(() =>
   ApiReferenceConfigurationSchema.parse(props.configuration),
 )
 
@@ -269,6 +269,7 @@ const workspaceStore = createWorkspaceStore({
   useLocalStorage: false,
   hideClientButton: configuration.value.hideClientButton,
   integration: configuration.value._integration,
+  showSidebar: configuration.value.showSidebar,
 })
 // Populate the workspace store
 watch(
@@ -300,9 +301,9 @@ provide(CONFIGURATION_SYMBOL, configuration.value)
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ApiReferenceConfigurationSchema>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ApiReferenceConfigurationSchema[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
     () => configuration.value[key],
