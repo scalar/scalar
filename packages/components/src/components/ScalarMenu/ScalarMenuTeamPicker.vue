@@ -52,7 +52,7 @@ defineOptions({ inheritAttrs: false })
     <DropdownMenu.Portal>
       <DropdownMenu.SubContent
         :as="ScalarDropdownMenu"
-        class="max-h-radix-popper"
+        class="max-h-radix-popper z-context-plus"
         :sideOffset="3">
         <DropdownMenu.RadioGroup
           v-model="model"

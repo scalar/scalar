@@ -1,6 +1,6 @@
 import headlessPlugin from '@headlessui/tailwindcss'
 import scalarPreset from '@scalar/themes/tailwind'
-import { type Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss'
 import colorMix from 'tailwindcss-color-mix'
 import plugin from 'tailwindcss/plugin'
 
@@ -65,6 +65,8 @@ export default {
       zIndex: {
         // Contextual overlays like dropdowns, popovers, tooltips
         context: '1000',
+        // Just above context
+        'context-plus': '1001',
         // Full screen overlays / modals
         overlay: '10000',
       },
