@@ -141,11 +141,11 @@ function updateRequestPath(url: string) {
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <div
-        class="addressbar-bg-states text-xxs p-0.75 group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg lg:order-none lg:min-w-[580px] lg:max-w-[580px] xl:min-w-[720px] xl:max-w-[720px]">
+        class="address-bar-bg-states text-xxs p-0.75 group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg lg:order-none lg:min-w-[580px] lg:max-w-[580px] xl:min-w-[720px] xl:max-w-[720px]">
         <div
           class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden rounded-lg border">
           <div
-            class="bg-mix-transparent bg-mix-amount-90 z-context absolute left-0 top-0 h-full w-full"
+            class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 z-[1002] h-full w-full"
             :class="getBackgroundColor()"
             :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
         </div>
@@ -159,7 +159,7 @@ function updateRequestPath(url: string) {
         </div>
 
         <div
-          class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full">
+          class="scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full bg-blend-normal">
           <!-- Servers -->
           <ServerDropdown
             v-if="collection.servers.length"
@@ -221,10 +221,12 @@ function updateRequestPath(url: string) {
 </template>
 <style scoped>
 :deep(.cm-editor) {
-  background-color: var(--scalar-background-1);
   height: 100%;
   outline: none;
   width: 100%;
+}
+:deep(.cm-line) {
+  padding: 0;
 }
 :deep(.cm-content) {
   padding: 0;
@@ -285,26 +287,27 @@ function updateRequestPath(url: string) {
   animation-direction: reverse;
   animation-timeline: --scroll-timeline;
   pointer-events: none;
+  z-index: 1;
 }
 .fade-left {
   background: linear-gradient(
     -90deg,
-    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 30%,
-    var(--scalar-background-1) 100%
+    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 20%) 30%,
+    var(--scalar-address-bar-bg) 100%
   );
-  left: 0;
-  min-width: 3px;
+  left: -1px;
+  min-width: 6px;
   animation-direction: normal;
 }
 .fade-right {
   background: linear-gradient(
     90deg,
-    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
-    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 30%,
-    var(--scalar-background-1) 100%
+    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-address-bar-bg), transparent 20%) 30%,
+    var(--scalar-address-bar-bg) 100%
   );
-  right: 0;
+  right: -1px;
   min-width: 24px;
 }
 @keyframes fadein {
@@ -315,26 +318,21 @@ function updateRequestPath(url: string) {
     opacity: 1;
   }
 }
-.codemirror-bg-switcher {
-  --scalar-background-1: color-mix(
+.address-bar-bg-states {
+  --scalar-address-bar-bg: color-mix(
     in srgb,
     var(--scalar-background-1),
     var(--scalar-background-2)
   );
+  background: var(--scalar-address-bar-bg);
 }
-.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
-  --scalar-background-1: var(--scalar-background-1);
-}
-.addressbar-bg-states {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    var(--scalar-background-2)
-  );
-}
-.addressbar-bg-states:has(.cm-focused) {
-  background: var(--scalar-background-1);
+.address-bar-bg-states:has(.cm-focused) {
+  --scalar-address-bar-bg: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
   outline: 1px solid var(--scalar-color-accent);
+}
+.address-bar-bg-states:has(.cm-focused) .fade-left,
+.address-bar-bg-states:has(.cm-focused) .fade-right {
+  --scalar-address-bar-bg: var(--scalar-background-1);
 }
 </style>
