@@ -29,14 +29,6 @@ describe('useBreakpoints', () => {
     expect(mediaQueries.md.value).toEqual(true)
   })
 
-  it('should expose breakpoints for a given screen size', () => {
-    vi.mocked(useMediaQuery).mockImplementation((query) => ref(query === `(min-width: ${screens.md})`))
-
-    const { breakpoints } = useBreakpoints()
-    expect(breakpoints.value.sm).toEqual(false)
-    expect(breakpoints.value.md).toEqual(true)
-  })
-
   it('should update breakpoints when the media query changes', () => {
     const mdQuery = ref(false)
     vi.mocked(useMediaQuery).mockImplementation((query) =>

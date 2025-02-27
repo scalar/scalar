@@ -74,10 +74,9 @@ const { currentRoute } = useRouter()
           currentRoute.query.source === 'gitbook' ? 'gitbook' : 'api-reference'
         "
         :url="collection.documentUrl" />
-      <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
         v-if="layout === 'modal'"
-        class="app-exit-button gitbook-hidden fixed right-2 top-2 rounded-full p-2"
+        class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed right-2 top-2 rounded-full p-2"
         type="button"
         @click="$emit('hideModal')">
         <ScalarIcon

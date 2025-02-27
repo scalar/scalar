@@ -114,6 +114,16 @@ onBeforeUnmount(() => {
   border-radius: 8px;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+/*
+  * Allow the modal to fill more space on
+  * very short (or very zoomed in) screens
+  */
+@screen zoomed {
+  .scalar .scalar-app-layout {
+    height: 100%;
+    max-height: 90svh;
+  }
+}
 @keyframes scalarapiclientfadein {
   from {
     opacity: 0;
