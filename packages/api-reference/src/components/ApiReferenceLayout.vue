@@ -486,7 +486,6 @@ const themeStyleTag = computed(
   display: flex;
   min-width: 0;
   background: var(--scalar-background-1);
-  z-index: 1;
 }
 
 .references-navigation {
