@@ -17,7 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useLayout } from '@/hooks/useLayout'
@@ -63,6 +63,8 @@ const {
   requestMutators,
   collectionMutators,
 } = useWorkspace()
+
+const titleId = useId()
 
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
@@ -189,7 +191,9 @@ const schemeOptions = computed(() =>
     :itemCount="selectedSchemeOptions.length"
     :layout="layout">
     <template #title>
-      <div class="inline-flex items-center gap-1">
+      <div
+        :id="titleId"
+        class="inline-flex items-center gap-1">
         <span>{{ title }}</span>
         <!-- Authentication indicator -->
         <span
@@ -212,17 +216,23 @@ const schemeOptions = computed(() =>
           @update:modelValue="updateSelectedAuth">
           <ScalarButton
             ref="comboboxButtonRef"
+            :aria-describedby="titleId"
             class="py-0.75 hover:bg-b-3 text-c-1 hover:text-c-1 h-auto px-1.5 font-normal"
             fullWidth
             variant="ghost">
             <div class="text-c-1">
-              {{
-                selectedSchemeOptions.length === 0
-                  ? 'Auth Type'
-                  : selectedSchemeOptions.length === 1
-                    ? selectedSchemeOptions[0]?.label
-                    : 'Multiple'
-              }}
+              <template v-if="selectedSchemeOptions.length === 0">
+                <span class="sr-only">Select</span>
+                Auth Type
+              </template>
+              <template v-else-if="selectedSchemeOptions.length === 1">
+                <span class="sr-only">Selected Auth Type:</span>
+                {{ selectedSchemeOptions[0]?.label }}
+              </template>
+              <template v-else>
+                Multiple
+                <span class="sr-only">Auth Types Selected</span>
+              </template>
             </div>
             <ScalarIcon
               class="ml-1 shrink-0"
