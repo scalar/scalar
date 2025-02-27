@@ -10,7 +10,25 @@ What’s working here, is probably also working in the API reference:
 - links
 - tables
 - images
+- alerts
 - …
+
+## Alerts
+
+You can use markdown alerts in your descriptions.
+
+```markdown
+> [!tip]
+> You can now use markdown alerts in your descriptions.
+```
+
+The following alert types are supported:
+
+- `note`
+- `tip`
+- `important`
+- `warning`
+- `caution`
 
 [Have a look at our OpenAPI example](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/documents/3.1.yaml)
 to see more examples.
