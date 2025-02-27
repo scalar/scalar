@@ -113,7 +113,7 @@ if (props.configuration.pathRouting) {
 // Front-end redirect
 if (props.configuration.redirect && typeof window !== 'undefined') {
   const newPath = props.configuration.redirect(
-    window.location.pathname + window.location.hash,
+    (pathRouting.value ? window.location.pathname : '') + window.location.hash,
   )
   history.replaceState({}, '', newPath)
 }
