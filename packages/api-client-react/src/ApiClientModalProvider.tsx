@@ -87,4 +87,5 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   )
 }
 
-export const useApiClientModal = () => useContext(ApiClientModalContext)
+export const useApiClientModal = (): ReturnType<typeof CreateApiClientModalSync> | null =>
+  useContext(ApiClientModalContext)
