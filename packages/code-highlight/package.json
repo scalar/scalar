@@ -43,6 +43,11 @@
       "types": "./dist/rehype-highlight/index.d.ts",
       "default": "./dist/rehype-highlight/index.js"
     },
+    "./rehype-alert": {
+      "import": "./dist/rehype-alert/index.js",
+      "types": "./dist/rehype-alert/index.d.ts",
+      "default": "./dist/rehype-alert/index.js"
+    },
     "./markdown": {
       "import": "./dist/markdown/index.js",
       "types": "./dist/markdown/index.d.ts",
