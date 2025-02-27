@@ -18,6 +18,15 @@
   );
   position: relative;
 }
+/*
+ * Don't constrain card height on mobile
+ * (or zoomed in screens)
+ */
+@media (max-width: 600px) {
+  .scalar-card {
+    max-height: unset;
+  }
+}
 
 .scalar-card-sticky {
   position: sticky;

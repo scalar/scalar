@@ -113,11 +113,6 @@ const scrollHandler = async (operation: TransformedOperation) => {
   background: var(--scalar-background-2);
   padding: 10px 12px;
 }
-@media (max-width: 580px) {
-  .endpoints {
-    max-height: calc(100vh - 150px);
-  }
-}
 .endpoints span + span {
   text-align: left;
   margin-left: 12px;
