@@ -65,6 +65,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarListbox
+    v-if="serverOptions.length > 1"
     v-model="selectedServer"
     :options="serverOptions"
     placement="bottom-start"
@@ -72,7 +73,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="gap-0.75 z-context-plus text-c-1 h-6.5 w-full justify-start whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs font-normal lg:text-sm"
+      class="gap-0.75 text-c-1 h-6.5 w-full justify-start whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs font-normal -outline-offset-1 lg:text-sm"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
@@ -82,4 +83,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         size="sm" />
     </ScalarButton>
   </ScalarListbox>
+  <div
+    v-else
+    class="gap-0.75 text-c-1 h-6.5 flex w-full items-center whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs lg:text-sm">
+    <span class="sr-only">Server:</span>
+    {{ serverUrlWithoutTrailingSlash }}
+  </div>
 </template>
