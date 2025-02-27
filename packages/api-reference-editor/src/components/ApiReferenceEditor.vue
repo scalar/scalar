@@ -9,7 +9,7 @@ import '@scalar/api-reference/style.css'
 
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import {
-  ApiReferenceConfigurationSchema,
+  apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationPayload,
 } from '@scalar/types/api-reference'
@@ -93,7 +93,7 @@ function handleInput(evt: CustomEvent<{ value: string }>) {
 
 // Set defaults as needed on the provided configuration
 const configuration = computed(() =>
-  ApiReferenceConfigurationSchema.parse(props.configuration),
+  apiReferenceConfigurationSchema.parse(props.configuration),
 )
 
 // Create the head tag if the configuration has meta data

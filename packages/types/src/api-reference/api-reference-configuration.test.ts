@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { ApiReferenceConfigurationSchema } from './api-reference-configuration.ts'
+import { apiReferenceConfigurationSchema } from './api-reference-configuration.ts'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {
     it('validates a minimal configuration', () => {
       const minimalConfig = {}
-      expect(() => ApiReferenceConfigurationSchema.parse(minimalConfig)).not.toThrow()
+      expect(() => apiReferenceConfigurationSchema.parse(minimalConfig)).not.toThrow()
     })
 
     it('validates a complete configuration', () => {

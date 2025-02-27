@@ -18,7 +18,7 @@ import {
   type ThemeId,
 } from '@scalar/themes'
 import {
-  ApiReferenceConfigurationSchema,
+  apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
 import type { SSRState } from '@scalar/types/legacy'
@@ -62,7 +62,7 @@ defineEmits<{
 }>()
 
 const configuration = computed(() =>
-  ApiReferenceConfigurationSchema.parse(props.configuration),
+  apiReferenceConfigurationSchema.parse(props.configuration),
 )
 
 // Configure Reference toasts to use vue-sonner

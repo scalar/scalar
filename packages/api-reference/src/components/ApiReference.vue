@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ApiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
@@ -18,7 +18,7 @@ defineEmits<{
 }>()
 
 const configuration = computed(() =>
-  ApiReferenceConfigurationSchema.parse(props.configuration),
+  apiReferenceConfigurationSchema.parse(props.configuration),
 )
 
 const { toggleColorMode, isDarkMode } = useColorMode({
