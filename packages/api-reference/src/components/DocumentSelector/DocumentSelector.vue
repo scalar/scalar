@@ -26,7 +26,7 @@ const handleChange = (event: Event) => {
 
 <template>
   <template v-if="showSelector">
-    <div class="p-3 pb-0">
+    <div class="-mb-1 p-3 pb-0">
       <div class="sidebar-document-selector relative">
         <select
           class="absolute left-0 h-full w-full cursor-pointer rounded border opacity-0"
@@ -53,7 +53,7 @@ const handleChange = (event: Event) => {
         <!-- hide from screen readers so text is not read out twice -->
         <span
           aria-hidden="true"
-          class="scalar-document-selector-text pointer-events-none w-full text-sm font-medium">
+          class="scalar-document-selector-text text-c-1 pointer-events-none w-full text-sm font-medium">
           {{
             options?.[modelValue]?.title ||
             options?.[modelValue]?.slug ||
