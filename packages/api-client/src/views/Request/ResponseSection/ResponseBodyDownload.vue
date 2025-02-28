@@ -17,7 +17,7 @@ const filenameExtension = computed(() => {
 </script>
 <template>
   <a
-    class="text-c-3 text-xxs hover:bg-b-3 flex items-center gap-1 rounded px-1.5 py-0.5 no-underline"
+    class="text-c-3 text-xxs hover:bg-b-3 no-underlin flex items-center gap-1 rounded px-1.5 py-0.5"
     :download="`${filenameExtension}`"
     :href="href"
     @click.stop>
