@@ -1,5 +1,14 @@
 # scalar-app
 
+## 0.1.147
+
+### Patch Changes
+
+- @scalar/api-client@2.2.53
+- @scalar/import@0.2.29
+- @scalar/themes@0.9.70
+- @scalar/components@0.13.27
+
 ## 0.1.146
 
 ### Patch Changes

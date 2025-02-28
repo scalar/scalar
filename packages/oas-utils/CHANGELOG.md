@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.109
+
+### Patch Changes
+
+- 4db5161: feat: allow multiple tokens for bearer auth
+- Updated dependencies [4db5161]
+  - @scalar/types@0.0.36
+  - @scalar/themes@0.9.70
+
 ## 0.2.108
 
 ### Patch Changes
