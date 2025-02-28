@@ -123,7 +123,7 @@ const discriminatorType = discriminators.find((r) => {
 })
 </script>
 <template>
-  <div
+  <li
     class="property"
     :class="[
       `property--level-${level}`,
@@ -325,7 +325,7 @@ const discriminatorType = discriminators.find((r) => {
           :value="schema" />
       </div>
     </template>
-  </div>
+  </li>
 </template>
 
 <style scoped>
