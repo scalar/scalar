@@ -1,10 +1,11 @@
-import type { HtmlRenderingConfiguration } from '@scalar/api-reference/lib/html-rendering'
+import type { HtmlRenderingOptions } from '@scalar/api-reference/lib/html-rendering'
+import type { ApiReferenceConfiguration as ScalarApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { onRequestHookHandler, preHandlerHookHandler } from 'fastify'
 
 /**
  * The configuration for the Scalar API Reference for Fastify
  */
-export type ApiReferenceConfiguration = HtmlRenderingConfiguration
+export type ApiReferenceConfiguration = ScalarApiReferenceConfiguration & HtmlRenderingOptions
 
 export type FastifyApiReferenceOptions = {
   /**

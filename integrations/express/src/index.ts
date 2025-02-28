@@ -1,2 +1,2 @@
 export * from './apiReference'
-export * from './types'
+export type { ApiReferenceConfiguration } from './types.ts'
