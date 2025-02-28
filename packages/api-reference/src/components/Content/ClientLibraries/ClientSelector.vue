@@ -1,9 +1,17 @@
 <script setup lang="ts">
+import { Tab } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { Target, TargetId } from '@scalar/snippetz/types'
+import type { TargetId } from '@scalar/snippetz/types'
 import { ref } from 'vue'
 
+import { useFeatured } from '@/components/Content/ClientLibraries/useFeatured'
+
 import { useHttpClientStore, type HttpClientState } from '../../../stores'
+
+defineProps<{
+  /** The id of the tab panel that contains for the non featured clients */
+  morePanel?: string
+}>()
 
 // Use the template store to keep it accessible globally
 const {
@@ -14,42 +22,9 @@ const {
   getTargetTitle,
 } = useHttpClientStore()
 
-const containerRef = ref<HTMLElement>()
+const { featuredClients, isFeatured } = useFeatured()
 
-// Show popular clients with an icon, not just in a select.
-const featuredClients = (
-  [
-    {
-      targetKey: 'shell',
-      clientKey: 'curl',
-    },
-    {
-      targetKey: 'ruby',
-      clientKey: 'native',
-    },
-    {
-      targetKey: 'node',
-      clientKey: 'undici',
-    },
-    {
-      targetKey: 'php',
-      clientKey: 'guzzle',
-    },
-    {
-      targetKey: 'python',
-      clientKey: 'python3',
-    },
-  ] as const
-).filter((featuredClient) =>
-  availableTargets.value.find((target: Target) => {
-    return (
-      target.key === featuredClient.targetKey &&
-      target.clients.find(
-        (client) => client.client === featuredClient.clientKey,
-      )
-    )
-  }),
-)
+const containerRef = ref<HTMLElement>()
 
 /**
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
@@ -64,45 +39,34 @@ const isSelectedClient = (language: HttpClientState) => {
     language.clientKey === httpClient.clientKey
   )
 }
-
-const checkIfClientIsFeatured = (client: HttpClientState) =>
-  featuredClients.some(
-    (item) =>
-      item.targetKey === client.targetKey &&
-      item.clientKey === client.clientKey,
-  )
 </script>
 <template>
   <div
     ref="containerRef"
     class="client-libraries-content">
-    <button
+    <Tab
       v-for="client in featuredClients"
       :key="client.clientKey"
       aria-hidden="true"
       class="client-libraries rendered-code-sdks"
       :class="{
         'client-libraries__active': isSelectedClient(client),
-      }"
-      tabindex="-1"
-      type="button"
-      @click="() => setHttpClient(client)">
+      }">
       <div :class="`client-libraries-icon__${client.targetKey}`">
         <ScalarIcon
           class="client-libraries-icon"
           :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
       <span class="client-libraries-text">{{ getTargetTitle(client) }}</span>
-    </button>
-
+    </Tab>
     <label
       class="client-libraries client-libraries__select"
       :class="{
-        'client-libraries__active':
-          httpClient && !checkIfClientIsFeatured(httpClient),
+        'client-libraries__active': httpClient && !isFeatured(httpClient),
       }">
-      <span class="sr-only">Select Client Library</span>
+      <span class="sr-only">Select from all clients</span>
       <select
+        :aria-controls="morePanel"
         class="language-select"
         :value="JSON.stringify(httpClient)"
         @input="
@@ -138,7 +102,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
       <div
         aria-hidden="true"
         class="client-libraries-icon__more">
-        <template v-if="httpClient && !checkIfClientIsFeatured(httpClient)">
+        <template v-if="httpClient && !isFeatured(httpClient)">
           <div :class="`client-libraries-icon__${httpClient.targetKey}`">
             <ScalarIcon
               class="client-libraries-icon"
