@@ -5,7 +5,7 @@ import type { Request, Response } from 'express'
 /**
  * The custom theme CSS for the Express theme
  */
-export const customCss = `
+export const customTheme = `
 /* basic theme */
 .light-mode {
   --scalar-color-1: #353535;
@@ -112,5 +112,5 @@ export function apiReference(givenConfiguration: Partial<ApiReferenceConfigurati
   }
 
   // Respond with the HTML document
-  return (_: Request, res: Response) => res.type('text/html').send(getHtmlDocument(configuration, { customCss }))
+  return (_: Request, res: Response) => res.type('text/html').send(getHtmlDocument(configuration, { customTheme }))
 }

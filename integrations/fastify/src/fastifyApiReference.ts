@@ -9,7 +9,6 @@ import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 /**
  * Path to the bundled Scalar JavaScript file
@@ -290,14 +289,11 @@ const fastifyApiReference = fp<
 
         // Respond with the HTML document
         return reply.header('Content-Type', 'text/html; charset=utf-8').send(
-          getHtmlDocument(
-            {
-              // We’re using the bundled JS here by default, but the user can pass a CDN URL.
-              cdn: RELATIVE_JAVASCRIPT_PATH,
-              ...apiReferenceConfigurationSchema.parse(configuration),
-            },
+          getHtmlDocument(configuration, {
+            // We’re using the bundled JS here by default, but the user can pass a CDN URL.
+            cdn: RELATIVE_JAVASCRIPT_PATH,
             customTheme,
-          ),
+          }),
         )
       },
     })

@@ -6,7 +6,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 /**
  * The custom theme for Hono
  */
-export const customCss = `
+export const customTheme = `
 .light-mode {
   color-scheme: light;
   --scalar-color-1: #2a2f45;
@@ -122,6 +122,6 @@ export const apiReference = <E extends Env>(
 
   // Respond with the HTML document
   return async (c) => {
-    return c.html(/* html */ `${getHtmlDocument(configuration, { customCss })}`)
+    return c.html(/* html */ `${getHtmlDocument(configuration, { customTheme })}`)
   }
 }

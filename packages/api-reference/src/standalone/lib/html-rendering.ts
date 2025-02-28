@@ -16,9 +16,9 @@ export const htmlRenderingOptionsSchema = z.object({
    */
   cdn: z.string().optional().default('https://cdn.jsdelivr.net/npm/@scalar/api-reference'),
   /**
-   * Custom CSS to use for the Scalar API Reference.
+   * Custom theme for the integration in css
    */
-  customCss: z.string().optional().default(''),
+  customTheme: z.string().optional().default(''),
   /**
    * The title of the page.
    */
@@ -28,12 +28,15 @@ export type HtmlRenderingOptions = z.infer<typeof htmlRenderingOptionsSchema>
 
 /**
  * The HTML document to render the Scalar API reference.
+ *
+ * We must check the passed in configuration and not the parsedConfig for the theme as the parsedConfig will have it
+ * defaulted to 'default'
  */
 export function getHtmlDocument(
   configuration: Partial<ApiReferenceConfiguration>,
   options: Partial<HtmlRenderingOptions> = {},
 ) {
-  const { cdn, pageTitle, customCss } = htmlRenderingOptionsSchema.parse(options)
+  const { cdn, pageTitle, customTheme } = htmlRenderingOptionsSchema.parse(options)
   const parsedConfig = apiReferenceConfigurationSchema.parse(configuration)
 
   return `
@@ -46,7 +49,7 @@ export function getHtmlDocument(
           name="viewport"
           content="width=device-width, initial-scale=1" />
         <style>
-          ${customCss}
+          ${configuration.theme ? '' : customTheme}
         </style>
       </head>
       <body>
