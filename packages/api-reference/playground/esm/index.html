@@ -23,21 +23,10 @@
 
       const reference = createScalarReferences(el, {
         spec: {
-          url: 'https://gist.githubusercontent.com/amritk/c329b63ccb8e28fafc77b9b33f11fb42/raw/d5bc16f27c939d088b94488575791d19e418d66a/test.json',
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
         pathRouting: {
           basePath: '/v1',
-        },
-        authentication: {
-          http: {
-            bearer: {
-              token: 'Default Bearer',
-              multiple: {
-                bearerAuth: 'Bearer token 1',
-                bearerAuth2: 'Bearer token 2',
-              },
-            },
-          },
         },
         redirect: (pathWithHash) => {
           if (pathWithHash.includes('#')) {
