@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/snippetz"
   },
-  "version": "0.2.14",
+  "version": "0.2.15",
   "engines": {
     "node": ">=18"
   },

@@ -16,7 +16,7 @@
     "postman",
     "scalar"
   ],
-  "version": "0.2.27",
+  "version": "0.2.28",
   "engines": {
     "node": ">=18"
   },

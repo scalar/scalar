@@ -1,5 +1,27 @@
 # @scalar/hono-api-reference
 
+## 0.5.176
+
+### Patch Changes
+
+- 2c6ae93: fix: add reference as dependency with correct pathing
+- 43031e7: feat: new lib/html-rendering in @scalar/api-reference
+- Updated dependencies [50388ea]
+- Updated dependencies [43031e7]
+- Updated dependencies [946a5df]
+- Updated dependencies [b22f554]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [0ba190a]
+- Updated dependencies [4f7b767]
+- Updated dependencies [78f0cdf]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [577602f]
+- Updated dependencies [875ee2c]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+  - @scalar/api-reference@1.25.123
+  - @scalar/types@0.0.35
+
 ## 0.5.175
 
 ### Patch Changes

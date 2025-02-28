@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.21
+
+### Patch Changes
+
+- 298b6f6: fix: import api reference package in dockerfile
+
 ## 0.2.20
 
 ### Patch Changes

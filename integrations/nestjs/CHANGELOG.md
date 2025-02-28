@@ -1,5 +1,14 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.185
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+- Updated dependencies [946a5df]
+- Updated dependencies [cf14cbb]
+  - @scalar/types@0.0.35
+
 ## 0.3.184
 
 ### Patch Changes

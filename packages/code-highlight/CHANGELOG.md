@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.0.23
+
+### Patch Changes
+
+- 3feee27: feat: adds markdown alert support
+- c10bbf5: chore: code style
+
 ## 0.0.22
 
 ### Patch Changes

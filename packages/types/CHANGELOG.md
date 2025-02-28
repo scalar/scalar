@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.0.35
+
+### Patch Changes
+
+- 946a5df: feat: add front-end redirect
+- cf14cbb: fix: show _/_ mimetype in example response
+- Updated dependencies [c10bbf5]
+  - @scalar/openapi-types@0.1.9
+
 ## 0.0.34
 
 ### Patch Changes

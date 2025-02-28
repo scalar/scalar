@@ -1,5 +1,62 @@
 # @scalar/api-reference
 
+## 1.25.123
+
+### Patch Changes
+
+- 50388ea: fix: resets reference editor z index
+- 43031e7: feat: new lib/html-rendering in @scalar/api-reference
+- 946a5df: feat: add front-end redirect
+- b22f554: refactor: move HTML data-attribute API to lib
+- c10bbf5: chore: code style
+- 0ba190a: fix(api-reference): don't constrain zoomed in cards
+- 4f7b767: fix: updates content type select component
+- 78f0cdf: fix(api-reference): fix headings and add / organize regions
+- bd70ab6: fix(api-reference): improve search button and modal a11y
+- 577602f: fix: sidebar doesn’t clear state properly
+- 875ee2c: fix(api-reference): use listbox for server selector
+- cf14cbb: fix: show _/_ mimetype in example response
+- e55bfd2: fix(components): improve ScalarModal zoom handling
+- Updated dependencies [7833331]
+- Updated dependencies [f61e986]
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [8173889]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [9fc97da]
+- Updated dependencies [3feee27]
+- Updated dependencies [2be8986]
+- Updated dependencies [946a5df]
+- Updated dependencies [7017639]
+- Updated dependencies [143d2a9]
+- Updated dependencies [e52ecd2]
+- Updated dependencies [12088f1]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [eed78eb]
+- Updated dependencies [0d58572]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [875ee2c]
+- Updated dependencies [4a0e6b7]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [9251b22]
+- Updated dependencies [e55bfd2]
+- Updated dependencies [5a46f1c]
+- Updated dependencies [a89510b]
+- Updated dependencies [48f24c9]
+- Updated dependencies [8d9a2c0]
+  - @scalar/api-client@2.2.52
+  - @scalar/components@0.13.26
+  - @scalar/themes@0.9.69
+  - @scalar/oas-utils@0.2.108
+  - @scalar/code-highlight@0.0.23
+  - @scalar/types@0.0.35
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/openapi-types@0.1.9
+  - @scalar/snippetz@0.2.15
+  - @scalar/use-hooks@0.1.23
+  - @scalar/use-toasts@0.7.9
+
 ## 1.25.122
 
 ### Patch Changes

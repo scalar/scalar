@@ -1,5 +1,22 @@
 # @scalar/oas-utils
 
+## 0.2.108
+
+### Patch Changes
+
+- 9fc97da: feat: better deal with incomplete info objects
+- 12088f1: feat: Set example request body if Content-Type header exists
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [946a5df]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [9251b22]
+- Updated dependencies [8d9a2c0]
+  - @scalar/themes@0.9.69
+  - @scalar/types@0.0.35
+  - @scalar/openapi-types@0.1.9
+  - @scalar/object-utils@1.1.13
+
 ## 0.2.107
 
 ### Patch Changes

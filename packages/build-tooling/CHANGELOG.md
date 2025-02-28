@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.15
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+
 ## 0.1.14
 
 ### Patch Changes

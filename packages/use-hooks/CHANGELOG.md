@@ -1,5 +1,15 @@
 # @scalar/use-hooks
 
+## 0.1.23
+
+### Patch Changes
+
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [9251b22]
+- Updated dependencies [8d9a2c0]
+  - @scalar/themes@0.9.69
+  - @scalar/use-toasts@0.7.9
+
 ## 0.1.22
 
 ### Patch Changes
