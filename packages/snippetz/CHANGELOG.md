@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.15
+
+### Patch Changes
+
+- 0d58572: fix: handle case where mimeType application/json but only text is provided to body
+
 ## 0.2.14
 
 ### Patch Changes

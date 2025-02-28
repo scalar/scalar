@@ -1,5 +1,56 @@
 # @scalar/api-client
 
+## 2.2.52
+
+### Patch Changes
+
+- 7833331: fix: updates address bar background style
+- f61e986: fix(components): set the submenu z-index above the menu
+- 8173889: feat: moved sidebar state into factory function, initialize at app instantiation
+- 8d9a2c0: feat: adds request required empty parameter error
+- 8d9a2c0: feat: adds request parameter value validation alert
+- 2be8986: fix: request history
+- 7017639: fix: updates overall border style
+- 143d2a9: fix: updates file upload row content and logic
+- e52ecd2: feat: rely less on localStorage
+- c10bbf5: chore: code style
+- eed78eb: fix: updates command palette routing
+- 875ee2c: fix(api-reference): use listbox for server selector
+- 4a0e6b7: fix: sets whitespace to disabled address bar path
+- 5a46f1c: feat: collection page
+- a89510b: fix: updates response section border layout
+- 48f24c9: fix: when importing a collection we navigate to the collection page
+- Updated dependencies [f61e986]
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [8d9a2c0]
+- Updated dependencies [9fc97da]
+- Updated dependencies [946a5df]
+- Updated dependencies [12088f1]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [0d58572]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [7dc4415]
+- Updated dependencies [9251b22]
+- Updated dependencies [e55bfd2]
+- Updated dependencies [8d9a2c0]
+  - @scalar/components@0.13.26
+  - @scalar/themes@0.9.69
+  - @scalar/oas-utils@0.2.108
+  - @scalar/types@0.0.35
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/openapi-types@0.1.9
+  - @scalar/draggable@0.1.11
+  - @scalar/snippetz@0.2.15
+  - @scalar/use-codemirror@0.11.71
+  - @scalar/use-hooks@0.1.23
+  - @scalar/import@0.2.28
+  - @scalar/postman-to-openapi@0.1.31
+  - @scalar/icons@0.1.3
+  - @scalar/object-utils@1.1.13
+  - @scalar/use-toasts@0.7.9
+  - @scalar/use-tooltip@1.0.6
+
 ## 2.2.51
 
 ### Patch Changes

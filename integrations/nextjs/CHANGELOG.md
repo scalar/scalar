@@ -1,5 +1,14 @@
 # @scalar/nextjs-api-reference
 
+## 0.5.11
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+- Updated dependencies [946a5df]
+- Updated dependencies [cf14cbb]
+  - @scalar/types@0.0.35
+
 ## 0.5.10
 
 ### Patch Changes

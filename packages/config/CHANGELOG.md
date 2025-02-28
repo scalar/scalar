@@ -1,5 +1,11 @@
 # @scalar/config
 
+## 0.1.3
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/themes
 
+## 0.9.69
+
+### Patch Changes
+
+- c9a8fd8: feat(components): add sidebar nesting indicator lines
+- 9251b22: feat(themes): add font-sans for default scalar font
+- 8d9a2c0: feat: updates danger variable + add background alert variable
+- Updated dependencies [946a5df]
+- Updated dependencies [cf14cbb]
+  - @scalar/types@0.0.35
+
 ## 0.9.68
 
 ### Patch Changes

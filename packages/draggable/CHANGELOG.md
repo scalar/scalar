@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.11
+
+### Patch Changes
+
+- c10bbf5: chore: code style
+
 ## 0.1.10
 
 ### Patch Changes

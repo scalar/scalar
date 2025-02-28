@@ -1,5 +1,26 @@
 # @scalar/api-reference-react
 
+## 0.4.32
+
+### Patch Changes
+
+- ed5dd8c: fix: react packages to work with react 18 and 19
+- c10bbf5: chore: code style
+- Updated dependencies [50388ea]
+- Updated dependencies [43031e7]
+- Updated dependencies [946a5df]
+- Updated dependencies [b22f554]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [0ba190a]
+- Updated dependencies [4f7b767]
+- Updated dependencies [78f0cdf]
+- Updated dependencies [bd70ab6]
+- Updated dependencies [577602f]
+- Updated dependencies [875ee2c]
+- Updated dependencies [cf14cbb]
+- Updated dependencies [e55bfd2]
+  - @scalar/api-reference@1.25.123
+
 ## 0.4.31
 
 ### Patch Changes

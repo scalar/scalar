@@ -1,5 +1,24 @@
 # @scalar/components
 
+## 0.13.26
+
+### Patch Changes
+
+- f61e986: fix(components): set the submenu z-index above the menu
+- c9a8fd8: feat(components): add sidebar nesting indicator lines
+- 8d9a2c0: feat: adds alert icon
+- bd70ab6: fix(api-reference): improve search button and modal a11y
+- e55bfd2: fix(components): improve ScalarModal zoom handling
+- Updated dependencies [c9a8fd8]
+- Updated dependencies [3feee27]
+- Updated dependencies [c10bbf5]
+- Updated dependencies [9251b22]
+- Updated dependencies [8d9a2c0]
+  - @scalar/themes@0.9.69
+  - @scalar/code-highlight@0.0.23
+  - @scalar/use-hooks@0.1.23
+  - @scalar/use-toasts@0.7.9
+
 ## 0.13.25
 
 ### Patch Changes
