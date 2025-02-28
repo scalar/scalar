@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, ref, useId, watch } from 'vue'
 
 import { scrollToId } from '../../helpers'
 import { useNavState } from '../../hooks'
@@ -15,6 +15,8 @@ const { hash } = useNavState()
 
 const open = ref(false)
 
+const panel = useId()
+
 watch(
   hash,
   async (id) => {
@@ -28,13 +30,14 @@ watch(
 )
 </script>
 <template>
-  <div
-    :aria-expanded="open"
-    class="collapsible-section">
-    <div
+  <div class="collapsible-section">
+    <button
       :id="id"
+      :aria-controls="panel"
+      :aria-expanded="open"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': open }"
+      type="button"
       @click="open = !open">
       <ScalarIcon
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
@@ -45,9 +48,10 @@ watch(
         class="collapsible-section-header">
         <slot name="heading" />
       </Anchor>
-    </div>
+    </button>
     <Section
       v-if="open"
+      :id="panel"
       class="collapsible-section-content"
       :label="label">
       <slot />
@@ -66,7 +70,9 @@ watch(
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding: 10px 0;
+  padding: 10px;
+  margin-left: -10px;
+  margin-right: -10px;
   font-size: var(--scalar-font-size-3);
   z-index: 1;
   position: relative;
