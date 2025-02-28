@@ -3,8 +3,7 @@
 import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
 import type { ClientConfiguration, OpenClientPayload } from '@scalar/api-client/libs'
 import type { PropsWithChildren } from 'react'
-
-import React, { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
+import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
 import { clientStore } from './client-store'
 
@@ -88,4 +87,5 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
   )
 }
 
-export const useApiClientModal = () => useContext(ApiClientModalContext)
+export const useApiClientModal = (): ReturnType<typeof CreateApiClientModalSync> | null =>
+  useContext(ApiClientModalContext)

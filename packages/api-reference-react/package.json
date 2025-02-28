@@ -23,18 +23,19 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm types:check && pnpm build-only",
-    "build-only": "vite build",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "build": "scalar-build-vite",
     "playground": "vite ./playground -c ./vite.config.ts",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
     "./style.css": "./dist/style.css"
   },
   "files": [
@@ -46,6 +47,7 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
@@ -56,11 +58,11 @@
     "random-words": "^2.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "rollup-preserve-directives": "^1.1.1",
     "vite": "^5.4.10",
-    "vite-plugin-dts": "^4.3.0",
     "vue": "^3.5.12"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   }
 }
