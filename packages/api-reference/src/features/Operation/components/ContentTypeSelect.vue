@@ -53,26 +53,35 @@ const selectedContentType = ref<ContentType>(
 .content-type {
   display: flex;
   align-items: center;
-  font-size: var(--scalar-heading-4);
+  font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
   line-height: 1.45;
   margin-top: 24px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   flex-flow: wrap;
 }
 .content-type-select {
   position: relative;
-  padding-left: 9px;
   height: fit-content;
-  color: var(--scalar-color-2);
-  font-size: var(--scalar-font-size-3);
+  margin-left: auto;
+  font-weight: var(--scalar-regular);
   display: flex;
   align-items: center;
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-2);
+  padding: 3px 6px 4px 8px;
+  border-radius: 12px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .content-type-no-select.content-type-select {
+  padding: 3px 8px 4px 8px;
   pointer-events: none;
+}
+.content-type-no-select {
+  border: none;
 }
 .content-type-no-select.content-type-select:after {
   display: none;
@@ -83,19 +92,19 @@ const selectedContentType = ref<ContentType>(
 }
 .content-type-select:after {
   content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -4px, 0);
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg) translate3d(0, -3px, 0);
   display: block;
-  margin-left: 7px;
+  margin-left: 6px;
   box-shadow: 1px 1px 0 currentColor;
+  margin-right: 5px;
 }
 .content-type-select select {
   border: none;
   outline: none;
   cursor: pointer;
   background: var(--scalar-background-3);
-  box-shadow: -2px 0 0 0 var(--scalar-background-3);
   position: absolute;
   top: 0;
   left: 0;

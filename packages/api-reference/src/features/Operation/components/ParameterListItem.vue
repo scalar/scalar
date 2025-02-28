@@ -64,7 +64,7 @@ const shouldShowParameter = computed(() => {
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
-        class="parameter-item-trigger flex"
+        class="parameter-item-trigger group/parameter-item-trigger flex"
         :class="{ 'parameter-item-trigger-open': open }">
         <ScalarIcon
           class="parameter-item-icon"
@@ -82,7 +82,8 @@ const shouldShowParameter = computed(() => {
             class="markdown"
             :value="parameter.description" />
         </span>
-        <div class="absolute right-0">
+        <div
+          class="absolute right-0 top-2.5 opacity-0 group-hover/parameter-item-trigger:opacity-100">
           <ContentTypeSelect
             v-if="shouldCollapse && props.parameter.content"
             class="parameter-item-content-type"
@@ -226,19 +227,5 @@ const shouldShowParameter = computed(() => {
   outline: 1px solid var(--scalar-color-accent);
   outline-offset: 2px;
   border-radius: var(--scalar-radius);
-}
-.parameter-item-content-type {
-  margin-left: auto;
-  opacity: 0;
-  padding-left: 18px;
-  transition: opacity 0.1s ease-in-out;
-  color: var(--scalar-color-3);
-  font-size: var(--scalar-micro);
-  background: var(--scalar-background-2);
-  padding: 2px 6px;
-  border-radius: 12px;
-}
-.parameter-item-trigger:hover .parameter-item-content-type {
-  opacity: 1;
 }
 </style>
