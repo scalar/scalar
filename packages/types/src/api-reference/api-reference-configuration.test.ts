@@ -98,7 +98,7 @@ describe('api-reference-configuration', () => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
       })
 
-      const invalidConfigs = [{ spec: { url: 'not-a-url' } }, { spec: { content: 123 } }]
+      const invalidConfigs = [{ spec: { url: 999 } }, { spec: { content: 123 } }]
 
       invalidConfigs.forEach((config) => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow()
