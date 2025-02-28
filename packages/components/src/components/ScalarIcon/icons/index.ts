@@ -84,6 +84,7 @@ export const ICONS = [
   'User',
   'UserSwitch',
   'Users',
+  'Versions',
   'Wallet',
   'Watch',
   'Workspace',
