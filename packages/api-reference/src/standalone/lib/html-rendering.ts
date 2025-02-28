@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration } from '@/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 /**
  * The CDN configuration for the Scalar API Reference.

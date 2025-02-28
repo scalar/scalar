@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { useWorkspace } from '@scalar/api-client/store'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import { useExampleStore } from '#legacy'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -8,7 +8,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useApiClient } from './useApiClient'
 
 const { configuration } = defineProps<{
-  configuration: ClientConfiguration
+  configuration: Partial<ApiClientConfiguration>
 }>()
 
 const el = ref<HTMLDivElement | null>(null)

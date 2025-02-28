@@ -1,5 +1,5 @@
 import type { ReferenceProps } from '@/types'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
@@ -15,7 +15,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   const specUrlElement = doc.querySelector('[data-spec-url]')
   const configurationScriptElement = doc.querySelector('#api-reference[data-configuration]')
 
-  const getConfiguration = (): ApiReferenceConfiguration => {
+  const getConfiguration = () => {
     // <script data-configuration="{ … }" />
     if (configurationScriptElement) {
       const configurationFromElement = configurationScriptElement.getAttribute('data-configuration')
@@ -28,7 +28,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
       }
     }
 
-    return { _integration: 'html' }
+    return apiReferenceConfigurationSchema.parse({ _integration: 'html' })
   }
 
   const getSpecUrl = () => {
@@ -111,15 +111,15 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   } else {
     const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
 
-    return {
+    return apiReferenceConfigurationSchema.parse({
       _integration: 'html',
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
-    } satisfies ApiReferenceConfiguration
+    })
   }
 
-  return {}
+  return apiReferenceConfigurationSchema.parse({})
 }
 
 /**
