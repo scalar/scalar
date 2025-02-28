@@ -274,6 +274,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = False,
+    authentication: Annotated[
+        dict,
+        Doc(
+            """
+            A dictionary of additional authentication information.
+            Default is {} which means no authentication information is provided.
+            """
+        ),
+    ] = {},
     integration: Annotated[
         str | None,
         Doc(
@@ -322,6 +331,7 @@ def get_scalar_api_reference(
         hiddenClients: {json.dumps(hidden_clients)},
         servers: {json.dumps(servers)},
         defaultOpenAllTags: {json.dumps(default_open_all_tags)},
+        authentication: {json.dumps(authentication)},
         _integration: {json.dumps(integration)},
       }}
 
