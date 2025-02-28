@@ -268,7 +268,7 @@ const workspaceStore = createWorkspaceStore({
   theme: configuration.value.theme,
   useLocalStorage: false,
   hideClientButton: configuration.value.hideClientButton,
-  integration: configuration.value._integration,
+  _integration: configuration.value._integration,
   showSidebar: configuration.value.showSidebar,
 })
 // Populate the workspace store

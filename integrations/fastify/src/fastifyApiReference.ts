@@ -9,19 +9,12 @@ import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import type { ApiReferenceConfiguration } from './types.ts'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 /**
  * Path to the bundled Scalar JavaScript file
  */
 const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
-
-/**
- * The default configuration for the API Reference.
- */
-const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
-  _integration: 'fastify',
-}
 
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route
@@ -140,7 +133,7 @@ const fastifyApiReference = fp<
 
     // Merge the defaults
     let configuration = {
-      ...DEFAULT_CONFIGURATION,
+      _integration: 'fastify',
       ...givenConfiguration,
     }
 
@@ -301,7 +294,7 @@ const fastifyApiReference = fp<
             {
               // We’re using the bundled JS here by default, but the user can pass a CDN URL.
               cdn: RELATIVE_JAVASCRIPT_PATH,
-              ...configuration,
+              ...apiReferenceConfigurationSchema.parse(configuration),
             },
             customTheme,
           ),

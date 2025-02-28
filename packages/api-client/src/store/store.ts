@@ -34,9 +34,7 @@ type CreateWorkspaceStoreOptions = {
    * @default true
    */
   useLocalStorage: boolean
-  /** Specifies the integration being used. This is primarily for internal purposes and should not be manually set. */
-  integration: ApiReferenceConfiguration['_integration']
-} & Pick<ApiReferenceConfiguration, 'proxyUrl' | 'showSidebar' | 'hideClientButton' | 'theme'>
+} & Pick<ApiReferenceConfiguration, 'proxyUrl' | 'showSidebar' | 'hideClientButton' | 'theme' | '_integration'>
 
 /**
  * Factory function for creating the centralized store for the API client.
@@ -50,7 +48,7 @@ export const createWorkspaceStore = ({
   proxyUrl,
   theme,
   hideClientButton = false,
-  integration,
+  _integration,
 }: CreateWorkspaceStoreOptions) => {
   // ---------------------------------------------------------------------------
   // Initialize all storage objects
@@ -169,7 +167,7 @@ export const createWorkspaceStore = ({
     // TODO: move these to their own store
     hideClientButton,
     showSidebar,
-    integration,
+    integration: _integration,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

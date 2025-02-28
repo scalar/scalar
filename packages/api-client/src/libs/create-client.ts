@@ -99,7 +99,7 @@ export const createApiClient = ({
       theme: configuration.theme,
       showSidebar: configuration.showSidebar ?? true,
       hideClientButton: configuration.hideClientButton ?? false,
-      integration: configuration._integration,
+      _integration: configuration._integration,
       useLocalStorage: persistData,
     })
 

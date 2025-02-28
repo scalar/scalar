@@ -1135,6 +1135,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
