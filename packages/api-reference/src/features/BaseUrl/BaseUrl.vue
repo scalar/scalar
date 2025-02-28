@@ -7,6 +7,8 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarMarkdown } from '@scalar/components'
 import { useId } from 'vue'
 
+import { useConfig } from '@/hooks/useConfig'
+
 const { activeCollection, activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
@@ -18,6 +20,14 @@ const updateServerVariable = (key: string, value: string) => {
   variables[key] = { ...variables[key], default: value }
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
+
+  /** Trigger the onLoaded event when the component is mounted */
+}
+const { onServerChange } = useConfig()
+
+const updateServer = (server: string) => {
+  console.log('Server changed:', server)
+  onServerChange?.(server)
 }
 </script>
 <template>
@@ -29,7 +39,8 @@ const updateServerVariable = (key: string, value: string) => {
       v-if="activeCollection?.servers?.length"
       :collection="activeCollection"
       :server="activeServer"
-      :target="id" />
+      :target="id"
+      @update:server="updateServer" />
   </div>
   <ServerVariablesForm
     :variables="activeServer?.variables"

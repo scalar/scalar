@@ -282,6 +282,18 @@ You can listen to changes with onSpecUpdate that runs on spec/swagger content ch
 }
 ```
 
+#### onServerChange?: (server: string) => void
+
+You can listen to changes with onServerChange that runs on server change
+
+```js
+{
+  onServerChange: (value: string) => {
+    console.log('Server updated:', value)
+  }
+}
+```
+
 #### authentication?: Partial<AuthenticationState>
 
 To make authentication easier you can prefill the credentials for your users:
