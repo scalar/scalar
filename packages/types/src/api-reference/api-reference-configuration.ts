@@ -94,55 +94,10 @@ const pathRoutingSchema = z.object({
   basePath: z.string(),
 })
 
-/**
- * Configuration to prefill authentication
- * This is the V1 config and will change soon to support setting by nameKey
- */
-export const authenticationStateSchema = z.object({
-  /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
-  preferredSecurityScheme: z
-    .union([z.string(), z.array(z.union([z.string(), z.array(z.string())])), z.null()])
-    .optional(),
-  /** HTTP authentication */
-  http: z
-    .object({
-      basic: z
-        .object({
-          username: z.string().optional(),
-          password: z.string().optional(),
-        })
-        .optional(),
-      bearer: z
-        .object({
-          token: z.string().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
-  /** API key authentication */
-  apiKey: z
-    .object({
-      token: z.string().optional(),
-    })
-    .optional(),
-  /** OAuth 2.0 authentication */
-  oAuth2: z
-    .object({
-      clientId: z.string().optional(),
-      scopes: z.array(z.string()).optional(),
-      accessToken: z.string().optional(),
-      state: z.string().optional(),
-      username: z.string().optional(),
-      password: z.string().optional(),
-    })
-    .optional(),
-})
-export type AuthenticationState = z.infer<typeof authenticationStateSchema>
-
 /** Configuration for the Api Client */
 export const apiClientConfigurationSchema = z.object({
   /** Prefill authentication */
-  authentication: z.any().optional(), // Using any for Partial<AuthenticationState>
+  authentication: z.any().optional(), // Temp until we bring in the new auth
   /** Base URL for the API server */
   baseServerURL: z.string().optional(),
   /** Whether to hide the client button */
