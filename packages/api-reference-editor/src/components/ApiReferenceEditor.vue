@@ -11,7 +11,6 @@ import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
-  type ApiReferenceConfigurationPayload,
 } from '@scalar/types/api-reference'
 import type {
   ReferenceConfiguration,
@@ -25,7 +24,7 @@ import EditorInput from './EditorInput.vue'
 
 const props = defineProps<{
   configuration?: (
-    | ApiReferenceConfigurationPayload
+    | Partial<ApiReferenceConfiguration>
     | ReferenceConfiguration
   ) & {
     /** Option to manage the state externally and have the spec reactively update  */

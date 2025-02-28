@@ -2,7 +2,7 @@ import ApiReferenceEditor from '@/components/ApiReferenceEditor.vue'
 import { UPDATE_EVENT } from '@/constants'
 import type { ReferenceProps } from '@scalar/api-reference'
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import type { ApiReferenceConfigurationPayload } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { createApp, h, reactive } from 'vue'
 
 /** Attach the Editable API Reference to the DOM */
@@ -53,7 +53,7 @@ export function mountApiReferenceEditable(
     /** Attach the ApiReferenceEditor to a given DOM node */
     mount,
     /** Update the complete config (replaces original config) */
-    updateConfig: (newConfig: ApiReferenceConfigurationPayload) => {
+    updateConfig: (newConfig: ApiReferenceConfiguration) => {
       objectMerge(props, { configuration: newConfig })
     },
     /** Update only the spec value - used for external state mode */

@@ -4,7 +4,7 @@ import type { TargetId } from '../external/index.ts'
 import { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
 
 /** Available theme presets for the API reference */
-const ThemeIdEnum = z.enum([
+const themeIdEnum = z.enum([
   'alternate',
   'default',
   'moon',
@@ -21,7 +21,7 @@ const ThemeIdEnum = z.enum([
 ])
 
 /** Valid keys that can be used with CTRL/CMD to open the search modal */
-const SearchHotKeyEnum = z.enum([
+const searchHotKeyEnum = z.enum([
   'a',
   'b',
   'c',
@@ -51,7 +51,7 @@ const SearchHotKeyEnum = z.enum([
 ])
 
 /** Supported integration types */
-const IntegrationEnum = z
+const integrationEnum = z
   .enum([
     'adonisjs',
     'docusaurus',
@@ -77,7 +77,7 @@ const IntegrationEnum = z
   .nullable()
 
 /** Configuration for the OpenAPI/Swagger specification */
-const SpecConfigurationSchema = z.object({
+const specConfigurationSchema = z.object({
   /** URL to an OpenAPI/Swagger document */
   url: z.string().optional(),
   /**
@@ -89,10 +89,55 @@ const SpecConfigurationSchema = z.object({
 })
 
 /** Configuration for path-based routing */
-const PathRoutingSchema = z.object({
+const pathRoutingSchema = z.object({
   /** Base path for the API reference */
   basePath: z.string(),
 })
+
+/**
+ * Configuration to prefill authentication
+ * This is the V1 config and will change soon to support setting by nameKey
+ */
+export const authenticationStateSchema = z.object({
+  /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
+  preferredSecurityScheme: z
+    .union([z.string(), z.array(z.union([z.string(), z.array(z.string())])), z.null()])
+    .optional(),
+  /** HTTP authentication */
+  http: z
+    .object({
+      basic: z
+        .object({
+          username: z.string().optional(),
+          password: z.string().optional(),
+        })
+        .optional(),
+      bearer: z
+        .object({
+          token: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  /** API key authentication */
+  apiKey: z
+    .object({
+      token: z.string().optional(),
+    })
+    .optional(),
+  /** OAuth 2.0 authentication */
+  oAuth2: z
+    .object({
+      clientId: z.string().optional(),
+      scopes: z.array(z.string()).optional(),
+      accessToken: z.string().optional(),
+      state: z.string().optional(),
+      username: z.string().optional(),
+      password: z.string().optional(),
+    })
+    .optional(),
+})
+export type AuthenticationState = z.infer<typeof authenticationStateSchema>
 
 /** Configuration for the Api Client */
 export const apiClientConfigurationSchema = z.object({
@@ -105,7 +150,7 @@ export const apiClientConfigurationSchema = z.object({
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey: SearchHotKeyEnum.optional(),
+  searchHotKey: searchHotKeyEnum.optional(),
   /** List of OpenAPI server objects */
   servers: z.array(z.any()).optional(), // Using any for OpenAPIV3_1.ServerObject
   /**
@@ -114,15 +159,14 @@ export const apiClientConfigurationSchema = z.object({
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
   /** The Swagger/OpenAPI spec to render */
-  spec: SpecConfigurationSchema.optional(),
+  spec: specConfigurationSchema.optional(),
   /** A string to use one of the color presets */
-  theme: ThemeIdEnum.optional().default('default').catch('default'),
+  theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */
-  _integration: IntegrationEnum.optional(),
+  _integration: integrationEnum.optional(),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
-export type ApiClientConfigurationPayload = z.input<typeof apiClientConfigurationSchema>
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
@@ -133,15 +177,15 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
     z.object({
       /** The layout to use for the references */
       layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
-      /**
+      /*s
        * URL to a request proxy for the API client
        * @deprecated Use proxyUrl instead
        */
       proxy: z.string().optional(),
       /**
-    Whether the spec input should show
-    @default false
-  */
+       * Whether the spec input should show
+       * @default false
+       */
       isEditable: z.boolean().optional().default(false).catch(false),
       /**
        * Whether to show models in the sidebar, search, and content.
@@ -169,7 +213,6 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
       forceDarkModeState: z.enum(['dark', 'light']).optional(),
       /** Whether to show the dark mode toggle */
       hideDarkModeToggle: z.boolean().optional(),
-
       /**
        * If used, passed data will be added to the HTML header
        * @see https://unhead.unjs.io/usage/composables/use-seo-meta
@@ -203,7 +246,7 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        * @experimental
        * @default undefined
        */
-      pathRouting: PathRoutingSchema.optional(),
+      pathRouting: pathRoutingSchema.optional(),
       /**
        * Customize the heading portion of the hash
        * @param heading - The heading object
@@ -265,6 +308,27 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
         .optional(),
       /** Callback fired when the reference is fully loaded */
       onLoaded: z.union([z.function().returns(z.void()), z.undefined()]).optional(),
+      /**
+       * To handle redirects, pass a function that will recieve:
+       * - The current path with hash if pathRouting is enabled
+       * - The current hash if hashRouting (default)
+       * And then passes that to history.replaceState
+       *
+       * @example hashRouting (default)
+       * ```ts
+       * redirect: (hash: string) => hash.replace('#v1/old-path', '#v2/new-path')
+       * ```
+       * @example pathRouting
+       * ```ts
+       * redirect: (pathWithHash: string) => {
+       *   if (pathWithHash.includes('#')) {
+       *     return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+       *   }
+       *   return null
+       * }
+       * ```
+       */
+      redirect: z.function().args(z.string()).returns(z.string().nullable().optional()).optional(),
       /** Whether to include default fonts */
       withDefaultFonts: z.boolean().optional(),
       /** Whether to expand all tags by default */
@@ -323,6 +387,3 @@ export type ApiReferenceConfiguration = Omit<
   // Remove deprecated attributes
   'proxy'
 >
-
-/** Configuration before parsing, this should be used on input before parsing only  */
-export type ApiReferenceConfigurationPayload = z.input<typeof apiReferenceConfigurationSchema>
