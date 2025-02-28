@@ -264,10 +264,13 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  ...configuration.value,
+  proxyUrl: configuration.value.proxyUrl,
+  theme: configuration.value.theme,
   useLocalStorage: false,
+  hideClientButton: configuration.value.hideClientButton,
+  integration: configuration.value._integration,
+  showSidebar: configuration.value.showSidebar,
 })
-
 // Populate the workspace store
 watch(
   () => props.rawSpec,
