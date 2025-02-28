@@ -13,7 +13,7 @@ import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 const content = ref('')
 
-const configuration = reactive<ApiReferenceConfiguration>({
+const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: 'default',
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
@@ -55,7 +55,7 @@ watch(
 )
 
 const { parsedSpec } = useReactiveSpec({
-  proxyUrl: () => configuration.proxyUrl ?? configuration.proxy ?? '',
+  proxyUrl: () => configuration.proxyUrl ?? '',
   specConfig: () => ({
     content: content.value,
   }),
