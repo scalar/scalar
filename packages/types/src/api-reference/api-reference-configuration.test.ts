@@ -184,6 +184,27 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
+    it('keeps proxyUrl if both proxy and proxyUrl are set', () => {
+      const config = {
+        proxy: 'https://proxy.example.com',
+        proxyUrl: 'https://existing.example.com',
+      }
+
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.proxyUrl).toBe('https://existing.example.com')
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
+    it('migrates the old proxy URL to the new one', () => {
+      const config = {
+        proxyUrl: 'https://api.scalar.com/request-proxy',
+      }
+
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.proxyUrl).toBe('https://proxy.scalar.com')
+      expect(migratedConfig.proxy).toBeUndefined()
+    })
+
     it('migrates legacy theme variables', () => {
       const config = {
         theme: 'default',
