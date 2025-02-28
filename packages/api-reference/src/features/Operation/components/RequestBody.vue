@@ -108,6 +108,9 @@ if (requestBody?.content) {
 .request-body-title-select:hover {
   color: var(--scalar-color-1);
 }
+.request-body-title-select:has(select:focus-visible) {
+  outline: 1px solid var(--scalar-color-accent);
+}
 .request-body-description {
   margin-top: 6px;
   font-size: var(--scalar-small);
