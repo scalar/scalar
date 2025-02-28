@@ -1,6 +1,6 @@
 import headlessPlugin from '@headlessui/tailwindcss'
 import scalarPreset from '@scalar/themes/tailwind'
-import { type Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss'
 import colorMix from 'tailwindcss-color-mix'
 
 import { desktopVariants } from './src/tailwind/desktop-variants'
