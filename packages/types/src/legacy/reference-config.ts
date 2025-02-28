@@ -528,12 +528,16 @@ export type AuthenticationState = {
     | OpenAPIV3.ComponentsObject['securitySchemes']
     | OpenAPIV3_1.ComponentsObject['securitySchemes']
   http: {
-    basic: {
+    basic?: {
       username: string
       password: string
     }
-    bearer: {
-      token: string
+    bearer?: {
+      token?: string
+      /**
+       * @deprecated this is just temporary until the new auth
+       */
+      multiple?: Record<string, string>
     }
   }
   apiKey: {
