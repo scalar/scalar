@@ -82,7 +82,8 @@
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
     "nanoid": "^5.0.9",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

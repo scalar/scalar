@@ -1049,6 +1049,9 @@ importers:
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
