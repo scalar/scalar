@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import { apiReference } from './honoApiReference'
+import { apiReference } from './honoApiReference.ts'
 
 describe('apiReference', () => {
   it('should return HTML with default theme CSS when no theme is provided', async () => {

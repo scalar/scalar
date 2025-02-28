@@ -1,7 +1,7 @@
 import type { Env, MiddlewareHandler } from 'hono'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import type { ApiReferenceConfiguration } from './types'
+import type { ApiReferenceConfiguration } from './types.ts'
 
 /**
  * The custom theme for Hono
