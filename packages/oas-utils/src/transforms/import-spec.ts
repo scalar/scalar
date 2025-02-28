@@ -220,8 +220,17 @@ export async function importSpecToWorkspace(
           if (payload.scheme === 'basic' && authentication.http?.basic) {
             payload.username = authentication.http.basic.username ?? ''
             payload.password = authentication.http.basic.password ?? ''
-          } else if (payload.scheme === 'bearer' && authentication.http?.bearer)
-            payload.token = authentication.http.bearer.token ?? ''
+          }
+          // Bearer
+          else if (payload.scheme === 'bearer') {
+            if (authentication.http?.bearer?.token) {
+              payload.token = authentication.http.bearer.token ?? ''
+            }
+            // Temp multiple bearer
+            if (authentication.http?.bearer?.multiple?.[nameKey]) {
+              payload.token = authentication.http.bearer.multiple[nameKey]
+            }
+          }
         }
       }
 
