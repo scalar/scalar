@@ -9,6 +9,7 @@ import {
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 
@@ -17,6 +18,7 @@ defineProps<{
   active: boolean
   label: string
   icon: Icon
+  isCollection?: boolean
 }>()
 
 defineEmits<{
@@ -44,7 +46,12 @@ defineEmits<{
             @click="$emit('click')">
             <div
               class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
+              <LibraryIcon
+                v-if="isCollection"
+                class="size-3.5 min-w-3.5 stroke-2"
+                :src="icon" />
               <ScalarIcon
+                v-else
                 :icon="icon"
                 size="xs"
                 thickness="2.5" />

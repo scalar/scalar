@@ -7,6 +7,8 @@ import {
   ScalarIcon,
   type Icon,
 } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -28,9 +30,23 @@ const { events } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
 /** Nav Items list */
-const topNavItems = reactive([{ label: '', path: '', icon: 'Add' as Icon }])
+const topNavItems = reactive([
+  {
+    label: '',
+    path: '',
+    icon: 'Add' as Icon | Collection['x-scalar-icon'],
+    isCollection: false,
+  },
+])
 const activeNavItemIdx = ref(0)
 const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
+
+/**
+ * Check if the current route is a collection
+ */
+const isCollection = computed(() => {
+  return router.currentRoute.value.name?.toString().startsWith('collection.')
+})
 
 /**
  * Logic to handle adding a nav item
@@ -38,11 +54,12 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
  */
 function handleNavLabelAdd() {
   // Collection
-  if (router.currentRoute.value.name?.toString().startsWith('collection.')) {
+  if (isCollection.value) {
     topNavItems[activeNavItemIdx.value] = {
       label: activeCollection.value?.info?.title || 'Untitled Collection',
       path: router.currentRoute.value.path,
-      icon: 'Collection',
+      icon: activeCollection.value?.['x-scalar-icon'] || 'Collection',
+      isCollection: true,
     }
 
     return
@@ -54,6 +71,7 @@ function handleNavLabelAdd() {
       label: activeRequest.value?.summary || '',
       path: router.currentRoute.value.path,
       icon: 'ExternalLink',
+      isCollection: false,
     }
 
     return
@@ -71,6 +89,7 @@ function handleNavLabelAdd() {
       label: activeRoute.displayName,
       path: router.currentRoute.value.path,
       icon: activeRoute.icon,
+      isCollection: false,
     }
 
     return
@@ -89,7 +108,12 @@ function handleNavRoute() {
  * based on the route
  */
 function addNavItem() {
-  topNavItems.push({ label: '', path: '', icon: 'Add' })
+  topNavItems.push({
+    label: '',
+    path: '',
+    icon: 'Add' as Icon,
+    isCollection: false,
+  })
   activeNavItemIdx.value = topNavItems.length - 1
   handleNavLabelAdd()
 }
@@ -155,6 +179,7 @@ const addTopNavTab = (item: { name: string; uid: string }) => {
     label: item.name,
     path: item.uid,
     icon: 'ExternalLink',
+    isCollection: false,
   })
 }
 
@@ -182,9 +207,13 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           <ScalarContextMenu
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
+              <LibraryIcon
+                v-if="isCollection"
+                class="size-3.5 min-w-3.5 stroke-2"
+                :src="activeCollection?.['x-scalar-icon'] || 'Collection'" />
               <ScalarIcon
-                v-if="topNavItems[0]?.icon"
-                :icon="topNavItems[0]?.icon"
+                v-else-if="topNavItems[0]?.icon"
+                :icon="topNavItems[0]?.icon as Icon"
                 size="xs"
                 thickness="2.5" />
               <span>{{ topNavItems[0]?.label }}</span>
@@ -227,8 +256,13 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           :key="topNavItem.path"
           :active="index === activeNavItemIdxValue"
           :hotkey="(index + 1).toString()"
-          :icon="topNavItem.icon"
+          :icon="
+            topNavItem.isCollection
+              ? ((activeCollection?.['x-scalar-icon'] || 'Collection') as Icon)
+              : (topNavItem.icon as Icon)
+          "
           :label="topNavItem.label"
+          :isCollection="topNavItem.isCollection || false"
           @click="setNavItemIdx(index)"
           @close="removeNavItem(index)"
           @closeOtherTabs="closeOtherTabs(index)"
@@ -241,7 +275,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         @click="addNavItem">
         <ScalarIcon
           icon="Add"
-          size="xs"
+          size="sm"
           thickness="2.5" />
       </button>
     </div>
