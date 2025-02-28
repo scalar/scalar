@@ -9,7 +9,7 @@ import type {
   RequestExample,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
+import { canMethodHaveBody, isDefined, REGEX } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import ContextBar from '@/components/ContextBar.vue'
@@ -117,6 +117,15 @@ const activeWorkspaceCookies = computed(() =>
       enabled: true,
     })),
 )
+
+// If the request has no summary, use the path or fallback
+const handleRequestNamePlaceholder = () => {
+  return operation.summary
+    ? operation.summary
+    : operation.path.replace(REGEX.PROTOCOL, '')
+      ? operation.path.replace(REGEX.PROTOCOL, '')
+      : 'Request Name'
+}
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -131,7 +140,7 @@ const activeWorkspaceCookies = computed(() =>
           v-if="layout !== 'modal'"
           id="requestname"
           class="text-c-1 group-hover-input pl-1.25 md:-ml-1.25 pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
-          placeholder="Request Name"
+          :placeholder="handleRequestNamePlaceholder()"
           :value="operation.summary"
           @input="updateRequestNameHandler" />
         <span
