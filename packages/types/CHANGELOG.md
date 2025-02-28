@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.36
+
+### Patch Changes
+
+- 4db5161: feat: allow multiple tokens for bearer auth
+
 ## 0.0.35
 
 ### Patch Changes

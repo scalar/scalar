@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.13.27
+
+### Patch Changes
+
+- @scalar/themes@0.9.70
+- @scalar/code-highlight@0.0.23
+- @scalar/use-hooks@0.1.24
+
 ## 0.13.26
 
 ### Patch Changes

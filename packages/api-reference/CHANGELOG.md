@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.124
+
+### Patch Changes
+
+- 4db5161: feat: allow multiple tokens for bearer auth
+- Updated dependencies [4db5161]
+  - @scalar/oas-utils@0.2.109
+  - @scalar/types@0.0.36
+  - @scalar/api-client@2.2.53
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/themes@0.9.70
+  - @scalar/code-highlight@0.0.23
+  - @scalar/components@0.13.27
+  - @scalar/use-hooks@0.1.24
+
 ## 1.25.123
 
 ### Patch Changes
