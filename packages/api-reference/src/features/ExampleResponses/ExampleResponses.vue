@@ -135,6 +135,7 @@ const showSchema = ref(false)
           <ScalarCodeBlock
             v-if="showSchema && currentResponseWithExample"
             :id="id"
+            class="-outline-offset-2"
             :content="currentResponseWithExample"
             lang="json" />
           <ExampleResponse
