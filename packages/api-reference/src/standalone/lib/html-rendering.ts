@@ -16,15 +16,13 @@ export const htmlRenderingOptionsSchema = z.object({
    */
   cdn: z.string().optional().default('https://cdn.jsdelivr.net/npm/@scalar/api-reference'),
   /**
-   * Custom theme for the integration in css
-   */
-  customTheme: z.string().optional().default(''),
-  /**
    * The title of the page.
    */
   pageTitle: z.string().optional().default('Scalar API Reference'),
 })
-export type HtmlRenderingOptions = z.infer<typeof htmlRenderingOptionsSchema>
+type HtmlRenderingOptions = z.infer<typeof htmlRenderingOptionsSchema>
+
+export type HtmlRenderingConfiguration = ApiReferenceConfiguration & HtmlRenderingOptions
 
 /**
  * The HTML document to render the Scalar API reference.
@@ -32,18 +30,16 @@ export type HtmlRenderingOptions = z.infer<typeof htmlRenderingOptionsSchema>
  * We must check the passed in configuration and not the parsedConfig for the theme as the parsedConfig will have it
  * defaulted to 'default'
  */
-export function getHtmlDocument(
-  configuration: Partial<ApiReferenceConfiguration>,
-  options: Partial<HtmlRenderingOptions> = {},
-) {
-  const { cdn, pageTitle, customTheme } = htmlRenderingOptionsSchema.parse(options)
-  const parsedConfig = apiReferenceConfigurationSchema.parse(configuration)
+export const getHtmlDocument = (configuration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
+  const { cdn, pageTitle, ...rest } = configuration
+  const parsedHtmlOptions = htmlRenderingOptionsSchema.parse({ cdn, pageTitle, customTheme })
+  const parsedConfig = apiReferenceConfigurationSchema.parse(rest)
 
   return `
     <!DOCTYPE html>
     <html>
       <head>
-        <title>${pageTitle}</title>
+        <title>${parsedHtmlOptions.pageTitle}</title>
         <meta charset="utf-8" />
         <meta
           name="viewport"
@@ -53,7 +49,7 @@ export function getHtmlDocument(
         </style>
       </head>
       <body>
-        ${getScriptTags(parsedConfig, cdn)}
+        ${getScriptTags(parsedConfig, parsedHtmlOptions.cdn)}
       </body>
     </html>
   `
@@ -75,7 +71,7 @@ export function getScriptTags(configuration: ApiReferenceConfiguration, cdn: str
 /**
  * The configuration to pass to the @scalar/api-reference package.
  */
-export function getConfiguration(givenConfiguration: ApiReferenceConfiguration) {
+export const getConfiguration = (givenConfiguration: ApiReferenceConfiguration) => {
   // Clone before mutating
   const configuration = {
     ...givenConfiguration,
@@ -93,10 +89,9 @@ export function getConfiguration(givenConfiguration: ApiReferenceConfiguration) 
 /**
  * The content to pass to the @scalar/api-reference package as the <script> tag content.
  */
-export function getScriptTagContent(configuration: ApiReferenceConfiguration) {
-  return configuration.spec?.content
+export const getScriptTagContent = (configuration: ApiReferenceConfiguration) =>
+  configuration.spec?.content
     ? typeof configuration.spec?.content === 'function'
       ? JSON.stringify(configuration.spec?.content())
       : JSON.stringify(configuration.spec?.content)
     : ''
-}

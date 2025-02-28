@@ -4,6 +4,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
+export type { ApiReferenceConfiguration }
 // TODO: Just here for backwards compatibility (2025-02-21)
 export type { ReferenceConfiguration }
 

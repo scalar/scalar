@@ -132,7 +132,7 @@ const fastifyApiReference = fp<
 
     // Merge the defaults
     let configuration = {
-      _integration: 'fastify',
+      _integration: 'fastify' as const,
       ...givenConfiguration,
     }
 
@@ -289,11 +289,14 @@ const fastifyApiReference = fp<
 
         // Respond with the HTML document
         return reply.header('Content-Type', 'text/html; charset=utf-8').send(
-          getHtmlDocument(configuration, {
-            // We’re using the bundled JS here by default, but the user can pass a CDN URL.
-            cdn: RELATIVE_JAVASCRIPT_PATH,
+          getHtmlDocument(
+            {
+              ...configuration,
+              // We’re using the bundled JS here by default, but the user can pass a CDN URL.
+              cdn: RELATIVE_JAVASCRIPT_PATH,
+            },
             customTheme,
-          }),
+          ),
         )
       },
     })

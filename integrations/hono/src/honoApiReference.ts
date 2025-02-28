@@ -1,7 +1,7 @@
 import type { Env, MiddlewareHandler } from 'hono'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration } from './types'
 
 /**
  * The custom theme for Hono
@@ -109,6 +109,13 @@ export const customTheme = `
 `
 
 /**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'hono',
+}
+
+/**
  * The Hono middleware for the Scalar API Reference.
  */
 export const apiReference = <E extends Env>(
@@ -116,12 +123,10 @@ export const apiReference = <E extends Env>(
 ): MiddlewareHandler<E> => {
   // Merge the defaults
   const configuration = {
-    _integration: 'hono' as const,
+    ...DEFAULT_CONFIGURATION,
     ...givenConfiguration,
   }
 
   // Respond with the HTML document
-  return async (c) => {
-    return c.html(/* html */ `${getHtmlDocument(configuration, { customTheme })}`)
-  }
+  return async (c) => c.html(/* html */ `${getHtmlDocument(configuration, customTheme)}`)
 }

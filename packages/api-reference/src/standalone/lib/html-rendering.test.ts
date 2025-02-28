@@ -11,7 +11,7 @@ import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
     it('returns HTML document with default CDN and custom theme', () => {
-      const html = getHtmlDocument({}, { customCss: 'body { color: red }' })
+      const html = getHtmlDocument({ customCss: 'body { color: red }' })
       expect(html).toContain('<!DOCTYPE html>')
       expect(html).toContain('<title>Scalar API Reference</title>')
       expect(html).toContain('body { color: red }')
