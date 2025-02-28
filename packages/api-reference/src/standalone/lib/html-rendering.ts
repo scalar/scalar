@@ -34,9 +34,6 @@ export function getHtmlDocument(
   options: Partial<HtmlRenderingOptions> = {},
 ) {
   const { cdn, pageTitle, customCss } = htmlRenderingOptionsSchema.parse(options)
-  console.log('cdn', cdn)
-  console.log('pageTitle', pageTitle)
-  console.log('customCss', customCss)
   const parsedConfig = apiReferenceConfigurationSchema.parse(configuration)
 
   return `

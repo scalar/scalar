@@ -1,12 +1,11 @@
-import type { ApiReferenceConfiguration } from '@/types'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import type { Request, Response } from 'express'
 
 /**
  * The custom theme CSS for the Express theme
  */
-export const customTheme = `
+export const customCss = `
 /* basic theme */
 .light-mode {
   --scalar-color-1: #353535;
@@ -107,11 +106,11 @@ export const customTheme = `
  */
 export function apiReference(givenConfiguration: Partial<ApiReferenceConfiguration>) {
   // Merge the defaults
-  const configuration = apiReferenceConfigurationSchema.parse({
-    _integration: 'express',
+  const configuration = {
     ...givenConfiguration,
-  })
+    _integration: 'express' as const,
+  }
 
   // Respond with the HTML document
-  return (_: Request, res: Response) => res.type('text/html').send(getHtmlDocument(configuration, customTheme))
+  return (_: Request, res: Response) => res.type('text/html').send(getHtmlDocument(configuration, { customCss }))
 }
