@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.22
+
+### Patch Changes
+
+- fd8d71a: fix: make galaxy playground private so it does not publish
+
 ## 0.2.21
 
 ### Patch Changes
