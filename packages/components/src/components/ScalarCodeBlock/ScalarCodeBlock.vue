@@ -47,7 +47,9 @@ const isContentValid = computed(() => {
 })
 </script>
 <template>
-  <div class="scalar-code-block custom-scroll min-h-12">
+  <div
+    class="scalar-code-block custom-scroll min-h-12 focus-visible:outline"
+    tabindex="0">
     <div
       v-if="copy"
       class="scalar-code-copy">
@@ -64,7 +66,7 @@ const isContentValid = computed(() => {
     </div>
     <pre
       class="scalar-codeblock-pre"
-      v-html="highlightedCode"></pre>
+      v-html="highlightedCode" />
   </div>
 </template>
 <style>

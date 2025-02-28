@@ -270,7 +270,7 @@ function updateHttpClient(value: string) {
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
-          class="bg-b-2"
+          class="bg-b-2 -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="language"
