@@ -64,9 +64,7 @@ watch(hash, (newHash, oldHash) => {
     </template>
     <template #sidebar-start="{ spec }">
       <!-- Wrap in a div when slot is filled -->
-      <div
-        v-if="$slots['document-selector']"
-        class="p-3 pb-0">
+      <div v-if="$slots['document-selector']">
         <slot name="document-selector" />
       </div>
       <div
