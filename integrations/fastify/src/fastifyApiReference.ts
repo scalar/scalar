@@ -5,7 +5,7 @@ import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } 
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
+import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
@@ -121,6 +121,13 @@ export const customTheme = `
 }
 `
 
+/**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'fastify',
+}
+
 const fastifyApiReference = fp<
   FastifyApiReferenceOptions,
   RawServerDefault,
@@ -132,7 +139,7 @@ const fastifyApiReference = fp<
 
     // Merge the defaults
     let configuration = {
-      _integration: 'fastify' as const,
+      ...DEFAULT_CONFIGURATION,
       ...givenConfiguration,
     }
 
