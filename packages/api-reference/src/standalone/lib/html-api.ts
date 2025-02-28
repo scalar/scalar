@@ -119,7 +119,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
     })
   }
 
-  return apiReferenceConfigurationSchema.parse({})
+  return apiReferenceConfigurationSchema.parse({ _integration: 'html' })
 }
 
 /**

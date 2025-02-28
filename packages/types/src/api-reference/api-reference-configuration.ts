@@ -285,7 +285,7 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        */
       redirect: z.function().args(z.string()).returns(z.string().nullable().optional()).optional(),
       /** Whether to include default fonts */
-      withDefaultFonts: z.boolean().optional(),
+      withDefaultFonts: z.boolean().optional().default(true).catch(true),
       /** Whether to expand all tags by default */
       defaultOpenAllTags: z.boolean().optional(),
       /**
