@@ -52,7 +52,6 @@ public class ScalarOptionsExtensionsTests
             .WithFavicon("/favicon.png")
             .WithDotNetFlag(false)
             .WithClientButton(false)
-            .WithDocumentNamesProvider(_ => Task.FromResult<IEnumerable<string>>(["v1"]))
             .AddHeadContent("<meta name=\"foo\" content=\"bar\"/>")
             .AddHeadContent("<meta name=\"bar\" content=\"foo\"/>")
             .AddHeaderContent("<h1>foo</h1>")
@@ -97,7 +96,6 @@ public class ScalarOptionsExtensionsTests
         options.Favicon.Should().Be("/favicon.png");
         options.DotNetFlag.Should().BeFalse();
         options.HideClientButton.Should().BeTrue();
-        options.DocumentNamesProvider.Should().NotBeNull();
         options.HeadContent.Should().Be("<meta name=\"foo\" content=\"bar\"/><meta name=\"bar\" content=\"foo\"/>");
         options.HeaderContent.Should().Be("<h1>foo</h1><h2>bar</h2>");
     }

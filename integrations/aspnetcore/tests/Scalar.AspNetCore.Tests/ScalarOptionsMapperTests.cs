@@ -34,7 +34,7 @@ public class ScalarOptionsMapperTests
         configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().Be("purple");
         configuration.Integration.Should().Be("dotnet");
-        configuration.Documents.Should().BeEmpty();
+        configuration.Sources.Should().BeEmpty();
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class ScalarOptionsMapperTests
         configuration.Layout.Should().Be("classic");
         configuration.Integration.Should().BeNull();
         configuration.HideClientButton.Should().BeTrue();
-        configuration.Documents.Should().ContainSingle().Which.Should().Be("openapi/v2.json");
+        configuration.Sources.Should().ContainSingle().Which.Url.Should().Be("openapi/v2.json");
     }
 
     [Fact]

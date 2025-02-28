@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Http;
 
 namespace Scalar.AspNetCore;
 
@@ -45,51 +44,51 @@ public static class ScalarOptionsExtensions
         return options;
     }
 
+
     /// <summary>
-    /// Adds the given document names to <see cref="ScalarOptions" />.
+    /// Adds the specified OpenAPI document to the Scalar API reference.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
-    /// <param name="documentNames">The document names to add.</param>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
-    internal static ScalarOptions AddDocument(this ScalarOptions options, params IEnumerable<string> documentNames)
+    /// <param name="documentName">The name identifier for the OpenAPI document.</param>
+    /// <param name="title">Optional display title for the document. If not provided, the document name will be used as the title.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// If no documents are explicitly added, a default document named 'v1' will be used.
+    /// </remarks>
+    public static ScalarOptions AddDocument(this ScalarOptions options, string documentName, string? title = null)
     {
-        options.Documents.AddRange(documentNames);
+        options.Documents.Add(new ScalarDocument(documentName, title));
         return options;
     }
 
     /// <summary>
-    /// Sets the document names provider.
+    /// Adds the specified OpenAPI documents to the Scalar API reference.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
-    /// <param name="provider">The function to provide document names.</param>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
-    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, IEnumerable<string>> provider)
+    /// <param name="documentNames">The name identifiers for the OpenAPI documents.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// If no documents are explicitly added, a default document named 'v1' will be used.
+    /// </remarks>
+    public static ScalarOptions AddDocuments(this ScalarOptions options, params IEnumerable<string> documentNames)
     {
-        options.DocumentNamesProvider = (context, _) => Task.FromResult(provider(context));
+        var documents = documentNames.Select(documentName => new ScalarDocument(documentName));
+        options.Documents.AddRange(documents);
         return options;
     }
 
     /// <summary>
-    /// Sets a async document names provider.
+    /// Adds the specified OpenAPI documents to the Scalar API reference.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
-    /// <param name="provider">The async function to provide document names.</param>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
-    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, CancellationToken, Task<IEnumerable<string>>> provider)
+    /// <param name="documents">A list of <see cref="ScalarDocument" />`s to add.</param>
+    /// <remarks>
+    /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
+    /// If no documents are explicitly added, a default document named 'v1' will be used.
+    /// </remarks>
+    public static ScalarOptions AddDocuments(this ScalarOptions options, params IEnumerable<ScalarDocument> documents)
     {
-        options.DocumentNamesProvider = provider;
-        return options;
-    }
-
-    /// <summary>
-    /// Sets a async document names provider.
-    /// </summary>
-    /// <param name="options"><see cref="ScalarOptions" />.</param>
-    /// <param name="provider">The async function to provide document names.</param>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
-    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, Task<IEnumerable<string>>> provider)
-    {
-        options.DocumentNamesProvider = (context, _) => provider.Invoke(context);
+        options.Documents.AddRange(documents);
         return options;
     }
 

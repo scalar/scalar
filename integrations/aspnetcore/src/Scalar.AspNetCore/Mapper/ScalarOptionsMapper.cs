@@ -30,7 +30,11 @@ internal static class ScalarOptionsMapper
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
-        var documentUrls = options.Documents.Select(name => trimmedOpenApiRoutePattern.Replace(DocumentName, name));
+        var sources = options.Documents.Select(document => new ScalarSource
+        {
+            Title = document.Title ?? document.Name,
+            Url = trimmedOpenApiRoutePattern.Replace(DocumentName, document.Name)
+        });
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
@@ -61,7 +65,7 @@ internal static class ScalarOptionsMapper
             },
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
-            Documents = documentUrls
+            Sources = sources
         };
     }
 
