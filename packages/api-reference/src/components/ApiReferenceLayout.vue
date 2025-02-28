@@ -115,7 +115,7 @@ if (props.configuration.redirect && typeof window !== 'undefined') {
   const newPath = props.configuration.redirect(
     (pathRouting.value ? window.location.pathname : '') + window.location.hash,
   )
-  history.replaceState({}, '', newPath)
+  if (newPath) history.replaceState({}, '', newPath)
 }
 
 // Ideally this triggers absolutely first on the client so we can set hash value
