@@ -16,10 +16,6 @@ export type ReferenceLayoutProps = {
   isDark: boolean
 }
 
-export type PathRouting = {
-  basePath: string
-}
-
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
 export type Parameter = {

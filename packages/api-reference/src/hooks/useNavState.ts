@@ -1,10 +1,8 @@
 import { useConfig } from '@/hooks/useConfig'
 import { combineUrlAndPath, ssrState } from '@scalar/oas-utils/helpers'
-import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
+import type { Heading, PathRouting, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
-
-import type { PathRouting } from '../types'
 
 const hashPrefix = ref('')
 
