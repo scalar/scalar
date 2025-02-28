@@ -291,9 +291,9 @@ const fastifyApiReference = fp<
         return reply.header('Content-Type', 'text/html; charset=utf-8').send(
           getHtmlDocument(
             {
-              ...configuration,
               // We’re using the bundled JS here by default, but the user can pass a CDN URL.
               cdn: RELATIVE_JAVASCRIPT_PATH,
+              ...configuration,
             },
             customTheme,
           ),
