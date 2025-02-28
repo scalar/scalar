@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { nextTick, onBeforeUnmount, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import Computer from '@/assets/computer.ascii?raw'
 import EmptyState from '@/components/EmptyState.vue'
@@ -9,22 +9,51 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 const { numWorkspaceRequests } = defineProps<{
   numWorkspaceRequests: number
 }>()
 
-const { events } = useWorkspace()
+const { events, requestMutators } = useWorkspace()
 const route = useRoute()
+const router = useRouter()
 const { layout } = useLayout()
+const { activeWorkspace, activeCollection, activeRequest } = useActiveEntities()
 
-const openCommandPaletteRequest = () => {
-  events.commandPalette.emit({ commandName: 'Create Request' })
+const addRequest = () => {
+  if (!activeCollection.value?.uid) return
+
+  // If the request has tags, add the first tag to the new request
+  const requestData = activeRequest.value?.tags?.length
+    ? { tags: activeRequest.value.tags[0] ? [activeRequest.value.tags[0]] : [] }
+    : {}
+
+  const newRequest = requestMutators.add(
+    requestData,
+    activeCollection.value?.uid,
+  )
+
+  if (newRequest) {
+    router.push({
+      name: 'request',
+      params: {
+        workspace: activeWorkspace.value?.uid,
+        request: newRequest.uid,
+      },
+    })
+
+    nextTick(() => {
+      events.hotKeys.emit({
+        focusAddressBar: new KeyboardEvent('keydown', { key: 'l' }),
+      })
+    })
+  }
 }
 
 const handleHotKey = (event?: HotKeyEvent) => {
   if (event?.createNew && route.name === 'request') {
-    openCommandPaletteRequest()
+    addRequest()
   }
 }
 
@@ -84,7 +113,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         v-if="layout === 'desktop'"
         class="flex items-center gap-1.5"
         type="button"
-        @click="openCommandPaletteRequest">
+        @click="addRequest()">
         New Request
         <ScalarHotkey hotkey="N" />
       </button>
