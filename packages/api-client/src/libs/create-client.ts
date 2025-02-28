@@ -9,7 +9,7 @@ import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/work
 import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { type ApiClientConfigurationPayload, apiClientConfigurationSchema } from '@scalar/types/api-reference'
+import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import type { OpenAPI, SpecConfiguration } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
@@ -35,7 +35,7 @@ export type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for API client */
-  configuration?: ApiClientConfigurationPayload
+  configuration?: Partial<ApiClientConfiguration>
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -262,7 +262,7 @@ export const createApiClient = ({
      *
      * Deletes the current store before importing again for now, in the future will Diff
      */
-    updateConfig(_newConfig: ApiClientConfigurationPayload, mergeConfigs = true) {
+    updateConfig(_newConfig: Partial<ApiClientConfiguration>, mergeConfigs = true) {
       const newConfig = apiClientConfigurationSchema.parse(_newConfig)
       if (mergeConfigs) {
         Object.assign(configuration ?? {}, newConfig)
