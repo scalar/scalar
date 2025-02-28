@@ -26,7 +26,6 @@ const updateServerVariable = (key: string, value: string) => {
 const { onServerChange } = useConfig()
 
 const updateServer = (server: string) => {
-  console.log('Server changed:', server)
   onServerChange?.(server)
 }
 </script>
