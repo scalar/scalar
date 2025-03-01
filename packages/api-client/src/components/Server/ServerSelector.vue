@@ -45,7 +45,6 @@ const selectedServer = computed<ServerOption | undefined>({
       option.id as Server['uid'],
     )
     const serverUrl = servers[option.id]?.url
-    console.log('serverUrl', serverUrl)
     if (serverUrl) {
       emit('updateServer', serverUrl)
     }
