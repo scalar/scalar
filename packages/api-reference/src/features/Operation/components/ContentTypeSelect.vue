@@ -39,11 +39,13 @@ const selectedContentType = ref<ContentType>(
     <select
       v-if="prop?.requestBody && contentTypes.length > 1"
       :value="selectedContentType"
-      @change="handleSelectChange($event)">
+      @change="handleSelectChange($event)"
+      @keydown.stop>
       <option
         v-for="(_, key) in prop.requestBody?.content"
         :key="key"
-        :value="key">
+        :value="key"
+        @keydown.stop>
         {{ key }}
       </option>
     </select>
