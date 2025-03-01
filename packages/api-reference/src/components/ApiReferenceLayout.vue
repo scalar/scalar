@@ -113,8 +113,8 @@ const {
 } = useNavState()
 
 // Need to set these in navState as a hack
-if (props.configuration.pathRouting) {
-  pathRouting.value = props.configuration.pathRouting
+if (configuration.value.pathRouting) {
+  pathRouting.value = configuration.value.pathRouting
 }
 
 // Front-end redirect
@@ -264,12 +264,8 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  proxyUrl: configuration.value.proxyUrl,
-  theme: configuration.value.theme,
   useLocalStorage: false,
-  hideClientButton: configuration.value.hideClientButton,
-  _integration: configuration.value._integration,
-  showSidebar: configuration.value.showSidebar,
+  ...configuration.value,
 })
 // Populate the workspace store
 watch(

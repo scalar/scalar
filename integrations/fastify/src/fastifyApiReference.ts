@@ -122,7 +122,7 @@ export const customTheme = `
 `
 
 /**
- * The default configuration for the API Reference.
+ * The default configuration for Fastify
  */
 const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
   _integration: 'fastify',

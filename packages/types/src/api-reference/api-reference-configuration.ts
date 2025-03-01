@@ -100,8 +100,11 @@ export const apiClientConfigurationSchema = z.object({
   authentication: z.any().optional(), // Temp until we bring in the new auth
   /** Base URL for the API server */
   baseServerURL: z.string().optional(),
-  /** Whether to hide the client button */
-  hideClientButton: z.boolean().optional(),
+  /**
+   * Whether to hide the client button
+   * @default false
+   */
+  hideClientButton: z.boolean().optional().default(false).catch(false),
   /** URL to a request proxy for the API client */
   proxyUrl: z.string().optional(),
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
@@ -130,9 +133,12 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
   .merge(
     z.object({
-      /** The layout to use for the references */
+      /**
+       * The layout to use for the references
+       * @default 'modern'
+       */
       layout: z.enum(['modern', 'classic']).optional().default('modern').catch('modern'),
-      /*s
+      /**
        * URL to a request proxy for the API client
        * @deprecated Use proxyUrl instead
        */
@@ -166,8 +172,11 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
       darkMode: z.boolean().optional(),
       /** forceDarkModeState makes it always this state no matter what */
       forceDarkModeState: z.enum(['dark', 'light']).optional(),
-      /** Whether to show the dark mode toggle */
-      hideDarkModeToggle: z.boolean().optional(),
+      /**
+       * Whether to show the dark mode toggle
+       * @default false
+       */
+      hideDarkModeToggle: z.boolean().optional().default(false).catch(false),
       /**
        * If used, passed data will be added to the HTML header
        * @see https://unhead.unjs.io/usage/composables/use-seo-meta
@@ -208,7 +217,11 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        * @returns A string ID used to generate the URL hash
        * @default (heading) => `#description/${heading.slug}`
        */
-      generateHeadingSlug: z.function().args(z.any()).returns(z.string()).optional(),
+      generateHeadingSlug: z
+        .function()
+        .args(z.object({ slug: z.string().default('headingSlug') }))
+        .returns(z.string())
+        .optional(),
       /**
        * Customize the model portion of the hash
        * @param model - The model object with a name property
@@ -217,7 +230,7 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        */
       generateModelSlug: z
         .function()
-        .args(z.object({ name: z.string() }))
+        .args(z.object({ name: z.string().default('modelName') }))
         .returns(z.string())
         .optional(),
       /**
@@ -226,7 +239,11 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        * @returns A string ID used to generate the URL hash
        * @default (tag) => slug(tag.name)
        */
-      generateTagSlug: z.function().args(z.any()).returns(z.string()).optional(),
+      generateTagSlug: z
+        .function()
+        .args(z.object({ name: z.string().default('tagName') }))
+        .returns(z.string())
+        .optional(),
       /**
        * Customize the operation portion of the hash
        * @param operation - The operation object
@@ -284,7 +301,10 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        * ```
        */
       redirect: z.function().args(z.string()).returns(z.string().nullable().optional()).optional(),
-      /** Whether to include default fonts */
+      /**
+       * Whether to include default fonts
+       * @default true
+       */
       withDefaultFonts: z.boolean().optional().default(true).catch(true),
       /** Whether to expand all tags by default */
       defaultOpenAllTags: z.boolean().optional(),
