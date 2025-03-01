@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.25.125
+
+### Patch Changes
+
+- Updated dependencies [fdd50b2]
+  - @scalar/api-client@2.2.54
+
 ## 1.25.124
 
 ### Patch Changes

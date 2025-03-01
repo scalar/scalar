@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 2.0.21
+
+### Patch Changes
+
+- 2064f00: fix(Scalar.AspNetCore): rename TagSorter property to TagsSorter
+  - @scalar/api-reference@1.25.125
+
 ## 2.0.20
 
 ### Patch Changes
