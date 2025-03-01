@@ -164,6 +164,8 @@ export type ReferenceConfiguration = {
   customCss?: string
   /** onSpecUpdate is fired on spec/swagger content change */
   onSpecUpdate?: (spec: string) => void
+  /** onServerChange is fired on selected server change */
+  onServerChange?: (server: string) => void
   /** Prefill authentication */
   authentication?: Partial<AuthenticationState>
   /**

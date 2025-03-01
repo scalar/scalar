@@ -7,6 +7,8 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarMarkdown } from '@scalar/components'
 import { useId } from 'vue'
 
+import { useConfig } from '@/hooks/useConfig'
+
 const { activeCollection, activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
@@ -19,6 +21,11 @@ const updateServerVariable = (key: string, value: string) => {
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
 }
+const { onServerChange } = useConfig()
+
+const updateServer = (server: string) => {
+  onServerChange?.(server)
+}
 </script>
 <template>
   <label class="bg-b-2 flex h-8 items-center px-3 py-2.5 text-sm font-medium">
@@ -29,7 +36,8 @@ const updateServerVariable = (key: string, value: string) => {
       v-if="activeCollection?.servers?.length"
       :collection="activeCollection"
       :server="activeServer"
-      :target="id" />
+      :target="id"
+      @updateServer="updateServer" />
   </div>
   <ServerVariablesForm
     :variables="activeServer?.variables"
