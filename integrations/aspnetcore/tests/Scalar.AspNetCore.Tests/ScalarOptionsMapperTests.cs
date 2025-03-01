@@ -30,7 +30,7 @@ public class ScalarOptionsMapperTests
         configuration.Authentication.Should().BeNull();
         configuration.WithDefaultFonts.Should().BeTrue();
         configuration.DefaultOpenAllTags.Should().BeFalse();
-        configuration.TagSorter.Should().BeNull();
+        configuration.TagsSorter.Should().BeNull();
         configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().Be("purple");
         configuration.Integration.Should().Be("dotnet");
@@ -101,7 +101,7 @@ public class ScalarOptionsMapperTests
         configuration.Authentication.ApiKey!.Token.Should().Be("my-token");
         configuration.WithDefaultFonts.Should().BeFalse();
         configuration.DefaultOpenAllTags.Should().BeTrue();
-        configuration.TagSorter.Should().Be("alpha");
+        configuration.TagsSorter.Should().Be("alpha");
         configuration.OperationsSorter.Should().Be("method");
         configuration.Theme.Should().Be("saturn");
         configuration.Layout.Should().Be("classic");
