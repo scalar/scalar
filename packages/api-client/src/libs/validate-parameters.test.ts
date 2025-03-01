@@ -1,18 +1,13 @@
 import { describe, it, expect } from 'vitest'
-import { useParameterValidation } from './useParameterValidation'
+import { validateParameters } from './validate-parameters.ts'
 
-describe('useParameterValidation', () => {
+describe('validateParameters', () => {
   it('should return empty set when no example is provided', () => {
-    const { validateParameters } = useParameterValidation()
-    const invalidParams = new Set<string>()
-    validateParameters(null, invalidParams)
+    const invalidParams = validateParameters(null)
     expect(invalidParams.size).toBe(0)
   })
 
   it('should identify required parameters with empty values', () => {
-    const { validateParameters } = useParameterValidation()
-    const invalidParams = new Set<string>()
-
     // Mock a request example
     const example = {
       parameters: {
@@ -23,7 +18,7 @@ describe('useParameterValidation', () => {
       },
     }
 
-    validateParameters(example, invalidParams)
+    const invalidParams = validateParameters(example)
 
     expect(invalidParams.size).toBe(2)
     expect(invalidParams.has('planetId')).toBe(true)
@@ -32,9 +27,6 @@ describe('useParameterValidation', () => {
   })
 
   it('should clear invalid params between validations', () => {
-    const { validateParameters } = useParameterValidation()
-    const invalidParams = new Set<string>()
-
     // Mock a first request example
     const example1 = {
       parameters: {
@@ -55,11 +47,11 @@ describe('useParameterValidation', () => {
       },
     }
 
-    validateParameters(example1, invalidParams)
+    const invalidParams = validateParameters(example1)
     expect(invalidParams.size).toBe(1)
     expect(invalidParams.has('planetId')).toBe(true)
 
-    validateParameters(example2, invalidParams)
-    expect(invalidParams.size).toBe(0)
+    const invalidParams2 = validateParameters(example2)
+    expect(invalidParams2.size).toBe(0)
   })
 })

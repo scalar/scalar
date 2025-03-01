@@ -6,9 +6,9 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { useLayout } from '@/hooks'
-import { useParameterValidation } from '@/hooks/useParameterValidation'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
+import { validateParameters } from '@/libs/validate-parameters'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
@@ -32,7 +32,6 @@ const { cookies, requestHistory, showSidebar, securitySchemes, events } =
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
-const { validateParameters } = useParameterValidation()
 
 /**
  * Selected scheme UIDs
@@ -57,7 +56,7 @@ const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value)
     return
 
-  validateParameters(activeExample.value, invalidParams.value)
+  invalidParams.value = validateParameters(activeExample.value)
 
   const environmentValue =
     typeof activeEnvironment.value === 'object'
