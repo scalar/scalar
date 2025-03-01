@@ -15,7 +15,7 @@ export function useBreakpoints() {
   const mediaQueries = Object.fromEntries(
     Object.entries(screens).map(([breakpoint, value]) => [
       breakpoint,
-      useMediaQuery(typeof value === 'string' ? value : value.raw),
+      useMediaQuery(typeof value === 'string' ? `(min-width: ${value})` : value.raw),
     ]),
   ) as Record<Screen, Ref<boolean>>
 
