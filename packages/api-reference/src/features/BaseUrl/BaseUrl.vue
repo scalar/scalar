@@ -20,8 +20,6 @@ const updateServerVariable = (key: string, value: string) => {
   variables[key] = { ...variables[key], default: value }
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
-
-  /** Trigger the onLoaded event when the component is mounted */
 }
 const { onServerChange } = useConfig()
 
@@ -39,7 +37,7 @@ const updateServer = (server: string) => {
       :collection="activeCollection"
       :server="activeServer"
       :target="id"
-      @update:server="updateServer" />
+      @updateServer="updateServer" />
   </div>
   <ServerVariablesForm
     :variables="activeServer?.variables"

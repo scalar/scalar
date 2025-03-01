@@ -20,7 +20,7 @@ const { target, collection, server } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:server', server: string): void
+  (e: 'updateServer', server: string): void
 }>()
 
 const { servers, collectionMutators } = useWorkspace()
@@ -45,8 +45,9 @@ const selectedServer = computed<ServerOption | undefined>({
       option.id as Server['uid'],
     )
     const serverUrl = servers[option.id]?.url
+    console.log('serverUrl', serverUrl)
     if (serverUrl) {
-      emit('update:server', serverUrl)
+      emit('updateServer', serverUrl)
     }
   },
 })
@@ -62,7 +63,7 @@ watch(
     if (firstServer) {
       collectionMutators.edit(collection.uid, 'selectedServerUid', firstServer)
       if (servers[firstServer]?.url) {
-        emit('update:server', servers[firstServer].url)
+        emit('updateServer', servers[firstServer].url)
       }
     }
   },
