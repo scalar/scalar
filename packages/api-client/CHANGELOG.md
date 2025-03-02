@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.54
+
+### Patch Changes
+
+- fdd50b2: fix: auth bottom border on references
+
 ## 2.2.53
 
 ### Patch Changes
