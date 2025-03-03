@@ -1,5 +1,6 @@
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { createSidebarState, SIDEBAR_SYMBOL } from '@/hooks/useSidebar'
+import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
 import { loadAllResources } from '@/libs/local-storage'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
@@ -246,6 +247,24 @@ export const createApiClient = ({
     }
   }
 
+  /** Route to the specified method and path */
+  const route = (payload?: OpenClientPayload) => {
+    // Find the request from path + method
+    const resolvedRequestUid = getRequestUidByPathMethod(requests, payload)
+
+    // Redirect to the request
+    if (resolvedRequestUid)
+      router.push({
+        name: 'request',
+        query: payload?._source ? { source: payload._source } : {},
+        params: {
+          workspace: 'default',
+          request: resolvedRequestUid,
+        },
+      })
+    else console.warn('[@scalar/api-client] Could not find request for path and method', payload)
+  }
+
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
@@ -310,60 +329,12 @@ export const createApiClient = ({
       if (scheme) securitySchemeMutators.edit(scheme.uid, propertyKey, value)
     },
     /** Route to a method + path */
-    route: (
-      /** The first request you would like to display */
-      payload?: OpenClientPayload,
-    ) => {
-      const { requestUid, method, path, _source } = payload ?? {}
-
-      // Find the request from path + method
-      const resolvedRequestUid =
-        requestUid ||
-        Object.values(requests).find((item) =>
-          path && method && item.path && item.method
-            ? // The given operation
-              item.path === path && item.method.toUpperCase() === method.toUpperCase()
-            : // Or the first request
-              true,
-        )?.uid
-
-      // Redirect to the request
-      if (resolvedRequestUid)
-        router.push({
-          name: 'request',
-          query: _source ? { source: _source } : {},
-          params: {
-            workspace: 'default',
-            request: resolvedRequestUid,
-          },
-        })
-    },
+    route,
 
     /** Open the API client modal and optionally route to a request */
     open: (payload?: OpenClientPayload) => {
-      const { path, method, requestUid, _source } = payload ?? {}
-
-      // Find the request from path + method
-      const resolvedRequestUid =
-        requestUid ||
-        Object.values(requests).find((item) =>
-          path && method && item.path && item.method
-            ? // The given operation
-              item.path === path && item.method.toUpperCase() === method.toUpperCase()
-            : // Or the first request
-              true,
-        )?.uid
-
-      // Redirect to the request
-      if (resolvedRequestUid)
-        router.push({
-          name: 'request',
-          query: _source ? { source: _source } : {},
-          params: {
-            workspace: 'default',
-            request: resolvedRequestUid,
-          },
-        })
+      const { method, path, requestUid } = payload ?? {}
+      if ((method && path) || requestUid) route(payload)
 
       // Open the modal
       modalState.open = true
