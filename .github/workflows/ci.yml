@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Save Turborepo cache
-        uses: actions/cache/save@0c907a75c2c80ebcb7f088228285e798b750cf8f
+        uses: actions/cache/save@d4323d4df104b026a6aa633fdb11d772146be0bf
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
