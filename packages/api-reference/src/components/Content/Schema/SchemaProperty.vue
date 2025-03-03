@@ -1,7 +1,14 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import { computed } from 'vue'
+import {
+  ScalarButton,
+  ScalarDropdown,
+  ScalarDropdownItem,
+  ScalarIcon,
+  ScalarMarkdown,
+} from '@scalar/components'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { computed, ref } from 'vue'
 
 import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import {
@@ -30,6 +37,11 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
+    schemas?:
+      | OpenAPIV2.DefinitionsObject
+      | Record<string, OpenAPIV3.SchemaObject>
+      | Record<string, OpenAPIV3_1.SchemaObject>
+      | unknown
   }>(),
   {
     level: 0,
@@ -69,6 +81,10 @@ const displayDescription = (
   }
 
   if (value?.patternProperties) {
+    return null
+  }
+
+  if (value?.allOf) {
     return null
   }
 
@@ -121,6 +137,94 @@ const discriminatorType = discriminators.find((r) => {
       r in optimizedValue.value.items)
   )
 })
+
+const mergeAllOfSchemas = (schemas: any[]) => {
+  if (!Array.isArray(schemas) || schemas.length === 0) {
+    return {}
+  }
+
+  // Handle case where we have an array of objects with allOf properties
+  if (schemas.length > 0 && schemas[0].allOf) {
+    const allSchemas = schemas.flatMap((schema) => schema.allOf || [])
+    return mergeAllOfSchemas(allSchemas)
+  }
+
+  // Regular case - just merge the schemas directly
+  return schemas.reduce((result, schema) => {
+    if (!schema || typeof schema !== 'object') {
+      return result
+    }
+
+    const mergedResult = { ...result }
+
+    if (schema.properties) {
+      mergedResult.properties = {
+        ...mergedResult.properties,
+        ...schema.properties,
+      }
+    }
+
+    if (schema.required && Array.isArray(schema.required)) {
+      mergedResult.required = [
+        ...(mergedResult.required || []),
+        ...schema.required,
+      ]
+    }
+
+    if (schema.type && !mergedResult.type) {
+      mergedResult.type = schema.type
+    }
+
+    if (schema.description && !mergedResult.description) {
+      mergedResult.description = schema.description
+    }
+
+    return mergedResult
+  }, {})
+}
+
+const getModelNameFromSchema = (schema: any): string | null => {
+  if (!schema) return null
+
+  // returns a matching schema name based on the schema object
+  if (props.schemas && typeof props.schemas === 'object') {
+    for (const [schemaName, schemaValue] of Object.entries(props.schemas)) {
+      if (JSON.stringify(schemaValue) === JSON.stringify(schema)) {
+        return schemaName
+      }
+    }
+  }
+
+  return null
+}
+
+const humanizeType = (type: string) => {
+  return type
+    .replace(/([A-Z])/g, ' $1')
+    .toLowerCase()
+    .replace(/^o/, 'O')
+    .trim()
+}
+
+// Display the property heading if any of the following are true
+const displayPropertyHeading = computed(() => {
+  return (
+    props.name ||
+    props.additional ||
+    props.pattern ||
+    props.value?.deprecated ||
+    props.value?.const ||
+    (props.value?.enum && props.value.enum.length === 1) ||
+    props.value?.type ||
+    props.value?.nullable === true ||
+    props.value?.writeOnly ||
+    props.value?.readOnly ||
+    props.required
+  )
+})
+
+// Add a state for the selected schema in dropdown
+const selectedSchemaIndex = ref(0)
 </script>
 <template>
   <li
@@ -133,6 +237,7 @@ const discriminatorType = discriminators.find((r) => {
       },
     ]">
     <SchemaPropertyHeading
+      v-if="displayPropertyHeading"
       :additional="additional"
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :pattern="pattern"
@@ -292,18 +397,71 @@ const discriminatorType = discriminators.find((r) => {
       <!-- Property -->
       <div
         v-if="optimizedValue?.[discriminator]"
-        class="property-rule">
-        <template
-          v-for="schema in optimizedValue[discriminator]"
-          :key="schema.id">
+        class="property-rule"
+        :class="{ discriminators: discriminator.length > 1 }">
+        <template v-if="discriminator === 'allOf'">
           <Schema
             :compact="compact"
-            :level="level + 1"
             :noncollapsible="
               Array.isArray(optimizedValue?.[discriminator]) &&
-              optimizedValue?.[discriminator].length === 1
+              optimizedValue?.[discriminator].length !== 1
             "
-            :value="schema" />
+            :schemas="schemas"
+            :value="mergeAllOfSchemas(optimizedValue[discriminator])" />
+        </template>
+        <template v-else>
+          <!-- Schema dropdown -->
+          <div
+            class="flex items-center rounded-t-lg border border-b-0 px-2 py-1">
+            <span>{{ humanizeType(discriminator) }}</span>
+            <ScalarDropdown
+              placement="bottom-start"
+              class="w-40">
+              <ScalarButton
+                variant="ghost"
+                class="text-c-1 hover:bg-b-2 h-fit gap-1.5 p-1.5">
+                {{
+                  getModelNameFromSchema(
+                    optimizedValue[discriminator][selectedSchemaIndex],
+                  ) || 'Schema'
+                }}
+                <ScalarIcon
+                  icon="ChevronDown"
+                  size="sm" />
+              </ScalarButton>
+              <template #items>
+                <ScalarDropdownItem
+                  v-for="(schema, index) in optimizedValue[discriminator]"
+                  :key="index"
+                  @click="selectedSchemaIndex = index">
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
+                      :class="
+                        index === selectedSchemaIndex
+                          ? 'bg-c-accent text-b-1'
+                          : 'shadow-border text-transparent'
+                      ">
+                      <ScalarIcon
+                        class="size-2.5"
+                        icon="Checkmark"
+                        thickness="3" />
+                    </div>
+                    {{
+                      getModelNameFromSchema(schema) || `Schema ${index + 1}`
+                    }}
+                  </div>
+                </ScalarDropdownItem>
+              </template>
+            </ScalarDropdown>
+          </div>
+          <div class="discriminator-panel rounded-b-lg border">
+            <Schema
+              :compact="compact"
+              :noncollapsible="true"
+              :schemas="schemas"
+              :value="optimizedValue[discriminator][selectedSchemaIndex]" />
+          </div>
         </template>
       </div>
       <!-- Arrays -->
@@ -317,12 +475,46 @@ const discriminatorType = discriminators.find((r) => {
           level < 3
         "
         class="property-rule">
-        <Schema
-          v-for="schema in optimizedValue.items[discriminator]"
-          :key="schema.id"
-          :compact="compact"
-          :level="level + 1"
-          :value="schema" />
+        <template v-if="discriminator === 'allOf'">
+          <Schema
+            :compact="compact"
+            :level="level + 1"
+            :schemas="schemas"
+            :value="mergeAllOfSchemas(optimizedValue.items[discriminator])" />
+        </template>
+        <!-- Use dropdown for many schemas in arrays -->
+        <div class="discriminator-dropdown-header">
+          <span>{{ humanizeType(discriminator) }}</span>
+          <ScalarDropdown>
+            <ScalarButton
+              variant="ghost"
+              size="sm">
+              {{
+                getModelNameFromSchema(
+                  optimizedValue.items[discriminator][selectedSchemaIndex],
+                ) || 'Schema'
+              }}
+              <ScalarIcon
+                icon="ChevronDown"
+                size="sm" />
+            </ScalarButton>
+            <template #items>
+              <ScalarDropdownItem
+                v-for="(schema, index) in optimizedValue.items[discriminator]"
+                :key="index"
+                @click="selectedSchemaIndex = index">
+                {{ getModelNameFromSchema(schema) || `Schema ${index + 1}` }}
+              </ScalarDropdownItem>
+            </template>
+          </ScalarDropdown>
+        </div>
+        <div class="discriminator-panel">
+          <Schema
+            :compact="compact"
+            :level="level + 1"
+            :schemas="schemas"
+            :value="optimizedValue.items[discriminator][selectedSchemaIndex]" />
+        </div>
       </div>
     </template>
   </li>
@@ -331,16 +523,23 @@ const discriminatorType = discriminators.find((r) => {
 <style scoped>
 .property {
   color: var(--scalar-color-1);
+  display: flex;
+  flex-direction: column;
   padding: 10px;
   font-size: var(--scalar-mini);
 }
 
-.property:last-of-type {
-  padding-bottom: 0;
-}
-
 .property--compact.property--level-0 {
   padding: 12px 0;
+}
+
+.discriminator-panel .property--compact.property--level-0 {
+  padding: 0;
+}
+
+.discriminator-panel .property--compact.property--level-0 .property {
+  gap: 0;
+  padding: 12px 8px;
 }
 
 .property--deprecated {
@@ -409,12 +608,9 @@ const discriminatorType = discriminators.find((r) => {
 }
 
 .property-rule {
+  border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-
-  margin-top: 12px;
-  border-radius: var(--scalar-radius-lg);
 }
 
 .property-enum-value {
@@ -481,5 +677,42 @@ const discriminatorType = discriminators.find((r) => {
 }
 .enum-toggle-button-icon--open {
   transform: rotate(45deg);
+}
+.model-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.model-tab {
+  padding: 6px 12px;
+  border-radius: var(--scalar-radius);
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
+  background: var(--scalar-background-2);
+  color: var(--scalar-color-2);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.model-tab:hover {
+  color: var(--scalar-color-1);
+}
+
+.model-tab--selected {
+  background: var(--scalar-background-1);
+  color: var(--scalar-color-1);
+  border-color: var(--scalar-color-primary);
+}
+
+.model-reference {
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
+  margin: 6px 0;
+  padding-left: 10px;
 }
 </style>

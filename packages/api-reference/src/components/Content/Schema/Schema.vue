@@ -26,6 +26,11 @@ const props = withDefaults(
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
     hideHeading?: boolean
+    schemas?:
+      | OpenAPIV2.DefinitionsObject
+      | Record<string, OpenAPIV3.SchemaObject>
+      | Record<string, OpenAPIV3_1.SchemaObject>
+      | unknown
   }>(),
   { level: 0 },
 )
@@ -51,13 +56,19 @@ const handleClick = (e: MouseEvent) =>
         { 'schema-card--compact': compact, 'schema-card--open': open },
       ]">
       <div
-        v-if="value?.description && typeof value.description === 'string'"
+        v-if="
+          value?.description &&
+          typeof value.description === 'string' &&
+          !value.allOf
+        "
         class="schema-card-description">
         <ScalarMarkdown :value="value.description" />
       </div>
       <div
         class="schema-properties"
-        :class="{ 'schema-properties-open': open }">
+        :class="{
+          'schema-properties-open': open,
+        }">
         <DisclosureButton
           v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
@@ -113,7 +124,8 @@ const handleClick = (e: MouseEvent) =>
                   value.required?.includes(property) ||
                   value.properties?.[property]?.required === true
                 "
-                :value="value.properties?.[property]" />
+                :value="value.properties?.[property]"
+                :schemas="schemas" />
             </template>
             <template v-if="value.patternProperties">
               <SchemaProperty
@@ -123,7 +135,8 @@ const handleClick = (e: MouseEvent) =>
                 :level="level"
                 :name="property"
                 pattern
-                :value="value.patternProperties?.[property]" />
+                :value="value.patternProperties?.[property]"
+                :schemas="schemas" />
             </template>
             <template v-if="value.additionalProperties">
               <!--
@@ -153,7 +166,8 @@ const handleClick = (e: MouseEvent) =>
                 :compact="compact"
                 :level="level"
                 noncollapsible
-                :value="value.additionalProperties" />
+                :value="value.additionalProperties"
+                :schemas="schemas" />
             </template>
           </template>
           <template v-else>
@@ -161,7 +175,8 @@ const handleClick = (e: MouseEvent) =>
               :compact="compact"
               :level="level"
               :name="(value as OpenAPIV2.SchemaObject).name"
-              :value="value" />
+              :value="value"
+              :schemas="schemas" />
           </template>
         </DisclosurePanel>
       </div>
@@ -210,6 +225,9 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-properties {
   width: fit-content;
 }
+.schema-card-description {
+  margin-top: 6px;
+}
 .schema-card-description + .schema-properties {
   width: fit-content;
 }
@@ -220,23 +238,23 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-card--open {
   width: 100%;
 }
-.schema-card .property:last-of-type {
-  padding-bottom: 10px;
-}
 
 .schema-properties {
   display: flex;
   flex-direction: column;
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
+  border-radius: var(--scalar-radius-xl);
   width: fit-content;
+}
+.schema-properties-name {
+  width: 100%;
 }
 .schema-properties .schema-properties {
   border-radius: 13.5px;
 }
 .schema-properties .schema-properties.schema-properties-open {
-  border-radius: 13.5px 13.5px 9px 9px;
+  border-radius: var(--scalar-radius-xl) var(--scalar-radius-xl) 9px 9px;
 }
 .schema-properties-open {
   width: 100%;
@@ -280,13 +298,7 @@ button.schema-card-title:hover {
   display: block;
   margin-bottom: 6px;
 }
-.schema-card-description:first-of-type {
-  padding-top: 10px;
-}
 .children .schema-card-description:first-of-type {
   padding-top: 0;
-}
-.models-list-item .schema-properties {
-  margin-bottom: 10px;
 }
 </style>
