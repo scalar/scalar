@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.2.55
+
+### Patch Changes
+
+- d078633: fix: updates top nav icon logic
+- 0d4520f: fix(themes): improve how we handle zoomed in screens
+- 98323b8: feat: adds command palette import curl
+- eb3bb7f: fix: sets error cue on invalid param request
+- ea19156: fix: routing to the api client modal
+- Updated dependencies [0d4520f]
+  - @scalar/components@0.13.28
+  - @scalar/use-hooks@0.1.25
+  - @scalar/themes@0.9.71
+  - @scalar/use-codemirror@0.11.73
+  - @scalar/oas-utils@0.2.110
+  - @scalar/import@0.2.30
+  - @scalar/postman-to-openapi@0.1.33
+
 ## 2.2.54
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.28
+
+### Patch Changes
+
+- 0d4520f: fix(themes): improve how we handle zoomed in screens
+- Updated dependencies [0d4520f]
+  - @scalar/use-hooks@0.1.25
+  - @scalar/themes@0.9.71
+  - @scalar/code-highlight@0.0.23
+
 ## 0.13.27
 
 ### Patch Changes

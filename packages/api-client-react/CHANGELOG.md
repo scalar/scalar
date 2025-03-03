@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.1.35
+
+### Patch Changes
+
+- ea19156: fix: routing to the api client modal
+- Updated dependencies [d078633]
+- Updated dependencies [0d4520f]
+- Updated dependencies [98323b8]
+- Updated dependencies [eb3bb7f]
+- Updated dependencies [ea19156]
+  - @scalar/api-client@2.2.55
+
 ## 1.1.34
 
 ### Patch Changes

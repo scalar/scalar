@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.71
+
+### Patch Changes
+
+- 0d4520f: fix(themes): improve how we handle zoomed in screens
+
 ## 0.9.70
 
 ### Patch Changes
