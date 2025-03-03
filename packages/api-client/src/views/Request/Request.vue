@@ -1,25 +1,24 @@
 <script setup lang="ts">
-import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
 
 import EmptyState from '@/components/EmptyState.vue'
-import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
 import { importCurlCommand } from '@/libs/importers/curl'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
+const { events } = useWorkspace()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 
 const { isSidebarOpen } = useSidebar()
+
+const workspaceContext = useWorkspace()
 const { layout } = useLayout()
 
 const {
@@ -30,22 +29,9 @@ const {
   activeServer,
   activeEnvVariables,
   activeEnvironment,
-  activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
-
-const workspaceContext = useWorkspace()
-const { modalState, requestHistory, requestMutators, serverMutators, servers } =
-  workspaceContext
-
-// Extend the RequestPayload type to include url
-type ExtendedRequestPayload = RequestPayload & {
-  url?: string
-}
-
-const parsedCurl = ref<ExtendedRequestPayload>()
-const selectedServerUid = ref('')
-const router = useRouter()
+const { modalState, requestHistory } = workspaceContext
 
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
@@ -66,68 +52,14 @@ const selectedSecuritySchemeUids = computed(
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
 
-function createRequestFromCurl({
-  requestName,
-  collectionUid,
-}: {
-  requestName: string
-  collectionUid: string
-}) {
-  if (!parsedCurl.value) return
-
-  const collection = activeWorkspaceCollections.value.find(
-    (c) => c.uid === collectionUid,
-  )
-
-  if (!collection) return
-
-  const isDrafts = collection?.info?.title === 'Drafts'
-
-  // Prevent adding servers to drafts
-  if (!isDrafts && parsedCurl.value.servers) {
-    // Find existing server to avoid duplication
-    const existingServer = Object.values(servers).find(
-      (s) => s.url === parsedCurl?.value?.servers?.[0],
-    )
-    if (existingServer) {
-      selectedServerUid.value = existingServer.uid
-    } else {
-      selectedServerUid.value = serverMutators.add(
-        { url: parsedCurl.value.servers[0] ?? '/' },
-        collection.uid,
-      ).uid
-    }
-  }
-
-  // Add the request and use the url if it's a draft as a path
-  const newRequest = requestMutators.add(
-    {
-      summary: requestName,
-      path: isDrafts ? parsedCurl?.value?.url : parsedCurl?.value?.path,
-      method: parsedCurl?.value?.method,
-      parameters: parsedCurl?.value?.parameters,
-      selectedServerUid: isDrafts ? undefined : selectedServerUid.value,
-      requestBody: parsedCurl?.value?.requestBody,
-    },
-    collection.uid,
-  )
-
-  if (newRequest && activeWorkspace.value?.uid) {
-    router.push({
-      name: 'request',
-      params: {
-        [PathId.Workspace]: activeWorkspace.value.uid,
-        [PathId.Collection]: collection.uid,
-        [PathId.Request]: newRequest.uid,
-      },
-    })
-  }
-  modalState.hide()
-}
-
 function handleCurlImport(curl: string) {
-  parsedCurl.value = importCurlCommand(curl)
-  modalState.show()
+  events.commandPalette.emit({
+    commandName: 'Import from cURL',
+    metaData: {
+      parsedCurl: importCurlCommand(curl),
+      collectionUid: activeCollection.value?.uid,
+    },
+  })
 }
 </script>
 
@@ -182,14 +114,6 @@ function handleCurlImport(curl: string) {
 
   <!-- No Collection or Workspace -->
   <EmptyState v-else />
-
-  <ImportCurlModal
-    v-if="parsedCurl"
-    :collectionUid="activeCollection?.uid ?? ''"
-    :parsedCurl="parsedCurl"
-    :state="modalState"
-    @close="modalState.hide()"
-    @importCurl="createRequestFromCurl" />
 </template>
 
 <style scoped>

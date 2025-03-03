@@ -18,6 +18,7 @@ import {
   isPostmanCollection,
   isUrl,
 } from '@/libs'
+import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -33,8 +34,8 @@ const emits = defineEmits<{
 
 const router = useRouter()
 
-const { activeWorkspace } = useActiveEntities()
-const { importSpecFile, importSpecFromUrl } = useWorkspace()
+const { activeWorkspace, activeCollection } = useActiveEntities()
+const { importSpecFile, importSpecFromUrl, events } = useWorkspace()
 const { toast } = useToasts()
 const loader = useLoadingState()
 
@@ -171,6 +172,20 @@ async function importCollection() {
     toast(`Import failed: ${errorMessage}`, 'error')
   }
 }
+
+const handleInput = (value: string) => {
+  if (value.trim().toLowerCase().startsWith('curl')) {
+    events.commandPalette.emit({
+      commandName: 'Import from cURL',
+      metaData: {
+        parsedCurl: importCurlCommand(value),
+        collectionUid: activeCollection.value?.uid,
+      },
+    })
+    return
+  }
+  inputContent.value = value
+}
 </script>
 <template>
   <CommandActionForm
@@ -179,8 +194,9 @@ async function importCollection() {
     @submit="importCollection">
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
-        v-model="inputContent"
-        placeholder="OpenAPI/Swagger/Postman URL or document"
+        :modelValue="inputContent"
+        @update:modelValue="handleInput"
+        placeholder="OpenAPI/Swagger/Postman URL or cURL"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
@@ -228,7 +244,7 @@ async function importCollection() {
           </template>
           <template #content>
             <div
-              class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
+              class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
               <div class="text-c-2 flex items-center">
                 <span
                   v-if="isInputUrl"
