@@ -148,11 +148,11 @@ export function useModal() {
   flex-direction: column;
   max-height: 440px;
 }
-@media (max-height: 320px) {
-  /*
-   * Allow the modal to fill more space on
-   * very short (or very zoomed in) screens
-   */
+/*
+ * Allow the modal to fill more space on
+ * very short (or very zoomed in) screens
+ */
+@screen zoomed {
   .scalar-modal-layout .scalar-modal {
     margin-top: 5svh;
     max-height: 90svh;

@@ -134,11 +134,18 @@ export default {
       5: 'var(--scalar-line-height-5)',
     },
     screens: {
+      /** Mobile */
       xs: '400px',
+      /** Large Mobile */
       sm: '600px',
+      /** Tablet */
       md: '800px',
+      /** Desktop */
       lg: '1000px',
+      /** Ultrawide and larger */
       xl: '1200px',
+      /** Custom breakpoint for zoomed in screens (should trigger at about 200% zoom) */
+      zoomed: { raw: '(max-width: 720px) and (max-height: 480px)' },
     },
     zIndex: {
       '-1': '-1',

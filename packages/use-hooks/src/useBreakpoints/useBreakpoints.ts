@@ -13,7 +13,10 @@ export function useBreakpoints() {
   const screens = preset.theme.screens
 
   const mediaQueries = Object.fromEntries(
-    Object.entries(screens).map(([breakpoint, value]) => [breakpoint, useMediaQuery(`(min-width: ${value})`)]),
+    Object.entries(screens).map(([breakpoint, value]) => [
+      breakpoint,
+      useMediaQuery(typeof value === 'string' ? `(min-width: ${value})` : value.raw),
+    ]),
   ) as Record<Screen, Ref<boolean>>
 
   // We make the breakpoints a computed object so that we can use them in templates as `breakpoints.x` instead of `breakpoints.x.value`
@@ -27,9 +30,9 @@ export function useBreakpoints() {
   return {
     /** The screen sizes defined in the preset */
     screens,
-    /** Min-width reactive media queries for each of the screen sizes */
+    /** Reactive media queries for each of the screen sizes */
     mediaQueries,
-    /** The breakpoints as reactive min-width media queries */
+    /** The breakpoints as reactive media queries */
     breakpoints,
   }
 }
