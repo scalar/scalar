@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useWorkspace } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
@@ -21,6 +22,11 @@ const {
   transformedOperation: TransformedOperation
   collection: Collection | undefined
   server: Server | undefined
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const store = useWorkspace()
@@ -51,7 +57,8 @@ const { operation } = useBlockProps({
         :collection="collection"
         :operation="operation"
         :server="server"
-        :transformedOperation="transformedOperation" />
+        :transformedOperation="transformedOperation"
+        :schemas="schemas" />
     </template>
     <template v-else>
       <ModernLayout
@@ -59,7 +66,8 @@ const { operation } = useBlockProps({
         :collection="collection"
         :operation="operation"
         :server="server"
-        :transformedOperation="transformedOperation" />
+        :transformedOperation="transformedOperation"
+        :schemas="schemas" />
     </template>
   </template>
 </template>
