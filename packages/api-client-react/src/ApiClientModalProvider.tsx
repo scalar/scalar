@@ -5,6 +5,8 @@ import type { ClientConfiguration, OpenClientPayload } from '@scalar/api-client/
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
+export type { OpenClientPayload }
+
 import { clientStore } from './client-store'
 
 import './style.css'

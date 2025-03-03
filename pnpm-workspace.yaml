@@ -4,3 +4,5 @@ packages:
   - 'packages/**/*'
   - 'playwright'
   - 'projects/**/*'
+  - '!**/.next/**' # To prevent next.js duplicates
+  - '!**/dist/**' # To prevent dist duplicates
