@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useActiveEntities } from '@scalar/api-client/store'
 import { ScalarErrorBoundary } from '@scalar/components'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -15,6 +16,11 @@ const props = defineProps<{
   tags: TagType[]
   spec: Spec
   layout?: 'modern' | 'classic'
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
@@ -65,7 +71,8 @@ const isLazy = (index: number) =>
             :collection="activeCollection"
             :layout="layout"
             :server="activeServer"
-            :transformedOperation="operation" />
+            :transformedOperation="operation"
+            :schemas="schemas" />
         </ScalarErrorBoundary>
       </Lazy>
     </Component>
