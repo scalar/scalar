@@ -1,5 +1,11 @@
 # @scalar/import
 
+## 0.2.30
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.110
+
 ## 0.2.29
 
 ### Patch Changes

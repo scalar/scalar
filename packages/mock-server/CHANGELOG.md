@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.2.117
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.110
+
 ## 0.2.116
 
 ### Patch Changes
