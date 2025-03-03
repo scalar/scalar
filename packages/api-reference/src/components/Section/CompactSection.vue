@@ -75,13 +75,6 @@ watch(
   z-index: 1;
   position: relative;
 }
-.collapsible-section .collapsible-section-trigger:after {
-  content: '';
-  height: 10px;
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-}
 .collapsible-section-trigger svg {
   color: var(--scalar-color-3);
   position: absolute;
@@ -97,5 +90,8 @@ watch(
   padding: 0;
   margin: 0;
   scroll-margin-top: 140px;
+}
+.collapsible-section:not(:last-child) .collapsible-section-content {
+  margin-bottom: 10px;
 }
 </style>
