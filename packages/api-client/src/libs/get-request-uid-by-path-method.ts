@@ -14,7 +14,7 @@ export const getRequestUidByPathMethod = (
   const resolvedRequestUid =
     requestUid ||
     Object.values(requests).find(
-      (item) => item.path.toLowerCase() === path?.toLowerCase() && item.method?.toLowerCase() === method?.toLowerCase(),
+      (item) => item.path.toLowerCase() === path?.toLowerCase() && item.method.toLowerCase() === method?.toLowerCase(),
     )?.uid
 
   return resolvedRequestUid || Object.keys(requests)[0]
