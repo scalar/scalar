@@ -2,12 +2,13 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { useLayout } from '@/hooks'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
+import { validateParameters } from '@/libs/validate-parameters'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
@@ -30,6 +31,7 @@ const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
 
 const requestAbortController = ref<AbortController>()
+const invalidParams = ref<Set<string>>(new Set())
 
 /**
  * Selected scheme UIDs
@@ -54,7 +56,8 @@ const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value || !activeCollection.value)
     return
 
-  // Parse the environment string
+  invalidParams.value = validateParameters(activeExample.value)
+
   const environmentValue =
     typeof activeEnvironment.value === 'object'
       ? activeEnvironment.value.value
@@ -68,7 +71,6 @@ const executeRequest = async () => {
     activeWorkspace.value?.cookies.map((c) => cookies[c]).filter(isDefined) ??
     []
 
-  // Sets server to non drafts request only
   const server =
     activeCollection.value?.info?.title === 'Drafts'
       ? undefined
@@ -118,6 +120,15 @@ useOpenApiWatcher()
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
 onBeforeUnmount(() => events.executeRequest.off(executeRequest))
+
+// Clear invalid params on parameter update
+watch(
+  () => activeExample.value?.parameters,
+  () => {
+    invalidParams.value.clear()
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -135,7 +146,7 @@ onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 
       <!-- Content -->
       <div class="flex h-full flex-1 flex-col">
-        <RouterView />
+        <RouterView :invalidParams="invalidParams" />
       </div>
     </div>
   </div>

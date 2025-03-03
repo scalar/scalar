@@ -35,6 +35,7 @@ const {
     enabled: boolean
     route: RouteLocationRaw
   }[]
+  invalidParams: Set<string>
 }>()
 
 const { requestExampleMutators } = useWorkspace()
@@ -203,7 +204,8 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         isGlobal
         isReadOnly
         :items="readOnlyEntries"
-        :workspace="workspace" />
+        :workspace="workspace"
+        :invalidParams="invalidParams" />
       <!-- Dynamic entries -->
       <RequestTable
         class="flex-1"
@@ -212,6 +214,7 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         :environment="environment"
         :items="params"
         :workspace="workspace"
+        :invalidParams="invalidParams"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />
     </div>

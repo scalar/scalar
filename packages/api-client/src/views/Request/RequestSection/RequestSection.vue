@@ -39,6 +39,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   example: RequestExample
+  invalidParams: Set<string>
   operation: Operation
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   server: Server | undefined
@@ -175,12 +176,14 @@ const activeWorkspaceCookies = computed(() =>
         :operation="operation"
         paramKey="path"
         title="Variables"
-        :workspace="workspace" />
+        :workspace="workspace"
+        :invalidParams="invalidParams" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="cookies"
         :readOnlyEntries="activeWorkspaceCookies"
@@ -192,6 +195,7 @@ const activeWorkspaceCookies = computed(() =>
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="headers"
         title="Headers"
@@ -201,6 +205,7 @@ const activeWorkspaceCookies = computed(() =>
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="query"
         title="Query Parameters"
