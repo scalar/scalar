@@ -26,7 +26,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Playwright binary cache
-        uses: actions/cache@0c907a75c2c80ebcb7f088228285e798b750cf8f
+        uses: actions/cache@d4323d4df104b026a6aa633fdb11d772146be0bf
         with:
           path: |
             ~/.cache/ms-playwright
