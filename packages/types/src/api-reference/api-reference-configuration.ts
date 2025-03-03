@@ -203,7 +203,7 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
       /** Custom CSS to be added to the page */
       customCss: z.string().optional(),
       /** onSpecUpdate is fired on spec/swagger content change */
-      onSpecUpdate: z.function().returns(z.void()).optional(),
+      onSpecUpdate: z.function().args(z.string()).returns(z.void()).optional(),
       /** onServerChange is fired on selected server change */
       onServerChange: z.function().args(z.string()).returns(z.void()).optional(),
       /**

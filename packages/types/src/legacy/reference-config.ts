@@ -169,9 +169,9 @@ export type ReferenceConfiguration = {
   /** Custom CSS to be added to the page */
   customCss?: string | undefined
   /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate?: (spec: string) => void
+  onSpecUpdate?: ((spec: string) => void) | undefined
   /** onServerChange is fired on selected server change */
-  onServerChange?: (server: string) => void
+  onServerChange?: ((server: string) => void) | undefined
   /** Prefill authentication */
   authentication?: Partial<AuthenticationState> | undefined
   /**
