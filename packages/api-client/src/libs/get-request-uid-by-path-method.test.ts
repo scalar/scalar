@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import { getRequestUidByPathMethod } from './get-request-uid-by-path-method'
 import { operationSchema, type Operation } from '@scalar/oas-utils/entities/spec'
 
@@ -34,15 +34,6 @@ describe('getRequestUidByPathMethod', () => {
 
   // Empty requests object for edge case testing
   const emptyRequests: Record<string, Operation> = {}
-
-  // Spy on console.log
-  beforeEach(() => {
-    vi.spyOn(console, 'log').mockImplementation(() => {})
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
 
   test('returns requestUid when provided in payload', () => {
     const result = getRequestUidByPathMethod(mockRequests, {
