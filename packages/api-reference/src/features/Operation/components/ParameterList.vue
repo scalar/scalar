@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import ParameterListItem from './ParameterListItem.vue'
 
@@ -9,6 +10,11 @@ withDefaults(
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean
+    schemas?:
+      | OpenAPIV2.DefinitionsObject
+      | Record<string, OpenAPIV3.SchemaObject>
+      | Record<string, OpenAPIV3_1.SchemaObject>
+      | unknown
   }>(),
   {
     showChildren: false,
@@ -31,7 +37,8 @@ withDefaults(
         :collapsableItems="collapsableItems"
         :parameter="item"
         :showChildren="showChildren"
-        :withExamples="withExamples" />
+        :withExamples="withExamples"
+        :schemas="schemas" />
     </ul>
   </div>
 </template>

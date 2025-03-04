@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
@@ -10,6 +11,7 @@ import {
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 
 import Schema from './Schema.vue'
+import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
@@ -30,6 +32,12 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
+    schemas?:
+      | OpenAPIV2.DefinitionsObject
+      | Record<string, OpenAPIV3.SchemaObject>
+      | Record<string, OpenAPIV3_1.SchemaObject>
+      | unknown
+    hideHeading?: boolean
   }>(),
   {
     level: 0,
@@ -69,6 +77,10 @@ const displayDescription = (
   }
 
   if (value?.patternProperties) {
+    return null
+  }
+
+  if (value?.allOf) {
     return null
   }
 
@@ -121,11 +133,35 @@ const discriminatorType = discriminators.find((r) => {
       r in optimizedValue.value.items)
   )
 })
+
+// Display the property heading if any of the following are true
+const displayPropertyHeading = (
+  value?: Record<string, any>,
+  name?: string,
+  additional?: boolean,
+  pattern?: boolean,
+  required?: boolean,
+) => {
+  return (
+    name ||
+    additional ||
+    pattern ||
+    value?.deprecated ||
+    value?.const ||
+    (value?.enum && value.enum.length === 1) ||
+    value?.type ||
+    value?.nullable === true ||
+    value?.writeOnly ||
+    value?.readOnly ||
+    required
+  )
+}
 </script>
 <template>
   <div
     class="property"
     :class="[
+      !displayDescription(description, optimizedValue) ? '' : '',
       `property--level-${level}`,
       {
         'property--compact': compact,
@@ -133,6 +169,15 @@ const discriminatorType = discriminators.find((r) => {
       },
     ]">
     <SchemaPropertyHeading
+      v-if="
+        displayPropertyHeading(
+          optimizedValue,
+          name,
+          additional,
+          pattern,
+          required,
+        )
+      "
       :additional="additional"
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :pattern="pattern"
@@ -289,26 +334,19 @@ const discriminatorType = discriminators.find((r) => {
     <template
       v-for="discriminator in discriminators"
       :key="discriminator">
-      <!-- Property -->
-      <div
+      <!-- Property discriminator -->
+      <SchemaDiscriminator
         v-if="optimizedValue?.[discriminator]"
-        class="property-rule">
-        <template
-          v-for="schema in optimizedValue[discriminator]"
-          :key="schema.id">
-          <Schema
-            :compact="compact"
-            :level="level + 1"
-            :noncollapsible="
-              Array.isArray(optimizedValue?.[discriminator]) &&
-              optimizedValue?.[discriminator].length === 1
-            "
-            :value="schema" />
-        </template>
-      </div>
-      <!-- Arrays -->
-      <div
-        v-if="
+        :discriminator="discriminator"
+        :value="optimizedValue"
+        :level="level"
+        :compact="compact"
+        :schemas="schemas"
+        :hideHeading="hideHeading" />
+
+      <!-- Array item discriminator -->
+      <SchemaDiscriminator
+        v-else-if="
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
           typeof optimizedValue.items === 'object' &&
@@ -316,14 +354,12 @@ const discriminatorType = discriminators.find((r) => {
           Array.isArray(optimizedValue.items[discriminator]) &&
           level < 3
         "
-        class="property-rule">
-        <Schema
-          v-for="schema in optimizedValue.items[discriminator]"
-          :key="schema.id"
-          :compact="compact"
-          :level="level + 1"
-          :value="schema" />
-      </div>
+        :discriminator="discriminator"
+        :value="optimizedValue.items"
+        :level="level"
+        :compact="compact"
+        :schemas="schemas"
+        :hideHeading="hideHeading" />
     </template>
   </div>
 </template>
@@ -331,15 +367,14 @@ const discriminatorType = discriminators.find((r) => {
 <style scoped>
 .property {
   color: var(--scalar-color-1);
-  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
   font-size: var(--scalar-mini);
 }
 
-.property:last-of-type {
-  padding-bottom: 0;
-}
-
-.property--compact.property--level-0 {
+.property--compact.property--level-0,
+.property--compact.property--level-1 {
   padding: 12px 0;
 }
 
@@ -409,12 +444,9 @@ const discriminatorType = discriminators.find((r) => {
 }
 
 .property-rule {
+  border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
-  gap: 6px;
-
-  margin-top: 12px;
-  border-radius: var(--scalar-radius-lg);
 }
 
 .property-enum-value {

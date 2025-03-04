@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -6,8 +7,14 @@ import { Schema } from '@/components/Content/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody } = defineProps<{ requestBody?: RequestBody }>()
-
+const { requestBody, schemas } = defineProps<{
+  requestBody?: RequestBody
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
+}>()
 const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
 )
@@ -37,7 +44,8 @@ if (requestBody?.content) {
       <Schema
         compact
         noncollapsible
-        :value="requestBody.content?.[selectedContentType]?.schema" />
+        :value="requestBody.content?.[selectedContentType]?.schema"
+        :schemas="schemas" />
     </div>
   </div>
 </template>

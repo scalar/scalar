@@ -5,6 +5,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { defineProps, useId } from 'vue'
 
@@ -38,6 +39,11 @@ defineProps<{
   operation: Operation
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const labelId = useId()
@@ -73,8 +79,12 @@ const labelId = useId()
             <ScalarMarkdown
               :value="operation.description"
               withImages />
-            <OperationParameters :operation="operation" />
-            <OperationResponses :operation="transformedOperation" />
+            <OperationParameters
+              :operation="operation"
+              :schemas="schemas" />
+            <OperationResponses
+              :operation="transformedOperation"
+              :schemas="schemas" />
           </div>
         </SectionColumn>
         <SectionColumn>
