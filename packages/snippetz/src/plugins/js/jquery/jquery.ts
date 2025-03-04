@@ -1,6 +1,6 @@
 import { jquery } from '@/httpsnippet-lite/esm/targets/javascript/jquery/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * js/jquery

@@ -1,6 +1,6 @@
 import { python3 } from '@/httpsnippet-lite/esm/targets/python/python3/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * python/python3

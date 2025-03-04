@@ -1,6 +1,6 @@
 import { asynchttp } from '@/httpsnippet-lite/esm/targets/java/asynchttp/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * java/asynchttp
