@@ -14,7 +14,7 @@ export const useApiClient = (): {
   client: typeof client
   init: (args: Props) => Promise<ApiClient>
 } => {
-  /** Iniitialize the API Client, must be called only once or we will reset the state */
+  /** Initialize the API Client, must be called only once or we will reset the state */
   const init = async (props: Props): Promise<ApiClient> => {
     const _client = (await createApiClientModal(props)) as ApiClient
 

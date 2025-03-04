@@ -5,6 +5,7 @@ const { isSidebarOpen, toggleSidebarOpen } = useSidebar()
 </script>
 <template>
   <button
+    :aria-pressed="isSidebarOpen"
     class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 rounded-lg p-2"
     type="button"
     @click="toggleSidebarOpen">

@@ -29,7 +29,6 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
-import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
 import type { HotKeyEvent } from '@/libs'
@@ -163,10 +162,23 @@ watch(
   },
 )
 
-const selectedResultId = computed(() => {
-  const result =
-    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
-  return result?.item?.id ? `#search-input-${result.item.id}` : undefined
+/** Screen reader label for the search input */
+const srLabel = computed<string>(() => {
+  const results = searchResultsWithPlaceholderResults.value
+  if (!results.length) return 'No results found'
+
+  const result = results[selectedSearchResult.value]?.item
+  if (!result) return 'No result selected'
+
+  const resultsFoundLabel = searchText.value.length
+    ? `${results.length} result${results.length === 1 ? '' : 's'} found, `
+    : ''
+
+  const selectedResultDescription = `, HTTP Method ${result.httpVerb}, Path ${result.path}`
+
+  const selectedResultLabel = `${result.title} ${selectedResultDescription}`
+
+  return `${resultsFoundLabel}Selected: ${selectedResultLabel}`
 })
 
 const handleClearDrafts = () => {
@@ -216,6 +228,9 @@ const handleClearDrafts = () => {
 }
 
 const toggleSearch = () => {
+  // Toggle the visibility
+  isSearchVisible.value = !isSearchVisible.value
+
   // If we're hiding the search, clear the text
   if (!isSearchVisible.value) {
     searchText.value = ''
@@ -223,13 +238,8 @@ const toggleSearch = () => {
 
   // If we're showing the search, focus it
   if (isSearchVisible.value) {
-    nextTick(() => {
-      searchInputRef.value?.focus()
-    })
+    nextTick(() => searchInputRef.value?.focus())
   }
-
-  // Simply toggle the visibility
-  isSearchVisible.value = !isSearchVisible.value
 }
 
 const showGettingStarted = computed(() =>
@@ -249,9 +259,10 @@ const showGettingStarted = computed(() =>
       #header />
     <template #content>
       <div class="bg-b-1 sticky top-0 z-20 flex h-12 items-center px-3">
-        <SidebarToggle
-          class="xl:hidden"
-          :class="[{ '!flex': layout === 'modal' }]" />
+        <!-- Holds space for the sidebar toggle -->
+        <div
+          class="size-8"
+          :class="{ 'xl:hidden': layout !== 'modal' }" />
         <WorkspaceDropdown v-if="layout !== 'modal'" />
         <span
           v-if="layout !== 'modal'"
@@ -260,9 +271,13 @@ const showGettingStarted = computed(() =>
         </span>
         <EnvironmentSelector v-if="layout !== 'modal'" />
         <button
+          :aria-pressed="isSearchVisible"
           class="ml-auto"
           type="button"
           @click="toggleSearch">
+          <span class="sr-only">
+            {{ isSearchVisible ? 'Hide' : 'Show' }} search
+          </span>
           <ScalarIcon
             class="text-c-3 hover:bg-b-2 p-1.75 max-h-8 max-w-8 rounded-lg text-sm"
             icon="Search" />
@@ -275,8 +290,8 @@ const showGettingStarted = computed(() =>
         <ScalarSearchInput
           ref="searchInputRef"
           v-model="searchText"
-          :aria-activedescendant="selectedResultId"
           :aria-controls="searchResultsId"
+          :label="srLabel"
           sidebar
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
