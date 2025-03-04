@@ -1,7 +1,7 @@
 FROM node:20-slim AS base
 
-# process init system
-RUN apt-get update && apt-get install -y --no-install-recommends dumb-init git
+# process init system and install necessary certificates
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init git ca-certificates && update-ca-certificates
 
 # Set Node.js memory limit to 8GB
 ENV NODE_OPTIONS="--max-old-space-size=8192"
