@@ -148,6 +148,8 @@ export const executePostResponseScripts = async (response: Response, scripts: Po
 
   // Execute each script in sequence
   for (const script of enabledScripts) {
+    const startTime = performance.now()
+
     try {
       console.log(`[Post-Response Script] Executing: ${script.name || 'Untitled Script'}`)
 
@@ -171,10 +173,17 @@ export const executePostResponseScripts = async (response: Response, scripts: Po
       // Execute the script with controlled context
       await scriptFn.call(globalProxy, globalProxy, context)
 
-      console.log(`[Post-Response Script] Completed: ${script.name || 'Untitled Script'}`)
+      const endTime = performance.now()
+      const duration = (endTime - startTime).toFixed(2)
+      console.log(`[Post-Response Script] Completed: ${script.name || 'Untitled Script'} (${duration}ms)`)
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      console.error(`[Post-Response Script] Error in ${script.name || 'Untitled Script'}:`, errorMessage)
+      const endTime = performance.now()
+      const duration = (endTime - startTime).toFixed(2)
+      console.error(
+        `[Post-Response Script] Error in ${script.name || 'Untitled Script'} (${duration}ms):`,
+        errorMessage,
+      )
     }
   }
 }
