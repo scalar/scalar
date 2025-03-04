@@ -1,2 +1,3 @@
 export * from './snippetz'
-export * from './types'
+
+export * from '@scalar/types/snippetz'

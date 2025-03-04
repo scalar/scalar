@@ -38,11 +38,6 @@
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
-    "./types": {
-      "import": "./dist/types/index.js",
-      "types": "./dist/types/index.d.ts",
-      "default": "./dist/types/index.js"
-    },
     "./plugins/swift/nsurlsession": {
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
@@ -229,7 +224,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/har-format": "^1.2.15",
+    "@scalar/types": "workspace:*",
     "vite": "^5.4.10"
   }
 }

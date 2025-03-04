@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { Target, TargetId } from '@scalar/snippetz/types'
+import type { Target, TargetId } from '@scalar/types/snippetz'
 import { ref } from 'vue'
 
-import { useHttpClientStore, type HttpClientState } from '../../../stores'
+import { useHttpClientStore, type HttpClientState } from '@/stores'
 
 // Use the template store to keep it accessible globally
 const {

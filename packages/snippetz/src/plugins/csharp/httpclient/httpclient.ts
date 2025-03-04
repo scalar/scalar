@@ -1,6 +1,6 @@
 import { httpclient } from '@/httpsnippet-lite/esm/targets/csharp/httpclient/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * csharp/httpclient

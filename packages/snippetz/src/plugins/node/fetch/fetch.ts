@@ -1,6 +1,6 @@
-import type { Plugin } from '@/types'
 import { arrayToObject } from '@/utils/arrayToObject'
 import { objectToString } from '@/utils/objectToString'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * node/fetch
