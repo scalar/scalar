@@ -1,9 +1,9 @@
 packages:
-  - examples/**/*
-  - integrations/**/*
-  - packages/**/*
-  - playwright
-  - projects/**/*
+  - 'examples/**/*'
+  - 'integrations/**/*'
+  - 'packages/**/*'
+  - 'playwright'
+  - 'projects/**/*'
   - '!**/.next/**' # To prevent next.js duplicates
   - '!**/dist/**' # To prevent dist duplicates
 onlyBuiltDependencies:
