@@ -29,15 +29,15 @@ function getParamsFromObject(
     return [{ name: newKey, value }]
   })
 }
-// Define all supported mime types
-const mimeTypes = [
+// Define preferred standard mime types (order indicates preference)
+const standardMimeTypes: ContentType[] = [
   'application/json',
   'application/octet-stream',
   'application/x-www-form-urlencoded',
   'application/xml',
   'multipart/form-data',
   'text/plain',
-] as const
+]
 
 /**
  * Get the request body from the operation.
@@ -47,30 +47,29 @@ export function getRequestBodyFromOperation(
   selectedExampleKey?: string | number,
   omitEmptyAndOptionalProperties?: boolean,
 ): {
-  mimeType: (typeof mimeTypes)[number]
+  mimeType: ContentType
   text?: string
   params?: {
     name: string
     value?: string
   }[]
 } | null {
-  // Get the content object from the operation
   const originalContent = operation.information?.requestBody?.content
   const content = normalizeMimeTypeObject(originalContent)
 
-  /**
-   *  Find the first mime type that is supported
-   *
-   * TODO: This is very fragile. There needs to be significantly more support for
-   * vendor specific content types (like application/vnd.github+json)
-   */
-  const mimeType = mimeTypes.find((currentMimeType: ContentType) => !!content?.[currentMimeType]) ?? 'application/json'
+  // First try to find a standard mime type
+  const mimeType =
+    standardMimeTypes.find((currentMimeType) => !!content?.[currentMimeType]) ??
+    ((Object.keys(content ?? {})[0] || 'application/json') as ContentType)
+
+  // Handle JSON-like content types (e.g., application/vnd.github+json)
+  const isJsonLike = mimeType.includes('json') || mimeType.endsWith('+json')
 
   /** Examples */
   const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
   // Let’s use the first example
-  const selectedExample = (examples ?? {})?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
+  const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
 
   if (selectedExample) {
     return {
@@ -99,7 +98,7 @@ export function getRequestBodyFromOperation(
   /**
    * FormData Parameters (Swagger 2.0)
    *
-   * “Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
+   * ”Form - Used to describe the payload of an HTTP request when either application/x-www-form-urlencoded,
    * multipart/form-data or both are used as the content type of the request (in Swagger's definition, the
    * consumes property of an operation). This is the only parameter type that can be used to send files,
    * thus supporting the file type. Since form parameters are sent in the payload, they cannot be declared
@@ -142,8 +141,8 @@ export function getRequestBodyFromOperation(
   // Get example from operation
   const example = requestBodyObject?.example ? requestBodyObject?.example : undefined
 
-  // JSON
-  if (mimeType === 'application/json') {
+  // Update the JSON handling section
+  if (isJsonLike) {
     const exampleFromSchema = requestBodyObject?.schema
       ? getExampleFromSchema(requestBodyObject?.schema, {
           mode: 'write',
