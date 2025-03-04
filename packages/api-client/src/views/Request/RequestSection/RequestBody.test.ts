@@ -175,4 +175,58 @@ describe('RequestBody.vue', () => {
     expect(wrapper.text()).toContain('Other')
     wrapper.unmount()
   })
+
+  it('keeps Content-Type header when switching to raw body type', async () => {
+    mockActiveExample.body = {
+      activeBody: 'formData',
+      formData: {
+        encoding: 'form-data',
+        value: [],
+      },
+    }
+
+    mockActiveExample.parameters = {
+      headers: [{ key: 'Content-Type', value: 'multipart/form-data', enabled: true }],
+      path: [],
+      cookies: [],
+      query: [],
+    }
+
+    const wrapper = mount(RequestBody, props)
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    await listbox.vm.$emit('update:modelValue', { id: 'json', label: 'JSON' })
+
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
+      { key: 'Content-Type', value: 'application/json', enabled: true },
+    ])
+
+    wrapper.unmount()
+  })
+
+  it('removes Content-Type header when switching to none body type', async () => {
+    mockActiveExample.body = {
+      activeBody: 'raw',
+      raw: {
+        encoding: 'json',
+        value: '',
+      },
+    }
+
+    mockActiveExample.parameters = {
+      headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
+      path: [],
+      cookies: [],
+      query: [],
+    }
+
+    const wrapper = mount(RequestBody, props)
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    await listbox.vm.$emit('update:modelValue', { id: 'none', label: 'None' })
+
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [])
+
+    wrapper.unmount()
+  })
 })
