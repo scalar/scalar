@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  Listbox,
-  ListboxButton,
-  ListboxOption,
-  ListboxOptions,
-} from '@headlessui/vue'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import {
   ScalarFloating,
   ScalarFloatingBackdrop,
@@ -12,7 +7,7 @@ import {
 } from '@scalar/components'
 import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { formatMs } from '@/libs/formatters'
@@ -31,8 +26,6 @@ const { operation, target } = defineProps<{
 const { requestHistory, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
-
-const selectedRequest = ref(requestHistory[0] ?? null)
 
 /** Use a local copy to prevent mutation of the reactive object */
 const history = computed(() =>
@@ -79,34 +72,36 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
 }
 </script>
 <template>
-  <Listbox
+  <Menu
     v-slot="{ open }"
-    v-model="selectedRequest">
+    as="div">
     <ScalarFloating
       :offset="0"
       resize
       :target="target">
       <!-- History -->
-      <ListboxButton
+      <MenuButton
         v-if="history?.length"
-        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 mr-1 rounded-lg p-1.5">
+        class="address-bar-history-button z-context-plus text-c-3 focus:text-c-1 relative mr-1 rounded-lg p-1.5">
         <ScalarIcon
           icon="History"
           size="sm"
           thickness="2.25" />
         <span class="sr-only">Request History</span>
-      </ListboxButton>
+      </MenuButton>
       <!-- History shadow and placement-->
       <template
         v-if="open"
         #floating="{ width }">
         <!-- History Item -->
-        <ListboxOptions
+        <MenuItems
           class="custom-scroll p-0.75 grid max-h-[inherit] grid-cols-[44px,1fr,repeat(3,auto)] items-center border-t"
+          static
           :style="{ width }">
-          <ListboxOption
+          <MenuItem
             v-for="(entry, index) in history"
             :key="entry.timestamp"
+            as="button"
             class="font-code *:ui-active:bg-b-2 text-c-2 contents text-sm font-medium *:flex *:h-8 *:cursor-pointer *:items-center *:rounded-none *:px-1.5 first:*:rounded-l last:*:rounded-r"
             :value="index"
             @click="handleHistoryClick(entry)">
@@ -126,13 +121,13 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
             <div>
               {{ httpStatusCodes[entry.response.status]?.name }}
             </div>
-          </ListboxOption>
-        </ListboxOptions>
+          </MenuItem>
+        </MenuItems>
         <ScalarFloatingBackdrop
           class="-top-[--scalar-address-bar-height] rounded-lg" />
       </template>
     </ScalarFloating>
-  </Listbox>
+  </Menu>
 </template>
 <style scoped>
 .address-bar-history-button:hover {
