@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/core"
+  },
   "keywords": [],
   "version": "0.0.0",
   "engines": {
@@ -21,22 +26,25 @@
   "type": "module",
   "main": "dist/index.js",
   "exports": {
-    "import": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./libs/html-rendering": {
+      "import": "./dist/libs/html-rendering/index.js",
+      "types": "./dist/libs/html-rendering/index.d.ts",
+      "default": "./dist/libs/html-rendering/index.js"
+    }
   },
   "files": [
     "dist",
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/core"
-  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "^5.1.1"
-  },
-  "dependencies": {},
-  "peerDependencies": {}
+    "@scalar/types": "workspace:*",
+    "vite": "^5.4.10"
+  }
 }
