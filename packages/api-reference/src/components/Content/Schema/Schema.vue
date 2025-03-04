@@ -59,7 +59,10 @@ const handleClick = (e: MouseEvent) =>
         v-if="
           value?.description &&
           typeof value.description === 'string' &&
-          !value.allOf
+          !value.allOf &&
+          !value.oneOf &&
+          !value.anyOf &&
+          !compact
         "
         class="schema-card-description">
         <ScalarMarkdown :value="value.description" />
@@ -118,14 +121,15 @@ const handleClick = (e: MouseEvent) =>
                 v-for="property in Object.keys(value?.properties)"
                 :key="property"
                 :compact="compact"
-                :level="level"
+                :level="level + 1"
                 :name="property"
                 :required="
                   value.required?.includes(property) ||
                   value.properties?.[property]?.required === true
                 "
                 :value="value.properties?.[property]"
-                :schemas="schemas" />
+                :schemas="schemas"
+                :hideHeading="hideHeading" />
             </template>
             <template v-if="value.patternProperties">
               <SchemaProperty
@@ -136,7 +140,8 @@ const handleClick = (e: MouseEvent) =>
                 :name="property"
                 pattern
                 :value="value.patternProperties?.[property]"
-                :schemas="schemas" />
+                :schemas="schemas"
+                :hideHeading="hideHeading" />
             </template>
             <template v-if="value.additionalProperties">
               <!--
@@ -158,7 +163,9 @@ const handleClick = (e: MouseEvent) =>
                   ...(typeof value.additionalProperties === 'object'
                     ? value.additionalProperties
                     : {}),
-                }" />
+                }"
+                :hideHeading="hideHeading"
+                :schemas="schemas" />
               <!-- Allows a specific type of additional property value -->
               <SchemaProperty
                 v-else
@@ -167,16 +174,17 @@ const handleClick = (e: MouseEvent) =>
                 :level="level"
                 noncollapsible
                 :value="value.additionalProperties"
-                :schemas="schemas" />
+                :schemas="schemas"
+                :hideHeading="hideHeading" />
             </template>
           </template>
           <template v-else>
             <SchemaProperty
               :compact="compact"
-              :level="level"
               :name="(value as OpenAPIV2.SchemaObject).name"
               :value="value"
-              :schemas="schemas" />
+              :schemas="schemas"
+              :hideHeading="hideHeading" />
           </template>
         </DisclosurePanel>
       </div>
@@ -197,7 +205,7 @@ const handleClick = (e: MouseEvent) =>
 .schema-card-title {
   height: var(--schema-title-height);
 
-  padding: 6px 10px;
+  padding: 6px 8px;
 
   display: flex;
   align-items: center;
@@ -225,14 +233,11 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-properties {
   width: fit-content;
 }
-.schema-card-description {
-  margin-top: 6px;
-}
 .schema-card-description + .schema-properties {
   width: fit-content;
 }
 .schema-card-description + .schema-properties {
-  margin-top: 12px;
+  margin-top: 8px;
 }
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
@@ -254,7 +259,7 @@ button.schema-card-title:hover {
   border-radius: 13.5px;
 }
 .schema-properties .schema-properties.schema-properties-open {
-  border-radius: var(--scalar-radius-xl) var(--scalar-radius-xl) 9px 9px;
+  border-radius: var(--scalar-radius-lg);
 }
 .schema-properties-open {
   width: 100%;

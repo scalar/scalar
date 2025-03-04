@@ -158,6 +158,11 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   white-space: nowrap;
 }
 
+.property-heading:has(+ .children),
+.property-heading:has(+ .property-rule) {
+  margin-bottom: 9px;
+}
+
 .property-heading > * {
   margin-right: 9px;
 }
