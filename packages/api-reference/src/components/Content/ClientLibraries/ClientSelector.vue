@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { Tab } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { TargetId } from '@scalar/snippetz/types'
+import type { TargetId } from '@scalar/types/snippetz'
 import { ref } from 'vue'
 
 import { useFeaturedHttpClients } from '@/components/Content/ClientLibraries/useFeaturedHttpClients'
-
-import { useHttpClientStore, type HttpClientState } from '../../../stores'
+import {
+  useHttpClientStore,
+  type HttpClientState,
+} from '@/stores/useHttpClientStore'
 
 defineProps<{
   /** The id of the tab panel that contains for the non featured clients */

@@ -1,5 +1,5 @@
 import type { Request } from '@/httpsnippet-lite/types/httpsnippet'
-import type { HarRequest } from '@/types'
+import type { HarRequest } from '@scalar/types/snippetz'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.

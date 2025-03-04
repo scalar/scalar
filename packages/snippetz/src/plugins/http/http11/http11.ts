@@ -1,4 +1,4 @@
-import type { Plugin } from '@/types'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * http/http1.1

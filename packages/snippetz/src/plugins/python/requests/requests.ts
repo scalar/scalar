@@ -1,6 +1,6 @@
 import { requests } from '@/httpsnippet-lite/esm/targets/python/requests/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * python/requests

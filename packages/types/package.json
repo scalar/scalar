@@ -43,6 +43,11 @@
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
     },
+    "./snippetz": {
+      "import": "./dist/snippetz/index.js",
+      "types": "./dist/snippetz/index.d.ts",
+      "default": "./dist/snippetz/index.js"
+    },
     "./legacy": {
       "import": "./dist/legacy/index.js",
       "types": "./dist/legacy/index.d.ts",
@@ -70,8 +75,8 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*",
     "vite": "^5.4.10",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "@types/har-format": "^1.2.15"
   }
 }
