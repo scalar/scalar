@@ -376,9 +376,6 @@ importers:
       '@scalar/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
