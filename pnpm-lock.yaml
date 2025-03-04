@@ -373,9 +373,9 @@ importers:
 
   integrations/express:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
+        version: link:../../packages/core
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
@@ -429,15 +429,21 @@ importers:
 
   integrations/fastify:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
-      '@scalar/types':
+        version: link:../../packages/core
+      '@scalar/openapi-parser':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/openapi-parser
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../../packages/openapi-types
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@fastify/basic-auth':
         specifier: ^5.1.1
@@ -451,21 +457,12 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../../packages/openapi-parser
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
-      github-slugger:
-        specifier: ^2.0.0
-        version: 2.0.0
-      magic-string:
-        specifier: ^0.30.8
-        version: 0.30.12
       rollup-plugin-node-externals:
         specifier: ^7.1.2
         version: 7.1.2(rollup@4.24.4)
@@ -481,9 +478,6 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
-      vue:
-        specifier: ^3.5.12
-        version: 3.5.12(typescript@5.6.2)
       yaml:
         specifier: ^2.4.5
         version: 2.6.0
@@ -509,12 +503,9 @@ importers:
 
   integrations/hono:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/core
     devDependencies:
       '@hono/node-server':
         specifier: ^1.11.0
@@ -1530,6 +1521,18 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  packages/core:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/draggable:
     dependencies:
@@ -17597,8 +17600,8 @@ packages:
   vue-component-type-helpers@2.0.21:
     resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
-  vue-component-type-helpers@2.2.4:
-    resolution: {integrity: sha512-F66p0XLbAu92BRz6kakHyAcaUSF7HWpWX/THCqL0TxySSj7z/nok5UUMohfNkkCm1pZtawsdzoJ4p1cjNqCx0Q==}
+  vue-component-type-helpers@2.2.8:
+    resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -25111,7 +25114,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.12(typescript@5.6.2)
-      vue-component-type-helpers: 2.2.4
+      vue-component-type-helpers: 2.2.8
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -38319,7 +38322,7 @@ snapshots:
 
   vue-component-type-helpers@2.0.21: {}
 
-  vue-component-type-helpers@2.2.4: {}
+  vue-component-type-helpers@2.2.8: {}
 
   vue-demi@0.14.10(vue@3.5.12(typescript@5.6.2)):
     dependencies:

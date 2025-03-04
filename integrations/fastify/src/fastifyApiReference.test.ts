@@ -1,6 +1,6 @@
 import FastifyBasicAuth, { type FastifyBasicAuthOptions } from '@fastify/basic-auth'
 import fastifySwagger from '@fastify/swagger'
-import type { OpenAPI } from '@scalar/types/legacy'
+import type { OpenAPI } from '@scalar/openapi-types'
 import Fastify from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 import YAML from 'yaml'

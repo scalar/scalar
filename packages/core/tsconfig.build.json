@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src"],
-  "exclude": ["dist", "test", "vite.config.ts", "**/*.test.ts"],
+  "exclude": ["test", "vite.config.ts", "rollup.config.ts", "**/*.test.ts"],
   "compilerOptions": {
-    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist",
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist/"
+    "noEmit": false,
+    "emitDeclarationOnly": true
   }
 }
