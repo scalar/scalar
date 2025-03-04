@@ -6,3 +6,20 @@ packages:
   - 'projects/**/*'
   - '!**/.next/**' # To prevent next.js duplicates
   - '!**/dist/**' # To prevent dist duplicates
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@todesktop/cli'
+  - core-js
+  - core-js-pure
+  - electron
+  - lefthook
+  - vue-demi
+ignoredBuiltDependencies:
+  - '@nestjs/core'
+  - '@swc/core'
+  - dtrace-provider
+  - esbuild
+  - msw
+  - protobufjs
+  - sharp
+  - workerd
