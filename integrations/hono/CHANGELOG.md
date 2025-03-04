@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.5.180
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.127
+
 ## 0.5.179
 
 ### Patch Changes

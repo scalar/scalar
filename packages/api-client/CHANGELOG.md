@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.56
+
+### Patch Changes
+
+- a5dc41f: fix: remove header update if initial body is set to raw
+
 ## 2.2.55
 
 ### Patch Changes
