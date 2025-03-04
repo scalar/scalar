@@ -134,6 +134,15 @@ const extendedRequestSchema = z.object({
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
+export const PostResponseSchema = z.object({
+  /** An optional name for the script */
+  name: z.string().optional(),
+  /** The code to execute */
+  code: z.string(),
+  /** Whether the script should be executed */
+  enabled: z.boolean().optional().default(true).catch(true),
+})
+
 /**
  * Post response scripts allow to execute arbitrary code after a response is received
  *
@@ -142,19 +151,11 @@ const extendedRequestSchema = z.object({
  * - Testing the response
  */
 export const xPostResponseSchema = z.object({
-  'x-post-response': z
-    .array(
-      z.object({
-        /** An optional name for the script */
-        name: z.string().optional(),
-        /** The code to execute */
-        code: z.string(),
-        /** Whether the script should be executed */
-        enabled: z.boolean().default(true).catch(true),
-      }),
-    )
-    .optional(),
+  'x-post-response': PostResponseSchema.array().optional(),
 })
+
+export type PostResponseScript = z.infer<typeof PostResponseSchema>
+export type PostResponseScripts = z.infer<typeof xPostResponseSchema>['x-post-response']
 
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
