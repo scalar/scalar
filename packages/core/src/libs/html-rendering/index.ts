@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@/types'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 
 /**
  * The CDN configuration for the Scalar API Reference.

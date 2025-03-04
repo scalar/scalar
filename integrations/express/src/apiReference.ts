@@ -1,5 +1,5 @@
 import type { ApiReferenceConfiguration } from '@/types'
-import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Request, Response } from 'express'
 
 /**

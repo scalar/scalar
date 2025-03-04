@@ -6,7 +6,7 @@ import {
   getPageTitle,
   getScriptTagContent,
   getScriptTags,
-} from './html-rendering'
+} from './index.ts'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {

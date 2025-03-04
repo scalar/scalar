@@ -1,0 +1,5 @@
+---
+'@scalar/core': minor
+---
+
+init :)
