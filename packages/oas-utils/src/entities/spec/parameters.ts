@@ -32,13 +32,16 @@ export const oasParameterSchema = z.object({
   style: parameterStyleSchema.optional(),
   example: z.unknown().optional(),
   examples: z
-    .record(
-      z.string(),
-      z.object({
-        value: z.unknown(),
-        summary: z.string().optional(),
-      }),
-    )
+    .union([
+      z.record(
+        z.string(),
+        z.object({
+          value: z.unknown(),
+          summary: z.string().optional(),
+        }),
+      ),
+      z.array(z.unknown()),
+    ])
     .optional(),
 }) satisfies ZodSchema<OpenAPI.Parameter>
 
