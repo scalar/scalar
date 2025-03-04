@@ -6,10 +6,10 @@ const createScriptContext = (response: Response) => {
   const globalProxy = new Proxy(
     {},
     {
-      get(target, prop) {
+      get(_, prop: string) {
         // Only allow access to specific globals
         const allowedGlobals = ['console', 'JSON', 'Math', 'Date', 'RegExp', 'String', 'Number', 'Boolean']
-        if (allowedGlobals.includes(prop as string)) {
+        if (allowedGlobals.includes(prop)) {
           return (globalThis as any)[prop]
         }
         return undefined
