@@ -1,7 +1,9 @@
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { indentWithTab, insertNewline } from '@codemirror/commands'
+import { history, historyKeymap } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
+import { javascript } from '@codemirror/lang-javascript'
 import { json } from '@codemirror/lang-json'
 import { xml } from '@codemirror/lang-xml'
 import { yaml } from '@codemirror/lang-yaml'
@@ -24,7 +26,6 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
-import { history, historyKeymap } from '@codemirror/commands'
 import { ScalarIcon } from '@scalar/components'
 import { type MaybeRefOrGetter, type Ref, computed, h, onBeforeUnmount, ref, render, toValue, watch } from 'vue'
 
@@ -249,6 +250,7 @@ const languageExtensions: {
   yaml: yaml,
   css: css,
   xml: xml,
+  javascript: javascript,
 }
 
 /** Generate  the list of extension from parameters */

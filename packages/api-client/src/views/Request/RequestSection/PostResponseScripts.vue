@@ -81,7 +81,7 @@ const removeScript = (index: number) => {
     <ViewLayoutCollapse
       class="w-full"
       :defaultOpen="false">
-      <template #title>Post Response Script</template>
+      <template #title>Post-Response Script</template>
       <template #actions>
         <ScalarButton
           class="text-c-1 hover:bg-b-3 py-0.75 flex h-full w-fit gap-1.5 px-1.5 font-normal"
@@ -124,7 +124,7 @@ const removeScript = (index: number) => {
             :code="script.code"
             :envVariables="activeEnvVariables"
             :environment="activeEnvironment"
-            language="html"
+            language="javascript"
             :modelValue="script.code"
             placeholder="Script"
             :workspace="activeWorkspace"
