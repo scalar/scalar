@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import legacyTheme from '../fixtures/legacyTheme.css?inline'
-import { migrateThemeVariables } from './legacy'
+import legacyTheme from '@test/fixtures/legacy-theme.css?raw'
+import { migrateThemeVariables } from './migrate-theme-variables.ts'
 
-describe('Legacy Utils', () => {
+describe('migrateThemeVariables', () => {
   it('Changes a legacy theme variable', () => {
     const res = migrateThemeVariables('--theme-color-1')
     expect(res).toBe('--scalar-color-1')

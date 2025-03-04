@@ -58,7 +58,7 @@ export type FastifyApiReferenceOptions = {
    *
    * Read more: https://github.com/scalar/scalar
    */
-  configuration?: ApiReferenceConfiguration
+  configuration?: Partial<ApiReferenceConfiguration>
   /**
    * The hooks for the API Reference.
    */

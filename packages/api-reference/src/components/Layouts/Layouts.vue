@@ -2,11 +2,12 @@
 /**
  * This component allows dynamic selection of various layout configurations
  */
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
+import type { InternalReferenceProps, ReferenceLayoutSlots } from '@/types'
+
 import ClassicLayout from './ClassicLayout.vue'
 import ModernLayout from './ModernLayout.vue'
 
-const props = defineProps<ReferenceLayoutProps>()
+const props = defineProps<InternalReferenceProps>()
 defineEmits<{
   (e: 'toggleDarkMode'): void
   (e: 'updateContent', v: string): void

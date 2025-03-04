@@ -1,16 +1,35 @@
 import type { HarRequest } from '@scalar/snippetz/types'
 import type { ThemeId } from '@scalar/themes'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
+export type { ApiReferenceConfiguration }
+// TODO: Just here for backwards compatibility (2025-02-21)
 export type { ReferenceConfiguration }
 
+/**
+ * Props for the ApiReference components, coming from user input
+ */
 export type ReferenceProps = {
-  configuration?: ReferenceConfiguration
+  configuration?: Partial<ApiReferenceConfiguration> | ReferenceConfiguration
 }
 
+/**
+ * Before the configuration is parsed, we can use the broader types.
+ */
 export type ReferenceLayoutProps = {
-  configuration: ReferenceConfiguration
+  configuration: Partial<ApiReferenceConfiguration> | ReferenceConfiguration
+  parsedSpec: Spec
+  rawSpec: string
+  isDark: boolean
+}
+
+/**
+ * After the configuration is parsed, we can use the stricter types.
+ */
+export type InternalReferenceProps = {
+  configuration: ApiReferenceConfiguration
   parsedSpec: Spec
   rawSpec: string
   isDark: boolean

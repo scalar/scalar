@@ -17,7 +17,11 @@ import {
   hasObtrusiveScrollbars,
   type ThemeId,
 } from '@scalar/themes'
-import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
+import {
+  apiReferenceConfigurationSchema,
+  type ApiReferenceConfiguration,
+} from '@scalar/types/api-reference'
+import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -33,20 +37,19 @@ import {
   watch,
 } from 'vue'
 
+import { Content } from '@/components/Content'
+import GettingStarted from '@/components/GettingStarted.vue'
+import { Sidebar } from '@/components/Sidebar'
+import { ApiClientModal } from '@/features/ApiClientModal'
+import { downloadSpecBus, downloadSpecFile, sleep } from '@/helpers'
+import { useNavState, useSidebar } from '@/hooks'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
-
-import { ApiClientModal } from '../features/ApiClientModal'
-import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
-import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
-} from '../types'
-import { Content } from './Content'
-import GettingStarted from './GettingStarted.vue'
-import { Sidebar } from './Sidebar'
+} from '@/types'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
@@ -57,6 +60,10 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+const configuration = computed(() =>
+  apiReferenceConfigurationSchema.parse(props.configuration),
+)
 
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
@@ -106,8 +113,8 @@ const {
 } = useNavState()
 
 // Need to set these in navState as a hack
-if (props.configuration.pathRouting) {
-  pathRouting.value = props.configuration.pathRouting
+if (configuration.value.pathRouting) {
+  pathRouting.value = configuration.value.pathRouting
 }
 
 // Front-end redirect
@@ -170,15 +177,15 @@ onMounted(() => {
 })
 
 const showRenderedContent = computed(
-  () => isLargeScreen.value || !props.configuration.isEditable,
+  () => isLargeScreen.value || !configuration.value.isEditable,
 )
 
 // To clear hash when scrolled to the top
 const debouncedScroll = useDebounceFn((value) => {
   const scrollDistance = value.target.scrollTop ?? 0
   if (scrollDistance < 50) {
-    const basePath = props.configuration.pathRouting
-      ? props.configuration.pathRouting.basePath
+    const basePath = configuration.value.pathRouting
+      ? configuration.value.pathRouting.basePath
       : window.location.pathname
 
     replaceUrlState('', basePath + window.location.search)
@@ -207,7 +214,7 @@ onServerPrefetch(() => {
   ctx.payload.data ||= defaultStateFactory()
 
   // Set initial hash value
-  if (props.configuration.pathRouting) {
+  if (configuration.value.pathRouting) {
     const id = getPathRoutingId(ctx.url)
     hash.value = id
     ctx.payload.data.hash = id
@@ -257,11 +264,8 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  proxyUrl: props.configuration.proxyUrl || props.configuration.proxy,
-  themeId: props.configuration.theme,
   useLocalStorage: false,
-  hideClientButton: props.configuration.hideClientButton,
-  integration: props.configuration._integration,
+  ...configuration.value,
 })
 // Populate the workspace store
 watch(
@@ -270,9 +274,9 @@ watch(
     spec &&
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
-      documentUrl: props.configuration.spec?.url,
+      documentUrl: configuration.value.spec?.url,
       setCollectionSecurity: true,
-      ...props.configuration,
+      ...configuration.value,
     }),
   { immediate: true },
 )
@@ -287,18 +291,18 @@ provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
-provide(CONFIGURATION_SYMBOL, props.configuration ?? {})
+provide(CONFIGURATION_SYMBOL, configuration.value)
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
+function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+  setter: (val: NonNullable<ApiReferenceConfiguration[K]>) => any,
 ) {
   watch(
-    () => props.configuration[key],
+    () => configuration.value[key],
     (newValue) => {
       if (typeof newValue !== 'undefined') setter(newValue)
     },
@@ -311,15 +315,13 @@ const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
 mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
 
-hideModels.value = props.configuration.hideModels ?? false
-defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
-
-useDeprecationWarnings(props.configuration)
+hideModels.value = configuration.value.hideModels ?? false
+defaultOpenAllTags.value = configuration.value.defaultOpenAllTags ?? false
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(props.configuration.theme, {
-    fonts: props.configuration.withDefaultFonts,
+  ${getThemeStyles(configuration.value.theme, {
+    fonts: configuration.value.withDefaultFonts,
   })}</style>`,
 )
 </script>

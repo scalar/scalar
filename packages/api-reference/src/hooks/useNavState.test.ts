@@ -3,6 +3,7 @@ import type { Heading, Tag } from '@scalar/types/legacy'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useNavState } from './useNavState'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -80,13 +81,13 @@ describe('useNavState', () => {
 
   describe('custom slug generation', () => {
     beforeEach(() => {
-      const mockConfig = {
+      const mockConfig = apiReferenceConfigurationSchema.parse({
         generateHeadingSlug: vi.fn().mockReturnValue('custom-heading'),
         generateModelSlug: vi.fn().mockReturnValue('custom-model'),
         generateTagSlug: vi.fn().mockReturnValue('custom-tag'),
         generateOperationSlug: vi.fn().mockReturnValue('custom-operation'),
         generateWebhookSlug: vi.fn().mockReturnValue('custom-webhook'),
-      }
+      })
       vi.mocked(useConfig).mockReturnValue(mockConfig)
       navState = useNavState()
     })

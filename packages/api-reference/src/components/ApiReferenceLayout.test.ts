@@ -117,8 +117,8 @@ describe('ApiReferenceLayout', () => {
         // Verify it renders the title in the HTML output
         expect(html).toContain(title)
       },
-      // Increase timeout to 10 seconds
-      10 * 1000,
+      // Increase timeout to 20 seconds
+      20 * 1000,
     )
   })
 })

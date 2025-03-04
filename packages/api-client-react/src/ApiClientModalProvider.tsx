@@ -1,7 +1,8 @@
 'use client'
 
 import type { createApiClientModalSync as CreateApiClientModalSync } from '@scalar/api-client/layouts/Modal'
-import type { ClientConfiguration, OpenClientPayload } from '@scalar/api-client/libs'
+import type { OpenClientPayload } from '@scalar/api-client/libs'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { PropsWithChildren } from 'react'
 import { createContext, useContext, useEffect, useRef, useSyncExternalStore } from 'react'
 
@@ -17,7 +18,7 @@ type Props = PropsWithChildren<{
   /** Choose a request to initially route to */
   initialRequest?: OpenClientPayload
   /** Configuration for the Api Client */
-  configuration?: ClientConfiguration
+  configuration?: Partial<ApiClientConfiguration>
 }>
 
 /** Ensures we only load createClient once */

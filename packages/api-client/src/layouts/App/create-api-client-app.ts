@@ -1,4 +1,5 @@
-import { type ClientConfiguration, createApiClient } from '@/libs'
+import { createApiClient } from '@/libs'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
 
 import ApiClientApp from './ApiClientApp.vue'
@@ -10,7 +11,7 @@ export const createApiClientApp = async (
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for API client */
-  configuration: ClientConfiguration = {},
+  configuration: Partial<ApiClientConfiguration> = {},
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side

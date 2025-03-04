@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { migrateThemeVariables } from '@scalar/themes'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
-import { useReactiveSpec } from '../hooks'
-import type { ReferenceProps } from '../types'
+import { useReactiveSpec } from '@/hooks'
+import type { ReferenceProps } from '@/types'
+
 import { Layouts } from './Layouts'
 
 const props = defineProps<ReferenceProps>()
@@ -17,45 +17,27 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
+const configuration = computed(() =>
+  apiReferenceConfigurationSchema.parse(props.configuration),
+)
+
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
-  overrideColorMode: props.configuration?.forceDarkModeState,
+  initialColorMode: configuration.value.darkMode ? 'dark' : undefined,
+  overrideColorMode: configuration.value.forceDarkModeState,
 })
 
 /** Update the dark mode state when props change */
 watch(
-  () => props.configuration?.darkMode,
+  () => configuration.value.darkMode,
   (isDark) => (isDarkMode.value = !!isDark),
 )
-
-const customCss = computed(() => {
-  if (!props.configuration?.customCss) return undefined
-  return migrateThemeVariables(props.configuration?.customCss)
-})
-
-// Set defaults as needed on the provided configuration
-const configuration = computed<ReferenceConfiguration>(() => ({
-  spec: {
-    content: undefined,
-    url: undefined,
-    ...props.configuration?.spec,
-  },
-  proxyUrl: undefined,
-  theme: 'default',
-  showSidebar: true,
-  isEditable: false,
-  ...props.configuration,
-  customCss: customCss.value,
-}))
 
 if (configuration.value?.metaData) {
   useSeoMeta(configuration.value.metaData)
 }
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxyUrl: toRef(
-    () => configuration.value.proxyUrl || configuration.value.proxy || '',
-  ),
+  proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
 
@@ -76,9 +58,13 @@ useFavicon(favicon)
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleColorMode()"
     @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
+    <template #footer>
+      <slot name="footer" />
+    </template>
     <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
+    <template #content-end>
+      <slot name="footer" />
+    </template>
   </Layouts>
 </template>
 <style>
