@@ -358,6 +358,28 @@ export type ReferenceConfiguration = {
    * @default false
    */
   hideClientButton?: boolean
+  /**
+   * A fully customizable list with callback which is placed above the server select
+   * This API is experimental and subject to change
+   */
+  versionSelect?: {
+    /**
+     * The label to display for the select
+     */
+    label: string
+    /**
+     * The callback to call when an option is selected
+     */
+    callback: (version: { id: string; label: string }) => void
+    /**
+     * The initial version to select by id
+     */
+    initialVersion?: string
+    /**
+     * The options for the select
+     */
+    versions: { id: string; label: string }[]
+  }
 }
 
 export type BaseParameter = {

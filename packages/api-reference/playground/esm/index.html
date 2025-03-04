@@ -28,6 +28,19 @@
         pathRouting: {
           basePath: '/v1',
         },
+        versionSelect: {
+          label: 'Applications',
+          callback: (option) => {
+            console.log('selected', option.id)
+            // Redirect to the applications page
+          },
+          initialVersion: 'app2', // set this based on which application page we are on
+          versions: [
+            { id: 'app1', label: 'App 1' },
+            { id: 'app2', label: 'App 2' },
+            { id: 'app3', label: 'App 3' },
+          ],
+        },
         redirect: (pathWithHash) => {
           if (pathWithHash.includes('#')) {
             const newPath = pathWithHash.replace(

@@ -5,7 +5,9 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
+import VersionSelect from '@/components/Content/Introduction/VersionSelect.vue'
 import { BaseUrl } from '@/features/BaseUrl'
+import { useConfig } from '@/hooks/useConfig'
 
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
@@ -28,6 +30,8 @@ const props = withDefaults(
 
 const { hideModels } = useSidebar()
 const { securitySchemes } = useWorkspace()
+const { versionSelect } = useConfig()
+
 const {
   activeCollection,
   activeEnvVariables,
@@ -67,11 +71,21 @@ const introCardsSlot = computed(() =>
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': layout === 'classic' }">
+            <!-- Version Select -->
+            <div
+              v-if="versionSelect?.versions"
+              class="scalar-client introduction-card-item">
+              <VersionSelect :versionSelect="versionSelect" />
+            </div>
+
+            <!-- Server Selector -->
             <div
               v-if="activeCollection?.servers?.length"
               class="scalar-client introduction-card-item divide-y text-sm [--scalar-address-bar-height:0px]">
               <BaseUrl />
             </div>
+
+            <!-- Authentication -->
             <div
               v-if="
                 activeCollection &&
@@ -91,6 +105,8 @@ const introCardsSlot = computed(() =>
                 title="Authentication"
                 :workspace="activeWorkspace" />
             </div>
+
+            <!-- Client Libraries -->
             <ClientLibraries class="introduction-card-item" />
           </div>
         </ScalarErrorBoundary>
