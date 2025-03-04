@@ -70,9 +70,6 @@ const shouldShowParameter = computed(() => {
           class="parameter-item-icon"
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
           thickness="1.5" />
-        <ScreenReader>
-          {{ open ? 'Collapse' : 'Expand' }}
-        </ScreenReader>
         <span class="parameter-item-name">
           {{ parameter.name }}
         </span>
@@ -83,7 +80,7 @@ const shouldShowParameter = computed(() => {
             :value="parameter.description" />
         </span>
         <div
-          class="absolute right-0 top-2.5 opacity-0 group-hover/parameter-item-trigger:opacity-100">
+          class="absolute right-0 top-2.5 opacity-0 group-focus-within/parameter-item-trigger:opacity-100 group-hover/parameter-item-trigger:opacity-100">
           <ContentTypeSelect
             v-if="shouldCollapse && props.parameter.content"
             class="parameter-item-content-type"

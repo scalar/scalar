@@ -11,14 +11,14 @@ defineProps<{
   <!-- Example -->
   <ScalarCodeBlock
     v-if="response?.example"
-    class="bg-b-2"
+    class="bg-b-2 -outline-offset-2"
     :content="response?.example"
     lang="json" />
 
   <!-- Schema -->
   <ScalarCodeBlock
     v-else-if="response?.schema"
-    class="bg-b-2"
+    class="bg-b-2 -outline-offset-2"
     :content="
       getExampleFromSchema(response?.schema, {
         emptyString: '…',

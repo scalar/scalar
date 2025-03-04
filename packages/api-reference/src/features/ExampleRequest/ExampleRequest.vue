@@ -228,11 +228,14 @@ function updateHttpClient(value: string) {
 <template>
   <Card
     v-if="availableTargets.length || customRequestExamples.length"
-    class="dark-mode">
+    :aria-labelledby="`${id}-header`"
+    class="dark-mode"
+    role="region">
     <CardHeader muted>
       <div
         :id="`${id}-header`"
         class="request-header">
+        <ScreenReader>Request Example for</ScreenReader>
         <HttpMethod
           as="span"
           class="request-method"
@@ -270,7 +273,7 @@ function updateHttpClient(value: string) {
         :id="`${id}-example`"
         class="code-snippet">
         <ScalarCodeBlock
-          class="bg-b-2"
+          class="bg-b-2 -outline-offset-2"
           :content="generatedCode"
           :hideCredentials="secretCredentials"
           :lang="language"

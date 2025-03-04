@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import ScreenReader from '@/components/ScreenReader.vue'
+
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
@@ -62,6 +64,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
     </div>
     <template v-else-if="value?.type">
       <SchemaPropertyDetail>
+        <ScreenReader>Type:</ScreenReader>
         <template v-if="value?.items?.type">
           {{ value.type }}
           {{ value.items.type }}[]
@@ -85,9 +88,10 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       <SchemaPropertyDetail v-if="value.uniqueItems">
         unique!
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.format">{{
-        value.format
-      }}</SchemaPropertyDetail>
+      <SchemaPropertyDetail v-if="value.format">
+        <ScreenReader>Format:</ScreenReader>
+        {{ value.format }}
+      </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="value.minimum !== undefined && value.exclusiveMinimum">
         <template #prefix>greater than:</template>
@@ -112,6 +116,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         v-if="value.pattern"
         code
         truncate>
+        <ScreenReader>Pattern:</ScreenReader>
         {{ value.pattern }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="$props.enum">enum</SchemaPropertyDetail>

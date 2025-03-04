@@ -93,7 +93,9 @@ const handleClick = (e: MouseEvent) =>
               :value="value" />
           </template>
         </DisclosureButton>
-        <DisclosurePanel :static="noncollapsible">
+        <DisclosurePanel
+          as="ul"
+          :static="noncollapsible">
           <template
             v-if="
               value.properties ||

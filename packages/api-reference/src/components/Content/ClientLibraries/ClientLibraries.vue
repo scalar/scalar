@@ -1,22 +1,76 @@
 <script setup lang="ts">
+import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
+import { ref, useId, watch } from 'vue'
+
 import { useHttpClientStore } from '../../../stores'
 import ClientSelector from './ClientSelector.vue'
+import { useFeatured } from './useFeatured'
 
-const { availableTargets, httpTargetTitle, httpClientTitle } =
-  useHttpClientStore()
+const {
+  availableTargets,
+  httpTargetTitle,
+  httpClientTitle,
+  httpClient,
+  setHttpClient,
+} = useHttpClientStore()
+const { featuredClients, isFeatured } = useFeatured()
+
+const index = ref(0)
+const morePanel = useId()
+
+watch(
+  httpClient,
+  (client) => {
+    if (!client) return
+
+    if (isFeatured(client))
+      index.value = featuredClients.findIndex((tab) => tab === client)
+  },
+  { immediate: true },
+)
+
+function handleChange(i: number) {
+  const tab = featuredClients[i]
+  if (!tab) return
+  setHttpClient(tab)
+}
 </script>
 <template>
   <div v-if="availableTargets.length">
-    <div class="client-libraries-heading">Client Libraries</div>
-    <div>
-      <ClientSelector />
-    </div>
-    <div
-      class="selected-client card-footer"
-      muted>
-      {{ httpClientTitle }}
-      {{ httpTargetTitle }}
-    </div>
+    <TabGroup
+      manual
+      :selectedIndex="index"
+      @change="handleChange">
+      <div class="client-libraries-heading">Client Libraries</div>
+      <TabList>
+        <ClientSelector
+          :featured="featuredClients"
+          :morePanel="morePanel" />
+      </TabList>
+      <TabPanels>
+        <template v-if="httpClient && isFeatured(httpClient)">
+          <!-- We just add fake tabs and swap the content -->
+          <TabPanel
+            v-for="(_, i) in featuredClients"
+            :key="i"
+            class="selected-client card-footer -outline-offset-2"
+            muted>
+            {{ httpClientTitle }}
+            {{ httpTargetTitle }}
+          </TabPanel>
+        </template>
+        <div
+          v-else
+          :id="morePanel"
+          class="selected-client card-footer -outline-offset-2"
+          muted
+          role="tabpanel"
+          tabindex="0">
+          {{ httpClientTitle }}
+          {{ httpTargetTitle }}
+        </div>
+      </TabPanels>
+    </TabGroup>
   </div>
 </template>
 <style scoped>

@@ -12,6 +12,7 @@ import {
   CardTab,
   CardTabHeader,
 } from '@/components/Card'
+import ScreenReader from '@/components/ScreenReader.vue'
 
 import { ExamplePicker } from '../ExampleRequest'
 import ExampleResponse from './ExampleResponse.vue'
@@ -94,7 +95,10 @@ const changeTab = (index: number) => {
 const showSchema = ref(false)
 </script>
 <template>
-  <Card v-if="orderedStatusCodes.length">
+  <Card
+    v-if="orderedStatusCodes.length"
+    aria-label="Example Responses"
+    role="region">
     <CardTabHeader
       muted
       x="as"
@@ -103,6 +107,7 @@ const showSchema = ref(false)
         v-for="statusCode in orderedStatusCodes"
         :key="statusCode"
         :aria-controls="id">
+        <ScreenReader>Status:</ScreenReader>
         {{ statusCode }}
       </CardTab>
 
@@ -135,6 +140,7 @@ const showSchema = ref(false)
           <ScalarCodeBlock
             v-if="showSchema && currentResponseWithExample"
             :id="id"
+            class="-outline-offset-2"
             :content="currentResponseWithExample"
             lang="json" />
           <ExampleResponse
