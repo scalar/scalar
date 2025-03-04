@@ -118,8 +118,34 @@ const extendedRequestSchema = z.object({
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
+export const PostResponseSchema = z.object({
+  /** An optional name for the script */
+  name: z.string().optional(),
+  /** The code to execute */
+  code: z.string(),
+  /** Whether the script should be executed */
+  enabled: z.boolean().optional().default(true).catch(true),
+})
+
+/**
+ * Post response scripts allow to execute arbitrary code after a response is received
+ *
+ * This is useful for:
+ * - Extracting data from the response, or
+ * - Testing the response
+ */
+export const xPostResponseSchema = z.object({
+  'x-post-response': PostResponseSchema.array().optional(),
+})
+
+export type PostResponseScript = z.infer<typeof PostResponseSchema>
+export type PostResponseScripts = z.infer<typeof xPostResponseSchema>['x-post-response']
+
 /** Unified request schema for client usage */
-export const requestSchema = oasRequestSchema.omit({ 'x-scalar-examples': true }).merge(extendedRequestSchema)
+export const requestSchema = oasRequestSchema
+  .omit({ 'x-scalar-examples': true })
+  .merge(extendedRequestSchema)
+  .merge(xPostResponseSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

@@ -18,6 +18,7 @@ import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import PostResponseScripts from '@/views/Request/RequestSection/PostResponseScripts.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
@@ -173,11 +174,11 @@ const activeWorkspaceCookies = computed(() =>
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="path"
         title="Variables"
-        :workspace="workspace"
-        :invalidParams="invalidParams" />
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
         :envVariables="envVariables"
@@ -223,10 +224,13 @@ const activeWorkspaceCookies = computed(() =>
         title="Body"
         :workspace="workspace" />
 
+      <ScalarErrorBoundary>
+        <PostResponseScripts :operation="operation" />
+      </ScalarErrorBoundary>
+
       <!-- Spacer -->
       <div class="-my-0.25 flex flex-grow" />
 
-      <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
           :collection="collection"
