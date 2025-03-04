@@ -33,6 +33,9 @@
       "**/aspnetcore/**/bin/**"
     ]
   },
+  "organizeImports": {
+    "enabled": true
+  },
   "formatter": {
     "formatWithErrors": false,
     "ignore": [
@@ -118,7 +121,7 @@
         "noNamespace": "warn",
         "noParameterAssign": "warn",
         "useAsConstAssertion": "warn",
-        "useBlockStatements": "off",
+        "useBlockStatements": "warn",
         "useForOf": "warn",
         "useNodejsImportProtocol": "warn",
         "useNumberNamespace": "warn",
@@ -166,7 +169,8 @@
         "noExportsInTest": "warn"
       },
       "performance": {
-        "noDelete": "off"
+        "noDelete": "off",
+        "noReExportAll": "warn"
       },
       "nursery": {
         "noDescendingSpecificity": "warn",
