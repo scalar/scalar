@@ -282,14 +282,36 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
   }
 }
 
-function openCommandPaletteRequest() {
-  events.commandPalette.emit({
-    commandName: 'Create Request',
-    metaData: {
-      itemUid: uid,
-      parentUid: parentUids[0],
-    },
-  })
+function addRequest(entityUid: string) {
+  const collectionUid = parentUids[0]
+    ? collections[parentUids[0]]?.uid || ''
+    : entityUid
+
+  // If the entity is a tag, add the tag name to the request
+  const requestData =
+    parentUids[0] && tags[entityUid]?.name
+      ? { tags: [tags[entityUid].name] }
+      : {}
+
+  const newRequest = requestMutators.add(
+    requestData,
+    collectionUid as Collection['uid'],
+  )
+
+  if (newRequest) {
+    router.push({
+      name: 'request',
+      params: {
+        workspace: activeWorkspace.value?.uid,
+        request: newRequest.uid,
+      },
+    })
+
+    // Focus the address bar
+    events.hotKeys.emit({
+      focusAddressBar: new KeyboardEvent('keydown', { key: 'l' }),
+    })
+  }
 }
 
 const watchIconColor = computed(() => {
@@ -303,7 +325,7 @@ const watchIconColor = computed(() => {
 
 const hasDraftRequests = computed(() => {
   return (
-    item.value.title == 'Drafts' &&
+    item.value.title === 'Drafts' &&
     layout !== 'modal' &&
     item.value.children.length > 0
   )
@@ -331,7 +353,7 @@ const shouldShowItem = computed(() => {
     :class="[
       (layout === 'modal' && parentUids.length > 1) ||
       (layout !== 'modal' && parentUids.length)
-        ? 'before:bg-border before:z-1 indent-border-line-offset mb-[.5px] before:pointer-events-none before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full'
+        ? 'before:bg-border indent-border-line-offset before:z-1 mb-[.5px] before:pointer-events-none before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full'
         : '',
     ]">
     <Draggable
@@ -366,7 +388,7 @@ const shouldShowItem = computed(() => {
               : 'text-sidebar-c-2',
           ]">
           <span class="line-clamp-1 w-full break-all pl-2 font-medium">
-            {{ item.title }}
+            {{ item.title || 'Untitled' }}
           </span>
           <div class="flex flex-row items-center gap-1">
             <!-- Menu -->
@@ -485,7 +507,7 @@ const shouldShowItem = computed(() => {
                 class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
-                @click.stop.prevent="openCommandPaletteRequest()">
+                @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIcon
                   icon="Add"
                   size="md"
@@ -575,7 +597,7 @@ const shouldShowItem = computed(() => {
                 class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
-                @click.stop.prevent="openCommandPaletteRequest()">
+                @click.stop.prevent="addRequest(item.entity.uid)">
                 <ScalarIcon
                   icon="Add"
                   size="md"
@@ -629,7 +651,7 @@ const shouldShowItem = computed(() => {
           class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 text-xs"
           :class="parentUids.length ? 'pl-9' : ''"
           variant="ghost"
-          @click="openCommandPaletteRequest()">
+          @click="addRequest(item.entity.uid)">
           <ScalarIcon
             icon="Add"
             size="sm" />

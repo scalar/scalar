@@ -46,6 +46,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Enter: { event: 'executeRequest', modifiers: ['default'] },
   b: { event: 'toggleSidebar', modifiers: ['default'] },
   k: { event: 'openCommandPalette', modifiers: ['default'] },
+  l: { event: 'focusAddressBar', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */
