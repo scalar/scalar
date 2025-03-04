@@ -224,6 +224,10 @@ const activeWorkspaceCookies = computed(() =>
         title="Body"
         :workspace="workspace" />
 
+      <ScalarErrorBoundary>
+        <PostResponseScripts :operation="operation" />
+      </ScalarErrorBoundary>
+
       <!-- Spacer -->
       <div class="-my-0.25 flex flex-grow" />
 
@@ -234,9 +238,6 @@ const activeWorkspaceCookies = computed(() =>
           :operation="operation"
           :server="server"
           :workspace="workspace" />
-      </ScalarErrorBoundary>
-      <ScalarErrorBoundary>
-        <PostResponseScripts :operation="operation" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>
