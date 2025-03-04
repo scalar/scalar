@@ -287,7 +287,12 @@ export function convertExampleToXScalar(example: RequestExample) {
 export function createParamInstance(param: RequestParameter) {
   const schema = param.schema as any
   const keys = Object.keys(param?.examples ?? {})
-  const firstExample = keys.length ? param.examples?.[keys[0]!] : null
+  const firstExample =
+    keys.length && !Array.isArray(param.examples)
+      ? param.examples?.[keys[0]!]
+      : Array.isArray(param.examples) && param.examples.length > 0
+        ? { value: param.examples[0] }
+        : null
 
   /**
    * TODO:
