@@ -51,7 +51,7 @@ jobs:
         run: pnpm vite-node scripts/update-snapshots.ts
       - name: Create Pull Request
         if: ${{ failure() && github.event_name != 'pull_request' }}
-        uses: peter-evans/create-pull-request@dd2324fc52d5d43c699a5636bcf19fceaa70c284
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e
         with:
           commit-message: 'test: update CDN API Reference snapshots'
           body: |
