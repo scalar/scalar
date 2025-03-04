@@ -13,9 +13,11 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { events } = useWorkspace()
+const { invalidParams } = defineProps<{
+  invalidParams: Set<string>
+}>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
-
+const { events } = useWorkspace()
 const { isSidebarOpen } = useSidebar()
 
 const workspaceContext = useWorkspace()
@@ -32,10 +34,6 @@ const {
   activeWorkspaceRequests,
 } = useActiveEntities()
 const { modalState, requestHistory } = workspaceContext
-
-const { invalidParams } = defineProps<{
-  invalidParams: Set<string>
-}>()
 
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),

@@ -29,7 +29,6 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
-import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
 import type { HotKeyEvent } from '@/libs'
@@ -249,9 +248,10 @@ const showGettingStarted = computed(() =>
       #header />
     <template #content>
       <div class="bg-b-1 sticky top-0 z-20 flex h-12 items-center px-3">
-        <SidebarToggle
-          class="xl:hidden"
-          :class="[{ '!flex': layout === 'modal' }]" />
+        <!-- Holds space for the sidebar toggle -->
+        <div
+          class="size-8"
+          :class="{ 'xl:hidden': layout !== 'modal' }" />
         <WorkspaceDropdown v-if="layout !== 'modal'" />
         <span
           v-if="layout !== 'modal'"
