@@ -1,1 +1,1 @@
-export type CodeMirrorLanguage = 'html' | 'json' | 'yaml' | 'css' | 'xml'
+export type CodeMirrorLanguage = 'html' | 'json' | 'yaml' | 'css' | 'xml' | 'javascript'
