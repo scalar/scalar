@@ -7,7 +7,6 @@ describe('no-dependencies', () => {
     const packageJson = readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8')
     const dependencies = JSON.parse(packageJson).dependencies
 
-    expect(dependencies).toBeDefined()
-    expect(Object.keys(dependencies)).toEqual([])
+    expect(dependencies).toBeUndefined()
   })
 })

@@ -1,3 +1,4 @@
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
 import {
   getConfiguration,
@@ -5,8 +6,7 @@ import {
   getScriptTagContent,
   getScriptTags,
   htmlRenderingOptionsSchema,
-} from './html-rendering'
-import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from '@scalar/types/api-reference'
+} from './index.ts'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
