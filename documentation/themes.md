@@ -152,7 +152,3 @@ We recommend updating your theme variables as soon as possible:
 - `--theme-*` → `--scalar-*`
 - `--sidebar-*` → `--scalar-sidebar-*`
 
-For a before and after example of an updated theme
-see [`legacyTheme.css`](/packages/themes/src/fixtures/legacyTheme.css)
-and [`updatedTheme.css`](/packages/themes/src/fixtures/updatedTheme.css)
-in the [`@scalar/themes`](/packages/themes/) package.

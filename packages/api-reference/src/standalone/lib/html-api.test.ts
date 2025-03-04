@@ -1,7 +1,13 @@
 import { getConfigurationFromDataAttributes } from '@/standalone/lib/html-api'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { describe, expect, it, vi } from 'vitest'
 
 describe('html-api', () => {
+  // Since we use zod now we have a base config
+  const baseConfig = apiReferenceConfigurationSchema.parse({
+    _integration: 'html',
+  })
+
   it('mountScalarApiReference', async () => {
     const doc = createHtmlDocument(`
     <html>
@@ -12,7 +18,7 @@ describe('html-api', () => {
   `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: undefined,
       spec: { url: '/openapi.json' },
     })
@@ -28,7 +34,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: undefined,
       spec: { content: '{"openapi":"3.1.0"}' },
     })
@@ -44,7 +50,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: 'https://proxy.example.com',
       spec: { url: '/spec.json' },
     })
@@ -60,7 +66,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       darkMode: true,
       proxyUrl: undefined,
       spec: { url: '/custom.json' },
@@ -78,7 +84,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: undefined,
       spec: { content: '{"openapi":"3.1.0"}' },
     })
@@ -98,7 +104,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: undefined,
       spec: { url: '/deprecated.json' },
     })
@@ -116,7 +122,7 @@ describe('html-api', () => {
       </html>
     `)
 
-    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({})
+    expect(getConfigurationFromDataAttributes(doc)).toStrictEqual(baseConfig)
     expect(consoleSpy).toHaveBeenCalledWith(
       'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
       'font-family: monospace;',
@@ -138,7 +144,7 @@ describe('html-api', () => {
     `)
 
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
-      _integration: 'html',
+      ...baseConfig,
       proxyUrl: undefined,
       spec: { url: '/priority.json' },
     })

@@ -5,23 +5,15 @@ import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } 
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
+import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
-import type { ApiReferenceConfiguration } from './types.ts'
 
 /**
  * Path to the bundled Scalar JavaScript file
  */
 const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
-
-/**
- * The default configuration for the API Reference.
- */
-const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
-  _integration: 'fastify',
-}
 
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route
@@ -128,6 +120,13 @@ export const customTheme = `
   --scalar-color-purple: #b191f9;
 }
 `
+
+/**
+ * The default configuration for Fastify
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'fastify',
+}
 
 const fastifyApiReference = fp<
   FastifyApiReferenceOptions,

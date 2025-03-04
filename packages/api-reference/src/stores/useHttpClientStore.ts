@@ -111,12 +111,9 @@ const excludedClients = ref<HiddenClients>({})
 const defaultHttpClient = ref<HttpClientState>()
 
 function setDefaultHttpClient(httpClient?: HttpClientState) {
-  if (httpClient === undefined) {
-    return
-  }
+  if (httpClient === undefined) return
 
   defaultHttpClient.value = httpClient
-
   setHttpClient(getDefaultHttpClient())
 }
 
@@ -124,7 +121,6 @@ function setDefaultHttpClient(httpClient?: HttpClientState) {
 const getDefaultHttpClient = (): HttpClientState => {
   // Check the configured HTTPcClient
   if (isClientAvailable(defaultHttpClient.value)) {
-    // @ts-expect-error Trust me, TypeScript. We checked whether it’s available.
     return defaultHttpClient.value
   }
 
@@ -141,7 +137,7 @@ const getDefaultHttpClient = (): HttpClientState => {
 }
 
 /** Look for the given HTTP client in the list of available clients */
-function isClientAvailable(httpClient?: HttpClientState) {
+function isClientAvailable(httpClient?: HttpClientState): httpClient is HttpClientState {
   if (httpClient === undefined) {
     return false
   }

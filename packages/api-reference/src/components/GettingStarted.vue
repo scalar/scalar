@@ -5,6 +5,7 @@ import { themeLabels, type ThemeId } from '@scalar/themes'
 defineProps<{
   theme: ThemeId
 }>()
+
 const emits = defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'loadSwaggerFile'): void
@@ -99,13 +100,13 @@ async function fetchExampleSpecification() {
             <g>
               <path
                 d="M22.5 1.5h-21A1.5 1.5 0 0 0 0 3v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 6V3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3A1.25 1.25 0 1 1 4.5 5.75 1.25 1.25 0 0 1 3.25 4.5ZM8.5 5.75A1.25 1.25 0 1 1 9.75 4.5 1.25 1.25 0 0 1 8.5 5.75Z"
-                fill="currentColor"></path>
+                fill="currentColor" />
               <path
                 d="M22.5 9h-21A1.5 1.5 0 0 0 0 10.5v3A1.5 1.5 0 0 0 1.5 15h21a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 22.5 9ZM3.25 12a1.25 1.25 0 1 1 1.25 1.25A1.25 1.25 0 0 1 3.25 12Zm5.25 1.25A1.25 1.25 0 1 1 9.75 12a1.25 1.25 0 0 1-1.25 1.25Z"
-                fill="currentColor"></path>
+                fill="currentColor" />
               <path
                 d="M22.5 16.5h-21A1.5 1.5 0 0 0 0 18v3a1.5 1.5 0 0 0 1.5 1.5h21A1.5 1.5 0 0 0 24 21v-3a1.5 1.5 0 0 0-1.5-1.5Zm-19.25 3a1.25 1.25 0 1 1 1.25 1.25 1.25 1.25 0 0 1-1.25-1.25Zm5.25 1.25a1.25 1.25 0 1 1 1.25-1.25 1.25 1.25 0 0 1-1.25 1.25Z"
-                fill="currentColor"></path>
+                fill="currentColor" />
             </g>
           </svg>
           <span>CDN</span>

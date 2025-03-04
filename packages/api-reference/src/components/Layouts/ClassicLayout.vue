@@ -5,9 +5,9 @@ import { computed } from 'vue'
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'
 import { SearchButton } from '@/features/Search'
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
+import type { InternalReferenceProps, ReferenceLayoutSlots } from '@/types'
 
-const props = defineProps<ReferenceLayoutProps>()
+const props = defineProps<InternalReferenceProps>()
 
 defineEmits<{
   (e: 'toggleDarkMode'): void
@@ -31,7 +31,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
       #[name]="slotProps">
       <slot
         :name="name"
-        v-bind="slotProps || {}"></slot>
+        v-bind="slotProps || {}" />
     </template>
     <template #content-start="{ spec }">
       <ClassicHeader>

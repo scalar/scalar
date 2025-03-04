@@ -16,7 +16,7 @@ export function migrateThemeVariables(styles: string): string {
   if (!hasLegacyPrefixes) return styles
 
   console.warn(
-    `DEPRECATION WARNING: It looks like you're using legacy CSS variables in your custom CSS string. Please migrate them to use the updated prefixes. See https://github.com/scalar/scalar#theme-prefix-changes`,
+    `DEPRECATION WARNING: It looks like you're using legacy CSS variables in your custom CSS string. Please migrate them to use the updated prefixes. See https://github.com/scalar/scalar/blob/main/documentation/themes.md#theme-prefix-changes`,
   )
 
   // Replaces each old variable in the prefix migrations

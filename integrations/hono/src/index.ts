@@ -1,2 +1,2 @@
-export * from './honoApiReference'
-export * from './types'
+export { apiReference } from './honoApiReference.ts'
+export type { ApiReferenceConfiguration } from './types.ts'

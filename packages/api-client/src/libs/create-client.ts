@@ -5,29 +5,14 @@ import { loadAllResources } from '@/libs/local-storage'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
-import { workspaceSchema, type Workspace } from '@scalar/oas-utils/entities/workspace'
+import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { OpenAPI, ReferenceConfiguration, SpecConfiguration } from '@scalar/types/legacy'
+import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
+import type { OpenAPI, SpecConfiguration } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
-
-/** Configuration options for the Scalar API client */
-export type ClientConfiguration = {
-  proxyUrl?: ReferenceConfiguration['proxyUrl']
-  themeId?: ReferenceConfiguration['theme']
-} & Pick<
-  ReferenceConfiguration,
-  | 'spec'
-  | 'showSidebar'
-  | 'servers'
-  | 'searchHotKey'
-  | 'authentication'
-  | 'baseServerURL'
-  | 'hideClientButton'
-  | '_integration'
->
 
 export type OpenClientPayload = (
   | {
@@ -50,7 +35,7 @@ export type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for API client */
-  configuration?: ClientConfiguration
+  configuration?: Partial<ApiClientConfiguration>
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -95,7 +80,7 @@ export type ApiClient = Omit<Awaited<ReturnType<typeof createApiClient>>, 'app' 
 export const createApiClient = ({
   el,
   appComponent,
-  configuration = {},
+  configuration: _configuration = {},
   isReadOnly = false,
   store: _store,
   persistData = true,
@@ -103,15 +88,18 @@ export const createApiClient = ({
   layout = 'desktop',
   router,
 }: CreateApiClientParams) => {
+  // Parse the config
+  const configuration = apiClientConfigurationSchema.parse(_configuration)
+
   // Create the store if it wasn't passed in
   const store =
     _store ||
     createWorkspaceStore({
       proxyUrl: configuration.proxyUrl,
-      themeId: configuration.themeId,
+      theme: configuration.theme,
       showSidebar: configuration.showSidebar ?? true,
       hideClientButton: configuration.hideClientButton ?? false,
-      integration: configuration._integration,
+      _integration: configuration._integration,
       useLocalStorage: persistData,
     })
 
@@ -211,9 +199,9 @@ export const createApiClient = ({
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
-        `Invalid HTML element provided.`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        '[@scalar/api-client-modal] Could not create the API client.',
+        'Invalid HTML element provided.',
+        'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
 
       return
@@ -240,9 +228,9 @@ export const createApiClient = ({
       })
     } else {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
-        `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        '[@scalar/api-client-modal] Could not create the API client.',
+        'Please provide an OpenAPI document: { spec: { url: "…" } }',
+        'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
     }
   }
@@ -274,7 +262,8 @@ export const createApiClient = ({
      *
      * Deletes the current store before importing again for now, in the future will Diff
      */
-    updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
+    updateConfig(_newConfig: Partial<ApiClientConfiguration>, mergeConfigs = true) {
+      const newConfig = apiClientConfigurationSchema.parse(_newConfig)
       if (mergeConfigs) {
         Object.assign(configuration ?? {}, newConfig)
       } else {

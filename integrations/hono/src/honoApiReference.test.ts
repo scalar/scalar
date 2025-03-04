@@ -1,15 +1,15 @@
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import { apiReference } from './honoApiReference'
+import { apiReference } from './honoApiReference.ts'
 
 describe('apiReference', () => {
   it('should return HTML with default theme CSS when no theme is provided', async () => {
     const app = new Hono()
-    const options = {
+    const config = {
       cdn: 'https://cdn.example.com',
       spec: { content: { info: { title: 'Test API' } } },
     }
-    app.get('/', apiReference(options))
+    app.get('/', apiReference(config))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -26,9 +26,9 @@ describe('apiReference', () => {
     app.get(
       '/',
       apiReference({
-        cdn: 'https://cdn.example.com',
         spec: { content: { info: { title: 'Test API' } } },
         theme: 'kepler',
+        cdn: 'https://cdn.example.com',
       }),
     )
 
