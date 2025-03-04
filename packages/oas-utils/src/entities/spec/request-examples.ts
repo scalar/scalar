@@ -287,12 +287,18 @@ export function convertExampleToXScalar(example: RequestExample) {
 export function createParamInstance(param: RequestParameter) {
   const schema = param.schema as any
   const keys = Object.keys(param?.examples ?? {})
-  const firstExample =
-    keys.length && !Array.isArray(param.examples)
-      ? param.examples?.[keys[0]!]
-      : Array.isArray(param.examples) && param.examples.length > 0
-        ? { value: param.examples[0] }
-        : null
+
+  const firstExample = (() => {
+    if (keys.length && !Array.isArray(param.examples)) {
+      return param.examples?.[keys[0]!]
+    }
+
+    if (Array.isArray(param.examples) && param.examples.length > 0) {
+      return { value: param.examples[0] }
+    }
+
+    return null
+  })()
 
   /**
    * TODO:
@@ -305,12 +311,17 @@ export function createParamInstance(param: RequestParameter) {
   )
 
   // Handle non-string enums and enums within items for array types
-  const parseEnum =
-    schema?.enum && schema?.type !== 'string'
-      ? schema.enum?.map(String)
-      : schema?.items?.enum && schema?.type === 'array'
-        ? schema.items.enum.map(String)
-        : schema?.enum
+  const parseEnum = (() => {
+    if (schema?.enum && schema?.type !== 'string') {
+      return schema.enum?.map(String)
+    }
+
+    if (schema?.items?.enum && schema?.type === 'array') {
+      return schema.items.enum.map(String)
+    }
+
+    return schema?.enum
+  })()
 
   // Handle non-string examples
   const parseExamples = schema?.examples && schema?.type !== 'string' ? schema.examples?.map(String) : schema?.examples
