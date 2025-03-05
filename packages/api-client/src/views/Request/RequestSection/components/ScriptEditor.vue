@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCodeMirror, type CodeMirrorLanguage } from '@scalar/use-codemirror'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { ref, toRef } from 'vue'
 
 const props = defineProps<{
@@ -12,10 +12,10 @@ const emit = defineEmits<{
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
-const { codeMirror } = useCodeMirror({
+useCodeMirror({
   codeMirrorRef,
   content: toRef(() => props.modelValue),
-  language: 'javascript' as CodeMirrorLanguage,
+  language: 'javascript',
   lineNumbers: true,
   onChange: (value) => {
     emit('update:modelValue', value)
