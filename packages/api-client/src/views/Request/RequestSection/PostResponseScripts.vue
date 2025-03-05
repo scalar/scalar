@@ -3,12 +3,13 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { Operation } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
-import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+
+import ScriptEditor from './components/ScriptEditor.vue'
 
 type PostResponseScript = {
   code: string
@@ -80,63 +81,23 @@ const removeScript = (index: number) => {
     class="w-full">
     <ViewLayoutCollapse
       class="w-full"
-      :defaultOpen="false">
-      <template #title>Post-Response Script</template>
+      :defaultOpen="true">
+      <template #title>Scripts</template>
       <template #actions>
-        <ScalarButton
-          class="text-c-1 hover:bg-b-3 py-0.75 flex h-full w-fit gap-1.5 px-1.5 font-normal"
-          fullWidth
-          variant="ghost"
-          @click="addNewScript">
-          <span>Create Script</span>
-          <ScalarIcon
-            icon="Add"
-            size="md" />
-        </ScalarButton>
+        <!-- Show an indicator whether we have scripts -->
+        <div class="mr-2">
+          <div
+            v-if="scripts.length > 0"
+            class="bg-green h-2 w-2 rounded-full" />
+        </div>
       </template>
 
-      <div
-        v-for="(script, index) in scripts"
-        :key="index"
-        class="flex flex-col gap-2">
-        <div class="flex p-2">
-          <DataTableCheckbox
-            class="border-l-1/2 border-b-1/2"
-            :modelValue="script.enabled"
-            @update:modelValue="toggleEnabled(index)" />
+      <div class="p-2">
+        <div class="text-c-3 pb-2 text-sm">Post-Response</div>
 
-          <div class="border-1/2 flex-1">
-            <DataTableInput
-              class="border-none"
-              :envVariables="activeEnvVariables"
-              :environment="activeEnvironment"
-              :modelValue="script.name ?? ''"
-              placeholder="Untitled Script"
-              :workspace="activeWorkspace"
-              @update:modelValue="updateName($event, index)" />
-          </div>
-
-          <ScalarButton
-            class="m-2"
-            variant="outlined"
-            @click="removeScript(index)">
-            Remove
-          </ScalarButton>
-        </div>
-
-        <div class="p-2">
-          <CodeInput
-            v-if="activeEnvironment && activeWorkspace"
-            class="border-1/2"
-            :code="script.code"
-            :envVariables="activeEnvVariables"
-            :environment="activeEnvironment"
-            language="javascript"
-            :modelValue="script.code"
-            placeholder="Script"
-            :workspace="activeWorkspace"
-            @update:modelValue="updatePostResponseScripts($event, index)" />
-        </div>
+        <ScriptEditor
+          :modelValue="scripts[0]?.code ?? ''"
+          @update:modelValue="updatePostResponseScripts($event, 0)" />
       </div>
     </ViewLayoutCollapse>
   </div>
