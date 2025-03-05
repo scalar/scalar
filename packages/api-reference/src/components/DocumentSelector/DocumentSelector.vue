@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
-import type { SpecConfiguration } from '@scalar/types'
+import {
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
+import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { computed } from 'vue'
 
-const { options } = defineProps<{
+const { options, modelValue } = defineProps<{
   options?: SpecConfiguration[]
   modelValue?: number
 }>()
@@ -15,97 +19,47 @@ const emit = defineEmits<{
 // Show the selector if there are multiple options
 const showSelector = computed(() => options && options?.length > 1)
 
-// Emit the selected option
-const handleChange = (event: Event) => {
-  emit(
-    'update:modelValue',
-    Number.parseInt((event.target as HTMLSelectElement).value, 10),
-  )
-}
+const listboxOptions = computed(
+  () =>
+    options?.map((option, index) => ({
+      id: String(index),
+      // Get the display text for the selected option
+      label: option.title || option.slug || `API #${index + 1}`,
+    })) || [],
+)
+
+const selectedOption = computed({
+  get: () => listboxOptions.value.find(({ id }) => id === String(modelValue)),
+  set: (opt: ScalarListboxOption) => emit('update:modelValue', Number(opt.id)),
+})
 </script>
 
 <template>
   <template v-if="showSelector">
-    <div class="-mb-1 p-3 pb-0">
-      <div class="sidebar-document-selector relative">
-        <select
-          class="absolute left-0 h-full w-full cursor-pointer rounded border opacity-0"
-          :value="modelValue"
-          @change="handleChange">
-          <option
-            v-for="(option, index) in options"
-            :key="index"
-            :value="index">
-            <template v-if="option.title">
-              {{ option.title }}
-            </template>
-            <template v-else-if="option.slug">
-              {{ option.slug }}
-            </template>
-            <template v-else>API #{{ index + 1 }}</template>
-          </option>
-        </select>
-        <ScalarIcon
-          class="scalar-document-selector-icon"
-          icon="Versions"
-          size="md"
-          thickness="2.5" />
-        <!-- hide from screen readers so text is not read out twice -->
-        <span
-          aria-hidden="true"
-          class="scalar-document-selector-text text-c-1 pointer-events-none w-full text-sm font-medium">
-          {{
-            options?.[modelValue]?.title ||
-            options?.[modelValue]?.slug ||
-            `API #${(modelValue || 0) + 1}`
-          }}
-        </span>
-        <ScalarIcon
-          class="scalar-document-selector-chevron"
-          icon="ChevronDown"
-          size="md"
-          thickness="2.5" />
-      </div>
+    <div class="document-selector -mb-1 p-3 pb-0">
+      <ScalarListbox
+        v-model="selectedOption"
+        :options="listboxOptions"
+        resize>
+        <div
+          class="group/dropdown-label hover:bg-b-2 text-c-2 py-1.75 pl-1.75 flex w-full cursor-pointer items-center rounded border pr-1.5"
+          tabindex="0">
+          <ScalarIcon
+            class="mr-1.25 min-w-4"
+            icon="Versions"
+            size="sm"
+            thickness="2" />
+          <span
+            class="text-c-1 overflow-hidden text-ellipsis text-sm font-medium">
+            {{ selectedOption?.label || 'Select API' }}
+          </span>
+          <ScalarIcon
+            class="group-hover/dropdown-label:text-c-1 ml-auto"
+            icon="ChevronDown"
+            size="sm"
+            thickness="2" />
+        </div>
+      </ScalarListbox>
     </div>
   </template>
 </template>
-<style scoped>
-.sidebar-document-selector {
-  display: flex;
-  align-items: center;
-  position: relative;
-  padding: 0 9px;
-  min-width: 254px;
-  max-width: 100%;
-  font-family: var(--scalar-font);
-  background: var(
-    --scalar-sidebar-search-background,
-    var(--scalar-background-1)
-  );
-  color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
-  border-radius: var(--scalar-radius);
-  box-shadow: 0 0 0 0.5px
-    var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
-  /* prettier-ignore */
-  cursor: pointer;
-  appearance: none;
-  border: none;
-  height: 31px;
-}
-.sidebar-document-selector:focus-within {
-  box-shadow: 0 0 0 1px var(--scalar-color-accent);
-}
-.scalar-document-selector-icon {
-  padding: 0;
-  margin-right: 6px;
-  width: 12px;
-}
-.sidebar-document-selector:hover .scalar-document-selector-chevron {
-  color: var(--scalar-sidebar-color-1, var(--scalar-color-1));
-}
-.scalar-document-selector-text {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-}
-</style>
