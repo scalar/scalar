@@ -1,11 +1,11 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
+  apiClientConfigurationSchema,
   isConfigurationWithSources,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
   type SpecConfiguration,
 } from '@scalar/types/api-reference'
-import type { ReferenceConfiguration } from '@scalar/api-reference'
 import GithubSlugger from 'github-slugger'
 
 import { computed, ref, watch, type Ref } from 'vue'
@@ -22,13 +22,16 @@ type UseMultipleDocumentsProps = {
     | Partial<ApiReferenceConfiguration>
     | Partial<ApiReferenceConfiguration>[]
     | Partial<ApiReferenceConfigurationWithSources>
+    | undefined
   >
+  /** The initial index to pre-select a document, if there is no query parameter available */
+  initialIndex?: number
 }
 
 const slugger = new GithubSlugger()
 
 /** Process a single spec configuration so that it has a title and a slug */
-const processSpec = (spec: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+const addSlugAndTitle = (spec: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
   if (!spec?.url && !spec?.content) {
     return undefined
   }
@@ -61,18 +64,22 @@ const processSpec = (spec: SpecConfiguration, index = 0): SpecConfiguration | un
   }
 }
 
-export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProps) => {
+export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipleDocumentsProps) => {
   /**
    * All available API definitions that can be selected
    */
   const availableDocuments = computed((): SpecConfiguration[] => {
+    if (!configuration.value) {
+      return []
+    }
+
     // Map the sources down to an array of specs
     const sources = isConfigurationWithSources(configuration.value)
       ? (configuration.value.spec?.sources ?? [])
       : [configuration.value].flat().map((config) => config.spec)
 
     // Process them
-    return sources.map((source, index) => source && processSpec(source, index)).filter(isDefined)
+    return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
   })
 
   /**
@@ -113,6 +120,9 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
       return numericIndex
     }
 
+    // Allow the user to hard-code the initial index
+    if (typeof initialIndex === 'number') return initialIndex
+
     // Default to first item if no match found
     return 0
   }
@@ -125,25 +135,16 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
   /**
    * The currently selected API configuration
    */
-  const selectedConfiguration = computed((): ReferenceConfiguration => {
-    // Multiple configurations
-    if (Array.isArray(configuration.value)) {
-      return configuration.value[selectedDocumentIndex.value]
-    }
-
+  const selectedConfiguration = computed(() => {
     // Multiple sources
-    if (
-      configuration.value?.spec &&
-      'sources' in configuration.value.spec &&
-      Array.isArray(configuration.value.spec.sources)
-    ) {
-      return {
+    if (configuration.value && isConfigurationWithSources(configuration.value)) {
+      return apiClientConfigurationSchema.parse({
         ...configuration.value,
-        spec: configuration.value.spec.sources[selectedDocumentIndex.value],
-      }
+        spec: configuration.value.spec?.sources[selectedDocumentIndex.value],
+      })
     }
 
-    return configuration.value as ReferenceConfiguration
+    return apiClientConfigurationSchema.parse([configuration.value].flat()[selectedDocumentIndex.value] ?? {})
   })
 
   // Update URL when selection changes
