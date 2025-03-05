@@ -32,22 +32,24 @@ const selectedContentType = ref<ContentType>(
 )
 </script>
 <template>
-  <div
+  <label
     class="content-type-select"
     :class="{ 'content-type-no-select': contentTypes.length <= 1 }">
     <span>{{ selectedContentType }}</span>
     <select
       v-if="prop?.requestBody && contentTypes.length > 1"
       :value="selectedContentType"
-      @change="handleSelectChange($event)">
+      @change="handleSelectChange($event)"
+      @keydown.stop>
       <option
         v-for="(_, key) in prop.requestBody?.content"
         :key="key"
-        :value="key">
+        :value="key"
+        @keydown.stop>
         {{ key }}
       </option>
     </select>
-  </div>
+  </label>
 </template>
 <style scoped>
 .content-type {
@@ -115,6 +117,9 @@ const selectedContentType = ref<ContentType>(
 }
 .content-type-select:hover {
   color: var(--scalar-color-1);
+}
+.content-type-select:has(select:focus-visible) {
+  outline: 1px solid var(--scalar-color-accent);
 }
 @media (max-width: 460px) {
   .content-type-select {
