@@ -35,16 +35,6 @@
       "import": "./dist/libs/html-rendering/index.js",
       "types": "./dist/libs/html-rendering/index.d.ts",
       "default": "./dist/libs/html-rendering/index.js"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
     }
   },
   "files": [

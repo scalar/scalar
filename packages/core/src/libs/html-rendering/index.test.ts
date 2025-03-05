@@ -1,12 +1,10 @@
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { describe, expect, it } from 'vitest'
 import {
-  getConfiguration,
-  getHtmlDocument,
-  getScriptTagContent,
-  getScriptTags,
-  htmlRenderingOptionsSchema,
-} from './index.ts'
+  type ApiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
+  htmlRenderingConfigurationSchema,
+} from '@scalar/types/api-reference'
+import { describe, expect, it } from 'vitest'
+import { getConfiguration, getHtmlDocument, getScriptTagContent, getScriptTags } from './index.ts'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
@@ -87,24 +85,24 @@ describe('html-rendering', () => {
 
   describe('getCdnUrl', () => {
     it('returns default CDN URL when not provided', () => {
-      const { cdn } = htmlRenderingOptionsSchema.parse({})
+      const { cdn } = htmlRenderingConfigurationSchema.parse({})
       expect(cdn).toBe('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
     })
 
     it('returns custom CDN URL when provided', () => {
-      const { cdn } = htmlRenderingOptionsSchema.parse({ cdn: 'https://custom.cdn/script.js' })
+      const { cdn } = htmlRenderingConfigurationSchema.parse({ cdn: 'https://custom.cdn/script.js' })
       expect(cdn).toBe('https://custom.cdn/script.js')
     })
   })
 
   describe('getPageTitle', () => {
     it('returns default page title when not provided', () => {
-      const { pageTitle } = htmlRenderingOptionsSchema.parse({})
+      const { pageTitle } = htmlRenderingConfigurationSchema.parse({})
       expect(pageTitle).toBe('Scalar API Reference')
     })
 
     it('returns custom page title when provided', () => {
-      const { pageTitle } = htmlRenderingOptionsSchema.parse({ pageTitle: 'Custom Title' })
+      const { pageTitle } = htmlRenderingConfigurationSchema.parse({ pageTitle: 'Custom Title' })
       expect(pageTitle).toBe('Custom Title')
     })
   })
