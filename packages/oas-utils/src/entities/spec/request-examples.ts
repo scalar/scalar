@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/shared'
-import { schemaModel } from '@/helpers'
+import { isDefined, schemaModel } from '@/helpers'
 import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-getters'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
@@ -18,49 +18,56 @@ import type { Server } from './server'
  * The request schema should be stored in the request and any
  * parameters should be validated against that
  */
-export const requestExampleParametersSchema = z
-  .object({
-    key: z.string().default(''),
-    value: z.coerce.string().default(''),
-    enabled: z.boolean().default(true),
-    file: z.any().optional(),
-    description: z.string().optional(),
-    required: z.boolean().optional(),
-    enum: z.array(z.string()).optional(),
-    examples: z
-      .array(z.union([z.string(), z.number()]))
-      .transform((examples) => examples?.map(String))
-      .optional(),
-    type: z
-      .union([
-        // 'string'
-        z.string(),
-        // ['string', 'null']
-        z.array(z.string()),
-      ])
-      .optional(),
-    format: z.string().optional(),
-    minimum: z.number().optional(),
-    maximum: z.number().optional(),
-    default: z.any().optional(),
-    nullable: z.boolean().optional(),
-  })
-  // set nullable: to true if type is ['string', 'null']
-  .transform((_data) => {
-    const data = { ..._data }
+export const requestExampleParametersSchema = z.object({
+  key: z.string().default(''),
+  value: z.coerce.string().default(''),
+  enabled: z.boolean().default(true),
+  file: z.any().optional(),
+  description: z.string().optional(),
+  required: z.boolean().optional(),
+  enum: z.array(z.string()).optional(),
+  examples: z
+    .array(z.union([z.string(), z.number()]))
+    .transform((examples) => examples?.map(String))
+    .optional(),
+  type: z
+    .union([
+      // 'string'
+      z.string(),
+      // ['string', 'null']
+      z.array(z.string()),
+      // ["string", "number"]
+      z.array(z.union([z.string(), z.literal('null'), z.literal('number')])),
+      // [["string", "number"], "null"]
+      z.array(z.union([z.array(z.union([z.string(), z.literal('number')])), z.literal('null')])),
+    ])
+    .transform((type) => {
+      if (typeof type === 'string') {
+        return type
+      }
 
-    // type: ['string', 'null'] -> nullable: true
-    if (Array.isArray(data.type) && data.type.includes('null')) {
-      data.nullable = true
-    }
+      // For arrays, flatten
+      if (Array.isArray(type)) {
+        const flattened = type.flat(2).filter((t) => t !== 'null' && isDefined(t))
 
-    // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
-    if (Array.isArray(data.type) && data.type.length === 2 && data.type.includes('null')) {
-      data.type = data.type.find((item) => item !== 'null')
-    }
+        // Return a single string after flattening if only one value
+        if (flattened.length === 1 && typeof flattened[0] === 'string') {
+          return flattened[0]
+        }
 
-    return data
-  })
+        // Return the array of strings otherwise
+        return flattened
+      }
+
+      return type
+    })
+    .optional(),
+  format: z.string().optional(),
+  minimum: z.number().optional(),
+  maximum: z.number().optional(),
+  default: z.any().optional(),
+  nullable: z.boolean().optional(),
+})
 
 /** Convert the array of parameters to an object keyed by the parameter name */
 export const parameterArrayToObject = (params: RequestExampleParameter[]) =>
