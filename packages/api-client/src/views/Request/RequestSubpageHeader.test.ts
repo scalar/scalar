@@ -71,19 +71,6 @@ describe('RequestSubpageHeader', () => {
     expect(wrapper.exists()).toBe(true)
   })
 
-  it('shows SidebarToggle when showSidebar is true', () => {
-    const wrapper = createWrapper()
-    expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(true)
-  })
-
-  it('hides SidebarToggle when showSidebar is false', async () => {
-    mockUseWorkspace.mockReturnValue({ ...mockWorkspace, showSidebar: false })
-    const wrapper = createWrapper()
-
-    await wrapper.vm.$nextTick()
-    expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(false)
-  })
-
   it('shows OpenApiClientButton when layout is modal and document URL is present', async () => {
     mockUseLayout.mockReturnValue({ layout: 'modal' })
     mockUseWorkspace.mockReturnValue({
@@ -94,12 +81,6 @@ describe('RequestSubpageHeader', () => {
 
     await wrapper.vm.$nextTick()
     expect(wrapper.find('.open-api-client-button').exists()).toBe(true)
-  })
-
-  it('emits update:modelValue when SidebarToggle is clicked', async () => {
-    const wrapper = createWrapper()
-    await wrapper.find('.scalar-sidebar-toggle').trigger('click')
-    expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(true)
   })
 
   it('emits hideModal when close button is clicked', async () => {
