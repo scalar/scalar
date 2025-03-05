@@ -106,7 +106,8 @@ export const oasRequestSchema = z.object({
 const ScalarStabilitySchema = z.object({
   'x-scalar-stability': z
     .enum([XScalarStability.Deprecated, XScalarStability.Experimental, XScalarStability.Stable])
-    .optional(),
+    .optional()
+    .catch(undefined),
 })
 
 /**
