@@ -5,6 +5,7 @@ import {
   type ApiReferenceConfigurationWithSources,
   type SpecConfiguration,
 } from '@scalar/types/api-reference'
+import type { ReferenceConfiguration } from '@scalar/api-reference'
 import GithubSlugger from 'github-slugger'
 
 import { computed, ref, watch, type Ref } from 'vue'
