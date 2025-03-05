@@ -1,7 +1,7 @@
 const decodeURIComponentSafe = (str: string) => {
   try {
     return decodeURIComponent(str)
-  } catch (e) {
+  } catch {
     return str
   }
 }
@@ -13,11 +13,13 @@ export function extractFilename(contentDisposition: string) {
   let filename = ''
 
   if (contentDisposition) {
-    const fileNameMatch = contentDisposition.match(/filename\s*=\s*"?([^";]+)"?/)
+    const fileNameMatch =
+      contentDisposition.match(/filename\*=UTF-8''([^;]+)/)?.[1] ??
+      contentDisposition.match(/filename\s*=\s*"?([^";]+)"?/)?.[1]
 
-    if (typeof fileNameMatch?.[1] === 'string') {
+    if (fileNameMatch) {
       // Decode filename
-      filename = decodeURIComponentSafe(fileNameMatch[1].trim())
+      filename = decodeURIComponentSafe(fileNameMatch.trim())
     }
   }
 
