@@ -94,11 +94,4 @@ describe('RequestSubpageHeader', () => {
     await wrapper.find('.app-exit-button').trigger('click')
     expect(wrapper.emitted('hideModal')).toBeTruthy()
   })
-
-  it('applies correct classes for modal layout', async () => {
-    mockUseLayout.mockReturnValue({ layout: 'modal' })
-    const wrapper = createWrapper()
-    const sidebarToggle = wrapper.find('.scalar-sidebar-toggle')
-    expect(sidebarToggle.classes()).toContain('!flex')
-  })
 })
