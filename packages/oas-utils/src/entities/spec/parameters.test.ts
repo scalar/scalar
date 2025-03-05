@@ -51,4 +51,34 @@ describe('oasParameterSchema', () => {
 
     expect(() => oasParameterSchema.parse(invalidParameter)).toThrow(z.ZodError)
   })
+
+  it('should validate examples as an array', () => {
+    const validParameter = {
+      in: 'query',
+      name: 'galaxy',
+      examples: ['Milky Way', 'Andromeda'],
+    }
+
+    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+  })
+
+  it('should validate examples with a single array item', () => {
+    const validParameter = {
+      in: 'query',
+      name: 'galaxy',
+      examples: ['Milky Way'],
+    }
+
+    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+  })
+
+  it('should validate with an empty array of examples', () => {
+    const validParameter = {
+      in: 'query',
+      name: 'galaxy',
+      examples: [],
+    }
+
+    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+  })
 })
