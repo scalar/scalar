@@ -1,72 +1,60 @@
 <script setup lang="ts">
-import type { Spec, Tag } from '@scalar/types/legacy'
-import { computed, nextTick, ref, useId } from 'vue'
+import { ScalarMarkdown } from '@scalar/components'
+import type { Tag } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
-import { useNavState, useSidebar } from '../../../hooks'
-import { SectionContainer } from '../../Section'
-import ShowMoreButton from '../../ShowMoreButton.vue'
-import Endpoints from './Endpoints.vue'
+import { Anchor } from '@/components/Anchor'
+import ScreenReader from '@/components/ScreenReader.vue'
+import {
+  Section,
+  SectionColumn,
+  SectionColumns,
+  SectionContent,
+  SectionHeader,
+  SectionHeaderTag,
+} from '@/components/Section'
+import { useNavState } from '@/hooks/useNavState'
+
+import OperationsList from './OperationsList.vue'
 
 const props = defineProps<{
   id?: string
   tag: Tag
-  spec: Spec
+  headerId?: string
+  isCollapsed?: boolean
 }>()
 
-const sectionContainerRef = ref<HTMLElement>()
-const contentsRef = ref<HTMLElement>()
-
-const headerId = useId()
-
-const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
 
-const moreThanOneTag = computed(
-  () => props.spec.tags?.length && props.spec.tags?.length > 1,
-)
-
-const moreThanOneDefaultTag = computed(
-  () =>
-    moreThanOneTag.value ||
-    props.tag?.name !== 'default' ||
-    props.tag?.description !== '',
-)
-
-async function focusContents() {
-  await nextTick()
-  contentsRef.value?.querySelector('button')?.focus()
-}
+const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 </script>
 <template>
-  <SectionContainer
-    ref="sectionContainerRef"
-    :aria-labelledby="headerId"
-    class="tag-section-container"
-    role="region">
-    <Endpoints
-      v-if="moreThanOneDefaultTag"
-      :id="id"
-      :headerId="headerId"
-      :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
-      :tag="tag" />
-    <ShowMoreButton
-      v-if="!collapsedSidebarItems[getTagId(tag)] && moreThanOneTag"
-      :id="id ?? ''"
-      :aria-label="`Show all ${tag['x-displayName'] ?? tag.name} endpoints`"
-      @click="focusContents" />
-    <div
-      v-else
-      ref="contentsRef"
-      class="contents">
-      <slot />
-    </div>
-  </SectionContainer>
+  <Section
+    :id="id"
+    :label="tag.name.toUpperCase()"
+    role="none">
+    <SectionHeader>
+      <Anchor :id="getTagId(tag)">
+        <SectionHeaderTag
+          :id="headerId"
+          :level="2">
+          {{ title }}
+          <ScreenReader v-if="isCollapsed"> (Collapsed)</ScreenReader>
+        </SectionHeaderTag>
+      </Anchor>
+    </SectionHeader>
+    <SectionContent>
+      <SectionColumns>
+        <SectionColumn>
+          <ScalarMarkdown
+            :clamp="isCollapsed ? '7' : false"
+            :value="tag.description"
+            withImages />
+        </SectionColumn>
+        <SectionColumn>
+          <OperationsList :tag="tag" />
+        </SectionColumn>
+      </SectionColumns>
+    </SectionContent>
+  </Section>
 </template>
-<style scoped>
-.section-container {
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.section-container:has(.show-more) {
-  background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
-}
-</style>

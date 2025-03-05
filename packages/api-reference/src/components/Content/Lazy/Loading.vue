@@ -21,7 +21,7 @@ import {
   SectionHeaderTag,
 } from '../../Section'
 import { Schema } from '../Schema'
-import { Tag } from '../Tag'
+import { TagSection } from '../Tag'
 import { lazyBus } from './lazyBus'
 
 /**
@@ -159,7 +159,7 @@ onMounted(() => {
     <template
       v-for="(tag, idx) in tags"
       :key="tag.name + idx">
-      <Tag
+      <TagSection
         v-if="tag.operations && tag.operations.length > 0"
         :spec="parsedSpec"
         :tag="tag">
@@ -170,7 +170,7 @@ onMounted(() => {
           :layout="layout"
           :server="activeServer"
           :transformedOperation="operation" />
-      </Tag>
+      </TagSection>
     </template>
 
     <!-- Models -->
