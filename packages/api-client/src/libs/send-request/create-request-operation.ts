@@ -17,7 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
-import { executePostResponseScript } from '@/libs/send-request/execute-post-response-script'
+import { executePostResponseScript } from '@/libs/execute-scripts'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
