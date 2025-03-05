@@ -187,9 +187,11 @@ export const createRequestOperation = ({
         const arrayBuffer = await response.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
 
-        await executePostResponseScript(request['x-post-response'], {
+        const results = await executePostResponseScript(request['x-post-response'], {
           response,
         })
+
+        console.log('RESULTS', results)
 
         // Safely check for cookie headers
         // TODO: polyfill

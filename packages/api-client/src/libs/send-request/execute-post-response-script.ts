@@ -19,7 +19,7 @@ const createScriptContext = ({ response }: { response: Response }) => {
   )
 
   // Create the context object with safe APIs
-  const context = {
+  const context: ScriptContext = {
     // Response data
     response: {
       status: response.status,
@@ -122,20 +122,74 @@ const createScriptContext = ({ response }: { response: Response }) => {
         }
       },
     },
+    // Test results array
+    testResults: [],
   }
 
   return { globalProxy, context }
 }
 
-export const executePostResponseScript = async (script: string | undefined, data: { response: Response }) => {
+interface TestResult {
+  title: string
+  success: boolean
+  duration: number
+  error?: string
+}
+
+interface ScriptContext {
+  response: {
+    status: number
+    statusText: string
+    headers: Record<string, string>
+  }
+  console: {
+    log: (...args: any[]) => void
+    error: (...args: any[]) => void
+    warn: (...args: any[]) => void
+  }
+  pm: {
+    response: {
+      json: () => Promise<any>
+      text: () => Promise<string>
+      code: number
+      headers: Record<string, string>
+      to: {
+        have: {
+          status: (expectedStatus: number) => boolean
+          header: (headerName: string) => {
+            that: {
+              equals: (expectedValue: string) => boolean
+              includes: (expectedValue: string) => boolean
+            }
+          }
+        }
+        be: {
+          json: () => Promise<boolean>
+        }
+      }
+    }
+    environment: {
+      get: (key: string) => string | undefined
+      set: () => boolean
+    }
+    test: (name: string, fn: () => void) => void
+  }
+  testResults: TestResult[]
+}
+
+export const executePostResponseScript = async (
+  script: string | undefined,
+  data: { response: Response },
+): Promise<TestResult[]> => {
   // No script to execute
   if (!script) {
-    return
+    return []
   }
 
   // Create script context
   const { globalProxy, context } = createScriptContext(data)
   const startTime = performance.now()
+  const testResults: TestResult[] = []
 
   try {
     console.log('[Post-Response Script] Executing script')
@@ -152,10 +206,41 @@ export const executePostResponseScript = async (script: string | undefined, data
       const response = context.response;
       const console = context.console;
 
+      // Override pm.test to track results
+      const originalTest = pm.test;
+      pm.test = (name, fn) => {
+        const testStartTime = performance.now();
+        try {
+          fn();
+          const testEndTime = performance.now();
+          const duration = testEndTime - testStartTime;
+          context.testResults.push({
+            title: name,
+            success: true,
+            duration,
+          });
+          console.log(\`✓ \${name}\`);
+        } catch (error) {
+          const testEndTime = performance.now();
+          const duration = testEndTime - testStartTime;
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          context.testResults.push({
+            title: name,
+            success: false,
+            duration,
+            error: errorMessage,
+          });
+          console.error(\`✗ \${name}: \${errorMessage}\`);
+        }
+      };
+
       // Run the user's script
       ${script}
       `,
     )
+
+    // Add testResults array to context
+    context.testResults = testResults
 
     // Execute the script with controlled context
     await scriptFn.call(globalProxy, globalProxy, context)
@@ -169,4 +254,6 @@ export const executePostResponseScript = async (script: string | undefined, data
     const duration = (endTime - startTime).toFixed(2)
     console.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
   }
+
+  return testResults
 }
