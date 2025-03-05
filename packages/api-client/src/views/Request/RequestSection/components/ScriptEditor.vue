@@ -27,7 +27,7 @@ useCodeMirror({
 </script>
 
 <template>
-  <div class="script-editor">
+  <div class="script-editor text-sm">
     <div
       ref="codeMirrorRef"
       class="editor-container" />
@@ -47,23 +47,25 @@ useCodeMirror({
   background: var(--scalar-background-1);
   border-radius: var(--scalar-radius);
   overflow: hidden;
+  padding-left: 3px;
 }
 
 :deep(.cm-editor) {
   height: 100%;
   outline: none;
+  background: var(--scalar-background-1);
 }
 
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-small);
-  padding: 8px;
+  font-size: var(--scalar-mini);
+  padding: 8px 2px;
 }
 
 :deep(.cm-gutters) {
-  background-color: var(--scalar-background-2);
   border-right: none;
   color: var(--scalar-color-3);
+  background: var(--scalar-background-1);
   font-size: var(--scalar-mini);
   line-height: 1.44;
 }
@@ -80,7 +82,6 @@ useCodeMirror({
 
 :deep(.cm-gutterElement) {
   font-family: var(--scalar-font-code) !important;
-  /* padding: 0 6px 0 8px !important; */
   display: flex;
   align-items: center;
   justify-content: flex-end;

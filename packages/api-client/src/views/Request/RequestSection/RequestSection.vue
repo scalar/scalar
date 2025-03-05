@@ -271,7 +271,7 @@ const handleRequestNamePlaceholder = () => {
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <div class="-mt-0.25 z-1 flex flex-grow border-b" />
 
       <ScalarErrorBoundary>
         <RequestCodeExample
