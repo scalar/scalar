@@ -29,7 +29,7 @@ app.openapi(
       },
     },
   }),
-  (c) => {
+  (c): Response => {
     return c.json({
       message: 'hello',
     })
@@ -62,7 +62,7 @@ app.openapi(
       },
     },
   }),
-  (c) => {
+  (c): Response => {
     return c.json({
       posts: [
         {
@@ -109,7 +109,7 @@ app.openapi(
       },
     },
   }),
-  (c) => {
+  (c): Response => {
     return c.json({
       id: 123,
       title: 'My Blog Post',
@@ -155,7 +155,7 @@ app.openapi(
       },
     },
   }),
-  (c) => {
+  (c): Response => {
     return c.json({
       status: 'OK',
       message: 'Post deleted',
