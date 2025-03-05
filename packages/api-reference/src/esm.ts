@@ -1,10 +1,7 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
-
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
 
 import ApiReference from './components/ApiReference.vue'
 
@@ -13,7 +10,7 @@ export function createScalarReferences(
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
-  initialConfig: ApiReferenceConfiguration | ReferenceConfiguration,
+  initialConfig: Partial<ApiReferenceConfiguration>,
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
@@ -21,7 +18,6 @@ export function createScalarReferences(
   mountOnInitialize = true,
 ) {
   const configuration = reactive(initialConfig)
-
   const app = createApp(ApiReference, { configuration })
 
   const head = createHead()
@@ -39,7 +35,7 @@ export function createScalarReferences(
 
   return {
     /** Update the configuration for a mounted reference */
-    updateConfig(newConfig: ApiReferenceConfiguration | ReferenceConfiguration, mergeConfigs = true) {
+    updateConfig(newConfig: Partial<ApiReferenceConfiguration>, mergeConfigs = true) {
       if (mergeConfigs) {
         Object.assign(configuration, newConfig)
       } else {
