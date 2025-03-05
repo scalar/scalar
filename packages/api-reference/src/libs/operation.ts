@@ -4,7 +4,7 @@ import { XScalarStability } from '@scalar/types/legacy'
 /**
  * Returns if an operation is considered deprecated.
  */
-export function isOperationDeprecated(operation: Operation): boolean {
+export function isOperationDeprecated(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): boolean {
   if (operation.deprecated !== undefined) return operation.deprecated
   if (operation['x-scalar-stability'] && operation['x-scalar-stability'] === XScalarStability.Deprecated) return true
   return false
@@ -13,7 +13,9 @@ export function isOperationDeprecated(operation: Operation): boolean {
 /**
  * Get operation stability.
  */
-export function getOperationStability(operation: Operation): XScalarStability | undefined {
+export function getOperationStability(
+  operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>,
+): XScalarStability | undefined {
   if (operation.deprecated) return XScalarStability.Deprecated
   return operation['x-scalar-stability']
 }
@@ -21,7 +23,7 @@ export function getOperationStability(operation: Operation): XScalarStability | 
 /**
  * Get Operation stability color
  */
-export function getOperationStabilityColor(operation: Operation): string {
+export function getOperationStabilityColor(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): string {
   const stability = getOperationStability(operation)
   if (stability === XScalarStability.Deprecated) return 'text-red'
   if (stability === XScalarStability.Experimental) return 'text-orange'
