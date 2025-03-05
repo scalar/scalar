@@ -1,5 +1,10 @@
+import { type Ref, ref } from 'vue'
+
 // Create a safe context object with controlled APIs
-const createScriptContext = ({ response }: { response: Response }) => {
+const createScriptContext = ({
+  response,
+  onTestResultUpdate,
+}: { response: Response; onTestResultUpdate?: (result: TestResult) => void }) => {
   // Create a proxy to control access to globals
   const globalProxy = new Proxy(
     {},
@@ -17,6 +22,9 @@ const createScriptContext = ({ response }: { response: Response }) => {
       },
     },
   )
+
+  // Create reactive test results array with explicit type
+  const testResults = ref<TestResult[]>([]) as Ref<TestResult[]>
 
   // Create the context object with safe APIs
   const context: ScriptContext = {
@@ -113,27 +121,67 @@ const createScriptContext = ({ response }: { response: Response }) => {
       },
       // Test utilities
       test: (name: string, fn: () => void) => {
+        // Emit initial pending status
+        const pendingResult: TestResult = {
+          title: name,
+          success: false,
+          duration: 0,
+          status: 'pending',
+        }
+        testResults.value.push(pendingResult)
+        onTestResultUpdate?.(pendingResult)
+
+        const testStartTime = performance.now()
         try {
           fn()
+          const testEndTime = performance.now()
+          const duration = testEndTime - testStartTime
+          const result: TestResult = {
+            title: name,
+            success: true,
+            duration,
+            status: 'success',
+          }
+          // Update the existing test result
+          const index = testResults.value.findIndex((t) => t.title === name)
+          if (index !== -1) {
+            testResults.value[index] = result
+          }
+          onTestResultUpdate?.(result)
           console.log(`✓ ${name}`)
         } catch (error: unknown) {
+          const testEndTime = performance.now()
+          const duration = testEndTime - testStartTime
           const errorMessage = error instanceof Error ? error.message : String(error)
+          const result: TestResult = {
+            title: name,
+            success: false,
+            duration,
+            error: errorMessage,
+            status: 'failure',
+          }
+          // Update the existing test result
+          const index = testResults.value.findIndex((t) => t.title === name)
+          if (index !== -1) {
+            testResults.value[index] = result
+          }
+          onTestResultUpdate?.(result)
           console.error(`✗ ${name}: ${errorMessage}`)
         }
       },
     },
-    // Test results array
-    testResults: [],
+    testResults,
   }
 
   return { globalProxy, context }
 }
 
-interface TestResult {
+export type TestResult = {
   title: string
   success: boolean
   duration: number
   error?: string
+  status: 'pending' | 'success' | 'failure'
 }
 
 interface ScriptContext {
@@ -174,22 +222,21 @@ interface ScriptContext {
     }
     test: (name: string, fn: () => void) => void
   }
-  testResults: TestResult[]
+  testResults: Ref<TestResult[]>
 }
 
 export const executePostResponseScript = async (
   script: string | undefined,
-  data: { response: Response },
-): Promise<TestResult[]> => {
+  data: { response: Response; onTestResultUpdate?: (result: TestResult) => void },
+): Promise<void> => {
   // No script to execute
   if (!script) {
-    return []
+    return
   }
 
   // Create script context
   const { globalProxy, context } = createScriptContext(data)
   const startTime = performance.now()
-  const testResults: TestResult[] = []
 
   try {
     console.log('[Post-Response Script] Executing script')
@@ -206,41 +253,10 @@ export const executePostResponseScript = async (
       const response = context.response;
       const console = context.console;
 
-      // Override pm.test to track results
-      const originalTest = pm.test;
-      pm.test = (name, fn) => {
-        const testStartTime = performance.now();
-        try {
-          fn();
-          const testEndTime = performance.now();
-          const duration = testEndTime - testStartTime;
-          context.testResults.push({
-            title: name,
-            success: true,
-            duration,
-          });
-          console.log(\`✓ \${name}\`);
-        } catch (error) {
-          const testEndTime = performance.now();
-          const duration = testEndTime - testStartTime;
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          context.testResults.push({
-            title: name,
-            success: false,
-            duration,
-            error: errorMessage,
-          });
-          console.error(\`✗ \${name}: \${errorMessage}\`);
-        }
-      };
-
       // Run the user's script
       ${script}
       `,
     )
-
-    // Add testResults array to context
-    context.testResults = testResults
 
     // Execute the script with controlled context
     await scriptFn.call(globalProxy, globalProxy, context)
@@ -254,6 +270,4 @@ export const executePostResponseScript = async (
     const duration = (endTime - startTime).toFixed(2)
     console.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
   }
-
-  return testResults
 }
