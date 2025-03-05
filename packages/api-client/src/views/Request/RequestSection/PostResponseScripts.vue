@@ -39,13 +39,13 @@ const updatePostResponseScript = (value: string) => {
         </div>
       </template>
 
-      <div class="border-t p-2">
-        <div class="text-c-3 pb-2 text-sm">Post-Response</div>
-
-        <ScriptEditor
-          :modelValue="script"
-          @update:modelValue="updatePostResponseScript" />
+      <div class="text-c-3 flex h-8 items-center border-y px-3 text-sm">
+        Post-Response
       </div>
+
+      <ScriptEditor
+        :modelValue="script"
+        @update:modelValue="updatePostResponseScript" />
     </ViewLayoutCollapse>
   </div>
 </template>
