@@ -1,7 +1,5 @@
-import type { PostResponseScript } from '@/views/Request/RequestSection/types/post-response'
-
 // Create a safe context object with controlled APIs
-const createScriptContext = (response: Response) => {
+const createScriptContext = ({ response }: { response: Response }) => {
   // Create a proxy to control access to globals
   const globalProxy = new Proxy(
     {},
@@ -129,61 +127,46 @@ const createScriptContext = (response: Response) => {
   return { globalProxy, context }
 }
 
-export const executePostResponseScripts = async (response: Response, scripts: PostResponseScript[] | undefined) => {
-  // No scripts to execute
-  if (!scripts) {
-    return
-  }
-
-  // Execute enabled post-response scripts
-  const enabledScripts = scripts.filter((script) => script.enabled)
-
-  // Nothing enabled
-  if (enabledScripts.length === 0) {
+export const executePostResponseScript = async (script: string | undefined, data: { response: Response }) => {
+  // No script to execute
+  if (!script) {
     return
   }
 
   // Create script context
-  const { globalProxy, context } = createScriptContext(response)
+  const { globalProxy, context } = createScriptContext(data)
+  const startTime = performance.now()
 
-  // Execute each script in sequence
-  for (const script of enabledScripts) {
-    const startTime = performance.now()
+  try {
+    console.log('[Post-Response Script] Executing script')
 
-    try {
-      console.log(`[Post-Response Script] Executing: ${script.name || 'Untitled Script'}`)
+    // Create a function that sets up the global context and runs the script
+    const scriptFn = new Function(
+      'global',
+      'context',
+      `
+      "use strict";
 
-      // Create a function that sets up the global context and runs the script
-      const scriptFn = new Function(
-        'global',
-        'context',
-        `
-        "use strict";
+      // Expose context in global scope
+      const pm = context.pm;
+      const response = context.response;
+      const console = context.console;
 
-        // Expose context in global scope
-        const pm = context.pm;
-        const response = context.response;
-        const console = context.console;
+      // Run the user's script
+      ${script}
+      `,
+    )
 
-        // Run the user's script
-        ${script.code}
-        `,
-      )
+    // Execute the script with controlled context
+    await scriptFn.call(globalProxy, globalProxy, context)
 
-      // Execute the script with controlled context
-      await scriptFn.call(globalProxy, globalProxy, context)
-
-      const endTime = performance.now()
-      const duration = (endTime - startTime).toFixed(2)
-      console.log(`[Post-Response Script] Completed: ${script.name || 'Untitled Script'} (${duration}ms)`)
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      const endTime = performance.now()
-      const duration = (endTime - startTime).toFixed(2)
-      console.error(
-        `[Post-Response Script] Error in ${script.name || 'Untitled Script'} (${duration}ms):`,
-        errorMessage,
-      )
-    }
+    const endTime = performance.now()
+    const duration = (endTime - startTime).toFixed(2)
+    console.log(`[Post-Response Script] Completed (${duration}ms)`)
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    const endTime = performance.now()
+    const duration = (endTime - startTime).toFixed(2)
+    console.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
   }
 }
