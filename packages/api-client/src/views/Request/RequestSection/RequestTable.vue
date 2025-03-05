@@ -96,7 +96,7 @@ const flattenValue = (item: RequestExampleParameter) => {
               </template>
               <template #content>
                 <div
-                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
+                  class="w-content bg-b-1 text-xxs text-c-1 z-100 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
                   <div class="text-c-1 flex items-center">
                     <span class="text-pretty">
                       Global cookies are shared across the whole workspace.
@@ -173,10 +173,10 @@ const flattenValue = (item: RequestExampleParameter) => {
       </DataTableCell>
       <DataTableCell
         v-if="showUploadButton"
-        class="group/upload relative overflow-hidden text-ellipsis whitespace-nowrap p-1">
+        class="group/upload flex items-center justify-center whitespace-nowrap">
         <template v-if="item.file">
           <div
-            class="text-c-2 filemask flex max-w-[100%] items-end justify-end overflow-hidden">
+            class="text-c-2 filemask flex w-full max-w-[100%] items-end justify-end overflow-hidden p-1">
             <span>{{ item.file?.name }}</span>
           </div>
           <button
@@ -187,18 +187,20 @@ const flattenValue = (item: RequestExampleParameter) => {
           </button>
         </template>
         <template v-else>
-          <ScalarButton
-            class="bg-b-2 hover:bg-b-3 text-c-2 border-0 py-px shadow-none"
-            size="sm"
-            variant="outlined"
-            @click="handleFileUpload(idx)">
-            <span>Upload File</span>
-            <ScalarIcon
-              class="ml-1"
-              icon="UploadSimple"
-              size="xs"
-              thickness="2.5" />
-          </ScalarButton>
+          <div class="p-0.5">
+            <ScalarButton
+              class="bg-b-2 hover:bg-b-3 text-c-2 h-fit border-0 py-px shadow-none"
+              size="sm"
+              variant="outlined"
+              @click="handleFileUpload(idx)">
+              <span>Upload File</span>
+              <ScalarIcon
+                class="ml-1"
+                icon="UploadSimple"
+                size="xs"
+                thickness="2.5" />
+            </ScalarButton>
+          </div>
         </template>
       </DataTableCell>
     </DataTableRow>
