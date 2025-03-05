@@ -99,22 +99,29 @@ const removeScript = (index: number) => {
         v-for="(script, index) in scripts"
         :key="index"
         class="flex flex-col gap-2">
-        <div class="flex gap-2 p-2">
+        <div class="flex p-2">
           <DataTableCheckbox
             class="border-l-1/2 border-b-1/2"
             :modelValue="script.enabled"
             @update:modelValue="toggleEnabled(index)" />
 
-          <div class="border-1/2 w-full">
+          <div class="border-1/2 flex-1">
             <DataTableInput
               class="border-none"
               :envVariables="activeEnvVariables"
               :environment="activeEnvironment"
               :modelValue="script.name ?? ''"
-              placeholder="Name (optional)"
+              placeholder="Untitled Script"
               :workspace="activeWorkspace"
               @update:modelValue="updateName($event, index)" />
           </div>
+
+          <ScalarButton
+            class="m-2"
+            variant="outlined"
+            @click="removeScript(index)">
+            Remove
+          </ScalarButton>
         </div>
 
         <div class="p-2">
@@ -130,13 +137,6 @@ const removeScript = (index: number) => {
             :workspace="activeWorkspace"
             @update:modelValue="updatePostResponseScripts($event, index)" />
         </div>
-
-        <ScalarButton
-          class="m-2"
-          variant="outlined"
-          @click="removeScript(index)">
-          Remove
-        </ScalarButton>
       </div>
     </ViewLayoutCollapse>
   </div>
