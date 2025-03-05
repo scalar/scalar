@@ -41,7 +41,6 @@ useCodeMirror({
 .editor-container {
   width: 100%;
   height: 100%;
-  min-height: 200px;
   background: var(--scalar-background-1);
   border-radius: var(--scalar-radius);
   overflow: hidden;
