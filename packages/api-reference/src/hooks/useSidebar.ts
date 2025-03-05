@@ -4,6 +4,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed, reactive, ref, watch } from 'vue'
 
+import { operationSchema } from '@scalar/oas-utils/entities/spec'
 import { lazyBus } from '../components/Content/Lazy/lazyBus'
 import {
   getHeadingsFromMarkdown,
@@ -179,7 +180,8 @@ const items = computed(() => {
                   id,
                   title,
                   httpVerb: operation.httpVerb,
-                  deprecated: isOperationDeprecated(operation),
+                  // TODO: Workaround until we’re using the store directly
+                  deprecated: isOperationDeprecated(operationSchema.parse(operation.information)),
                   show: true,
                   select: () => {},
                 }
@@ -195,7 +197,8 @@ const items = computed(() => {
             id,
             title,
             httpVerb: operation.httpVerb,
-            deprecated: isOperationDeprecated(operation),
+            // TODO: Workaround until we’re using the store directly
+            deprecated: isOperationDeprecated(operationSchema.parse(operation.information)),
             show: true,
             select: () => {},
           }
@@ -230,23 +233,21 @@ const items = computed(() => {
           id: getWebhookId(),
           title: 'Webhooks',
           show: true,
-          children: Object.keys(parsedSpec.value?.webhooks ?? {})
-            .map((name) => {
-              const id = getWebhookId({ name })
-              titlesById[id] = name
+          children: Object.keys(parsedSpec.value?.webhooks ?? {}).flatMap((name) => {
+            const id = getWebhookId({ name })
+            titlesById[id] = name
 
-              return (Object.keys(parsedSpec.value?.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]).map(
-                (httpVerb) => {
-                  return {
-                    id: getWebhookId({ name, method: httpVerb }),
-                    title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
-                    httpVerb: httpVerb as string,
-                    show: true,
-                  }
-                },
-              )
-            })
-            .flat() as SidebarEntry[],
+            return (Object.keys(parsedSpec.value?.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]).map(
+              (httpVerb) => {
+                return {
+                  id: getWebhookId({ name, method: httpVerb }),
+                  title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
+                  httpVerb: httpVerb as string,
+                  show: true,
+                }
+              },
+            )
+          }) as SidebarEntry[],
         },
       ]
     : []
