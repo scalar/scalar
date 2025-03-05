@@ -258,6 +258,30 @@ describe('createParamInstance', () => {
       default: 1,
     })
   })
+
+  it('works with nested array types', () => {
+    const result = createParamInstance({
+      in: 'path',
+      name: 'foo',
+      required: true,
+      deprecated: false,
+      schema: {
+        type: [['string', 'number'], 'null'],
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      enabled: true,
+      enum: undefined,
+      examples: undefined,
+      description: undefined,
+      required: true,
+      type: ['string', 'number'],
+      nullable: true,
+      value: '',
+    })
+  })
 })
 
 describe('parameterArrayToObject', () => {
