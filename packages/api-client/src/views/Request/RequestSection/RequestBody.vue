@@ -367,12 +367,22 @@ const removeBinaryFile = () =>
 function handleRemoveFileFormData(rowIdx: number) {
   const currentParams = formParams.value
   const updatedParams = [...currentParams]
+  const param = currentParams[rowIdx]
+  const file = param?.file as File | undefined
 
-  if (currentParams.length > 1) {
-    // Removes the row if not the last one
+  // Empty key value or non updated file name then remove the row
+  if (
+    currentParams.length > 1 &&
+    ((!param?.key && !param?.value) ||
+      (file && param?.key === file.name && param?.value === file.name))
+  ) {
     updatedParams.splice(rowIdx, 1)
   } else {
-    defaultRow()
+    // File name updated then remove file only
+    const param = updatedParams[rowIdx]
+    if (param) {
+      param.file = undefined
+    }
   }
   requestExampleMutators.edit(example.uid, 'body.formData.value', updatedParams)
 }
