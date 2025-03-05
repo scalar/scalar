@@ -157,7 +157,7 @@ const handleRequestNamePlaceholder = () => {
         @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y">
+      class="request-section-content custom-scroll relative flex flex-1 flex-col">
       <RequestAuth
         v-if="
           collection &&
@@ -241,7 +241,7 @@ const handleRequestNamePlaceholder = () => {
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <div class="-mt-0.25 flex flex-grow border-b" />
 
       <ScalarErrorBoundary>
         <RequestCodeExample
