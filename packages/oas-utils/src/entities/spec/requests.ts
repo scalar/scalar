@@ -2,6 +2,7 @@ import { type ENTITY_BRANDS, nanoidSchema, selectedSecuritySchemeUidSchema } fro
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
+import { XScalarStability } from '@scalar/types'
 import { oasParameterSchema } from './parameters'
 import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
@@ -95,6 +96,20 @@ export const oasRequestSchema = z.object({
 }) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
 
 /**
+ * An OpenAPI extension to indicate the stability of the operation
+ *
+ * @example
+ * ```yaml
+ * x-scalar-stability: deprecated
+ * ```
+ */
+const ScalarStabilitySchema = z.object({
+  'x-scalar-stability': z
+    .enum([XScalarStability.Deprecated, XScalarStability.Experimental, XScalarStability.Stable])
+    .optional(),
+})
+
+/**
  * Extended properties added to the spec definition for client usage
  *
  * WARNING: DO NOT ADD PROPERTIES THAT SHARE A NAME WITH OAS OPERATION ENTITIES
@@ -119,7 +134,10 @@ const extendedRequestSchema = z.object({
 })
 
 /** Unified request schema for client usage */
-export const requestSchema = oasRequestSchema.omit({ 'x-scalar-examples': true }).merge(extendedRequestSchema)
+export const requestSchema = oasRequestSchema
+  .omit({ 'x-scalar-examples': true })
+  .merge(ScalarStabilitySchema)
+  .merge(extendedRequestSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

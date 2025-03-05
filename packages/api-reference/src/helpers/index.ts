@@ -1,6 +1,5 @@
 export * from './createEmptySpecification'
 export * from './deepMerge'
-export * from './operation'
 export * from './getHeadingsFromMarkdown'
 export * from './getLowestHeadingLevel'
 export * from './getModels'

@@ -1,15 +1,12 @@
-import { type Operation, XScalarStability } from '@scalar/types/legacy'
+import type { Operation } from '@scalar/oas-utils/entities/spec'
+import { XScalarStability } from '@scalar/types/legacy'
 
 /**
  * Returns if an operation is considered deprecated.
  */
 export function isOperationDeprecated(operation: Operation): boolean {
-  if (operation.information?.deprecated !== undefined) return operation.information?.deprecated
-  if (
-    operation.information?.['x-scalar-stability'] &&
-    operation.information['x-scalar-stability'] === XScalarStability.Deprecated
-  )
-    return true
+  if (operation.deprecated !== undefined) return operation.deprecated
+  if (operation['x-scalar-stability'] && operation['x-scalar-stability'] === XScalarStability.Deprecated) return true
   return false
 }
 
@@ -17,8 +14,8 @@ export function isOperationDeprecated(operation: Operation): boolean {
  * Get operation stability.
  */
 export function getOperationStability(operation: Operation): XScalarStability | undefined {
-  if (operation.information?.deprecated) return XScalarStability.Deprecated
-  return operation.information?.['x-scalar-stability']
+  if (operation.deprecated) return XScalarStability.Deprecated
+  return operation['x-scalar-stability']
 }
 
 /**

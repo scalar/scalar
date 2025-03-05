@@ -1,4 +1,4 @@
-import { isOperationDeprecated } from '@/helpers/operation'
+import { isOperationDeprecated } from '@/libs/operation'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'

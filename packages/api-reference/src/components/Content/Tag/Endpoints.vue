@@ -3,13 +3,10 @@ import { ScalarMarkdown } from '@scalar/components'
 import type { Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { isOperationDeprecated } from '@/helpers/operation'
-
-import { useNavState, useSidebar } from '../../../hooks'
-import { Anchor } from '../../Anchor'
-import { Card, CardContent, CardHeader } from '../../Card'
-import { HttpMethod } from '../../HttpMethod'
-import ScreenReader from '../../ScreenReader.vue'
+import { Anchor } from '@/components/Anchor'
+import { Card, CardContent, CardHeader } from '@/components/Card'
+import { HttpMethod } from '@/components/HttpMethod'
+import ScreenReader from '@/components/ScreenReader.vue'
 import {
   Section,
   SectionColumn,
@@ -17,7 +14,10 @@ import {
   SectionContent,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
+} from '@/components/Section'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
+import { isOperationDeprecated } from '@/libs/operation'
 
 const props = defineProps<{
   id?: string
