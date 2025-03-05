@@ -39,7 +39,7 @@ const updatePostResponseScript = (value: string) => {
         </div>
       </template>
 
-      <div class="p-2">
+      <div class="border-t p-2">
         <div class="text-c-3 pb-2 text-sm">Post-Response</div>
 
         <ScriptEditor
