@@ -75,7 +75,7 @@ export type ReferenceConfiguration = {
   /** The layout to use for the references */
   layout?: 'modern' | 'classic' | unknown
   /** The Swagger/OpenAPI spec to render */
-  spec?: SpecConfiguration | undefined
+  spec?: any
   /**
    * URL to a request proxy for the API client
    *
@@ -494,36 +494,6 @@ export type RequestBody = {
   description?: string
   required?: boolean
   content?: RequestBodyMimeTypes
-}
-
-/** The OpenAPI Document we’ll render */
-export type SpecConfiguration = {
-  /**
-   * URL to an OpenAPI/Swagger document
-   */
-  url?: string | undefined
-  /**
-   * Directly embed the OpenAPI document in the HTML.
-   *
-   * @remark It’s recommended to pass an `url` instead of `content`.
-   */
-  content?: string | Record<string, any> | (() => Record<string, any>) | null | undefined
-  /**
-   * The title of the OpenAPI document.
-   *
-   * @example 'Scalar Galaxy'
-   */
-  title?: string
-  /**
-   * The slug of the OpenAPI document used in the URL.
-   *
-   * If none is passed, the title will be used.
-   *
-   * If no title is used, it’ll just use the index.
-   *
-   * @example 'scalar-galaxy'
-   */
-  slug?: string
 }
 
 export type Schema = {

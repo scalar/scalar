@@ -1,20 +1,17 @@
 <script setup lang="ts">
 import { migrateThemeVariables } from '@scalar/themes'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
 import { useReactiveSpec } from '../hooks'
-import type {
-  DocumentSelectorSlot,
-  ReferenceLayoutSlots,
-  ReferenceProps,
-} from '../types'
 import { Layouts } from './Layouts'
 
-const props = defineProps<ReferenceProps>()
+const { configuration } = defineProps<{
+  configuration: ApiReferenceConfiguration
+}>()
 
 // If content changes it is emitted to the parent component to be handed back in as a spec string
 defineEmits<{
@@ -22,50 +19,28 @@ defineEmits<{
 }>()
 
 const { toggleColorMode, isDarkMode } = useColorMode({
-  initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
-  overrideColorMode: props.configuration?.forceDarkModeState,
+  initialColorMode: configuration.darkMode ? 'dark' : undefined,
+  overrideColorMode: configuration.forceDarkModeState,
 })
 
 /** Update the dark mode state when props change */
 watch(
-  () => props.configuration?.darkMode,
+  () => configuration.darkMode,
   (isDark) => (isDarkMode.value = !!isDark),
 )
 
-const customCss = computed(() => {
-  if (!props.configuration?.customCss) return undefined
-  return migrateThemeVariables(props.configuration?.customCss)
-})
-
-// Set defaults as needed on the provided configuration
-const configuration = computed<ReferenceConfiguration>(() => ({
-  spec: {
-    content: undefined,
-    url: undefined,
-    ...props.configuration?.spec,
-  },
-  proxyUrl: undefined,
-  theme: 'default',
-  showSidebar: true,
-  isEditable: false,
-  ...props.configuration,
-  customCss: customCss.value,
-}))
-
-if (configuration.value?.metaData) {
-  useSeoMeta(configuration.value.metaData)
+if (configuration.metaData) {
+  useSeoMeta(configuration.metaData)
 }
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxyUrl: toRef(
-    () => configuration.value.proxyUrl || configuration.value.proxy || '',
-  ),
-  specConfig: toRef(() => configuration.value.spec || {}),
+  proxyUrl: toRef(() => configuration.proxyUrl || ''),
+  specConfig: toRef(() => configuration.spec || {}),
 })
 
 // TODO: defineSlots
 
-const favicon = computed(() => configuration.value.favicon)
+const favicon = computed(() => configuration.favicon)
 useFavicon(favicon)
 </script>
 <template>

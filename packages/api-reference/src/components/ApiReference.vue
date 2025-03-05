@@ -1,13 +1,13 @@
 <script setup lang="ts">
+import type {
+  ApiReferenceConfiguration,
+  ApiReferenceConfigurationWithSources,
+} from '@scalar/types/api-reference'
 import { toRef } from 'vue'
 
 import { DocumentSelector } from '@/components/DocumentSelector'
 import SingleApiReference from '@/components/SingleApiReference.vue'
 import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
-import type {
-  ReferenceConfiguration,
-  ReferenceConfigurationWithSources,
-} from '@/types'
 
 const props = defineProps<{
   /**
@@ -15,9 +15,9 @@ const props = defineProps<{
    * Can be a single configuration or an array of configurations for multiple documents.
    */
   configuration?:
-    | ReferenceConfiguration
-    | ReferenceConfiguration[]
-    | ReferenceConfigurationWithSources
+    | Partial<ApiReferenceConfiguration>
+    | Partial<ApiReferenceConfiguration>[]
+    | Partial<ApiReferenceConfigurationWithSources>
 }>()
 
 const { selectedConfiguration, availableDocuments, selectedDocumentIndex } =
