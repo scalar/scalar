@@ -1,31 +1,35 @@
-import type { ReferenceConfiguration, ReferenceConfigurationWithSources } from '@/types'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types'
+import {
+  isConfigurationWithSources,
+  type ApiReferenceConfiguration,
+  type ApiReferenceConfigurationWithSources,
+  type SpecConfiguration,
+} from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
-import type { Ref } from 'vue'
 
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, type Ref } from 'vue'
 
 /** URL parameter name for the selected API document */
 const QUERY_PARAMETER = 'api'
 
-interface UseMultipleDocumentsProps {
-  configuration: Ref<ReferenceConfiguration | ReferenceConfiguration[] | ReferenceConfigurationWithSources | undefined>
+type UseMultipleDocumentsProps = {
+  /**
+   * Configuration for the API reference.
+   * Can be a single configuration or an array of configurations for multiple documents.
+   */
+  configuration: Ref<
+    | Partial<ApiReferenceConfiguration>
+    | Partial<ApiReferenceConfiguration>[]
+    | Partial<ApiReferenceConfigurationWithSources>
+  >
 }
 
 const slugger = new GithubSlugger()
 
-const processSpec = (spec: any, index: number): SpecConfiguration | undefined => {
-  if (!spec) return undefined
-
-  if (!spec.sources && !spec.url && !spec.content) {
+/** Process a single spec configuration so that it has a title and a slug */
+const processSpec = (spec: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+  if (!spec?.url && !spec?.content) {
     return undefined
-  }
-
-  if (spec.sources) {
-    const sources = spec.sources.map((source: any) => processSpec(source, index)).filter(isDefined)
-
-    return sources.length > 0 ? sources : undefined
   }
 
   // Reset slugger to avoid duplicate handling
@@ -61,25 +65,13 @@ export const useMultipleDocuments = ({ configuration }: UseMultipleDocumentsProp
    * All available API definitions that can be selected
    */
   const availableDocuments = computed((): SpecConfiguration[] => {
-    // Multiple configurations
-    if (Array.isArray(configuration.value)) {
-      return configuration.value
-        .map((config: ReferenceConfiguration, index: number) => config.spec && processSpec(config.spec, index))
-        .filter(isDefined)
-    }
+    // Map the sources down to an array of specs
+    const sources = isConfigurationWithSources(configuration.value)
+      ? (configuration.value.spec?.sources ?? [])
+      : [configuration.value].flat().map((config) => config.spec)
 
-    // Multiple sources
-    if (
-      configuration.value?.spec &&
-      'sources' in configuration.value.spec &&
-      Array.isArray(configuration.value.spec.sources)
-    ) {
-      return configuration.value.spec.sources
-        .map((source: SpecConfiguration, index: number) => source && processSpec(source, index))
-        .filter(isDefined)
-    }
-
-    return configuration.value?.spec ? [processSpec(configuration.value.spec, 0)].filter(isDefined) : []
+    // Process them
+    return sources.map((source, index) => source && processSpec(source, index)).filter(isDefined)
   })
 
   /**
