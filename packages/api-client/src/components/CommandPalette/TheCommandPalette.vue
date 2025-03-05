@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+
 import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
@@ -8,7 +10,6 @@ import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteImportCurl from './CommandPaletteImportCurl.vue'
-import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteServer from './CommandPaletteServer.vue'
 import CommandPaletteTag from './CommandPaletteTag.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
@@ -24,7 +25,7 @@ export default {
 
 export const PaletteComponents = {
   'Import from OpenAPI/Swagger/Postman/cURL': CommandPaletteImport,
-  'Create Request': CommandPaletteRequest,
+  'Create Request': '',
   'Create Workspace': CommandPaletteWorkspace,
   'Add Tag': CommandPaletteTag,
   'Add Server': CommandPaletteServer,
@@ -55,8 +56,9 @@ import type { HotKeyEvent } from '@/libs'
 
 const modalState = useModal()
 const router = useRouter()
-const { activeWorkspace, activeCollection } = useActiveEntities()
-const { events } = useWorkspace()
+const { activeWorkspace, activeWorkspaceCollections, activeCollection } =
+  useActiveEntities()
+const { events, requestMutators } = useWorkspace()
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -64,20 +66,20 @@ const availableCommands = [
     label: '',
     commands: [
       {
-        name: 'Create Request',
-        icon: 'ExternalLink',
-      },
-      {
         name: 'Import from OpenAPI/Swagger/Postman/cURL',
         icon: 'Import',
       },
       {
-        name: 'Add Tag',
-        icon: 'Folder',
+        name: 'Create Request',
+        icon: 'ExternalLink',
       },
       {
         name: 'Create Collection',
         icon: 'Collection',
+      },
+      {
+        name: 'Add Tag',
+        icon: 'Folder',
       },
       {
         name: 'Add Example',
@@ -163,14 +165,40 @@ const backHandler = (event: KeyboardEvent) => {
 const executeCommand = (
   command: (typeof availableCommands)[number]['commands'][number],
 ) => {
-  // Route to the page
   if ('path' in command) {
     router.push(command.path)
     closeHandler()
-  }
+  } else if (command.name === 'Create Request') {
+    const draftsCollection = activeWorkspaceCollections.value.find(
+      (collection: Collection) => collection.info?.title === 'Drafts',
+    )
 
-  // Open respective command palette
-  else activeCommand.value = command.name
+    if (draftsCollection) {
+      const newRequest = requestMutators.add({}, draftsCollection.uid)
+
+      if (newRequest) {
+        router.push({
+          name: 'request',
+          params: {
+            workspace: activeWorkspace.value?.uid,
+            request: newRequest.uid,
+          },
+        })
+
+        closeHandler()
+
+        nextTick(() => {
+          events.hotKeys.emit({
+            focusAddressBar: new KeyboardEvent('keydown', { key: 'l' }),
+          })
+        })
+      }
+    } else {
+      closeHandler()
+    }
+  } else {
+    activeCommand.value = command.name
+  }
 }
 
 const commandInputRef = ref<HTMLInputElement | null>()
