@@ -27,7 +27,10 @@ export const requestExampleParametersSchema = z
     description: z.string().optional(),
     required: z.boolean().optional(),
     enum: z.array(z.string()).optional(),
-    examples: z.array(z.string()).optional(),
+    examples: z
+      .array(z.union([z.string(), z.number()]))
+      .transform((examples) => examples?.map(String))
+      .optional(),
     type: z
       .union([
         // 'string'
