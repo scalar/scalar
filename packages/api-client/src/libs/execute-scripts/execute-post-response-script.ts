@@ -120,22 +120,22 @@ const createScriptContext = ({
         },
       },
       // Test utilities
-      test: (name: string, fn: () => void) => {
-        // Emit initial pending status
+      test: async (name: string, fn: () => void | Promise<void>) => {
+        const testStartTime = performance.now()
+        // Emit initial pending status with current duration
         const pendingResult: TestResult = {
           title: name,
           success: false,
-          duration: 0,
+          duration: Number((performance.now() - testStartTime).toFixed(2)),
           status: 'pending',
         }
         testResults.value.push(pendingResult)
         onTestResultUpdate?.(pendingResult)
 
-        const testStartTime = performance.now()
         try {
-          fn()
+          await Promise.resolve(fn()) // Handle both sync and async functions
           const testEndTime = performance.now()
-          const duration = testEndTime - testStartTime
+          const duration = Number((testEndTime - testStartTime).toFixed(2))
           const result: TestResult = {
             title: name,
             success: true,
@@ -151,7 +151,7 @@ const createScriptContext = ({
           console.log(`✓ ${name}`)
         } catch (error: unknown) {
           const testEndTime = performance.now()
-          const duration = testEndTime - testStartTime
+          const duration = Number((testEndTime - testStartTime).toFixed(2))
           const errorMessage = error instanceof Error ? error.message : String(error)
           const result: TestResult = {
             title: name,
@@ -220,7 +220,7 @@ interface ScriptContext {
       get: (key: string) => string | undefined
       set: () => boolean
     }
-    test: (name: string, fn: () => void) => void
+    test: (name: string, fn: () => void | Promise<void>) => Promise<void>
   }
   testResults: Ref<TestResult[]>
 }
