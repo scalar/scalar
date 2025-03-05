@@ -173,7 +173,7 @@ const handleRequestNamePlaceholder = () => {
     </template>
     <div
       :id="filterIds.All"
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
         v-if="
