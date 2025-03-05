@@ -1,6 +1,6 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
-  apiClientConfigurationSchema,
+  apiReferenceConfigurationSchema,
   isConfigurationWithSources,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
@@ -138,13 +138,13 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
   const selectedConfiguration = computed(() => {
     // Multiple sources
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
-      return apiClientConfigurationSchema.parse({
+      return apiReferenceConfigurationSchema.parse({
         ...configuration.value,
         spec: configuration.value.spec?.sources[selectedDocumentIndex.value],
       })
     }
 
-    return apiClientConfigurationSchema.parse([configuration.value].flat()[selectedDocumentIndex.value] ?? {})
+    return apiReferenceConfigurationSchema.parse([configuration.value].flat()[selectedDocumentIndex.value] ?? {})
   })
 
   // Update URL when selection changes
