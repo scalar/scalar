@@ -17,7 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
-import { executePostResponseScripts } from '@/libs/send-request/execute-post-response-scripts'
+import { executePostResponseScript } from '@/libs/send-request/execute-post-response-script'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -187,7 +187,9 @@ export const createRequestOperation = ({
         const arrayBuffer = await response.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
 
-        await executePostResponseScripts(response, request['x-post-response'])
+        await executePostResponseScript(request['x-post-response'], {
+          response,
+        })
 
         // Safely check for cookie headers
         // TODO: polyfill
