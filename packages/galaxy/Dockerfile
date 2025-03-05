@@ -19,6 +19,7 @@ RUN chown node:node /app
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/mock-server /app/packages/mock-server
 COPY --from=builder /app/packages/api-reference /app/packages/api-reference
+COPY --from=builder /app/packages/types /app/packages/types
 COPY --from=builder /app/integrations/hono /app/integrations/hono
 COPY --from=builder /app/packages/oas-utils /app/packages/oas-utils
 COPY --from=builder /app/packages/openapi-parser /app/packages/openapi-parser
