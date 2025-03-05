@@ -59,6 +59,7 @@ const sections = computed(() => {
     'Cookies',
     'Headers',
     'Body',
+    'Scripts',
   ])
 
   if (!example.parameters.path.length) allSections.delete('Variables')
@@ -234,7 +235,9 @@ const handleRequestNamePlaceholder = () => {
         :workspace="workspace" />
 
       <ScalarErrorBoundary>
-        <PostResponseScripts :operation="operation" />
+        <PostResponseScripts
+          v-show="activeSection === 'All' || activeSection === 'Scripts'"
+          :operation="operation" />
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
