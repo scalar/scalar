@@ -54,6 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
+  'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -264,7 +265,9 @@ const handleRequestNamePlaceholder = () => {
         :workspace="workspace" />
 
       <ScalarErrorBoundary>
-        <PostResponseScripts :operation="operation" />
+        <PostResponseScripts
+          v-show="activeSection === 'All' || activeSection === 'Scripts'"
+          :operation="operation" />
       </ScalarErrorBoundary>
 
       <!-- Spacer -->
