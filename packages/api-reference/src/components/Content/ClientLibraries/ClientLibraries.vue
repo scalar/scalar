@@ -4,7 +4,7 @@ import { ref, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '../../../stores'
 import ClientSelector from './ClientSelector.vue'
-import { useFeatured } from './useFeatured'
+import { useFeaturedHttpClients } from './useFeaturedHttpClients'
 
 const {
   availableTargets,
@@ -13,7 +13,7 @@ const {
   httpClient,
   setHttpClient,
 } = useHttpClientStore()
-const { featuredClients, isFeatured } = useFeatured()
+const { featuredClients, isFeatured } = useFeaturedHttpClients()
 
 const index = ref(0)
 const morePanel = useId()

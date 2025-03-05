@@ -4,7 +4,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { TargetId } from '@scalar/snippetz/types'
 import { ref } from 'vue'
 
-import { useFeatured } from '@/components/Content/ClientLibraries/useFeatured'
+import { useFeaturedHttpClients } from '@/components/Content/ClientLibraries/useFeaturedHttpClients'
 
 import { useHttpClientStore, type HttpClientState } from '../../../stores'
 
@@ -22,7 +22,7 @@ const {
   getTargetTitle,
 } = useHttpClientStore()
 
-const { featuredClients, isFeatured } = useFeatured()
+const { featuredClients, isFeatured } = useFeaturedHttpClients()
 
 const containerRef = ref<HTMLElement>()
 

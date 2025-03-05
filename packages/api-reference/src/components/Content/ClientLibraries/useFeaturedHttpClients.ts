@@ -3,7 +3,10 @@ import type { ClientId, Target } from '@scalar/snippetz'
 
 export type FeaturedClient = { targetKey: Target['key']; clientKey: ClientId<Target['key']> }
 
-export function useFeatured() {
+/**
+ * Provides a list of featured http clients
+ */
+export function useFeaturedHttpClients() {
   const { availableTargets } = useHttpClientStore()
 
   // Show popular clients with an icon, not just in a select.
@@ -42,5 +45,10 @@ export function useFeatured() {
   const isFeatured = (client: HttpClientState) =>
     featuredClients.some((item) => item.targetKey === client.targetKey && item.clientKey === client.clientKey)
 
-  return { featuredClients, isFeatured }
+  return {
+    /** The featured http clients */
+    featuredClients,
+    /** Whether a client is featured */
+    isFeatured,
+  }
 }
