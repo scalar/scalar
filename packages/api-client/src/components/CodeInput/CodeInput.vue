@@ -211,6 +211,8 @@ const handleKeyDown = (key: string, event: KeyboardEvent) => {
       event.preventDefault()
       dropdownRef.value?.handleSelect()
     }
+  } else if (key === 'escape') {
+    if (!props.disableTabIndent) event.stopPropagation()
   } else if (key === 'enter' && event.target instanceof HTMLDivElement) {
     handleSubmit(event.target.textContent ?? '')
   }
@@ -265,12 +267,13 @@ export default {
       :id="uid"
       v-bind="$attrs"
       ref="codeMirrorRef"
-      class="group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
+      class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
       :class="{
         'flow-code-input--error': error,
       }"
       @keydown.down.stop="handleKeyDown('down', $event)"
       @keydown.enter="handleKeyDown('enter', $event)"
+      @keydown.escape="handleKeyDown('escape', $event)"
       @keydown.up.stop="handleKeyDown('up', $event)">
       <div
         v-if="isCopyable"
@@ -285,6 +288,14 @@ export default {
             icon="Clipboard"
             size="md" />
         </button>
+      </div>
+      <div
+        v-if="!disableTabIndent"
+        class="z-context text-c-2 absolute bottom-1 right-1.5 hidden font-sans group-has-[:focus-visible]/input:block"
+        role="alert">
+        Press
+        <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Esc</kbd> then
+        <kbd class="-mx-0.25 rounded border px-0.5 font-mono">Tab</kbd> to exit
       </div>
     </div>
   </template>
