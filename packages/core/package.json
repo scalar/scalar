@@ -42,9 +42,11 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "@scalar/types": "workspace:*"
+  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/types": "workspace:*",
     "vite": "^5.4.10"
   }
 }
