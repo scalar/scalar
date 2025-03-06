@@ -308,6 +308,9 @@ importers:
       '@scalar/api-reference-react':
         specifier: workspace:*
         version: link:../../packages/api-reference-react
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       react:
         specifier: ^18.0.0
         version: 18.3.1

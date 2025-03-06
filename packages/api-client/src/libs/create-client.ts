@@ -1,5 +1,5 @@
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
-import { createSidebarState, SIDEBAR_SYMBOL } from '@/hooks/useSidebar'
+import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
 import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
 import { loadAllResources } from '@/libs/local-storage'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
@@ -230,7 +230,7 @@ export const createApiClient = ({
     } else {
       console.error(
         '[@scalar/api-client-modal] Could not create the API client.',
-        'Please provide an OpenAPI document: { spec: { url: "…" } }',
+        'Please provide an OpenAPI document: { url: "…" }',
         'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
     }

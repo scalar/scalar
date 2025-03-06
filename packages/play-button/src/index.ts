@@ -82,9 +82,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     const { open } = await createApiClientModal({
       el: container as HTMLElement,
       configuration: {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         proxyUrl: 'https://proxy.scalar.com',
       },
     })

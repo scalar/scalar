@@ -21,9 +21,7 @@ import { ApiClientModalProvider } from '@scalar/api-client-react'
 import '@scalar/api-client-react/style.css'
 ;<ApiClientModalProvider
   configuration={{
-    spec: {
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    },
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   }}>
   {children}
 </ApiClientModalProvider>
