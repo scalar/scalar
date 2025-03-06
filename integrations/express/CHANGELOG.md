@@ -1,5 +1,17 @@
 # @scalar/express-api-reference
 
+## 0.4.190
+
+### Patch Changes
+
+- 12f1c67: fix: added types to fastify and express dockerfiles
+- 989ad08: fix: include all packages in dockerfile
+- Updated dependencies [89d8b75]
+- Updated dependencies [479a2ef]
+- Updated dependencies [b93b22f]
+- Updated dependencies [89d8b75]
+  - @scalar/api-reference@1.25.128
+
 ## 0.4.189
 
 ### Patch Changes

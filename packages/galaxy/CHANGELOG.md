@@ -1,5 +1,12 @@
 # @scalar/galaxy
 
+## 0.2.23
+
+### Patch Changes
+
+- 202e405: fix: add types package to galaxy docker file
+- 989ad08: fix: include all packages in dockerfile
+
 ## 0.2.22
 
 ### Patch Changes

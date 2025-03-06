@@ -1,5 +1,14 @@
 # @scalar/themes
 
+## 0.9.72
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- Updated dependencies [89d8b75]
+- Updated dependencies [8a04b8d]
+  - @scalar/types@0.0.37
+
 ## 0.9.71
 
 ### Patch Changes

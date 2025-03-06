@@ -1,5 +1,38 @@
 # @scalar/api-client
 
+## 2.2.57
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- 8c0e147: feat: updates request creation flow
+- 8a04b8d: fix: mime type transformation issue
+- b93b22f: fix(api-client): improve api client sidebar and address bar a11y
+- 73513d3: fix: handle utf-8 encoded file names for content-disposition header
+- 51b7c5c: fix: updates request table form style and logic"
+- 8a04b8d: fix: adds vendor specific mime type support
+- Updated dependencies [89d8b75]
+- Updated dependencies [8a04b8d]
+- Updated dependencies [1459ce7]
+- Updated dependencies [479a2ef]
+- Updated dependencies [8a04b8d]
+  - @scalar/oas-utils@0.2.111
+  - @scalar/themes@0.9.72
+  - @scalar/types@0.0.37
+  - @scalar/components@0.13.29
+  - @scalar/import@0.2.31
+  - @scalar/postman-to-openapi@0.1.34
+  - @scalar/use-codemirror@0.11.74
+  - @scalar/use-hooks@0.1.26
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/draggable@0.1.11
+  - @scalar/icons@0.1.3
+  - @scalar/object-utils@1.1.13
+  - @scalar/openapi-types@0.1.9
+  - @scalar/snippetz@0.2.15
+  - @scalar/use-toasts@0.7.9
+  - @scalar/use-tooltip@1.0.6
+
 ## 2.2.56
 
 ### Patch Changes

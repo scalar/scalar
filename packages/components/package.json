@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/components"
   },
-  "version": "0.13.28",
+  "version": "0.13.29",
   "engines": {
     "node": ">=18"
   },

@@ -1,5 +1,34 @@
 # @scalar/api-reference
 
+## 1.25.128
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- 479a2ef: fix(api-reference): improve references focus management
+- b93b22f: fix(api-client): improve api client sidebar and address bar a11y
+- 89d8b75: feat: configuration passes Zod
+- Updated dependencies [89d8b75]
+- Updated dependencies [8c0e147]
+- Updated dependencies [8a04b8d]
+- Updated dependencies [1459ce7]
+- Updated dependencies [479a2ef]
+- Updated dependencies [b93b22f]
+- Updated dependencies [73513d3]
+- Updated dependencies [51b7c5c]
+- Updated dependencies [8a04b8d]
+  - @scalar/api-client@2.2.57
+  - @scalar/oas-utils@0.2.111
+  - @scalar/themes@0.9.72
+  - @scalar/types@0.0.37
+  - @scalar/components@0.13.29
+  - @scalar/code-highlight@0.0.23
+  - @scalar/use-hooks@0.1.26
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/openapi-types@0.1.9
+  - @scalar/snippetz@0.2.15
+  - @scalar/use-toasts@0.7.9
+
 ## 1.25.127
 
 ### Patch Changes
