@@ -12,7 +12,6 @@ const results = ref<TestResult[]>([
   {
     title: 'Status Code is 200',
     success: true,
-    error: null,
     duration: 0.1,
     status: 'success',
   },
@@ -29,6 +28,10 @@ const passedTests = computed(() =>
   results.value.filter((result: TestResult) => result.success),
 )
 
+const failedTests = computed(() =>
+  results.value.filter((result: TestResult) => !result.success),
+)
+
 const allPassed = computed(
   () => passedTests.value.length === results.value.length,
 )
@@ -40,8 +43,9 @@ const allPassed = computed(
     class="overflow-auto"
     :defaultOpen="true">
     <template #title>Test Results</template>
+
     <template #actions>
-      <!-- Show an indicator whether we have a script -->
+      <!-- Show an indicator whether all tests passed -->
       <div class="mr-2">
         <div
           v-if="results.length > 0"
@@ -53,11 +57,13 @@ const allPassed = computed(
       </div>
     </template>
 
+    <!-- Results -->
     <div class="m-4 whitespace-nowrap text-xs">
       <div
         v-for="result in results"
         :key="result.title"
         class="flex items-center gap-2">
+        <!-- Title -->
         <div class="flex items-center gap-2">
           <span :class="result.success ? 'text-green' : 'text-red'">
             {{ result.success ? '✓' : '✗' }}
@@ -66,22 +72,29 @@ const allPassed = computed(
             {{ result.title }}
           </span>
         </div>
-        <!-- error, truncated to 50 characters -->
+        <!-- Error -->
         <span
           v-if="result.error"
           class="truncate text-red-500">
           {{ result.error }}
         </span>
-        <!-- duration right-aligned -->
+        <!-- Duration -->
         <span class="ml-auto"> {{ result.duration }} ms </span>
       </div>
 
-      <!-- Test Summary -->
+      <!-- Summary -->
       <div class="mt-2 border-t pt-2">
         <div class="flex items-center gap-2">
           <span class="font-medium">Tests:</span>
-          <span :class="allPassed ? 'text-green' : 'text-red'">
+          <span
+            v-if="allPassed"
+            class="text-green">
             {{ passedTests.length }} passed
+          </span>
+          <span
+            v-else
+            class="text-red">
+            {{ failedTests.length }} failed
           </span>
           <span class="text-c-3"> of {{ results.length }} total </span>
           <span class="text-c-3 ml-auto">
