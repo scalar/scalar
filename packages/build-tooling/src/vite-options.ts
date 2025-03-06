@@ -35,6 +35,12 @@ export function createViteBuildOptions(props: {
     ...props.options,
     lib: {
       formats: ['es'],
+      /**
+       * Default the css filename to align with Vite5 behavior
+       * This can still be overridden by the consumer of this function
+       */
+      // @ts-expect-error Allow this property for compat with Vite6
+      cssFileName: 'style.css',
       ...props?.options?.lib,
       entry: props.entry,
     },

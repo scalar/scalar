@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "^20.17.10",
     "@types/prettyjson": "^0.0.33",

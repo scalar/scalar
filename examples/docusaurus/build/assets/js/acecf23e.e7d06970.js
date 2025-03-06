@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_scalar_examples_docusaurus=self.webpackChunk_scalar_examples_docusaurus||[]).push([[1903],{1912:s=>{s.exports=JSON.parse('{"blogBasePath":"/blog","blogTitle":"Blog","authorsListPath":"/blog/authors"}')}}]);

@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk_scalar_examples_docusaurus=self.webpackChunk_scalar_examples_docusaurus||[]).push([[7283],{2976:s=>{s.exports=JSON.parse('{"name":"@scalar/docusaurus","id":"yaml-string"}')}}]);
