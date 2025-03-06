@@ -22,7 +22,7 @@ function basicAuthEncode(username: string, password: string) {
   return 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
 }
 
-function exampleSpec() {
+function exampleDocument() {
   return {
     openapi: '3.1.0',
     info: {
@@ -134,7 +134,7 @@ describe('fastifyApiReference', () => {
       { specProvidedVia: 'content: () => spec' },
     ] as const)('provided via $specProvidedVia', ({ specProvidedVia }) => {
       type LocalTestContext = {
-        spec: ReturnType<typeof exampleSpec>
+        spec: ReturnType<typeof exampleDocument>
         address: string
       }
 
@@ -149,7 +149,7 @@ describe('fastifyApiReference', () => {
         },
       ] as const)('on the $endpointConfig endpoint', ({ json, yaml }) => {
         beforeEach<LocalTestContext>(async (context) => {
-          const spec = exampleSpec()
+          const spec = exampleDocument()
           const fastify = Fastify({
             logger: false,
           })
@@ -160,7 +160,7 @@ describe('fastifyApiReference', () => {
 
           switch (specProvidedVia) {
             case '@fastify/swagger': {
-              await fastify.register(fastifySwagger, { openapi: exampleSpec() })
+              await fastify.register(fastifySwagger, { openapi: exampleDocument() })
               await fastify.register(fastifyApiReference, {
                 openApiDocumentEndpoints,
                 configuration: {},
@@ -263,14 +263,14 @@ describe('fastifyApiReference', () => {
       { expectedUrl: urlOwn, specProvidedVia: 'url: urlOwn' },
       { expectedUrl: urlExt, specProvidedVia: 'url: urlExt' },
     ] as const)('when spec is provided via $specProvidedVia', async ({ expectedUrl, specProvidedVia }) => {
-      const spec = exampleSpec()
+      const spec = exampleDocument()
       const fastify = Fastify({
         logger: false,
       })
 
       switch (specProvidedVia) {
         case '@fastify/swagger': {
-          await fastify.register(fastifySwagger, { openapi: exampleSpec() })
+          await fastify.register(fastifySwagger, { openapi: exampleDocument() })
           await fastify.register(fastifyApiReference)
           break
         }
