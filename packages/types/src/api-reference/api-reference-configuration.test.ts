@@ -91,20 +91,20 @@ describe('api-reference-configuration', () => {
       })
     })
 
-    it('validates spec configuration', () => {
+    it('validates content and url configuration', () => {
       const validConfigs = [
-        { spec: { url: 'https://example.com/openapi.json' } },
-        { spec: { content: '{"openapi": "3.1.0"}' } },
-        { spec: { content: { openapi: '3.1.0' } } },
-        { spec: { content: () => ({ openapi: '3.1.0' }) } },
-        { spec: { content: null } },
+        { url: 'https://example.com/openapi.json' },
+        { content: '{"openapi": "3.1.0"}' },
+        { content: { openapi: '3.1.0' } },
+        { content: () => ({ openapi: '3.1.0' }) },
+        { content: null },
       ]
 
       validConfigs.forEach((config) => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
       })
 
-      const invalidConfigs = [{ spec: { url: 999 } }, { spec: { content: 123 } }]
+      const invalidConfigs = [{ url: 999 }, { content: 123 }]
 
       invalidConfigs.forEach((config) => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow()

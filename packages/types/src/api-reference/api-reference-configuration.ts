@@ -133,6 +133,23 @@ const pathRoutingSchema = z.object({
 
 /** Configuration for the Api Client */
 export const apiClientConfigurationSchema = z.object({
+  /**
+   * URL to an OpenAPI/Swagger document
+   **/
+  url: z.string().optional(),
+  /**
+   * Directly embed the OpenAPI document.
+   * Can be a string, object, function returning an object, or null.
+   *
+   * @remarks It’s recommended to pass a URL instead of content.
+   **/
+  content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
+  /**
+   * The OpenAPI/Swagger document to render
+   *
+   * @deprecated Use `url` and `content` on the top level instead.
+   **/
+  spec: specConfigurationSchema.optional(),
   /** Prefill authentication */
   authentication: z.any().optional(), // Temp until we bring in the new auth
   /** Base URL for the API server */
@@ -153,8 +170,6 @@ export const apiClientConfigurationSchema = z.object({
    * @default true
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
-  /** The Swagger/OpenAPI spec to render */
-  spec: specConfigurationSchema.optional(),
   /** A string to use one of the color presets */
   theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */
@@ -166,21 +181,10 @@ export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
-/** Configuration for the Api Reference */
+/** Configuration for the API Reference */
 export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
   .merge(
     z.object({
-      /**
-       * URL to an OpenAPI/Swagger document
-       **/
-      url: z.string().optional(),
-      /**
-       * Directly embed the OpenAPI document.
-       * Can be a string, object, function returning an object, or null.
-       *
-       * @remarks It’s recommended to pass a URL instead of content.
-       **/
-      content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
       /**
        * The layout to use for the references
        * @default 'modern'
