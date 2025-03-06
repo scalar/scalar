@@ -14,7 +14,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex h-8 items-center gap-1.5 pl-1.5 pr-3">
+  <div class="flex h-8 items-center gap-1.5 pl-1 pr-3">
     <TestResultIndicator
       :passedTestsCount="passedTests?.length"
       :failedTestsCount="failedTests?.length"
