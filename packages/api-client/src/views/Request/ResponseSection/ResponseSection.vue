@@ -8,6 +8,7 @@ import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
+import TestResults from '@/views/Request/ResponseSection/TestResults.vue'
 
 import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
@@ -168,6 +169,8 @@ const shouldVirtualize = computed(() => {
           :id="filterIds.Headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
+
+        <TestResults />
 
         <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
           <!-- Virtualized Text for massive responses -->
