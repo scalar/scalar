@@ -233,6 +233,55 @@ describe('createParamInstance', () => {
       value: '',
     })
   })
+
+  it('works with schema examples containing numbers', () => {
+    const result = createParamInstance({
+      in: 'query',
+      name: 'foo',
+      required: true,
+      deprecated: false,
+      schema: {
+        default: 1,
+        type: 'integer',
+        examples: [1, 2, 3],
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      value: '1',
+      enabled: true,
+      description: undefined,
+      required: true,
+      examples: ['1', '2', '3'],
+      type: 'integer',
+      default: 1,
+    })
+  })
+
+  it('works with nested array types', () => {
+    const result = createParamInstance({
+      in: 'path',
+      name: 'foo',
+      required: true,
+      deprecated: false,
+      schema: {
+        type: [['string', 'number'], 'null'],
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      enabled: true,
+      enum: undefined,
+      examples: undefined,
+      description: undefined,
+      required: true,
+      type: ['string', 'number'],
+      nullable: true,
+      value: '',
+    })
+  })
 })
 
 describe('parameterArrayToObject', () => {

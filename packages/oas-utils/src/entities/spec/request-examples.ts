@@ -27,13 +27,17 @@ export const requestExampleParametersSchema = z
     description: z.string().optional(),
     required: z.boolean().optional(),
     enum: z.array(z.string()).optional(),
-    examples: z.array(z.string()).optional(),
+    examples: z.array(z.union([z.string(), z.number()])).optional(),
     type: z
       .union([
         // 'string'
         z.string(),
         // ['string', 'null']
         z.array(z.string()),
+        // ["string", "number"]
+        z.array(z.union([z.string(), z.literal('null'), z.literal('number')])),
+        // [["string", "number"], "null"]
+        z.array(z.union([z.array(z.union([z.string(), z.literal('number')])), z.literal('null')])),
       ])
       .optional(),
     format: z.string().optional(),
