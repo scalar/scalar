@@ -2,7 +2,7 @@
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
-import ContextBar from '@/components/ContextBar.vue'
+import ContextBar from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'

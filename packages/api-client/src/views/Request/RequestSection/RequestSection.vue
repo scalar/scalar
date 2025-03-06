@@ -12,7 +12,7 @@ import type {
 import { canMethodHaveBody, isDefined, REGEX } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
-import ContextBar from '@/components/ContextBar.vue'
+import ContextBar from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
