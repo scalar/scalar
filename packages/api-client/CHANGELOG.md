@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.2.58
+
+### Patch Changes
+
+- 4682a6f: fix: add keyboard instructions for code inputs
+- Updated dependencies [7f1a40e]
+  - @scalar/types@0.0.38
+  - @scalar/oas-utils@0.2.112
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/themes@0.9.73
+  - @scalar/import@0.2.32
+  - @scalar/postman-to-openapi@0.1.35
+  - @scalar/components@0.13.30
+  - @scalar/use-codemirror@0.11.75
+  - @scalar/use-hooks@0.1.27
+
 ## 2.2.57
 
 ### Patch Changes

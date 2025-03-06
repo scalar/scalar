@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.38
+
+### Patch Changes
+
+- 7f1a40e: fix: hiddenClients can be a boolean
+
 ## 0.0.37
 
 ### Patch Changes

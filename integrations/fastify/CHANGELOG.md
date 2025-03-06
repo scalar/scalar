@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.129
+
+### Patch Changes
+
+- Updated dependencies [7f1a40e]
+  - @scalar/types@0.0.38
+  - @scalar/api-reference@1.25.129
+
 ## 1.25.128
 
 ### Patch Changes
