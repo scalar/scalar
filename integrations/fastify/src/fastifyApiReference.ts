@@ -288,10 +288,8 @@ const fastifyApiReference = fp<
         if (specSource.type !== 'url') {
           configuration = {
             ...configuration,
-            spec: {
-              // Use a relative URL in case we're proxied
-              url: `.${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`,
-            },
+            // Use a relative URL in case we're proxied
+            url: `.${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`,
           }
         }
 

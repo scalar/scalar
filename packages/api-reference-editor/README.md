@@ -58,7 +58,7 @@ If you wish to have external UI that updates the spec then `updateSpecValue` can
 
       const { updateSpecValue} = mountApiReferenceEditable(
         '#scalar-api-reference',
-        { spec: {content: ''}},
+        { content: '' },
         (v: string) => {
           console.log('The value is updated!')
           updateSpecValue(v) // Updates the rendered spec

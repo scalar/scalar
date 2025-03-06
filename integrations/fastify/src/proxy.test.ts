@@ -14,7 +14,7 @@ describe('fastifyApiReference', () => {
     await origin.register(Scalar, {
       routePrefix: '/documentation',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 

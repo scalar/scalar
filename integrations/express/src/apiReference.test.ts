@@ -9,7 +9,7 @@ describe('apiReference', () => {
     const app = express()
     const options = {
       cdn: 'https://cdn.example.com',
-      spec: { content: { info: { title: 'Test API' } } },
+      content: { info: { title: 'Test API' } },
     }
     app.use(apiReference(options))
 
@@ -27,7 +27,7 @@ describe('apiReference', () => {
     app.use(
       apiReference({
         cdn: 'https://cdn.example.com',
-        spec: { content: { info: { title: 'Test API' } } },
+        content: { info: { title: 'Test API' } },
         theme: 'kepler',
       }),
     )
@@ -61,7 +61,7 @@ describe('apiReference', () => {
   it('should use default CDN when no CDN is provided', async () => {
     const app = express()
     const options = {
-      spec: { content: { info: { title: 'Test API' } } },
+      content: { info: { title: 'Test API' } },
     }
     app.use(apiReference(options))
 
@@ -74,7 +74,7 @@ describe('apiReference', () => {
 
   it('doesn’t have the content twice', async () => {
     const app = express()
-    app.use(apiReference({ spec: { content: { info: { title: 'Test API' } } } }))
+    app.use(apiReference({ content: { info: { title: 'Test API' } } }))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
@@ -93,9 +93,7 @@ describe('apiReference', () => {
 
     app.use(
       apiReference({
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }),
     )
 
@@ -133,7 +131,7 @@ describe('apiReference', () => {
   it('handles content as function', async () => {
     const app = express()
     const contentFn = () => ({ info: { title: 'Function API' } })
-    app.use(apiReference({ spec: { content: contentFn } }))
+    app.use(apiReference({ content: contentFn }))
 
     const response = await request(app).get('/')
     expect(response.text).toContain('Function API')
@@ -143,10 +141,8 @@ describe('apiReference', () => {
     const app = express()
     app.use(
       apiReference({
-        spec: {
-          url: 'https://example.com/api.json',
-          content: { info: { title: 'Test API' } },
-        },
+        url: 'https://example.com/api.json',
+        content: { info: { title: 'Test API' } },
       }),
     )
 

@@ -6,9 +6,7 @@ export default function ApiReferencePage() {
   return (
     <ApiReferenceReact
       configuration={{
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         withDefaultFonts: false,
         hideModels: true,
         tagsSorter: 'alpha',
