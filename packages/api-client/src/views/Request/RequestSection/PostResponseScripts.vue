@@ -30,7 +30,7 @@ const updatePostResponseScript = (value: string) => {
       class="w-full"
       :defaultOpen="true">
       <template #title>Scripts</template>
-      <template #actions>
+      <template #suffix>
         <!-- Show an indicator whether we have a script -->
         <div class="mr-2">
           <div

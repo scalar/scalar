@@ -13,7 +13,7 @@ const { results } = defineProps<{
 }>()
 
 const passedTests = computed(() =>
-  results?.filter((result: TestResult) => result.success),
+  results?.filter((result: TestResult) => result.status === 'passed'),
 )
 
 const pendingTests = computed(() =>
@@ -21,7 +21,7 @@ const pendingTests = computed(() =>
 )
 
 const failedTests = computed(() =>
-  results?.filter((result: TestResult) => result.status === 'failure'),
+  results?.filter((result: TestResult) => result.status === 'failed'),
 )
 
 const allTestsPassed = computed(
@@ -29,9 +29,9 @@ const allTestsPassed = computed(
 )
 
 const currentState = computed(() => {
-  if (allTestsPassed.value) return 'success'
+  if (allTestsPassed.value) return 'passed'
   if (pendingTests.value?.length) return 'pending'
-  return 'failure'
+  return 'failed'
 })
 
 const totalDuration = computed(
@@ -46,16 +46,21 @@ const totalDuration = computed(
 <template>
   <ViewLayoutCollapse
     v-if="results?.length"
-    class="overflow-auto"
+    class="overflow-auto text-sm"
     :defaultOpen="true">
-    <template #title>Test Results</template>
-
-    <template #actions>
-      <TestResultIndicator :state="currentState" />
+    <template #title> Tests </template>
+    <template #suffix>
+      <TestResultIndicator
+        inline
+        :state="currentState"
+        :passedTestsCount="passedTests?.length"
+        :failedTestsCount="failedTests?.length"
+        :pendingTestsCount="pendingTests?.length"
+        :totalTestsCount="results?.length" />
     </template>
 
-    <!-- Results -->
-    <div class="m-4 whitespace-nowrap text-xs">
+    <div class="max-h-[calc(100%-32px)] divide-y overflow-y-auto border-t">
+      <!-- Results -->
       <TestResultItem
         v-for="result in results"
         :key="result.title"

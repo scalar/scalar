@@ -23,13 +23,19 @@ const icon = computed(() => {
 })
 
 const statusVariants = cva({
-  base: 'flex items-center gap-1 rounded-full border pr-2 pl-1.5',
+  base: 'flex items-center gap-1.5 rounded-full border pr-2 pl-1.5',
   variants: {
     status: {
       passed: 'text-green',
       failed: 'text-red',
       pending: 'text-orange',
     },
+  },
+})
+
+const textVariants = cva({
+  base: 'text-c-2',
+  variants: {
     inline: {
       true: 'text-xs',
       false: 'text-sm',
@@ -56,12 +62,12 @@ const getTestCountDisplay = computed(() => {
       size="sm" />
     <span
       v-if="!inline"
-      class="ml-2 capitalize">
+      class="ml-0.75 capitalize">
       {{ state }}
     </span>
     <span
       v-if="totalTestsCount !== undefined"
-      class="text-c-3">
+      v-bind="cx(textVariants({ inline }))">
       {{ getTestCountDisplay }}
     </span>
   </div>
