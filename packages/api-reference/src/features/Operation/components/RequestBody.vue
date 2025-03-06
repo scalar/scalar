@@ -46,6 +46,7 @@ if (requestBody?.content) {
 .request-body-title {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
