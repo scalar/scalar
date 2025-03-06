@@ -11,7 +11,6 @@ import { useRouter } from 'vue-router'
 
 import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks/useLayout'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useWorkspace } from '@/store'
@@ -43,16 +42,11 @@ const { currentRoute } = useRouter()
     class="lg:min-h-client-header t-app__top-container border-b-1/2 flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
     <div
       class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
-      <SidebarToggle
+      <!-- Holds space for the sidebar toggle -->
+      <div
         v-if="showSidebar"
-        v-model="isSidebarOpen"
-        class="ml-1"
-        :class="[
-          { hidden: isSidebarOpen },
-          { 'xl:!flex': !isSidebarOpen },
-          { '!flex': layout === 'modal' },
-          { '!hidden': layout === 'modal' && isSidebarOpen },
-        ]" />
+        class="size-8"
+        :class="{ hidden: layout === 'modal' && !isSidebarOpen }" />
     </div>
     <!-- Address Bar - we should always have a collection and operation -->
     <AddressBar

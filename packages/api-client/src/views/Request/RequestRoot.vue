@@ -5,7 +5,9 @@ import { useToasts } from '@scalar/use-toasts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
+import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
+import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { validateParameters } from '@/libs/validate-parameters'
@@ -29,6 +31,7 @@ const {
 } = useActiveEntities()
 const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
+const { isSidebarOpen } = useSidebar()
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
@@ -138,6 +141,15 @@ watch(
     :class="{
       '!mb-0 !mr-0 !border-0': layout === 'modal',
     }">
+    <SidebarToggle
+      v-if="showSidebar"
+      v-model="isSidebarOpen"
+      class="absolute left-3 top-2 z-50"
+      :class="[
+        { hidden: isSidebarOpen },
+        { 'xl:!flex': !isSidebarOpen },
+        { '!flex': layout === 'modal' },
+      ]" />
     <div class="flex h-full">
       <!-- Sidebar -->
       <RequestSidebar
