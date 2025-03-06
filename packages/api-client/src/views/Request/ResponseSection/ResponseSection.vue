@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import type { TestResult } from '@/libs/execute-scripts'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
@@ -14,9 +15,10 @@ import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 
-const { numWorkspaceRequests, response } = defineProps<{
+const { numWorkspaceRequests, response, testResults } = defineProps<{
   numWorkspaceRequests: number
   response: ResponseInstance | undefined
+  testResults?: TestResult[] | undefined
 }>()
 
 // Headers
@@ -151,7 +153,7 @@ const shouldVirtualize = computed(() => {
           v-if="activeSection === 'All' || activeSection === 'Headers'"
           :headers="responseHeaders" />
 
-        <TestResults />
+        <TestResults :testResults="testResults" />
 
         <template v-if="activeSection === 'All' || activeSection === 'Body'">
           <!-- Virtualized Text for massive responses -->

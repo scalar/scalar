@@ -1,45 +1,45 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import type { TestResult } from '@/libs/execute-scripts'
 
-// defineProps<{
-//   results?: TestResult[]
-// }>()
+const { testResults } = defineProps<{
+  testResults?: TestResult[] | undefined
+}>()
 
-const results = ref<TestResult[]>([
-  {
-    title: 'Status Code is 200',
-    success: true,
-    duration: 0.1,
-    status: 'success',
-  },
-  {
-    title: 'Status Code is 404',
-    success: false,
-    error: 'Unexpected token ) in JSON at position 1',
-    duration: 0.3,
-    status: 'failure',
-  },
-])
+// const results = ref<TestResult[]>([
+//   {
+//     title: 'Status Code is 200',
+//     success: true,
+//     duration: 0.1,
+//     status: 'success',
+//   },
+//   {
+//     title: 'Status Code is 404',
+//     success: false,
+//     error: 'Unexpected token ) in JSON at position 1',
+//     duration: 0.3,
+//     status: 'failure',
+//   },
+// ])
 
 const passedTests = computed(() =>
-  results.value.filter((result: TestResult) => result.success),
+  testResults?.filter((result: TestResult) => result.success),
 )
 
 const failedTests = computed(() =>
-  results.value.filter((result: TestResult) => !result.success),
+  testResults?.filter((result: TestResult) => !result.success),
 )
 
 const allPassed = computed(
-  () => passedTests.value.length === results.value.length,
+  () => passedTests.value?.length === testResults?.length,
 )
 </script>
 
 <template>
   <ViewLayoutCollapse
-    v-if="results.length > 0"
+    v-if="testResults?.length"
     class="overflow-auto"
     :defaultOpen="true">
     <template #title>Test Results</template>
@@ -48,7 +48,7 @@ const allPassed = computed(
       <!-- Show an indicator whether all tests passed -->
       <div class="mr-2">
         <div
-          v-if="results.length > 0"
+          v-if="testResults?.length"
           class="h-2 w-2 rounded-full"
           :class="{
             'bg-green': allPassed,
@@ -60,7 +60,7 @@ const allPassed = computed(
     <!-- Results -->
     <div class="m-4 whitespace-nowrap text-xs">
       <div
-        v-for="result in results"
+        v-for="result in testResults"
         :key="result.title"
         class="flex items-center gap-2">
         <!-- Title -->
@@ -89,17 +89,17 @@ const allPassed = computed(
           <span
             v-if="allPassed"
             class="text-green">
-            {{ passedTests.length }} passed
+            {{ passedTests?.length }} passed
           </span>
           <span
             v-else
             class="text-red">
-            {{ failedTests.length }} failed
+            {{ failedTests?.length }} failed
           </span>
-          <span class="text-c-3"> of {{ results.length }} total </span>
+          <span class="text-c-3"> of {{ testResults?.length }} total </span>
           <span class="text-c-3 ml-auto">
             {{
-              results.reduce(
+              testResults?.reduce(
                 (acc: number, curr: TestResult) => acc + curr.duration,
                 0,
               )
