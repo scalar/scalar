@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {
   ApiReference,
-  type ReferenceConfiguration,
+  type ApiReferenceConfiguration,
   type ReferenceLayoutType,
 } from '@scalar/api-reference'
 import content from '@scalar/galaxy/latest.yaml?raw'
@@ -11,12 +11,12 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-const configuration = reactive<ReferenceConfiguration>({
+const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   theme: (`${route.params['theme']}` as ThemeId) || 'default',
   isEditable: false,
   layout: `${route.params['layout']}` as ReferenceLayoutType,
   darkMode: !!route.query['darkMode'],
-  spec: { content },
+  content,
 })
 </script>
 <template>

@@ -377,28 +377,23 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
   .transform((_configuration) => {
     const configuration = { ..._configuration }
 
-    // Promote the top level attributes to the spec object
+    // Remove the spec prefix
     if (configuration.spec?.url) {
       console.warn(
         `[DEPRECATED] You’re using the deprecated 'spec.url' attribute. Remove the spec prefix and move the 'url' attribute to the top level.`,
       )
+
+      configuration.url = configuration.spec.url
+      delete configuration.spec
     }
 
     if (configuration.spec?.content) {
       console.warn(
         `[DEPRECATED] You’re using the deprecated 'spec.content' attribute. Remove the spec prefix and move the 'content' attribute to the top level.`,
       )
-    }
 
-    // Add spec prefix until we migrated them
-    if (configuration.url) {
-      configuration.spec = { url: configuration.url }
-      delete configuration.url
-    }
-
-    if (configuration.content) {
-      configuration.spec = { content: configuration.content }
-      delete configuration.content
+      configuration.content = configuration.spec.content
+      delete configuration.spec
     }
 
     // Migrate legacy theme variables
@@ -438,6 +433,5 @@ export type ApiReferenceConfiguration = Omit<
   // Remove deprecated attributes
   | 'proxy'
   // Remove new attributes, until we migrated them
-  | 'url'
-  | 'content'
+  | 'spec'
 >

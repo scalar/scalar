@@ -24,9 +24,7 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        spec: {
-          content: spec,
-        },
+        content: spec,
       }}
     />
   )

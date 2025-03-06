@@ -18,11 +18,11 @@ const handleDownloadClick = () => {
   <div class="download">
     <template v-if="!config?.hideDownloadButton">
       <!-- Direct URL -->
-      <template v-if="config?.spec?.url">
+      <template v-if="config?.url">
         <a
           class="download-button"
           download
-          :href="config?.spec?.url"
+          :href="config?.url"
           target="_blank">
           Download OpenAPI Document
         </a>

@@ -7,8 +7,9 @@ describe('apiReference', () => {
     const app = new Hono()
     const config = {
       cdn: 'https://cdn.example.com',
-      spec: { content: { info: { title: 'Test API' } } },
+      content: { info: { title: 'Test API' } },
     }
+
     app.get('/', apiReference(config))
 
     const response = await app.request('/')
@@ -26,7 +27,7 @@ describe('apiReference', () => {
     app.get(
       '/',
       apiReference({
-        spec: { content: { info: { title: 'Test API' } } },
+        content: { info: { title: 'Test API' } },
         theme: 'kepler',
         cdn: 'https://cdn.example.com',
       }),
@@ -63,7 +64,7 @@ describe('apiReference', () => {
   it('should use default CDN when no CDN is provided', async () => {
     const app = new Hono()
     const options = {
-      spec: { content: { info: { title: 'Test API' } } },
+      content: { info: { title: 'Test API' } },
     }
     app.get('/', apiReference(options))
 
@@ -77,7 +78,7 @@ describe('apiReference', () => {
 
   it("doesn't have the content twice", async () => {
     const app = new Hono()
-    app.get('/', apiReference({ spec: { content: { info: { title: 'Test API' } } } }))
+    app.get('/', apiReference({ content: { info: { title: 'Test API' } } }))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -96,9 +97,7 @@ describe('apiReference', () => {
     app.get(
       '/',
       apiReference({
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }),
     )
 
@@ -140,7 +139,7 @@ describe('apiReference', () => {
   it('handles content as function', async () => {
     const app = new Hono()
     const contentFn = () => ({ info: { title: 'Function API' } })
-    app.get('/', apiReference({ spec: { content: contentFn } }))
+    app.get('/', apiReference({ content: contentFn }))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -152,10 +151,8 @@ describe('apiReference', () => {
     app.get(
       '/',
       apiReference({
-        spec: {
-          url: 'https://example.com/api.json',
-          content: { info: { title: 'Test API' } },
-        },
+        url: 'https://example.com/api.json',
+        content: { info: { title: 'Test API' } },
       }),
     )
 
