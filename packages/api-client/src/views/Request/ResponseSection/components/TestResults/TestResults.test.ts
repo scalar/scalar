@@ -27,7 +27,7 @@ describe('TestResults', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('Test Results')
+    expect(wrapper.text()).toContain('Tests')
 
     // Check if all test items are rendered
     expect(wrapper.text()).toContain('Test 1')
@@ -35,19 +35,39 @@ describe('TestResults', () => {
     expect(wrapper.text()).toContain('Test 3')
 
     // Check if summary is rendered
-    expect(wrapper.text()).toContain('1 failed')
-    expect(wrapper.text()).toContain('1 pending')
+    expect(wrapper.text()).toContain('1/3')
+    expect(wrapper.text()).toContain('1 Pending')
   })
 
-  it('shows correct status indicators', () => {
+  it('shows correct durations for each test', () => {
     const wrapper = mount(TestResults, {
       props: {
         results,
       },
     })
 
-    expect(wrapper.text()).toContain('✓Test 1')
-    expect(wrapper.text()).toContain('✗Test 2')
-    expect(wrapper.text()).toContain('⋯Test 3')
+    expect(wrapper.text()).toContain('100 ms')
+    expect(wrapper.text()).toContain('200 ms')
+    expect(wrapper.text()).toContain('300 ms')
+  })
+
+  it('calculates total duration correctly', () => {
+    const wrapper = mount(TestResults, {
+      props: {
+        results,
+      },
+    })
+
+    expect(wrapper.text()).toContain('600.0 ms')
+  })
+
+  it('displays the correct test summary', () => {
+    const wrapper = mount(TestResults, {
+      props: {
+        results,
+      },
+    })
+
+    expect(wrapper.text()).toContain('1/3')
   })
 })
