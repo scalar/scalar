@@ -25,7 +25,7 @@ const { size = 'md' } = defineProps<{
 const modal = cva({
   base: [
     'scalar-modal',
-    'flex flex-col relative mx-auto mb-0 rounded-lg bg-b-1 p-0 text-left leading-snug text-c-1 opacity-0 w-[calc(100vw-12px)] md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
+    'flex flex-col relative mb-0 rounded-lg bg-b-1 p-0 text-left leading-snug text-c-1 opacity-0 w-[calc(100vw-12px)] md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
