@@ -89,6 +89,9 @@ const executeRequest = async () => {
     status: events.requestStatus,
     securitySchemes: securitySchemes,
     server,
+    onTestResultUpdate: (results) => {
+      console.log('YESS TEST RESULT', results)
+    },
   })
 
   // Error from createRequestOperation
