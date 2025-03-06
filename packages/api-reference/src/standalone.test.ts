@@ -48,6 +48,7 @@ describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
     const event = new CustomEvent('scalar:update-references-config', {
       detail: {
         configuration: {
+          // @ts-expect-error old format
           spec: {
             content: galaxyContent,
           },

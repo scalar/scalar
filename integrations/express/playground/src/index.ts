@@ -131,9 +131,7 @@ app.get('/openapi.json', (_, res) => {
 app.use(
   '/',
   apiReference({
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   }),
 )
 

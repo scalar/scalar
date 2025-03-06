@@ -41,9 +41,7 @@ If you would like to add your own OpenAPI document you can do so with the follow
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
   scalar: {
-    spec: {
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    },
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   },
 })
 ```
@@ -67,9 +65,7 @@ export default defineNuxtConfig({
     pathRouting: {
       basePath: '/scalar',
     },
-    spec: {
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    },
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   },
 })
 ```
@@ -88,17 +84,13 @@ export default defineNuxtConfig({
     proxyUrl: 'https://proxy.scalar.com',
     configurations: [
       {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml,
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml,
         pathRouting: {
           basePath: '/yaml',
         },
       },
       {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         pathRouting: {
           basePath: '/json',
         },

@@ -1,7 +1,7 @@
+import { readFileSync } from 'node:fs'
 import { ApiReference } from '@scalar/nextjs-api-reference'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { sync } from 'fast-glob'
-import { readFileSync } from 'node:fs'
 import type { NextRequest } from 'next/server'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {

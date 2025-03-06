@@ -61,7 +61,10 @@ function setSpec({ url, content }: SpecConfiguration) {
 
 // Set the content whenever the input props change
 watchEffect(() => {
-  setSpec(props.configuration?.spec ?? { content: '' })
+  setSpec({
+    content: props.configuration?.content || '',
+    url: props.configuration?.url,
+  })
 })
 
 // ---------------------------------------------------------------------------

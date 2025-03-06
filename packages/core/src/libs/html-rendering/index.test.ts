@@ -4,7 +4,7 @@ import {
   htmlRenderingConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
-import { getConfiguration, getHtmlDocument, getScriptTagContent, getScriptTags } from './index.ts'
+import { getConfiguration, getHtmlDocument, getScriptTagContent, getScriptTags } from './index'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {
@@ -39,18 +39,16 @@ describe('html-rendering', () => {
       expect(config).toBe('{&quot;theme&quot;:&quot;kepler&quot;}')
     })
 
-    it('removes spec when url is not provided', () => {
-      const config = getConfiguration(apiReferenceConfigurationSchema.parse({ spec: { content: { foo: 'bar' } } }))
-      expect(config).not.toContain('spec')
+    it('removes content when url is not provided', () => {
+      const config = getConfiguration(apiReferenceConfigurationSchema.parse({ content: { foo: 'bar' } }))
+      expect(config).not.toContain('content')
     })
 
     it('removes spec.content when url is provided', () => {
       const config = getConfiguration(
         apiReferenceConfigurationSchema.parse({
-          spec: {
-            url: 'https://api.example.com/spec',
-            content: { foo: 'bar' },
-          },
+          url: 'https://api.example.com/spec',
+          content: { foo: 'bar' },
         }),
       )
       expect(config).toContain('url')
@@ -67,7 +65,7 @@ describe('html-rendering', () => {
     it('stringifies spec content object', () => {
       const content = getScriptTagContent(
         apiReferenceConfigurationSchema.parse({
-          spec: { content: { foo: 'bar' } },
+          content: { foo: 'bar' },
         }),
       )
       expect(content).toBe('{"foo":"bar"}')
@@ -76,7 +74,7 @@ describe('html-rendering', () => {
     it('executes and stringifies content function', () => {
       const content = getScriptTagContent(
         apiReferenceConfigurationSchema.parse({
-          spec: { content: () => ({ foo: 'bar' }) },
+          content: () => ({ foo: 'bar' }),
         }),
       )
       expect(content).toBe('{"foo":"bar"}')

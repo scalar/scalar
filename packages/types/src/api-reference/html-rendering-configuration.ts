@@ -26,4 +26,5 @@ export const htmlRenderingConfigurationSchema = z.object({
  *
  * It’s the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
  */
-export type HtmlRenderingConfiguration = ApiReferenceConfiguration & z.infer<typeof htmlRenderingConfigurationSchema>
+export type HtmlRenderingConfiguration = Partial<ApiReferenceConfiguration> &
+  z.infer<typeof htmlRenderingConfigurationSchema>

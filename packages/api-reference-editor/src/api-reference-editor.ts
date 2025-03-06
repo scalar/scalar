@@ -58,7 +58,7 @@ export function mountApiReferenceEditable(
     },
     /** Update only the spec value - used for external state mode */
     updateSpecValue: (specString: string) => {
-      props.configuration.spec = { content: specString }
+      props.configuration.content = specString
     },
   }
 }

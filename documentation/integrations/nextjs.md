@@ -49,9 +49,7 @@ npm add @scalar/nextjs-api-reference
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
-  spec: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-  },
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
 }
 
 export const GET = ApiReference(config)
@@ -78,9 +76,7 @@ export default function References() {
   return (
     <ApiReferenceReact
       configuration={{
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
       }}
     />
   )

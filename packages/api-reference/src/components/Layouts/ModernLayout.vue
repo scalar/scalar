@@ -82,7 +82,7 @@ watch(hash, (newHash, oldHash) => {
           buttonSource="sidebar"
           :integration="configuration._integration"
           :isDevelopment="isDevelopment"
-          :url="configuration.spec?.url" />
+          :url="configuration.url" />
         <!-- Override the dark mode toggle slot to hide it -->
         <template #toggle>
           <ScalarColorModeToggleButton

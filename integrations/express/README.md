@@ -25,10 +25,8 @@ import { apiReference } from '@scalar/express-api-reference'
 app.use(
   '/reference',
   apiReference({
-    spec: {
-      // Put your OpenAPI url here:
-      url: '/openapi.json',
-    },
+    // Put your OpenAPI url here:
+    url: '/openapi.json',
   }),
 )
 ```
@@ -46,9 +44,7 @@ app.use(
   '/reference',
   apiReference({
     theme: 'purple',
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   }),
 )
 ```
@@ -64,9 +60,7 @@ app.use(
   '/reference',
   apiReference({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   }),
 )
 ```

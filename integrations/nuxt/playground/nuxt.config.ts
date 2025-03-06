@@ -6,17 +6,13 @@ export default defineNuxtConfig({
   scalar: {
     configurations: [
       {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         pathRouting: {
           basePath: '/yaml',
         },
       },
       {
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         pathRouting: {
           basePath: '/json',
         },

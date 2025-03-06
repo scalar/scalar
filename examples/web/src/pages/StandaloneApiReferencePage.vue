@@ -16,9 +16,7 @@ const configuration = reactive(
           pathRouting: { basePath: '/path-routing' },
         }
       : {}),
-    spec: {
-      content,
-    },
+    content,
   }),
 )
 </script>
