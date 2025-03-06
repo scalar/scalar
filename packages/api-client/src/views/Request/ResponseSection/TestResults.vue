@@ -4,42 +4,37 @@ import { computed } from 'vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import type { TestResult } from '@/libs/execute-scripts'
 
-const { testResults } = defineProps<{
-  testResults?: TestResult[] | undefined
+const { results } = defineProps<{
+  results?: TestResult[] | undefined
 }>()
 
-// const results = ref<TestResult[]>([
-//   {
-//     title: 'Status Code is 200',
-//     success: true,
-//     duration: 0.1,
-//     status: 'success',
-//   },
-//   {
-//     title: 'Status Code is 404',
-//     success: false,
-//     error: 'Unexpected token ) in JSON at position 1',
-//     duration: 0.3,
-//     status: 'failure',
-//   },
-// ])
-
 const passedTests = computed(() =>
-  testResults?.filter((result: TestResult) => result.success),
+  results?.filter((result: TestResult) => result.success),
+)
+
+const pendingTests = computed(() =>
+  results?.filter((result: TestResult) => result.status === 'pending'),
 )
 
 const failedTests = computed(() =>
-  testResults?.filter((result: TestResult) => !result.success),
+  results?.filter((result: TestResult) => result.status === 'failure'),
 )
 
-const allPassed = computed(
-  () => passedTests.value?.length === testResults?.length,
+const allTestsPassed = computed(
+  () => passedTests.value?.length === results?.length,
 )
+
+const currentState = computed(() => {
+  if (allTestsPassed.value) return 'passed'
+  if (failedTests.value?.length) return 'failed'
+
+  return 'pending'
+})
 </script>
 
 <template>
   <ViewLayoutCollapse
-    v-if="testResults?.length"
+    v-if="results?.length"
     class="overflow-auto"
     :defaultOpen="true">
     <template #title>Test Results</template>
@@ -48,11 +43,12 @@ const allPassed = computed(
       <!-- Show an indicator whether all tests passed -->
       <div class="mr-2">
         <div
-          v-if="testResults?.length"
+          v-if="results?.length"
           class="h-2 w-2 rounded-full"
           :class="{
-            'bg-green': allPassed,
-            'bg-red': !allPassed,
+            'bg-green': currentState === 'passed',
+            'bg-red': currentState === 'failed',
+            'bg-grey': currentState === 'pending',
           }" />
       </div>
     </template>
@@ -60,13 +56,18 @@ const allPassed = computed(
     <!-- Results -->
     <div class="m-4 whitespace-nowrap text-xs">
       <div
-        v-for="result in testResults"
+        v-for="result in results"
         :key="result.title"
         class="flex items-center gap-2">
         <!-- Title -->
         <div class="flex items-center gap-2">
-          <span :class="result.success ? 'text-green' : 'text-red'">
-            {{ result.success ? '✓' : '✗' }}
+          <span
+            :class="{
+              'text-green': result.success,
+              'text-red': !result.success && currentState !== 'pending',
+              'text-c-1': currentState === 'pending',
+            }">
+            {{ result.success ? '✓' : currentState === 'pending' ? '⋯' : '✗' }}
           </span>
           <span class="text-c-1">
             {{ result.title }}
@@ -87,7 +88,7 @@ const allPassed = computed(
         <div class="flex items-center gap-2">
           <span class="font-medium">Tests:</span>
           <span
-            v-if="allPassed"
+            v-if="allTestsPassed"
             class="text-green">
             {{ passedTests?.length }} passed
           </span>
@@ -96,10 +97,15 @@ const allPassed = computed(
             class="text-red">
             {{ failedTests?.length }} failed
           </span>
-          <span class="text-c-3"> of {{ testResults?.length }} total </span>
+          <span
+            v-if="pendingTests?.length"
+            class="text-c-1">
+            {{ pendingTests.length }} pending
+          </span>
+          <span class="text-c-3"> of {{ results?.length }} total </span>
           <span class="text-c-3 ml-auto">
             {{
-              testResults?.reduce(
+              results?.reduce(
                 (acc: number, curr: TestResult) => acc + curr.duration,
                 0,
               )

@@ -97,7 +97,7 @@ const executeRequest = async () => {
     securitySchemes: securitySchemes,
     server,
     onTestResultsUpdate(results: TestResult[]) {
-      testResults.value = results
+      testResults.value = [...results]
     },
   })
 
