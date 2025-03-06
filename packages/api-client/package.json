@@ -68,6 +68,11 @@
       "types": "./dist/views/Request/ResponseSection/index.d.ts",
       "default": "./dist/views/Request/ResponseSection/index.js"
     },
+    "./views/Request/ResponseSection/components/TestResults": {
+      "import": "./dist/views/Request/ResponseSection/components/TestResults/index.js",
+      "types": "./dist/views/Request/ResponseSection/components/TestResults/index.d.ts",
+      "default": "./dist/views/Request/ResponseSection/components/TestResults/index.js"
+    },
     "./views/Request/RequestSection": {
       "import": "./dist/views/Request/RequestSection/index.js",
       "types": "./dist/views/Request/RequestSection/index.d.ts",
