@@ -1,17 +1,68 @@
 <script setup lang="ts">
-defineProps<{
-  state: 'success' | 'failure' | 'pending'
-}>()
+import { cva, ScalarIcon, useBindCx, type Icon } from '@scalar/components'
+import { computed } from 'vue'
+
+import type { TestResult } from '@/libs/execute-scripts/execute-post-response-script'
+
+const { state, totalTestsCount, pendingTestsCount, failedTestsCount } =
+  defineProps<{
+    state?: TestResult['status']
+    failedTestsCount: number | undefined
+    pendingTestsCount: number | undefined
+    totalTestsCount: number | undefined
+    inline?: boolean
+  }>()
+
+const { cx } = useBindCx()
+
+const icon = computed(() => {
+  if (state === 'passed')
+    return { name: 'Checkmark', color: 'text-green p-0.25' }
+  if (state === 'failed') return { name: 'Close', color: 'text-red' }
+  return { name: 'Ellipses', color: 'text-c-1' }
+})
+
+const statusVariants = cva({
+  base: 'flex items-center gap-1 rounded-full border pr-2 pl-1.5',
+  variants: {
+    status: {
+      passed: 'text-green',
+      failed: 'text-red',
+      pending: 'text-orange',
+    },
+    inline: {
+      true: 'text-xs',
+      false: 'text-sm',
+    },
+  },
+})
+
+// Display the number of tests that passed e.g 1/3
+const getTestCountDisplay = computed(() => {
+  if (totalTestsCount === undefined) return ''
+
+  const completedTests =
+    totalTestsCount - (pendingTestsCount || 0) - (failedTestsCount || 0)
+  return `${completedTests}/${totalTestsCount}`
+})
 </script>
 
 <template>
-  <div class="mr-2">
-    <div
-      class="h-2 w-2 rounded-full"
-      :class="{
-        'bg-green': state === 'success',
-        'bg-red': state === 'failure',
-        'bg-grey': state === 'pending',
-      }" />
+  <div v-bind="cx(statusVariants({ status: state }))">
+    <ScalarIcon
+      v-if="state"
+      :icon="icon.name as Icon"
+      :class="icon.color"
+      size="sm" />
+    <span
+      v-if="!inline"
+      class="ml-2 capitalize">
+      {{ state }}
+    </span>
+    <span
+      v-if="totalTestsCount !== undefined"
+      class="text-c-3">
+      {{ getTestCountDisplay }}
+    </span>
   </div>
 </template>
