@@ -1,6 +1,8 @@
 import { type Ref, ref } from 'vue'
 
-// Create a safe context object with controlled APIs
+/**
+ * Create a safe context object with controlled APIs
+ */
 const createScriptContext = ({
   response,
   onTestResultUpdate,

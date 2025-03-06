@@ -108,6 +108,11 @@
       "types": "./dist/libs/importers/index.d.ts",
       "default": "./dist/libs/importers/index.js"
     },
+    "./libs/execute-scripts": {
+      "import": "./dist/libs/execute-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/index.js"
+    },
     "./layouts/Web": {
       "import": "./dist/layouts/Web/index.js",
       "types": "./dist/layouts/Web/index.d.ts",
@@ -185,6 +190,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.1.1",
     "@headlessui/tailwindcss": "^0.2.0",
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
