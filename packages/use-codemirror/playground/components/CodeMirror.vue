@@ -13,8 +13,54 @@ const forceFoldGutter = ref<boolean>(false)
 
 useCodeMirror({
   codeMirrorRef,
-  content: 'console.log("Hello, world!");',
-  language: 'javascript',
+  content: JSON.stringify(
+    {
+      users: [
+        {
+          id: 1,
+          name: 'John Doe',
+          email: 'john@example.com',
+          address: {
+            street: '123 Main St',
+            city: 'Boston',
+            state: 'MA',
+            zip: '02108',
+          },
+          orders: [
+            {
+              orderId: 'ORD-001',
+              items: [
+                {
+                  productId: 'P100',
+                  name: 'Widget',
+                  quantity: 2,
+                  price: 29.99,
+                },
+                {
+                  productId: 'P200',
+                  name: 'Gadget',
+                  quantity: 1,
+                  price: 49.99,
+                },
+              ],
+              total: 109.97,
+            },
+          ],
+        },
+      ],
+      metadata: {
+        version: '1.0',
+        generated: '2023-12-25T12:00:00Z',
+        settings: {
+          currency: 'USD',
+          timezone: 'America/New_York',
+        },
+      },
+    },
+    null,
+    2,
+  ),
+  language: 'json',
   lineNumbers,
   readOnly,
   lint,
