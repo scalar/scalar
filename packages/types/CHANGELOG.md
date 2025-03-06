@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.0.37
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- 8a04b8d: fix: adds vendor specific mime type support
+  - @scalar/openapi-types@0.1.9
+
 ## 0.0.36
 
 ### Patch Changes

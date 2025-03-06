@@ -1,5 +1,12 @@
 # @scalar/build-tooling
 
+## 0.1.16
+
+### Patch Changes
+
+- f48d65f: fix: update turbo cache key
+- 3283fc6: Add cssFilename fallback for Vite6->Vite5 alignment
+
 ## 0.1.15
 
 ### Patch Changes

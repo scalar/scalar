@@ -1,5 +1,28 @@
 # @scalar/api-reference-editor
 
+## 0.1.187
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- 89d8b75: feat: configuration passes Zod
+- Updated dependencies [89d8b75]
+- Updated dependencies [8c0e147]
+- Updated dependencies [8a04b8d]
+- Updated dependencies [1459ce7]
+- Updated dependencies [479a2ef]
+- Updated dependencies [b93b22f]
+- Updated dependencies [73513d3]
+- Updated dependencies [89d8b75]
+- Updated dependencies [51b7c5c]
+- Updated dependencies [8a04b8d]
+  - @scalar/api-reference@1.25.128
+  - @scalar/api-client@2.2.57
+  - @scalar/oas-utils@0.2.111
+  - @scalar/types@0.0.37
+  - @scalar/use-codemirror@0.11.74
+  - @scalar/use-hooks@0.1.26
+
 ## 0.1.186
 
 ### Patch Changes

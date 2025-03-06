@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.29
+
+### Patch Changes
+
+- 479a2ef: fix(api-reference): improve references focus management
+- Updated dependencies [89d8b75]
+  - @scalar/themes@0.9.72
+  - @scalar/code-highlight@0.0.23
+  - @scalar/use-hooks@0.1.26
+  - @scalar/use-toasts@0.7.9
+
 ## 0.13.28
 
 ### Patch Changes

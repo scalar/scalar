@@ -1,5 +1,18 @@
 # @scalar/hono-api-reference
 
+## 0.5.181
+
+### Patch Changes
+
+- 2edb736: fix: hono build
+- c80fdf4: fix: hono types cloud build
+- 989ad08: fix: include all packages in dockerfile
+- Updated dependencies [89d8b75]
+- Updated dependencies [479a2ef]
+- Updated dependencies [b93b22f]
+- Updated dependencies [89d8b75]
+  - @scalar/api-reference@1.25.128
+
 ## 0.5.180
 
 ### Patch Changes

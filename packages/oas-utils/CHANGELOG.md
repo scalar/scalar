@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.2.111
+
+### Patch Changes
+
+- 89d8b75: feat: new ApiReferenceConfiguration type
+- 8a04b8d: fix: mime type transformation issue
+- 1459ce7: fix: adds parameter examples array support
+- 8a04b8d: fix: adds vendor specific mime type support
+- Updated dependencies [89d8b75]
+- Updated dependencies [8a04b8d]
+  - @scalar/themes@0.9.72
+  - @scalar/types@0.0.37
+  - @scalar/object-utils@1.1.13
+  - @scalar/openapi-types@0.1.9
+
 ## 0.2.110
 
 ### Patch Changes
