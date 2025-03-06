@@ -15,8 +15,8 @@ export function normalizeMimeType(contentType?: string) {
     contentType
       // Remove '; charset=utf-8'
       .replace(/;.*$/, '')
-      // Remove 'problem+'
-      .replace(/\/.+\+/, '/')
+      // Remove 'problem+' but keep vendor-specific vnd and fhir mime types
+      .replace(/\/(?!.*vnd\.|fhir\+).*\+/, '/')
       // Remove whitespace
       .trim() as ContentType
   )

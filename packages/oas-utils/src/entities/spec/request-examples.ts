@@ -149,6 +149,7 @@ export const exampleRequestBodySchema = z.object({
     .object({
       encoding: z.enum(exampleRequestBodyEncoding),
       value: z.string().default(''),
+      mimeType: z.string().optional(),
     })
     .optional(),
   formData: z
@@ -396,10 +397,12 @@ export function createExampleFromRequest(request: Request, name: string, server?
 
     const contentType = request.requestBody ? requestBody?.mimeType : contentTypeHeader?.value
 
-    if (contentType === 'application/json') {
+    // Handle JSON and JSON-like mimetypes
+    if (contentType?.includes('/json') || contentType?.endsWith('+json')) {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'json',
+        mimeType: contentType,
         value: requestBody?.text ?? JSON.stringify({}),
       }
     }

@@ -277,4 +277,36 @@ describe('getRequestBodyFromOperation', () => {
       ],
     })
   })
+
+  it('handles vendor-specific MIME types', () => {
+    const body = getRequestBodyFromOperation({
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/vnd.github+json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'integer',
+                    example: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    const expectedResult = {
+      id: 1,
+    }
+
+    expect(body).toMatchObject({
+      mimeType: 'application/vnd.github+json',
+      text: JSON.stringify(expectedResult, null, 2),
+    })
+  })
 })
