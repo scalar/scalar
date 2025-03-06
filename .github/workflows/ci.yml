@@ -47,10 +47,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-
       - name: Set up Docker
         uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
-
       - name: Build and tag Docker image
         uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
         with:
@@ -80,16 +78,13 @@ jobs:
               - packages/api-reference/docker/**
             api_reference_docker_version:
               - packages/api-reference/docker/package.json
-
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Set up Docker
         uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
-
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Get version from package.json
         id: package-version
         run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
-
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build and tag Docker image
         uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
@@ -103,7 +98,6 @@ jobs:
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
-
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
@@ -117,7 +111,6 @@ jobs:
           severity: 'CRITICAL,HIGH'
           retry-count: 3
           retry-delay: 30s
-
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
@@ -126,7 +119,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           # https://app.docker.com/settings/personal-access-tokens
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Push Docker image
         uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
