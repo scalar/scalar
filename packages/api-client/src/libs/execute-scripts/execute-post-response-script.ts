@@ -1,9 +1,9 @@
 export type TestResult = {
   title: string
-  success: boolean
+  passed: boolean
   duration: number
   error?: string
-  status: 'pending' | 'success' | 'failure'
+  status: 'pending' | 'passed' | 'failed'
 }
 
 export interface ScriptContext {
@@ -162,7 +162,7 @@ const createTestUtils = (testResults: TestResult[], onTestResultsUpdate?: (resul
     const testStartTime = performance.now()
     const pendingResult: TestResult = {
       title: name,
-      success: false,
+      passed: false,
       duration: Number((performance.now() - testStartTime).toFixed(2)),
       status: 'pending',
     }
@@ -175,9 +175,9 @@ const createTestUtils = (testResults: TestResult[], onTestResultsUpdate?: (resul
       const duration = Number((testEndTime - testStartTime).toFixed(2))
       const result: TestResult = {
         title: name,
-        success: true,
+        passed: true,
         duration,
-        status: 'success',
+        status: 'passed',
       }
       updateTestResult(testResults, name, result)
       onTestResultsUpdate?.(testResults)
@@ -188,10 +188,10 @@ const createTestUtils = (testResults: TestResult[], onTestResultsUpdate?: (resul
       const errorMessage = error instanceof Error ? error.message : String(error)
       const result: TestResult = {
         title: name,
-        success: false,
+        passed: false,
         duration,
         error: errorMessage,
-        status: 'failure',
+        status: 'failed',
       }
       updateTestResult(testResults, name, result)
       onTestResultsUpdate?.(testResults)
@@ -271,10 +271,10 @@ export const executePostResponseScript = async (
 
     const scriptErrorResult: TestResult = {
       title: 'Script Execution',
-      success: false,
+      passed: false,
       duration: Number(duration),
       error: errorMessage,
-      status: 'failure',
+      status: 'failed',
     }
     context.testResults.push(scriptErrorResult)
     data.onTestResultsUpdate?.(context.testResults)
