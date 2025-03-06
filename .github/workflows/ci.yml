@@ -41,7 +41,6 @@ jobs:
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}-v2
 
   docker-base:
-    name: Build and Tag Base Docker Image
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
@@ -62,7 +61,6 @@ jobs:
           cache-to: type=gha,mode=max
 
   docker-api-reference:
-    name: Build and Tag Docker Image
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
