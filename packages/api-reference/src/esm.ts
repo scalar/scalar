@@ -10,7 +10,7 @@ export function createScalarReferences(
   /** Element to mount the references to */
   el: HTMLElement | null,
   /** Configuration object for Scalar References */
-  initialConfig: Partial<ApiReferenceConfiguration>,
+  initialConfig: Partial<ApiReferenceConfiguration> | Partial<ApiReferenceConfiguration>[],
   /**
    * Will attempt to mount the references immediately
    * For SSR this may need to be blocked and done client side
@@ -43,7 +43,11 @@ export function createScalarReferences(
       }
     },
     updateSpec(spec: SpecConfiguration) {
-      configuration.spec = spec
+      if (Array.isArray(configuration)) {
+        console.error('Cannot update the content for multiple configurations.')
+      } else {
+        configuration.spec = spec
+      }
     },
     /** Mount the references to a given element */
     mount,

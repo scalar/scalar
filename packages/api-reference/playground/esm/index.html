@@ -23,24 +23,52 @@
 
       const reference = createScalarReferences(el, {
         spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
-        pathRouting: {
-          basePath: '/v1',
-        },
-        redirect: (pathWithHash) => {
-          if (pathWithHash.includes('#')) {
-            const newPath = pathWithHash.replace(
-              '/#tag/planets/GET/planets/{planetId}',
-              '/v1/tag/planets/GET/planets/{planetId}',
-            )
-
-            return newPath
-          }
-          return null
-        },
-        onLoaded: () => {
-          console.log('references loaded')
+          sources: [
+            {
+              title: 'Scalar Galaxy',
+              url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+            },
+            {
+              title: 'Scalar Galaxy (YAML)',
+              url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+            },
+            {
+              title: `GitHub's v3 REST API`,
+              url: 'https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json',
+            },
+            {
+              title: 'Stripe',
+              url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.yaml',
+            },
+            {
+              title: 'Swagger Petstore (2.0)',
+              url: 'https://petstore.swagger.io/v2/swagger.json',
+            },
+            {
+              title: 'Swagger Petstore (3.0)',
+              url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+            },
+            {
+              title: 'Swagger Petstore (3.1)',
+              url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+            },
+            {
+              title: 'Val Town',
+              url: 'https://docs.val.town/openapi.documented.json',
+            },
+            {
+              title: 'Outline',
+              url: 'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
+            },
+            {
+              title: 'Sentry',
+              url: 'https://raw.githubusercontent.com/getsentry/sentry/refs/heads/master/api-docs/openapi.json',
+            },
+            {
+              title: 'Vercel',
+              url: 'https://openapi.vercel.sh/',
+            },
+          ],
         },
       })
 
