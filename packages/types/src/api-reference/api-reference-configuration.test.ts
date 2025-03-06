@@ -49,6 +49,12 @@ describe('api-reference-configuration', () => {
       expect(() => apiReferenceConfigurationSchema.parse(completeConfig)).not.toThrow()
     })
 
+    it('validates hiddenClients true', () => {
+      const config = { hiddenClients: true }
+
+      expect(apiReferenceConfigurationSchema.parse(config)).toMatchObject({ hiddenClients: true })
+    })
+
     it('validates theme enum values', () => {
       const config = { theme: 'invalid-theme' }
 
