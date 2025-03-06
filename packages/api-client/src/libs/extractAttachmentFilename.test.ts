@@ -49,4 +49,11 @@ describe('extractFileName', () => {
     const result = extractFilename(contentDisposition)
     expect(result).toEqual('สวัสดี.pdf')
   })
+
+  it('should give priority to encoded utf-8 filenames', () => {
+    const contentDisposition = `attachment; filename=____________________28.02.2025.xlsx; filename*=UTF-8''%D0%98%D0%BD%D0%B4%D0%B8%D0%B2%D0%B8%D0%B4%D1%83%D0%B0%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%D0%9E%D1%82%D1%87%D0%B5%D1%82_28.02.2025.xlsx`
+
+    const result = extractFilename(contentDisposition)
+    expect(result).toEqual('ИндивидуальныйОтчет_28.02.2025.xlsx')
+  })
 })
