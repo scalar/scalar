@@ -1,7 +1,14 @@
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Env, MiddlewareHandler } from 'hono'
 
-import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
 import type { ApiReferenceConfiguration } from './types.ts'
+
+/**
+ * The default configuration for the API Reference.
+ */
+const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
+  _integration: 'hono',
+}
 
 /**
  * The custom theme for Hono
@@ -107,13 +114,6 @@ export const customTheme = `
   --scalar-sidebar-search-color: var(--scalar-color-3);
 }
 `
-
-/**
- * The default configuration for the API Reference.
- */
-const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
-  _integration: 'hono',
-}
 
 /**
  * The Hono middleware for the Scalar API Reference.

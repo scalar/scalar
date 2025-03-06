@@ -373,9 +373,9 @@ importers:
 
   integrations/express:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
+        version: link:../../packages/core
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -426,15 +426,21 @@ importers:
 
   integrations/fastify:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
-      '@scalar/types':
+        version: link:../../packages/core
+      '@scalar/openapi-parser':
         specifier: workspace:*
-        version: link:../../packages/types
+        version: link:../../packages/openapi-parser
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../../packages/openapi-types
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@fastify/basic-auth':
         specifier: ^5.1.1
@@ -448,21 +454,12 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
-      '@scalar/openapi-parser':
-        specifier: workspace:*
-        version: link:../../packages/openapi-parser
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
-      github-slugger:
-        specifier: ^2.0.0
-        version: 2.0.0
-      magic-string:
-        specifier: ^0.30.8
-        version: 0.30.12
       rollup-plugin-node-externals:
         specifier: ^7.1.2
         version: 7.1.2(rollup@4.24.4)
@@ -478,9 +475,6 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
-      vue:
-        specifier: ^3.5.12
-        version: 3.5.12(typescript@5.6.2)
       yaml:
         specifier: ^2.4.5
         version: 2.6.0
@@ -506,9 +500,9 @@ importers:
 
   integrations/hono:
     dependencies:
-      '@scalar/api-reference':
+      '@scalar/core':
         specifier: workspace:*
-        version: link:../../packages/api-reference
+        version: link:../../packages/core
     devDependencies:
       '@hono/node-server':
         specifier: ^1.11.0
@@ -1530,6 +1524,19 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  packages/core:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/draggable:
     dependencies:

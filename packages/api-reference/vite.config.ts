@@ -15,7 +15,7 @@ export default defineConfig({
     dedupe: ['vue'],
   },
   build: createViteBuildOptions({
-    entry: ['src/index.ts', 'src/standalone/lib/html-rendering.ts'],
+    entry: ['src/index.ts'],
     options: {
       emptyOutDir: true,
       cssCodeSplit: false,

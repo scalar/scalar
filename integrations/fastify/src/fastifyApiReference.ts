@@ -1,14 +1,15 @@
 import { openapi } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import type { OpenAPI } from '@scalar/types/legacy'
+import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import type { ApiReferenceConfiguration, FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
+import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
 import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
-import { getHtmlDocument } from '@scalar/api-reference/lib/html-rendering'
+import { getHtmlDocument } from '../../../packages/core/dist/libs/html-rendering/index.js'
+import type { ApiReferenceConfiguration } from './types.ts'
 
 /**
  * Path to the bundled Scalar JavaScript file

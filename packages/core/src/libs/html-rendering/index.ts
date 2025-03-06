@@ -1,28 +1,12 @@
-import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { z } from 'zod'
+import {
+  type ApiReferenceConfiguration,
+  type HtmlRenderingConfiguration,
+  apiReferenceConfigurationSchema,
+  htmlRenderingConfigurationSchema,
+} from '@scalar/types/api-reference'
 
-/**
- * Zod schema for HTML rendering configuration
- */
-export const htmlRenderingOptionsSchema = z.object({
-  /**
-   * The URL to the Scalar API Reference JS CDN.
-   *
-   * Use this to pin a specific version of the Scalar API Reference.
-   *
-   * @default https://cdn.jsdelivr.net/npm/@scalar/api-reference
-   *
-   * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.122
-   */
-  cdn: z.string().optional().default('https://cdn.jsdelivr.net/npm/@scalar/api-reference'),
-  /**
-   * The title of the page.
-   */
-  pageTitle: z.string().optional().default('Scalar API Reference'),
-})
-type HtmlRenderingOptions = z.infer<typeof htmlRenderingOptionsSchema>
-
-export type HtmlRenderingConfiguration = ApiReferenceConfiguration & HtmlRenderingOptions
+// Re-export the type for convenience
+export type { HtmlRenderingConfiguration }
 
 /**
  * The HTML document to render the Scalar API reference.
@@ -32,7 +16,8 @@ export type HtmlRenderingConfiguration = ApiReferenceConfiguration & HtmlRenderi
  */
 export const getHtmlDocument = (configuration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
   const { cdn, pageTitle, ...rest } = configuration
-  const parsedHtmlOptions = htmlRenderingOptionsSchema.parse({ cdn, pageTitle, customTheme })
+
+  const parsedHtmlOptions = htmlRenderingConfigurationSchema.parse({ cdn, pageTitle, customTheme })
   const parsedConfig = apiReferenceConfigurationSchema.parse(rest)
 
   return `

@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/hono-api-reference",
-  "description": "A middleware for using the Scalar API reference in Hono",
+  "name": "@scalar/core",
+  "description": "Shared libraries for our packages",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,19 +8,15 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "integrations/hono"
+    "directory": "packages/core"
   },
-  "version": "0.5.182",
+  "keywords": [],
+  "version": "0.0.0",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
-    "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
-    "docker:run": "docker run -t scalar-hono-reference",
-    "format:check": "scalar-format-check",
-    "format": "scalar-format",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -29,30 +25,28 @@
   },
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./libs/html-rendering": {
+      "import": "./dist/libs/html-rendering/index.js",
+      "types": "./dist/libs/html-rendering/index.d.ts",
+      "default": "./dist/libs/html-rendering/index.js"
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@scalar/core": "workspace:*"
+    "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
-    "@hono/zod-openapi": "^0.8.6",
     "@scalar/build-tooling": "workspace:*",
-    "hono": "^4.6.5",
-    "vite": "^5.4.10",
-    "vitest": "^1.6.0"
-  },
-  "peerDependencies": {
-    "hono": "^4.0.0"
+    "vite": "^5.4.10"
   }
 }
