@@ -223,7 +223,7 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.customCss).toContain('--scalar-color-red')
     })
 
-    it('api reference migrates spec.url to url', () => {
+    it('migrates spec.url to url', () => {
       const config = {
         spec: {
           url: 'https://example.com/openapi.json',
@@ -232,7 +232,7 @@ describe('api-reference-configuration', () => {
 
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      expect(migratedConfig.spec?.url).toBeUndefined()
+      expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.url).toBe('https://example.com/openapi.json')
     })
 
@@ -245,7 +245,7 @@ describe('api-reference-configuration', () => {
 
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
 
-      expect(migratedConfig.spec?.content).toBeUndefined()
+      expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
     })
   })
