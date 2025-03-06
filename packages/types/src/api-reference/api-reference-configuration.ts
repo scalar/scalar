@@ -192,7 +192,9 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
        * List of httpsnippet clients to hide from the clients menu
        * By default hides Unirest, pass `[]` to show all clients
        */
-      hiddenClients: z.union([z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string())]).optional(),
+      hiddenClients: z
+        .union([z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string()), z.literal(true)])
+        .optional(),
       /** Determine the HTTP client that's selected by default */
       defaultHttpClient: z
         .object({
