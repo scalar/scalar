@@ -49,15 +49,14 @@
   "dependencies": {
     "@rollup/plugin-alias": "^5.1.0",
     "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-swc": "^0.3.1",
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-swc": "^0.4.0",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-yaml": "^4.1.2",
     "glob": "^10.3.10",
     "picomatch": "^4.0.2",
     "rollup": "^4.24.1",
     "rollup-plugin-copy": "^3.5.0",
-    "rollup-plugin-dts": "^6.1.0",
-    "rollup-plugin-import-css": "^3.5.0",
+    "rollup-plugin-import-css": "^3.5.8",
     "vite": "^5.4.10",
     "vitest": "^1.6.0"
   },

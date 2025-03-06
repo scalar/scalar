@@ -100,7 +100,7 @@
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
-    "@rollup/plugin-typescript": "^11.1.6",
+    "@rollup/plugin-typescript": "^12.1.2",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@types/hast": "^3.0.4",
