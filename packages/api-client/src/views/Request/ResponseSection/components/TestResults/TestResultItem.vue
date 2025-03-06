@@ -20,7 +20,7 @@ const resultStatus = computed(() => {
 <template>
   <div class="flex flex-col">
     <div
-      class="flex h-8 items-center gap-2 pl-2.5 pr-3"
+      class="pl-2.25 flex h-8 items-center gap-2 pr-3"
       :class="result.error && 'bg-b-danger'">
       <!-- Title -->
       <div class="grid grid-cols-[14px_1fr] items-center gap-3">

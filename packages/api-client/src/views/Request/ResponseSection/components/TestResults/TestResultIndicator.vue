@@ -23,7 +23,7 @@ const icon = computed(() => {
 })
 
 const statusVariants = cva({
-  base: 'flex items-center gap-1.5 rounded-full border pr-2 pl-1.5',
+  base: 'flex items-center gap-1.5 rounded-full border pr-2 pl-1.25',
   variants: {
     status: {
       passed: 'text-green',
@@ -62,7 +62,7 @@ const getTestCountDisplay = computed(() => {
       size="sm" />
     <span
       v-if="!inline"
-      class="ml-0.75 capitalize">
+      class="ml-1.25 capitalize">
       {{ state }}
     </span>
     <span
