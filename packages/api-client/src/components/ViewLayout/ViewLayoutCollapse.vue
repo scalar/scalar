@@ -19,13 +19,13 @@ const id = useId()
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="group/collapse focus-within:text-c-1 text-c-2 request-item"
+    class="group/collapse focus-within:text-c-1 text-c-2 request-item border-b"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference' ? true : undefined">
     <section
       :aria-labelledby="id"
       class="contents">
-      <div class="bg-b-2 flex items-center">
+      <div class="bg-b-2 flex max-h-8 items-center">
         <DisclosureButton
           :class="[
             'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',
