@@ -1,5 +1,5 @@
 import type { ReferenceProps } from '@/types'
-import { apiReferenceConfigurationSchema, type ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
@@ -133,17 +133,7 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
   const props = reactive<ReferenceProps>({
-    // @ts-expect-error TODO: TEMPORARY, REMOVE BEFORE MERGE
-    configuration: [
-      configuration,
-      {
-        spec: {
-          title: 'Petstore',
-          slug: 'petstore',
-          url: 'https://petstore.swagger.io/v2/swagger.json',
-        },
-      },
-    ],
+    configuration,
   })
 
   if (props.configuration?.darkMode) {
