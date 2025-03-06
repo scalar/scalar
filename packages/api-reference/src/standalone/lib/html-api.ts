@@ -31,8 +31,12 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
     return apiReferenceConfigurationSchema.parse({ _integration: 'html' })
   }
 
-  const getSpecUrl = () => {
+  const getUrl = () => {
     // Let’s first check if the user passed a spec URL in the configuration.
+    if (getConfiguration().url) {
+      return getConfiguration().url
+    }
+
     if (getConfiguration().spec?.url) {
       return getConfiguration().spec?.url
     }
@@ -62,7 +66,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
     return undefined
   }
 
-  const getSpec = (): string | undefined => {
+  const getContent = (): string | undefined => {
     // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
     const specScriptTag = getSpecScriptTag(doc)
     if (specScriptTag) {
@@ -106,13 +110,13 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
     // Stay quiet.
   } else {
-    const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
+    const urlOrContent = getContent() ? { content: getContent() } : { url: getUrl() }
 
     return apiReferenceConfigurationSchema.parse({
       _integration: 'html',
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
-      spec: { ...specOrSpecUrl },
+      ...urlOrContent,
     })
   }
 
