@@ -9,7 +9,12 @@ import {
 } from '../ScalarFloating'
 import type { Slots } from './types'
 
-defineProps<ScalarFloatingOptions>()
+defineProps<
+  {
+    /** Automatically focus the popover panel when it opens */
+    focus?: boolean
+  } & ScalarFloatingOptions
+>()
 
 defineSlots<Slots>()
 
@@ -27,6 +32,7 @@ const { cx } = useBindCx()
       <template #floating="{ width, height }">
         <PopoverPanel
           v-slot="{ close }"
+          :focus="focus"
           :style="{ width, height }"
           v-bind="cx('relative flex flex-col p-0.75')">
           <slot
