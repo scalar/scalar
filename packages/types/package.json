@@ -53,11 +53,6 @@
       "types": "./dist/legacy/index.d.ts",
       "default": "./dist/legacy/index.js"
     },
-    "./external": {
-      "import": "./dist/external/index.js",
-      "types": "./dist/external/index.d.ts",
-      "default": "./dist/external/index.js"
-    },
     "./api-reference": {
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",
@@ -75,8 +70,8 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@types/har-format": "^1.2.15",
     "vite": "^5.4.10",
-    "vitest": "^1.6.0",
-    "@types/har-format": "^1.2.15"
+    "vitest": "^1.6.0"
   }
 }

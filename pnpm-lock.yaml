@@ -1984,9 +1984,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@types/har-format':
-        specifier: ^1.2.15
-        version: 1.2.15
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -2081,9 +2081,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/snippetz':
-        specifier: workspace:*
-        version: link:../snippetz
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
