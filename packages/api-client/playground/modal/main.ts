@@ -3,9 +3,7 @@ import { createApiClientModal } from '@/layouts/Modal'
 const { open } = await createApiClientModal({
   el: document.getElementById('app'),
   configuration: {
-    spec: {
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    },
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     proxyUrl: 'https://proxy.scalar.com',
   },
 })
