@@ -1,5 +1,3 @@
-import { type Ref, ref } from 'vue'
-
 export type TestResult = {
   title: string
   success: boolean
@@ -12,7 +10,7 @@ export interface ScriptContext {
   response: ResponseContext
   console: ConsoleContext
   pm: PostmanContext
-  testResults: Ref<TestResult[]>
+  testResults: TestResult[]
 }
 
 interface ResponseContext {
@@ -159,7 +157,7 @@ const createEnvironmentUtils = (): EnvironmentUtils => ({
   set: () => false,
 })
 
-const createTestUtils = (testResults: Ref<TestResult[]>, onTestResultUpdate?: (result: TestResult) => void) => ({
+const createTestUtils = (testResults: TestResult[], onTestResultUpdate?: (result: TestResult) => void) => ({
   test: async (name: string, fn: () => void | Promise<void>) => {
     const testStartTime = performance.now()
     const pendingResult: TestResult = {
@@ -168,7 +166,7 @@ const createTestUtils = (testResults: Ref<TestResult[]>, onTestResultUpdate?: (r
       duration: Number((performance.now() - testStartTime).toFixed(2)),
       status: 'pending',
     }
-    testResults.value.push(pendingResult)
+    testResults.push(pendingResult)
     onTestResultUpdate?.(pendingResult)
 
     try {
@@ -202,10 +200,10 @@ const createTestUtils = (testResults: Ref<TestResult[]>, onTestResultUpdate?: (r
   },
 })
 
-const updateTestResult = (testResults: Ref<TestResult[]>, name: string, result: TestResult) => {
-  const index = testResults.value.findIndex((t) => t.title === name)
+const updateTestResult = (testResults: TestResult[], name: string, result: TestResult) => {
+  const index = testResults.findIndex((t) => t.title === name)
   if (index !== -1) {
-    testResults.value[index] = result
+    testResults[index] = result
   }
 }
 
@@ -217,7 +215,7 @@ const createScriptContext = ({
   onTestResultUpdate?: (result: TestResult) => void
 }): { globalProxy: any; context: ScriptContext } => {
   const globalProxy = createGlobalProxy()
-  const testResults = ref<TestResult[]>([])
+  const testResults: TestResult[] = []
 
   const context: ScriptContext = {
     response: createResponseContext(response),
@@ -266,8 +264,19 @@ export const executePostResponseScript = async (
     const duration = (performance.now() - startTime).toFixed(2)
     console.log(`[Post-Response Script] Completed (${duration}ms)`)
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : String(error)
     const duration = (performance.now() - startTime).toFixed(2)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
     console.error(`[Post-Response Script] Error (${duration}ms):`, errorMessage)
+
+    const scriptErrorResult: TestResult = {
+      title: 'Script Execution',
+      success: false,
+      duration: Number(duration),
+      error: errorMessage,
+      status: 'failure',
+    }
+    context.testResults.push(scriptErrorResult)
+    data.onTestResultUpdate?.(scriptErrorResult)
   }
 }
