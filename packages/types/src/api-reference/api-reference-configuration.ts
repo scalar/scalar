@@ -299,7 +299,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
       .returns(z.string())
       .optional(),
     /** Callback fired when the reference is fully loaded */
-    onLoaded: z.union([z.function().returns(z.void()), z.undefined()]).optional(),
+    onLoaded: z.function().returns(z.void()).optional(),
     /**
      * To handle redirects, pass a function that will recieve:
      * - The current path with hash if pathRouting is enabled
