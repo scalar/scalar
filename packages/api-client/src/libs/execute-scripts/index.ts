@@ -1,1 +1,1 @@
-export { executePostResponseScript } from './execute-post-response-script'
+export { executePostResponseScript, type TestResult } from './execute-post-response-script'
