@@ -1,5 +1,5 @@
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types/legacy'
+import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
