@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunk_scalar_examples_docusaurus=self.webpackChunk_scalar_examples_docusaurus||[]).push([[5869],{1397:s=>{s.exports=JSON.parse('{"name":"@scalar/docusaurus","id":"json-url"}')}}]);
