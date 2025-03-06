@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "0.4.206",
+  "version": "0.4.207",
   "engines": {
     "node": ">=18"
   },
