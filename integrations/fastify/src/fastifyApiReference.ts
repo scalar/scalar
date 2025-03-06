@@ -145,7 +145,7 @@ const fastifyApiReference = fp<
     }
 
     const specSource = (() => {
-      const { content, url } = configuration?.spec ?? {}
+      const { content, url } = configuration ?? {}
       if (content)
         return {
           type: 'content' as const,
