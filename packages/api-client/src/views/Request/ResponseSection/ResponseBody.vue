@@ -35,7 +35,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
 </script>
 <template>
-  <ViewLayoutCollapse class="max-h-content overflow-x-auto">
+  <ViewLayoutCollapse class="max-h-content overflow-y-hidden">
     <template #title>{{ title }}</template>
     <template
       v-if="data && dataUrl"

@@ -144,17 +144,16 @@ const shouldVirtualize = computed(() => {
       </div>
     </template>
     <div
+      :id="filterIds.All"
       class="custom-scroll relative grid h-full justify-stretch divide-y"
       :class="{
         'content-start': response,
-      }">
+      }"
+      :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
       <template v-if="!response">
         <ResponseEmpty :numWorkspaceRequests="numWorkspaceRequests" />
       </template>
-      <div
-        v-else
-        :id="filterIds.All"
-        :role="activeFilter === 'All' ? 'tabpanel' : 'none'">
+      <template v-else>
         <ResponseCookies
           v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
           :id="filterIds.Cookies"
@@ -185,7 +184,7 @@ const shouldVirtualize = computed(() => {
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
             title="Body" />
         </template>
-      </div>
+      </template>
       <ResponseLoadingOverlay />
     </div>
   </ViewLayoutSection>
