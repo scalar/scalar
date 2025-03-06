@@ -10,9 +10,9 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody, isDefined, REGEX } from '@scalar/oas-utils/helpers'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useId, watch } from 'vue'
 
-import ContextBar from '@/components/SectionFilter.vue'
+import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
@@ -46,19 +46,22 @@ const {
   workspace: Workspace
 }>()
 
+const requestSections = [
+  'Auth',
+  'Variables',
+  'Cookies',
+  'Headers',
+  'Query',
+  'Body',
+] as const
+
+type Filter = 'All' | (typeof requestSections)[number]
+
 const { requestMutators, cookies, securitySchemes } = useWorkspace()
 const { layout } = useLayout()
 
-const sections = computed(() => {
-  const allSections = new Set([
-    'All',
-    'Query',
-    'Auth',
-    'Variables',
-    'Cookies',
-    'Headers',
-    'Body',
-  ])
+const filters = computed<Filter[]>(() => {
+  const allSections = new Set<Filter>(['All', ...requestSections])
 
   if (!example.parameters.path.length) allSections.delete('Variables')
   if (!canMethodHaveBody(operation.method ?? 'get')) allSections.delete('Body')
@@ -67,24 +70,30 @@ const sections = computed(() => {
   return [...allSections]
 })
 
+/** A list of section ids */
+const filterIds = computed(
+  () =>
+    Object.fromEntries(
+      filters.value.map((section) => [section, useId()]),
+    ) as Record<Filter, string>,
+)
+
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
   () => layout === 'modal' && operation.security?.length === 0,
 )
 
-type ActiveSections = (typeof sections.value)[number]
-
-const activeSection = ref<ActiveSections>('All')
+const selectedFilter = ref<Filter>('All')
 
 watch(
   () => operation,
   (newOperation) => {
     if (
-      activeSection.value === 'Body' &&
+      selectedFilter.value === 'Body' &&
       newOperation &&
       !canMethodHaveBody(newOperation.method)
     ) {
-      activeSection.value = 'All'
+      selectedFilter.value = 'All'
     }
   },
 )
@@ -149,13 +158,15 @@ const handleRequestNamePlaceholder = () => {
           {{ operation.summary }}
         </span>
       </div>
-      <ContextBar
-        :activeSection="activeSection"
-        :sections="sections"
-        @setActiveSection="activeSection = $event" />
+      <SectionFilter
+        v-model="selectedFilter"
+        :filterIds="filterIds"
+        :filters="filters" />
     </template>
     <div
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y">
+      :id="filterIds.All"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
+      :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
         v-if="
           collection &&
@@ -163,32 +174,38 @@ const handleRequestNamePlaceholder = () => {
           (layout !== 'modal' || Object.keys(securitySchemes ?? {}).length)
         "
         v-show="
-          !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
+          !isAuthHidden &&
+          (selectedFilter === 'All' || selectedFilter === 'Auth')
         "
+        :id="filterIds.Auth"
         :collection="collection"
         :envVariables="envVariables"
         :environment="environment"
         layout="client"
         :operation="operation"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
         :server="server"
         title="Authentication"
         :workspace="workspace" />
       <RequestPathParams
         v-show="
-          (activeSection === 'All' || activeSection === 'Variables') &&
+          (selectedFilter === 'All' || selectedFilter === 'Variables') &&
           example.parameters.path.length
         "
+        :id="filterIds.Variables"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="path"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Variables"
-        :workspace="workspace"
-        :invalidParams="invalidParams" />
+        :workspace="workspace" />
       <RequestParams
-        v-show="activeSection === 'All' || activeSection === 'Cookies'"
+        v-show="selectedFilter === 'All' || selectedFilter === 'Cookies'"
+        :id="filterIds.Cookies"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
@@ -196,39 +213,46 @@ const handleRequestNamePlaceholder = () => {
         :operation="operation"
         paramKey="cookies"
         :readOnlyEntries="activeWorkspaceCookies"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Cookies"
         :workspace="workspace"
         workspaceParamKey="cookies" />
       <RequestParams
-        v-show="activeSection === 'All' || activeSection === 'Headers'"
+        v-show="selectedFilter === 'All' || selectedFilter === 'Headers'"
+        :id="filterIds.Headers"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :invalidParams="invalidParams"
         :operation="operation"
         paramKey="headers"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Headers"
         :workspace="workspace" />
       <RequestParams
-        v-show="activeSection === 'All' || activeSection === 'Query'"
+        v-show="selectedFilter === 'All' || selectedFilter === 'Query'"
+        :id="filterIds.Query"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :invalidParams="invalidParams"
         :operation="operation"
         paramKey="query"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Query Parameters"
         :workspace="workspace" />
       <RequestBody
         v-show="
           operation.method &&
-          (activeSection === 'All' || activeSection === 'Body') &&
+          (selectedFilter === 'All' || selectedFilter === 'Body') &&
           canMethodHaveBody(operation.method)
         "
+        :id="filterIds.Body"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :operation="operation"
+        :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Body"
         :workspace="workspace" />
 

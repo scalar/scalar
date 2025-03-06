@@ -18,7 +18,7 @@ const {
     as="div"
     class="group/collapse focus-within:text-c-1 text-c-2 request-item"
     :defaultOpen="defaultOpen"
-    :static="layout === 'reference'">
+    :static="layout === 'reference' ? true : undefined">
     <div class="bg-b-2 flex items-center">
       <DisclosureButton
         :class="[
