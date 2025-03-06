@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { TestResult } from '@/libs/execute-scripts'
 
+import TestResultIndicator from './TestResultIndicator.vue'
+
 defineProps<{
   results: TestResult[]
   passedTests: TestResult[]
@@ -12,26 +14,19 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mt-2 border-t pt-2">
-    <div class="flex items-center gap-2">
-      <span class="font-medium">Tests:</span>
-      <span
-        v-if="allTestsPassed"
-        class="text-green">
-        {{ passedTests.length }} passed
-      </span>
-      <span
-        v-else
-        class="text-red">
-        {{ failedTests.length }} failed
-      </span>
-      <span
-        v-if="pendingTests.length"
-        class="text-c-1">
-        {{ pendingTests.length }} pending
-      </span>
-      <span class="text-c-3"> of {{ results.length }} total </span>
-      <span class="text-c-3 ml-auto"> {{ totalDuration }} ms </span>
-    </div>
+  <div class="flex h-8 items-center gap-1.5 pl-1.5 pr-3">
+    <TestResultIndicator
+      :passedTestsCount="passedTests?.length"
+      :failedTestsCount="failedTests?.length"
+      :pendingTestsCount="pendingTests?.length"
+      :totalTestsCount="results?.length"
+      :state="allTestsPassed ? 'passed' : 'failed'" />
+    <span
+      v-if="pendingTests?.length"
+      class="text-orange">
+      {{ pendingTests?.length }}
+      Pending
+    </span>
+    <span class="text-c-3 ml-auto"> {{ totalDuration.toFixed(1) }} ms </span>
   </div>
 </template>
