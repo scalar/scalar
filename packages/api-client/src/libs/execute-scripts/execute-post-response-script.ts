@@ -157,7 +157,7 @@ const createEnvironmentUtils = (): EnvironmentUtils => ({
   set: () => false,
 })
 
-const createTestUtils = (testResults: TestResult[], onTestResultUpdate?: (result: TestResult) => void) => ({
+const createTestUtils = (testResults: TestResult[], onTestResultsUpdate?: (results: TestResult[]) => void) => ({
   test: async (name: string, fn: () => void | Promise<void>) => {
     const testStartTime = performance.now()
     const pendingResult: TestResult = {
@@ -167,7 +167,7 @@ const createTestUtils = (testResults: TestResult[], onTestResultUpdate?: (result
       status: 'pending',
     }
     testResults.push(pendingResult)
-    onTestResultUpdate?.(pendingResult)
+    onTestResultsUpdate?.(testResults)
 
     try {
       await Promise.resolve(fn())
@@ -180,7 +180,7 @@ const createTestUtils = (testResults: TestResult[], onTestResultUpdate?: (result
         status: 'success',
       }
       updateTestResult(testResults, name, result)
-      onTestResultUpdate?.(result)
+      onTestResultsUpdate?.(testResults)
       console.log(`✓ ${name}`)
     } catch (error: unknown) {
       const testEndTime = performance.now()
@@ -194,7 +194,7 @@ const createTestUtils = (testResults: TestResult[], onTestResultUpdate?: (result
         status: 'failure',
       }
       updateTestResult(testResults, name, result)
-      onTestResultUpdate?.(result)
+      onTestResultsUpdate?.(testResults)
       console.error(`✗ ${name}: ${errorMessage}`)
     }
   },
@@ -209,10 +209,10 @@ const updateTestResult = (testResults: TestResult[], name: string, result: TestR
 
 const createScriptContext = ({
   response,
-  onTestResultUpdate,
+  onTestResultsUpdate,
 }: {
   response: Response
-  onTestResultUpdate?: ((result: TestResult) => void) | undefined
+  onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
 }): { globalProxy: any; context: ScriptContext } => {
   const globalProxy = createGlobalProxy()
   const testResults: TestResult[] = []
@@ -223,7 +223,7 @@ const createScriptContext = ({
     pm: {
       response: createResponseUtils(response),
       environment: createEnvironmentUtils(),
-      test: createTestUtils(testResults, onTestResultUpdate).test,
+      test: createTestUtils(testResults, onTestResultsUpdate).test,
     },
     testResults,
   }
@@ -249,7 +249,7 @@ const createScriptFunction = (script: string) => {
 
 export const executePostResponseScript = async (
   script: string | undefined,
-  data: { response: Response; onTestResultUpdate?: ((result: TestResult) => void) | undefined },
+  data: { response: Response; onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined },
 ): Promise<void> => {
   if (!script) return
 
@@ -277,6 +277,6 @@ export const executePostResponseScript = async (
       status: 'failure',
     }
     context.testResults.push(scriptErrorResult)
-    data.onTestResultUpdate?.(scriptErrorResult)
+    data.onTestResultsUpdate?.(context.testResults)
   }
 }

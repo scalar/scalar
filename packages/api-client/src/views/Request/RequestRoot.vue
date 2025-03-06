@@ -9,6 +9,7 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
+import type { TestResult } from '@/libs/execute-scripts'
 import { createRequestOperation } from '@/libs/send-request'
 import { validateParameters } from '@/libs/validate-parameters'
 import { useWorkspace } from '@/store'
@@ -37,6 +38,7 @@ const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
+const testResults = ref<any>(null)
 
 /**
  * Selected scheme UIDs
@@ -94,10 +96,13 @@ const executeRequest = async () => {
     status: events.requestStatus,
     securitySchemes: securitySchemes,
     server,
-    onTestResultUpdate: (results) => {
-      console.log('YESS TEST RESULT', results)
+    onTestResultsUpdate(results: TestResult[]) {
+      testResults.value = results
     },
   })
+
+  // Reset test results for new request
+  testResults.value = null
 
   // Error from createRequestOperation
   if (error) {
@@ -171,7 +176,9 @@ watch(
 
       <!-- Content -->
       <div class="flex h-full flex-1 flex-col">
-        <RouterView :invalidParams="invalidParams" />
+        <RouterView
+          :invalidParams="invalidParams"
+          :testResults="testResults" />
       </div>
     </div>
   </div>
