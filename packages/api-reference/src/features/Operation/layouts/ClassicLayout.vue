@@ -11,6 +11,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -20,17 +21,17 @@ import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
+import { useConfig } from '@/hooks/useConfig'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
-} from '@/helpers'
-import { useConfig } from '@/hooks/useConfig'
+} from '@/libs/operation'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { operation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -41,6 +42,9 @@ defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
+
+/** The title of the operation (summary or path) */
+const title = computed(() => operation.summary || operation.path)
 </script>
 <template>
   <SectionAccordion
@@ -60,16 +64,16 @@ const config = useConfig()
             <h3 class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="isOperationDeprecated(transformedOperation)"
+                  :deprecated="isOperationDeprecated(operation)"
                   :path="operation.path" />
               </div>
               <div class="endpoint-label-name">
-                {{ transformedOperation.name }}
+                {{ title }}
               </div>
               <Badge
-                v-if="getOperationStability(transformedOperation)"
-                :class="getOperationStabilityColor(transformedOperation)">
-                {{ getOperationStability(transformedOperation) }}
+                v-if="getOperationStability(operation)"
+                :class="getOperationStabilityColor(operation)">
+                {{ getOperationStability(operation) }}
               </Badge>
             </h3>
           </Anchor>

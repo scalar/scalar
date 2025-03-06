@@ -8,7 +8,8 @@ import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
 import { useNavState, useSidebar } from '@/hooks'
 
-import { Tag, TagAccordion } from './'
+import TagAccordion from './TagAccordion.vue'
+import TagSection from './TagSection.vue'
 
 const props = defineProps<{
   tags: TagType[]
@@ -21,7 +22,7 @@ const { collapsedSidebarItems } = useSidebar()
 const { activeCollection, activeServer } = useActiveEntities()
 
 const tagLayout = computed(() =>
-  props.layout === 'classic' ? TagAccordion : Tag,
+  props.layout === 'classic' ? TagAccordion : TagSection,
 )
 
 /**

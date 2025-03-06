@@ -6,7 +6,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { useId } from 'vue'
+import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -26,12 +26,12 @@ import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
-} from '@/helpers/operation'
+} from '@/libs/operation'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { operation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -41,28 +41,29 @@ defineProps<{
 }>()
 
 const labelId = useId()
+
+/** The title of the operation (summary or path) */
+const title = computed(() => operation.summary || operation.path)
 </script>
+
 <template>
   <Section
     :id="id"
     :aria-labelledby="labelId"
-    :label="transformedOperation.name">
+    :label="title">
     <SectionContent>
       <Badge
-        v-if="getOperationStability(transformedOperation)"
-        :class="getOperationStabilityColor(transformedOperation)">
-        {{ getOperationStability(transformedOperation) }}
+        v-if="getOperationStability(operation)"
+        :class="getOperationStabilityColor(operation)">
+        {{ getOperationStability(operation) }}
       </Badge>
-      <div
-        :class="
-          isOperationDeprecated(transformedOperation) ? 'deprecated' : ''
-        ">
+      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader>
           <Anchor :id="id ?? ''">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
-              {{ transformedOperation.name }}
+              {{ title }}
             </SectionHeaderTag>
           </Anchor>
         </SectionHeader>
