@@ -212,7 +212,7 @@ const createScriptContext = ({
   onTestResultUpdate,
 }: {
   response: Response
-  onTestResultUpdate?: (result: TestResult) => void
+  onTestResultUpdate?: ((result: TestResult) => void) | undefined
 }): { globalProxy: any; context: ScriptContext } => {
   const globalProxy = createGlobalProxy()
   const testResults: TestResult[] = []
@@ -249,7 +249,7 @@ const createScriptFunction = (script: string) => {
 
 export const executePostResponseScript = async (
   script: string | undefined,
-  data: { response: Response; onTestResultUpdate?: (result: TestResult) => void },
+  data: { response: Response; onTestResultUpdate?: ((result: TestResult) => void) | undefined },
 ): Promise<void> => {
   if (!script) return
 
