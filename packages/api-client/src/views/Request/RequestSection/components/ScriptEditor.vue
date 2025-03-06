@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { javascript } from '@codemirror/lang-javascript'
 import { useCodeMirror } from '@scalar/use-codemirror'
 import { ref, toRef } from 'vue'
 
@@ -15,7 +16,9 @@ const codeMirrorRef = ref<HTMLDivElement | null>(null)
 useCodeMirror({
   codeMirrorRef,
   content: toRef(() => props.modelValue),
-  language: 'javascript',
+  language: undefined,
+  // We want to use some custom configuration for the syntax highlighting.
+  extensions: [javascript()],
   lineNumbers: true,
   onChange: (value) => {
     emit('update:modelValue', value)
