@@ -33,7 +33,7 @@ import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
 import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
-import type { Target } from '@/types'
+import type { Target } from '@scalar/types/snippetz'
 
 /**
  * All available clients

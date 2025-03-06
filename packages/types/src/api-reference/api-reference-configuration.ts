@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import type { TargetId } from '../external/index.ts'
+import type { TargetId } from '../snippetz/index.ts'
 import { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
 
 /** Available theme presets for the API reference */

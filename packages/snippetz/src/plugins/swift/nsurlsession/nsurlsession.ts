@@ -1,6 +1,6 @@
 import { nsurlsession } from '@/httpsnippet-lite/esm/targets/swift/nsurlsession/client'
-import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@scalar/types/snippetz'
 
 /**
  * swift/nsurlsession
