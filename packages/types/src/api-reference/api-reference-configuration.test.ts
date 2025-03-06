@@ -222,5 +222,16 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.customCss).not.toContain('--theme-color-red')
       expect(migratedConfig.customCss).toContain('--scalar-color-red')
     })
+
+    it('prefixes url with spec', () => {
+      const config = {
+        url: 'https://example.com/openapi.json',
+      }
+
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.spec?.url).toBe('https://example.com/openapi.json')
+      expect(migratedConfig.url).toBeUndefined()
+    })
   })
 })

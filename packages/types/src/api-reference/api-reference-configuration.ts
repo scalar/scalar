@@ -76,15 +76,52 @@ const integrationEnum = z
   ])
   .nullable()
 
-/** Configuration for the OpenAPI/Swagger specification */
+/**
+ * Configuration for the OpenAPI/Swagger specification
+ *
+ * @deprecated Please move `content` and `url` to the top level and remove the `spec` prefix.
+ * */
 const specConfigurationSchema = z.object({
-  /** URL to an OpenAPI/Swagger document */
+  /**
+   * URL to an OpenAPI/Swagger document
+   *
+   * @deprecated Please move `url` to the top level and remove the `spec` prefix.
+   *
+   * @example
+   * ```ts
+   * const oldConfiguration = {
+   *   spec: {
+   *     url: 'https://example.com/openapi.json',
+   *   },
+   * }
+   *
+   * const newConfiguration = {
+   *   url: 'https://example.com/openapi.json',
+   * }
+   * ```
+   **/
   url: z.string().optional(),
   /**
    * Directly embed the OpenAPI document.
    * Can be a string, object, function returning an object, or null.
-   * @remarks It's recommended to pass a URL instead of content.
-   */
+   *
+   * @remarks It’s recommended to pass a URL instead of content.
+   *
+   * @deprecated Please move `content` to the top level and remove the `spec` prefix.
+   *
+   * @example
+   * ```ts
+   * const oldConfiguration = {
+   *   spec: {
+   *     content: '…',
+   *   },
+   * }
+   *
+   * const newConfiguration = {
+   *   content: '…',
+   * }
+   * ```
+   **/
   content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
 })
 
@@ -133,6 +170,17 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
   .merge(
     z.object({
+      /**
+       * URL to an OpenAPI/Swagger document
+       **/
+      url: z.string().optional(),
+      /**
+       * Directly embed the OpenAPI document.
+       * Can be a string, object, function returning an object, or null.
+       *
+       * @remarks It’s recommended to pass a URL instead of content.
+       **/
+      content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
       /**
        * The layout to use for the references
        * @default 'modern'
@@ -329,6 +377,30 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
   .transform((_configuration) => {
     const configuration = { ..._configuration }
 
+    // Promote the top level attributes to the spec object
+    if (configuration.spec?.url) {
+      console.warn(
+        `[DEPRECATED] You’re using the deprecated 'spec.url' attribute. Remove the spec prefix and move the 'url' attribute to the top level.`,
+      )
+    }
+
+    if (configuration.spec?.content) {
+      console.warn(
+        `[DEPRECATED] You’re using the deprecated 'spec.content' attribute. Remove the spec prefix and move the 'content' attribute to the top level.`,
+      )
+    }
+
+    // Add spec prefix until we migrated them
+    if (configuration.url) {
+      configuration.spec = { url: configuration.url }
+      delete configuration.url
+    }
+
+    if (configuration.content) {
+      configuration.spec = { content: configuration.content }
+      delete configuration.content
+    }
+
     // Migrate legacy theme variables
     if (configuration.customCss) {
       configuration.customCss = migrateThemeVariables(configuration.customCss)
@@ -364,5 +436,8 @@ export const apiReferenceConfigurationSchema = apiClientConfigurationSchema
 export type ApiReferenceConfiguration = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
-  'proxy'
+  | 'proxy'
+  // Remove new attributes, until we migrated them
+  | 'url'
+  | 'content'
 >
