@@ -6,7 +6,7 @@
 import { registerScalar } from '@/standalone/lib/global-scalar'
 import { createApiReference, findDataAttributes, getConfigurationFromDataAttributes } from '@/standalone/lib/html-api'
 
-// Log the version of the API Reference
+// Log the package version
 if (process.env.SCALAR_API_REFERENCE_VERSION) {
   console.info(`@scalar/api-reference@${process.env.SCALAR_API_REFERENCE_VERSION}`)
 }

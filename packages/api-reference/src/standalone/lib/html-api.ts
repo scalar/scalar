@@ -202,6 +202,11 @@ export const createApiReference = (
         // }
 
         instance.unmount()
+
+        if (!element) {
+          return
+        }
+
         instance = createApiReference(element, props.configuration) as App<Element>
       },
       false,
