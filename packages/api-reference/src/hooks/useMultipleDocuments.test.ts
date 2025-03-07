@@ -87,6 +87,16 @@ describe('useMultipleDocuments', () => {
       expect(selectedDocumentIndex.value).toBe(0)
       expect(selectedConfiguration.value.spec).toEqual(multiConfig.configuration.value[0].spec)
     })
+
+    it('should not update URL when there is only one document', () => {
+      const singleConfig = {
+        configuration: ref([{ spec: { url: '/openapi.json', slug: 'single-api' } }]),
+      }
+
+      useMultipleDocuments(singleConfig)
+
+      expect(replaceStateSpy).not.toHaveBeenCalled()
+    })
   })
 
   describe('edge cases', () => {

@@ -1,14 +1,14 @@
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
-  apiReferenceConfigurationSchema,
-  isConfigurationWithSources,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
   type SpecConfiguration,
+  apiReferenceConfigurationSchema,
+  isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
 
-import { computed, ref, watch, type Ref } from 'vue'
+import { type Ref, computed, ref, watch } from 'vue'
 
 /** URL parameter name for the selected API document */
 const QUERY_PARAMETER = 'api'
@@ -87,6 +87,7 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
    * We only want to update the URL if we have more than one document
    */
   const updateUrlParameter = (value: number) => {
+    // If there is only one document, don’t add the query parameter.
     if (availableDocuments.value.length === 1) {
       return
     }
