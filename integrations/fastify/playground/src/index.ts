@@ -1,5 +1,4 @@
 import fastifySwagger from '@fastify/swagger'
-import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
 // Init Fastify
@@ -163,7 +162,7 @@ fastify.delete<{ Querystring: { userId: string } }>(
 )
 
 // Add the plugin
-await fastify.register(fastifyApiReference, {
+await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/',
 })
 

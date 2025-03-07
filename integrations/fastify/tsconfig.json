@@ -1,6 +1,10 @@
 {
   "extends": "../../tsconfig.node.json",
+  "include": ["src", "rollup.config.ts", "playground"],
   "compilerOptions": {
-    "types": ["vite/client"]
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
   }
 }

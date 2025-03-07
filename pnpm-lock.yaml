@@ -435,6 +435,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../../packages/openapi-types
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       fastify-plugin:
         specifier: ^4.5.1
         version: 4.5.1
@@ -451,6 +454,9 @@ importers:
       '@fastify/swagger':
         specifier: ^8.10.1
         version: 8.14.0
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
