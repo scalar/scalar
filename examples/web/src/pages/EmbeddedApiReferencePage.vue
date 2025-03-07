@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import {
   ApiReference,
-  type ReferenceConfiguration,
+  type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
 import content from '@scalar/galaxy/latest.yaml?raw'
 import { reactive } from 'vue'
 
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
-const configuration = reactive<ReferenceConfiguration>({
+const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
-  spec: { content },
+  content,
 })
 </script>
 <template>

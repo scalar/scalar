@@ -14,9 +14,7 @@ export const ClientWrapper = ({
     <ApiClientModalProvider
       initialRequest={initialRequest}
       configuration={{
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }}>
       {children}
     </ApiClientModalProvider>

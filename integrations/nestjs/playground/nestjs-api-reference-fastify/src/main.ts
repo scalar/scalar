@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
-import { AppModule } from './app.module'
+import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { apiReference } from '@scalar/nestjs-api-reference'
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
+import { AppModule } from './app.module'
 
 const PORT = Number(process.env.PORT) || 5057
 const HOST = process.env.HOST || '0.0.0.0'
@@ -22,9 +22,7 @@ async function bootstrap() {
     '/',
     apiReference({
       withFastify: true,
-      spec: {
-        content: document,
-      },
+      content: document,
     }),
   )
 

@@ -109,9 +109,7 @@ import { type ReferenceProps } from './types'
 const ev = new CustomEvent('scalar:update-references-config', {
   detail: {
     configuration: {
-      spec: {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      },
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     },
   } satisfies ReferenceProps,
 })
@@ -138,9 +136,7 @@ import '@scalar/api-reference/style.css'
 <template>
   <ApiReference
     :configuration="{
-      spec: {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-      },
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     }" />
 </template>
 ```

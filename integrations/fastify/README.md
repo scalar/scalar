@@ -33,9 +33,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   configuration: {
     title: 'Our API Reference',
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   },
 })
 ```

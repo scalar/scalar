@@ -12,27 +12,45 @@ Whether the Swagger editor should be shown.
 }
 ```
 
-#### spec.content?: string
+#### content?: string | Record<string, any> | () => Record<string, any>
 
-Directly pass an OpenAPI/Swagger document (JSON or YAML).
+Directly pass an OpenAPI/Swagger document (JSON or YAML) as a string:
 
 ```js
 {
-  spec: {
-    content: '{ … }'
+  content: '{ "openapi": "3.1.1" }'
+}
+```
+
+Or as a JavaScript object:
+
+```js
+{
+  content: {
+    openapi: '3.1.1',
   }
 }
 ```
 
-#### spec.url?: string
+Or as a callback returning the actual document:
+
+```js
+{
+  content() {
+    return {
+      openapi: '3.1.1',
+    }
+  }
+}
+```
+
+#### url?: string
 
 Pass the URL of an OpenAPI document (JSON or YAML).
 
 ```js
 {
-  spec: {
-    url: '/openapi.json'
-  }
+  url: '/openapi.json'
 }
 ```
 

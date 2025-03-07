@@ -38,7 +38,21 @@ if (configuration.value?.metaData) {
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
-  specConfig: toRef(() => configuration.value.spec || {}),
+  specConfig: toRef(() => {
+    if (configuration.value.spec) {
+      return configuration.value.spec
+    }
+
+    if (configuration.value.url) {
+      return { url: configuration.value.url }
+    }
+
+    if (configuration.value.content) {
+      return { content: configuration.value.content }
+    }
+
+    return {}
+  }),
 })
 
 const favicon = computed(() => configuration.value.favicon)
