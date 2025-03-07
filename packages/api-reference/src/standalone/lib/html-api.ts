@@ -1,7 +1,7 @@
 import type { ReferenceProps } from '@/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
-import { createApp, h, reactive } from 'vue'
+import { type App, createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
@@ -104,10 +104,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
 
   // Ensure Reference Props are reactive
   if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
-    console.error(
-      'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
-      'font-family: monospace;',
-    )
+    // Stay quiet.
   } else {
     const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
 
@@ -126,23 +123,19 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function mountScalarApiReference(doc: Document, configuration: ApiReferenceConfiguration) {
+export function findDataAttributes(doc: Document, configuration: ApiReferenceConfiguration) {
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
-  const props = reactive<ReferenceProps>({
-    configuration,
-  })
-
-  if (props.configuration?.darkMode) {
+  if (configuration?.darkMode) {
     doc.body?.classList.add('dark-mode')
   } else {
     doc.body?.classList.add('light-mode')
   }
 
-  // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
+  // If it's a script tag, we can't mount the Vue.js app inside that tag.
   // We need to add a new container element before the script tag.
   const createContainer = () => {
     let _container: Element | null = null
@@ -153,63 +146,99 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
       _container = doc.createElement('div')
       specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
     } else {
-      _container = specElement || specUrlElement || doc.body
+      _container = specElement || specUrlElement
     }
 
     return _container
   }
 
-  let container = createContainer()
+  const container = createContainer()
 
-  // Wrap create app in factory for re-loading
-  const createAppFactory = () => {
-    const _app = createApp(() => h(ApiReference, props))
+  if (container) {
+    createApiReference(container, configuration)
+  }
+}
 
-    const head = createHead()
-    _app.use(head)
+/**
+ * Create and mount a new Scalar API Reference
+ */
+export const createApiReference = (
+  elementOrSelector: Element | string,
+  givenConfiguration: ApiReferenceConfiguration,
+  givenDocument?: Document,
+) => {
+  const doc = givenDocument || document
 
-    if (container) {
-      _app.mount(container)
+  const props = reactive<ReferenceProps>({
+    configuration: givenConfiguration,
+  })
+
+  const createAndMountApp = () => {
+    // If the element is a string, we need to find the actual DOM element
+    const element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+
+    // Create a new Vue app instance
+    let instance = createApp(() => h(ApiReference, props))
+
+    // Meta tags, etc.
+    instance.use(createHead())
+
+    // Mounting the app
+    if (element) {
+      instance.mount(element)
     } else {
-      console.error('Could not find a mount point for API References')
+      console.log('document', document.querySelector('body'))
+      console.error('Could not find a mount point for API References:', elementOrSelector)
     }
-    return _app
+
+    // Bind events
+    doc.addEventListener(
+      'scalar:reload-references',
+      () => {
+        // Check if element has been removed from dom, and re-add
+        // if (!doc.body.contains(element)) {
+        //   console.log('Re-adding container')
+        //   element = createContainer()
+        // }
+
+        instance.unmount()
+        instance = createApiReference(element, props.configuration) as App<Element>
+      },
+      false,
+    )
+
+    // Allow user to destroy the vue app
+    doc.addEventListener(
+      'scalar:destroy-references',
+      () => {
+        delete props['configuration']
+        instance.unmount()
+      },
+      false,
+    )
+
+    // Allow user to update configuration
+    doc.addEventListener(
+      'scalar:update-references-config',
+      (ev) => {
+        if ('detail' in ev) Object.assign(props, ev.detail)
+      },
+      false,
+    )
+
+    // Check if DOM is already loaded
+    if (document.readyState === 'loading') {
+      // If not loaded, wait for DOMContentLoaded
+      return new Promise((resolve) => {
+        document.addEventListener('DOMContentLoaded', () => {
+          resolve(createAndMountApp())
+        })
+      })
+    }
+
+    return instance
   }
 
-  let app = createAppFactory()
-
-  // Allow user to reload whole vue app
-  doc.addEventListener(
-    'scalar:reload-references',
-    () => {
-      // Check if element has been removed from dom, and re-add
-      if (!doc.body.contains(container)) {
-        console.log('Re-adding container')
-        container = createContainer()
-      }
-
-      app.unmount()
-      app = createAppFactory()
-    },
-    false,
-  )
-
-  // Allow user to destroy the vue app
-  doc.addEventListener(
-    'scalar:destroy-references',
-    () => {
-      delete props['configuration']
-      app.unmount()
-    },
-    false,
-  )
-
-  // Allow user to update configuration
-  doc.addEventListener(
-    'scalar:update-references-config',
-    (ev) => {
-      if ('detail' in ev) Object.assign(props, ev.detail)
-    },
-    false,
-  )
+  // If already loaded, execute immediately
+  return createAndMountApp()
 }
