@@ -3,8 +3,8 @@ import {
   collectionSchema,
   operationSchema,
   requestExampleSchema,
+  securitySchemeSchema,
   serverSchema,
-  type SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 
@@ -124,18 +124,19 @@ describe('RequestCodeExample.vue', () => {
   })
 
   it('filters security schemes correctly', async () => {
+    const scheme = securitySchemeSchema.parse({
+      uid: 'authUid',
+      type: 'apiKey',
+      nameKey: 'auth',
+      value: 'test-key',
+      in: 'header',
+    })
     const securitySchemes = {
-      'auth': {
-        uid: 'auth',
-        type: 'apiKey',
-        value: 'test-key',
-        nameKey: 'X-API-Key',
-        in: 'header',
-      },
+      [scheme.uid]: scheme,
     }
 
-    mockOperation.security = [{ 'auth': [] }]
-    mockOperation.selectedSecuritySchemeUids = ['auth'] as SecurityScheme['uid'][]
+    mockOperation.security = [{ [scheme.nameKey]: [] }]
+    mockOperation.selectedSecuritySchemeUids = [scheme.uid]
     ;(useWorkspace as Mock).mockReturnValue({
       securitySchemes,
       workspaceMutators: mockWorkspaceMutators,
@@ -146,7 +147,7 @@ describe('RequestCodeExample.vue', () => {
     })
 
     expect((wrapper.vm as any).selectedSecuritySchemes.length).toBe(1)
-    expect((wrapper.vm as any).selectedSecuritySchemes[0]).toEqual(securitySchemes['auth'])
+    expect((wrapper.vm as any).selectedSecuritySchemes[0]).toEqual(securitySchemes[scheme.uid])
 
     wrapper.unmount()
   })
