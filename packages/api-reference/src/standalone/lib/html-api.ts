@@ -173,76 +173,61 @@ export const createApiReference = (
     configuration: givenConfiguration,
   })
 
-  const createAndMountApp = () => {
-    // If the element is a string, we need to find the actual DOM element
-    let element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+  // If the element is a string, we need to find the actual DOM element
+  let element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
 
-    // Create a new Vue app instance
-    let instance = createApp(() => h(ApiReference, props))
+  // Create a new Vue app instance
+  let instance = createApp(() => h(ApiReference, props))
 
-    // Meta tags, etc.
-    instance.use(createHead())
+  // Meta tags, etc.
+  instance.use(createHead())
 
-    // Mounting the app
-    if (element) {
-      instance.mount(element)
-    } else {
-      console.error('Could not find a mount point for API References:', elementOrSelector)
-    }
-
-    // Bind events
-    doc.addEventListener(
-      'scalar:reload-references',
-      () => {
-        // Check if element has been removed from dom, and re-add
-        if (!doc.body.contains(element)) {
-          element = createContainer(doc)
-        }
-
-        instance.unmount()
-
-        if (!element) {
-          return
-        }
-
-        // @ts-expect-error known issue
-        instance = createApiReference(element, props.configuration, doc) as App<Element>
-      },
-      false,
-    )
-
-    // Allow user to destroy the vue app
-    doc.addEventListener(
-      'scalar:destroy-references',
-      () => {
-        delete props['configuration']
-        instance.unmount()
-      },
-      false,
-    )
-
-    // Allow user to update configuration
-    doc.addEventListener(
-      'scalar:update-references-config',
-      (ev) => {
-        if ('detail' in ev) Object.assign(props, ev.detail)
-      },
-      false,
-    )
-
-    // Check if DOM is already loaded
-    if (document.readyState === 'loading') {
-      // If not loaded, wait for DOMContentLoaded
-      return new Promise((resolve) => {
-        document.addEventListener('DOMContentLoaded', () => {
-          resolve(createAndMountApp())
-        })
-      })
-    }
-
-    return instance
+  // Mounting the app
+  if (element) {
+    instance.mount(element)
+  } else {
+    console.error('Could not find a mount point for API References:', elementOrSelector)
   }
 
-  // If already loaded, execute immediately
-  return createAndMountApp()
+  // Bind events
+  doc.addEventListener(
+    'scalar:reload-references',
+    () => {
+      // Check if element has been removed from dom, and re-add
+      if (!doc.body.contains(element)) {
+        element = createContainer(doc)
+      }
+
+      instance.unmount()
+
+      if (!element) {
+        return
+      }
+
+      // @ts-expect-error known issue
+      instance = createApiReference(element, props.configuration, doc) as App<Element>
+    },
+    false,
+  )
+
+  // Allow user to destroy the vue app
+  doc.addEventListener(
+    'scalar:destroy-references',
+    () => {
+      delete props['configuration']
+      instance.unmount()
+    },
+    false,
+  )
+
+  // Allow user to update configuration
+  doc.addEventListener(
+    'scalar:update-references-config',
+    (ev) => {
+      if ('detail' in ev) Object.assign(props, ev.detail)
+    },
+    false,
+  )
+
+  return instance
 }
