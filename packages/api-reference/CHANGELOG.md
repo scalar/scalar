@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.25.130
+
+### Patch Changes
+
+- 2c621d4: refactor: move snippetz types to @scalar/types
+- 46ea036: chore: added standalone reference version log to the console
+- a31973c: refactor: use store for operation title and stability level
+- bab7990: feat: use new @scalar/core to keep the dependency list short
+- Updated dependencies [3f99afc]
+- Updated dependencies [bab7990]
+- Updated dependencies [2c621d4]
+- Updated dependencies [168e609]
+- Updated dependencies [a31973c]
+  - @scalar/components@0.13.31
+  - @scalar/types@0.0.39
+  - @scalar/snippetz@0.2.16
+  - @scalar/api-client@2.2.59
+  - @scalar/oas-utils@0.2.113
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/themes@0.9.74
+  - @scalar/code-highlight@0.0.23
+  - @scalar/use-hooks@0.1.28
+
 ## 1.25.129
 
 ### Patch Changes

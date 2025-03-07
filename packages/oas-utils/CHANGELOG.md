@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.113
+
+### Patch Changes
+
+- a31973c: feat: add ScalarStabilitySchema
+- Updated dependencies [bab7990]
+- Updated dependencies [2c621d4]
+  - @scalar/types@0.0.39
+  - @scalar/themes@0.9.74
+
 ## 0.2.112
 
 ### Patch Changes

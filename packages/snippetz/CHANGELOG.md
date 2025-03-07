@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.16
+
+### Patch Changes
+
+- 2c621d4: refactor: move snippetz types to @scalar/types
+
 ## 0.2.15
 
 ### Patch Changes

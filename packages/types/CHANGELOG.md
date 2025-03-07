@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.0.39
+
+### Patch Changes
+
+- bab7990: refactor: move HtmlRenderingConfiguration type to types package
+- 2c621d4: refactor: move snippetz types to @scalar/types
+
 ## 0.0.38
 
 ### Patch Changes

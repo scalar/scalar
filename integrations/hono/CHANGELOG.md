@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.5.183
+
+### Patch Changes
+
+- bab7990: feat: use new @scalar/core to keep the dependency list short
+- Updated dependencies [bab7990]
+  - @scalar/core@0.1.0
+
 ## 0.5.182
 
 ### Patch Changes

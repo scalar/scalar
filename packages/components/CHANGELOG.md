@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.13.31
+
+### Patch Changes
+
+- 3f99afc: fix: removes auto margin in scalar modal
+  - @scalar/themes@0.9.74
+  - @scalar/code-highlight@0.0.23
+  - @scalar/use-hooks@0.1.28
+
 ## 0.13.30
 
 ### Patch Changes

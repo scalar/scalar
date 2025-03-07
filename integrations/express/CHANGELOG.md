@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.4.192
+
+### Patch Changes
+
+- bab7990: feat: use new @scalar/core to keep the dependency list short
+- Updated dependencies [bab7990]
+  - @scalar/core@0.1.0
+
 ## 0.4.191
 
 ### Patch Changes

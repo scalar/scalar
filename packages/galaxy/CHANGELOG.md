@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.24
+
+### Patch Changes
+
+- bab7990: refactor: move HtmlRenderingConfiguration type to types package
+
 ## 0.2.23
 
 ### Patch Changes
