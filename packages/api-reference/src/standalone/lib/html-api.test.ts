@@ -8,7 +8,7 @@ describe('html-api', () => {
     _integration: 'html',
   })
 
-  it('mountScalarApiReference', async () => {
+  it('createApiReference', async () => {
     const doc = createHtmlDocument(`
     <html>
       <body>
