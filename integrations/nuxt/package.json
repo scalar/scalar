@@ -25,7 +25,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm dev:prepare && nuxt-module-build build",
+    "build": "NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
