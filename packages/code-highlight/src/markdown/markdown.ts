@@ -68,6 +68,8 @@ export function htmlFromMarkdown(
     })
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
+    // Adds GitHub alerts
+    .use(rehypeAlert)
     // Creates a HTML AST
     .use(rehypeRaw)
     // Removes disallowed tags
@@ -80,6 +82,9 @@ export function htmlFromMarkdown(
       attributes: {
         ...defaultSchema.attributes,
         abbr: ['title'],
+        // Allow alert classes
+        div: ['class', ['className', /^markdown-alert(-.*)?$/]],
+        span: ['class', ['className', /^markdown-alert(-.*)?$/]],
       },
     })
     // Syntax highlighting
@@ -88,8 +93,6 @@ export function htmlFromMarkdown(
       // Enable auto detection
       detect: true,
     })
-    // Adds GitHub alerts
-    .use(rehypeAlert)
     // Adds target="_blank" to external links
     .use(rehypeExternalLinks, { target: '_blank' })
     // Formats the HTML
