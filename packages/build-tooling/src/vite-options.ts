@@ -40,7 +40,7 @@ export function createViteBuildOptions(props: {
        * This can still be overridden by the consumer of this function
        */
       // @ts-expect-error Allow this property for compat with Vite6
-      cssFileName: 'style.css',
+      cssFileName: 'style',
       ...props?.options?.lib,
       entry: props.entry,
     },
