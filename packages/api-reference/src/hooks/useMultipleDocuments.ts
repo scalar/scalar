@@ -84,8 +84,13 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
 
   /**
    * Updates the URL with the selected API definition
+   * We only want to update the URL if we have more than one document
    */
   const updateUrlParameter = (value: number) => {
+    if (availableDocuments.value.length === 1) {
+      return
+    }
+
     const url = new URL(window.location.href)
     const selectedDefinition = availableDocuments.value[value]
 
