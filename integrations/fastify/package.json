@@ -23,6 +23,7 @@
   },
   "scripts": {
     "build": "scalar-build-rollup && pnpm copy:standalone",
+    "build:playground": "cd playground && pnpm build",
     "copy:standalone": "mkdir -p ./dist/js && cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
     "dev": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
