@@ -36,13 +36,24 @@ const { securitySchemes, workspaceMutators } = useWorkspace()
 /**
  * Just the relevant security schemes for the selected request
  */
-const selectedSecuritySchemes = computed(() =>
-  filterSecurityRequirements(
+const selectedSecuritySchemes = computed(() => {
+  const schema = filterSecurityRequirements(
     operation.security || collection.security || [],
-    collection.selectedSecuritySchemeUids,
+    operation.selectedSecuritySchemeUids ||
+      collection.selectedSecuritySchemeUids,
     securitySchemes,
-  ),
-)
+  )
+
+  // If no schema - use the operation selectedSecuritySchemeUids
+  if (!schema.length) {
+    return operation.selectedSecuritySchemeUids
+      ?.flatMap((uids) => (Array.isArray(uids) ? uids : [uids]))
+      .map((uid) => securitySchemes[uid])
+      .filter((scheme) => scheme !== undefined)
+  }
+
+  return schema
+})
 
 /** Group plugins by target/language to show in a dropdown, also build a dictionary in the same loop */
 const snippets = computed(() => {
