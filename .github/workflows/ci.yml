@@ -316,44 +316,6 @@ jobs:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
-  stackblitz:
-    if: github.head_ref == 'changeset-release/main'
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    needs: [build]
-    strategy:
-      matrix:
-        node-version: [20]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
-      - name: Bump versions
-        # Let’s apply the changesets and bump the version already,
-        # so it’ll have the upcoming version numbers already.
-        run: pnpm changeset version
-      - name: Publish on Stackblitz
-        # We can’t use npx pkg-pr-new publish ./packages/* here.
-        # We want to explicitly publish the packages we want to save some time.
-        run: npx pkg-pr-new publish
-          ./packages/api-client
-          ./packages/api-reference
-          ./packages/api-reference-react
-          ./packages/components
-          ./integrations/docusaurus
-          ./integrations/express
-          ./integrations/fastify
-          ./integrations/hono
-          ./integrations/nestjs
-          ./integrations/nextjs
-          ./integrations/nuxt
-          ./packages/themes
-
   deploy-api-client:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
