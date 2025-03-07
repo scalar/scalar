@@ -85,9 +85,9 @@ export const getSelectedSecuritySchemeUids = (
     securityRequirements[0] && !preferredSecurityNames.length ? [securityRequirements[0]] : preferredSecurityNames
 
   // Map names to uids
-  const uids = names.map((name) =>
-    Array.isArray(name) ? name.map((k) => securitySchemeMap[k]) : securitySchemeMap[name],
-  )
+  const uids = names
+    .map((name) => (Array.isArray(name) ? name.map((k) => securitySchemeMap[k]) : securitySchemeMap[name]))
+    .filter(isDefined)
 
   return uids
 }
