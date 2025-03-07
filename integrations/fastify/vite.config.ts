@@ -1,6 +1,6 @@
+import { resolve } from 'node:path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
-import { resolve } from 'node:path'
 
 import pkg from './package.json' assert { type: 'json' }
 import { nodeExternals } from './vite-plugins/nodeExternals.ts'
@@ -24,7 +24,7 @@ export default defineConfig({
       entry: 'src/index.ts',
       name: '@scalar/fastify-api-reference',
       fileName: 'index',
-      formats: ['es', 'cjs'],
+      formats: ['es'],
     },
     rollupOptions: {
       external: Object.keys(pkg.dependencies),

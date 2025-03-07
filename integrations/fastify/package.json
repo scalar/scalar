@@ -36,18 +36,20 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "./dist/index.cjs",
-  "types": "./dist/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "files": [
-    "dist",
+    "./dist",
     "CHANGELOG.md"
   ],
-  "module": "./dist/index.js",
+  "module": "dist/index.js",
   "dependencies": {
     "@scalar/core": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
