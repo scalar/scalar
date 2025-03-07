@@ -68,16 +68,16 @@ const contentTypeOptions = (
 /** Match the activeBody to the contentTypeOptions */
 const activeExampleContentType = computed(() => {
   const { activeBody, formData, raw } = example.body
-  if (raw?.mimeType) return raw.mimeType
+  // if (raw?.mimeType) return raw.mimeType
   // Form
   if (activeBody === 'formData')
     return formData?.encoding === 'urlencoded'
       ? 'formUrlEncoded'
       : 'multipartForm'
   // Binary
-  else if (activeBody === 'binary') return 'binaryFile'
+  if (activeBody === 'binary') return 'binaryFile'
   // Raw
-  else if (activeBody === 'raw' && raw?.encoding) {
+  if (activeBody === 'raw' && raw?.encoding) {
     if (raw.encoding === 'html') return 'other'
     return raw.encoding
   }

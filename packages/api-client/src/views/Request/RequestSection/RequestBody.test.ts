@@ -64,7 +64,7 @@ describe('RequestBody.vue', () => {
 
   it('renders correctly with no body', async () => {
     const wrapper = mount(RequestBody, props)
-    expect(wrapper.text()).toContain('No Body')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('None')
     wrapper.unmount()
   })
 
@@ -76,9 +76,9 @@ describe('RequestBody.vue', () => {
         value: [],
       },
     }
-    const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('Multipart Form')
+    const wrapper = mount(RequestBody, props)
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Multipart Form')
     wrapper.unmount()
   })
 
@@ -92,7 +92,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('Form URL Encoded')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Form URL Encoded')
     wrapper.unmount()
   })
 
@@ -102,7 +102,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('Binary File')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Binary File')
     wrapper.unmount()
   })
 
@@ -116,7 +116,9 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('JSON')
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('JSON')
     wrapper.unmount()
   })
 
@@ -130,7 +132,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('XML')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('XML')
     wrapper.unmount()
   })
 
@@ -144,7 +146,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('YAML')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('YAML')
     wrapper.unmount()
   })
 
@@ -158,7 +160,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('EDN')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('EDN')
     wrapper.unmount()
   })
 
@@ -172,7 +174,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    expect(wrapper.text()).toContain('Other')
+    expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('Other')
     wrapper.unmount()
   })
 
