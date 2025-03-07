@@ -22,15 +22,15 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "build:playground": "cd playground && pnpm build",
+    "build": "scalar-build-rollup && pnpm copy:standalone",
+    "copy:standalone": "mkdir -p ./dist/js && cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
     "dev": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -52,6 +52,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/core": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "fastify-plugin": "^4.5.1",

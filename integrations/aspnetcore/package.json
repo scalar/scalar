@@ -15,7 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "prepare:build": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
+    "copy:standalone": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
     "format:check": "scalar-format-check",
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",
