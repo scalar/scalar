@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.17
+
+### Patch Changes
+
+- 5cf4908: Remove file extension
+
 ## 0.1.16
 
 ### Patch Changes
