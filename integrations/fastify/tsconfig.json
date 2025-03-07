@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.node.json",
-  "include": ["src", "test"],
-  "exclude": ["dist", "**/*.test.ts"],
+  "include": ["src", "rollup.config.ts", "playground"],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],

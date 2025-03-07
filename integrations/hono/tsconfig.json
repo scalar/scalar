@@ -1,5 +1,10 @@
 {
   "extends": "../../tsconfig.node.json",
-  "compilerOptions": {},
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
+  },
   "include": ["src", "rollup.config.ts", "playground"]
 }
