@@ -59,6 +59,7 @@
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {
+    "@scalar/api-reference": "workspace:*",
     "@fastify/basic-auth": "^5.1.1",
     "@fastify/http-proxy": "^9.0.0",
     "@fastify/swagger": "^8.10.1",
