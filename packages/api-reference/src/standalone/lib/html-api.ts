@@ -135,28 +135,28 @@ export function findDataAttributes(doc: Document, configuration: ApiReferenceCon
     doc.body?.classList.add('light-mode')
   }
 
-  // If it's a script tag, we can't mount the Vue.js app inside that tag.
-  // We need to add a new container element before the script tag.
-  const createContainer = () => {
-    let _container: Element | null = null
-
-    const specScriptTag = getSpecScriptTag(doc)
-
-    if (specScriptTag) {
-      _container = doc.createElement('div')
-      specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
-    } else {
-      _container = specElement || specUrlElement
-    }
-
-    return _container
-  }
-
-  const container = createContainer()
+  const container = createContainer(doc, specElement || specUrlElement)
 
   if (container) {
-    createApiReference(container, configuration)
+    createApiReference(container, configuration, doc)
   }
+}
+
+// If it's a script tag, we can't mount the Vue.js app inside that tag.
+// We need to add a new container element before the script tag.
+export const createContainer = (doc: Document, element?: Element | null) => {
+  let _container: Element | null = null
+
+  const specScriptTag = getSpecScriptTag(doc)
+
+  if (specScriptTag) {
+    _container = doc.createElement('div')
+    specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
+  } else if (element) {
+    _container = element
+  }
+
+  return _container
 }
 
 /**
@@ -175,7 +175,7 @@ export const createApiReference = (
 
   const createAndMountApp = () => {
     // If the element is a string, we need to find the actual DOM element
-    const element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+    let element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
 
     // Create a new Vue app instance
     let instance = createApp(() => h(ApiReference, props))
@@ -187,7 +187,6 @@ export const createApiReference = (
     if (element) {
       instance.mount(element)
     } else {
-      console.log('document', document.querySelector('body'))
       console.error('Could not find a mount point for API References:', elementOrSelector)
     }
 
@@ -196,10 +195,9 @@ export const createApiReference = (
       'scalar:reload-references',
       () => {
         // Check if element has been removed from dom, and re-add
-        // if (!doc.body.contains(element)) {
-        //   console.log('Re-adding container')
-        //   element = createContainer()
-        // }
+        if (!doc.body.contains(element)) {
+          element = createContainer(doc)
+        }
 
         instance.unmount()
 
@@ -207,7 +205,8 @@ export const createApiReference = (
           return
         }
 
-        instance = createApiReference(element, props.configuration) as App<Element>
+        // @ts-expect-error known issue
+        instance = createApiReference(element, props.configuration, doc) as App<Element>
       },
       false,
     )
