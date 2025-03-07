@@ -43,6 +43,7 @@ export const getSnippet = <T extends TargetId>(
     try {
       new URL(harRequest.url)
     } catch (error) {
+      console.error('[getSnippet] Invalid URL', error)
       harRequest.url = `${INVALID_URLS_PREFIX}${separator}${harRequest.url}`
     }
 
@@ -51,6 +52,7 @@ export const getSnippet = <T extends TargetId>(
       try {
         JSON.parse(harRequest.postData.text || '{}')
       } catch (error) {
+        console.error('[getSnippet] Invalid JSON body', error)
         return [new Error('Invalid JSON body'), null]
       }
     }
@@ -64,7 +66,7 @@ export const getSnippet = <T extends TargetId>(
       return [null, payload.replace(`${INVALID_URLS_PREFIX}${separator}`, '')]
     }
   } catch (error) {
-    console.error('[getSnippet]', error)
+    console.error('[getSnippet] Error generating snippet', error)
     return [new Error('Error generating snippet'), null]
   }
 

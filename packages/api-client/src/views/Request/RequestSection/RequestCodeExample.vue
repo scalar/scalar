@@ -39,7 +39,8 @@ const { securitySchemes, workspaceMutators } = useWorkspace()
 const selectedSecuritySchemes = computed(() =>
   filterSecurityRequirements(
     operation.security || collection.security || [],
-    collection.selectedSecuritySchemeUids,
+    operation.selectedSecuritySchemeUids ||
+      collection.selectedSecuritySchemeUids,
     securitySchemes,
   ),
 )
