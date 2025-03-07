@@ -9,28 +9,23 @@
   </head>
 
   <body>
-    <!-- Add your own OpenAPI/Swagger specification URL here: -->
-    <!-- Note: The example is our public proxy (to avoid CORS issues). You can remove the `data-proxy-url` attribute if you don’t need it. -->
-    <script
-      id="api-reference"
-      data-proxy-url="https://proxy.scalar.com"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
+    <div id="app"></div>
 
-    <!-- Optional: You can set a full configuration object like this: -->
-    <script>
-      var configuration = {
-        // defaultHttpClient: {
-        //   targetKey: 'node',
-        //   clientKey: 'undici',
-        // },
-      }
-
-      document.getElementById('api-reference').dataset.configuration =
-        JSON.stringify(configuration)
-    </script>
-
+    <!-- Our script -->
     <script
       src="src/standalone.ts"
       type="module"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script type="module">
+      Scalar.createApiReference('#app', {
+        spec: {
+          // The URL of the OpenAPI/Swagger document
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
   </body>
 </html>
