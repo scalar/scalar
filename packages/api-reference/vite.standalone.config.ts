@@ -17,6 +17,7 @@ function replaceVariables(template: string, variables: Record<string, string>) {
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
+    'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
   },
   resolve: {
     alias: {

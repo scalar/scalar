@@ -2,11 +2,13 @@ import { URL, fileURLToPath } from 'node:url'
 import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
+import { version } from './package.json'
 
 export default defineConfig({
   plugins: [vue()],
   define: {
     'process.env.NODE_ENV': '"production"',
+    'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,
   },
   resolve: {
     alias: {
