@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 1.25.130
+
+### Patch Changes
+
+- bab7990: feat: use new @scalar/core to keep the dependency list short
+- Updated dependencies [bab7990]
+  - @scalar/core@0.1.0
+  - @scalar/openapi-parser@0.10.9
+
 ## 1.25.129
 
 ### Patch Changes

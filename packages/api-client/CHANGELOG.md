@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.2.59
+
+### Patch Changes
+
+- 168e609: fix: body showing none instead of json
+- Updated dependencies [3f99afc]
+- Updated dependencies [bab7990]
+- Updated dependencies [2c621d4]
+- Updated dependencies [a31973c]
+  - @scalar/components@0.13.31
+  - @scalar/types@0.0.39
+  - @scalar/snippetz@0.2.16
+  - @scalar/oas-utils@0.2.113
+  - @scalar/use-codemirror@0.11.76
+  - @scalar/openapi-parser@0.10.9
+  - @scalar/themes@0.9.74
+  - @scalar/import@0.2.33
+  - @scalar/postman-to-openapi@0.1.36
+  - @scalar/use-hooks@0.1.28
+
 ## 2.2.58
 
 ### Patch Changes
