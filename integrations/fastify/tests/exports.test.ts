@@ -22,4 +22,25 @@ describe('exports', () => {
         })
       })
     }))
+
+  it('CJS export', () =>
+    new Promise((resolve) => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      fastify.register(require('../dist/index.cjs'), {
+        routePrefix: '/foobar',
+        configuration: {
+          spec: { url: '/openapi.json' },
+        },
+      })
+
+      fastify.listen({ port: 0 }, (_err, address) => {
+        fetch(`${address}/foobar`).then((response) => {
+          expect(response.status).toBe(200)
+          resolve(null)
+        })
+      })
+    }))
 })
