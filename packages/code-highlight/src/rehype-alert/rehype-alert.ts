@@ -2,7 +2,7 @@ import { visit } from 'unist-util-visit'
 import type { Element } from 'hast'
 import type { Root } from 'mdast'
 
-const ALERT_TYPES = ['note', 'tip', 'important', 'warning', 'caution'] as const
+const ALERT_TYPES = ['note', 'tip', 'important', 'warning', 'caution', 'success'] as const
 
 // Simple whitespace check function
 function isWhitespace(node: any): boolean {
@@ -65,8 +65,6 @@ export function rehypeAlert() {
         text.value = text.value.replace(/^\s*\[!.*?\]\s*/, '')
       }
 
-      const capitalizedType = alertType.charAt(0).toUpperCase() + alertType.slice(1)
-
       // Extract content from paragraphs to avoid wrapping in <p> tags
       const contentChildren = []
       for (let i = headIndex; i < node.children.length; i++) {
@@ -86,24 +84,9 @@ export function rehypeAlert() {
         children: [
           {
             type: 'element',
-            tagName: 'span',
-            properties: { className: ['markdown-alert-border'] },
-            children: [],
-          },
-          {
-            type: 'element',
             tagName: 'div',
             properties: { className: ['markdown-alert-content'] },
-            children: [
-              {
-                type: 'element',
-                tagName: 'span',
-                properties: { className: ['markdown-alert-title'] },
-                children: [{ type: 'text', value: `${capitalizedType}:` }],
-              },
-              { type: 'text', value: ' ' },
-              ...contentChildren,
-            ],
+            children: [{ type: 'text', value: ' ' }, ...contentChildren],
           },
         ],
       }

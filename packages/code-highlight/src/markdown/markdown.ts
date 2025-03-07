@@ -84,7 +84,6 @@ export function htmlFromMarkdown(
         abbr: ['title'],
         // Allow alert classes
         div: ['class', ['className', /^markdown-alert(-.*)?$/]],
-        span: ['class', ['className', /^markdown-alert(-.*)?$/]],
       },
     })
     // Syntax highlighting
