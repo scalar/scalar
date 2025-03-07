@@ -18,7 +18,7 @@ npm install @scalar/fastify-api-reference
 And then register it with Fastify:
 
 ```ts
-await fastify.register(require('@scalar/fastify-api-reference'), {
+await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
 })
 ```
@@ -29,7 +29,7 @@ If you have a OpenAPI/Swagger document already, you can pass an URL to the plugi
 
 ```ts
 // Render an API reference for a given OpenAPI/Swagger spec URL
-fastify.register(require('@scalar/fastify-api-reference'), {
+fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   configuration: {
     title: 'Our API Reference',
@@ -43,7 +43,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
 With [@fastify/swagger], we’re picking it up automatically, so this would be enough:
 
 ```ts
-await fastify.register(require('@scalar/fastify-api-reference'), {
+await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
 })
 ```
@@ -57,7 +57,7 @@ The fastify plugin takes our universal configuration object, [read more about co
 By default, we’re using a custom Fastify theme and it’s beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:
 
 ```ts
-await fastify.register(require('@scalar/fastify-api-reference'), {
+await fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   configuration: {
     theme: 'purple',
@@ -70,7 +70,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 The plugin is compatible with the Fastify logger. You can configure the log level for the routes registered by the plugin:
 
 ```ts
-fastify.register(require('@scalar/fastify-api-reference'), {
+fastify.register(import('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
   logLevel: 'silent',
 })
