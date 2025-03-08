@@ -15,3 +15,8 @@ export {
   type OperationPayload,
   operationSchema,
 } from './operation'
+
+export type {
+  PostResponseScript,
+  PostResponseScripts,
+} from './requests'

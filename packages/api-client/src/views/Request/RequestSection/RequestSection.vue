@@ -18,6 +18,7 @@ import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import PostResponseScripts from '@/views/Request/RequestSection/PostResponseScripts.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
@@ -58,6 +59,7 @@ const sections = computed(() => {
     'Cookies',
     'Headers',
     'Body',
+    'Scripts',
   ])
 
   if (!example.parameters.path.length) allSections.delete('Variables')
@@ -155,7 +157,7 @@ const handleRequestNamePlaceholder = () => {
         @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y">
+      class="request-section-content custom-scroll relative flex flex-1 flex-col">
       <RequestAuth
         v-if="
           collection &&
@@ -182,11 +184,11 @@ const handleRequestNamePlaceholder = () => {
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
+        :invalidParams="invalidParams"
         :operation="operation"
         paramKey="path"
         title="Variables"
-        :workspace="workspace"
-        :invalidParams="invalidParams" />
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
         :envVariables="envVariables"
@@ -232,10 +234,15 @@ const handleRequestNamePlaceholder = () => {
         title="Body"
         :workspace="workspace" />
 
-      <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <ScalarErrorBoundary>
+        <PostResponseScripts
+          v-show="activeSection === 'All' || activeSection === 'Scripts'"
+          :operation="operation" />
+      </ScalarErrorBoundary>
 
-      <!-- Code Snippet -->
+      <!-- Spacer -->
+      <div class="-mt-0.25 z-1 flex flex-grow border-b" />
+
       <ScalarErrorBoundary>
         <RequestCodeExample
           :collection="collection"
