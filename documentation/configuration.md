@@ -54,7 +54,7 @@ You can use our hosted proxy:
 }
 ```
 
-If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/examples/proxy-server).
+If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
 #### showSidebar?: boolean
 
