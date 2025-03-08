@@ -104,6 +104,9 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     // Reset location on the page
     url.hash = ''
 
+    // Scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: 'instant' })
+
     window.history.replaceState({}, '', url.toString())
   }
 
@@ -154,7 +157,7 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
   })
 
   // Update URL when selection changes
-  watch(selectedDocumentIndex, updateUrlParameter, { flush: 'sync', immediate: true })
+  watch(selectedDocumentIndex, updateUrlParameter, { flush: 'sync' })
 
   return {
     selectedConfiguration,
