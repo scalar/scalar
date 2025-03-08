@@ -89,8 +89,8 @@ export const useNavState = () => {
    * ID creation methods
    */
   const getHeadingId = (heading: Heading) => {
-    if (typeof config?.generateHeadingSlug === 'function') {
-      return `${config.generateHeadingSlug(heading)}`
+    if (typeof config.value.generateHeadingSlug === 'function') {
+      return `${config.value.generateHeadingSlug(heading)}`
     }
 
     if (heading.slug) return `description/${heading.slug}`
@@ -100,22 +100,22 @@ export const useNavState = () => {
   const getModelId = (model?: { name: string }) => {
     if (!model?.name) return 'models'
 
-    if (typeof config?.generateModelSlug === 'function') {
-      return `model/${config.generateModelSlug(model)}`
+    if (typeof config.value.generateModelSlug === 'function') {
+      return `model/${config.value.generateModelSlug(model)}`
     }
     return `model/${slug(model.name)}`
   }
 
   const getTagId = (tag: Tag) => {
-    if (typeof config?.generateTagSlug === 'function') {
-      return `tag/${config.generateTagSlug(tag)}`
+    if (typeof config.value.generateTagSlug === 'function') {
+      return `tag/${config.value.generateTagSlug(tag)}`
     }
     return `tag/${slug(tag.name)}`
   }
 
   const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
-    if (typeof config?.generateOperationSlug === 'function') {
-      return `${getTagId(parentTag)}/${config.generateOperationSlug({
+    if (typeof config.value.generateOperationSlug === 'function') {
+      return `${getTagId(parentTag)}/${config.value.generateOperationSlug({
         path: operation.path,
         operationId: operation.operationId,
         method: operation.httpVerb,
@@ -128,8 +128,8 @@ export const useNavState = () => {
   const getWebhookId = (webhook?: { name: string; method?: string }) => {
     if (!webhook?.name) return 'webhooks'
 
-    if (typeof config?.generateWebhookSlug === 'function') {
-      return `webhook/${config.generateWebhookSlug(webhook)}`
+    if (typeof config.value.generateWebhookSlug === 'function') {
+      return `webhook/${config.value.generateWebhookSlug(webhook)}`
     }
     return `webhook/${webhook.method}/${slug(webhook.name)}`
   }

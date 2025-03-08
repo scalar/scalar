@@ -15,7 +15,7 @@ const { client } = useApiClient()
 const config = useConfig()
 
 const isButtonVisible = computed(() => {
-  return config?.hideTestRequestButton !== true
+  return config.value.hideTestRequestButton !== true
 })
 
 const handleClick = () => {

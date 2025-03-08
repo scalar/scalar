@@ -55,8 +55,8 @@ const version = computed(() => {
 })
 
 /** Trigger the onLoaded event when the component is mounted */
-const { onLoaded } = useConfig()
-onMounted(() => onLoaded?.())
+const config = useConfig()
+onMounted(() => config.value.onLoaded?.())
 </script>
 <template>
   <SectionContainer>

@@ -13,16 +13,12 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import { useExampleStore } from '#legacy'
 import { computed, ref, useId, watch } from 'vue'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '../../components/Card'
-import { HttpMethod } from '../../components/HttpMethod'
-import ScreenReader from '../../components/ScreenReader.vue'
-import { useConfig } from '../../hooks/useConfig'
-import { useHttpClientStore, type HttpClientState } from '../../stores'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
+import { HttpMethod } from '@/components/HttpMethod'
+import ScreenReader from '@/components/ScreenReader.vue'
+import { useConfig } from '@/hooks/useConfig'
+import { useHttpClientStore, type HttpClientState } from '@/stores'
+
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
