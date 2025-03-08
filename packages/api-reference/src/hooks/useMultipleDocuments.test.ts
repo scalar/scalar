@@ -73,7 +73,8 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('URL management', () => {
-    it('should update URL when initializing with a selection', () => {
+    // We do not set the initial url as its not needed, also was breaking the hash
+    it.todo('should update URL when initializing with a selection', () => {
       const multiConfig = {
         configuration: ref([
           { spec: { url: '/openapi.json', slug: 'first-api' } },
