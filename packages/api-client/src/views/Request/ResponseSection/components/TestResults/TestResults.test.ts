@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest'
 import TestResults from './TestResults.vue'
 
 const results: TestResult[] = [
-  { title: 'Test 1', success: true, status: 'success', duration: 100 },
-  { title: 'Test 2', success: false, status: 'failure', duration: 200 },
-  { title: 'Test 3', success: false, status: 'pending', duration: 300 },
+  { title: 'Test 1', passed: true, status: 'passed', duration: 100 },
+  { title: 'Test 2', passed: false, status: 'failed', duration: 200 },
+  { title: 'Test 3', passed: false, status: 'pending', duration: 300 },
 ]
 
 describe('TestResults', () => {
