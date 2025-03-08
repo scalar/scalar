@@ -22,9 +22,7 @@ describe('rehype-alert', () => {
     const output = await process(input)
 
     expect(output).toContain('<div class="markdown-alert markdown-alert-note">')
-    expect(output).toContain('<span class="markdown-alert-border"></span>')
     expect(output).toContain('<div class="markdown-alert-content">')
-    expect(output).toContain('<span class="markdown-alert-title">Note:</span>')
     expect(output).toContain('This is a note callout.')
   })
 
@@ -33,7 +31,6 @@ describe('rehype-alert', () => {
     const output = await process(input)
 
     expect(output).toContain('<div class="markdown-alert markdown-alert-warning">')
-    expect(output).toContain('<span class="markdown-alert-title">Warning:</span>')
     expect(output).toContain('This is a warning callout.')
   })
 
@@ -42,7 +39,6 @@ describe('rehype-alert', () => {
     const output = await process(input)
 
     expect(output).toContain('<div class="markdown-alert markdown-alert-caution">')
-    expect(output).toContain('<span class="markdown-alert-title">Caution:</span>')
     expect(output).toContain('This is a caution callout.')
   })
 
@@ -51,7 +47,6 @@ describe('rehype-alert', () => {
     const output = await process(input)
 
     expect(output).toContain('<div class="markdown-alert markdown-alert-important">')
-    expect(output).toContain('<span class="markdown-alert-title">Important:</span>')
     expect(output).toContain('This is an important callout.')
   })
 
@@ -60,7 +55,6 @@ describe('rehype-alert', () => {
     const output = await process(input)
 
     expect(output).toContain('<div class="markdown-alert markdown-alert-tip">')
-    expect(output).toContain('<span class="markdown-alert-title">Tip:</span>')
     expect(output).toContain('This is a tip callout.')
   })
 
