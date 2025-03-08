@@ -1,7 +1,7 @@
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import TestRequestButton from './TestRequestButton.vue'
 import { operationSchema } from '@scalar/oas-utils/entities/spec'
@@ -27,9 +27,9 @@ describe('TestRequestButton', () => {
     const wrapper = mount(TestRequestButton, {
       global: {
         provide: {
-          [CONFIGURATION_SYMBOL]: {
+          [CONFIGURATION_SYMBOL]: computed(() => ({
             hideTestRequestButton: true,
-          },
+          })),
         },
       },
       props: {

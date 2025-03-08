@@ -291,7 +291,7 @@ provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
-provide(CONFIGURATION_SYMBOL, configuration.value)
+provide(CONFIGURATION_SYMBOL, configuration)
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
