@@ -4,10 +4,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useNavState } from './useNavState'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { computed } from 'vue'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
-  useConfig: vi.fn().mockReturnValue({}),
+  useConfig: vi.fn().mockReturnValue({ value: {} }),
 }))
 
 describe('useNavState', () => {
@@ -81,13 +82,15 @@ describe('useNavState', () => {
 
   describe('custom slug generation', () => {
     beforeEach(() => {
-      const mockConfig = apiReferenceConfigurationSchema.parse({
-        generateHeadingSlug: vi.fn().mockReturnValue('custom-heading'),
-        generateModelSlug: vi.fn().mockReturnValue('custom-model'),
-        generateTagSlug: vi.fn().mockReturnValue('custom-tag'),
-        generateOperationSlug: vi.fn().mockReturnValue('custom-operation'),
-        generateWebhookSlug: vi.fn().mockReturnValue('custom-webhook'),
-      })
+      const mockConfig = computed(() =>
+        apiReferenceConfigurationSchema.parse({
+          generateHeadingSlug: vi.fn().mockReturnValue('custom-heading'),
+          generateModelSlug: vi.fn().mockReturnValue('custom-model'),
+          generateTagSlug: vi.fn().mockReturnValue('custom-tag'),
+          generateOperationSlug: vi.fn().mockReturnValue('custom-operation'),
+          generateWebhookSlug: vi.fn().mockReturnValue('custom-webhook'),
+        }),
+      )
       vi.mocked(useConfig).mockReturnValue(mockConfig)
       navState = useNavState()
     })
