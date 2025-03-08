@@ -39,7 +39,7 @@ describe('useConfig', () => {
     expect(config.value).toEqual(mockConfig)
   })
 
-  it.only('reacts to changes in the injected config', async () => {
+  it('reacts to changes in the injected config', async () => {
     // Create a reactive source of truth
     const configSource = ref(
       apiReferenceConfigurationSchema.parse({

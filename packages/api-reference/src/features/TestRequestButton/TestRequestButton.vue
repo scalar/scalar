@@ -14,9 +14,9 @@ const { operation } = defineProps<{
 const { client } = useApiClient()
 const config = useConfig()
 
-const isButtonVisible = computed(() => {
-  return config.value.hideTestRequestButton !== true
-})
+const isButtonVisible = computed(
+  () => config.value.hideTestRequestButton !== true,
+)
 
 const handleClick = () => {
   if (operation && client?.value?.open) {
