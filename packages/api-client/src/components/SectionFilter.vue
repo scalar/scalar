@@ -1,42 +1,58 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string">
 import { ScalarIcon } from '@scalar/components'
-import { computed, useId } from 'vue'
+import { nextTick, ref } from 'vue'
 
-const props = defineProps<{
-  sections: string[]
-  activeSection: string
+import SectionFilterButton from '@/components/SectionFilterButton.vue'
+
+const { filters = [], filterIds } = defineProps<{
+  filters?: T[]
+  filterIds?: Record<T, string>
 }>()
 
-const emit = defineEmits<{
-  (e: 'setActiveSection', value: string): void
-}>()
+const model = defineModel<T>()
 
-const name = useId()
+const tablist = ref<HTMLDivElement>()
 
-const model = computed<string>({
-  get: () => props.activeSection,
-  set: (value) => emit('setActiveSection', value),
-})
+/** Keyboard navigation */
+const navigateSection = (direction: 'next' | 'prev') => {
+  const offset = direction === 'prev' ? -1 : 1
+  const index = model.value ? filters.indexOf(model.value) : 0
+  const length = filters.length
+
+  // Ensures we loop around the array by using the remainder
+  const newIndex = (index + offset + length) % length
+  model.value = filters[newIndex]
+
+  // Focus the selected button
+  nextTick(() => {
+    if (tablist.value) {
+      const selectedButton = tablist.value.querySelector(
+        `button[aria-selected="true"]`,
+      ) satisfies HTMLButtonElement | null
+      if (selectedButton) selectedButton.focus()
+    }
+  })
+}
 </script>
 <template>
-  <fieldset
-    class="filter-hover context-bar-group ml-auto hidden lg:flex lg:w-[120px]">
-    <legend class="sr-only">Filter Sections</legend>
+  <div
+    ref="tablist"
+    class="filter-hover context-bar-group ml-auto hidden lg:flex"
+    role="tablist"
+    @keydown.left="navigateSection('prev')"
+    @keydown.right="navigateSection('next')">
     <div
       class="request-section-content request-section-content-filter fade-request-section-content text-c-3 pointer-events-auto relative hidden w-full justify-end gap-[1.5px] rounded py-2 text-xs xl:flex">
-      <label
-        v-for="section in sections"
-        :key="section"
-        class="filter-hover-item hover:bg-b-2 flex w-fit cursor-pointer items-center whitespace-nowrap rounded p-1 px-2 text-center font-medium has-[:focus-visible]:outline"
-        :class="[model === section ? 'text-c-1 pointer-events-none' : '']">
-        {{ section }}
-        <input
-          v-model="model"
-          class="sr-only"
-          :name="name"
-          type="radio"
-          :value="section" />
-      </label>
+      <SectionFilterButton
+        v-for="filter in filters"
+        :key="filter"
+        class="filter-hover-item"
+        :controls="filterIds?.[filter]"
+        role="tab"
+        :selected="model === filter"
+        @click="model = filter">
+        {{ filter }}
+      </SectionFilterButton>
       <div
         class="context-bar-group-hover:text-c-1 absolute -right-[30px] top-1/2 flex -translate-y-1/2 items-center">
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
@@ -46,7 +62,7 @@ const model = computed<string>({
           thickness="2" />
       </div>
     </div>
-  </fieldset>
+  </div>
 </template>
 <style scoped>
 .fade-request-section-content {

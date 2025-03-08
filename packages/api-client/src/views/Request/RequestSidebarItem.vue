@@ -13,7 +13,7 @@ import {
 } from '@scalar/draggable'
 import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
 import { HttpMethod } from '@/components/HttpMethod'
@@ -279,6 +279,8 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
 
     if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
     else if (_item.to) router.push(_item.to)
+
+    nextTick(() => events.focusAddressBar.emit())
   }
 }
 

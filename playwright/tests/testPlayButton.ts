@@ -15,7 +15,7 @@ export async function testPlayButton(page: Page) {
   await page.waitForSelector('.scalar-client')
 
   // URL
-  await expect(page.getByText('https://galaxy.scalar.com')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Server: https://galaxy.scalar.com' })).toBeVisible()
   // Path
-  await expect(page.getByText('/planets')).toBeVisible()
+  await expect(page.getByText('/planets', { exact: true })).toBeVisible()
 }

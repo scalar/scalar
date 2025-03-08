@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
 
-import ContextBar from '@/components/ContextBar.vue'
+import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
@@ -55,9 +55,18 @@ const responseCookies = computed(
     }) ?? [],
 )
 
-const sections = ['All', 'Cookies', 'Headers', 'Body']
-type ActiveSections = (typeof sections)[number]
-const activeSection = ref<ActiveSections>('All')
+const responseSections = ['Cookies', 'Headers', 'Body'] as const
+type Filter = 'All' | (typeof responseSections)[number]
+const activeFilter = ref<Filter>('All')
+
+const filters = computed<Filter[]>(() => ['All', ...responseSections])
+
+const filterIds = computed(
+  () =>
+    Object.fromEntries(
+      filters.value.map((section) => [section, useId()]),
+    ) as Record<Filter, string>,
+)
 
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
@@ -128,41 +137,51 @@ const shouldVirtualize = computed(() => {
             class="animate-response-children"
             :response="response" />
         </div>
-        <ContextBar
-          :activeSection="activeSection"
-          :sections="sections"
-          @setActiveSection="activeSection = $event" />
+        <SectionFilter
+          v-model="activeFilter"
+          :filterIds="filterIds"
+          :filters="filters" />
       </div>
     </template>
     <div
+      :id="filterIds.All"
       class="custom-scroll relative grid h-full justify-stretch divide-y"
       :class="{
         'content-start': response,
-      }">
+      }"
+      :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
       <template v-if="!response">
         <ResponseEmpty :numWorkspaceRequests="numWorkspaceRequests" />
       </template>
       <template v-else>
         <ResponseCookies
-          v-if="activeSection === 'All' || activeSection === 'Cookies'"
-          :cookies="responseCookies" />
+          v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
+          :id="filterIds.Cookies"
+          :cookies="responseCookies"
+          :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <ResponseHeaders
-          v-if="activeSection === 'All' || activeSection === 'Headers'"
-          :headers="responseHeaders" />
+          v-if="activeFilter === 'All' || activeFilter === 'Headers'"
+          :id="filterIds.Headers"
+          :headers="responseHeaders"
+          :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
-        <template v-if="activeSection === 'All' || activeSection === 'Body'">
+        <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
             v-if="shouldVirtualize && typeof response?.data === 'string'"
+            :id="filterIds.Body"
             :content="response!.data"
             :data="response?.data"
-            :headers="responseHeaders" />
+            :headers="responseHeaders"
+            :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
           <ResponseBody
             v-else
+            :id="filterIds.Body"
             :active="true"
             :data="response?.data"
             :headers="responseHeaders"
+            :role="activeFilter === 'All' ? 'none' : 'tabpanel'"
             title="Body" />
         </template>
       </template>

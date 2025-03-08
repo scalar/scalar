@@ -93,6 +93,7 @@ const updateServerVariable = (key: string, value: string) => {
 <template>
   <ScalarPopover
     class="max-h-[inherit] p-0 text-sm"
+    focus
     :offset="0"
     placement="bottom-start"
     resize

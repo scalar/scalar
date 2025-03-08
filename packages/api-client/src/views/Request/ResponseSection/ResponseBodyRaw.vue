@@ -28,7 +28,8 @@ const getCurrentContent = () => {
 }
 </script>
 <template>
-  <div class="body-raw relative overflow-auto">
+  <div
+    class="body-raw grid min-h-0 overflow-hidden p-px outline-none has-[:focus-visible]:outline">
     <!-- Copy button -->
     <div
       v-if="getCurrentContent()"
@@ -43,9 +44,12 @@ const getCurrentContent = () => {
           size="md" />
       </button>
     </div>
-
-    <!-- CodeMirror container -->
-    <div ref="codeMirrorRef" />
+    <div
+      class="body-raw-scroller custom-scroll relative overflow-x-auto overscroll-contain"
+      tabindex="0">
+      <!-- CodeMirror container -->
+      <div ref="codeMirrorRef" />
+    </div>
   </div>
 </template>
 <style scoped>
@@ -57,6 +61,11 @@ const getCurrentContent = () => {
 :deep(.cm-gutters) {
   background-color: var(--scalar-background-1);
   border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
+}
+
+.body-raw :deep(.cm-scroller) {
+  overflow: visible;
+  width: fit-content;
 }
 
 /* Copy Button Styles */

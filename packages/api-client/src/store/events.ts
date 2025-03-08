@@ -12,6 +12,10 @@ export function createStoreEvents() {
      */
     executeRequest: createEventBus<{ requestUid?: string }>(),
     /**
+     * Event bus to focus the address bar or send button
+     */
+    focusAddressBar: createEventBus(),
+    /**
      * Event bus to cancel requests, usually triggered by response loading overlay
      */
     cancelRequest: createEventBus(),

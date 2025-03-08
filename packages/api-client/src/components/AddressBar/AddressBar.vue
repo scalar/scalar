@@ -41,6 +41,7 @@ const { requestMutators, events } = useWorkspace()
 const { layout } = useLayout()
 
 const addressBarRef = ref<typeof CodeInput | null>(null)
+const sendButtonRef = ref<typeof ScalarButton | null>(null)
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
@@ -104,6 +105,13 @@ events.requestStatus.on((status) => {
   if (status === 'start') startLoading()
   if (status === 'stop') stopLoading()
   if (status === 'abort') abortLoading()
+})
+
+/** Focus the address bar (or the send button if in modal layout) */
+events.focusAddressBar.on(() => {
+  console.log('focusAddressBar', sendButtonRef.value, addressBarRef.value)
+  if (layout === 'modal') sendButtonRef.value?.$el?.focus()
+  else addressBarRef.value?.focus()
 })
 
 function updateRequestMethod(method: RequestMethod) {
@@ -201,6 +209,7 @@ function updateRequestPath(url: string) {
           :operation="operation"
           :target="id" />
         <ScalarButton
+          ref="sendButtonRef"
           class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pl-2 pr-2.5 font-bold"
           :disabled="isRequesting"
           @click="handleExecuteRequest">
@@ -213,7 +222,10 @@ function updateRequestPath(url: string) {
               size="xs" />
             <span class="text-xxs hidden lg:flex">Send</span>
           </span>
-          <span class="sr-only"> Send Request </span>
+          <span class="sr-only">
+            Send {{ operation.method }} request to {{ server?.url ?? ''
+            }}{{ operation.path }}
+          </span>
         </ScalarButton>
       </div>
     </div>
