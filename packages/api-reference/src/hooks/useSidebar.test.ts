@@ -1,8 +1,14 @@
-import { describe, expect, it } from 'vitest'
-import { toValue } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { computed, toValue } from 'vue'
 
 import { parse } from '../helpers'
 import { type SorterOption, useSidebar } from './useSidebar'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+
+// Mock the useConfig hook
+vi.mock('@/hooks/useConfig', () => ({
+  useConfig: vi.fn().mockReturnValue(computed(() => apiReferenceConfigurationSchema.parse({}))),
+}))
 
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
