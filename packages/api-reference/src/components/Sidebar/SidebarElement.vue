@@ -140,7 +140,7 @@ const onAnchorClick = async (ev: Event) => {
     <div
       v-if="$slots['action-menu']"
       class="action-menu">
-      <slot name="action-menu"></slot>
+      <slot name="action-menu" />
     </div>
   </li>
 </template>
@@ -210,7 +210,7 @@ const onAnchorClick = async (ev: Event) => {
   position: absolute;
   top: 0;
   left: calc((var(--scalar-sidebar-level) * 12px));
-  width: 1px;
+  width: var(--scalar-border-width);
   height: 100%;
   background: var(--scalar-sidebar-indent-border);
 }

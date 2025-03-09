@@ -1,25 +1,22 @@
 import type { ThemeId } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { HarRequest } from '@scalar/types/snippetz'
+import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { Slot } from 'vue'
 
 export type { ApiReferenceConfiguration }
 // TODO: Just here for backwards compatibility (2025-02-21)
 export type { ReferenceConfiguration }
 
-/**
- * Props for the ApiReference components, coming from user input
- */
 export type ReferenceProps = {
-  configuration?: Partial<ApiReferenceConfiguration> | ReferenceConfiguration
+  configuration?: Partial<ApiReferenceConfiguration>
 }
 
 /**
  * Before the configuration is parsed, we can use the broader types.
  */
 export type ReferenceLayoutProps = {
-  configuration: Partial<ApiReferenceConfiguration> | ReferenceConfiguration
+  configuration: Partial<ApiReferenceConfiguration>
   parsedSpec: Spec
   rawSpec: string
   isDark: boolean
@@ -112,6 +109,10 @@ export type ReferenceLayoutSlot =
 
 export type ReferenceLayoutSlots = {
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
+}
+
+export type DocumentSelectorSlot = {
+  'document-selector': any
 }
 
 export type ReferenceSlotProps = {

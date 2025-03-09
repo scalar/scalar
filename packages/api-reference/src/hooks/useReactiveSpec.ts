@@ -1,5 +1,5 @@
 import { fetchSpecFromUrl, isValidUrl, prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types/legacy'
+import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { createEmptySpecification } from '../helpers'

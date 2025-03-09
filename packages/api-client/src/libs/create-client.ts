@@ -10,7 +10,8 @@ import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { OpenAPI, SpecConfiguration } from '@scalar/types/legacy'
+import type { OpenAPI } from '@scalar/types/legacy'
+import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
