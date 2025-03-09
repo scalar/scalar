@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.13.32
+
+### Patch Changes
+
+- df4dee8: fix(api-client): improve api client request and response area a11y
+- Updated dependencies [9319c0c]
+- Updated dependencies [9319c0c]
+  - @scalar/code-highlight@0.0.24
+
 ## 0.13.31
 
 ### Patch Changes

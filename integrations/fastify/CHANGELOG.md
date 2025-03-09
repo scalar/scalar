@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.26.0
+
+### Minor Changes
+
+- 54febb3: feat!: drop CommonJS build, please use import('@scalar/api-reference') in Node.js v13.3.0+
+
+### Patch Changes
+
+- 117ec7b: fix: one final CI/docker fix for fastify
+- fb22645: fix: fastify docker build standalone copy
+
 ## 1.25.130
 
 ### Patch Changes

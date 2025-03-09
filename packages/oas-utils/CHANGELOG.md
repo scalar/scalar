@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.114
+
+### Patch Changes
+
+- fb22645: fix: auth selected security scheme undefined
+
 ## 0.2.113
 
 ### Patch Changes
