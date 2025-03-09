@@ -1,4 +1,4 @@
-import watcher from '@parcel/watcher'
+import watcher, { type AsyncSubscription } from '@parcel/watcher'
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -7,7 +7,7 @@ import { isUrl } from './isUrl'
 /**
  * Watch a foobar for changes and call a callback when it does.
  */
-export async function watchFile(file: string, callback: () => void, options?: { immediate?: boolean }) {
+export async function watchFile(file: string, callback: () => void, options?: { immediate?: boolean }): Promise<AsyncSubscription | void> {
   // Poll URLs
   if (isUrl(file)) {
     setInterval(callback, 5000)
@@ -28,7 +28,7 @@ export async function watchFile(file: string, callback: () => void, options?: { 
   const directory = path.dirname(absoluteFilePath)
 
   // Start the watcher
-  await watcher.subscribe(directory, (err, events) => {
+  const subscription = await watcher.subscribe(directory, (err, events) => {
     // Match the file path
     if (events.some((event) => event.path === absoluteFilePath)) {
       callback()
@@ -39,4 +39,6 @@ export async function watchFile(file: string, callback: () => void, options?: { 
   if (options?.immediate) {
     callback()
   }
+
+  return subscription;
 }

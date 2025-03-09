@@ -54,7 +54,7 @@ export function ServeCommand() {
         return stream(c, async (s) => {
           // watch file for changes
           if (watch) {
-            watchFile(input, async () => {
+            const subscription = await watchFile(input, async () => {
               const newResult = await loadOpenApiFile(input)
               const specificationHasChanged =
                 newResult?.specification && JSON.stringify(specification) !== JSON.stringify(newResult.specification)
@@ -72,6 +72,7 @@ export function ServeCommand() {
                 s.write('data: file modified\n\n')
               }
             })
+            if (subscription) s.onAbort(() => subscription.unsubscribe());
           }
 
           while (true) {
