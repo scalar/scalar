@@ -18,8 +18,6 @@ withDefaults(
   },
 )
 
-const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
-
 const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
     ? value.default[0]
@@ -143,16 +141,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       class="property-read-only">
       read-only
     </div>
-    <template
-      v-for="discriminator in discriminators.filter(
-        (r) => value?.[r] || value?.items?.[r],
-      )"
-      :key="discriminator">
-      <!-- Only show anyOf, oneOf, allOf if there are more than one schema -->
-      <template v-if="value?.[discriminator]?.length > 1">
-        <Badge>{{ discriminator }}</Badge>
-      </template>
-    </template>
     <div
       v-if="required"
       class="property-required">
@@ -167,6 +155,11 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   align-items: baseline;
   row-gap: 9px;
   white-space: nowrap;
+}
+
+.property-heading:has(+ .children),
+.property-heading:has(+ .property-rule) {
+  margin-bottom: 9px;
 }
 
 .property-heading > * {
