@@ -112,7 +112,7 @@ const flowsCommon = z.object({
    * REQUIRED. The available scopes for the OAuth2 security scheme. A map
    * between the scope name and a short description for it. The map MAY be empty.
    */
-  'scopes': z.record(z.string(), z.string().optional().default('')).optional().default({}),
+  'scopes': z.record(z.string(), z.string().optional().default('')).optional().default({}).catch({}),
   'selectedScopes': z.array(z.string()).optional().default([]),
   /** Extension to save the client Id associated with an oauth flow */
   'x-scalar-client-id': z.string().optional().default(''),
