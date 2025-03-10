@@ -78,6 +78,7 @@
     "@scalar/use-toasts": "workspace:*",
     "@unhead/vue": "^1.11.11",
     "@vueuse/core": "^10.10.0",
+    "flatted": "^3.3.1",
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
     "nanoid": "^5.0.9",
