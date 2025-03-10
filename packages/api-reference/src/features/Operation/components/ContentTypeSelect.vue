@@ -1,6 +1,14 @@
 <script setup lang="ts">
+import {
+  cva,
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+} from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
+
+import ScreenReader from '@/components/ScreenReader.vue'
 
 const prop = defineProps<{
   requestBody?: RequestBody
@@ -11,13 +19,10 @@ const emit = defineEmits<{
   (e: 'selectContentType', payload: { contentType: ContentType }): void
 }>()
 
-const handleSelectChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  const contentType = target.value as ContentType
-
-  selectedContentType.value = contentType
-
-  emit('selectContentType', { contentType })
+const handleSelectContentType = (option: any) => {
+  if (option?.id) {
+    emit('selectContentType', { contentType: option.id as ContentType })
+  }
 }
 
 const contentTypes = computed(() => {
@@ -30,101 +35,58 @@ const contentTypes = computed(() => {
 const selectedContentType = ref<ContentType>(
   prop.defaultValue || (contentTypes.value[0] as ContentType),
 )
+
+const selectedOption = computed({
+  get: () =>
+    options.value.find((option) => option.id === selectedContentType.value),
+  set: (option) => {
+    if (option) selectedContentType.value = option.id as ContentType
+  },
+})
+
+const options = computed(() => {
+  return contentTypes.value.map((type) => ({
+    id: type,
+    label: type,
+  }))
+})
+
+// Content type select style variant based on dropdown availability
+const contentTypeSelect = cva({
+  base: 'font-normal text-c-2 bg-b-2 py-0.75 flex cursor-pointer items-center gap-1 rounded-full text-xs',
+  variants: {
+    dropdown: {
+      true: 'border hover:text-c-1 pl-2 pr-1.5',
+      false: 'px-2',
+    },
+  },
+})
 </script>
 <template>
-  <label
-    class="content-type-select"
-    :class="{ 'content-type-no-select': contentTypes.length <= 1 }">
+  <ScalarListbox
+    v-if="prop?.requestBody && contentTypes.length > 1"
+    v-model="selectedOption"
+    :options="options"
+    placement="bottom-end"
+    @update:modelValue="handleSelectContentType"
+    class="font-normal">
+    <ScalarButton
+      variant="ghost"
+      class="h-fit"
+      :class="contentTypeSelect({ dropdown: true })">
+      <ScreenReader>Selected Content Type:</ScreenReader>
+      <span>{{ selectedContentType }}</span>
+      <ScalarIcon
+        class="ui-open:rotate-180 ml-auto"
+        icon="ChevronDown"
+        size="sm"
+        thickness="2" />
+    </ScalarButton>
+  </ScalarListbox>
+  <div
+    v-else
+    :class="contentTypeSelect({ dropdown: false })"
+    tabindex="0">
     <span>{{ selectedContentType }}</span>
-    <select
-      v-if="prop?.requestBody && contentTypes.length > 1"
-      :value="selectedContentType"
-      @change="handleSelectChange($event)"
-      @keydown.stop>
-      <option
-        v-for="(_, key) in prop.requestBody?.content"
-        :key="key"
-        :value="key"
-        @keydown.stop>
-        {{ key }}
-      </option>
-    </select>
-  </label>
+  </div>
 </template>
-<style scoped>
-.content-type {
-  display: flex;
-  align-items: center;
-  font-size: var(--scalar-font-size-2);
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-1);
-  line-height: 1.45;
-  margin-top: 24px;
-  padding-bottom: 12px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  flex-flow: wrap;
-}
-.content-type-select {
-  position: relative;
-  height: fit-content;
-  margin-left: auto;
-  font-weight: var(--scalar-regular);
-  display: flex;
-  align-items: center;
-  color: var(--scalar-color-3);
-  font-size: var(--scalar-micro);
-  background: var(--scalar-background-2);
-  padding: 3px 6px 4px 8px;
-  border-radius: 12px;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.content-type-no-select.content-type-select {
-  padding: 3px 8px 4px 8px;
-  pointer-events: none;
-}
-.content-type-no-select {
-  border: none;
-}
-.content-type-no-select.content-type-select:after {
-  display: none;
-}
-.content-type-select span {
-  display: flex;
-  align-items: center;
-}
-.content-type-select:after {
-  content: '';
-  width: 6px;
-  height: 6px;
-  transform: rotate(45deg) translate3d(0, -3px, 0);
-  display: block;
-  margin-left: 6px;
-  box-shadow: 1px 1px 0 currentColor;
-  margin-right: 5px;
-}
-.content-type-select select {
-  border: none;
-  outline: none;
-  cursor: pointer;
-  background: var(--scalar-background-3);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  appearance: none;
-}
-.content-type-select:hover {
-  color: var(--scalar-color-1);
-}
-.content-type-select:has(select:focus-visible) {
-  outline: 1px solid var(--scalar-color-accent);
-}
-@media (max-width: 460px) {
-  .content-type-select {
-    margin-left: auto;
-    padding-right: 3px;
-  }
-}
-</style>
