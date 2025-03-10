@@ -162,19 +162,29 @@ export const createContainer = (doc: Document, element?: Element | null) => {
 /**
  * Create and mount a new Scalar API Reference
  */
-export const createApiReference = (
+export function createApiReference(configuration: ApiReferenceConfiguration): App<Element>
+
+export function createApiReference(
   elementOrSelector: Element | string,
-  givenConfiguration: ApiReferenceConfiguration,
+  configuration: ApiReferenceConfiguration,
   givenDocument?: Document,
-) => {
+): App<Element>
+
+export function createApiReference(
+  elementOrSelectorOrConfig: Element | string | ApiReferenceConfiguration,
+  maybeConfiguration?: ApiReferenceConfiguration,
+  givenDocument?: Document,
+): App<Element> {
   const doc = givenDocument || document
 
-  const props = reactive<ReferenceProps>({
-    configuration: givenConfiguration,
-  })
+  // Determine if first argument is configuration or element
+  const isConfigOnly = !maybeConfiguration && typeof elementOrSelectorOrConfig === 'object'
+  const configuration = isConfigOnly ? elementOrSelectorOrConfig : maybeConfiguration!
+  const elementOrSelector = isConfigOnly ? undefined : (elementOrSelectorOrConfig as Element | string)
 
-  // If the element is a string, we need to find the actual DOM element
-  let element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+  const props = reactive<ReferenceProps>({
+    configuration,
+  })
 
   // Create a new Vue app instance
   let instance = createApp(() => h(ApiReference, props))
@@ -182,11 +192,16 @@ export const createApiReference = (
   // Meta tags, etc.
   instance.use(createHead())
 
-  // Mounting the app
-  if (element) {
-    instance.mount(element)
-  } else {
-    console.error('Could not find a mount point for API References:', elementOrSelector)
+  // If elementOrSelector is provided, mount immediately
+  if (elementOrSelector) {
+    // If the element is a string, we need to find the actual DOM element
+    const element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+
+    if (element) {
+      instance.mount(element)
+    } else {
+      console.error('Could not find a mount point for API References:', elementOrSelector)
+    }
   }
 
   // Bind events
@@ -194,18 +209,20 @@ export const createApiReference = (
     'scalar:reload-references',
     () => {
       // Check if element has been removed from dom, and re-add
-      if (!doc.body.contains(element)) {
-        element = createContainer(doc)
+      const currentElement =
+        typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+      if (currentElement && !doc.body.contains(currentElement)) {
+        elementOrSelector = createContainer(doc)
       }
 
       instance.unmount()
 
-      if (!element) {
+      if (!elementOrSelector) {
         return
       }
 
       // @ts-expect-error known issue
-      instance = createApiReference(element, props.configuration, doc) as App<Element>
+      instance = createApiReference(elementOrSelector, props.configuration, doc) as App<Element>
     },
     false,
   )
