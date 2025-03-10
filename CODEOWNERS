@@ -19,7 +19,7 @@
 /packages/oas-utils @amritk @hanspagel
 /packages/themes @hwkr @cameronrohani
 /packages/scalar-app @hanspagel
-/packages/api-reference-react @amritk
+/integrations/react @amritk
 /integrations/docusaurus @amritk
 /integrations/hono @hanspagel
 # /packages/object-utils
