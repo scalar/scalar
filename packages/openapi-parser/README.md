@@ -101,8 +101,6 @@ const { specification } = filter(
 
 There’s an `upgrade` command to upgrade all your OpenAPI documents to the latest OpenAPI version.
 
-> ⚠️ The upgrade from Swagger 2.0 is still experimental and probably lacks features.
-
 ```ts
 import { upgrade } from '@scalar/openapi-parser'
 
