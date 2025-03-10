@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.116
+
+### Patch Changes
+
+- ab98841: fix: allow null as a security scheme scope
+- db9ebbc: fix: change order of turbo cache
+
 ## 0.2.115
 
 ### Patch Changes
