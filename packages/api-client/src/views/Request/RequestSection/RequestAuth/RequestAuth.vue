@@ -87,16 +87,31 @@ const authIndicator = computed(() => {
   const { filteredRequirements, requirements } = securityRequirements.value
   if (!requirements.length) return null
 
-  /** Security is optional if one empty object exists in the array */
-  const isOptional = filteredRequirements.length < requirements.length
+  /**
+   * Security is optional if one empty object exists in the array &
+   * no complex auth requirements (with multiple auth)
+   */
+  const hasComplexRequirement = requirements.some(
+    (req) => Object.keys(req).length > 1,
+  )
+  const isOptional =
+    !hasComplexRequirement && filteredRequirements.length < requirements.length
+
   const icon: Icon = isOptional ? 'Unlock' : 'Lock'
 
   /** Dynamic text to indicate auth requirements */
   const requiredText = isOptional ? 'Optional' : 'Required'
   const nameKey =
     filteredRequirements.length === 1
-      ? Object.keys(filteredRequirements[0] || {})[0]
+      ? (() => {
+          // Get the keys of the first requirement
+          const keys = Object.keys(filteredRequirements[0] || {})
+
+          // If there are multiple keys, join them with ' & '
+          return keys.length > 1 ? keys.join(' & ') : keys[0] || ''
+        })()
       : ''
+
   const text = `${nameKey} ${requiredText}`
 
   return { icon, text }
