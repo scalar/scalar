@@ -6,7 +6,7 @@ import { getCookie } from 'hono/cookie'
  * Handles authentication for incoming requests based on the OpenAPI specification.
  */
 export function handleAuthentication(schema?: OpenAPI.Document, operation?: OpenAPI.Operation) {
-  return async (c: Context, next: () => Promise<void>) => {
+  return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {
     const operationSecuritySchemes = operation?.security || schema?.security
 
     if (operationSecuritySchemes && operationSecuritySchemes.length > 0) {

@@ -1,6 +1,6 @@
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { httpMethods, type HttpMethod } from '@/types'
+import { type HttpMethod, httpMethods } from '@/types.ts'
 
 /**
  * Takes a dereferenced OpenAPI document and returns all operations.
