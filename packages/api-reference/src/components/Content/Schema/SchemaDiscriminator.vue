@@ -2,6 +2,7 @@
 import { Tab, TabGroup, TabList, TabPanel } from '@headlessui/vue'
 import { cva, cx } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { stringify } from 'flatted'
 import { ref } from 'vue'
 
 import Schema from './Schema.vue'
@@ -84,7 +85,7 @@ const getModelNameFromSchema = (schema: any): string | null => {
   // returns a matching schema name based on the schema object
   if (props.schemas && typeof props.schemas === 'object') {
     for (const [schemaName, schemaValue] of Object.entries(props.schemas)) {
-      if (JSON.stringify(schemaValue) === JSON.stringify(schema)) {
+      if (stringify(schemaValue) === stringify(schema)) {
         return schemaName
       }
     }
@@ -110,7 +111,7 @@ const humanizeType = (type: string) => {
       <!-- Tabs -->
       <TabGroup>
         <TabList
-          class="discriminator-tab-list flex items-center gap-2 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3">
+          class="discriminator-tab-list py-1.25 flex items-center gap-2 rounded-t-lg border border-b-0 px-2 pr-3">
           <span>{{ humanizeType(discriminator) }}</span>
           <div class="flex items-center gap-1.5 overflow-x-auto">
             <Tab
