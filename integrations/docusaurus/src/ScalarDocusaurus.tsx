@@ -1,4 +1,4 @@
-import type { ReferenceProps } from '@scalar/api-reference-react'
+import type { ReferenceProps } from '../../react/dist'
 
 import BrowserOnly from '@docusaurus/BrowserOnly'
 

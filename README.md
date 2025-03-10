@@ -124,7 +124,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [NestJS](integrations/nestjs/README.md)
 - [Next.js](integrations/nextjs/README.md)
 - [Nuxt](integrations/nuxt/README.md)
-- [React](packages/api-reference-react/README.md)
+- [React](integrations/react/README.md)
 - [Ruby on Rails](https://github.com/dmytroshevchuk/scalar_ruby)
 - [Rust](documentation/integrations/rust.md)
 - [Scalar for Laravel](https://github.com/scalar/laravel)
