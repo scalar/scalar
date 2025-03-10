@@ -297,7 +297,7 @@ jobs:
       - name: Stash changes
         run: git stash
       - name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the app
         id: changed-files
@@ -305,10 +305,10 @@ jobs:
         with:
           files_yaml: |
             api_client_app:
-              - packages/scalar-app/package.json
+              - projects/scalar-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build in the toDesktop cloud
         run: pnpm --filter scalar-app todesktop:build:ci

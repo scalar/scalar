@@ -32,7 +32,7 @@ jobs:
       - name: Install Playwright dependencies
         run: npx playwright install-deps
       - name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &

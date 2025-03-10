@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/scalar-app"
+    "directory": "projects/scalar-app"
   },
   "version": "0.1.163",
   "private": true,

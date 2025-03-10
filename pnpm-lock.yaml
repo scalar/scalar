@@ -1930,7 +1930,7 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
-  packages/scalar-app:
+  projects/scalar-app:
     dependencies:
       '@electron-toolkit/preload':
         specifier: ^3.0.0
