@@ -1,5 +1,5 @@
 // Workaround to handle commonjs failing with older react version
-import type { ReferenceProps } from '@scalar/api-reference-react'
+import type { ReferenceProps } from '../../react/dist'
 
 import BrowserOnly from '@docusaurus/BrowserOnly'
 import Layout from '@theme/Layout'

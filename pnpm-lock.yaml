@@ -137,7 +137,7 @@ importers:
         version: link:../../packages/api-client-react
       '@scalar/api-reference-react':
         specifier: workspace:*
-        version: link:../../packages/api-reference-react
+        version: link:../../integrations/react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
         version: link:../../integrations/nextjs
@@ -181,7 +181,7 @@ importers:
     devDependencies:
       '@scalar/api-reference-react':
         specifier: workspace:*
-        version: link:../../packages/api-reference-react
+        version: link:../../integrations/react
       '@types/react':
         specifier: ^19.0.1
         version: 19.0.1
@@ -307,7 +307,7 @@ importers:
     dependencies:
       '@scalar/api-reference-react':
         specifier: workspace:*
-        version: link:../../packages/api-reference-react
+        version: link:../../integrations/react
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -1133,7 +1133,7 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
 
-  packages/api-reference-react:
+  integrations/react:
     dependencies:
       '@scalar/api-reference':
         specifier: workspace:*

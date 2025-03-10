@@ -12,7 +12,7 @@ COPY packages/components ./packages/components
 COPY packages/themes ./packages/themes
 COPY packages/oas-utils ./packages/oas-utils
 COPY packages/build-tooling ./packages/build-tooling
-COPY packages/api-reference-react ./packages/api-reference-react
+COPY integrations/react ./integrations/react
 COPY examples/react ./examples/react
 
 # Install and build the main package and its dependencies
