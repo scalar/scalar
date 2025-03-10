@@ -1,16 +1,16 @@
 import { useWorkspace } from '@/store'
 import {
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  OperationObjectSchema,
+  RequestExampleSchema,
   collectionSchema,
-  operationSchema,
-  requestExampleSchema,
-  securitySchemeSchema,
-  serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 
 import RequestCodeExample from './RequestCodeExample.vue'
 
@@ -41,7 +41,7 @@ vi.mock('@scalar/snippetz', () => ({
 }))
 
 // Mock the operation
-const mockOperation = operationSchema.parse({
+const mockOperation = OperationObjectSchema.parse({
   uid: 'mockOperationUid',
   method: 'get',
   security: [],
@@ -54,12 +54,12 @@ const mockCollection = collectionSchema.parse({
 })
 
 // Mock the example
-const mockExample = requestExampleSchema.parse({
+const mockExample = RequestExampleSchema.parse({
   uid: 'mockExampleUid',
 })
 
 // Mock the server
-const mockServer = serverSchema.parse({
+const mockServer = ExtendedServerObjectSchema.parse({
   uid: 'mockServerUid',
   url: 'https://api.example.com',
 })
@@ -124,7 +124,7 @@ describe('RequestCodeExample.vue', () => {
   })
 
   it('filters security schemes correctly', async () => {
-    const scheme = securitySchemeSchema.parse({
+    const scheme = ExtendedSecurityRequirementSchema.parse({
       uid: 'authUid',
       type: 'apiKey',
       nameKey: 'auth',

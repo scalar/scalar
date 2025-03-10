@@ -1,4 +1,4 @@
-import { securityOauthSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedServerObjectSchema, securityOauthSchema } from '@scalar/oas-utils/entities/spec'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -58,7 +58,7 @@ describe('oauth2', () => {
     vi.restoreAllMocks()
   })
 
-  const mockServer = serverSchema.parse({
+  const mockServer = ExtendedServerObjectSchema.parse({
     uid: 'test-server',
     url: 'https://api.example.com',
   })

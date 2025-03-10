@@ -1,12 +1,12 @@
 import { useWorkspace } from '@/store'
-import { operationSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { createStoreEvents } from '@/store/events'
+import { OperationObjectSchema, RequestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import RequestBody from './RequestBody.vue'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
+import { EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import RequestBody from './RequestBody.vue'
 
 // Mock the useWorkspace hook
 vi.mock('@/store', () => ({
@@ -18,14 +18,14 @@ vi.mock('@/store/active-entities', () => ({
 }))
 
 describe('RequestBody.vue', () => {
-  const mockOperation = operationSchema.parse({ uid: 'mockRequestUid' })
-  const mockActiveExample = requestExampleSchema.parse({
+  const mockOperation = OperationObjectSchema.parse({ uid: 'mockRequestUid' })
+  const mockActiveExample = RequestExampleSchema.parse({
     uid: 'mockExampleUid',
     body: {
       activeBody: 'raw',
     },
   })
-  const mockActiveEnvironment = environmentSchema.parse({
+  const mockActiveEnvironment = EnvironmentSchema.parse({
     uid: 'mockEnvironmentUid',
   })
   const mockActiveWorkspace = workspaceSchema.parse({

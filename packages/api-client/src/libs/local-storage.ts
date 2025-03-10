@@ -1,13 +1,13 @@
 import type { WorkspaceStore } from '@/store'
-import { cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
+import { CookieSchema } from '@scalar/oas-utils/entities/cookie'
+import { EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
 import {
+  ExtendedOperationSchema,
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  ExtendedTagSchema,
+  RequestExampleSchema,
   collectionSchema,
-  requestExampleSchema,
-  requestSchema,
-  securitySchemeSchema,
-  serverSchema,
-  tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { schemaModel } from '@scalar/oas-utils/helpers'
@@ -64,13 +64,13 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
     // Load the migrated data up into the mutators with safe parsing
     // TODO: we should probably make rawAdd -> add, and add a new name for adding with side effects
     loadResources(collections, collectionSchema, collectionMutators.rawAdd)
-    loadResources(cookies, cookieSchema, cookieMutators.add)
-    loadResources(environments, environmentSchema, environmentMutators.add)
-    loadResources(requestExamples, requestExampleSchema, requestExampleMutators.rawAdd)
-    loadResources(requests, requestSchema, requestMutators.rawAdd)
-    loadResources(servers, serverSchema, serverMutators.rawAdd)
-    loadResources(securitySchemes, securitySchemeSchema, securitySchemeMutators.rawAdd)
-    loadResources(tags, tagSchema, tagMutators.rawAdd)
+    loadResources(cookies, CookieSchema, cookieMutators.add)
+    loadResources(environments, EnvironmentSchema, environmentMutators.add)
+    loadResources(requestExamples, RequestExampleSchema, requestExampleMutators.rawAdd)
+    loadResources(requests, ExtendedOperationSchema, requestMutators.rawAdd)
+    loadResources(servers, ExtendedServerObjectSchema, serverMutators.rawAdd)
+    loadResources(securitySchemes, ExtendedSecurityRequirementSchema, securitySchemeMutators.rawAdd)
+    loadResources(tags, ExtendedTagSchema, tagMutators.rawAdd)
     loadResources(workspaces, workspaceSchema, workspaceMutators.rawAdd)
 
     // Set localStorage version for future migrations

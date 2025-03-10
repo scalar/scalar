@@ -1,8 +1,8 @@
-import { oasParameterSchema } from '@/entities/spec/parameters'
+import { ParameterObjectSchema } from '@/entities/spec/parameters'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
-describe('oasParameterSchema', () => {
+describe('ParameterObjectSchema', () => {
   it('should validate a parameter with a correct example', () => {
     const validParameterWithExample = {
       in: 'query',
@@ -10,7 +10,7 @@ describe('oasParameterSchema', () => {
       example: 10,
     }
 
-    expect(() => oasParameterSchema.parse(validParameterWithExample)).not.toThrow()
+    expect(() => ParameterObjectSchema.parse(validParameterWithExample)).not.toThrow()
   })
 
   it('should validate examples as a record with correct structure', () => {
@@ -31,7 +31,7 @@ describe('oasParameterSchema', () => {
       examples: validExamples,
     }
 
-    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
   })
 
   it('should fail validation if examples have incorrect structure', () => {
@@ -49,7 +49,7 @@ describe('oasParameterSchema', () => {
       examples: invalidExamples,
     }
 
-    expect(() => oasParameterSchema.parse(invalidParameter)).toThrow(z.ZodError)
+    expect(() => ParameterObjectSchema.parse(invalidParameter)).toThrow(z.ZodError)
   })
 
   it('should validate examples as an array', () => {
@@ -59,7 +59,7 @@ describe('oasParameterSchema', () => {
       examples: ['Milky Way', 'Andromeda'],
     }
 
-    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
   })
 
   it('should validate examples with a single array item', () => {
@@ -69,7 +69,7 @@ describe('oasParameterSchema', () => {
       examples: ['Milky Way'],
     }
 
-    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
   })
 
   it('should validate with an empty array of examples', () => {
@@ -79,6 +79,6 @@ describe('oasParameterSchema', () => {
       examples: [],
     }
 
-    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
   })
 })

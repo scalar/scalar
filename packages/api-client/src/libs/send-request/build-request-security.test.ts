@@ -1,4 +1,4 @@
-import { type SecurityScheme, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedSecurityRequirementSchema, type SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity } from './build-request-security'
@@ -9,7 +9,7 @@ describe('buildRequestSecurity', () => {
   let oauth2: Extract<SecurityScheme, { type: 'oauth2' }>
 
   beforeEach(() => {
-    apiKey = securitySchemeSchema.parse({
+    apiKey = ExtendedSecurityRequirementSchema.parse({
       type: 'apiKey',
       nameKey: 'apiKey',
       uid: 'apiKeyUid',
@@ -18,7 +18,7 @@ describe('buildRequestSecurity', () => {
       value: 'test-key',
     }) as Extract<SecurityScheme, { type: 'apiKey' }>
 
-    basic = securitySchemeSchema.parse({
+    basic = ExtendedSecurityRequirementSchema.parse({
       type: 'http',
       nameKey: 'basic',
       uid: 'basicUid',
@@ -27,7 +27,7 @@ describe('buildRequestSecurity', () => {
       password: 'user',
     }) as Extract<SecurityScheme, { type: 'http' }>
 
-    oauth2 = securitySchemeSchema.parse({
+    oauth2 = ExtendedSecurityRequirementSchema.parse({
       type: 'oauth2',
       nameKey: 'oauth2',
       uid: 'oauth2Uid',

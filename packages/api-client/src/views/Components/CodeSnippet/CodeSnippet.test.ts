@@ -1,9 +1,9 @@
 import {
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  OperationObjectSchema,
   type RequestExample,
-  operationSchema,
-  requestExampleSchema,
-  securitySchemeSchema,
-  serverSchema,
+  RequestExampleSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
@@ -16,11 +16,11 @@ describe('CodeSnippet', () => {
       props: {
         target: 'shell',
         client: 'curl',
-        operation: operationSchema.parse({
+        operation: OperationObjectSchema.parse({
           method: 'get',
           path: '/users',
         }),
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           url: 'https://api.example.com',
         }),
       },
@@ -36,11 +36,11 @@ describe('CodeSnippet', () => {
       props: {
         target: 'js',
         client: 'fetch',
-        operation: operationSchema.parse({
+        operation: OperationObjectSchema.parse({
           method: 'get',
           path: '/users',
         }),
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           url: 'https://api.example.com',
         }),
       },
@@ -56,11 +56,11 @@ describe('CodeSnippet', () => {
       props: {
         target: 'js',
         client: 'fetch',
-        operation: operationSchema.parse({
+        operation: OperationObjectSchema.parse({
           method: 'post',
           path: '/users',
         }),
-        example: requestExampleSchema.parse({
+        example: RequestExampleSchema.parse({
           body: {
             raw: {
               encoding: 'json',
@@ -102,7 +102,7 @@ describe('CodeSnippet', () => {
             ],
           },
         } satisfies Partial<RequestExample>),
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           url: 'https://api.example.com/{version}',
         }),
       },
@@ -128,15 +128,15 @@ describe('CodeSnippet', () => {
       props: {
         target: 'shell',
         client: 'curl',
-        operation: operationSchema.parse({
+        operation: OperationObjectSchema.parse({
           method: 'get',
           path: '/users',
         }),
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           url: 'https://api.example.com',
         }),
         securitySchemes: [
-          securitySchemeSchema.parse({
+          ExtendedSecurityRequirementSchema.parse({
             type: 'apiKey',
             in: 'header',
             name: 'X-Api-Key',

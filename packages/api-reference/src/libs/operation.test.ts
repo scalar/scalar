@@ -1,12 +1,12 @@
 import { XScalarStability } from '@scalar/types/legacy'
 import { describe, expect, it } from 'vitest'
 
-import { operationSchema } from '@scalar/oas-utils/entities/spec'
+import { OperationObjectSchema } from '@scalar/oas-utils/entities/spec'
 import { getOperationStability, isOperationDeprecated } from './operation'
 
 describe('isOperationDeprecated', () => {
   it('is deprecated when marked as such', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       deprecated: true,
@@ -16,7 +16,7 @@ describe('isOperationDeprecated', () => {
   })
 
   it('is deprecated for x-scalar-stability deprecated', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       'x-scalar-stability': XScalarStability.Deprecated,
@@ -26,7 +26,7 @@ describe('isOperationDeprecated', () => {
   })
 
   it('is not deprecated for other x-scalar-stability', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       'x-scalar-stability': XScalarStability.Stable,
@@ -36,7 +36,7 @@ describe('isOperationDeprecated', () => {
   })
 
   it('deprecated property takes precedence', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       'x-scalar-stability': XScalarStability.Deprecated,
@@ -49,7 +49,7 @@ describe('isOperationDeprecated', () => {
 
 describe('getOperationStability', () => {
   it('returns deprecated when marked as such', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       deprecated: true,
@@ -59,7 +59,7 @@ describe('getOperationStability', () => {
   })
 
   it('returns x-scalar-stability value', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
       'x-scalar-stability': XScalarStability.Stable,
@@ -69,7 +69,7 @@ describe('getOperationStability', () => {
   })
 
   it('returns undefined when no stability information is present', async () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       httpVerb: 'GET',
       path: '/foo',
     })

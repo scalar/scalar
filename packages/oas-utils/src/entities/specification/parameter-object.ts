@@ -18,7 +18,7 @@ export type ParameterStyle = z.infer<typeof parameterStyleSchema>
 /**
  * OpenAPI compliant parameters object
  */
-export const oasParameterSchema = z.object({
+export const ParameterObjectSchema = z.object({
   in: parameterTypeSchema,
   name: z.string(),
   description: z.string().optional(),
@@ -45,5 +45,5 @@ export const oasParameterSchema = z.object({
     .optional(),
 }) satisfies ZodSchema<OpenAPI.Parameter>
 
-export type RequestParameter = z.infer<typeof oasParameterSchema>
-export type RequestParameterPayload = z.input<typeof oasParameterSchema>
+export type RequestParameter = z.infer<typeof ParameterObjectSchema>
+export type RequestParameterPayload = z.input<typeof ParameterObjectSchema>

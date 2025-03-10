@@ -5,9 +5,9 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
 
 import type { ENTITY_BRANDS } from '@/entities/shared/utility'
-import type { RequestParameter } from './parameters'
-import type { Request } from './requests'
-import type { Server } from './server'
+import type { ExtendedOperation } from '@/entities/specification/operation-object'
+import type { RequestParameter } from '../specification/parameter-object'
+import type { Server } from '../specification/server-object'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
@@ -182,7 +182,7 @@ export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 // ---------------------------------------------------------------------------
 // Example Schema
 
-export const requestExampleSchema = z.object({
+export const RequestExampleSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['EXAMPLE']>(),
   type: z.literal('requestExample').optional().default('requestExample'),
   requestUid: z.string().brand<ENTITY_BRANDS['OPERATION']>().optional(),
@@ -201,7 +201,7 @@ export const requestExampleSchema = z.object({
   serverVariables: z.record(z.string(), z.array(z.string())).optional(),
 })
 
-export type RequestExample = z.infer<typeof requestExampleSchema>
+export type RequestExample = z.infer<typeof RequestExampleSchema>
 
 /** For OAS serialization we just store the simple key/value pairs */
 const xScalarExampleParameterSchema = z.record(z.string(), z.string()).optional()
@@ -356,7 +356,7 @@ export function createParamInstance(param: RequestParameter) {
  * Create new request example from a request
  * Iterates the name of the example if provided
  */
-export function createExampleFromRequest(request: Request, name: string, server?: Server): RequestExample {
+export function createExampleFromRequest(request: ExtendedOperation, name: string, server?: Server): RequestExample {
   // ---------------------------------------------------------------------------
   // Populate all parameters with an example value
   const parameters: Record<'path' | 'cookie' | 'header' | 'query' | 'headers', RequestExampleParameter[]> = {
@@ -457,13 +457,13 @@ export function createExampleFromRequest(request: Request, name: string, server?
       body,
       serverVariables,
     },
-    requestExampleSchema,
+    RequestExampleSchema,
     false,
   )
 
   if (!example) {
     console.warn(`Example at ${request.uid} is invalid.`)
-    return requestExampleSchema.parse({})
+    return RequestExampleSchema.parse({})
   }
   return example
 }

@@ -1,30 +1,29 @@
-import { cookieSchema } from '@/entities/cookie'
-import { environmentSchema } from '@/entities/environment'
-import {
-  collectionSchema,
-  requestExampleSchema,
-  requestSchema,
-  securitySchemeSchema,
-  serverSchema,
-} from '@/entities/spec'
-import { tagSchema } from '@/entities/spec/spec-objects'
+import { writeFile } from 'node:fs'
+import { CookieSchema } from '@/entities/cookie'
+import { EnvironmentSchema } from '@/entities/environment'
+
+import { RequestExampleSchema } from '@/entities/spec'
+import { ExtendedServerObjectSchema } from '@/entities/specification'
+import { CollectionSchema } from '@/entities/specification/collection'
+import { ExtendedOperationSchema } from '@/entities/specification/operation-object'
+import { ExtendedSecurityRequirementSchema } from '@/entities/specification/security-object'
+import { ExtendedTagSchema } from '@/entities/specification/tag-object'
 import { workspaceSchema } from '@/entities/workspace'
 import { DATA_VERSION } from '@/migrations/data-version'
-import { writeFile } from 'fs'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 
 console.warn('Make sure the generate types file is updated for the current version')
 console.info('Generating...')
 
 const entities = [
-  { identifier: 'Collection', schema: collectionSchema },
-  { identifier: 'Cookie', schema: cookieSchema },
-  { identifier: 'Environment', schema: environmentSchema },
-  { identifier: 'Tag', schema: tagSchema },
-  { identifier: 'RequestExample', schema: requestExampleSchema },
-  { identifier: 'Request', schema: requestSchema },
-  { identifier: 'SecurityScheme', schema: securitySchemeSchema },
-  { identifier: 'Server', schema: serverSchema },
+  { identifier: 'Collection', schema: CollectionSchema },
+  { identifier: 'Cookie', schema: CookieSchema },
+  { identifier: 'Environment', schema: EnvironmentSchema },
+  { identifier: 'Tag', schema: ExtendedTagSchema },
+  { identifier: 'RequestExample', schema: RequestExampleSchema },
+  { identifier: 'Request', schema: ExtendedOperationSchema },
+  { identifier: 'SecurityScheme', schema: ExtendedSecurityRequirementSchema },
+  { identifier: 'Server', schema: ExtendedServerObjectSchema },
   { identifier: 'Workspace', schema: workspaceSchema },
 ]
 
@@ -45,7 +44,7 @@ let typeString = entities.reduce(
 
 // Add all types data object
 typeString += `
-  export type DataRecord = { 
+  export type DataRecord = {
     collections: Record<string, Collection>
     cookies: Record<string, Cookie>
     environments: Record<string, Environment>

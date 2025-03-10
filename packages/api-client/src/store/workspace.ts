@@ -1,5 +1,5 @@
 import type { StoreContext } from '@/store/store-context'
-import { collectionSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
+import { RequestExampleSchema, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -31,7 +31,7 @@ export function extendedWorkspaceDataFactory({
     // Create some example data
     const { request } = createInitialRequest()
 
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       name: 'Example',
       requestUid: request.uid,
     })

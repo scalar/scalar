@@ -1,5 +1,5 @@
 import type { StoreContext } from '@/store/store-context'
-import { type Collection, type Tag, type TagPayload, tagSchema } from '@scalar/oas-utils/entities/spec'
+import { type Collection, ExtendedTagSchema, type Tag, type TagPayload } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
@@ -31,7 +31,7 @@ export function extendedTagDataFactory({
   /** Add tag */
   const addTag = (payload: TagPayload, collectionUid: Collection['uid']) => {
     const collection = collections[collectionUid]
-    const tag = schemaModel(payload, tagSchema, false)
+    const tag = schemaModel(payload, ExtendedTagSchema, false)
     if (!tag || !collection) return console.error('INVALID TAG DATA', payload)
 
     // Add to collection tags

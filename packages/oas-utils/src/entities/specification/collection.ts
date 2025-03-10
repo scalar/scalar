@@ -1,13 +1,14 @@
 import type { ENTITY_BRANDS } from '@/entities/shared/utility'
 import { nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
-import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
-import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
+import { xScalarEnvironmentsSchema } from '@/entities/specification/extensions/x-scalar-environments'
+import { xScalarSecretsSchema } from '@/entities/specification/extensions/x-scalar-secrets'
 import { z } from 'zod'
 
-import { oasSecurityRequirementSchema } from './security'
-import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
+import { ExternalDocumentationSchema } from '@/entities/specification/external-documentation-object'
+import { InfoObjectSchema } from '@/entities/specification/info-object'
+import { SecurityRequirementSchema } from './security-object'
 
-export const oasCollectionSchema = z.object({
+export const CollectionSchema = z.object({
   /**
    * @deprecated
    *
@@ -19,7 +20,7 @@ export const oasCollectionSchema = z.object({
     .optional()
     .default('3.1.0'),
   'jsonSchemaDialect': z.string().optional(),
-  'info': oasInfoSchema.catch({
+  'info': InfoObjectSchema.catch({
     title: 'API',
     version: '1.0',
   }),
@@ -30,8 +31,8 @@ export const oasCollectionSchema = z.object({
    * Individual operations can override this definition. To make security optional, an empty
    * security requirement ({}) can be included in the array.
    */
-  'security': z.array(oasSecurityRequirementSchema).optional().default([]),
-  'externalDocs': oasExternalDocumentationSchema.optional(),
+  'security': z.array(SecurityRequirementSchema).optional().default([]),
+  'externalDocs': ExternalDocumentationSchema.optional(),
   /** TODO: Type these */
   'components': z.record(z.string(), z.unknown()).optional(),
   /** TODO: Type these */
@@ -49,7 +50,7 @@ export const oasCollectionSchema = z.object({
   // security
 })
 
-export const extendedCollectionSchema = z.object({
+export const ExtendedCollectionSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['COLLECTION']>(),
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
@@ -91,6 +92,6 @@ export const extendedCollectionSchema = z.object({
   watchModeStatus: z.enum(['IDLE', 'WATCHING', 'ERROR']).optional().default('IDLE'),
 })
 
-export const collectionSchema = oasCollectionSchema.merge(extendedCollectionSchema)
+export const collectionSchema = CollectionSchema.merge(ExtendedCollectionSchema)
 export type Collection = z.infer<typeof collectionSchema>
 export type CollectionPayload = z.input<typeof collectionSchema>

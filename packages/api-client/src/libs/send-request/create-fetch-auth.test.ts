@@ -1,9 +1,9 @@
-import { requestExampleSchema, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedSecurityRequirementSchema, RequestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { createRequestOperation } from './create-request-operation'
 import { VOID_URL, createRequestPayload } from './create-request-operation.test'
-import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 
 describe('authentication', () => {
   it('adds apiKey auth in header', async () => {
@@ -12,7 +12,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
+        'api-key': ExtendedSecurityRequirementSchema.parse({
           type: 'apiKey',
           name: 'X-API-KEY',
           in: 'header',
@@ -39,7 +39,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
+        'api-key': ExtendedSecurityRequirementSchema.parse({
           type: 'apiKey',
           name: 'api_key',
           in: 'query',
@@ -66,7 +66,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
+        'api-key': ExtendedSecurityRequirementSchema.parse({
           type: 'apiKey',
           name: 'api_key',
           in: 'query',
@@ -91,7 +91,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'basic-auth': securitySchemeSchema.parse({
+        'basic-auth': ExtendedSecurityRequirementSchema.parse({
           type: 'http',
           scheme: 'basic',
           bearerFormat: 'Basic',
@@ -120,7 +120,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'bearer-auth': securitySchemeSchema.parse({
+        'bearer-auth': ExtendedSecurityRequirementSchema.parse({
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'Bearer',
@@ -149,7 +149,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
+        'api-key': ExtendedSecurityRequirementSchema.parse({
           type: 'apiKey',
           name: 'api_key',
           in: 'query',
@@ -157,7 +157,7 @@ describe('authentication', () => {
           uid: 'api-key',
           nameKey: 'api_key',
         }),
-        'bearer-auth': securitySchemeSchema.parse({
+        'bearer-auth': ExtendedSecurityRequirementSchema.parse({
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'Bearer',
@@ -186,7 +186,7 @@ describe('authentication', () => {
         serverPayload: { url: VOID_URL },
       }),
       securitySchemes: {
-        'oauth2-auth': securitySchemeSchema.parse({
+        'oauth2-auth': ExtendedSecurityRequirementSchema.parse({
           type: 'oauth2',
           uid: 'oauth2-auth',
           nameKey: 'Authorization',
@@ -221,7 +221,7 @@ describe('authentication', () => {
       ...createRequestPayload({
         serverPayload: { url: VOID_URL },
       }),
-      example: requestExampleSchema.parse({
+      example: RequestExampleSchema.parse({
         parameters: {
           headers: [
             {
@@ -233,7 +233,7 @@ describe('authentication', () => {
         },
       }),
       securitySchemes: {
-        'oauth2-auth': securitySchemeSchema.parse({
+        'oauth2-auth': ExtendedSecurityRequirementSchema.parse({
           type: 'oauth2',
           flows: {
             implicit: {

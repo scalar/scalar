@@ -2,15 +2,15 @@ import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import json from '@scalar/galaxy/3.1.json'
 import {
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  ExtendedTagSchema,
+  OperationObjectSchema,
   type Request,
   type SecurityScheme,
   type Server,
   type Tag,
   collectionSchema,
-  operationSchema,
-  securitySchemeSchema,
-  serverSchema,
-  tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import microdiff, { type Difference } from 'microdiff'
@@ -30,7 +30,7 @@ import {
 } from './watch-mode'
 
 const mockRequests: Record<`request${number}uid`, Request> = {
-  request1uid: operationSchema.parse({
+  request1uid: OperationObjectSchema.parse({
     uid: 'request1uid',
     method: 'get',
     path: '/planets',
@@ -60,7 +60,7 @@ const mockRequests: Record<`request${number}uid`, Request> = {
     summary: 'Get all planets',
     description: 'Retrieve all planets',
   }),
-  request2uid: operationSchema.parse({
+  request2uid: OperationObjectSchema.parse({
     uid: 'request2uid',
     method: 'post',
     path: '/planets',
@@ -123,7 +123,7 @@ const mockRequests: Record<`request${number}uid`, Request> = {
     summary: 'Create a new planet',
     description: 'Add a new planet to the database',
   }),
-  request3uid: operationSchema.parse({
+  request3uid: OperationObjectSchema.parse({
     uid: 'request3uid',
     method: 'get',
     path: '/planets/{planetId}',
@@ -148,7 +148,7 @@ const mockCollection = Object.freeze(
   }),
 )
 const mockSecuritySchemes: Record<string, SecurityScheme> = {
-  apiKeyUid: securitySchemeSchema.parse({
+  apiKeyUid: ExtendedSecurityRequirementSchema.parse({
     uid: 'apiKeyUid',
     nameKey: 'apiKeyHeader',
     type: 'apiKey',
@@ -156,7 +156,7 @@ const mockSecuritySchemes: Record<string, SecurityScheme> = {
     in: 'header',
     value: 'test-api-key',
   }),
-  oauth2: securitySchemeSchema.parse({
+  oauth2: ExtendedSecurityRequirementSchema.parse({
     uid: 'oauth2-uid',
     type: 'oauth2',
     nameKey: 'oauth2',
@@ -594,17 +594,17 @@ describe('mutateCollectionDiff', () => {
 
 describe('mutateServerDiff', () => {
   const mockServers: Record<string, Server> = {
-    server1: serverSchema.parse({
+    server1: ExtendedServerObjectSchema.parse({
       uid: 'server1',
       url: 'https://api.example.com',
       description: 'Production server',
     }),
-    server2: serverSchema.parse({
+    server2: ExtendedServerObjectSchema.parse({
       uid: 'server2',
       url: 'https://staging.example.com',
       description: 'Staging server',
     }),
-    server3: serverSchema.parse({
+    server3: ExtendedServerObjectSchema.parse({
       uid: 'server3',
       url: 'https://{environment}.example.com/{version}/',
       description: 'Development server',
@@ -652,7 +652,7 @@ describe('mutateServerDiff', () => {
   })
 
   it('generates an add payload for creating a new server', () => {
-    const newServer = serverSchema.parse({
+    const newServer = ExtendedServerObjectSchema.parse({
       uid: 'server4',
       url: 'https://test.example.com',
       description: 'Test server',
@@ -790,18 +790,18 @@ describe('mutateServerDiff', () => {
 
 describe('mutateTagDiff', () => {
   const mockTags: Record<string, Tag> = {
-    tag1uid: tagSchema.parse({
+    tag1uid: ExtendedTagSchema.parse({
       uid: 'tag1uid',
       name: 'Tag 1',
       description: 'First tag',
     }),
-    tag2uid: tagSchema.parse({
+    tag2uid: ExtendedTagSchema.parse({
       uid: 'tag2uid',
       name: 'Tag 2',
       description: 'Second tag',
       'x-scalar-children': [],
     }),
-    tag3uid: tagSchema.parse({
+    tag3uid: ExtendedTagSchema.parse({
       uid: 'tag3uid',
       name: 'Tag 3',
       description: 'Third tag',
@@ -818,7 +818,7 @@ describe('mutateTagDiff', () => {
   } as unknown as WorkspaceStore
 
   it('generates an add payload for creating a new tag', () => {
-    const newTag = tagSchema.parse({
+    const newTag = ExtendedTagSchema.parse({
       'uid': 'tag4uid',
       'name': 'New Tag',
       'description': 'New tag description',
@@ -944,7 +944,7 @@ describe('mutateSecuritySchemeDiff', () => {
   } as unknown as WorkspaceStore
 
   it('generates an add payload for creating a new security scheme', () => {
-    const newScheme = securitySchemeSchema.parse({
+    const newScheme = ExtendedSecurityRequirementSchema.parse({
       type: 'http',
       scheme: 'bearer',
       bearerFormat: 'jwt',
@@ -1131,7 +1131,7 @@ describe('mutateRequestDiff', () => {
   } as unknown as WorkspaceStore
 
   it('generates an add payload for creating a new request', () => {
-    const newRequest = operationSchema.parse({
+    const newRequest = OperationObjectSchema.parse({
       uid: 'request4uid',
       method: 'delete',
       path: '/planets/{planetId}',

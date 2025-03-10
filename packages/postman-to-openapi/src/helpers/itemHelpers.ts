@@ -81,7 +81,7 @@ export function processItem(
         ? request.description
         : (request.description?.content ?? '')
 
-  const operationObject: OpenAPIV3_1.OperationObject = {
+  const operationObject: OpenAPIV3_1.OperationObjectSchema = {
     tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
     summary,
     description,

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { operationSchema } from './operation'
+import { ExtendedOperationSchema } from './operation-object'
 
-describe('operationSchema', () => {
+describe('Operation Object', () => {
   describe('x-scalar-stability', () => {
     it('parses deprecated', () => {
       expect(
-        operationSchema.parse({
+        ExtendedOperationSchema.parse({
           'x-scalar-stability': 'deprecated',
         }),
       ).toMatchObject({
@@ -16,7 +16,7 @@ describe('operationSchema', () => {
 
     it('parses experimental', () => {
       expect(
-        operationSchema.parse({
+        ExtendedOperationSchema.parse({
           'x-scalar-stability': 'experimental',
         }),
       ).toMatchObject({
@@ -26,7 +26,7 @@ describe('operationSchema', () => {
 
     it('parses stable', () => {
       expect(
-        operationSchema.parse({
+        ExtendedOperationSchema.parse({
           'x-scalar-stability': 'stable',
         }),
       ).toMatchObject({
@@ -36,7 +36,7 @@ describe('operationSchema', () => {
 
     it('parses unknown', () => {
       expect(
-        operationSchema.parse({
+        ExtendedOperationSchema.parse({
           'x-scalar-stability': 'unknown',
         }),
       ).toMatchObject({

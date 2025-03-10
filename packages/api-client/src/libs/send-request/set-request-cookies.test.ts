@@ -1,8 +1,8 @@
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, CookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { describe, expect, it } from 'vitest'
 
+import { RequestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { getCookieHeader, matchesDomain, setRequestCookies } from './set-request-cookies'
-import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 
 describe('setRequestCookies', () => {
   it('should set local and global cookies', () => {
@@ -13,7 +13,7 @@ describe('setRequestCookies', () => {
       enabled: true,
     }
 
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       parameters: {
         cookies: [localCookieParameter],
         path: [],
@@ -133,7 +133,7 @@ describe('getCookieHeader', () => {
  * Create a cookie with default values and optional overrides
  */
 const createCookie = (name: string, value: string, options: Partial<Exclude<Cookie, 'name' | 'value'>> = {}): Cookie =>
-  cookieSchema.parse({
+  CookieSchema.parse({
     name,
     value,
     domain: 'example.com',

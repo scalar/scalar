@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useModal } from '@scalar/components'
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { CookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -32,7 +32,7 @@ const addCookieHandler = (cookieData: {
   value: string
   domain: string
 }) => {
-  const cookie = cookieSchema.parse({
+  const cookie = CookieSchema.parse({
     name: cookieData.name,
     value: cookieData.value,
     domain: cookieData.domain,

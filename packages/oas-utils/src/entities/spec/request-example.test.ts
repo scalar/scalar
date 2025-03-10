@@ -1,12 +1,13 @@
-import { operationSchema } from '@/entities/spec/operation'
 import { describe, expect, it } from 'vitest'
 
+import { ExtendedOperationSchema } from '@/entities/specification/operation-object'
+
 import {
+  RequestExampleSchema,
   convertExampleToXScalar,
   createExampleFromRequest,
   createParamInstance,
   parameterArrayToObject,
-  requestExampleSchema,
 } from './request-examples'
 
 describe('createParamInstance', () => {
@@ -258,7 +259,7 @@ describe('parameterArrayToObject', () => {
 
 describe('convertExampleToXScalar', () => {
   it('converts raw JSON body', () => {
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       uid: 'test-uid',
       requestUid: 'req-uid',
       body: {
@@ -289,7 +290,7 @@ describe('convertExampleToXScalar', () => {
   })
 
   it('converts form data body', () => {
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       uid: 'test-uid',
       requestUid: 'req-uid',
       body: {
@@ -328,7 +329,7 @@ describe('convertExampleToXScalar', () => {
   })
 
   it('converts binary body', () => {
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       uid: 'test-uid',
       requestUid: 'req-uid',
       body: {
@@ -356,7 +357,7 @@ describe('convertExampleToXScalar', () => {
 
 describe('createExampleFromRequest', () => {
   it('creates example with JSON request body', () => {
-    const operation = operationSchema.parse({
+    const operation = ExtendedOperationSchema.parse({
       uid: 'request-1',
       path: '/test',
       parameters: [
@@ -410,7 +411,7 @@ describe('createExampleFromRequest', () => {
   })
 
   it('does not overwrite the content-type header if it exists', () => {
-    const operation = operationSchema.parse({
+    const operation = ExtendedOperationSchema.parse({
       uid: 'request-1',
       path: '/test',
       parameters: [
@@ -468,7 +469,7 @@ describe('createExampleFromRequest', () => {
   })
 
   it('creates example with form-data request body', () => {
-    const operation = operationSchema.parse({
+    const operation = ExtendedOperationSchema.parse({
       uid: 'request-1',
       path: '/test',
       parameters: [],
@@ -556,7 +557,7 @@ describe('createExampleFromRequest with default body when Content-Type header is
       defaultBody: { activeBody: 'formData', formData: { encoding: 'form-data', value: [] } },
     },
   ] as const)('when Content-Type header is $contentType', ({ contentType, defaultBody }) => {
-    const operation = operationSchema.parse({
+    const operation = ExtendedOperationSchema.parse({
       uid: 'request-1',
       path: '/test',
       parameters: [
@@ -585,7 +586,7 @@ describe('createExampleFromRequest with default body when Content-Type header is
   })
 
   it('when Content-Type header is not exists', () => {
-    const operation = operationSchema.parse({
+    const operation = ExtendedOperationSchema.parse({
       uid: 'request-1',
       path: '/test',
       parameters: [

@@ -1,5 +1,5 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
-import { operationSchema } from '@scalar/oas-utils/entities/spec'
+import { OperationObjectSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { findRequestByPathMethod, pathToRegex } from './find-request'
@@ -42,7 +42,7 @@ describe('pathToRegex', () => {
 })
 
 describe('findRequestByPathMethod', () => {
-  const mockRequest = operationSchema.parse({
+  const mockRequest = OperationObjectSchema.parse({
     method: 'get',
     path: '/planets/{planetId}',
     uid: 'request-1-uid',

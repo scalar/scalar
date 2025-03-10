@@ -1,4 +1,4 @@
-import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedServerObjectSchema, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types'
 import { renderToString } from '@vue/server-renderer'
@@ -17,7 +17,7 @@ import Operation from './Operation.vue'
 function createTransformedOperation(
   requestMethod: TransformedOperation['httpVerb'],
   path: TransformedOperation['path'],
-  operation: Partial<OpenAPIV3_1.OperationObject>,
+  operation: Partial<OpenAPIV3_1.OperationObjectSchema>,
 ): TransformedOperation {
   return {
     ...operation,
@@ -45,7 +45,7 @@ const mockProps = {
   requests: {},
   requestExamples: {},
   securitySchemes: {},
-  server: serverSchema.parse({
+  server: ExtendedServerObjectSchema.parse({
     uid: 'server1',
     url: 'https://example.com',
   }),

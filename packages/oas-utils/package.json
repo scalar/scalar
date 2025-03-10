@@ -93,6 +93,11 @@
       "types": "./dist/entities/workspace/index.d.ts",
       "default": "./dist/entities/workspace/index.js"
     },
+    "./entities/specification": {
+      "import": "./dist/entities/specification/index.js",
+      "types": "./dist/entities/specification/index.d.ts",
+      "default": "./dist/entities/specification/index.js"
+    },
     "./entities/spec": {
       "import": "./dist/entities/spec/index.js",
       "types": "./dist/entities/spec/index.d.ts",

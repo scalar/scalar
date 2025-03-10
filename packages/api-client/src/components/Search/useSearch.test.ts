@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import { OperationObjectSchema } from '@scalar/oas-utils/entities/spec'
 import { useSearch } from './useSearch'
-import { operationSchema } from '@scalar/oas-utils/entities/spec'
 
 // Mocking the necessary modules and functions
 vi.mock('vue-router', () => ({
@@ -49,7 +49,7 @@ describe('useSearch', () => {
     const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      operationSchema.parse({
+      OperationObjectSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
@@ -69,7 +69,7 @@ describe('useSearch', () => {
     const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      operationSchema.parse({
+      OperationObjectSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
@@ -101,13 +101,13 @@ describe('useSearch', () => {
     const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      operationSchema.parse({
+      OperationObjectSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
         method: 'get',
       }),
-      operationSchema.parse({
+      OperationObjectSchema.parse({
         'uid': 'request2',
         'summary': 'Request 2',
         'path': '/path2',

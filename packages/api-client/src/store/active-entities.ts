@@ -1,14 +1,14 @@
 import { flattenEnvVars } from '@/libs/string-template'
 import { PathId } from '@/router'
-import { environmentSchema, type Environment } from '@scalar/oas-utils/entities/environment'
+import { type Environment, EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
 import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
-import { getRouterParams } from './router-params'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
+import { getRouterParams } from './router-params'
 
 type CreateActiveEntitiesStoreParams = {
   collections: Record<string, Collection>
@@ -73,7 +73,7 @@ export const createActiveEntitiesStore = ({
   /** The currently selected environment */
   const activeEnvironment = computed(() => {
     if (!activeWorkspace.value?.activeEnvironmentId) {
-      return environmentSchema.parse({
+      return EnvironmentSchema.parse({
         uid: 'default',
         color: '#0082D0',
         name: 'No Environment',
@@ -86,7 +86,7 @@ export const createActiveEntitiesStore = ({
     )
 
     if (activeEnvironmentCollection && activeWorkspace.value?.activeEnvironmentId) {
-      return environmentSchema.parse({
+      return EnvironmentSchema.parse({
         uid: activeWorkspace.value.activeEnvironmentId,
         name: activeWorkspace.value.activeEnvironmentId,
         value: JSON.stringify(
@@ -101,7 +101,7 @@ export const createActiveEntitiesStore = ({
       })
     }
 
-    return environmentSchema.parse({
+    return EnvironmentSchema.parse({
       uid: 'default',
       color: '#0082D0',
       name: 'No Environment',

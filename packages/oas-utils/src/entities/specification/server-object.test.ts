@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { serverSchema } from './server'
+import { ExtendedServerObjectSchema } from './server-object'
 
-describe('serverSchema', () => {
+describe('ExtendedServerObjectSchema', () => {
   it('validates valid server object', () => {
     const server = { url: 'https://api.example.com' }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject(server)
   })
 
   it('validates server with description', () => {
@@ -13,7 +13,7 @@ describe('serverSchema', () => {
       url: 'https://api.example.com',
       description: 'Production API',
     }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject(server)
   })
 
   it('validates server with variables', () => {
@@ -25,7 +25,7 @@ describe('serverSchema', () => {
         },
       },
     }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject(server)
   })
 
   it('validates server with enum variables', () => {
@@ -50,7 +50,7 @@ describe('serverSchema', () => {
       },
     }
 
-    expect(serverSchema.parse(server)).toStrictEqual({
+    expect(ExtendedServerObjectSchema.parse(server)).toStrictEqual({
       uid: expect.any(String),
       url: 'https://{environment}.example.com',
       variables: {
@@ -77,7 +77,7 @@ describe('serverSchema', () => {
 
   it('fails when URL is missing', () => {
     const server = {}
-    expect(() => serverSchema.parse(server)).toThrow()
+    expect(() => ExtendedServerObjectSchema.parse(server)).toThrow()
   })
 
   it('fails when variable default is not in enum', () => {
@@ -92,7 +92,7 @@ describe('serverSchema', () => {
       },
     }
 
-    expect(serverSchema.parse(server)).toMatchObject({
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject({
       url: 'https://{environment}.example.com',
       variables: {
         environment: {
@@ -109,7 +109,7 @@ describe('serverSchema', () => {
       url: '/api/v1',
       description: 'Relative URL',
     }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject(server)
   })
 
   it('validates server with multiple variables', () => {
@@ -125,6 +125,6 @@ describe('serverSchema', () => {
         },
       },
     }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+    expect(ExtendedServerObjectSchema.parse(server)).toMatchObject(server)
   })
 })

@@ -1,31 +1,31 @@
-import { describe, test, expect } from 'vitest'
+import { type Operation, OperationObjectSchema } from '@scalar/oas-utils/entities/spec'
+import { describe, expect, test } from 'vitest'
 import { getRequestUidByPathMethod } from './get-request-uid-by-path-method'
-import { operationSchema, type Operation } from '@scalar/oas-utils/entities/spec'
 
 describe('getRequestUidByPathMethod', () => {
   // Mock requests data with various path patterns
   const mockRequests: Record<string, Operation> = {
-    'request-1': operationSchema.parse({
+    'request-1': OperationObjectSchema.parse({
       uid: 'request-1',
       path: '/users',
       method: 'get',
     }),
-    'request-2': operationSchema.parse({
+    'request-2': OperationObjectSchema.parse({
       uid: 'request-2',
       path: '/users',
       method: 'post',
     }),
-    'request-3': operationSchema.parse({
+    'request-3': OperationObjectSchema.parse({
       uid: 'request-3',
       path: '/products',
       method: 'get',
     }),
-    'request-4': operationSchema.parse({
+    'request-4': OperationObjectSchema.parse({
       uid: 'request-4',
       path: '/users/{id}',
       method: 'get',
     }),
-    'request-5': operationSchema.parse({
+    'request-5': OperationObjectSchema.parse({
       uid: 'request-5',
       path: '/orders',
       method: 'put',

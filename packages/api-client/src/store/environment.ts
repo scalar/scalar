@@ -1,5 +1,5 @@
 import type { StoreContext } from '@/store/store-context'
-import { type Environment, environmentSchema } from '@scalar/oas-utils/entities/environment'
+import { type Environment, EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
@@ -12,7 +12,7 @@ export function createStoreEnvironments(useLocalStorage: boolean) {
 
   // Add default environment
   environmentMutators.add(
-    environmentSchema.parse({
+    EnvironmentSchema.parse({
       uid: 'default',
       name: 'Default Environment',
       color: '#0082D0',

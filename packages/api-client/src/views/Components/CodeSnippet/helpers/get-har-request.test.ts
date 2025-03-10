@@ -1,8 +1,8 @@
 import {
-  operationSchema,
-  requestExampleSchema,
-  securitySchemeSchema,
-  serverSchema,
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  OperationObjectSchema,
+  RequestExampleSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
@@ -27,13 +27,13 @@ describe('getHarRequest', () => {
   })
 
   it('should include server URL and operation details', () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       method: 'post',
       path: '/users',
       tags: [],
       security: [],
     })
-    const server = serverSchema.parse({
+    const server = ExtendedServerObjectSchema.parse({
       url: 'https://api.example.com',
     })
 
@@ -47,14 +47,14 @@ describe('getHarRequest', () => {
   })
 
   it('should merge security with example parameters', () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       method: 'post',
       path: '/users',
       tags: [],
       security: [],
     })
 
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       parameters: {
         headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
         cookies: [{ key: 'session', value: '123', enabled: true }],
@@ -66,7 +66,7 @@ describe('getHarRequest', () => {
       },
     })
     const securitySchemes = [
-      securitySchemeSchema.parse({
+      ExtendedSecurityRequirementSchema.parse({
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'Bearer',
@@ -74,13 +74,13 @@ describe('getHarRequest', () => {
         in: 'header',
         token: 'http-token',
       }),
-      securitySchemeSchema.parse({
+      ExtendedSecurityRequirementSchema.parse({
         type: 'apiKey',
         name: 'api_key',
         in: 'query',
         value: 'api-token',
       }),
-      securitySchemeSchema.parse({
+      ExtendedSecurityRequirementSchema.parse({
         type: 'apiKey',
         name: 'auth',
         in: 'cookie',
@@ -114,12 +114,12 @@ describe('getHarRequest', () => {
   })
 
   it('should prepend a scheme to the url if it is not present', () => {
-    const operation = operationSchema.parse({
+    const operation = OperationObjectSchema.parse({
       method: 'get',
       path: '/users',
     })
 
-    const server = serverSchema.parse({
+    const server = ExtendedServerObjectSchema.parse({
       url: 'https://api.example.com',
     })
 

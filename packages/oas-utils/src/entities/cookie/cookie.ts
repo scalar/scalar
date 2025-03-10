@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 
-export const cookieSchema = z.object({
+export const CookieSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['COOKIE']>(),
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string().default(''),
@@ -18,4 +18,4 @@ export const cookieSchema = z.object({
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
-export type Cookie = z.infer<typeof cookieSchema>
+export type Cookie = z.infer<typeof CookieSchema>
