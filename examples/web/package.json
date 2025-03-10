@@ -27,6 +27,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "monaco-editor": "^0.47.0",
     "vue": "^3.5.12",

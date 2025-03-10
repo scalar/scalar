@@ -11,11 +11,8 @@ import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
+  type SpecConfiguration,
 } from '@scalar/types/api-reference'
-import type {
-  ReferenceConfiguration,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref, toRef, watch, watchEffect } from 'vue'
@@ -23,10 +20,7 @@ import { computed, ref, toRef, watch, watchEffect } from 'vue'
 import EditorInput from './EditorInput.vue'
 
 const props = defineProps<{
-  configuration?: (
-    | Partial<ApiReferenceConfiguration>
-    | ReferenceConfiguration
-  ) & {
+  configuration?: Partial<ApiReferenceConfiguration> & {
     /** Option to manage the state externally and have the spec reactively update  */
     useExternalState?: boolean
   }
