@@ -6,6 +6,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
+import type { TestResult } from '@/libs/execute-scripts'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -13,8 +14,9 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { invalidParams } = defineProps<{
+const { invalidParams, testResults } = defineProps<{
   invalidParams: Set<string>
+  testResults?: TestResult[]
 }>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 const { events } = useWorkspace()
@@ -105,7 +107,8 @@ function handleCurlImport(curl: string) {
               :workspace="activeWorkspace" />
             <ResponseSection
               :numWorkspaceRequests="activeWorkspaceRequests.length"
-              :response="activeHistoryEntry?.response" />
+              :response="activeHistoryEntry?.response"
+              :testResults="testResults" />
           </ViewLayoutContent>
         </ViewLayout>
       </div>
