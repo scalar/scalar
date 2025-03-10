@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.0.24
+
+### Patch Changes
+
+- 9319c0c: fix: allows alert plugin classes in markdown
+- 9319c0c: feat: updates markdown alert style
+
 ## 0.0.23
 
 ### Patch Changes
