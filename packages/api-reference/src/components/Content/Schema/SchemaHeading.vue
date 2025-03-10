@@ -30,10 +30,7 @@ defineProps<{
       <template v-if="value.type === 'array'"> [] </template>
       <template v-if="value.enum"> enum </template>
     </span>
-    <template v-if="value?.xml?.name && value?.xml?.name !== '##default'">
-      &lt;{{ value?.xml?.name }} /&gt;
-    </template>
-    <template v-else-if="name">
+    <template v-if="name">
       {{ name }}
     </template>
     <template v-else>
