@@ -159,28 +159,26 @@ export const createContainer = (doc: Document, element?: Element | null) => {
   return _container
 }
 
+// Add a type for our enhanced app
+interface ApiReferenceApp extends App<Element> {
+  updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => void
+  getConfiguration: () => Partial<ApiReferenceConfiguration>
+}
+
 /**
  * Create and mount a new Scalar API Reference
  */
-export function createApiReference(configuration: ApiReferenceConfiguration): App<Element>
-
 export function createApiReference(
-  elementOrSelector: Element | string,
-  configuration: ApiReferenceConfiguration,
+  elementOrSelectorOrConfig: Element | string | Partial<ApiReferenceConfiguration>,
+  maybeConfiguration?: Partial<ApiReferenceConfiguration> | Document,
   givenDocument?: Document,
-): App<Element>
-
-export function createApiReference(
-  elementOrSelectorOrConfig: Element | string | ApiReferenceConfiguration,
-  maybeConfiguration?: ApiReferenceConfiguration,
-  givenDocument?: Document,
-): App<Element> {
-  const doc = givenDocument || document
-
-  // Determine if first argument is configuration or element
-  const isConfigOnly = !maybeConfiguration && typeof elementOrSelectorOrConfig === 'object'
-  const configuration = isConfigOnly ? elementOrSelectorOrConfig : maybeConfiguration!
-  const elementOrSelector = isConfigOnly ? undefined : (elementOrSelectorOrConfig as Element | string)
+): ApiReferenceApp {
+  const doc = givenDocument || (maybeConfiguration instanceof Document ? maybeConfiguration : document)
+  const isConfigOnly = !maybeConfiguration || maybeConfiguration instanceof Document
+  const configuration = isConfigOnly
+    ? (elementOrSelectorOrConfig as Partial<ApiReferenceConfiguration>)
+    : (maybeConfiguration as Partial<ApiReferenceConfiguration>)
+  let elementOrSelector = isConfigOnly ? undefined : (elementOrSelectorOrConfig as Element | string)
 
   const props = reactive<ReferenceProps>({
     configuration,
@@ -188,6 +186,13 @@ export function createApiReference(
 
   // Create a new Vue app instance
   let instance = createApp(() => h(ApiReference, props))
+
+  // Add the update and get methods directly to the instance
+  const enhancedInstance = instance as ApiReferenceApp
+  enhancedInstance.updateConfiguration = (newConfig: Partial<ApiReferenceConfiguration>) => {
+    Object.assign(props.configuration ?? {}, newConfig)
+  }
+  enhancedInstance.getConfiguration = () => (props.configuration ?? {}) as Partial<ApiReferenceConfiguration>
 
   // Meta tags, etc.
   instance.use(createHead())
@@ -212,7 +217,11 @@ export function createApiReference(
       const currentElement =
         typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
       if (currentElement && !doc.body.contains(currentElement)) {
-        elementOrSelector = createContainer(doc)
+        const container = createContainer(doc)
+
+        if (container) {
+          elementOrSelector = container
+        }
       }
 
       instance.unmount()
@@ -221,8 +230,11 @@ export function createApiReference(
         return
       }
 
-      // @ts-expect-error known issue
-      instance = createApiReference(elementOrSelector, props.configuration, doc) as App<Element>
+      instance = createApiReference(
+        elementOrSelector,
+        props.configuration as Partial<ApiReferenceConfiguration>,
+        doc,
+      ) as App<Element>
     },
     false,
   )
@@ -246,5 +258,5 @@ export function createApiReference(
     false,
   )
 
-  return instance
+  return enhancedInstance
 }
