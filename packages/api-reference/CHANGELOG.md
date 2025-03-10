@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.26.0
+
+### Patch Changes
+
+- 0601989: fix: make useConfig reactive
+- Updated dependencies [df4dee8]
+- Updated dependencies [8c5b0c6]
+- Updated dependencies [9319c0c]
+- Updated dependencies [9319c0c]
+- Updated dependencies [23bac9d]
+- Updated dependencies [fb22645]
+  - @scalar/api-client@2.2.60
+  - @scalar/components@0.13.32
+  - @scalar/code-highlight@0.0.24
+  - @scalar/oas-utils@0.2.114
+
 ## 1.25.130
 
 ### Patch Changes

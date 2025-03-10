@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.2.60
+
+### Patch Changes
+
+- df4dee8: fix(api-client): improve api client request and response area a11y
+- 23bac9d: fix: use operation security scheme if available in request
+- Updated dependencies [df4dee8]
+- Updated dependencies [8c5b0c6]
+- Updated dependencies [fb22645]
+  - @scalar/components@0.13.32
+  - @scalar/oas-utils@0.2.114
+  - @scalar/use-codemirror@0.11.77
+  - @scalar/import@0.2.34
+  - @scalar/postman-to-openapi@0.1.37
+
 ## 2.2.59
 
 ### Patch Changes
