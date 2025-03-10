@@ -24,6 +24,11 @@ jobs:
       - name: Build packages
         uses: ./.github/actions/build
         with:
+          packages-only: true
+          node-version: ${{ matrix.node-version }}
+      - name: Build scalar-app
+        uses: ./.github/actions/build
+        with:
           packages-only: 'scalar-app'
           node-version: ${{ matrix.node-version }}
       # Caching browser binaries is not recommended, since the amount of time it takes to restore the cache is comparable to the time it takes to download the binaries.
