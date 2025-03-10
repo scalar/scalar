@@ -1,4 +1,7 @@
-export const nextjsThemeCss = `
+/**
+ * The custom theme for Next.js
+ */
+export const customTheme = `
 /* basic theme */
 .dark-mode {
   --scalar-color-1: rgba(255, 255, 255, 0.9);
