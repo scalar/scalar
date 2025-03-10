@@ -59,10 +59,8 @@ const config = {
         label: 'Scalar',
         route: '/scalar',
         configuration: {
-          spec: {
-            // Put the URL to your OpenAPI document here:
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
+          // Put the URL to your OpenAPI document here:
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
       },
     ],
@@ -92,10 +90,8 @@ const config: Config = {
         label: 'Scalar',
         route: '/scalar',
         configuration: {
-          spec: {
-            // Put the URL to your OpenAPI document here:
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
+          // Put the URL to your OpenAPI document here:
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
       } as ScalarOptions,
     ],

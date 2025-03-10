@@ -47,7 +47,7 @@ export function createScalarReferences(
       }
     },
     updateSpec(spec: SpecConfiguration) {
-      configuration.spec = spec
+      Object.assign(configuration, spec)
     },
     /** Mount the references to a given element */
     mount,

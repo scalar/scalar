@@ -36,11 +36,9 @@ onMounted(async () => {
 })
 
 /** Configuration */
-const configuration = reactive<ApiReferenceConfiguration>({
+const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   proxyUrl: 'https://proxy.scalar.com',
-  spec: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-  },
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
 
 /** Pick a random example from the list */
@@ -62,9 +60,7 @@ function selectRandomExample() {
 /** Update configuration when URL changes */
 watch(url, (newUrl) => {
   Object.assign(configuration, {
-    spec: {
-      url: newUrl,
-    },
+    url: newUrl,
   })
 })
 </script>

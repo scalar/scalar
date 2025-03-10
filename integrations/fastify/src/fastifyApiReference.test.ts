@@ -22,7 +22,7 @@ function basicAuthEncode(username: string, password: string) {
   return 'Basic ' + Buffer.from(username + ':' + password).toString('base64')
 }
 
-function exampleSpec() {
+function exampleDocument() {
   return {
     openapi: '3.1.0',
     info: {
@@ -48,7 +48,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -71,7 +71,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -88,7 +88,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -103,7 +103,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -118,7 +118,7 @@ describe('fastifyApiReference', () => {
 
     await fastify.register(fastifyApiReference, {
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -130,11 +130,11 @@ describe('fastifyApiReference', () => {
   describe('OpenAPI document endpoints', () => {
     describe.each([
       { specProvidedVia: '@fastify/swagger' },
-      { specProvidedVia: 'spec: { content: spec }' },
-      { specProvidedVia: 'spec: { content: () => spec }' },
+      { specProvidedVia: 'content: spec' },
+      { specProvidedVia: 'content: () => spec' },
     ] as const)('provided via $specProvidedVia', ({ specProvidedVia }) => {
       type LocalTestContext = {
-        spec: ReturnType<typeof exampleSpec>
+        spec: ReturnType<typeof exampleDocument>
         address: string
       }
 
@@ -149,7 +149,7 @@ describe('fastifyApiReference', () => {
         },
       ] as const)('on the $endpointConfig endpoint', ({ json, yaml }) => {
         beforeEach<LocalTestContext>(async (context) => {
-          const spec = exampleSpec()
+          const spec = exampleDocument()
           const fastify = Fastify({
             logger: false,
           })
@@ -160,27 +160,27 @@ describe('fastifyApiReference', () => {
 
           switch (specProvidedVia) {
             case '@fastify/swagger': {
-              await fastify.register(fastifySwagger, { openapi: exampleSpec() })
+              await fastify.register(fastifySwagger, { openapi: exampleDocument() })
               await fastify.register(fastifyApiReference, {
                 openApiDocumentEndpoints,
                 configuration: {},
               })
               break
             }
-            case 'spec: { content: spec }': {
+            case 'content: spec': {
               await fastify.register(fastifyApiReference, {
                 openApiDocumentEndpoints,
                 configuration: {
-                  spec: { content: spec },
+                  content: spec,
                 },
               })
               break
             }
-            case 'spec: { content: () => spec }': {
+            case 'content: () => spec': {
               await fastify.register(fastifyApiReference, {
                 openApiDocumentEndpoints,
                 configuration: {
-                  spec: { content: () => spec },
+                  content: () => spec,
                 },
               })
               break
@@ -243,7 +243,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -258,43 +258,43 @@ describe('fastifyApiReference', () => {
 
     it.each([
       { expectedUrl: urlOwn, specProvidedVia: '@fastify/swagger' },
-      { expectedUrl: urlOwn, specProvidedVia: 'spec: { content: spec }' },
-      { expectedUrl: urlOwn, specProvidedVia: 'spec: { content: () => spec }' },
-      { expectedUrl: urlOwn, specProvidedVia: 'spec: { url: urlOwn },' },
-      { expectedUrl: urlExt, specProvidedVia: 'spec: { url: urlExt, }' },
+      { expectedUrl: urlOwn, specProvidedVia: 'content: spec' },
+      { expectedUrl: urlOwn, specProvidedVia: 'content: () => spec' },
+      { expectedUrl: urlOwn, specProvidedVia: 'url: urlOwn' },
+      { expectedUrl: urlExt, specProvidedVia: 'url: urlExt' },
     ] as const)('when spec is provided via $specProvidedVia', async ({ expectedUrl, specProvidedVia }) => {
-      const spec = exampleSpec()
+      const spec = exampleDocument()
       const fastify = Fastify({
         logger: false,
       })
 
       switch (specProvidedVia) {
         case '@fastify/swagger': {
-          await fastify.register(fastifySwagger, { openapi: exampleSpec() })
+          await fastify.register(fastifySwagger, { openapi: exampleDocument() })
           await fastify.register(fastifyApiReference)
           break
         }
-        case 'spec: { content: spec }': {
+        case 'content: spec': {
           await fastify.register(fastifyApiReference, {
-            configuration: { spec: { content: spec } },
+            configuration: { content: spec },
           })
           break
         }
-        case 'spec: { content: () => spec }': {
+        case 'content: () => spec': {
           await fastify.register(fastifyApiReference, {
-            configuration: { spec: { content: () => spec } },
+            configuration: { content: () => spec },
           })
           break
         }
-        case 'spec: { url: urlOwn },': {
+        case 'url: urlOwn': {
           await fastify.register(fastifyApiReference, {
-            configuration: { spec: { url: urlOwn } },
+            configuration: { url: urlOwn },
           })
           break
         }
-        case 'spec: { url: urlExt, }': {
+        case 'url: urlExt': {
           await fastify.register(fastifyApiReference, {
-            configuration: { spec: { url: urlExt } },
+            configuration: { url: urlExt },
           })
           break
         }
@@ -314,7 +314,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -331,7 +331,7 @@ describe('fastifyApiReference', () => {
     await fastify.register(fastifyApiReference, {
       routePrefix: '/reference',
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
     })
 
@@ -349,7 +349,7 @@ describe('fastifyApiReference', () => {
 
     await fastify.register(fastifyApiReference, {
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
       hooks: {
         onRequest: fastify.basicAuth,
@@ -372,7 +372,7 @@ describe('fastifyApiReference', () => {
 
     await fastify.register(fastifyApiReference, {
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
       hooks: {
         onRequest: fastify.basicAuth,
@@ -416,7 +416,7 @@ describe('fastifyApiReference', () => {
 
     await fastify.register(fastifyApiReference, {
       configuration: {
-        spec: { url: '/openapi.json' },
+        url: '/openapi.json',
       },
       logLevel: 'silent',
     })

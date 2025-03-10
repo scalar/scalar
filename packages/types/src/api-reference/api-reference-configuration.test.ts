@@ -91,20 +91,20 @@ describe('api-reference-configuration', () => {
       })
     })
 
-    it('validates spec configuration', () => {
+    it('validates content and url configuration', () => {
       const validConfigs = [
-        { spec: { url: 'https://example.com/openapi.json' } },
-        { spec: { content: '{"openapi": "3.1.0"}' } },
-        { spec: { content: { openapi: '3.1.0' } } },
-        { spec: { content: () => ({ openapi: '3.1.0' }) } },
-        { spec: { content: null } },
+        { url: 'https://example.com/openapi.json' },
+        { content: '{"openapi": "3.1.0"}' },
+        { content: { openapi: '3.1.0' } },
+        { content: () => ({ openapi: '3.1.0' }) },
+        { content: null },
       ]
 
       validConfigs.forEach((config) => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).not.toThrow()
       })
 
-      const invalidConfigs = [{ spec: { url: 999 } }, { spec: { content: 123 } }]
+      const invalidConfigs = [{ url: 999 }, { content: 123 }]
 
       invalidConfigs.forEach((config) => {
         expect(() => apiReferenceConfigurationSchema.parse(config)).toThrow()
@@ -221,6 +221,32 @@ describe('api-reference-configuration', () => {
 
       expect(migratedConfig.customCss).not.toContain('--theme-color-red')
       expect(migratedConfig.customCss).toContain('--scalar-color-red')
+    })
+
+    it('migrates spec.url to url', () => {
+      const config = {
+        spec: {
+          url: 'https://example.com/openapi.json',
+        },
+      }
+
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.spec).toBeUndefined()
+      expect(migratedConfig.url).toBe('https://example.com/openapi.json')
+    })
+
+    it('migrates spec.content to content', () => {
+      const config = {
+        spec: {
+          content: '{"openapi": "3.1.0"}',
+        },
+      }
+
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.spec).toBeUndefined()
+      expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
     })
   })
 })

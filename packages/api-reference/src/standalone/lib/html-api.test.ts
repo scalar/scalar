@@ -20,7 +20,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: undefined,
-      spec: { url: '/openapi.json' },
+      url: '/openapi.json',
     })
   })
 
@@ -36,7 +36,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: undefined,
-      spec: { content: '{"openapi":"3.1.0"}' },
+      content: '{"openapi":"3.1.0"}',
     })
   })
 
@@ -52,7 +52,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: 'https://proxy.example.com',
-      spec: { url: '/spec.json' },
+      url: '/spec.json',
     })
   })
 
@@ -69,7 +69,7 @@ describe('html-api', () => {
       ...baseConfig,
       darkMode: true,
       proxyUrl: undefined,
-      spec: { url: '/custom.json' },
+      url: '/custom.json',
     })
   })
 
@@ -86,7 +86,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: undefined,
-      spec: { content: '{"openapi":"3.1.0"}' },
+      content: '{"openapi":"3.1.0"}',
     })
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec] HTML API is deprecated'))
@@ -106,7 +106,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: undefined,
-      spec: { url: '/deprecated.json' },
+      url: '/deprecated.json',
     })
 
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec-url] HTML API is deprecated'))
@@ -146,7 +146,7 @@ describe('html-api', () => {
     expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
       ...baseConfig,
       proxyUrl: undefined,
-      spec: { url: '/priority.json' },
+      url: '/priority.json',
     })
   })
 })

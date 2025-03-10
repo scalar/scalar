@@ -1,8 +1,7 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
-
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { nextjsThemeCss } from './theme'
 
-export type ApiReferenceOptions = ReferenceConfiguration & {
+export type ApiReferenceOptions = Partial<ApiReferenceConfiguration> & {
   cdn?: string
 }
 
@@ -16,27 +15,27 @@ export type ApiReferenceOptions = ReferenceConfiguration & {
  */
 export const ApiReference = (config: ApiReferenceOptions) => {
   // If no spec is passed, show a warning.
-  if (!config.spec?.content && !config.spec?.url) {
+  if (!config.content && !config.url) {
     throw new Error(
-      '[@scalar/nextjs-api-reference] You didn’t provide a spec.content or spec.url. Please provide one of these options.',
+      '[@scalar/nextjs-api-reference] You didn’t provide a content or url. Please provide one of these options.',
     )
   }
 
   // Execute content function if it exists
-  if (typeof config.spec?.content === 'function') {
-    config.spec.content = config.spec.content()
+  if (typeof config.content === 'function') {
+    config.content = config.content()
   }
 
   // Convert the document to a string
-  const documentString = config?.spec?.content
-    ? typeof config?.spec?.content === 'string'
-      ? config.spec.content
-      : JSON.stringify(config.spec.content)
+  const documentString = config?.content
+    ? typeof config?.content === 'string'
+      ? config.content
+      : JSON.stringify(config.content)
     : ''
 
   // Delete content from configuration
-  if (config?.spec?.content) {
-    delete config.spec.content
+  if (config?.content) {
+    delete config.content
   }
 
   // Add the default CSS
