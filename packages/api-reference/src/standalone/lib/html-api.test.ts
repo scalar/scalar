@@ -115,6 +115,49 @@ describe('html-api', () => {
       doc.dispatchEvent(updateEvent)
       // Assert the configuration was updated
     })
+
+    it('allows mounting after creation', () => {
+      const doc = createHtmlDocument(`
+        <html>
+          <body>
+            <div id="mount-point"></div>
+          </body>
+        </html>
+      `)
+
+      const config = { _integration: 'html' }
+      const app = createApiReference(apiReferenceConfigurationSchema.parse(config), doc)
+
+      // Mount after creation
+      app.mount('#mount-point')
+      expect(app).toBeDefined()
+    })
+
+    it('allows updating configuration after creation', () => {
+      const doc = createHtmlDocument(`
+        <html>
+          <body>
+            <div id="mount-point"></div>
+          </body>
+        </html>
+      `)
+
+      const config = { _integration: 'html' }
+      const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config), doc)
+
+      // Update configuration after creation
+      const newConfig = {
+        spec: {
+          content: '{"openapi":"3.1.0", "info": {"title": "Updated API", "version": "1.0.0"}}',
+        },
+      }
+      app.updateConfiguration(newConfig)
+
+      expect(app).toBeDefined()
+
+      // Assert the configuration was updated
+      expect(app.getConfiguration()).toMatchObject(newConfig)
+    })
   })
 
   describe('findDataAttributes (legacy)', () => {
