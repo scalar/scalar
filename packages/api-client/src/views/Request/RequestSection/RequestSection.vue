@@ -266,7 +266,7 @@ const handleRequestNamePlaceholder = () => {
 
       <ScalarErrorBoundary>
         <PostResponseScripts
-          v-show="activeSection === 'All' || activeSection === 'Scripts'"
+          v-show="selectedFilter === 'All' || selectedFilter === 'Scripts'"
           :operation="operation" />
       </ScalarErrorBoundary>
 
