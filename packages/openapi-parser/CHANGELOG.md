@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.10
+
+### Patch Changes
+
+- 0d8a24f: chore: remove Swagger 2.0 upgrade warning
+
 ## 0.10.9
 
 ### Patch Changes

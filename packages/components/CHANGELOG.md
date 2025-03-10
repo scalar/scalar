@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.13.33
+
+### Patch Changes
+
+- 4d03e0f: feat: multiple documents
+  - @scalar/themes@0.9.75
+  - @scalar/code-highlight@0.0.24
+  - @scalar/use-hooks@0.1.29
+
 ## 0.13.32
 
 ### Patch Changes

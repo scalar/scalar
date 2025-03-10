@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.26.1
+
+### Patch Changes
+
+- 4d03e0f: feat: multiple documents
+- Updated dependencies [0d8a24f]
+- Updated dependencies [4d03e0f]
+- Updated dependencies [2bbbf01]
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/api-client@2.2.61
+  - @scalar/components@0.13.33
+  - @scalar/types@0.0.40
+  - @scalar/oas-utils@0.2.115
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.75
+  - @scalar/code-highlight@0.0.24
+  - @scalar/use-hooks@0.1.29
+
 ## 1.26.0
 
 ### Patch Changes
