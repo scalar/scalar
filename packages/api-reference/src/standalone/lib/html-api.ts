@@ -1,7 +1,7 @@
 import type { ReferenceProps } from '@/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
-import { createApp, h, reactive } from 'vue'
+import { type App, createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
@@ -104,10 +104,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
 
   // Ensure Reference Props are reactive
   if (!specUrlElement && !specElement && !getSpecScriptTag(doc)) {
-    console.error(
-      'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
-      'font-family: monospace;',
-    )
+    // Stay quiet.
   } else {
     const specOrSpecUrl = getSpec() ? { content: getSpec() } : { url: getSpecUrl() }
 
@@ -126,70 +123,118 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
  * Mount the Scalar API Reference on a given document.
  * Read the HTML data-attributes for configuration.
  */
-export function mountScalarApiReference(doc: Document, configuration: ApiReferenceConfiguration) {
+export function findDataAttributes(doc: Document, configuration: ApiReferenceConfiguration) {
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specElement = doc.querySelector('[data-spec]')
   /** @deprecated Use the new <script id="api-reference" data-url="/scalar.json" /> API instead. */
   const specUrlElement = doc.querySelector('[data-spec-url]')
 
-  const props = reactive<ReferenceProps>({
-    configuration,
-  })
-
-  if (props.configuration?.darkMode) {
+  if (configuration?.darkMode) {
     doc.body?.classList.add('dark-mode')
   } else {
     doc.body?.classList.add('light-mode')
   }
 
-  // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
-  // We need to add a new container element before the script tag.
-  const createContainer = () => {
-    let _container: Element | null = null
+  const container = createContainer(doc, specElement || specUrlElement)
 
-    const specScriptTag = getSpecScriptTag(doc)
+  if (container) {
+    createApiReference(container, configuration, doc)
+  }
+}
 
-    if (specScriptTag) {
-      _container = doc.createElement('div')
-      specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
-    } else {
-      _container = specElement || specUrlElement || doc.body
-    }
+// If it's a script tag, we can't mount the Vue.js app inside that tag.
+// We need to add a new container element before the script tag.
+export const createContainer = (doc: Document, element?: Element | null) => {
+  let _container: Element | null = null
 
-    return _container
+  const specScriptTag = getSpecScriptTag(doc)
+
+  if (specScriptTag) {
+    _container = doc.createElement('div')
+    specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
+  } else if (element) {
+    _container = element
   }
 
-  let container = createContainer()
+  return _container
+}
 
-  // Wrap create app in factory for re-loading
-  const createAppFactory = () => {
-    const _app = createApp(() => h(ApiReference, props))
+// Add a type for our enhanced app
+interface ApiReferenceApp extends App<Element> {
+  updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => void
+  getConfiguration: () => Partial<ApiReferenceConfiguration>
+}
 
-    const head = createHead()
-    _app.use(head)
+/**
+ * Create and mount a new Scalar API Reference
+ */
+export function createApiReference(
+  elementOrSelectorOrConfig: Element | string | Partial<ApiReferenceConfiguration>,
+  maybeConfiguration?: Partial<ApiReferenceConfiguration> | Document,
+  givenDocument?: Document,
+): ApiReferenceApp {
+  const doc = givenDocument || (maybeConfiguration instanceof Document ? maybeConfiguration : document)
+  const isConfigOnly = !maybeConfiguration || maybeConfiguration instanceof Document
+  const configuration = isConfigOnly
+    ? (elementOrSelectorOrConfig as Partial<ApiReferenceConfiguration>)
+    : (maybeConfiguration as Partial<ApiReferenceConfiguration>)
+  let elementOrSelector = isConfigOnly ? undefined : (elementOrSelectorOrConfig as Element | string)
 
-    if (container) {
-      _app.mount(container)
+  const props = reactive<ReferenceProps>({
+    configuration,
+  })
+
+  // Create a new Vue app instance
+  let instance = createApp(() => h(ApiReference, props))
+
+  // Add the update and get methods directly to the instance
+  const enhancedInstance = instance as ApiReferenceApp
+  enhancedInstance.updateConfiguration = (newConfig: Partial<ApiReferenceConfiguration>) => {
+    Object.assign(props.configuration ?? {}, newConfig)
+  }
+  enhancedInstance.getConfiguration = () => (props.configuration ?? {}) as Partial<ApiReferenceConfiguration>
+
+  // Meta tags, etc.
+  instance.use(createHead())
+
+  // If elementOrSelector is provided, mount immediately
+  if (elementOrSelector) {
+    // If the element is a string, we need to find the actual DOM element
+    const element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+
+    if (element) {
+      instance.mount(element)
     } else {
-      console.error('Could not find a mount point for API References')
+      console.error('Could not find a mount point for API References:', elementOrSelector)
     }
-    return _app
   }
 
-  let app = createAppFactory()
-
-  // Allow user to reload whole vue app
+  // Bind events
   doc.addEventListener(
     'scalar:reload-references',
     () => {
       // Check if element has been removed from dom, and re-add
-      if (!doc.body.contains(container)) {
-        console.log('Re-adding container')
-        container = createContainer()
+      const currentElement =
+        typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+      if (currentElement && !doc.body.contains(currentElement)) {
+        const container = createContainer(doc)
+
+        if (container) {
+          elementOrSelector = container
+        }
       }
 
-      app.unmount()
-      app = createAppFactory()
+      instance.unmount()
+
+      if (!elementOrSelector) {
+        return
+      }
+
+      instance = createApiReference(
+        elementOrSelector,
+        props.configuration as Partial<ApiReferenceConfiguration>,
+        doc,
+      ) as App<Element>
     },
     false,
   )
@@ -199,7 +244,7 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
     'scalar:destroy-references',
     () => {
       delete props['configuration']
-      app.unmount()
+      instance.unmount()
     },
     false,
   )
@@ -212,4 +257,6 @@ export function mountScalarApiReference(doc: Document, configuration: ApiReferen
     },
     false,
   )
+
+  return enhancedInstance
 }
