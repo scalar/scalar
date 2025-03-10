@@ -13,7 +13,7 @@ pnpm turbo build
 Time to test the app manually. Go to the app directory and run Electron locally:
 
 ```bash
-cd packages/scalar-app
+cd projects/scalar-app
 pnpm dev
 ```
 
