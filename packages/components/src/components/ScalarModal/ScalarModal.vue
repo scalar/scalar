@@ -130,10 +130,6 @@ export function useModal() {
 .scalar-modal {
   animation: fadein-modal ease-in-out 0.3s forwards;
   animation-delay: 0.1s;
-  position: fixed;
-  left: 0;
-  top: 0;
-  right: 0;
   box-shadow: var(--scalar-shadow-2);
   transform: translate3d(0, 10px, 0);
 }
