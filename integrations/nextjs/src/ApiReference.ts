@@ -23,7 +23,7 @@ export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfigurati
   const configuration = {
     ...DEFAULT_CONFIGURATION,
     ...givenConfiguration,
-  } satisfies ApiReferenceConfiguration
+  } satisfies Partial<ApiReferenceConfiguration>
 
   return async () => {
     return new Response(getHtmlDocument(configuration, customTheme), {
