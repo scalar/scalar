@@ -26,13 +26,18 @@ jobs:
         with:
           packages-only: true
           node-version: ${{ matrix.node-version }}
+      - name: Build scalar-app
+        uses: ./.github/actions/build
+        with:
+          packages-only: 'scalar-app'
+          node-version: ${{ matrix.node-version }}
       # Caching browser binaries is not recommended, since the amount of time it takes to restore the cache is comparable to the time it takes to download the binaries.
       - name: Install chromium browser
         run: npx playwright install chromium
       - name: Install Playwright dependencies
         run: npx playwright install-deps
       - name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - name: Start Xvfb
         run: |
           Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
