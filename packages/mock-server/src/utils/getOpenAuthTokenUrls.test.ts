@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { createOpenApiDefinition } from './createOpenApiDefinition'
-import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls'
+import { createOpenApiDefinition } from './createOpenApiDefinition.ts'
+import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls.ts'
 
 describe('getOpenAuthTokenUrls', () => {
   it('returns an empty array for schema without securitySchemes', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isAuthenticationRequired } from './isAuthenticationRequired'
+import { isAuthenticationRequired } from './isAuthenticationRequired.ts'
 
 describe('isAuthenticationRequired', () => {
   it('returns false when security is undefined', () => {

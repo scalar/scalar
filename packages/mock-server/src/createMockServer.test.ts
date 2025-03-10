@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from './createMockServer'
+import { createMockServer } from './createMockServer.ts'
 
 describe('createMockServer', () => {
   it('GET /foobar -> example JSON', async () => {

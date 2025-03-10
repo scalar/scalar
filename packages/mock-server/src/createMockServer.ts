@@ -1,18 +1,18 @@
 import { openapi } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { Hono, type Context } from 'hono'
+import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 
-import type { HttpMethod, MockServerOptions } from '@/types'
-import { getOperations } from '@/utils/getOperations'
-import { handleAuthentication } from '@/utils/handleAuthentication'
-import { honoRouteFromPath } from '@/utils/honoRouteFromPath'
-import { isAuthenticationRequired } from '@/utils/isAuthenticationRequired'
-import { logAuthenticationInstructions } from '@/utils/logAuthenticationInstructions'
-import { setupAuthenticationRoutes } from '@/utils/setupAuthenticationRoutes'
+import type { HttpMethod, MockServerOptions } from '@/types.ts'
+import { getOperations } from '@/utils/getOperations.ts'
+import { handleAuthentication } from '@/utils/handleAuthentication.ts'
+import { honoRouteFromPath } from '@/utils/honoRouteFromPath.ts'
+import { isAuthenticationRequired } from '@/utils/isAuthenticationRequired.ts'
+import { logAuthenticationInstructions } from '@/utils/logAuthenticationInstructions.ts'
+import { setupAuthenticationRoutes } from '@/utils/setupAuthenticationRoutes.ts'
 
-import { mockAnyResponse } from './routes/mockAnyResponse'
-import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
+import { mockAnyResponse } from './routes/mockAnyResponse.ts'
+import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument.ts'
 
 /**
  * Create a mock server instance

@@ -6,8 +6,8 @@ import type { StatusCode } from 'hono/utils/http-status'
 // @ts-expect-error Doesn’t come with types
 import objectToXML from 'object-to-xml'
 
-import type { MockServerOptions } from '@/types'
-import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey'
+import type { MockServerOptions } from '@/types.ts'
+import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey.ts'
 
 /**
  * Mock any response
@@ -47,7 +47,9 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
   const acceptedContentType = accepts(c, {
     header: 'Accept',
     supports: supportedContentTypes,
-    default: supportedContentTypes.includes('application/json') ? 'application/json' : supportedContentTypes[0],
+    default: supportedContentTypes.includes('application/json')
+      ? 'application/json'
+      : (supportedContentTypes[0] ?? 'text/plain;charset=UTF-8'),
   })
 
   c.header('Content-Type', acceptedContentType)

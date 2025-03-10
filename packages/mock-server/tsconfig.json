@@ -1,11 +1,10 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["src", "test"],
-  "exclude": ["dist", "**/*.test.ts"],
+  "extends": "../../tsconfig.node.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     }
-  }
+  },
+  "include": ["src/**/*.ts", "rollup.config.ts"]
 }
