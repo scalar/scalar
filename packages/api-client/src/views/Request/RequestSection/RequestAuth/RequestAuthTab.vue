@@ -97,7 +97,7 @@ const dataTableInputProps = {
         'request-example-references-header': layout === 'reference',
       }">
       <DataTableCell
-        class="text-c-3 flex items-center pl-2 font-medium"
+        class="text-c-3 flex items-center pl-3 font-medium"
         :class="
           layout === 'reference' && `border-t ${index !== 0 ? 'mt-2' : ''}`
         ">
