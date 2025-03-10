@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.40
+
+### Patch Changes
+
+- 4d03e0f: feat: multiple documents
+
 ## 0.0.39
 
 ### Patch Changes

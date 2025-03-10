@@ -1,5 +1,17 @@
 # @scalar/nextjs-api-reference
 
+## 0.6.0
+
+### Minor Changes
+
+- dd38a68: feat: use html rendering lib from @scalar/core
+
+### Patch Changes
+
+- Updated dependencies [4d03e0f]
+  - @scalar/types@0.0.40
+  - @scalar/core@0.1.1
+
 ## 0.5.15
 
 ### Patch Changes

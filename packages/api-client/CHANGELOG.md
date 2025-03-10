@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.2.61
+
+### Patch Changes
+
+- 4d03e0f: feat: multiple documents
+- 2bbbf01: fix: adds auth indicator complex auth support
+- Updated dependencies [0d8a24f]
+- Updated dependencies [4d03e0f]
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/components@0.13.33
+  - @scalar/types@0.0.40
+  - @scalar/import@0.2.35
+  - @scalar/oas-utils@0.2.115
+  - @scalar/use-codemirror@0.11.78
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.75
+  - @scalar/postman-to-openapi@0.1.38
+  - @scalar/use-hooks@0.1.29
+
 ## 2.2.60
 
 ### Patch Changes
