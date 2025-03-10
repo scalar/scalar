@@ -18,7 +18,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
  * @params config - the Api Reference config object
  * @params options - reserved for future use to add customization to the response
  */
-export const ApiReference = (givenConfiguration: ApiReferenceConfiguration) => {
+export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>) => {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,
