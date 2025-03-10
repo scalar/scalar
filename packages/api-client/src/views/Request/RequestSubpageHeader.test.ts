@@ -1,13 +1,13 @@
 import { useWorkspace } from '@/store'
 import { createStoreEvents } from '@/store/events'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { collectionSchema, operationSchema } from '@scalar/oas-utils/entities/spec'
+import { EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
+import { OperationObjectSchema, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import RequestSubpageHeader from './RequestSubpageHeader.vue'
 import { mockUseLayout } from '@/vitest.setup'
+import RequestSubpageHeader from './RequestSubpageHeader.vue'
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
@@ -35,10 +35,10 @@ const mockCollection = collectionSchema.parse({
   documentUrl: 'https://example.com',
   integration: 'test',
 })
-const mockOperation = operationSchema.parse({
+const mockOperation = OperationObjectSchema.parse({
   uid: 'mockRequestUid',
 })
-const mockEnvironment = environmentSchema.parse({
+const mockEnvironment = EnvironmentSchema.parse({
   uid: 'mockEnvironmentUid',
   name: 'Mock Environment',
   description: 'Mock Environment Description',

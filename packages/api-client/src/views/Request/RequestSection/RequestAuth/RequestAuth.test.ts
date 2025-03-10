@@ -1,6 +1,11 @@
 import type { EnvVariable } from '@/store/active-entities'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { EnvironmentSchema } from '@scalar/oas-utils/entities/environment'
+import {
+  type Collection,
+  ExtendedOperationSchema,
+  ExtendedServerObjectSchema,
+  collectionSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -64,15 +69,15 @@ describe('RequestAuth.vue', () => {
         securitySchemes: ['bearer-auth', 'api-key-auth', 'basic-auth'],
         security: [{ bearerAuth: [] }, { apiKeyAuth: [] }, { basicAuth: [] }],
       }),
-      operation: requestSchema.parse({
+      operation: ExtendedOperationSchema.parse({
         uid: 'test-operation',
         security: [{ bearerAuth: [] }, { apiKeyAuth: [] }],
       }),
       selectedSecuritySchemeUids: [] as Collection['selectedSecuritySchemeUids'],
-      server: serverSchema.parse({
+      server: ExtendedServerObjectSchema.parse({
         url: 'https://api.example.com',
       }),
-      environment: environmentSchema.parse({
+      environment: EnvironmentSchema.parse({
         uid: 'test-environment',
       }),
       envVariables: [] as EnvVariable[],

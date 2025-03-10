@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { nanoidSchema } from '../shared'
 import type { ENTITY_BRANDS } from '@/entities/shared/utility'
+import { nanoidSchema } from '../shared'
 
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES
@@ -201,10 +201,10 @@ export type Oauth2FlowPayload = NonNullable<SecuritySchemeOauth2Payload['flows']
  *
  * @see https://spec.openapis.org/oas/latest.html#security-requirement-object
  */
-export const oasSecurityRequirementSchema = z.record(z.string(), z.array(z.string()).optional().default([]))
+export const SecurityRequirementSchema = z.record(z.string(), z.array(z.string()).optional().default([]))
 
 /** OAS Compliant security schemes */
-export const oasSecuritySchemeSchema = z.union([
+export const SecurityRequirementObject = z.union([
   oasSecuritySchemeApiKey,
   oasSecuritySchemeHttp,
   oasSecuritySchemeOauth2,
@@ -212,7 +212,7 @@ export const oasSecuritySchemeSchema = z.union([
 ])
 
 /** Extended security schemes for workspace usage */
-export const securitySchemeSchema = z.union([
+export const ExtendedSecurityRequirementSchema = z.union([
   securityApiKeySchema,
   securityHttpSchema,
   securityOpenIdSchema,
@@ -224,5 +224,5 @@ export const securitySchemeSchema = z.union([
  *
  * @see https://spec.openapis.org/oas/latest.html#security-scheme-object
  */
-export type SecurityScheme = z.infer<typeof securitySchemeSchema>
-export type SecuritySchemePayload = z.input<typeof securitySchemeSchema>
+export type SecurityScheme = z.infer<typeof ExtendedSecurityRequirementSchema>
+export type SecuritySchemePayload = z.input<typeof ExtendedSecurityRequirementSchema>

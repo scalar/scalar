@@ -1,24 +1,24 @@
 import {
+  ExtendedOperationSchema,
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  RequestExampleSchema,
   type RequestPayload,
   type ServerPayload,
   createExampleFromRequest,
-  requestExampleSchema,
-  requestSchema,
-  securitySchemeSchema,
-  serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
-import { createRequestOperation } from './create-request-operation'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
+import { createRequestOperation } from './create-request-operation'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
 export const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
-type RequestExamplePayload = z.input<typeof requestExampleSchema>
+type RequestExamplePayload = z.input<typeof RequestExampleSchema>
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload
@@ -29,13 +29,15 @@ type MetaRequestPayload = {
 
 /** Creates the payload for createRequestOperation */
 export const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
-  const request = requestSchema.parse(metaRequestPayload.requestPayload ?? {})
-  const server = metaRequestPayload.serverPayload ? serverSchema.parse(metaRequestPayload.serverPayload) : undefined
+  const request = ExtendedOperationSchema.parse(metaRequestPayload.requestPayload ?? {})
+  const server = metaRequestPayload.serverPayload
+    ? ExtendedServerObjectSchema.parse(metaRequestPayload.serverPayload)
+    : undefined
   let example = createExampleFromRequest(request, 'example')
 
   // Overwrite any example properties
   if (metaRequestPayload.requestExamplePayload)
-    example = requestExampleSchema.parse({
+    example = RequestExampleSchema.parse({
       ...example,
       ...metaRequestPayload.requestExamplePayload,
     })
@@ -681,7 +683,7 @@ describe('create-request-operation', () => {
         },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
+        'api-key': ExtendedSecurityRequirementSchema.parse({
           uid: 'api-key',
           type: 'apiKey',
           nameKey: 'api_key',
@@ -713,7 +715,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
+          'api-key': ExtendedSecurityRequirementSchema.parse({
             type: 'apiKey',
             name: 'X-API-KEY',
             in: 'header',
@@ -740,7 +742,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
+          'api-key': ExtendedSecurityRequirementSchema.parse({
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
@@ -767,7 +769,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'basic-auth': securitySchemeSchema.parse({
+          'basic-auth': ExtendedSecurityRequirementSchema.parse({
             type: 'http',
             scheme: 'basic',
             bearerFormat: 'Basic',
@@ -796,7 +798,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'bearer-auth': securitySchemeSchema.parse({
+          'bearer-auth': ExtendedSecurityRequirementSchema.parse({
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'Bearer',
@@ -823,7 +825,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
+          'api-key': ExtendedSecurityRequirementSchema.parse({
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
@@ -831,7 +833,7 @@ describe('create-request-operation', () => {
             uid: 'api-key',
             nameKey: 'api_key',
           }),
-          'bearer-auth': securitySchemeSchema.parse({
+          'bearer-auth': ExtendedSecurityRequirementSchema.parse({
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'Bearer',
@@ -860,7 +862,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'oauth2-auth': securitySchemeSchema.parse({
+          'oauth2-auth': ExtendedSecurityRequirementSchema.parse({
             type: 'oauth2',
             uid: 'oauth2-auth',
             nameKey: 'Authorization',
@@ -896,7 +898,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
+          'api-key': ExtendedSecurityRequirementSchema.parse({
             type: 'apiKey',
             name: 'x-api-key',
             in: 'header',

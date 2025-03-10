@@ -1,11 +1,11 @@
 import {
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
   type Operation,
+  OperationObjectSchema,
   type RequestExample,
+  RequestExampleSchema,
   type Server,
-  operationSchema,
-  requestExampleSchema,
-  securitySchemeSchema,
-  serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { AVAILABLE_CLIENTS, type ClientId, type TargetId } from '@scalar/snippetz'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -18,13 +18,13 @@ describe('getSnippet', () => {
   let server: Server
 
   beforeEach(() => {
-    operation = operationSchema.parse({
+    operation = OperationObjectSchema.parse({
       method: 'get',
       path: '/users',
       requestBody: undefined,
     })
-    example = requestExampleSchema.parse({})
-    server = serverSchema.parse({
+    example = RequestExampleSchema.parse({})
+    server = ExtendedServerObjectSchema.parse({
       url: 'https://example.com',
     })
   })
@@ -87,7 +87,7 @@ $.ajax(settings).done(function (response) {
   })
 
   it('shows the original path before variable replacement', () => {
-    server = serverSchema.parse({
+    server = ExtendedServerObjectSchema.parse({
       uid: 'server-uid',
       url: '{protocol}://void.scalar.com/{path}',
       description: 'Responds with your request data',
@@ -198,24 +198,24 @@ $.ajax(settings).done(function (response) {
       example,
       server,
       securitySchemes: [
-        securitySchemeSchema.parse({
+        ExtendedSecurityRequirementSchema.parse({
           name: 'x-cookie-token',
           type: 'apiKey',
           in: 'cookie',
         }),
-        securitySchemeSchema.parse({
+        ExtendedSecurityRequirementSchema.parse({
           name: 'x-header-token',
           type: 'apiKey',
           in: 'header',
           value: '22222',
         }),
-        securitySchemeSchema.parse({
+        ExtendedSecurityRequirementSchema.parse({
           name: 'query-api-key',
           type: 'apiKey',
           in: 'query',
           value: '33333',
         }),
-        securitySchemeSchema.parse({
+        ExtendedSecurityRequirementSchema.parse({
           name: 'cookie-api-key',
           type: 'http',
           scheme: 'bearer',

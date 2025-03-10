@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 
-export const environmentSchema = z.object({
+export const EnvironmentSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['ENVIRONMENT']>(),
   name: z.string().optional().default('Default Environment'),
   color: z.string().optional().default('#0082D0'),
@@ -11,5 +11,5 @@ export const environmentSchema = z.object({
 })
 
 /** Environment */
-export type Environment = z.infer<typeof environmentSchema>
-export type EnvironmentPayload = z.input<typeof environmentSchema>
+export type Environment = z.infer<typeof EnvironmentSchema>
+export type EnvironmentPayload = z.input<typeof EnvironmentSchema>

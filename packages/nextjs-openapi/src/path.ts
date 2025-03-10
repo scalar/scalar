@@ -1,6 +1,6 @@
+import { extname, join } from 'node:path'
 import { generateResponses, getJSDocFromNode, getSchemaFromTypeNode } from '@scalar/ts-to-openapi'
 import type { OpenAPIV3_1 } from 'openapi-types'
-import { extname, join } from 'node:path'
 import {
   type Identifier,
   type ParameterDeclaration,
@@ -82,7 +82,7 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
           description,
           parameters,
           responses,
-        } as OpenAPIV3_1.OperationObject
+        } as OpenAPIV3_1.OperationObjectSchema
       }
     }
 
@@ -96,7 +96,7 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
           summary: title,
           description,
           responses,
-        } as OpenAPIV3_1.OperationObject
+        } as OpenAPIV3_1.OperationObjectSchema
       }
     }
   })

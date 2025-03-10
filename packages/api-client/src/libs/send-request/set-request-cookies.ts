@@ -1,5 +1,5 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, CookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
@@ -43,7 +43,7 @@ export function setRequestCookies({
     if (!matchesDomain(serverUrl, configuredHostname) || !name) return
 
     cookieParams.push(
-      cookieSchema.parse({
+      CookieSchema.parse({
         name,
         value,
         domain: configuredHostname,
@@ -57,7 +57,7 @@ export function setRequestCookies({
     if (!c.enabled || !c.key) return
 
     cookieParams.push(
-      cookieSchema.parse({
+      CookieSchema.parse({
         name: c.key,
         value: replaceTemplateVariables(c.value, env),
         domain: defaultDomain,

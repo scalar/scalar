@@ -1,4 +1,4 @@
-import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedServerObjectSchema, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { describe, expect, it, vi } from 'vitest'
@@ -93,13 +93,13 @@ describe('Collections Store', () => {
     // Add the second collection
     const anotherCollection = addCollection(anotherCollectionPayload, mockWorkspace.uid)
 
-    const collectionServer = serverSchema.parse({
+    const collectionServer = ExtendedServerObjectSchema.parse({
       uid: 'collection-server',
       url: 'https://api.example.com',
       description: 'A collection server',
     })
 
-    const anotherCollectionServer = serverSchema.parse({
+    const anotherCollectionServer = ExtendedServerObjectSchema.parse({
       uid: 'collection-server-2',
       url: 'https://api.example.com/2',
     })

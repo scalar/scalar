@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { CookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { computed } from 'vue'
 
@@ -21,7 +21,7 @@ const fields = [
 const activeCookie = computed<Cookie>(
   () =>
     cookies[activeCookieId.value] ||
-    cookieSchema.parse({
+    CookieSchema.parse({
       name: '',
       value: '',
       domain: '',

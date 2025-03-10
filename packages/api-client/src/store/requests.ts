@@ -1,11 +1,11 @@
 import type { extendedTagDataFactory } from '@/store/tags'
 import {
   type Collection,
+  ExtendedOperationSchema,
   type Request,
   type RequestPayload,
   type Tag,
   createExampleFromRequest,
-  requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS, iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -45,7 +45,7 @@ export function extendedRequestDataFactory(
 ) {
   /** Add request */
   const addRequest = (payload: RequestPayload, collectionUid: Collection['uid']) => {
-    const request = schemaModel(payload, requestSchema, false)
+    const request = schemaModel(payload, ExtendedOperationSchema, false)
     if (!request) return console.error('INVALID REQUEST DATA', payload)
 
     const collection = collections[collectionUid]
@@ -174,7 +174,7 @@ export function findRequestParentsFactory({
 
 /** First draft request" */
 export function createInitialRequest() {
-  const request = requestSchema.parse({
+  const request = ExtendedOperationSchema.parse({
     method: 'get',
     parameters: [],
     path: '',

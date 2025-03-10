@@ -1,21 +1,21 @@
 import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup } from '@/views/Request/consts'
-import { securitySchemeSchema, type Collection, type Request } from '@scalar/oas-utils/entities/spec'
+import { type Collection, ExtendedSecurityRequirementSchema, type Request } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { formatComplexScheme, formatScheme, getSchemeOptions, getSecurityRequirements } from './auth'
 
 const securitySchemes = {
-  apiKeyUid: securitySchemeSchema.parse({
+  apiKeyUid: ExtendedSecurityRequirementSchema.parse({
     type: 'apiKey',
     nameKey: 'apiKey',
     uid: 'apiKeyUid',
   }),
-  basicUid: securitySchemeSchema.parse({
+  basicUid: ExtendedSecurityRequirementSchema.parse({
     type: 'http',
     nameKey: 'basic',
     uid: 'basicUid',
   }),
-  oauth2Uid: securitySchemeSchema.parse({
+  oauth2Uid: ExtendedSecurityRequirementSchema.parse({
     type: 'oauth2',
     nameKey: 'oauth2',
     uid: 'oauth2Uid',
@@ -25,7 +25,7 @@ const securitySchemes = {
 describe('auth utilities', () => {
   describe('formatScheme', () => {
     it('formats regular security scheme', () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = ExtendedSecurityRequirementSchema.parse({
         uid: 'auth1-uid',
         type: 'http',
         nameKey: 'Basic Auth',
@@ -38,7 +38,7 @@ describe('auth utilities', () => {
     })
 
     it('adds "coming soon" to openIdConnect schemes', () => {
-      const scheme = securitySchemeSchema.parse({
+      const scheme = ExtendedSecurityRequirementSchema.parse({
         uid: 'auth2-uid',
         type: 'openIdConnect',
         nameKey: 'OAuth',

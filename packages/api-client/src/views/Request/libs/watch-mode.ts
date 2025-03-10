@@ -1,6 +1,10 @@
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import {
+  ExtendedOperationSchema,
+  ExtendedSecurityRequirementSchema,
+  ExtendedServerObjectSchema,
+  ExtendedTagSchema,
   type Request,
   type RequestParameterPayload,
   type RequestPayload,
@@ -8,10 +12,6 @@ import {
   type Server,
   collectionSchema,
   createExampleFromRequest,
-  requestSchema,
-  securitySchemeSchema,
-  serverSchema,
-  tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import { type Path, type PathValue, getNestedValue } from '@scalar/object-utils/nested'
@@ -324,7 +324,7 @@ export const mutateRequestDiff = (
       requests,
       (r) => r.path === path && r.method === method,
     )
-    const parsed = parseDiff(requestSchema, {
+    const parsed = parseDiff(ExtendedOperationSchema, {
       ...diff,
       path: diff.path.slice(3),
     })
@@ -351,14 +351,14 @@ export const mutateRequestDiff = (
     const [firstEntry] = Object.entries(diff.value ?? {})
     const [_method, _operation] = firstEntry ?? []
 
-    const operation: OpenAPIV3_1.OperationObject<{
+    const operation: OpenAPIV3_1.OperationObjectSchema<{
       tags?: string[]
       security?: OpenAPIV3_1.SecurityRequirementObject[]
     }> = method ? diff.value : _operation
     const newMethod = method || _method
 
     // TODO: match servers up and add if we don't have
-    const operationServers = serverSchema.array().parse(operation.servers ?? [])
+    const operationServers = ExtendedServerObjectSchema.array().parse(operation.servers ?? [])
 
     // Remove security here and add it correctly below
     const { security: operationSecurity, ...operationWithoutSecurity } = operation
@@ -390,7 +390,7 @@ export const mutateRequestDiff = (
       })
 
     // Save parse the request
-    const request = schemaModel(requestPayload, requestSchema, false)
+    const request = schemaModel(requestPayload, ExtendedOperationSchema, false)
     if (!request) return false
 
     requestMutators.add(request, activeCollection.value.uid)
@@ -414,7 +414,7 @@ export const mutateRequestDiff = (
       (r) => r.path === path && r.method === method,
     )
 
-    const parsed = parseDiff(requestSchema, { ...diff, path: keys })
+    const parsed = parseDiff(ExtendedOperationSchema, { ...diff, path: keys })
     if (!request || !parsed) return false
 
     requestMutators.edit(request.uid, parsed.path, parsed.value)
@@ -442,7 +442,7 @@ export const mutateServerDiff = (
     if (!serverUid) return false
 
     const server = servers[serverUid]
-    const parsed = parseDiff(serverSchema, { ...diff, path: keys })
+    const parsed = parseDiff(ExtendedServerObjectSchema, { ...diff, path: keys })
 
     if (!server || !parsed) return false
 
@@ -459,7 +459,7 @@ export const mutateServerDiff = (
   }
   // Add whole object
   else if (diff.type === 'CREATE') {
-    const parsed = schemaModel(diff.value, serverSchema, false)
+    const parsed = schemaModel(diff.value, ExtendedServerObjectSchema, false)
     if (!parsed) return false
 
     serverMutators.add(parsed, activeCollection.value.uid)
@@ -482,7 +482,7 @@ export const mutateTagDiff = (
     if (!tagUid) return false
 
     const tag = tags[tagUid]
-    const parsed = parseDiff(tagSchema, { ...diff, path: keys })
+    const parsed = parseDiff(ExtendedTagSchema, { ...diff, path: keys })
 
     if (!tag || !parsed) return false
 
@@ -500,7 +500,7 @@ export const mutateTagDiff = (
   }
   // Add whole object
   else if (diff.type === 'CREATE') {
-    const parsed = schemaModel(diff.value, tagSchema, false)
+    const parsed = schemaModel(diff.value, ExtendedTagSchema, false)
     if (!parsed) return false
 
     tagMutators.add(parsed, activeCollection.value.uid)
@@ -555,7 +555,7 @@ export const mutateSecuritySchemeDiff = (
   // Edit update properties
   if (keys?.length) {
     // Narrows the schema and path based on type of security scheme
-    const schema = narrowUnionSchema(securitySchemeSchema, 'type', scheme?.type ?? '')
+    const schema = narrowUnionSchema(ExtendedSecurityRequirementSchema, 'type', scheme?.type ?? '')
     if (!schema || !scheme) return false
     const parsed = parseDiff(schema, { ...diff, path: keys })
     if (!parsed) return false
@@ -570,7 +570,7 @@ export const mutateSecuritySchemeDiff = (
   }
   // Add whole object
   else if (diff.type === 'CREATE')
-    securitySchemeMutators.add(securitySchemeSchema.parse(diff.value), activeCollection.value.uid)
+    securitySchemeMutators.add(ExtendedSecurityRequirementSchema.parse(diff.value), activeCollection.value.uid)
 
   return true
 }

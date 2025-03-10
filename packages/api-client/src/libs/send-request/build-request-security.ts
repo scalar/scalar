@@ -1,5 +1,5 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, CookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 
@@ -26,7 +26,7 @@ export const buildRequestSecurity = (
       if (scheme.in === 'query') urlParams.append(scheme.name, value)
       if (scheme.in === 'cookie') {
         cookies.push(
-          cookieSchema.parse({
+          CookieSchema.parse({
             uid: scheme.uid,
             name: scheme.name,
             value,

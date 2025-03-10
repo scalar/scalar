@@ -1,9 +1,9 @@
 import type { StoreContext } from '@/store/store-context'
 import {
   type Collection,
+  ExtendedSecurityRequirementSchema,
   type SecurityScheme,
   type SecuritySchemePayload,
-  securitySchemeSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -38,7 +38,7 @@ export function extendedSecurityDataFactory({
     /** Schemes will always live at the collection level */
     collectionUid: Collection['uid'],
   ) => {
-    const scheme = securitySchemeSchema.parse(payload)
+    const scheme = ExtendedSecurityRequirementSchema.parse(payload)
     securitySchemeMutators.add(scheme)
 
     // Add to collection dictionary

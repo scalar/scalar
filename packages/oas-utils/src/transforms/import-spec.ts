@@ -1,25 +1,26 @@
 import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility'
+import { type RequestExample, createExampleFromRequest } from '@/entities/spec'
 import {
   type Collection,
   type CollectionPayload,
-  type Request,
-  type RequestExample,
+  ExtendedCollectionSchema,
+  ExtendedServerObjectSchema,
   type RequestParameterPayload,
-  type RequestPayload,
   type Server,
-  type Tag,
-  collectionSchema,
-  createExampleFromRequest,
-  requestSchema,
-  serverSchema,
-  tagSchema,
-} from '@/entities/spec'
+} from '@/entities/specification'
 import {
+  type ExtendedOperation,
+  type ExtendedOperationPayload,
+  ExtendedOperationSchema,
+  type Operation,
+} from '@/entities/specification/operation-object'
+import {
+  ExtendedSecurityRequirementSchema,
   type Oauth2FlowPayload,
   type SecurityScheme,
   type SecuritySchemePayload,
-  securitySchemeSchema,
-} from '@/entities/spec/security'
+} from '@/entities/specification/security-object'
+import { type ExtendedTag, ExtendedTagSchema, type Tag } from '@/entities/specification/tag-object'
 import { combineUrlAndPath, isDefined } from '@/helpers'
 import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
@@ -128,12 +129,12 @@ export async function importSpecToWorkspace(
   | {
       error: false
       collection: Collection
-      requests: Request[]
+      requests: Operation[]
       schema: OpenAPIV3_1.Document
       examples: RequestExample[]
       servers: Server[]
-      tags: Tag[]
-      securitySchemes: SecurityScheme[]
+      tags: ExtendedTag[]
+      securitySchemes: SecuritySchemePayload[]
     }
   | { error: true; importWarnings: string[]; collection: undefined }
 > {
@@ -144,7 +145,7 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const start = performance.now()
-  const requests: Request[] = []
+  const requests: ExtendedOperation[] = []
 
   // Add the base server url to any relative servers
   const servers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
@@ -156,7 +157,7 @@ export async function importSpecToWorkspace(
     const fallbackUrl = getFallbackUrl()
 
     if (fallbackUrl) {
-      servers.push(serverSchema.parse({ url: fallbackUrl }))
+      servers.push(ExtendedServerObjectSchema.parse({ url: fallbackUrl }))
     }
   }
 
@@ -234,7 +235,7 @@ export async function importSpecToWorkspace(
         }
       }
 
-      const scheme = schemaModel(payload, securitySchemeSchema, false)
+      const scheme = schemaModel(payload, ExtendedSecurityRequirementSchema, false)
       if (!scheme) importWarnings.push(`Security scheme ${nameKey} is invalid.`)
 
       return scheme
@@ -255,7 +256,7 @@ export async function importSpecToWorkspace(
 
     if (!path) return
     // Path level servers must be saved
-    const pathServers = serverSchema.array().parse(path.servers ?? [])
+    const pathServers = ExtendedServerObjectSchema.array().parse(path.servers ?? [])
     servers.push(...pathServers)
 
     // Creates a sorted array of methods based on the path object.
@@ -263,7 +264,7 @@ export async function importSpecToWorkspace(
 
     methods.forEach((method) => {
       const operation: OpenAPIV3_1.OperationObject = path[method]
-      const operationServers = serverSchema.array().parse(operation.servers ?? [])
+      const operationServers = ExtendedServerObjectSchema.array().parse(operation.servers ?? [])
 
       servers.push(...operationServers)
 
@@ -299,7 +300,7 @@ export async function importSpecToWorkspace(
           ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
           : []
 
-      const requestPayload: RequestPayload = {
+      const requestPayload: ExtendedOperationPayload = {
         ...operationWithoutSecurity,
         method,
         path: pathString,
@@ -333,7 +334,7 @@ export async function importSpecToWorkspace(
         })
 
       // Save parse the request
-      const request = schemaModel(requestPayload, requestSchema, false)
+      const request = schemaModel(requestPayload, ExtendedOperationSchema, false)
 
       if (!request) importWarnings.push(`${method} Request at ${path} is invalid.`)
       else requests.push(request)
@@ -344,13 +345,13 @@ export async function importSpecToWorkspace(
   // TAG HANDLING
 
   // TODO: We may need to handle de-duping tags
-  const tags = schemaModel(schema?.tags ?? [], tagSchema.array(), false) ?? []
+  const tags = schemaModel(schema?.tags ?? [], ExtendedTagSchema.array(), false) ?? []
 
   // Delete any tag names that already have a definition
   tags.forEach((t) => tagNames.delete(t.name))
 
   // Add an entry for any tags that are used but do not have a definition
-  tagNames.forEach((name) => name && tags.push(tagSchema.parse({ name })))
+  tagNames.forEach((name) => name && tags.push(ExtendedTagSchema.parse({ name })))
 
   // Tag name to UID map
   const tagMap: Record<string, Tag> = {}
@@ -420,7 +421,7 @@ export async function importSpecToWorkspace(
       ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
       : []
 
-  const collection = collectionSchema.parse({
+  const collection = ExtendedCollectionSchema.parse({
     ...schema,
     watchMode,
     documentUrl,
@@ -469,7 +470,7 @@ export function getServersFromOpenApiDocument(
     .map((server): Server | undefined => {
       try {
         // Validate the server against the schema
-        const parsedSchema = serverSchema.parse(server)
+        const parsedSchema = ExtendedServerObjectSchema.parse(server)
 
         // Prepend with the base server URL (if the given URL is relative)
         if (parsedSchema?.url?.startsWith('/')) {

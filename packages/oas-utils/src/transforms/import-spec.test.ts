@@ -1,5 +1,4 @@
 /** @vitest-environment jsdom */
-import type { SecurityScheme, SecuritySchemeOauth2 } from '@/entities/spec/security'
 import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'

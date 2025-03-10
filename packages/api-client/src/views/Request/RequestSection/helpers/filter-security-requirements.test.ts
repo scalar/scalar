@@ -1,4 +1,4 @@
-import { securitySchemeSchema, type Collection } from '@scalar/oas-utils/entities/spec'
+import { type Collection, ExtendedSecurityRequirementSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { filterSecurityRequirements } from './filter-security-requirements'
@@ -6,20 +6,20 @@ import { filterSecurityRequirements } from './filter-security-requirements'
 describe('filterSecurityRequirements', () => {
   // Mock security schemes for testing
   const mockSecuritySchemes = {
-    bearerAuthUid: securitySchemeSchema.parse({
+    bearerAuthUid: ExtendedSecurityRequirementSchema.parse({
       uid: 'bearerAuthUid',
       type: 'http',
       scheme: 'bearer',
       nameKey: 'bearerAuth',
     }),
-    apiKeyUid: securitySchemeSchema.parse({
+    apiKeyUid: ExtendedSecurityRequirementSchema.parse({
       uid: 'apiKeyUid',
       type: 'apiKey',
       name: 'api-key',
       in: 'header',
       nameKey: 'apiKey',
     }),
-    oauthUid: securitySchemeSchema.parse({
+    oauthUid: ExtendedSecurityRequirementSchema.parse({
       uid: 'oauthUid',
       type: 'oauth2',
       flows: {

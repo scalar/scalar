@@ -1,12 +1,12 @@
 import { useWorkspace } from '@/store/store'
 import { PopoverPanel } from '@headlessui/vue'
-import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { ExtendedOperationSchema, ExtendedServerObjectSchema, collectionSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { mockUseLayout } from '@/vitest.setup'
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
-import { mockUseLayout } from '@/vitest.setup'
 
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
@@ -20,7 +20,7 @@ describe('ServerDropdown', () => {
       servers: ['server-1', 'server-2'],
     }),
     layout: 'reference',
-    server: serverSchema.parse({
+    server: ExtendedServerObjectSchema.parse({
       uid: 'server-1',
       url: 'https://scalar.com',
     }),
@@ -81,7 +81,7 @@ describe('ServerDropdown', () => {
     const wrapper = mount(ServerDropdown, {
       props: {
         ...defaultProps,
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           uid: 'server-1',
           url: 'https://scalar.com/',
         }),
@@ -116,7 +116,7 @@ describe('ServerDropdown', () => {
     const wrapper = mount(ServerDropdown, {
       props: {
         ...defaultProps,
-        operation: requestSchema.parse({
+        operation: ExtendedOperationSchema.parse({
           servers: ['server-1'],
         }),
       },
@@ -220,7 +220,7 @@ describe('ServerDropdown', () => {
       props: {
         ...defaultProps,
         layout: 'client',
-        server: serverSchema.parse({
+        server: ExtendedServerObjectSchema.parse({
           uid: 'server-1',
           url: 'https://scalar.com',
           variables: {

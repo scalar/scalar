@@ -1,11 +1,11 @@
-import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
+import { RequestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { createFetchBody } from './create-fetch-body'
 
 describe('createFetchBody', () => {
   it('should handle request method in lowercase', () => {
-    const example = requestExampleSchema.parse({
+    const example = RequestExampleSchema.parse({
       body: {
         activeBody: 'raw',
         raw: {

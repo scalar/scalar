@@ -1,10 +1,10 @@
 import type { StoreContext } from '@/store/store-context'
 import {
   type Collection,
+  ExtendedServerObjectSchema,
   type Request,
   type Server,
   type ServerPayload,
-  serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
@@ -35,7 +35,7 @@ export function extendedServerDataFactory({
    * If the collectionUid is included it is added to the collection as well
    */
   const addServer = (payload: ServerPayload, parentUid: string) => {
-    const server = serverSchema.parse(payload)
+    const server = ExtendedServerObjectSchema.parse(payload)
 
     // Add to collection
     if (collections[parentUid]) {
