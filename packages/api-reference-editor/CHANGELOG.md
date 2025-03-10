@@ -1,5 +1,19 @@
 # @scalar/api-reference-editor
 
+## 0.1.191
+
+### Patch Changes
+
+- 4d03e0f: feat: multiple documents
+- Updated dependencies [4d03e0f]
+- Updated dependencies [2bbbf01]
+  - @scalar/api-reference@1.26.1
+  - @scalar/api-client@2.2.61
+  - @scalar/types@0.0.40
+  - @scalar/oas-utils@0.2.115
+  - @scalar/use-codemirror@0.11.78
+  - @scalar/use-hooks@0.1.29
+
 ## 0.1.190
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.2.122
+
+### Patch Changes
+
+- 9d552b0: feat: use stricter Node tsconfig
+- Updated dependencies [0d8a24f]
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/oas-utils@0.2.115
+
 ## 0.2.121
 
 ### Patch Changes
