@@ -44,7 +44,8 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/core": "workspace:*"
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",

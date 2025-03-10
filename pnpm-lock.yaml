@@ -711,6 +711,9 @@ importers:
 
   integrations/nextjs:
     dependencies:
+      '@scalar/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types
