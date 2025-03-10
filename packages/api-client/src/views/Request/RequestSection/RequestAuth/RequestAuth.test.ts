@@ -49,6 +49,20 @@ vi.mock('@/store/store', () => ({
         password: 'pass',
         token: '123456',
       },
+      'client-id': {
+        uid: 'client-id',
+        type: 'apiKey',
+        nameKey: 'Client ID',
+        in: 'header',
+        value: 'client123',
+      },
+      'client-key': {
+        uid: 'client-key',
+        type: 'apiKey',
+        nameKey: 'Client Key',
+        in: 'header',
+        value: 'key456',
+      },
     },
     collectionMutators,
     requestMutators,
@@ -61,7 +75,7 @@ describe('RequestAuth.vue', () => {
     ({
       collection: collectionSchema.parse({
         uid: 'test-collection',
-        securitySchemes: ['bearer-auth', 'api-key-auth', 'basic-auth'],
+        securitySchemes: ['bearer-auth', 'api-key-auth', 'basic-auth', 'client-id', 'client-key'],
         security: [{ bearerAuth: [] }, { apiKeyAuth: [] }, { basicAuth: [] }],
       }),
       operation: requestSchema.parse({
@@ -140,5 +154,16 @@ describe('RequestAuth.vue', () => {
 
     expect(wrapper.text()).toContain('Multiple')
     expect(wrapper.text()).toContain('Bearer Token')
+  })
+
+  it('handles complex auth requirements with multiple keys', async () => {
+    const props = createBaseProps()
+    props.operation.security = [{ 'Client ID': [], 'Client Key': [] }, {}]
+
+    const wrapper = mount(RequestAuth, {
+      props,
+    })
+
+    expect(wrapper.text()).toContain('Client ID & Client Key Required')
   })
 })
