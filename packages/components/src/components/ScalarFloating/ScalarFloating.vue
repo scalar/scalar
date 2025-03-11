@@ -49,7 +49,7 @@ const targetRef = computed(() => {
     if (typeof target === 'string') {
       const t = document.getElementById(target)
       if (t) return t
-      else console.warn(`ScalarFloating: Target with id="${target}" not found`)
+      console.warn(`ScalarFloating: Target with id="${target}" not found`)
     }
     // If target is an HTMLElement, return it
     else if (target instanceof HTMLElement) return target
