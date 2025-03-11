@@ -28,7 +28,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(1)
-      expect(selectedConfiguration.value.spec).toEqual(multiConfig.configuration.value[1].spec)
+      expect(selectedConfiguration.value).toEqual(multiConfig.configuration.value[1])
     })
 
     it('should select document using slug from query parameter', () => {
@@ -45,7 +45,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(1)
-      expect(selectedConfiguration.value.spec).toEqual(multiConfig.configuration.value[1].spec)
+      expect(selectedConfiguration.value).toEqual(multiConfig.configuration.value[1])
     })
 
     it('should default to first API when query parameter is invalid', () => {
@@ -59,7 +59,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(0)
-      expect(selectedConfiguration.value.spec).toEqual(multiConfig.configuration.value[0].spec)
+      expect(selectedConfiguration.value).toEqual(multiConfig.configuration.value[0])
     })
 
     it('omits sources without url and content', () => {
@@ -86,7 +86,7 @@ describe('useMultipleDocuments', () => {
 
       expect(replaceStateSpy).toHaveBeenCalledWith({}, '', 'http://example.com/?api=first-api')
       expect(selectedDocumentIndex.value).toBe(0)
-      expect(selectedConfiguration.value.spec).toEqual(multiConfig.configuration.value[0].spec)
+      expect(selectedConfiguration.value).toEqual(multiConfig.configuration.value[0])
     })
 
     it('should not update URL when there is only one document', () => {
@@ -109,7 +109,7 @@ describe('useMultipleDocuments', () => {
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(singleConfig)
 
       expect(availableDocuments.value).toHaveLength(1)
-      expect(selectedConfiguration.value.spec).toEqual(singleConfig.configuration.value.spec)
+      expect(selectedConfiguration.value).toEqual(singleConfig.configuration.value)
     })
 
     it('should handle undefined configuration', () => {
@@ -171,7 +171,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(1)
-      expect(selectedConfiguration.value.spec).toEqual({
+      expect(selectedConfiguration.value).toEqual({
         url: '/openapi-2.yaml',
         slug: 'second-api',
       })
@@ -201,7 +201,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(1)
-      expect(selectedConfiguration.value.spec).toEqual({
+      expect(selectedConfiguration.value).toEqual({
         url: '/openapi-2.yaml',
         slug: 'second-api',
       })
@@ -231,7 +231,7 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(0)
-      expect(selectedConfiguration.value.spec).toEqual({
+      expect(selectedConfiguration.value).toEqual({
         url: '/openapi-1.yaml',
         slug: 'first-api',
       })

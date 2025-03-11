@@ -131,8 +131,8 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
   try {
     const configString = decodeHtmlEntities(match[1])
     const config = JSON.parse(configString)
-    if (config.spec?.content) {
-      return config.spec.content
+    if (config.content) {
+      return config.content
     }
   } catch (error) {
     console.error('[@scalar/import] Failed to parse embedded OpenAPI document:', error)

@@ -75,8 +75,8 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
 
     // Map the sources down to an array of specs
     const sources = isConfigurationWithSources(configuration.value)
-      ? (configuration.value.spec?.sources ?? [])
-      : [configuration.value].flat().map((config) => config.spec)
+      ? (configuration.value?.sources ?? [])
+      : [configuration.value].flat().map((config) => config)
 
     // Process them
     return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
@@ -149,7 +149,7 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
       return apiReferenceConfigurationSchema.parse({
         ...configuration.value,
-        spec: configuration.value.spec?.sources[selectedDocumentIndex.value],
+        spec: configuration.value?.sources?.[selectedDocumentIndex.value],
       })
     }
 

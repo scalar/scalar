@@ -289,13 +289,13 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
     const config = JSON.parse(decodeHtmlEntities(configString))
 
     // Handle both direct JSON content and YAML content
-    if (config.spec?.content) {
+    if (config.content) {
       // If content is a string, assume it's YAML
-      if (typeof config.spec.content === 'string') {
-        return parse(config.spec.content)
+      if (typeof config.content === 'string') {
+        return parse(config.content)
       }
       // If content is an object, return it directly
-      return config.spec.content
+      return config.content
     }
   } catch (error) {
     console.error('[@scalar/import] Failed to parse embedded OpenAPI document:', error)

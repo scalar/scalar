@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import type { TargetId } from '../snippetz/index.ts'
 import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
+import type { TargetId } from '../snippetz/index.ts'
 
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
@@ -78,13 +78,88 @@ const integrationEnum = z
 
 /** Configuration for the OpenAPI/Swagger specification */
 export const specConfigurationSchema = z.object({
-  /** URL to an OpenAPI/Swagger document */
+  /**
+   * URL to an OpenAPI/Swagger document
+   *
+   * @deprecated Please move `url` to the top level and remove the `spec` prefix.
+   *
+   * @example
+   * ```ts
+   * const oldConfiguration = {
+   *   spec: {
+   *     url: 'https://example.com/openapi.json',
+   *   },
+   * }
+   *
+   * const newConfiguration = {
+   *   url: 'https://example.com/openapi.json',
+   * }
+   * ```
+   **/
   url: z.string().optional(),
   /**
    * Directly embed the OpenAPI document.
    * Can be a string, object, function returning an object, or null.
+   *
    * @remarks It's recommended to pass a URL instead of content.
+   *
+   * @deprecated Please move `content` to the top level and remove the `spec` prefix.
+   *
+   * @example
+   * ```ts
+   * const oldConfiguration = {
+   *   spec: {
+   *     content: '…',
+   *   },
+   * }
+   *
+   * const newConfiguration = {
+   *   content: '…',
+   * }
+   * ```
+   **/
+  content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
+  /**
+   * The title of the OpenAPI document.
+   *
+   * @example 'Scalar Galaxy'
+   *
+   * @deprecated Please move `title` to the top level and remove the `spec` prefix.
    */
+  title: z.string().optional(),
+  /**
+   * The slug of the OpenAPI document used in the URL.
+   *
+   * If none is passed, the title will be used.
+   *
+   * If no title is used, it’ll just use the index.
+   *
+   * @example 'scalar-galaxy'
+   *
+   * @deprecated Please move `slug` to the top level and remove the `spec` prefix.
+   */
+  slug: z.string().optional(),
+})
+export type SpecConfiguration = z.infer<typeof specConfigurationSchema>
+
+/** Configuration for path-based routing */
+const pathRoutingSchema = z.object({
+  /** Base path for the API reference */
+  basePath: z.string(),
+})
+
+/** Configuration for the Api Client */
+export const apiClientConfigurationSchema = z.object({
+  /**
+   * URL to an OpenAPI/Swagger document
+   **/
+  url: z.string().optional(),
+  /**
+   * Directly embed the OpenAPI document.
+   * Can be a string, object, function returning an object, or null.
+   *
+   * @remarks It’s recommended to pass a URL instead of content.
+   **/
   content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
   /**
    * The title of the OpenAPI document.
@@ -102,17 +177,12 @@ export const specConfigurationSchema = z.object({
    * @example 'scalar-galaxy'
    */
   slug: z.string().optional(),
-})
-export type SpecConfiguration = z.infer<typeof specConfigurationSchema>
-
-/** Configuration for path-based routing */
-const pathRoutingSchema = z.object({
-  /** Base path for the API reference */
-  basePath: z.string(),
-})
-
-/** Configuration for the Api Client */
-export const apiClientConfigurationSchema = z.object({
+  /**
+   * The OpenAPI/Swagger document to render
+   *
+   * @deprecated Use `url` and `content` on the top level instead.
+   **/
+  spec: specConfigurationSchema.optional(),
   /** Prefill authentication */
   authentication: z.any().optional(), // Temp until we bring in the new auth
   /** Base URL for the API server */
@@ -133,8 +203,6 @@ export const apiClientConfigurationSchema = z.object({
    * @default true
    */
   showSidebar: z.boolean().optional().default(true).catch(true),
-  /** The Swagger/OpenAPI spec to render */
-  spec: specConfigurationSchema.optional(),
   /** A string to use one of the color presets */
   theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */
@@ -346,9 +414,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
 /** Configuration for the Api Reference with sources before transforming */
 const _apiReferenceConfigurationWithSourcesSchema = _apiReferenceConfigurationSchema.merge(
   z.object({
-    spec: z.object({
-      sources: z.array(specConfigurationSchema),
-    }),
+    sources: z.array(specConfigurationSchema),
   }),
 )
 
@@ -359,6 +425,25 @@ const migrateConfiguration = <
   _configuration: T,
 ): T => {
   const configuration = { ..._configuration }
+
+  // Remove the spec prefix
+  if (configuration.spec?.url) {
+    console.warn(
+      `[DEPRECATED] You’re using the deprecated 'spec.url' attribute. Remove the spec prefix and move the 'url' attribute to the top level.`,
+    )
+
+    configuration.url = configuration.spec.url
+    delete configuration.spec
+  }
+
+  if (configuration.spec?.content) {
+    console.warn(
+      `[DEPRECATED] You’re using the deprecated 'spec.content' attribute. Remove the spec prefix and move the 'content' attribute to the top level.`,
+    )
+
+    configuration.content = configuration.spec.content
+    delete configuration.spec
+  }
 
   // Migrate legacy theme variables
   if (configuration.customCss) {
@@ -398,7 +483,7 @@ export const apiReferenceConfigurationSchema = _apiReferenceConfigurationSchema.
 export type ApiReferenceConfiguration = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
-  'proxy'
+  'proxy' | 'spec'
 >
 
 /** Props for the ApiReference components, coming from user input */
@@ -406,7 +491,8 @@ export const apiReferenceConfigurationWithSourcesSchema =
   _apiReferenceConfigurationWithSourcesSchema.transform(migrateConfiguration)
 export type ApiReferenceConfigurationWithSources = Omit<
   z.infer<typeof apiReferenceConfigurationWithSourcesSchema>,
-  'proxy'
+  // Remove deprecated attributes
+  'proxy' | 'spec'
 >
 
 /** Configuration for multiple Api References */
@@ -419,4 +505,4 @@ export type MultiReferenceConfiguration =
 export const isConfigurationWithSources = (
   config: MultiReferenceConfiguration,
 ): config is Partial<ApiReferenceConfigurationWithSources> =>
-  Boolean(!Array.isArray(config) && config.spec && 'sources' in config.spec && Array.isArray(config.spec.sources))
+  Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))

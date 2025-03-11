@@ -58,20 +58,20 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
             )
           } else {
             // Execute content function if it exists
-            if (typeof config.spec?.content === 'function') {
-              config.spec.content = config.spec.content()
+            if (typeof config?.content === 'function') {
+              config.content = config.content()
             }
 
             // Convert the document to a string
-            const documentString = config?.spec?.content
-              ? typeof config?.spec?.content === 'string'
-                ? config.spec.content
-                : JSON.stringify(config.spec.content)
+            const documentString = config?.content
+              ? typeof config?.content === 'string'
+                ? config.content
+                : JSON.stringify(config.content)
               : ''
 
             // Delete content from configuration
-            if (config?.spec?.content) {
-              delete config.spec.content
+            if (config?.content) {
+              delete config.content
             }
 
             // Convert the configuration to a string
