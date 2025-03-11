@@ -15,7 +15,7 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
     triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 group-[.alert]:before:to-b-alert group-[.error]:before:to-b-danger before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
     <template #trigger>
       <div
-        class="bg-b-1 mr-0.25 pl-1 pr-1.5 group-[.alert]:bg-transparent group-[.error]:bg-transparent">
+        class="bg-b-1 mr-0.25 pr-1.5 pl-1 group-[.alert]:bg-transparent group-[.error]:bg-transparent">
         <ScalarIcon
           :class="
             parameterIsInvalid(item).value
@@ -36,7 +36,13 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
           {{ parameterIsInvalid(item).value }}
         </div>
         <div
-          v-else
+          v-else-if="
+            item.type ||
+            item.format ||
+            item.minimum ||
+            item.maximum ||
+            item.default
+          "
           class="schema text-c-2 flex items-center">
           <span v-if="item.type">{{ item.type }}</span>
           <span v-if="item.format">{{ item.format }}</span>
@@ -46,7 +52,7 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
         </div>
         <span
           v-if="item.description && !parameterIsInvalid(item).value"
-          class="text-pretty text-sm leading-snug"
+          class="text-sm leading-snug text-pretty"
           :style="{ maxWidth: '16rem' }"
           >{{ item.description }}</span
         >
