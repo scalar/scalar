@@ -69,7 +69,7 @@ body.sb-show-main,
   display: none;
 }
 
-:where(#storybook-root) .placeholder {
+:where(#storybook-root .placeholder) {
   display: flex;
   align-items: center;
   justify-content: center;

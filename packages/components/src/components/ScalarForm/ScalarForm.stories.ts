@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScalarForm from './ScalarForm.vue'
 import { ScalarButton } from '../ScalarButton'
+import ScalarFormSection from './ScalarFormSection.vue'
+import ScalarFormField from './ScalarFormField.vue'
 
 const meta: Meta = {
   component: ScalarForm,
@@ -30,3 +32,27 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const WithSections: Story = {
+  render: (args) => ({
+    components: { ScalarForm, ScalarFormSection, ScalarFormField },
+    setup() {
+      return { args }
+    },
+    template: `
+      <ScalarForm v-bind="args">
+        <ScalarFormSection>
+          <template #label>Section Label</template>
+          <ScalarFormField>
+            <template #label>Input Label</template>
+            <div class="placeholder border outline-none rounded">Input goes here</div>
+          </ScalarFormField>
+          <ScalarFormField>
+            <template #label>Input Label</template>
+            <div class="placeholder border outline-none rounded">Input goes here</div>
+          </ScalarFormField>
+        </ScalarFormSection>
+      </ScalarForm>
+    `,
+  }),
+}
