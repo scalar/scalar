@@ -7,6 +7,7 @@ import { computed, ref } from 'vue'
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
+import RequestTableTooltip from '@/views/Request/RequestSection/RequestTableTooltip.vue'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -28,6 +29,7 @@ const props = withDefaults(
     environment: Environment
     envVariables: EnvVariable[]
     workspace: Workspace
+    description?: string | undefined
   }>(),
   { canAddCustomEnumValue: true, required: false, readOnly: false },
 )
@@ -90,7 +92,7 @@ const handleLabelClick = () => {
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
-          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-2"
+          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-1"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
@@ -107,7 +109,11 @@ const handleLabelClick = () => {
           ref="codeInput"
           v-bind="$attrs"
           :id="id"
-          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none"
+          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none -outline-offset-1"
+          :class="[
+            type === 'password' && description && 'pr-12',
+            description && 'pr-8',
+          ]"
           disableCloseBrackets
           disableTabIndent
           :envVariables="envVariables"
@@ -120,13 +126,23 @@ const handleLabelClick = () => {
           spellcheck="false"
           :type="inputType"
           :workspace="workspace"
+          :description="description"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
-          v-if="required"
-          class="scalar-input-required centered-y text-xxs text-c-3 bg-b-1 absolute right-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[:focus-visible]:opacity-0">
-          Required
+          v-if="description"
+          class="centered-y text-xxs text-c-3 bg-b-1 absolute right-0 h-full opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)]">
+          <RequestTableTooltip
+            v-if="description"
+            class=""
+            :item="{
+              description: description,
+              required: required,
+              value: '',
+              key: '',
+              enabled: true,
+            }" />
         </div>
       </template>
     </div>
@@ -138,7 +154,8 @@ const handleLabelClick = () => {
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="-ml-.5 mr-0.75 h-6 w-6 self-center p-1.5"
+      class="centered-y text-xxs text-c-3 bg-b-1 right-0.75 p-1.25 absolute h-6 w-6 shadow-[-8px_0_4px_var(--scalar-background-1)]"
+      :class="description && 'right-6'"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

@@ -110,6 +110,7 @@ const dataTableInputProps = {
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
         v-bind="dataTableInputProps"
+        containerClass="border-r-0"
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="
