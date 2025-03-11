@@ -34,7 +34,7 @@ if (configuration.metaData) {
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.proxyUrl || ''),
-  specConfig: toRef(() => configuration.spec || {}),
+  specConfig: toRef(() => configuration || {}),
 })
 
 // TODO: defineSlots

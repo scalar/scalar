@@ -20,8 +20,8 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref([
-          { spec: { url: '/openapi.json', slug: 'first-api' } },
-          { spec: { url: '/openapi-2.yaml', slug: 'second-api' } },
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
       }
 
@@ -37,8 +37,8 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref([
-          { spec: { url: '/openapi.json', slug: 'first-api' } },
-          { spec: { url: '/openapi-2.yaml', slug: 'second-api' } },
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
       }
 
@@ -53,7 +53,10 @@ describe('useMultipleDocuments', () => {
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
       const multiConfig = {
-        configuration: ref([{ spec: { slug: 'first-api' } }, { spec: { slug: 'second-api' } }]),
+        configuration: ref([
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api' },
+        ]),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
@@ -64,7 +67,7 @@ describe('useMultipleDocuments', () => {
 
     it('omits sources without url and content', () => {
       const multiConfig = {
-        configuration: ref({ spec: { sources: [{}] } }),
+        configuration: ref({ sources: [{}] }),
       }
 
       const { availableDocuments } = useMultipleDocuments(multiConfig)
@@ -77,8 +80,8 @@ describe('useMultipleDocuments', () => {
     it.todo('should update URL when initializing with a selection', () => {
       const multiConfig = {
         configuration: ref([
-          { spec: { url: '/openapi.json', slug: 'first-api' } },
-          { spec: { url: '/openapi-2.yaml', slug: 'second-api' } },
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
       }
 
@@ -91,7 +94,7 @@ describe('useMultipleDocuments', () => {
 
     it('should not update URL when there is only one document', () => {
       const singleConfig = {
-        configuration: ref([{ spec: { url: '/openapi.json', slug: 'single-api' } }]),
+        configuration: ref([{ url: '/openapi.json', slug: 'single-api' }]),
       }
 
       useMultipleDocuments(singleConfig)
@@ -103,7 +106,7 @@ describe('useMultipleDocuments', () => {
   describe('edge cases', () => {
     it('should handle single API configuration', () => {
       const singleConfig = {
-        configuration: ref({ spec: { url: '/openapi.json', slug: 'single-api' } }),
+        configuration: ref({ url: '/openapi.json', slug: 'single-api' }),
       }
 
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(singleConfig)
@@ -137,7 +140,7 @@ describe('useMultipleDocuments', () => {
 
     it('should filter out APIs with undefined sources/url/content', () => {
       const configWithUndefinedSpec = {
-        configuration: ref([{ spec: undefined }, { spec: { slug: 'valid-api' } }]),
+        configuration: ref([{ url: undefined }, { url: '/openapi-2.yaml', slug: 'valid-api' }]),
       }
 
       const { availableDocuments } = useMultipleDocuments(configWithUndefinedSpec)
@@ -153,18 +156,16 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                slug: 'first-api',
-              },
-              {
-                url: '/openapi-2.yaml',
-                slug: 'second-api',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              slug: 'first-api',
+            },
+            {
+              url: '/openapi-2.yaml',
+              slug: 'second-a pi',
+            },
+          ],
         }),
       }
 
@@ -183,18 +184,16 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                slug: 'first-api',
-              },
-              {
-                url: '/openapi-2.yaml',
-                slug: 'second-api',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              slug: 'first-api',
+            },
+            {
+              url: '/openapi-2.yaml',
+              slug: 'second-api',
+            },
+          ],
         }),
       }
 
@@ -213,18 +212,16 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                slug: 'first-api',
-              },
-              {
-                url: '/openapi-2.yaml',
-                slug: 'second-api',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              slug: 'first-api',
+            },
+            {
+              url: '/openapi-2.yaml',
+              slug: 'second-api',
+            },
+          ],
         }),
       }
 
@@ -244,18 +241,16 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                slug: 'first-api',
-              },
-              {
-                url: '/openapi-2.yaml',
-                slug: 'second-api',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              slug: 'first-api',
+            },
+            {
+              url: '/openapi-2.yaml',
+              slug: 'second-api',
+            },
+          ],
         }),
       }
 
@@ -269,15 +264,13 @@ describe('useMultipleDocuments', () => {
     it('should filter out undefined sources', () => {
       const configWithUndefinedSource = {
         configuration: ref({
-          spec: {
-            sources: [
-              undefined,
-              {
-                url: '/openapi.yaml',
-                slug: 'valid-api',
-              },
-            ],
-          },
+          sources: [
+            undefined,
+            {
+              url: '/openapi.yaml',
+              slug: 'valid-api',
+            },
+          ],
         }),
       }
 
@@ -293,14 +286,12 @@ describe('useMultipleDocuments', () => {
     it('should generate slug from title if only title exists', () => {
       const config = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                title: 'My Cool API',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              title: 'My Cool API',
+            },
+          ],
         }),
       }
 
@@ -315,14 +306,12 @@ describe('useMultipleDocuments', () => {
     it('should use slug as title if only slug exists', () => {
       const config = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                slug: 'my-api',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              slug: 'my-api',
+            },
+          ],
         }),
       }
 
@@ -337,16 +326,14 @@ describe('useMultipleDocuments', () => {
     it('should generate both title and slug from index if neither exists', () => {
       const config = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-              },
-              {
-                url: '/openapi-2.yaml',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+            },
+            {
+              url: '/openapi-2.yaml',
+            },
+          ],
         }),
       }
 
@@ -365,15 +352,13 @@ describe('useMultipleDocuments', () => {
     it('should preserve existing slug when title is present', () => {
       const config = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                title: 'My Cool API',
-                slug: 'custom-slug',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              title: 'My Cool API',
+              slug: 'custom-slug',
+            },
+          ],
         }),
       }
 
@@ -393,18 +378,16 @@ describe('useMultipleDocuments', () => {
 
       const multiConfig = {
         configuration: ref({
-          spec: {
-            sources: [
-              {
-                url: '/openapi-1.yaml',
-                title: 'First API',
-              },
-              {
-                url: '/openapi-2.yaml',
-                title: 'Second API',
-              },
-            ],
-          },
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              title: 'First API',
+            },
+            {
+              url: '/openapi-2.yaml',
+              title: 'Second API',
+            },
+          ],
         }),
       }
 

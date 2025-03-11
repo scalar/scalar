@@ -149,7 +149,7 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
       return apiReferenceConfigurationSchema.parse({
         ...configuration.value,
-        spec: configuration.value?.sources?.[selectedDocumentIndex.value],
+        ...configuration.value?.sources?.[selectedDocumentIndex.value],
       })
     }
 

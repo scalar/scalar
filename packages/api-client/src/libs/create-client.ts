@@ -10,8 +10,8 @@ import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { OpenAPI } from '@scalar/types/legacy'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { OpenAPI } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -144,7 +144,7 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || !configuration.spec) {
+  else if (!isReadOnly || (!configuration.url && !configuration.content)) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],
