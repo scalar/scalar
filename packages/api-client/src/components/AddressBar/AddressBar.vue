@@ -109,7 +109,6 @@ events.requestStatus.on((status) => {
 
 /** Focus the address bar (or the send button if in modal layout) */
 events.focusAddressBar.on(() => {
-  console.log('focusAddressBar', sendButtonRef.value, addressBarRef.value)
   if (layout === 'modal') sendButtonRef.value?.$el?.focus()
   else addressBarRef.value?.focus()
 })
