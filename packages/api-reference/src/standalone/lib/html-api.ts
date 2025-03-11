@@ -167,6 +167,11 @@ interface ApiReferenceApp extends App<Element> {
 
 /**
  * Create and mount a new Scalar API Reference
+ *
+ * @example createApiReference('#api-reference', { spec: { url: '/scalar.json' } })
+ * @example createApiReference(document.body, { spec: { url: '/scalar.json' } })
+ * @example createApiReference({ spec: { url: '/scalar.json' } })
+ *
  */
 export function createApiReference(
   elementOrSelectorOrConfig: Element | string | Partial<ApiReferenceConfiguration>,

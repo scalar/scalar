@@ -5,7 +5,12 @@ import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
 
-/** Initialize Scalar References */
+/**
+ * Initialize Scalar References
+ *
+ * @deprecated please import { createApiReference } from '@scalar/api-reference/standalone' instead
+ * this function will be removed at a later date
+ */
 export function createScalarReferences(
   /** Element to mount the references to */
   el: HTMLElement | null,
@@ -17,6 +22,9 @@ export function createScalarReferences(
    */
   mountOnInitialize = true,
 ) {
+  console.warn(
+    'createScalarReferences is deprecated. Please import { createApiReference } from @scalar/api-reference/standalone instead.',
+  )
   const configuration = reactive(initialConfig)
   const app = createApp(ApiReference, { configuration })
 
