@@ -172,7 +172,7 @@ type ApiReferenceInstance = {
 }
 
 /** Function overload for createApiReference to allow multiple different signatures */
-type CreateApiReference = {
+export type CreateApiReference = {
   /** Pass in the configuration only */
   (configuration: Partial<ApiReferenceConfiguration>): ApiReferenceInstance
   /** Pass in the element or selector and configuration */

@@ -9,6 +9,6 @@ describe('registerGlobals', () => {
 
     expect(window.Scalar).toBeDefined()
     expect(window.Scalar.createApiReference).toStrictEqual(createApiReference)
-    expect(window.Scalar.createApiReference('#something')).toBeDefined()
+    expect(window.Scalar.createApiReference('#something', {})).toBeDefined()
   })
 })

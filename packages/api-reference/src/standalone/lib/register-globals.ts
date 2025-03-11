@@ -1,10 +1,10 @@
-import { createApiReference } from '@/standalone/lib/html-api'
+import { createApiReference, type CreateApiReference } from '@/standalone/lib/html-api'
 
 // Register the createApiReference function in the global Scalar object (new)
 declare global {
   interface Window {
     Scalar: {
-      createApiReference: typeof createApiReference
+      createApiReference: CreateApiReference
     }
   }
 }
