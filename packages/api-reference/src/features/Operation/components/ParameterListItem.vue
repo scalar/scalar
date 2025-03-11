@@ -60,11 +60,11 @@ const shouldShowParameter = computed(() => {
 <template>
   <li
     v-if="shouldShowParameter"
-    class="parameter-item">
+    class="parameter-item group/parameter-item relative">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
-        class="parameter-item-trigger group/parameter-item-trigger flex"
+        class="parameter-item-trigger flex"
         :class="{ 'parameter-item-trigger-open': open }">
         <ScalarIcon
           class="parameter-item-icon"
@@ -79,17 +79,6 @@ const shouldShowParameter = computed(() => {
             class="markdown"
             :value="parameter.description" />
         </span>
-        <div
-          class="absolute right-0 top-2.5 opacity-0 group-focus-within/parameter-item-trigger:opacity-100 group-hover/parameter-item-trigger:opacity-100">
-          <ContentTypeSelect
-            v-if="shouldCollapse && props.parameter.content"
-            class="parameter-item-content-type"
-            :defaultValue="selectedContentType"
-            :requestBody="props.parameter"
-            @selectContentType="
-              ({ contentType }) => (selectedContentType = contentType)
-            " />
-        </div>
       </DisclosureButton>
       <DisclosurePanel
         class="parameter-item-container parameter-item-container-markdown"
@@ -111,6 +100,17 @@ const shouldShowParameter = computed(() => {
           :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
+    <div
+      class="absolute right-0 top-2.5 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
+      <ContentTypeSelect
+        v-if="shouldCollapse && props.parameter.content"
+        class="parameter-item-content-type"
+        :defaultValue="selectedContentType"
+        :requestBody="props.parameter"
+        @selectContentType="
+          ({ contentType }) => (selectedContentType = contentType)
+        " />
+    </div>
   </li>
 </template>
 
