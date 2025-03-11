@@ -5,9 +5,21 @@ import {
   getConfigurationFromDataAttributes,
 } from '@/standalone/lib/html-api'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('html-api', () => {
+  beforeEach(() => {
+    global.document = createHtmlDocument(`
+      <html>
+        <body>
+          <div id="mount-point"></div>
+        </body>
+      </html>
+    `)
+  })
+
+  const consoleWarnSpy = vi.spyOn(console, 'warn')
+
   // Since we use zod now we have a base config
   const baseConfig = apiReferenceConfigurationSchema.parse({
     _integration: 'html',
@@ -15,135 +27,86 @@ describe('html-api', () => {
 
   describe('createContainer', () => {
     it('creates a container element', () => {
-      const doc = createHtmlDocument(`
-      <html>
-        <body>
-          <script id="api-reference" data-url="/openapi.json"></script>
-        </body>
-      </html>
-    `)
-
-      expect(createContainer(doc)).toBeDefined()
+      expect(createContainer(document)).toBeDefined()
     })
   })
 
   describe('createApiReference', () => {
     it('creates and mounts the API reference component', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
+      const element = document.querySelector('#mount-point')
+      expect(element).toBeInstanceOf(HTMLElement)
 
-      const element = doc.querySelector('#mount-point')
       const config = { _integration: 'html' }
+      const apiReference = createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
 
-      const app = createApiReference(element!, apiReferenceConfigurationSchema.parse(config), doc)
-      expect(app).toBeDefined()
+      expect(apiReference.app.mount).toBeDefined()
+      expect(apiReference.updateConfiguration).toBeDefined()
+      expect(element?.innerHTML).toContain('Powered by Scalar')
     })
 
     it('handles string selectors for mounting', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
       const config = { _integration: 'html' }
+      const apiReference = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
-      const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config), doc)
-      expect(app).toBeDefined()
+      expect(apiReference.app.mount).toBeDefined()
+      expect(apiReference.updateConfiguration).toBeDefined()
+      expect(document.getElementById('mount-point')?.innerHTML).toContain('Powered by Scalar')
     })
 
     it('handles scalar:reload-references event', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
-      const element = doc.querySelector('#mount-point')
+      const element = document.querySelector('#mount-point')
       const config = { _integration: 'html' }
 
-      createApiReference(element!, apiReferenceConfigurationSchema.parse(config), doc)
+      createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
+      document.dispatchEvent(new Event('scalar:reload-references'))
 
-      doc.dispatchEvent(new Event('scalar:reload-references'))
-      // Assert the component was reloaded
+      expect(consoleWarnSpy).toHaveBeenCalledOnce()
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'scalar:reload-references event has been deprecated, please use the window.Scalar.app.mount method instead',
+      )
     })
 
     it('handles scalar:destroy-references event', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
-      const element = doc.querySelector('#mount-point')
+      const element = document.querySelector('#mount-point')
       const config = { _integration: 'html' }
 
-      createApiReference(element!, apiReferenceConfigurationSchema.parse(config), doc)
+      createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
 
-      doc.dispatchEvent(new Event('scalar:destroy-references'))
-      // Assert the component was destroyed
+      document.dispatchEvent(new Event('scalar:destroy-references'))
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'scalar:destroy-references event has been deprecated, please use window.Scalar.destroy instead',
+      )
     })
 
     it('handles scalar:update-references-config event', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
-      const element = doc.querySelector('#mount-point')
+      const element = document.querySelector('#mount-point')
       const config = { _integration: 'html' }
 
-      createApiReference(element!, apiReferenceConfigurationSchema.parse(config), doc)
+      createApiReference(element!, apiReferenceConfigurationSchema.parse(config))
 
       const updateEvent = new CustomEvent('scalar:update-references-config', {
         detail: { configuration: { darkMode: true } },
       })
-      doc.dispatchEvent(updateEvent)
-      // Assert the configuration was updated
+      document.dispatchEvent(updateEvent)
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'scalar:update-references-config event has been deprecated, please use window.Scalar.updateConfiguration instead',
+      )
     })
 
     it('allows mounting after creation', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
       const config = { _integration: 'html' }
-      const app = createApiReference(apiReferenceConfigurationSchema.parse(config), doc)
+      const app = createApiReference(apiReferenceConfigurationSchema.parse(config))
 
       // Mount after creation
-      app.mount('#mount-point')
+      app.app.mount('#mount-point')
       expect(app).toBeDefined()
+      expect(document.getElementById('mount-point')?.innerHTML).toContain('Powered by Scalar')
     })
 
     it('allows updating configuration after creation', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
       const config = { _integration: 'html' }
-      const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config), doc)
+      const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
       // Update configuration after creation
       const newConfig = {
@@ -157,6 +120,7 @@ describe('html-api', () => {
 
       // Assert the configuration was updated
       expect(app.getConfiguration()).toMatchObject(newConfig)
+      expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
     })
   })
 

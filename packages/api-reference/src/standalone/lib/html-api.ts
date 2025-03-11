@@ -138,7 +138,7 @@ export function findDataAttributes(doc: Document, configuration: ApiReferenceCon
   const container = createContainer(doc, specElement || specUrlElement)
 
   if (container) {
-    createApiReference(container, configuration, doc)
+    createApiReference(container, configuration)
   }
 }
 
@@ -160,108 +160,141 @@ export const createContainer = (doc: Document, element?: Element | null) => {
 }
 
 // Add a type for our enhanced app
-interface ApiReferenceApp extends App<Element> {
-  updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => void
+type ApiReferenceInstance = {
+  /** The vue app instance */
+  app: App<Element>
+  /** Destroy the current API Reference instance */
+  destroy: () => void
+  /** Get the current configuration */
   getConfiguration: () => Partial<ApiReferenceConfiguration>
+  /** Update the configuration */
+  updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => void
+}
+
+/** Function overload for createApiReference to allow multiple different signatures */
+type CreateApiReference = {
+  /** Pass in the configuration only */
+  (configuration: Partial<ApiReferenceConfiguration>): ApiReferenceInstance
+  /** Pass in the element or selector and configuration */
+  (elementOrSelector: Element | string, configuration: Partial<ApiReferenceConfiguration>): ApiReferenceInstance
 }
 
 /**
  * Create and mount a new Scalar API Reference
  *
+ * @example createApiReference({ spec: { url: '/scalar.json' } })
  * @example createApiReference('#api-reference', { spec: { url: '/scalar.json' } })
  * @example createApiReference(document.body, { spec: { url: '/scalar.json' } })
- * @example createApiReference({ spec: { url: '/scalar.json' } })
  *
  */
-export function createApiReference(
-  elementOrSelectorOrConfig: Element | string | Partial<ApiReferenceConfiguration>,
-  maybeConfiguration?: Partial<ApiReferenceConfiguration> | Document,
-  givenDocument?: Document,
-): ApiReferenceApp {
-  const doc = givenDocument || (maybeConfiguration instanceof Document ? maybeConfiguration : document)
-  const isConfigOnly = !maybeConfiguration || maybeConfiguration instanceof Document
-  const configuration = isConfigOnly
-    ? (elementOrSelectorOrConfig as Partial<ApiReferenceConfiguration>)
-    : (maybeConfiguration as Partial<ApiReferenceConfiguration>)
-  let elementOrSelector = isConfigOnly ? undefined : (elementOrSelectorOrConfig as Element | string)
-
+export const createApiReference: CreateApiReference = (
+  elementOrSelectorOrConfig,
+  optionalConfiguration?: Partial<ApiReferenceConfiguration>,
+) => {
   const props = reactive<ReferenceProps>({
-    configuration,
+    // Either the configuration will be the second arugment or it MUST be the first (configuration only)
+    configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as Partial<ApiReferenceConfiguration>) ?? {},
   })
 
   // Create a new Vue app instance
-  let instance = createApp(() => h(ApiReference, props))
-
-  // Add the update and get methods directly to the instance
-  const enhancedInstance = instance as ApiReferenceApp
-  enhancedInstance.updateConfiguration = (newConfig: Partial<ApiReferenceConfiguration>) => {
-    Object.assign(props.configuration ?? {}, newConfig)
-  }
-  enhancedInstance.getConfiguration = () => (props.configuration ?? {}) as Partial<ApiReferenceConfiguration>
+  let app = createApp(() => h(ApiReference, props))
 
   // Meta tags, etc.
-  instance.use(createHead())
+  app.use(createHead())
 
-  // If elementOrSelector is provided, mount immediately
-  if (elementOrSelector) {
+  // If we have an optional config, then we must mount the element immediately (not sure why type is not narrowing)
+  if (optionalConfiguration) {
     // If the element is a string, we need to find the actual DOM element
-    const element = typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
+    const element =
+      typeof elementOrSelectorOrConfig === 'string'
+        ? document.querySelector(elementOrSelectorOrConfig)
+        : (elementOrSelectorOrConfig as Element)
 
     if (element) {
-      instance.mount(element)
+      app.mount(element)
     } else {
-      console.error('Could not find a mount point for API References:', elementOrSelector)
+      console.error('Could not find a mount point for API References:', elementOrSelectorOrConfig)
     }
   }
 
-  // Bind events
-  doc.addEventListener(
+  /**
+   * Reload the API Reference
+   * @deprecated
+   */
+  document.addEventListener(
     'scalar:reload-references',
     () => {
-      // Check if element has been removed from dom, and re-add
-      const currentElement =
-        typeof elementOrSelector === 'string' ? doc.querySelector(elementOrSelector) : elementOrSelector
-      if (currentElement && !doc.body.contains(currentElement)) {
-        const container = createContainer(doc)
-
-        if (container) {
-          elementOrSelector = container
-        }
-      }
-
-      instance.unmount()
-
-      if (!elementOrSelector) {
+      console.warn(
+        'scalar:reload-references event has been deprecated, please use the window.Scalar.app.mount method instead',
+      )
+      if (!props.configuration) {
         return
       }
 
-      instance = createApiReference(
-        elementOrSelector,
-        props.configuration as Partial<ApiReferenceConfiguration>,
-        doc,
-      ) as App<Element>
+      // Snag the current element
+      const currentElement =
+        typeof elementOrSelectorOrConfig === 'string'
+          ? document.querySelector(elementOrSelectorOrConfig)
+          : (elementOrSelectorOrConfig as Element)
+
+      if (!currentElement) {
+        return
+      }
+
+      // Ensure we re-attach the element if it was unmounted
+      if (currentElement && !document.body.contains(currentElement)) {
+        document.body.appendChild(currentElement)
+      }
+
+      // Create a new Vue app instance
+      app.unmount()
+      app = createApp(() => h(ApiReference, props))
+      app.use(createHead())
+      app.mount(currentElement)
     },
     false,
   )
 
-  // Allow user to destroy the vue app
-  doc.addEventListener(
+  /** Destroy the current API Reference instance */
+  const destroy = () => {
+    delete props['configuration']
+    app.unmount()
+  }
+
+  /**
+   * Allow user to destroy the API Reference
+   * @deprecated
+   */
+  document.addEventListener(
     'scalar:destroy-references',
     () => {
-      delete props['configuration']
-      instance.unmount()
+      console.warn('scalar:destroy-references event has been deprecated, please use window.Scalar.destroy instead')
+      destroy()
     },
     false,
   )
 
-  // Allow user to update configuration
-  doc.addEventListener(
+  /**
+   * Allow user to update configuration
+   * @deprecated
+   */
+  document.addEventListener(
     'scalar:update-references-config',
     (ev) => {
+      console.warn(
+        'scalar:update-references-config event has been deprecated, please use window.Scalar.updateConfiguration instead',
+      )
       if ('detail' in ev) Object.assign(props, ev.detail)
     },
     false,
   )
 
-  return enhancedInstance
+  return {
+    app,
+    getConfiguration: () => props.configuration ?? {},
+    updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => {
+      props.configuration = newConfig
+    },
+    destroy,
+  }
 }
