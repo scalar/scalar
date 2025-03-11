@@ -5,6 +5,7 @@ import {
   getConfigurationFromDataAttributes,
 } from '@/standalone/lib/html-api'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { flushPromises } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 describe('html-api', () => {
@@ -104,7 +105,7 @@ describe('html-api', () => {
       expect(document.getElementById('mount-point')?.innerHTML).toContain('Powered by Scalar')
     })
 
-    it('allows updating configuration after creation', () => {
+    it('allows updating configuration after creation', async () => {
       const config = { _integration: 'html' }
       const app = createApiReference('#mount-point', apiReferenceConfigurationSchema.parse(config))
 
@@ -115,64 +116,48 @@ describe('html-api', () => {
         },
       }
       app.updateConfiguration(newConfig)
-
       expect(app).toBeDefined()
 
       // Assert the configuration was updated
       expect(app.getConfiguration()).toMatchObject(newConfig)
+      await flushPromises()
       expect(document.getElementById('mount-point')?.innerHTML).toContain('Updated API')
     })
   })
 
   describe('findDataAttributes (legacy)', () => {
     it('adds dark-mode class when darkMode is true', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
       const config = apiReferenceConfigurationSchema.parse({
         _integration: 'html',
         darkMode: true,
       })
 
-      findDataAttributes(doc, config)
-      expect(doc.body.classList.contains('dark-mode')).toBe(true)
+      findDataAttributes(document, config)
+      expect(document.body.classList.contains('dark-mode')).toBe(true)
     })
 
     it('adds light-mode class when darkMode is false', () => {
-      const doc = createHtmlDocument(`
-        <html>
-          <body>
-            <div id="mount-point"></div>
-          </body>
-        </html>
-      `)
-
       const config = apiReferenceConfigurationSchema.parse({
         _integration: 'html',
         darkMode: false,
       })
 
-      findDataAttributes(doc, config)
-      expect(doc.body.classList.contains('light-mode')).toBe(true)
+      findDataAttributes(document, config)
+      expect(document.body.classList.contains('light-mode')).toBe(true)
     })
   })
 
   describe('getConfigurationFromDataAttributes', () => {
     it('createApiReference', async () => {
-      const doc = createHtmlDocument(`
-    <html>
-      <body>
-        <script id="api-reference" data-url="/openapi.json"></script>
-      </body>
-    </html>
-  `)
+      global.document = createHtmlDocument(`
+        <html>
+          <body>
+            <script id="api-reference" data-url="/openapi.json"></script>
+          </body>
+        </html>
+      `)
 
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
         ...baseConfig,
         proxyUrl: undefined,
         spec: { url: '/openapi.json' },
@@ -180,7 +165,7 @@ describe('html-api', () => {
     })
 
     it('handles spec content from script tag', () => {
-      const doc = createHtmlDocument(`
+      global.document = createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" type="application/json">{"openapi":"3.1.0"}</script>
@@ -188,7 +173,7 @@ describe('html-api', () => {
       </html>
     `)
 
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
         ...baseConfig,
         proxyUrl: undefined,
         spec: { content: '{"openapi":"3.1.0"}' },
@@ -196,7 +181,7 @@ describe('html-api', () => {
     })
 
     it('handles proxy URL configuration', () => {
-      const doc = createHtmlDocument(`
+      global.document = createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-proxy-url="https://proxy.example.com" data-url="/spec.json"></script>
@@ -204,7 +189,7 @@ describe('html-api', () => {
       </html>
     `)
 
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
         ...baseConfig,
         proxyUrl: 'https://proxy.example.com',
         spec: { url: '/spec.json' },
@@ -212,7 +197,7 @@ describe('html-api', () => {
     })
 
     it('handles custom configuration via data-configuration attribute', () => {
-      const doc = createHtmlDocument(`
+      global.document = createHtmlDocument(`
       <html>
         <body>
           <script id="api-reference" data-configuration='{"darkMode":true,"spec":{"url":"/custom.json"}}'></script>
@@ -220,7 +205,7 @@ describe('html-api', () => {
       </html>
     `)
 
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
         ...baseConfig,
         darkMode: true,
         proxyUrl: undefined,
@@ -229,8 +214,7 @@ describe('html-api', () => {
     })
 
     it('handles deprecated data-spec attribute with warning', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      const doc = createHtmlDocument(`
+      global.document = createHtmlDocument(`
       <html>
         <body>
           <div data-spec='{"openapi":"3.1.0"}'></div>
@@ -238,18 +222,16 @@ describe('html-api', () => {
       </html>
     `)
 
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual({
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual({
         ...baseConfig,
         proxyUrl: undefined,
         spec: { content: '{"openapi":"3.1.0"}' },
       })
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec] HTML API is deprecated'))
-      consoleSpy.mockRestore()
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec] HTML API is deprecated'))
     })
 
     it('handles deprecated data-spec-url attribute with warning', () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       const doc = createHtmlDocument(`
       <html>
         <body>
@@ -264,26 +246,16 @@ describe('html-api', () => {
         spec: { url: '/deprecated.json' },
       })
 
-      expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec-url] HTML API is deprecated'))
-      consoleSpy.mockRestore()
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec-url] HTML API is deprecated'))
     })
 
     // We can’t log an error anymore, otherwise it would always show for people using the new JS-based API.
     it.skip('handles missing spec elements with error', () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      const doc = createHtmlDocument(`
-      <html>
-        <body>
-        </body>
-      </html>
-    `)
-
-      expect(getConfigurationFromDataAttributes(doc)).toStrictEqual(baseConfig)
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(getConfigurationFromDataAttributes(document)).toStrictEqual(baseConfig)
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
         'font-family: monospace;',
       )
-      consoleSpy.mockRestore()
     })
 
     it('prioritizes configuration spec URL over data-url attribute', () => {
