@@ -391,11 +391,16 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   deploy-examples:
-    # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    # Main Branch or PR from the same repository
+    if: |
+      github.ref == 'refs/heads/main' || (
+        github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+      )
     needs: [build]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    concurrency: ${{ github.workflow }}-${{ github.ref }}
     strategy:
       matrix:
         node-version: [20]
@@ -409,6 +414,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
+          packages-only: true
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install Netlify CLI
@@ -422,6 +428,7 @@ jobs:
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
       - name: Add Netlify Preview URL to the PR
+        if: github.event_name == 'pull_request'
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         with:
           message: |
