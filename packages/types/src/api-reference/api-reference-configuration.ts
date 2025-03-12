@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import type { TargetId } from '../snippetz/index.ts'
 import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
+import type { TargetId } from '@/snippetz/index.ts'
 
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
