@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.3.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- 5be9418: fix: enhances request section icon positions
+- Updated dependencies [5f9a8a2]
+- Updated dependencies [14c5d22]
+  - @scalar/import@0.3.0
+  - @scalar/types@0.1.0
+  - @scalar/oas-utils@0.2.118
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.77
+  - @scalar/postman-to-openapi@0.1.41
+  - @scalar/components@0.13.35
+  - @scalar/use-codemirror@0.11.80
+  - @scalar/use-hooks@0.1.31
+
 ## 2.2.63
 
 ### Patch Changes

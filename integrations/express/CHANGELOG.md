@@ -1,5 +1,15 @@
 # @scalar/express-api-reference
 
+## 0.5.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- @scalar/core@0.1.3
+
 ## 0.4.194
 
 ### Patch Changes

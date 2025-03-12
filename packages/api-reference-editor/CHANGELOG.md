@@ -1,5 +1,22 @@
 # @scalar/api-reference-editor
 
+## 0.2.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- Updated dependencies [5be9418]
+- Updated dependencies [5f9a8a2]
+  - @scalar/api-client@2.3.0
+  - @scalar/api-reference@1.28.0
+  - @scalar/types@0.1.0
+  - @scalar/oas-utils@0.2.118
+  - @scalar/use-codemirror@0.11.80
+  - @scalar/use-hooks@0.1.31
+
 ## 0.1.193
 
 ### Patch Changes
