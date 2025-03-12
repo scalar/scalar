@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.41
+
+### Patch Changes
+
+- fc6a45e: refactor: use import aliases
+
 ## 0.0.40
 
 ### Patch Changes

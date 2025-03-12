@@ -1,5 +1,11 @@
 # @scalar/postman-to-openapi
 
+## 0.1.40
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.117
+
 ## 0.1.39
 
 ### Patch Changes

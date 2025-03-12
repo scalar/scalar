@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.2.37
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.117
+- @scalar/openapi-parser@0.10.10
+
 ## 0.2.36
 
 ### Patch Changes
