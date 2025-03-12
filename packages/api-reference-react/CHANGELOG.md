@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.5.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- Updated dependencies [5f9a8a2]
+  - @scalar/api-reference@1.28.0
+  - @scalar/types@0.1.0
+
 ## 0.4.43
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.17
+
+### Patch Changes
+
+- 238c8e8: fix: void server docker deployment
+
 ## 2.0.16
 
 ### Patch Changes

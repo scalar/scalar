@@ -1,5 +1,18 @@
 # @scalar/fastify-api-reference
 
+## 1.28.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- Updated dependencies [5f9a8a2]
+  - @scalar/types@0.1.0
+  - @scalar/core@0.1.3
+  - @scalar/openapi-parser@0.10.10
+
 ## 1.27.0
 
 ### Patch Changes

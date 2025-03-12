@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.3.0
+
+### Minor Changes
+
+- 5f9a8a2: feat!: remove the spec prefix, make content and url top-level attributes
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.118
+- @scalar/openapi-parser@0.10.10
+
 ## 0.2.124
 
 ### Patch Changes
