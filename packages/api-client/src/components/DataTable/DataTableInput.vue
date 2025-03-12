@@ -7,7 +7,6 @@ import { computed, ref } from 'vue'
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
-import RequestTableTooltip from '@/views/Request/RequestSection/RequestTableTooltip.vue'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
