@@ -48,4 +48,31 @@ describe('ScalarTextInput', () => {
     await container.trigger('click')
     expect(focusSpy).toHaveBeenCalled()
   })
+
+  it('autofocuses input when autofocus attribute is present', async () => {
+    // Mock focus method before mounting
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus')
+
+    const wrapper = mount(ScalarTextInput, {
+      attrs: {
+        autofocus: true,
+      },
+    })
+
+    // Wait for mounted hook
+    await wrapper.vm.$nextTick()
+
+    expect(focusSpy).toHaveBeenCalled()
+  })
+
+  it('does not autofocus input when autofocus attribute is absent', async () => {
+    const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus')
+
+    const wrapper = mount(ScalarTextInput)
+
+    // Wait for mounted hook
+    await wrapper.vm.$nextTick()
+
+    expect(focusSpy).not.toHaveBeenCalled()
+  })
 })

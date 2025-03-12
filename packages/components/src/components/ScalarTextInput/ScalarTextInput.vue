@@ -10,7 +10,7 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
 
@@ -20,6 +20,11 @@ const input = ref<HTMLInputElement>()
 
 defineOptions({ inheritAttrs: false })
 const { classCx, otherAttrs } = useBindCx()
+
+onMounted(() => {
+  // Force autofocus if the input has the autofocus attribute
+  if ('autofocus' in otherAttrs.value) input.value?.focus()
+})
 </script>
 <template>
   <div
