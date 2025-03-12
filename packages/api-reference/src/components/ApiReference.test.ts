@@ -9,18 +9,16 @@ describe('ApiReference', () => {
       const wrapper = mount(ApiReference, {
         props: {
           configuration: {
-            spec: {
-              content: {
-                openapi: '3.1.0',
-                info: {
-                  title: 'My API',
-                  version: '1.0.0',
-                },
-                paths: {
-                  '/api/v1/users': {
-                    get: {
-                      summary: 'Get users',
-                    },
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'My API',
+                version: '1.0.0',
+              },
+              paths: {
+                '/api/v1/users': {
+                  get: {
+                    summary: 'Get users',
                   },
                 },
               },
@@ -42,13 +40,11 @@ describe('ApiReference', () => {
         props: {
           configuration: [
             {
-              spec: {
-                content: {
-                  openapi: '3.1.0',
-                  info: {
-                    title: 'My API',
-                    version: '1.0.0',
-                  },
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API',
+                  version: '1.0.0',
                 },
               },
             },
@@ -73,24 +69,20 @@ describe('ApiReference', () => {
         props: {
           configuration: [
             {
-              spec: {
-                content: {
-                  openapi: '3.1.0',
-                  info: {
-                    title: 'My API #1',
-                    version: '1.0.0',
-                  },
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #1',
+                  version: '1.0.0',
                 },
               },
             },
             {
-              spec: {
-                content: {
-                  openapi: '3.1.0',
-                  info: {
-                    title: 'My API #2',
-                    version: '1.0.0',
-                  },
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #2',
+                  version: '1.0.0',
                 },
               },
             },
@@ -115,26 +107,22 @@ describe('ApiReference', () => {
         props: {
           configuration: [
             {
-              spec: {
-                slug: 'my-api-1',
-                content: {
-                  openapi: '3.1.0',
-                  info: {
-                    title: 'My API #1',
-                    version: '1.0.0',
-                  },
+              slug: 'my-api-1',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #1',
+                  version: '1.0.0',
                 },
               },
             },
             {
-              spec: {
-                slug: 'my-api-2',
-                content: {
-                  openapi: '3.1.0',
-                  info: {
-                    title: 'My API #2',
-                    version: '1.0.0',
-                  },
+              slug: 'my-api-2',
+              content: {
+                openapi: '3.1.0',
+                info: {
+                  title: 'My API #2',
+                  version: '1.0.0',
                 },
               },
             },
@@ -165,18 +153,16 @@ describe('ApiReference', () => {
       const wrapper = mount(ApiReference, {
         props: {
           configuration: {
-            spec: {
-              sources: [
-                {
-                  url: 'https://api.example.com/v1/openapi.yaml',
-                  slug: 'my-api-1',
-                },
-                {
-                  url: 'https://api.example.com/v2/openapi.yaml',
-                  slug: 'my-api-2',
-                },
-              ],
-            },
+            sources: [
+              {
+                url: 'https://api.example.com/v1/openapi.yaml',
+                slug: 'my-api-1',
+              },
+              {
+                url: 'https://api.example.com/v2/openapi.yaml',
+                slug: 'my-api-2',
+              },
+            ],
           },
         },
       })
