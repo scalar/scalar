@@ -1,5 +1,5 @@
+import type { ReferenceConfiguration } from '@/legacy/reference-config.ts'
 import { assertType, describe, it } from 'vitest'
-import type { ReferenceConfiguration } from '../legacy/reference-config.ts'
 import type { ApiReferenceConfiguration } from './api-reference-configuration.ts'
 
 describe('ApiReferenceConfiguration', () => {
