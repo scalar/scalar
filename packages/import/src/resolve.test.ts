@@ -315,6 +315,28 @@ describe('resolve', () => {
     expect(result).toBe('https://example.com/openapi.json')
   })
 
+  it('finds embedded OpenAPI document URLs (JSON) unescaped', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script
+      id="api-reference"
+      type="application/json"
+      data-configuration='{"url":"/openapi.yaml","hideClientButton":false,"showSidebar":true,"theme":"default","_integration":"hono","layout":"modern","isEditable":false,"hideModels":false,"hideDownloadButton":false,"hideTestRequestButton":false,"hideSearch":false,"hideDarkModeToggle":false,"withDefaultFonts":true}'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toBe('https://example.com/openapi.yaml')
+  })
+
   it('finds embedded OpenAPI documents (YAML)', async () => {
     const html = `<!DOCTYPE html>
       <html>

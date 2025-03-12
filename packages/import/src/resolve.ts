@@ -110,6 +110,12 @@ export async function resolve(
           return makeUrlAbsolute(urlOrPathOrDocument, forwardedHost || value)
         }
 
+        // Check for configuration attribute URL
+        const configUrl = getConfigurationAttributeUrl(content)
+        if (configUrl) {
+          return makeUrlAbsolute(configUrl, forwardedHost || value)
+        }
+
         // Check for embedded OpenAPI document
         const embeddedSpec = parseEmbeddedOpenApi(content)
         if (embeddedSpec) {
@@ -264,6 +270,10 @@ export function getConfigurationAttribute(html: string): string | undefined {
     /<script[^>]*id="api-reference"[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
     // Single quotes
     /<script[^>]*id='api-reference'[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
+    // Mix quote single first
+    /<script[^>]*id='api-reference'[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
+    // Mix quote double first
+    /<script[^>]*id="api-reference"[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
   ]
 
   for (const pattern of patterns) {
@@ -275,6 +285,15 @@ export function getConfigurationAttribute(html: string): string | undefined {
   }
 
   return undefined
+}
+
+/** Grab the URL from the configuration data attribute */
+export const getConfigurationAttributeUrl = (html: string): string | undefined => {
+  const configString = getConfigurationAttribute(html)
+  if (!configString) return undefined
+
+  const config = JSON.parse(decodeHtmlEntities(configString))
+  return config.url || config.spec?.url
 }
 
 /**
