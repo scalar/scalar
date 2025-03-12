@@ -51,6 +51,7 @@
     "object-to-xml": "^2.0.0"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "vite": "^5.4.10"
   }
 }

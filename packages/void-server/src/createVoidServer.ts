@@ -1,16 +1,14 @@
-import { Hono, type Context } from 'hono'
+import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import {
-  createHtmlResponse,
-  createJsonResponse,
-  createXmlResponse,
-  createZipFileResponse,
-  getRequestData,
-} from './utils'
-import { errors } from './utils/constants'
+import { errors } from '@/utils/constants.ts'
+import { createHtmlResponse } from '@/utils/createHtmlResponse.ts'
+import { createJsonResponse } from '@/utils/createJsonResponse.ts'
+import { createXmlResponse } from '@/utils/createXmlResponse.ts'
+import { createZipFileResponse } from '@/utils/createZipFileResponse.ts'
+import { getRequestData } from '@/utils/getRequestData.ts'
 
 /**
  * Create a mock server instance

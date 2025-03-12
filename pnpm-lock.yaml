@@ -2294,6 +2294,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   playwright:
     devDependencies:
