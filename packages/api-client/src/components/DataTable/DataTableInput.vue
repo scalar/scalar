@@ -7,7 +7,6 @@ import { computed, ref } from 'vue'
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
-import RequestTableTooltip from '@/views/Request/RequestSection/RequestTableTooltip.vue'
 
 import DataTableCell from './DataTableCell.vue'
 import DataTableInputSelect from './DataTableInputSelect.vue'
@@ -130,20 +129,6 @@ const handleLabelClick = () => {
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
-        <div
-          v-if="description"
-          class="centered-y text-xxs text-c-3 bg-b-1 absolute right-0 h-full opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)]">
-          <RequestTableTooltip
-            v-if="description"
-            class=""
-            :item="{
-              description: description,
-              required: required,
-              value: '',
-              key: '',
-              enabled: true,
-            }" />
-        </div>
       </template>
     </div>
     <div
@@ -154,8 +139,7 @@ const handleLabelClick = () => {
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="centered-y text-xxs text-c-3 bg-b-1 right-0.75 p-1.25 absolute h-6 w-6 shadow-[-8px_0_4px_var(--scalar-background-1)]"
-      :class="description && 'right-6'"
+      class="-ml-.5 mr-1.25 p-1.25 h-6 w-6 self-center"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />
