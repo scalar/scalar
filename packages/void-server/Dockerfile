@@ -19,7 +19,7 @@ RUN chown node:node /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/packages/void-server /app/packages/void-server
+COPY --from=builder /app/packages /app/packages
 WORKDIR /app/packages/void-server
 
 CMD ["dumb-init", "node", "dist/playground/index.js"]
