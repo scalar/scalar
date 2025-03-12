@@ -34,6 +34,7 @@ describe('ApiReference', () => {
 
       // Check whether it renders the SingleApiReference component only once
       expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      wrapper.unmount()
     })
 
     it('doesn’t render the select when there is only one configuration', async () => {
@@ -60,9 +61,11 @@ describe('ApiReference', () => {
 
       // Check whether it renders the SingleApiReference component
       expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
       // Check whether it doesn’t render the select
-      expect(wrapper.findAllComponents({ name: 'DocumentSelector' })).toHaveLength(0)
+      expect(documentSelector.html()).toBe('<!--v-if-->')
+      wrapper.unmount()
     })
 
     it('renders a select when multiple configurations are provided', async () => {
@@ -100,6 +103,11 @@ describe('ApiReference', () => {
 
       // Check whether it renders the SingleApiReference component
       expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
+
+      // Ensure the select is rendered
+      expect(documentSelector.html()).not.toBe('<!--v-if-->')
+      wrapper.unmount()
     })
 
     it('renders a select with the names', async () => {
@@ -148,6 +156,7 @@ describe('ApiReference', () => {
       expect(documentSelector.html()).toContain('my-api-1')
       await documentSelector.vm.$emit('update:modelValue', 1)
       expect(documentSelector.html()).toContain('my-api-2')
+      wrapper.unmount()
     })
   })
 
@@ -177,13 +186,14 @@ describe('ApiReference', () => {
 
       // Check whether it renders the select
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
-      expect(documentSelector.exists()).toBe(true)
+      expect(documentSelector.html()).not.toBe('<!--v-if-->')
 
       // Check whether it renders the names
-      expect(wrapper.html()).toContain('my-api-1')
-      await documentSelector.vm.$emit('update:modelValue', 1)
+      expect(documentSelector.text()).toContain('my-api-2')
+      await documentSelector.vm.$emit('update:modelValue', 0)
       await wrapper.vm.$nextTick()
-      expect(wrapper.html()).toContain('my-api-2')
+      expect(documentSelector.text()).toContain('my-api-1')
+      wrapper.unmount()
     })
   })
 })
