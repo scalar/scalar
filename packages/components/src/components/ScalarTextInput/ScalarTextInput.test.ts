@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ScalarTextField from './ScalarTextField.vue'
+import ScalarTextField from './ScalarTextInput.vue'
 
 describe('ScalarIconButton', () => {
   it('renders an input', async () => {

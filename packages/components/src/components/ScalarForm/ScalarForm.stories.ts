@@ -4,6 +4,7 @@ import ScalarForm from './ScalarForm.vue'
 import { ScalarButton } from '../ScalarButton'
 import ScalarFormSection from './ScalarFormSection.vue'
 import ScalarFormField from './ScalarFormField.vue'
+import { ScalarTextInput } from '../ScalarTextInput'
 
 const meta: Meta = {
   component: ScalarForm,
@@ -52,6 +53,22 @@ export const WithSections: Story = {
             <div class="placeholder border outline-none rounded">Input goes here</div>
           </ScalarFormField>
         </ScalarFormSection>
+      </ScalarForm>
+    `,
+  }),
+}
+export const WithFields: Story = {
+  render: (args) => ({
+    components: { ScalarForm, ScalarFormField, ScalarTextInput },
+    setup() {
+      return { args }
+    },
+    template: `
+      <ScalarForm v-bind="args">
+        <ScalarFormField>
+          <template #label>Single Line Input</template>
+          <ScalarTextInput />
+        </ScalarFormField>
       </ScalarForm>
     `,
   }),

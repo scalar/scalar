@@ -59,6 +59,7 @@ export default {
       // Backdrop Colors
       b: {
         1: 'var(--scalar-background-1)',
+        1.5: 'color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2))',
         2: 'var(--scalar-background-2)',
         3: 'var(--scalar-background-3)',
         4: 'var(--scalar-background-3)',
