@@ -31,8 +31,8 @@ type UseMultipleDocumentsProps = {
 const slugger = new GithubSlugger()
 
 /** Process a single spec configuration so that it has a title and a slug */
-const addSlugAndTitle = (spec: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
-  if (!spec?.url && !spec?.content) {
+const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+  if (!source?.url && !source?.content) {
     return undefined
   }
 
@@ -40,25 +40,25 @@ const addSlugAndTitle = (spec: SpecConfiguration, index = 0): SpecConfiguration 
   slugger.reset()
 
   // Case 1: Title exists, generate slug from it
-  if (spec.title) {
+  if (source.title) {
     return {
-      ...spec,
-      slug: spec.slug || slugger.slug(spec.title),
-      title: spec.title,
+      ...source,
+      slug: source.slug || slugger.slug(source.title),
+      title: source.title,
     }
   }
 
   // Case 2: Slug exists but no title, use slug as title
-  if (spec.slug) {
+  if (source.slug) {
     return {
-      ...spec,
-      title: spec.slug,
+      ...source,
+      title: source.slug,
     }
   }
 
   // Case 3: Neither exists, use index
   return {
-    ...spec,
+    ...source,
     slug: `api-${index + 1}`,
     title: `API #${index + 1}`,
   }
