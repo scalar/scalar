@@ -116,7 +116,7 @@ export async function resolve(
           return makeUrlAbsolute(configUrl, forwardedHost || value)
         }
 
-        // Check for embedded OpenAPI document - also handles URLs
+        // Check for embedded OpenAPI document
         const embeddedSpec = parseEmbeddedOpenApi(content)
         if (embeddedSpec) {
           return embeddedSpec
