@@ -130,11 +130,6 @@ const handleLabelClick = () => {
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
-        <div
-          v-if="required"
-          class="scalar-input-required centered-y text-xxs text-c-3 bg-b-1 absolute right-2.5 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[:focus-visible]:opacity-0">
-          Required
-        </div>
       </template>
     </div>
     <div
