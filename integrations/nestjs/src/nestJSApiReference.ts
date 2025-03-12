@@ -98,10 +98,10 @@ export const ApiReference = (options: ApiReferenceOptions) => {
       id="api-reference"
       type="application/json"
       data-configuration="${JSON.stringify(configuration).split('"').join('&quot;')}">${
-        configuration.spec?.content
-          ? typeof configuration.spec?.content === 'function'
-            ? JSON.stringify(configuration.spec?.content())
-            : JSON.stringify(configuration.spec?.content)
+        configuration.content
+          ? typeof configuration.content === 'function'
+            ? JSON.stringify(configuration.content())
+            : JSON.stringify(configuration.content)
           : ''
       }</script>
     <script src="${configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
