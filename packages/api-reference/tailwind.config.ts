@@ -1,5 +1,5 @@
 import scalarPreset from '@scalar/themes/tailwind'
-import { type Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss'
 
 export default {
   presets: [scalarPreset],

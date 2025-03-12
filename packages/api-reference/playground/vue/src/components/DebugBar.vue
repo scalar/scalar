@@ -1,0 +1,185 @@
+<script setup lang="ts">
+import type { ThemeId } from '@scalar/types'
+import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-reference'
+
+defineProps<{
+  modelValue: Partial<ApiReferenceConfigurationWithSources>
+}>()
+
+defineEmits<{
+  (
+    e: 'update:modelValue',
+    value: Partial<ApiReferenceConfigurationWithSources>,
+  ): void
+}>()
+
+const sources = [
+  {
+    title: 'Scalar Galaxy',
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  },
+  {
+    title: 'Scalar Galaxy (YAML)',
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  },
+  {
+    title: 'Stripe',
+    url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.yaml',
+  },
+  {
+    title: 'Swagger Petstore (2.0)',
+    url: 'https://petstore.swagger.io/v2/swagger.json',
+  },
+  {
+    title: 'Swagger Petstore (3.0)',
+    url: 'https://petstore3.swagger.io/api/v3/openapi.json',
+  },
+  {
+    title: 'Swagger Petstore (3.1)',
+    url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+  },
+  {
+    title: 'Val Town',
+    url: 'https://docs.val.town/openapi.documented.json',
+  },
+  {
+    title: 'Outline',
+    url: 'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
+  },
+  {
+    title: 'Sentry',
+    url: 'https://raw.githubusercontent.com/getsentry/sentry/refs/heads/master/api-docs/openapi.json',
+  },
+  {
+    title: 'Vercel',
+    url: 'https://openapi.vercel.sh/',
+  },
+]
+
+const booleanAttributes = [
+  'showSidebar',
+  'hideClientButton',
+  'isEditable',
+  'hideModels',
+  'hideDownloadButton',
+  'hideTestRequestButton',
+  'hideSearch',
+  'darkMode',
+  'hideDarkModeToggle',
+  'withDefaultFonts',
+  'defaultOpenAllTags',
+] as const
+
+const themes = [
+  'alternate',
+  'default',
+  'moon',
+  'purple',
+  'solarized',
+  'bluePlanet',
+  'deepSpace',
+  'saturn',
+  'kepler',
+  'elysiajs',
+  'fastify',
+  'mars',
+  'none',
+] as ThemeId[]
+</script>
+
+<template>
+  <div class="debug-bar text-xs text-white">
+    <div class="flex flex-col gap-4">
+      <h2 class="border-b border-stone-700 p-4 text-sm font-bold">
+        Developer Tools
+      </h2>
+      <div class="flex flex-col gap-2 px-2">
+        <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
+          <label class="flex items-center gap-2">
+            <span>Theme</span>
+            <select
+              class="rounded border-stone-700 bg-stone-800 p-1"
+              :value="modelValue.theme"
+              @change="
+                $emit('update:modelValue', {
+                  ...modelValue,
+                  theme: ($event.target as HTMLSelectElement).value as ThemeId,
+                })
+              ">
+              <option
+                v-for="theme in themes"
+                :key="theme"
+                :value="theme">
+                {{ theme }}
+              </option>
+            </select>
+          </label>
+        </div>
+
+        <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
+          <h3 class="font-bold">Sources</h3>
+          <label
+            v-for="source in sources"
+            :key="source.url"
+            class="flex items-center gap-2">
+            <input
+              :checked="
+                modelValue.spec?.sources?.some((s) => s.url === source.url)
+              "
+              class="rounded border-stone-700 bg-stone-800"
+              type="checkbox"
+              @change="
+                $emit('update:modelValue', {
+                  ...modelValue,
+                  spec: {
+                    ...modelValue.spec,
+                    sources: modelValue.spec?.sources?.some(
+                      (s) => s.url === source.url,
+                    )
+                      ? modelValue.spec.sources.filter(
+                          (s) => s.url !== source.url,
+                        ).length > 0
+                        ? modelValue.spec.sources.filter(
+                            (s) => s.url !== source.url,
+                          )
+                        : []
+                      : [
+                          ...(modelValue.spec?.sources || []),
+                          { title: source.title, url: source.url },
+                        ],
+                  },
+                })
+              " />
+            <span>{{ source.title }}</span>
+          </label>
+        </div>
+
+        <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
+          <label
+            v-for="attr in booleanAttributes"
+            :key="attr"
+            class="flex items-center gap-2">
+            <input
+              :checked="modelValue[attr]"
+              class="rounded border-stone-700 bg-stone-800"
+              type="checkbox"
+              @change="
+                $emit('update:modelValue', {
+                  ...modelValue,
+                  [attr]: !modelValue[attr],
+                })
+              " />
+            <span>{{
+              attr
+                .replace(/([A-Z])/g, ' $1')
+                .replace(/^./, (str) => str.toUpperCase())
+            }}</span>
+          </label>
+        </div>
+        <div class="rounded-md border border-stone-700 p-2">
+          <pre><code class="block whitespace-pre overflow-x-scroll">{{ modelValue }}</code></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
