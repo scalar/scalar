@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.27.0
+
+### Minor Changes
+
+- e373a21: feat: new JS-based API window.Scalar.createApiReference
+
+### Patch Changes
+
+- eb70f8b: fix: one more attempt at fixing ci
+- 8b343f6: feat: favors scalar dropdown as content type selector
+- Updated dependencies [00a429f]
+- Updated dependencies [fc6a45e]
+- Updated dependencies [a0da28e]
+  - @scalar/api-client@2.2.63
+  - @scalar/types@0.0.41
+  - @scalar/oas-utils@0.2.117
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.76
+  - @scalar/code-highlight@0.0.24
+  - @scalar/components@0.13.34
+  - @scalar/use-hooks@0.1.30
+
 ## 1.26.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.16
+
+### Patch Changes
+
+- fc6a45e: refactor: use stricter TS config
+
 ## 2.0.15
 
 ### Patch Changes

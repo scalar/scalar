@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.2.63
+
+### Patch Changes
+
+- 00a429f: fix: remove turbo cache from deploy examples
+- a0da28e: feat: adds security scheme auth description
+- Updated dependencies [fc6a45e]
+  - @scalar/types@0.0.41
+  - @scalar/oas-utils@0.2.117
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.76
+  - @scalar/import@0.2.37
+  - @scalar/postman-to-openapi@0.1.40
+  - @scalar/components@0.13.34
+  - @scalar/use-codemirror@0.11.79
+  - @scalar/use-hooks@0.1.30
+
 ## 2.2.62
 
 ### Patch Changes
