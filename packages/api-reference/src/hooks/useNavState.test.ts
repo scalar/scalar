@@ -78,6 +78,21 @@ describe('useNavState', () => {
     it('should generate webhook ID', () => {
       expect(navState.getWebhookId({ name: 'Test Webhook', method: 'POST' })).toBe('webhook/POST/test-webhook')
     })
+
+    it('should normalize operation ID with path parameters', () => {
+      const operation = {
+        httpVerb: 'GET',
+        path: '/environments/{environmentId}/scoped-variables',
+      } as const
+      const parentTag = {
+        name: 'Test Tag',
+        description: 'Test Description',
+        operations: [],
+      } satisfies Tag
+      expect(navState.getOperationId(operation, parentTag)).toBe(
+        'tag/test-tag/GET/environments/environmentId/scoped-variables',
+      )
+    })
   })
 
   describe('custom slug generation', () => {

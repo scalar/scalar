@@ -122,7 +122,11 @@ export const useNavState = () => {
         summary: operation.information?.summary,
       })}`
     }
-    return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
+
+    // Normalizes path including path parameters
+    const normalizedPath = operation.path.split('{').join('').split('}').join('')
+
+    return `${getTagId(parentTag)}/${operation.httpVerb}${normalizedPath}`
   }
 
   const getWebhookId = (webhook?: { name: string; method?: string }) => {
