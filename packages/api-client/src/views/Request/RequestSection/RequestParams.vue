@@ -167,11 +167,11 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         class="text-c-2 request-meta-buttons flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100">
         <ScalarTooltip
           v-if="showTooltip"
-          side="right"
-          :sideOffset="12">
+          side="left"
+          :sideOffset="6">
           <template #trigger>
             <ScalarButton
-              class="px-1 transition-none"
+              class="pr-0.75 pl-1 transition-none"
               size="sm"
               variant="ghost"
               @click.stop="deleteAllRows">
