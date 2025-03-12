@@ -8,7 +8,7 @@ import ApiReference from './components/ApiReference.vue'
 /**
  * Initialize Scalar References
  *
- * @deprecated please import { createApiReference } from '@scalar/api-reference/standalone' instead
+ * @deprecated please import { createApiReference } from '@scalar/api-reference' instead
  * this function will be removed at a later date
  */
 export function createScalarReferences(

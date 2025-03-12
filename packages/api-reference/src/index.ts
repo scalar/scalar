@@ -5,6 +5,7 @@ export * from './features/Search'
 export { default as GettingStarted } from './components/GettingStarted.vue'
 export { createScalarReferences } from './esm'
 export { useReactiveSpec } from './hooks/useReactiveSpec'
+export { createApiReference } from './standalone/lib/html-api'
 
 export * from './components/Sidebar'
 export * from './components/Card'

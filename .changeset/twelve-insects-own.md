@@ -1,5 +1,5 @@
 ---
-'@scalar/api-reference': patch
+'@scalar/api-reference': minor
 ---
 
 feat: new JS-based API window.Scalar.createApiReference

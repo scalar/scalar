@@ -152,7 +152,7 @@ describe('ApiReference', () => {
   })
 
   describe('multiple sources', () => {
-    it.only('renders two URLs', async () => {
+    it('renders two URLs', async () => {
       const wrapper = mount(ApiReference, {
         props: {
           configuration: {
