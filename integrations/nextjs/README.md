@@ -33,9 +33,7 @@ If you have a OpenAPI/Swagger file already, you can pass a URL to the plugin in 
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
-  spec: {
-    url: '/openapi.json',
-  },
+  url: '/openapi.json',
 }
 
 export const GET = ApiReference(config)
@@ -45,9 +43,7 @@ Or, if you just have a static OpenAPI spec, you can directly pass it as well:
 
 ```ts
 const config = {
-  spec: {
-    content: '...',
-  },
+  content: '{ "openapi": "3.1.1", … }',
 }
 ```
 
@@ -84,9 +80,7 @@ export default function References() {
   return (
     <ApiReferenceReact
       configuration={{
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }}
     />
   )
@@ -106,9 +100,7 @@ You can find all available CDN versions [here](https://www.jsdelivr.com/package/
 import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
-  spec: {
-    url: '/openapi.json',
-  },
+  url: '/openapi.json',
   cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
 }
 

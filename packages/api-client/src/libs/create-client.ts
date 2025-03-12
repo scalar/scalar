@@ -1,5 +1,5 @@
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
-import { createSidebarState, SIDEBAR_SYMBOL } from '@/hooks/useSidebar'
+import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
 import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
 import { loadAllResources } from '@/libs/local-storage'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
@@ -10,8 +10,8 @@ import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { OpenAPI } from '@scalar/types/legacy'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
+import type { OpenAPI } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -144,7 +144,7 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || !configuration.spec) {
+  else if (!isReadOnly || (!configuration.url && !configuration.content)) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],
@@ -230,7 +230,7 @@ export const createApiClient = ({
     } else {
       console.error(
         '[@scalar/api-client-modal] Could not create the API client.',
-        'Please provide an OpenAPI document: { spec: { url: "…" } }',
+        'Please provide an OpenAPI document: { url: "…" }',
         'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
       )
     }

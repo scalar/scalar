@@ -1,6 +1,6 @@
 import { createApiClient } from '@/libs'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
+import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 
 import ApiClientApp from './ApiClientApp.vue'
 
@@ -33,12 +33,12 @@ export const createApiClientApp = async (
   router.afterEach(saveActiveWorkspace)
 
   // Import the spec if needed
-  if (configuration.spec?.url) {
-    await importSpecFromUrl(configuration.spec.url, 'default', {
+  if (configuration.url) {
+    await importSpecFromUrl(configuration.url, 'default', {
       proxyUrl: configuration.proxyUrl,
     })
-  } else if (configuration.spec?.content) {
-    await importSpecFile(configuration.spec?.content, 'default')
+  } else if (configuration.content) {
+    await importSpecFile(configuration.content, 'default')
   }
 
   return client

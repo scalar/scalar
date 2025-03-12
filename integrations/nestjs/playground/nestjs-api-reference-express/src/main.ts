@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core'
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger'
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { AppModule } from './app.module'
 
 import { apiReference } from '@scalar/nestjs-api-reference'
@@ -21,9 +21,7 @@ async function bootstrap() {
   app.use(
     '/',
     apiReference({
-      spec: {
-        content: document,
-      },
+      content: document,
     }),
   )
 

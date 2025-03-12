@@ -40,9 +40,7 @@ const OpenApiSpecification =
   app.use(
     '/reference',
     apiReference({
-      spec: {
-        content: document,
-      },
+      content: document,
     }),
   )
 ```
@@ -55,9 +53,7 @@ import { apiReference } from '@scalar/nestjs-api-reference'
 app.use(
   '/reference',
   apiReference({
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   }),
 )
 ```
@@ -75,9 +71,7 @@ app.use(
   '/reference',
   apiReference({
     theme: 'purple',
-    spec: {
-      url: '/openapi.json',
-    },
+    url: '/openapi.json',
   }),
 )
 ```
@@ -97,9 +91,7 @@ app.use(
   '/reference',
   apiReference({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-    spec: {
-      content: OpenApiSpecification,
-    },
+    content: OpenApiSpecification,
   }),
 )
 ```

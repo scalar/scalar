@@ -30,9 +30,7 @@ app.get(
   '/',
   apiReference({
     pageTitle: 'Scalar Galaxy',
-    spec: {
-      url: '/openapi.yaml',
-    },
+    url: '/openapi.yaml',
     baseServerURL: `http://localhost:${port}`,
   }),
 )

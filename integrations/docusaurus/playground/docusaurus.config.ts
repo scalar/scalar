@@ -60,9 +60,7 @@ const config: Config = {
         label: 'json-url',
         route: '/json-url',
         configuration: {
-          spec: {
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
       } as ScalarOptions,
     ],
@@ -73,9 +71,7 @@ const config: Config = {
         label: 'yaml-url',
         route: '/yaml-url',
         configuration: {
-          spec: {
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-          },
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
         },
       } as ScalarOptions,
     ],
@@ -86,8 +82,7 @@ const config: Config = {
         label: 'json-string',
         route: '/json-string',
         configuration: {
-          spec: {
-            content: `{
+          content: `{
   "openapi": "3.1.0",
   "info": {
     "title": "JSON Docs",
@@ -95,7 +90,6 @@ const config: Config = {
   },
   "paths": {}
 }`,
-          },
         },
       } as ScalarOptions,
     ],
@@ -106,14 +100,12 @@ const config: Config = {
         label: 'yaml-string',
         route: '/yaml-string',
         configuration: {
-          spec: {
-            content: `openapi: 3.1.0
+          content: `openapi: 3.1.0
 info:
   title: YAML Docs
   version: 1.0.0
 paths: {}
 `,
-          },
         },
       } as ScalarOptions,
     ],

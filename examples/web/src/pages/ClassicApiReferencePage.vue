@@ -10,7 +10,7 @@ const configuration = reactive(
     proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
     isEditable: false,
     layout: 'classic',
-    spec: { content },
+    content,
   }),
 )
 </script>

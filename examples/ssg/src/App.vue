@@ -8,9 +8,7 @@ import '@scalar/api-reference/style.css'
   <div>
     <ApiReference
       :configuration="{
-        spec: {
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }" />
   </div>
 </template>

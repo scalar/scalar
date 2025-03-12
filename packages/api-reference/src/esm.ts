@@ -53,7 +53,7 @@ export function createScalarReferences(
       if (Array.isArray(configuration)) {
         console.error('Cannot update the content for multiple configurations.')
       } else {
-        configuration.spec = spec
+        Object.assign(configuration, spec)
       }
     },
     /** Mount the references to a given element */

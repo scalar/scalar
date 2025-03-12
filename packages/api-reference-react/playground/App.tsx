@@ -37,9 +37,7 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        spec: {
-          content: ScalarGalaxy,
-        },
+        content: ScalarGalaxy,
         authentication: auth,
       }}
     />

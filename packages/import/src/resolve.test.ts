@@ -463,7 +463,7 @@ info:
         layout: "classic",
         darkMode: false,
         searchHotKey: "nope",
-        spec: { url: "/docs/files/openapi.json" },
+        url: "/docs/files/openapi.json",
       }
       var apiReference = document.getElementById('api-reference')
       apiReference.dataset.configuration = JSON.stringify(configuration)

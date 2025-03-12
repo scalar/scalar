@@ -11,22 +11,27 @@ const props = defineProps<{
 
 const isDark = ref(props.configuration.darkMode)
 
+// @ts-expect-error support the old syntax for a bit
+const content = props.configuration.spec?.content ?? props.configuration.content
+// @ts-expect-error support the old syntax for a bit
+const url = props.configuration.spec?.url ?? props.configuration.url
+
 // Grab spec if we can
-const content =
-  typeof props.configuration.spec?.content === 'function'
-    ? toRaw(props.configuration.spec.content())
-    : props.configuration.spec?.content
-      ? toRaw(props.configuration.spec.content)
-      : props.configuration.spec?.url
-        ? await $fetch<string>(props.configuration.spec?.url)
+const document =
+  typeof content === 'function'
+    ? toRaw(content())
+    : content
+      ? toRaw(content)
+      : url
+        ? await $fetch<string>(url)
         : await $fetch<string>('/_openapi.json')
 
 // Check for empty spec
-if (!content)
+if (!document)
   throw new Error('You must provide a document for Scalar API References')
 
-const parsedSpec = reactive(await parse(content))
-const rawSpec = JSON.stringify(content)
+const parsedSpec = reactive(await parse(document))
+const rawSpec = JSON.stringify(document)
 
 // Load up the metadata
 if (props.configuration?.metaData) useSeoMeta(props.configuration.metaData)

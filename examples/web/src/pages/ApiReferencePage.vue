@@ -19,7 +19,7 @@ const configuration = reactive<Partial<ApiReferenceConfiguration>>({
   isEditable: false,
   showSidebar: true,
   layout: 'modern',
-  spec: { content },
+  content,
   // authentication: {
   //   // The OpenAPI file has keys for all security schemes:
   //   // Which one should be used by default?

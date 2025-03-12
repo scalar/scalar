@@ -61,7 +61,10 @@ function setSpec({ url, content }: SpecConfiguration) {
 
 // Set the content whenever the input props change
 watchEffect(() => {
-  setSpec(props.configuration?.spec ?? { content: '' })
+  setSpec({
+    content: props.configuration?.content || '',
+    url: props.configuration?.url,
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -117,7 +120,7 @@ mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
-  specConfig: toRef(() => configuration.value.spec || {}),
+  specConfig: toRef(() => configuration.value || {}),
 })
 </script>
 <template>

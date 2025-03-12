@@ -62,10 +62,8 @@ export const getConfiguration = (givenConfiguration: ApiReferenceConfiguration) 
     ...givenConfiguration,
   }
 
-  if (!configuration.spec?.url) {
-    delete configuration.spec
-  } else if (configuration.spec?.content) {
-    delete configuration.spec?.content
+  if (configuration.content) {
+    delete configuration.content
   }
 
   return JSON.stringify(configuration).split('"').join('&quot;')
@@ -75,8 +73,8 @@ export const getConfiguration = (givenConfiguration: ApiReferenceConfiguration) 
  * The content to pass to the @scalar/api-reference package as the <script> tag content.
  */
 export const getScriptTagContent = (configuration: ApiReferenceConfiguration) =>
-  configuration.spec?.content
-    ? typeof configuration.spec?.content === 'function'
-      ? JSON.stringify(configuration.spec?.content())
-      : JSON.stringify(configuration.spec?.content)
+  configuration.content
+    ? typeof configuration.content === 'function'
+      ? JSON.stringify(configuration.content())
+      : JSON.stringify(configuration.content)
     : ''
