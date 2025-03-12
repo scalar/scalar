@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.3.1
+
+### Patch Changes
+
+- 7bc87ef: fix: using config url data attribute import
+
 ## 2.3.0
 
 ### Minor Changes
