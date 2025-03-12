@@ -110,7 +110,13 @@ export async function resolve(
           return makeUrlAbsolute(urlOrPathOrDocument, forwardedHost || value)
         }
 
-        // Check for embedded OpenAPI document
+        // Check for configuration attribute URL
+        const configUrl = getConfigurationAttributeUrl(content)
+        if (configUrl) {
+          return makeUrlAbsolute(configUrl, forwardedHost || value)
+        }
+
+        // Check for embedded OpenAPI document - also handles URLs
         const embeddedSpec = parseEmbeddedOpenApi(content)
         if (embeddedSpec) {
           return embeddedSpec
@@ -259,22 +265,25 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
  * @example <script id="api-reference" data-configuration="{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}"></script>
  */
 export function getConfigurationAttribute(html: string): string | undefined {
-  const patterns = [
-    // Double quotes
-    /<script[^>]*id="api-reference"[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
-    // Single quotes
-    /<script[^>]*id='api-reference'[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
-  ]
+  // Match both escaped and unescaped configurations
+  const pattern = /<script[^>]*id=["']api-reference["'][^>]*data-configuration=(["'])(.*?)\1[^>]*>(?:.*?)<\/script>/s
 
-  for (const pattern of patterns) {
-    const match = html.match(pattern)
+  const match = html.match(pattern)
 
-    if (match?.[1]) {
-      return match[1]
-    }
+  if (match?.[2]) {
+    return match[2]
   }
 
   return undefined
+}
+
+/** Grab the URL from the configuration data attribute */
+export const getConfigurationAttributeUrl = (html: string): string | undefined => {
+  const configString = getConfigurationAttribute(html)
+  if (!configString) return undefined
+
+  const config = JSON.parse(decodeHtmlEntities(configString))
+  return config.url || config.spec?.url
 }
 
 /**
