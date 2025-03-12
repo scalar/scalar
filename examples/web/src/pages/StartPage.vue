@@ -55,6 +55,106 @@ const inDevelopment = import.meta.env.DEV
         </template>
       </PageLink>
     </div>
+    <h1>Examples</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:5065">
+        <template #title>Client V2</template>
+        <template #description>@scalar/api-client</template>
+      </PageLink>
+      <PageLink href="http://localhost:5062/json">
+        <template #title>Nuxt</template>
+        <template #description>@scalar/nuxt</template>
+      </PageLink>
+      <PageLink href="http://localhost:5066/api/openapi">
+        <template #title>Next.js</template>
+        <template #description>@scalar/nuxtjs-openapi</template>
+      </PageLink>
+      <PageLink href="http://localhost:5063/yaml-url">
+        <template #title>Docusaurus</template>
+        <template #description>@scalar/docusaurus</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5058'
+            : 'https://scalar-example-next-js-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>Next.js</template>
+        <template #description>@scalar/nextjs-api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5059'
+            : 'https://scalar-example-react-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>React</template>
+        <template #description>@scalar/api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5053/reference'
+            : 'https://scalar-example-fastify-p6gnzjpyuq-uc.a.run.app/reference'
+        ">
+        <template #title>Fastify</template>
+        <template #description>@scalar/fastify-api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5054'
+            : 'https://scalar-example-hono-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>Hono</template>
+        <template #description>@scalar/hono-api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5055'
+            : 'https://scalar-example-express-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>Express</template>
+        <template #description>@scalar/express-api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5056'
+            : 'https://scalar-example-nest-js-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>NestJS (Express)</template>
+        <template #description>@scalar/nestjs-api-reference</template>
+      </PageLink>
+      <PageLink
+        :href="
+          inDevelopment
+            ? 'http://localhost:5057'
+            : 'https://scalar-example-nest-js-fastify-p6gnzjpyuq-uc.a.run.app'
+        ">
+        <template #title>NestJS (Fastify)</template>
+        <template #description>@scalar/nestjs-api-reference</template>
+      </PageLink>
+    </div>
+    <h1>@scalar/components</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:5100">
+        <template #title>Components</template>
+        <template #description>
+          The design system we’re using throughout our packages.
+        </template>
+      </PageLink>
+    </div>
+    <h1>@scalar/draggable</h1>
+    <div class="page-links">
+      <PageLink href="http://localhost:5064">
+        <template #title>Draggable</template>
+        <template #description>
+          Light vue wrapper around html5 drag and drop
+        </template>
+      </PageLink>
+    </div>
   </div>
 </template>
 
