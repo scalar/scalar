@@ -30,7 +30,8 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   <div class="property-heading">
     <div
       v-if="$slots.name"
-      class="property-name">
+      class="property-name"
+      :class="{ deprecated: value?.deprecated }">
       <slot
         v-if="!pattern"
         name="name" />
@@ -222,5 +223,9 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 .property-const {
   color: var(--scalar-color-1);
+}
+
+.deprecated {
+  text-decoration: line-through;
 }
 </style>
