@@ -307,7 +307,7 @@ export default {
   <slot name="icon" />
   <div
     v-if="required"
-    class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.error]:bg-transparent group-[.alert]:shadow-none group-[.error]:shadow-none peer-has-[.cm-focused]:opacity-0">
+    class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0.5 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.error]:bg-transparent group-[.alert]:shadow-none group-[.error]:shadow-none peer-has-[.cm-focused]:opacity-0">
     Required
   </div>
   <EnvironmentVariableDropdown

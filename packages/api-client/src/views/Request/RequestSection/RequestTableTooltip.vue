@@ -36,7 +36,13 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
           {{ parameterIsInvalid(item).value }}
         </div>
         <div
-          v-else
+          v-else-if="
+            item.type ||
+            item.format ||
+            item.minimum ||
+            item.maximum ||
+            item.default
+          "
           class="schema text-c-2 flex items-center">
           <span v-if="item.type">{{ item.type }}</span>
           <span v-if="item.format">{{ item.format }}</span>

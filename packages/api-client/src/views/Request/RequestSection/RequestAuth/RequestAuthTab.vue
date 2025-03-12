@@ -105,6 +105,14 @@ const dataTableInputProps = {
       </DataTableCell>
     </DataTableRow>
 
+    <!-- Description -->
+    <DataTableRow v-if="scheme?.description">
+      <DataTableCell
+        class="text-c-3 flex items-center overflow-auto whitespace-nowrap pl-3 font-medium">
+        {{ scheme.description }}
+      </DataTableCell>
+    </DataTableRow>
+
     <!-- HTTP -->
     <template v-if="scheme?.type === 'http'">
       <!-- Bearer -->
