@@ -57,22 +57,6 @@ const inDevelopment = import.meta.env.DEV
     </div>
     <h1>Examples</h1>
     <div class="page-links">
-      <PageLink href="http://localhost:5065">
-        <template #title>Client V2</template>
-        <template #description>@scalar/api-client</template>
-      </PageLink>
-      <PageLink href="http://localhost:5062/json">
-        <template #title>Nuxt</template>
-        <template #description>@scalar/nuxt</template>
-      </PageLink>
-      <PageLink href="http://localhost:5066/api/openapi">
-        <template #title>Next.js</template>
-        <template #description>@scalar/nuxtjs-openapi</template>
-      </PageLink>
-      <PageLink href="http://localhost:5063/yaml-url">
-        <template #title>Docusaurus</template>
-        <template #description>@scalar/docusaurus</template>
-      </PageLink>
       <PageLink
         :href="
           inDevelopment
@@ -135,24 +119,6 @@ const inDevelopment = import.meta.env.DEV
         ">
         <template #title>NestJS (Fastify)</template>
         <template #description>@scalar/nestjs-api-reference</template>
-      </PageLink>
-    </div>
-    <h1>@scalar/components</h1>
-    <div class="page-links">
-      <PageLink href="http://localhost:5100">
-        <template #title>Components</template>
-        <template #description>
-          The design system we’re using throughout our packages.
-        </template>
-      </PageLink>
-    </div>
-    <h1>@scalar/draggable</h1>
-    <div class="page-links">
-      <PageLink href="http://localhost:5064">
-        <template #title>Draggable</template>
-        <template #description>
-          Light vue wrapper around html5 drag and drop
-        </template>
       </PageLink>
     </div>
   </div>
