@@ -409,11 +409,14 @@ export type ApiReferenceConfigurationWithSources = Omit<
   'proxy'
 >
 
+/** Configuration for multiple Api References */
+export type MultiReferenceConfiguration =
+  | Partial<ApiReferenceConfiguration>
+  | Partial<ApiReferenceConfiguration>[]
+  | Partial<ApiReferenceConfigurationWithSources>
+
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (
-  config:
-    | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfiguration>[]
-    | Partial<ApiReferenceConfigurationWithSources>,
+  config: MultiReferenceConfiguration,
 ): config is Partial<ApiReferenceConfigurationWithSources> =>
   Boolean(!Array.isArray(config) && config.spec && 'sources' in config.spec && Array.isArray(config.spec.sources))

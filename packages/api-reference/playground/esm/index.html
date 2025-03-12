@@ -11,17 +11,15 @@
     <div id="app"></div>
 
     <script type="module">
-      import { createScalarReferences } from '../../src'
+      import { createApiReference } from '../../src'
 
       // CDN:
-      // import { createScalarReferences } from 'https://esm.sh/@scalar/api-reference';
+      // import { createApiReference } from 'https://esm.sh/@scalar/api-reference';
 
       // Doesn’t work:
-      // import { createScalarReferences } from 'https://esm.run/@scalar/api-reference';
+      // import { createApiReference } from 'https://esm.run/@scalar/api-reference';
 
-      const el = document.getElementById('app')
-
-      const reference = createScalarReferences(el, {
+      createApiReference('#app', {
         spec: {
           sources: [
             {
@@ -67,31 +65,6 @@
           ],
         },
       })
-
-      // Replace the OpenAPI document URL
-      // let currentOpenApiDocument = 'scalar-galaxy'
-
-      // setInterval(() => {
-      //   currentOpenApiDocument =
-      //     currentOpenApiDocument === 'scalar-galaxy'
-      //       ? 'outline'
-      //       : 'scalar-galaxy'
-
-      //   reference.updateSpec({
-      //     url:
-      //       currentOpenApiDocument === 'scalar-galaxy'
-      //         ? 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json'
-      //         : 'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
-      //   })
-      // }, 4000)
-
-      // // Toggle dark mode
-      // let isDark = false
-
-      // setInterval(() => {
-      //   isDark = !isDark
-      //   reference.updateConfig({ darkMode: isDark })
-      // }, 2000)
     </script>
   </body>
 </html>

@@ -1,13 +1,12 @@
-/**
- * This file is the entry point for the CDN version of the API Reference.
- *
- * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue app.
- */
-import { getConfigurationFromDataAttributes, mountScalarApiReference } from '@/standalone/lib/html-api'
+import { findDataAttributes, getConfigurationFromDataAttributes } from '@/standalone/lib/html-api'
+import { registerGlobals } from '@/standalone/lib/register-globals'
 
-// Log the version of the API Reference
+// Log the package version
 if (process.env.SCALAR_API_REFERENCE_VERSION) {
-  console.info('Scalar API Reference version:', process.env.SCALAR_API_REFERENCE_VERSION)
+  console.info(`@scalar/api-reference@${process.env.SCALAR_API_REFERENCE_VERSION}`)
 }
 
-mountScalarApiReference(document, getConfigurationFromDataAttributes(document))
+registerGlobals()
+
+// Look for data attributes in the HTML (legacy)
+findDataAttributes(document, getConfigurationFromDataAttributes(document))

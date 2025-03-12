@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { migrateThemeVariables } from '@scalar/themes'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
