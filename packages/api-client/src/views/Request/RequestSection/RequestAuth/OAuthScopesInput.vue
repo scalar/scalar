@@ -53,7 +53,7 @@ function setScope(id: string, checked: boolean) {
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 pr-2 text-left',
+            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 pr-2.5 text-left',
             (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
@@ -64,7 +64,7 @@ function setScope(id: string, checked: boolean) {
           <ScalarIcon
             class="text-c-3 group-hover/scopes-accordion:text-c-2"
             :icon="open ? 'ChevronDown' : 'ChevronRight'"
-            size="sm" />
+            size="md" />
         </DisclosureButton>
         <DisclosurePanel as="template">
           <table
@@ -76,14 +76,12 @@ function setScope(id: string, checked: boolean) {
               class="text-c-2"
               @click="setScope(id, !selectedScopes.includes(id))">
               <DataTableCell
-                class="hover:text-c-1 !max-h-[initial] w-full cursor-pointer px-3 py-1.5">
-                <span>
-                  <span v-if="description">
-                    <span class="font-code text-xs">{{ label }}</span>
-                    &ndash;
-                    {{ description }}
-                  </span>
-                </span>
+                class="hover:text-c-1 box-border !max-h-[initial] w-full cursor-pointer px-3 py-1.5">
+                <div v-if="description">
+                  <span class="font-code text-xs">{{ label }}</span>
+                  &ndash;
+                  {{ description }}
+                </div>
               </DataTableCell>
               <DataTableCheckbox
                 :modelValue="selectedScopes.includes(id)"
