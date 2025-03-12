@@ -417,6 +417,8 @@ jobs:
           packages-only: true
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
+      - name: Build examples/web
+        run: pnpm --filter @scalar-examples/web build
       - name: Install Netlify CLI
         run: pnpm install -g netlify
       - name: Deploy to Netlify
