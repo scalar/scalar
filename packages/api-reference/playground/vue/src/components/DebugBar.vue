@@ -96,6 +96,26 @@ const themes = [
       <div class="flex flex-col gap-2 px-2">
         <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
           <label class="flex items-center gap-2">
+            <span>Layout</span>
+            <select
+              class="rounded border-stone-700 bg-stone-800 p-1"
+              :value="modelValue.layout"
+              @change="
+                $emit('update:modelValue', {
+                  ...modelValue,
+                  layout: ($event.target as HTMLSelectElement).value as
+                    | 'modern'
+                    | 'classic',
+                })
+              ">
+              <option value="modern">modern</option>
+              <option value="classic">classic</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
+          <label class="flex items-center gap-2">
             <span>Theme</span>
             <select
               class="rounded border-stone-700 bg-stone-800 p-1"

@@ -11,7 +11,8 @@ import DebugBar from './components/DebugBar.vue'
 const containerRef = ref<HTMLDivElement>()
 
 const configuration = reactive({
-  theme: 'default',
+  layout: 'modern' as const,
+  theme: 'default' as const,
   spec: {
     sources: [
       {
@@ -33,6 +34,7 @@ onMounted(async () => {
 const updateConfiguration = (
   newConfiguration: Partial<ApiReferenceConfigurationWithSources>,
 ) => {
+  Object.assign(configuration, newConfiguration)
   app?.updateConfiguration(newConfiguration)
 }
 </script>
