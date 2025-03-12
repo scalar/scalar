@@ -32,6 +32,24 @@ const { collectionMutators, requestMutators, servers } = useWorkspace()
 const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
   if (hasVariables(serverUid)) event?.stopPropagation()
 
+  // Handle selected server deselection
+  if (isSelectedServer.value) {
+    // Clear selected server if selected
+    if (props.operation?.servers?.length) {
+      requestMutators.edit(props.operation.uid, 'selectedServerUid', null)
+    }
+    if (props.type === 'collection') {
+      collectionMutators.edit(
+        props.collection.uid,
+        'selectedServerUid',
+        undefined,
+      )
+    } else if (props.type === 'request' && props.operation) {
+      requestMutators.edit(props.operation.uid, 'selectedServerUid', null)
+    }
+    return
+  }
+
   // Set selected server on Collection
   if (props.type === 'collection' && props.collection) {
     // Clear the selected server on the request so that the collection can be updated
@@ -51,9 +69,17 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
 }
 
 /** Set server checkbox in the dropdown */
-const isSelectedServer = computed(
-  () => props.server?.uid === props.serverOption.id,
-)
+const isSelectedServer = computed(() => {
+  if (props.type === 'collection') {
+    return props.collection.selectedServerUid === props.serverOption.id
+  }
+
+  if (props.type === 'request' && props.operation) {
+    return props.operation.selectedServerUid === props.serverOption.id
+  }
+
+  return false
+})
 
 const hasVariables = (serverUid: string) => {
   if (!serverUid) return false

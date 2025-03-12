@@ -102,8 +102,17 @@ const updateServerVariable = (key: string, value: string) => {
     <ScalarButton
       class="gap-0.75 z-context-plus h-6.5 hover:bg-b-2 font-code ml-0.75 text-c-2 whitespace-nowrap rounded border px-1.5 text-xs lg:text-sm"
       variant="ghost">
-      <span class="sr-only">Server:</span>
-      {{ serverUrlWithoutTrailingSlash }}
+      <template
+        v-if="operation?.selectedServerUid || collection.selectedServerUid">
+        <span class="sr-only">Server:</span>
+        {{ serverUrlWithoutTrailingSlash }}
+      </template>
+      <template v-else>
+        <span class="sr-only">Add Server</span>
+        <ScalarIcon
+          icon="Add"
+          size="xs" />
+      </template>
     </ScalarButton>
     <template #popover="{ close }">
       <div

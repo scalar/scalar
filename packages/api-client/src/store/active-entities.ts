@@ -154,15 +154,23 @@ export const createActiveEntitiesStore = ({
   })
 
   /** The currently selected server in the addressBar */
-  const activeServer = computed(
-    () =>
-      servers[
-        (activeRequest.value?.selectedServerUid ||
-          activeCollection.value?.selectedServerUid ||
-          activeCollection.value?.servers[0]) ??
-          ''
-      ],
-  )
+  const activeServer = computed(() => {
+    // Request has a selected server
+    if (isDefined(activeRequest.value?.selectedServerUid)) {
+      // Return server if selected
+      const server = servers[activeRequest.value.selectedServerUid]
+      if (server) return server
+    }
+
+    // Collection has a selected server
+    if (isDefined(activeCollection.value?.selectedServerUid)) {
+      // Return server if selected
+      const server = servers[activeCollection.value.selectedServerUid]
+      if (server) return server
+    }
+
+    return undefined
+  })
 
   /** Cookie associated with the current route */
   const activeCookieId = computed(() =>

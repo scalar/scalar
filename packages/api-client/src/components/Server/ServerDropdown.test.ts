@@ -3,11 +3,9 @@ import { PopoverPanel } from '@headlessui/vue'
 import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
 import { mockUseLayout } from '@/vitest.setup'
-
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
   useWorkspace: vi.fn(),
@@ -18,6 +16,7 @@ describe('ServerDropdown', () => {
     collection: collectionSchema.parse({
       uid: 'collection-1',
       servers: ['server-1', 'server-2'],
+      selectedServerUid: 'server-1',
     }),
     layout: 'reference',
     server: serverSchema.parse({
@@ -242,5 +241,40 @@ describe('ServerDropdown', () => {
     expect(workspace.serverMutators.edit).toHaveBeenCalledWith('server-1', 'variables', {
       version: { default: 'v2' },
     })
+  })
+
+  it('deselects the server when clicking on the selected server', async () => {
+    const wrapper = mount(ServerDropdown, {
+      props: defaultProps,
+    })
+
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
+
+    await wrapper
+      .findAllComponents(ServerDropdownItem)
+      .filter((node) => node.text() === 'https://scalar.com')
+      .at(0)
+      ?.find('button')
+      ?.trigger('click')
+
+    const workspace = useWorkspace()
+    expect(workspace.collectionMutators.edit).toHaveBeenCalledWith('collection-1', 'selectedServerUid', undefined)
+
+    // New wrapper with updated props to get the after deselection state
+    const updatedWrapper = mount(ServerDropdown, {
+      props: {
+        ...defaultProps,
+        collection: {
+          ...defaultProps.collection,
+          selectedServerUid: undefined,
+        },
+      },
+    })
+
+    expect(updatedWrapper.find('button').html()).toContain('Add Server')
   })
 })
