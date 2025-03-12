@@ -131,18 +131,9 @@ const handleLabelClick = () => {
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
-          v-if="description"
-          class="centered-y text-xxs text-c-3 bg-b-1 absolute right-0 h-full opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)]">
-          <RequestTableTooltip
-            v-if="description"
-            class=""
-            :item="{
-              description: description,
-              required: required,
-              value: '',
-              key: '',
-              enabled: true,
-            }" />
+          v-if="required"
+          class="scalar-input-required centered-y text-xxs text-c-3 bg-b-1 absolute right-2.5 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[:focus-visible]:opacity-0">
+          Required
         </div>
       </template>
     </div>
@@ -154,8 +145,7 @@ const handleLabelClick = () => {
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="centered-y text-xxs text-c-3 bg-b-1 right-0.75 p-1.25 absolute h-6 w-6 shadow-[-8px_0_4px_var(--scalar-background-1)]"
-      :class="description && 'right-6'"
+      class="-ml-.5 mr-1.25 p-1.25 h-6 w-6 self-center"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

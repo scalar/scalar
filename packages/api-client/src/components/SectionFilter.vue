@@ -74,7 +74,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
 }
 .filter-hover {
   height: 100%;
-  padding-right: 42px;
+  padding-right: 39px;
   padding-left: 24px;
   position: absolute;
   right: 0;

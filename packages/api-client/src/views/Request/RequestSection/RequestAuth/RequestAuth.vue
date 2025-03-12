@@ -232,7 +232,7 @@ const schemeOptions = computed(() =>
           <ScalarButton
             ref="comboboxButtonRef"
             :aria-describedby="titleId"
-            class="py-0.75 hover:bg-b-3 text-c-1 hover:text-c-1 h-auto px-1.5 font-normal"
+            class="hover:bg-b-3 text-c-1 hover:text-c-1 py-0.25 h-fit px-1.5 font-normal"
             fullWidth
             variant="ghost">
             <div class="text-c-1">
