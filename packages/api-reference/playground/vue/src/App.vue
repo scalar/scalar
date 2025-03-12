@@ -4,7 +4,7 @@ import { createApiReference } from '../../../src/index'
 import '@scalar/api-reference/style.css'
 
 import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-reference'
-import { nextTick, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
 
@@ -38,15 +38,13 @@ const updateConfiguration = (
 </script>
 
 <template>
-  <div class="flex min-h-screen">
+  <div class="flex h-dvh min-h-dvh overflow-hidden">
     <!-- Main content -->
-    <div class="flex-1">
+    <div class="flex-1 overflow-y-auto">
       <div ref="containerRef"></div>
     </div>
-
     <!-- Sidebar -->
-    <div
-      class="sticky top-0 h-screen w-96 border-l border-stone-800 bg-stone-900">
+    <div class="w-96 overflow-y-auto border-l border-stone-800 bg-stone-900">
       <DebugBar
         v-model="configuration"
         @update:modelValue="updateConfiguration" />
