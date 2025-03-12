@@ -1,3 +1,14 @@
+<script lang="ts">
+/**
+ * Scalar Text Input component
+ *
+ * A wrapper around the HTML input element with a focusable container.
+ *
+ * @example
+ *   <ScalarTextInput v-model="model" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { ref } from 'vue'
 
@@ -8,11 +19,15 @@ const model = defineModel<string>()
 const input = ref<HTMLInputElement>()
 
 defineOptions({ inheritAttrs: false })
-const { cx } = useBindCx()
+const { classCx, otherAttrs } = useBindCx()
 </script>
 <template>
   <div
-    class="bg-b-1.5 flex cursor-text items-center gap-0.75 rounded-md border px-3 py-2.5 outline-offset-[-1px] focus-within:bg-b-1 has-[input:focus-visible]:outline"
+    v-bind="
+      classCx(
+        'bg-b-1.5 flex cursor-text items-center gap-0.75 rounded-md border px-3 py-2.5 outline-offset-[-1px] focus-within:bg-b-1 has-[input:focus-visible]:outline',
+      )
+    "
     @click="input?.focus()">
     <div class="flex flex-1 gap-2 font-normal">
       <div class="flex flex-1 flex-col gap-0.75">
@@ -25,11 +40,7 @@ const { cx } = useBindCx()
           <input
             ref="input"
             v-model="model"
-            v-bind="
-              cx(
-                'z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none',
-              )
-            " />
+            v-bind="otherAttrs" />
           <div
             v-if="$slots.prefix || $slots.suffix"
             class="absolute inset-0 select-none overflow-hidden whitespace-nowrap text-sm">

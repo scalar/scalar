@@ -50,6 +50,13 @@ export function useBindCx() {
     }
   }
 
+  function bindClass(...args: CXOptions): {
+    /** The merged class attribute */
+    class: string
+  } {
+    return { class: cx(...args, destructured.value.class) }
+  }
+
   return {
     /**
      * Provides a wrapper around the `cx` function that merges the
@@ -66,5 +73,13 @@ export function useBindCx() {
      * </template>
      */
     cx: bindCx,
+    /**
+     * Provides a wrapper around the `cx` function that merges the
+     * component's class attribute with the provided classes and but **does
+     * not** bind the remaining attributes
+     */
+    classCx: bindClass,
+    /** The remaining attributes that are not class attributes */
+    otherAttrs: computed(() => destructured.value.rest),
   }
 }
