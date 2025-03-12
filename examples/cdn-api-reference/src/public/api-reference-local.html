@@ -7,11 +7,21 @@
       name="viewport"
       content="width=device-width, initial-scale=1" />
   </head>
+
   <body>
-    <script
-      id="api-reference"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
-      data-proxy-url="https://proxy.scalar.com"></script>
+    <div id="app"></div>
+
+    <!-- Load the Script -->
     <script src="/api-reference/standalone.js"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script>
+      Scalar.createApiReference('#app', {
+        // The URL of the OpenAPI/Swagger document
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
   </body>
 </html>
