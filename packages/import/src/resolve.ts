@@ -282,20 +282,22 @@ export function getConfigurationAttribute(html: string): string | undefined {
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
   const configString = getConfigurationAttribute(html)
-
   if (!configString) return undefined
 
   try {
     const config = JSON.parse(decodeHtmlEntities(configString))
 
+    // Handle the old spec format while we transition to the new one
+    const content = config.content || config.spec?.content
+
     // Handle both direct JSON content and YAML content
-    if (config.content) {
+    if (content) {
       // If content is a string, assume it's YAML
-      if (typeof config.content === 'string') {
-        return parse(config.content)
+      if (typeof content === 'string') {
+        return parse(content)
       }
       // If content is an object, return it directly
-      return config.content
+      return content
     }
   } catch (error) {
     console.error('[@scalar/import] Failed to parse embedded OpenAPI document:', error)
