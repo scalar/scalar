@@ -265,13 +265,23 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
  * @example <script id="api-reference" data-configuration="{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}"></script>
  */
 export function getConfigurationAttribute(html: string): string | undefined {
-  // Match both escaped and unescaped configurations
-  const pattern = /<script[^>]*id=["']api-reference["'][^>]*data-configuration=(["'])(.*?)\1[^>]*>(?:.*?)<\/script>/s
+  const patterns = [
+    // Double quotes
+    /<script[^>]*id="api-reference"[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
+    // Single quotes
+    /<script[^>]*id='api-reference'[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
+    // Mix quote single first
+    /<script[^>]*id='api-reference'[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
+    // Mix quote double first
+    /<script[^>]*id="api-reference"[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
+  ]
 
-  const match = html.match(pattern)
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
 
-  if (match?.[2]) {
-    return match[2]
+    if (match?.[1]) {
+      return match[1]
+    }
   }
 
   return undefined
