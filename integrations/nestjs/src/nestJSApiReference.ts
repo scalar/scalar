@@ -1,14 +1,14 @@
 import type { ServerResponse } from 'node:http'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Request, Response } from 'express'
 import type { FastifyRequest } from 'fastify'
 
-export type NestJSReferenceConfiguration = ReferenceConfiguration & {
+export type NestJSReferenceConfiguration = ApiReferenceConfiguration & {
   withFastify?: boolean
   cdn?: string
 }
 
-export type ApiReferenceOptions = ReferenceConfiguration & {
+export type ApiReferenceOptions = ApiReferenceConfiguration & {
   cdn?: string
 }
 
