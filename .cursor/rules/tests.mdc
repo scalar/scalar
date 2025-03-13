@@ -1,0 +1,29 @@
+---
+description: Write awesome tests
+globs: *.test.ts,*.spec.ts
+alwaysApply: false
+---
+# Write tests 
+
+## Setup
+
+- Most tests just use Vitest.
+- We don’t have globals enabled, so all tests files should import describe, it and expect from vitest.
+- All test files end with *.test.ts and match the name of the file that contains the code we’re testing.
+- We should try to only mock if it’s really necessary. Sometimes we can refactor the actual code to make mocking unnecessary.
+- Every test file should have at least one `describe()`. It should have the name of the test file. Example: The code is in 'custom-function.ts', the test file is called 'custom-function.test.ts', then the test file should have `describe('custom-function')`. Inside this describe group, we can add additional groups with `describe` if we test multiple functions. Inside those groups, we can have more groups to separate the tests for the features. See [useMultipleDocuments.test.ts](mdc:packages/api-reference/src/hooks/useMultipleDocuments.test.ts) to see an example.
+- The tests are wrapped in `it()`. The description of the text doesn’t start with "should", instead we should make the description as short and on point as possible. Example: `it('generates a slug from the title')`
+
+### Playwright tests
+
+- A few tests are using Playwright, they are in files ending with *.spec.ts.
+- We don’t want to write too many Playwright tests.
+- They are all stored in /playwright/tests.
+- Here is an example: @local.spec.ts
+
+## Style
+
+- We optimize tests for clarity and readability. It should be easy to follow along.
+- When writing tests, think like a qa engineer. Cover all code lines, add a few tests to cover edge cases.
+- Not just test the happy path, test the error handling, too.
+- If it’s helpful to understand the tests, write comments. But don’t just repeat what the code does, but focus on the *why* we need this code.
