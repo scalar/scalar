@@ -4,7 +4,7 @@ import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/Req
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { Spec } from '@scalar/types/legacy'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/BaseUrl'
 import { getModels, hasModels } from '@/helpers'
