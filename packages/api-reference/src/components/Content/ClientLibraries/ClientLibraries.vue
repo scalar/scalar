@@ -10,12 +10,15 @@ const {
   availableTargets,
   httpTargetTitle,
   httpClientTitle,
+  getClientTitle,
+  getTargetTitle,
   httpClient,
   setHttpClient,
 } = useHttpClientStore()
 const { featuredClients, isFeatured } = useFeaturedHttpClients()
 
 const index = ref(0)
+const headingId = useId()
 const morePanel = useId()
 
 watch(
@@ -23,8 +26,11 @@ watch(
   (client) => {
     if (!client) return
 
-    if (isFeatured(client))
-      index.value = featuredClients.findIndex((tab) => tab === client)
+    index.value = featuredClients.findIndex(
+      (tab) =>
+        tab.targetKey === client.targetKey &&
+        tab.clientKey === client.clientKey,
+    )
   },
   { immediate: true },
 )
@@ -41,29 +47,32 @@ function handleChange(i: number) {
       manual
       :selectedIndex="index"
       @change="handleChange">
-      <div class="client-libraries-heading">Client Libraries</div>
-      <TabList>
+      <div
+        :id="headingId"
+        class="client-libraries-heading">
+        Client Libraries
+      </div>
+      <TabList
+        :aria-labelledby="headingId"
+        class="client-libraries-list">
         <ClientSelector
           :featured="featuredClients"
           :morePanel="morePanel" />
       </TabList>
       <TabPanels>
         <template v-if="httpClient && isFeatured(httpClient)">
-          <!-- We just add fake tabs and swap the content -->
           <TabPanel
-            v-for="(_, i) in featuredClients"
+            v-for="(client, i) in featuredClients"
             :key="i"
-            class="selected-client card-footer -outline-offset-2"
-            muted>
-            {{ httpClientTitle }}
-            {{ httpTargetTitle }}
+            class="selected-client card-footer -outline-offset-2">
+            {{ getClientTitle(client) }}
+            {{ getTargetTitle(client) }}
           </TabPanel>
         </template>
         <div
           v-else
           :id="morePanel"
           class="selected-client card-footer -outline-offset-2"
-          muted
           role="tabpanel"
           tabindex="0">
           {{ httpClientTitle }}

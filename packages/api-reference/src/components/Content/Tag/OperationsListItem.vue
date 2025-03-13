@@ -23,7 +23,7 @@ const { scrollToOperation } = useSidebar()
 // TODO in V2 we need to do the same loading trick as the initial load
 const scrollHandler = async (givenOperation: TransformedOperation) => {
   const operationId = getOperationId(givenOperation, tag)
-  scrollToOperation(operationId)
+  scrollToOperation(operationId, true)
 }
 
 const store = useWorkspace()

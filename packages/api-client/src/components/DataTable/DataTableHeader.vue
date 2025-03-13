@@ -8,7 +8,7 @@ const { cx } = useBindCx()
 <template>
   <DataTableCell
     is="th"
-    v-bind="cx('truncate font-medium px-2 py-1.5')">
+    v-bind="cx('items-center font-medium px-2 min-w-0 -outline-offset-1')">
     <slot />
   </DataTableCell>
 </template>

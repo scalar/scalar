@@ -66,7 +66,6 @@ const isSelectedClient = (language: HttpClientState) => {
       :class="{
         'client-libraries__active': httpClient && !isFeatured(httpClient),
       }">
-      <span class="sr-only">Select from all clients</span>
       <select
         :aria-controls="morePanel"
         class="language-select"
@@ -130,10 +129,10 @@ const isSelectedClient = (language: HttpClientState) => {
       </div>
       <span
         v-if="availableTargets.length"
-        aria-hidden="true"
-        class="client-libraries-text">
+        class="client-libraries-text client-libraries-text-more">
         More
       </span>
+      <span class="sr-only">Select from all clients</span>
     </label>
   </div>
 </template>
@@ -235,7 +234,7 @@ const isSelectedClient = (language: HttpClientState) => {
     transform: rotate(1turn);
   }
 }
-.client-libraries .client-libraries-text:last-of-type {
+.client-libraries .client-libraries-text {
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   position: relative;

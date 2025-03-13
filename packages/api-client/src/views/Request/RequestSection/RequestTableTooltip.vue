@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
 
 import { parameterIsInvalid } from '../libs/request'
 
 const { item } = defineProps<{ item: RequestExampleParameter }>()
+
+const isInvalid = computed(() => !!parameterIsInvalid(item).value)
 </script>
 <template>
   <ScalarTooltip
@@ -15,14 +18,16 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
     triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 group-[.alert]:before:to-b-alert group-[.error]:before:to-b-danger before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
     <template #trigger>
       <div
-        class="bg-b-1 mr-1 pl-1 pr-1.5 group-[.alert]:bg-transparent group-[.error]:bg-transparent">
+        :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
+        class="bg-b-1 mr-1 pl-1 pr-1.5 group-[.alert]:bg-transparent group-[.error]:bg-transparent"
+        :role="isInvalid ? 'alert' : 'none'">
         <ScalarIcon
           :class="
-            parameterIsInvalid(item).value
+            isInvalid
               ? 'text-orange brightness-[.9]'
               : 'text-c-3 group-hover/info:text-c-1'
           "
-          :icon="parameterIsInvalid(item).value ? 'Alert' : 'Info'"
+          :icon="isInvalid ? 'Alert' : 'Info'"
           size="sm"
           thickness="1.5" />
       </div>
@@ -31,7 +36,7 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
       <div
         class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none grid min-w-48 gap-1.5 rounded p-2 leading-5 shadow-lg">
         <div
-          v-if="parameterIsInvalid(item).value"
+          v-if="isInvalid"
           class="text-error-1">
           {{ parameterIsInvalid(item).value }}
         </div>
@@ -51,11 +56,11 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
           <span v-if="item.default">default: {{ item.default }}</span>
         </div>
         <span
-          v-if="item.description && !parameterIsInvalid(item).value"
+          v-if="item.description && !isInvalid"
           class="text-pretty text-sm leading-snug"
-          :style="{ maxWidth: '16rem' }"
-          >{{ item.description }}</span
-        >
+          :style="{ maxWidth: '16rem' }">
+          {{ item.description }}
+        </span>
       </div>
     </template>
   </ScalarTooltip>
