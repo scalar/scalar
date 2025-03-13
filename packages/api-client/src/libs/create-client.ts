@@ -345,7 +345,7 @@ export const createApiClient = ({
       if (!request) return
 
       const contentType = Object.keys(request.requestBody?.content || {})[0] || ''
-      const example = request.requestBody?.content?.[contentType]?.examples[exampleKey]
+      const example = request.requestBody?.content?.[contentType]?.examples?.[exampleKey]
       if (!example) return
 
       requestExampleMutators.edit(request.examples[0], 'body.raw.value', prettyPrintJson(example.value))
