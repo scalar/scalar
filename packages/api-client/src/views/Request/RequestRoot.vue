@@ -33,6 +33,8 @@ const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
 const { isSidebarOpen } = useSidebar()
 
+const element = ref<HTMLDivElement>()
+
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
 
@@ -115,6 +117,14 @@ onMounted(() => {
   events.cancelRequest.on(cancelRequest)
 })
 
+/** Focus the first button in the layout when the modal is mounted */
+onMounted(() => {
+  if (element.value && layout === 'modal') {
+    const button = element.value.querySelector('button')
+    if (button) button.focus()
+  }
+})
+
 useOpenApiWatcher()
 
 /**
@@ -137,6 +147,7 @@ watch(
 <template>
   <!-- Layout -->
   <div
+    ref="element"
     class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
       '!mb-0 !mr-0 !border-0': layout === 'modal',
