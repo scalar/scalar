@@ -1,4 +1,4 @@
-import type { ApiReferenceConfiguration } from '@/api-reference/api-reference-configuration.ts'
+import type { ApiReferenceConfigurationWithSources } from '@/api-reference/api-reference-configuration.ts'
 import { z } from 'zod'
 
 /**
@@ -26,5 +26,5 @@ export const htmlRenderingConfigurationSchema = z.object({
  *
  * It’s the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
  */
-export type HtmlRenderingConfiguration = Partial<ApiReferenceConfiguration> &
+export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithSources> &
   z.infer<typeof htmlRenderingConfigurationSchema>

@@ -184,7 +184,7 @@ app.get(
     },
     sources: [
       {
-        name: 'Hono',
+        title: 'Hono',
         url: '/openapi.json',
       },
       {
