@@ -35,6 +35,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
+    "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
