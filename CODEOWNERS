@@ -11,6 +11,9 @@
 # Changesets
 /.changeset/*
 
+# Cursor rules
+/.cursor @hanspagel @amritk
+
 # Packages
 /packages/api-client @amritk @hanspagel
 /packages/api-reference-editor @geoffgscott
