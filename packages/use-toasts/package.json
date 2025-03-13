@@ -40,7 +40,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "nanoid": "^5.0.9",
+    "nanoid": "^5.1.1",
     "vue": "^3.5.12",
     "vue-sonner": "^1.0.3"
   },
