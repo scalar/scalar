@@ -129,24 +129,26 @@ describe('html-rendering', () => {
       const tags = getScriptTags(config, 'https://example.com/script.js')
 
       // Check that all function properties are preserved
-      expect(tags).toContain('tagsSorter: (a, b) => a.name.localeCompare(b.name)')
-      expect(tags).toContain('operationsSorter: (a, b) => a.path.localeCompare(b.path)')
-      expect(tags).toContain('generateHeadingSlug: (heading) => `heading-${heading.slug}`')
-      expect(tags).toContain('generateModelSlug: (model) => `model-${model.name}`')
-      expect(tags).toContain('generateTagSlug: (tag) => `tag-${tag.name}`')
-      expect(tags).toContain('generateOperationSlug: (operation) => `${operation.method}-${operation.path}`')
-      expect(tags).toContain('generateWebhookSlug: (webhook) => `webhook-${webhook.name}`')
-      expect(tags).toContain('onLoaded: () => console.log("loaded")')
-      expect(tags).toContain('redirect: (path) => path.replace("/old", "/new")')
-      expect(tags).toContain('onSpecUpdate: (spec) => console.log("spec updated", spec)')
-      expect(tags).toContain('onServerChange: (server) => console.log("server changed", server)')
+      expect(tags).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
+      expect(tags).toContain('"operationsSorter": (a, b) => a.path.localeCompare(b.path)')
+      expect(tags).toContain('"generateHeadingSlug": (heading) => `heading-${heading.slug}`')
+      expect(tags).toContain('"generateModelSlug": (model) => `model-${model.name}`')
+      expect(tags).toContain('"generateTagSlug": (tag) => `tag-${tag.name}`')
+      expect(tags).toContain('"generateOperationSlug": (operation) => `${operation.method}-${operation.path}`')
+      expect(tags).toContain('"generateWebhookSlug": (webhook) => `webhook-${webhook.name}`')
+      expect(tags).toContain('"onLoaded": () => console.log("loaded")')
+      expect(tags).toContain('"redirect": (path) => path.replace("/old", "/new")')
+      expect(tags).toContain('"onSpecUpdate": (spec) => console.log("spec updated", spec)')
+      expect(tags).toContain('"onServerChange": (server) => console.log("server changed", server)')
     })
 
     it('generates complete HTML document with configuration', () => {
       const config = {
         theme: 'kepler' as const,
         tagsSorter: (a: any, b: any) => a.name.localeCompare(b.name),
-        onLoaded: () => console.log('loaded'),
+        onLoaded: () => {
+          console.log('loaded')
+        },
         pageTitle: 'Foobar',
         customCss: '.sidebar { background: blue }',
         favicon: '/favicon.ico',
@@ -156,7 +158,7 @@ describe('html-rendering', () => {
       const html = getHtmlDocument(getConfiguration(config))
 
       // Check that HTML structure is correct
-      expect(html).toContain(' <!doctype html>')
+      expect(html).toContain('<!doctype html>')
       expect(html).toContain('<html>')
       expect(html).toContain('</html>')
 
@@ -170,8 +172,10 @@ describe('html-rendering', () => {
 
       // Check that configuration is properly embedded
       expect(html).toContain('"theme": "kepler"')
-      expect(html).toContain('tagsSorter: (a, b) => a.name.localeCompare(b.name)')
-      expect(html).toContain('onLoaded: () => console.log("loaded")')
+      expect(html).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
+      expect(html).toContain(`"onLoaded": () => {
+          console.log("loaded");
+        }`)
     })
 
     it('handles mixed function and non-function properties', () => {
@@ -186,8 +190,8 @@ describe('html-rendering', () => {
       // Check that non-function properties are JSON stringified
       expect(tags).toContain('"theme": "kepler"')
       // Check that function properties are preserved
-      expect(tags).toContain('tagsSorter: (a, b) => a.name.localeCompare(b.name)')
-      expect(tags).toContain('onLoaded: () => console.log("loaded")')
+      expect(tags).toContain('"tagsSorter": (a, b) => a.name.localeCompare(b.name)')
+      expect(tags).toContain('"onLoaded": () => console.log("loaded")')
     })
   })
 

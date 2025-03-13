@@ -5,10 +5,19 @@ export type { HtmlRenderingConfiguration }
 
 /**
  * Helper function to add consistent indentation to multiline strings
+ * @param str The string to indent
+ * @param spaces Number of spaces for each level
+ * @param initialIndent Whether to indent the first line
  */
-const addIndent = (str: string, spaces: number = 2): string => {
+const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = false): string => {
   const indent = ' '.repeat(spaces)
-  return str.split('\n').join(`\n${indent}`)
+  const lines = str.split('\n')
+  return lines
+    .map((line, index) => {
+      if (index === 0 && !initialIndent) return line
+      return `${indent}${line}`
+    })
+    .join('\n')
 }
 
 /**
@@ -17,25 +26,24 @@ const addIndent = (str: string, spaces: number = 2): string => {
 const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customTheme: string): string => {
   const styles: string[] = []
 
-  // Add customCss if provided
   if (configuration.customCss) {
+    styles.push('/* Custom CSS */')
     styles.push(configuration.customCss)
   }
 
-  // Add customTheme if provided (if no theme is set)
   if (!configuration.theme && customTheme) {
+    styles.push('/* Custom Theme */')
     styles.push(customTheme)
   }
 
-  // If no styles, return empty string
   if (styles.length === 0) {
     return ''
   }
 
   return `
-        <style type="text/css">
-          ${addIndent(styles.join('\n'), 10)}
-        </style>`
+    <style type="text/css">
+      ${addIndent(styles.join('\n\n'), 6)}
+    </style>`
 }
 
 /**
@@ -47,31 +55,27 @@ const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customThe
 export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
   const { cdn, pageTitle, customCss, theme, ...rest } = givenConfiguration
 
-  // Use getConfiguration to properly handle content/url
   const configuration = getConfiguration({
     ...rest,
-    // Only include theme if it was explicitly provided
     ...(theme ? { theme } : {}),
     customCss,
   })
 
-  return `
-    <!doctype html>
-    <html>
-      <head>
-        <title>${pageTitle ?? 'Scalar API Reference'}</title>
-        <meta charset="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1" />
-        ${getStyles(configuration, customTheme)}
-      </head>
-      <body>
-        <div id="app"></div>
-        ${getScriptTags(configuration, cdn)}
-      </body>
-    </html>
-  `
+  const content = `<!doctype html>
+<html>
+  <head>
+    <title>${pageTitle ?? 'Scalar API Reference'}</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />${getStyles(configuration, customTheme)}
+  </head>
+  <body>
+    <div id="app"></div>${getScriptTags(configuration, cdn)}
+  </body>
+</html>`
+
+  return content
 }
 
 /**
@@ -112,29 +116,27 @@ export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>,
 
   functionProperties.forEach(({ name, value }) => {
     if (value && typeof value === 'function') {
-      functionProps.push(`${name}: ${value.toString()}`)
+      functionProps.push(`"${name}": ${value.toString()}`)
     }
   })
 
-  // Stringify the rest of the configuration with no initial indentation
+  // Stringify the rest of the configuration
   const configString = JSON.stringify(restConfig, null, 2)
     .split('\n')
-    .map((line, index) => (index === 0 ? line : '            ' + line))
+    .map((line, index) => (index === 0 ? line : '      ' + line))
     .join('\n')
-    .replace(/}$/, '') // Remove the closing brace
+    .replace(/\s*}$/, '') // Remove the closing brace and any whitespace before it
 
-  const functionPropsString = functionProps.length
-    ? ',\n            ' + functionProps.join(',\n            ') + '\n          }'
-    : '}'
+  const functionPropsString = functionProps.length ? `,\n        ${functionProps.join(',\n        ')}\n      }` : '}'
 
   return `
-        <!-- Load the Script -->
-        <script src="${cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
+    <!-- Load the Script -->
+    <script src="${cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
 
-        <!-- Initialize the Scalar API Reference -->
-        <script type="text/javascript">
-          Scalar.createApiReference('#app', ${configString}${functionPropsString})
-        </script>`
+    <!-- Initialize the Scalar API Reference -->
+    <script type="text/javascript">
+      Scalar.createApiReference('#app', ${configString}${functionPropsString})
+    </script>`
 }
 
 /**
