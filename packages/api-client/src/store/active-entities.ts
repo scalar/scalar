@@ -156,14 +156,14 @@ export const createActiveEntitiesStore = ({
   /** The currently selected server in the addressBar */
   const activeServer = computed(() => {
     // Request has a selected server
-    if (isDefined(activeRequest.value?.selectedServerUid)) {
+    if (activeRequest.value?.selectedServerUid) {
       // Return server if selected
       const server = servers[activeRequest.value.selectedServerUid]
       if (server) return server
     }
 
     // Collection has a selected server
-    if (isDefined(activeCollection.value?.selectedServerUid)) {
+    if (activeCollection.value?.selectedServerUid) {
       // Return server if selected
       const server = servers[activeCollection.value.selectedServerUid]
       if (server) return server
