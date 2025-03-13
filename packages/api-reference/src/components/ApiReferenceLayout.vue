@@ -270,18 +270,14 @@ const workspaceStore = createWorkspaceStore({
 // Populate the workspace store
 watch(
   () => props.rawSpec,
-  (spec) => {
-    console.log('rawSpec changed', spec)
-    return (
-      spec &&
-      workspaceStore.importSpecFile(spec, 'default', {
-        shouldLoad: false,
-        documentUrl: configuration.value.spec?.url,
-        setCollectionSecurity: true,
-        ...configuration.value,
-      })
-    )
-  },
+  (spec) =>
+    spec &&
+    workspaceStore.importSpecFile(spec, 'default', {
+      shouldLoad: false,
+      documentUrl: configuration.value.spec?.url,
+      setCollectionSecurity: true,
+      ...configuration.value,
+    }),
   { immediate: true },
 )
 
