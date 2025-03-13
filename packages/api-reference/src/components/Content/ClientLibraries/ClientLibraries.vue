@@ -26,7 +26,6 @@ watch(
   (client) => {
     if (!client) return
 
-    console.log('is featured', client, featuredClients)
     index.value = featuredClients.findIndex(
       (tab) =>
         tab.targetKey === client.targetKey &&
