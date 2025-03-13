@@ -266,6 +266,14 @@ public static class ScalarOptionsExtensions
     public static ScalarOptions AddServer(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url) => options.AddServer(new ScalarServer(url));
 
     /// <summary>
+    /// Adds a server to the list of servers in the <see cref="ScalarOptions" /> using a URL and description.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="url">The URL of the server to add.</param>
+    /// <param name="description">The description of the server.</param>
+    public static ScalarOptions AddServer(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url, string description) => options.AddServer(new ScalarServer(url, description));
+
+    /// <summary>
     /// Adds metadata to the configuration.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
@@ -502,6 +510,35 @@ public static class ScalarOptionsExtensions
     public static ScalarOptions AddHeaderContent(this ScalarOptions options, [StringSyntax("html")] string headerContent)
     {
         options.HeaderContent += headerContent;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the base server URL that will be used to prefix all relative OpenAPI server URLs.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="baseServerUrl">The base server URL to add.</param>
+    /// <remarks>
+    /// When specified, this URL will be prepended to all relative server URLs defined in the OpenAPI document.
+    /// For example, if BaseServerUrl is "https://api.example.com" and a server URL in the OpenAPI document is
+    /// "/api", the resulting URL will be "https://api.example.com/api". This only affects relative server URLs;
+    /// absolute URLs remain unchanged.
+    /// </remarks>
+    public static ScalarOptions WithBaseServerUrl(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string baseServerUrl)
+    {
+        options.BaseServerUrl = baseServerUrl;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets whether the base server URL should be dynamically determined based on the request context.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="dynamicBaseServerUrl">Whether to dynamically adjust the base server URL.</param>
+    public static ScalarOptions WithDynamicBaseServerUrl(this ScalarOptions options, bool dynamicBaseServerUrl = true)
+    {
+        options.DynamicBaseServerUrl = dynamicBaseServerUrl;
         return options;
     }
 }

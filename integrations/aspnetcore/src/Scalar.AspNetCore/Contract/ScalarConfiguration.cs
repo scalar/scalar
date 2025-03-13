@@ -62,6 +62,9 @@ internal sealed class ScalarConfiguration
     public required bool HideClientButton { get; init; }
 
     public required IEnumerable<ScalarSource> Sources { get; init; }
+
+    [JsonPropertyName("baseServerURL")]
+    public required string? BaseServerUrl { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

@@ -55,7 +55,11 @@ public class ScalarOptionsExtensionsTests
             .AddHeadContent("<meta name=\"foo\" content=\"bar\"/>")
             .AddHeadContent("<meta name=\"bar\" content=\"foo\"/>")
             .AddHeaderContent("<h1>foo</h1>")
-            .AddHeaderContent("<h2>bar</h2>");
+            .AddHeaderContent("<h2>bar</h2>")
+            .AddDocument("v1", "Version 1")
+            .AddDocuments("v2", "v3")
+            .WithBaseServerUrl("https://example.com")
+            .WithDynamicBaseServerUrl();
 
         // Assert
         options.Title.Should().Be("My title");
@@ -98,5 +102,8 @@ public class ScalarOptionsExtensionsTests
         options.HideClientButton.Should().BeTrue();
         options.HeadContent.Should().Be("<meta name=\"foo\" content=\"bar\"/><meta name=\"bar\" content=\"foo\"/>");
         options.HeaderContent.Should().Be("<h1>foo</h1><h2>bar</h2>");
+        options.Documents.Should().HaveCount(3).And.Contain(x => x.Title == "Version 1");
+        options.BaseServerUrl.Should().Be("https://example.com");
+        options.DynamicBaseServerUrl.Should().BeTrue();
     }
 }

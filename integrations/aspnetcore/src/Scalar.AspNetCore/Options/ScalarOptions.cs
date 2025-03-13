@@ -236,4 +236,27 @@ public sealed class ScalarOptions
     /// </example>
     [StringSyntax("html")]
     public string? HeaderContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the base server URL that will be used to prefix all relative OpenAPI server URLs.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    /// <remarks>
+    /// When specified, this URL will be prepended to all relative server URLs defined in the OpenAPI document.
+    /// For example, if BaseServerUrl is "https://api.example.com" and a server URL in the OpenAPI document is
+    /// "/api", the resulting URL will be "https://api.example.com/api". This only affects relative server URLs;
+    /// absolute URLs remain unchanged.
+    /// </remarks>
+    [StringSyntax(StringSyntaxAttribute.Uri)]
+    public string? BaseServerUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the base server URL should be dynamically determined based on the request context.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When set to <c>true</c>, the <see cref="BaseServerUrl" /> property will be overwritten and the base server URL will be dynamically
+    /// adjusted based on the request context. This only works for relative server URLs.
+    /// </remarks>
+    public bool DynamicBaseServerUrl { get; set; }
 }

@@ -36,7 +36,11 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                     <script type="module" src="scalar.js"></script>
                                     <script type="module">
                                         import { initialize } from './scalar.aspnetcore.js'
-                                        initialize('/scalar/', false, *)
+                                        initialize(
+                                        '/scalar/',
+                                        false,
+                                        false,
+                                        *)
                                     </script>
                                 </body>
                                 </html>
@@ -121,8 +125,14 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        
-        content.Should().Contain("https://example.com/openapi.json").And.Match("*initialize('/external/document/scalar/', true, *]})*");
+
+        const string expected = """
+                                        initialize(
+                                        '/external/document/scalar/',
+                                        true,
+                                        false,
+                                """;
+        content.Should().Contain("https://example.com/openapi.json").And.Contain(expected);
     }
 
     [Fact]
