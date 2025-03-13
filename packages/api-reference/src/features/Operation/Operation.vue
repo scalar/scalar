@@ -19,7 +19,7 @@ const {
   id?: string
   layout?: 'modern' | 'classic'
   transformedOperation: TransformedOperation
-  collection: Collection | undefined
+  collection: Collection
   server: Server | undefined
 }>()
 
@@ -35,6 +35,7 @@ const store = useWorkspace()
  */
 const { operation } = useBlockProps({
   store,
+  collection,
   location: getPointer([
     'paths',
     transformedOperation.path,

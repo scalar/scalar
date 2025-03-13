@@ -92,8 +92,11 @@ export const getSelectedSecuritySchemeUids = (
   return uids
 }
 
+/** Create a "uid" from a slug */
+export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['uid']
+
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
-  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers'> & {
+  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -121,6 +124,7 @@ export async function importSpecToWorkspace(
     documentUrl,
     servers: configuredServers,
     setCollectionSecurity = false,
+    slug,
     shouldLoad,
     watchMode = false,
   }: ImportSpecToWorkspaceArgs = {},
@@ -420,7 +424,11 @@ export async function importSpecToWorkspace(
       ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
       : []
 
+  // Set the uid as a prefixed slug if we have one
+  const slugObj = slug?.length ? { uid: getSlugUid(slug) } : {}
+
   const collection = collectionSchema.parse({
+    ...slugObj,
     ...schema,
     watchMode,
     documentUrl,

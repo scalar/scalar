@@ -2,10 +2,12 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
+import { getSlugUid } from '@scalar/oas-utils/transforms'
 import type { Spec } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import { BaseUrl } from '@/features/BaseUrl'
+import { useConfig } from '@/hooks/useConfig'
 
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
@@ -26,15 +28,37 @@ const props = withDefaults(
   },
 )
 
+const config = useConfig()
 const { hideModels } = useSidebar()
-const { securitySchemes } = useWorkspace()
+const { collections, securitySchemes, servers } = useWorkspace()
 const {
-  activeCollection,
+  activeCollection: _activeCollection,
   activeEnvVariables,
   activeEnvironment,
-  activeServer,
+  activeServer: _activeServer,
   activeWorkspace,
 } = useActiveEntities()
+
+/** Match the collection by slug if provided */
+const activeCollection = computed(() => {
+  if (config.value.slug) {
+    const collection = collections[getSlugUid(config.value.slug)]
+    if (collection) return collection
+  }
+  return _activeCollection.value
+})
+
+/** Ensure the server is the one selected in the collection */
+const activeServer = computed(() => {
+  if (!activeCollection.value) return undefined
+
+  if (activeCollection.value.selectedServerUid) {
+    const server = servers[activeCollection.value.selectedServerUid]
+    if (server) return server
+  }
+
+  return servers[activeCollection.value.servers[0]]
+})
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -55,8 +79,11 @@ const introCardsSlot = computed(() =>
   <div class="narrow-references-container">
     <slot name="start" />
     <Loading
+      v-if="activeCollection"
+      :collection="activeCollection"
       :layout="layout"
-      :parsedSpec="parsedSpec" />
+      :parsedSpec="parsedSpec"
+      :server="activeServer" />
 
     <Introduction
       v-if="parsedSpec?.info?.title || parsedSpec?.info?.description"
@@ -70,7 +97,9 @@ const introCardsSlot = computed(() =>
             <div
               v-if="activeCollection?.servers?.length"
               class="scalar-client introduction-card-item divide-y text-sm [--scalar-address-bar-height:0px]">
-              <BaseUrl />
+              <BaseUrl
+                :collection="activeCollection"
+                :server="activeServer" />
             </div>
             <div
               v-if="
@@ -99,12 +128,14 @@ const introCardsSlot = computed(() =>
     <slot
       v-else
       name="empty-state" />
-    <template v-if="parsedSpec.tags">
+    <template v-if="parsedSpec.tags && activeCollection">
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList
           v-for="tagGroup in parsedSpec['x-tagGroups']"
           :key="tagGroup.name"
+          :collection="activeCollection"
           :layout="layout"
+          :server="activeServer"
           :spec="parsedSpec"
           :tags="
             tagGroup.tags
@@ -114,7 +145,9 @@ const introCardsSlot = computed(() =>
       </template>
       <TagList
         v-else
+        :collection="activeCollection"
         :layout="layout"
+        :server="activeServer"
         :spec="parsedSpec"
         :tags="parsedSpec.tags" />
     </template>

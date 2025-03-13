@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useActiveEntities } from '@scalar/api-client/store'
 import { ScalarErrorBoundary } from '@scalar/components'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -11,18 +11,19 @@ import { useNavState, useSidebar } from '@/hooks'
 import TagAccordion from './TagAccordion.vue'
 import TagSection from './TagSection.vue'
 
-const props = defineProps<{
+const { collection, tags, spec, layout, server } = defineProps<{
+  collection: Collection
   tags: TagType[]
   spec: Spec
   layout?: 'modern' | 'classic'
+  server?: Server
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
-const { activeCollection, activeServer } = useActiveEntities()
 
 const tagLayout = computed(() =>
-  props.layout === 'classic' ? TagAccordion : TagSection,
+  layout === 'classic' ? TagAccordion : TagSection,
 )
 
 /**
@@ -30,13 +31,12 @@ const tagLayout = computed(() =>
  * This so so we can get to the first open tag + operation as quick as possible and avoid any jumps
  */
 const lazyIndex = computed(
-  () =>
-    props.tags.findIndex((tag) => !collapsedSidebarItems[getTagId(tag)]) + 1,
+  () => tags.findIndex((tag) => !collapsedSidebarItems[getTagId(tag)]) + 1,
 )
 
 /** If the first load is models, we do not lazy load tags/operations */
 const isLazy = (index: number) =>
-  props.layout !== 'classic' &&
+  layout !== 'classic' &&
   !hash.value.startsWith('model') &&
   index > lazyIndex.value
 </script>
@@ -50,6 +50,7 @@ const isLazy = (index: number) =>
       :is="tagLayout"
       :id="getTagId(tag)"
       :spec="spec"
+      :collection="collection"
       :tag="tag">
       <Lazy
         v-for="(operation, operationIndex) in tag.operations"
@@ -62,9 +63,9 @@ const isLazy = (index: number) =>
         <ScalarErrorBoundary>
           <Operation
             :id="getOperationId(operation, tag)"
-            :collection="activeCollection"
+            :collection="collection"
             :layout="layout"
-            :server="activeServer"
+            :server="server"
             :transformedOperation="operation" />
         </ScalarErrorBoundary>
       </Lazy>

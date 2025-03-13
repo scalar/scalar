@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -20,6 +21,7 @@ import OperationsList from './OperationsList.vue'
 const props = defineProps<{
   id?: string
   tag: Tag
+  collection: Collection
   headerId?: string
   isCollapsed?: boolean
 }>()
@@ -52,7 +54,9 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
             withImages />
         </SectionColumn>
         <SectionColumn>
-          <OperationsList :tag="tag" />
+          <OperationsList
+            :tag="tag"
+            :collection="collection" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

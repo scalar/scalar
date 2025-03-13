@@ -3,25 +3,31 @@ import {
   ServerSelector,
   ServerVariablesForm,
 } from '@scalar/api-client/components/Server'
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarMarkdown } from '@scalar/components'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import { useId } from 'vue'
 
 import { useConfig } from '@/hooks/useConfig'
 
-const { activeCollection, activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
-const id = useId()
-const updateServerVariable = (key: string, value: string) => {
-  if (!activeServer.value) return
+const { collection, server } = defineProps<{
+  collection: Collection
+  server?: Server
+}>()
 
-  const variables = activeServer.value.variables || {}
+const id = useId()
+const config = useConfig()
+
+const updateServerVariable = (key: string, value: string) => {
+  if (!server) return
+
+  const variables = server.variables || {}
   variables[key] = { ...variables[key], default: value }
 
-  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+  serverMutators.edit(server.uid, 'variables', variables)
 }
-const config = useConfig()
 
 const updateServer = (server: string) => {
   config.value.onServerChange?.(server)
@@ -33,18 +39,18 @@ const updateServer = (server: string) => {
   </label>
   <div :id="id">
     <ServerSelector
-      v-if="activeCollection?.servers?.length"
-      :collection="activeCollection"
-      :server="activeServer"
+      v-if="collection?.servers?.length"
+      :collection="collection"
+      :server="server"
       :target="id"
       @updateServer="updateServer" />
   </div>
   <ServerVariablesForm
-    :variables="activeServer?.variables"
+    :variables="server?.variables"
     @update:variable="updateServerVariable" />
   <!-- Description -->
   <ScalarMarkdown
-    v-if="activeServer?.description"
+    v-if="server?.description"
     class="text-c-3 px-3 py-1.5"
-    :value="activeServer.description" />
+    :value="server.description" />
 </template>
