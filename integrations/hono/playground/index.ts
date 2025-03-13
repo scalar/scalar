@@ -182,7 +182,16 @@ app.get(
     onLoaded: () => {
       console.log('ready')
     },
-    url: '/openapi.json',
+    sources: [
+      {
+        name: 'Hono',
+        url: '/openapi.json',
+      },
+      {
+        title: 'Scalar Galaxy',
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      },
+    ],
     pageTitle: 'Hono API Reference Demo',
   }),
 )
