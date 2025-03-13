@@ -10,6 +10,8 @@ const {
   availableTargets,
   httpTargetTitle,
   httpClientTitle,
+  getClientTitle,
+  getTargetTitle,
   httpClient,
   setHttpClient,
 } = useHttpClientStore()
@@ -23,8 +25,12 @@ watch(
   (client) => {
     if (!client) return
 
-    if (isFeatured(client))
-      index.value = featuredClients.findIndex((tab) => tab === client)
+    console.log('is featured', client, featuredClients)
+    index.value = featuredClients.findIndex(
+      (tab) =>
+        tab.targetKey === client.targetKey &&
+        tab.clientKey === client.clientKey,
+    )
   },
   { immediate: true },
 )
@@ -49,21 +55,18 @@ function handleChange(i: number) {
       </TabList>
       <TabPanels>
         <template v-if="httpClient && isFeatured(httpClient)">
-          <!-- We just add fake tabs and swap the content -->
           <TabPanel
-            v-for="(_, i) in featuredClients"
+            v-for="(client, i) in featuredClients"
             :key="i"
-            class="selected-client card-footer -outline-offset-2"
-            muted>
-            {{ httpClientTitle }}
-            {{ httpTargetTitle }}
+            class="selected-client card-footer -outline-offset-2">
+            {{ getClientTitle(client) }}
+            {{ getTargetTitle(client) }}
           </TabPanel>
         </template>
         <div
           v-else
           :id="morePanel"
           class="selected-client card-footer -outline-offset-2"
-          muted
           role="tabpanel"
           tabindex="0">
           {{ httpClientTitle }}
