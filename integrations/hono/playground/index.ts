@@ -179,6 +179,9 @@ app.doc('/openapi.json', {
 app.get(
   '/',
   apiReference({
+    onLoaded: () => {
+      console.log('ready')
+    },
     url: '/openapi.json',
     pageTitle: 'Hono API Reference Demo',
   }),

@@ -1,9 +1,4 @@
-import {
-  type ApiReferenceConfiguration,
-  type HtmlRenderingConfiguration,
-  apiReferenceConfigurationSchema,
-  htmlRenderingConfigurationSchema,
-} from '@scalar/types/api-reference'
+import type { ApiReferenceConfiguration, HtmlRenderingConfiguration } from '@scalar/types/api-reference'
 
 // Re-export the type for convenience
 export type { HtmlRenderingConfiguration }
@@ -20,11 +15,6 @@ const addIndent = (str: string, spaces: number = 2): string => {
  * Generate the style tag with custom theme if needed
  */
 const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customTheme: string): string => {
-  // If theme is set, don’t include any custom CSS
-  if (configuration.theme !== 'default') {
-    return ''
-  }
-
   const styles: string[] = []
 
   // Add customCss if provided
@@ -32,8 +22,8 @@ const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customThe
     styles.push(configuration.customCss)
   }
 
-  // Add customTheme if provided
-  if (customTheme) {
+  // Add customTheme if provided (if no theme is set)
+  if (!configuration.theme && customTheme) {
     styles.push(customTheme)
   }
 
@@ -57,22 +47,19 @@ const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customThe
 export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
   const { cdn, pageTitle, customCss, theme, ...rest } = givenConfiguration
 
-  const parsedHtmlOptions = htmlRenderingConfigurationSchema.parse({ cdn, pageTitle })
-  const parsedConfiguration = apiReferenceConfigurationSchema.parse({
+  // Use getConfiguration to properly handle content/url
+  const configuration = getConfiguration({
     ...rest,
     // Only include theme if it was explicitly provided
     ...(theme ? { theme } : {}),
     customCss,
   })
 
-  // Use getConfiguration to properly handle content/url
-  const configuration = getConfiguration(parsedConfiguration)
-
   return `
     <!doctype html>
     <html>
       <head>
-        <title>${parsedHtmlOptions.pageTitle || 'Scalar API Reference'}</title>
+        <title>${pageTitle ?? 'Scalar API Reference'}</title>
         <meta charset="utf-8" />
         <meta
           name="viewport"
@@ -81,7 +68,7 @@ export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfigu
       </head>
       <body>
         <div id="app"></div>
-        ${getScriptTags(configuration, parsedHtmlOptions.cdn)}
+        ${getScriptTags(configuration, cdn)}
       </body>
     </html>
   `
@@ -90,14 +77,63 @@ export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfigu
 /**
  * The script tags to load the @scalar/api-reference package from the CDN.
  */
-export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>, cdn: string) {
+export function getScriptTags(configuration: Partial<ApiReferenceConfiguration>, cdn?: string) {
+  // Extract function properties before stringifying
+  const {
+    tagsSorter,
+    operationsSorter,
+    generateHeadingSlug,
+    generateModelSlug,
+    generateTagSlug,
+    generateOperationSlug,
+    generateWebhookSlug,
+    onLoaded,
+    redirect,
+    onSpecUpdate,
+    onServerChange,
+    ...restConfig
+  } = configuration
+
+  // Create the function strings if they exist
+  const functionProps: string[] = []
+  const functionProperties = [
+    { name: 'tagsSorter', value: tagsSorter },
+    { name: 'operationsSorter', value: operationsSorter },
+    { name: 'generateHeadingSlug', value: generateHeadingSlug },
+    { name: 'generateModelSlug', value: generateModelSlug },
+    { name: 'generateTagSlug', value: generateTagSlug },
+    { name: 'generateOperationSlug', value: generateOperationSlug },
+    { name: 'generateWebhookSlug', value: generateWebhookSlug },
+    { name: 'onLoaded', value: onLoaded },
+    { name: 'redirect', value: redirect },
+    { name: 'onSpecUpdate', value: onSpecUpdate },
+    { name: 'onServerChange', value: onServerChange },
+  ]
+
+  functionProperties.forEach(({ name, value }) => {
+    if (value && typeof value === 'function') {
+      functionProps.push(`${name}: ${value.toString()}`)
+    }
+  })
+
+  // Stringify the rest of the configuration with no initial indentation
+  const configString = JSON.stringify(restConfig, null, 2)
+    .split('\n')
+    .map((line, index) => (index === 0 ? line : '            ' + line))
+    .join('\n')
+    .replace(/}$/, '') // Remove the closing brace
+
+  const functionPropsString = functionProps.length
+    ? ',\n            ' + functionProps.join(',\n            ') + '\n          }'
+    : '}'
+
   return `
         <!-- Load the Script -->
-        <script src="${cdn}"></script>
+        <script src="${cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
 
         <!-- Initialize the Scalar API Reference -->
         <script type="text/javascript">
-          Scalar.createApiReference('#app', ${JSON.stringify(configuration, null, 2).split('\n').join('\n          ')})
+          Scalar.createApiReference('#app', ${configString}${functionPropsString})
         </script>`
 }
 
