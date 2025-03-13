@@ -23,9 +23,60 @@ describe('html-rendering', () => {
       expect(html).toContain('<title>Custom API Doc</title>')
     })
 
+    it('includes both custom CSS and custom theme when provided', () => {
+      const customCss = 'body { color: blue; }'
+      const customTheme = `body {
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+      }
+      .api-reference {
+        padding: 20px;
+        border-radius: 8px;
+      }`
+        .replace(/\s+/g, ' ')
+        .trim()
+      const html = getHtmlDocument({ customCss }, customTheme)
+      expect(html).toContain(customCss)
+      expect(html).toContain(customTheme.replace(/\s+/g, ' ').trim())
+      expect(html).toContain('<style type="text/css">')
+    })
+
+    it('includes only custom CSS when provided alone', () => {
+      const customCss = 'body { color: blue; }'
+      const html = getHtmlDocument({ customCss })
+      expect(html).toContain(customCss)
+      expect(html).toContain('<style type="text/css">')
+    })
+
+    it('includes only custom theme when provided alone', () => {
+      const customTheme = `body {
+          background-color: #f0f0f0;
+          font-family: Arial, sans-serif;
+        }`
+        .replace(/\s+/g, ' ')
+        .trim()
+      const html = getHtmlDocument({}, customTheme)
+      expect(html).toContain(customTheme)
+      expect(html).toContain('<style type="text/css">')
+    })
+
+    it('excludes custom theme when theme property is set', () => {
+      const customCss = 'body { color: blue; }'
+      const customTheme = `body {
+        background-color: #f0f0f0;
+        font-family: Arial, sans-serif;
+      }`
+        .replace(/\s+/g, ' ')
+        .trim()
+      const html = getHtmlDocument({ theme: 'kepler', customCss }, customTheme)
+      expect(html).toContain(customCss)
+      expect(html).not.toContain(customTheme.replace(/\s+/g, ' ').trim())
+      expect(html).not.toContain('<style type="text/css">')
+    })
+
     it('handles configuration with theme property', () => {
       const html = getHtmlDocument({ theme: 'kepler' })
-      expect(html).not.toContain('<style>')
+      expect(html).not.toContain('<style type="text/css">')
     })
 
     it('handles empty configuration', () => {
@@ -82,6 +133,12 @@ describe('html-rendering', () => {
       )
       expect(config).toMatchObject({ url: 'https://api.example.com/spec' })
       expect(config).not.toHaveProperty('content')
+    })
+
+    it('executes content when it is a function', () => {
+      const contentFn = () => ({ foo: 'bar' })
+      const config = getConfiguration(apiReferenceConfigurationSchema.parse({ content: contentFn }))
+      expect(config).toMatchObject({ content: { foo: 'bar' } })
     })
   })
 

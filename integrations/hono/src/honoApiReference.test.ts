@@ -133,7 +133,7 @@ describe('apiReference', () => {
 
     const response = await app.request('/')
     const text = await response.text()
-    expect(text).toContain('_integration&quot;:&quot;hono&quot;')
+    expect(text).toContain('_integration": "hono"')
   })
 
   it('handles content as function', async () => {

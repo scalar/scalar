@@ -72,7 +72,7 @@ describe('apiReference', () => {
     expect(response.text).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
   })
 
-  it('doesn’t have the content twice', async () => {
+  it('does not have the content twice', async () => {
     const app = express()
     app.use(apiReference({ content: { info: { title: 'Test API' } } }))
 
@@ -125,7 +125,7 @@ describe('apiReference', () => {
     app.use(apiReference({}))
 
     const response = await request(app).get('/')
-    expect(response.text).toContain('_integration&quot;:&quot;express&quot;')
+    expect(response.text).toContain('"_integration": "express"')
   })
 
   it('handles content as function', async () => {

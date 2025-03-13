@@ -20,13 +20,31 @@ const addIndent = (str: string, spaces: number = 2): string => {
  * Generate the style tag with custom theme if needed
  */
 const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customTheme: string): string => {
-  if (configuration.theme || !customTheme) {
+  // If theme is set, don’t include any custom CSS
+  if (configuration.theme !== 'default') {
+    return ''
+  }
+
+  const styles: string[] = []
+
+  // Add customCss if provided
+  if (configuration.customCss) {
+    styles.push(configuration.customCss)
+  }
+
+  // Add customTheme if provided
+  if (customTheme) {
+    styles.push(customTheme)
+  }
+
+  // If no styles, return empty string
+  if (styles.length === 0) {
     return ''
   }
 
   return `
         <style type="text/css">
-          ${addIndent(customTheme, 10)}
+          ${addIndent(styles.join('\n'), 10)}
         </style>`
 }
 
@@ -37,10 +55,15 @@ const getStyles = (configuration: Partial<HtmlRenderingConfiguration>, customThe
  * defaulted to 'default'
  */
 export const getHtmlDocument = (givenConfiguration: Partial<HtmlRenderingConfiguration>, customTheme = '') => {
-  const { cdn, pageTitle, ...rest } = givenConfiguration
+  const { cdn, pageTitle, customCss, theme, ...rest } = givenConfiguration
 
-  const parsedHtmlOptions = htmlRenderingConfigurationSchema.parse({ cdn, pageTitle, customTheme })
-  const parsedConfiguration = apiReferenceConfigurationSchema.parse(rest)
+  const parsedHtmlOptions = htmlRenderingConfigurationSchema.parse({ cdn, pageTitle })
+  const parsedConfiguration = apiReferenceConfigurationSchema.parse({
+    ...rest,
+    // Only include theme if it was explicitly provided
+    ...(theme ? { theme } : {}),
+    customCss,
+  })
 
   // Use getConfiguration to properly handle content/url
   const configuration = getConfiguration(parsedConfiguration)
@@ -87,6 +110,11 @@ export const getConfiguration = (
   // Clone the given configuration
   const configuration = {
     ...givenConfiguration,
+  }
+
+  // Execute content if it's a function
+  if (typeof configuration.content === 'function') {
+    configuration.content = configuration.content()
   }
 
   // Only remove content if url is provided
