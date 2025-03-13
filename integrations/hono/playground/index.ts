@@ -179,7 +179,19 @@ app.doc('/openapi.json', {
 app.get(
   '/',
   apiReference({
-    url: '/openapi.json',
+    onLoaded: () => {
+      console.log('ready')
+    },
+    sources: [
+      {
+        title: 'Hono',
+        url: '/openapi.json',
+      },
+      {
+        title: 'Scalar Galaxy',
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      },
+    ],
     pageTitle: 'Hono API Reference Demo',
   }),
 )
