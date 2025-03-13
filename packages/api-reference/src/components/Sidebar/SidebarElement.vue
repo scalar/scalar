@@ -7,6 +7,7 @@ import {
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 
 import { scrollToId, sleep } from '@/helpers'
+import { useConfig } from '@/hooks/useConfig'
 
 import { useNavState } from '../../hooks'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
@@ -35,6 +36,8 @@ const emit = defineEmits<{
 
 const { getFullHash, isIntersectionEnabled, pathRouting, replaceUrlState } =
   useNavState()
+
+const config = useConfig()
 
 // We disable intersection observer on click
 const handleClick = async () => {
@@ -98,7 +101,7 @@ const onAnchorClick = async (ev: Event) => {
       <!-- If children are detected then show the nesting icon -->
       <!-- Use &hairsp; to vertically center scalar icon button to the first line of text in the sidebar heading link -->
       <p
-        v-if="hasChildren"
+        v-if="hasChildren && !config.defaultOpenAllTags"
         class="sidebar-heading-chevron">
         <button
           :aria-expanded="open"
