@@ -9,6 +9,7 @@ import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
+import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import type { EnvVariable } from '@/store/active-entities'
 
@@ -71,10 +72,15 @@ const flattenValue = (item: RequestExampleParameter) => {
   <DataTable
     class="group/table flex-1"
     :columns="columns">
+    <DataTableRow class="sr-only !block">
+      <DataTableHeader><span class="sr-only">Enabled</span></DataTableHeader>
+      <DataTableHeader>Key</DataTableHeader>
+      <DataTableHeader>Value</DataTableHeader>
+    </DataTableRow>
     <DataTableRow
       v-for="(item, idx) in items"
-      :key="idx"
       :id="item.key"
+      :key="idx"
       :class="{
         alert: parameterIsInvalid(item).value,
         error: invalidParams && invalidParams.has(item.key),

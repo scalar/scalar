@@ -1,5 +1,5 @@
 <template>
-  <tr class="group contents w-fit min-w-full">
+  <tr class="group contents">
     <slot />
   </tr>
 </template>
