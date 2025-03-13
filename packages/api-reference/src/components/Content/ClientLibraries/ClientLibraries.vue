@@ -18,6 +18,7 @@ const {
 const { featuredClients, isFeatured } = useFeaturedHttpClients()
 
 const index = ref(0)
+const headingId = useId()
 const morePanel = useId()
 
 watch(
@@ -47,8 +48,14 @@ function handleChange(i: number) {
       manual
       :selectedIndex="index"
       @change="handleChange">
-      <div class="client-libraries-heading">Client Libraries</div>
-      <TabList>
+      <div
+        :id="headingId"
+        class="client-libraries-heading">
+        Client Libraries
+      </div>
+      <TabList
+        :aria-labelledby="headingId"
+        class="client-libraries-list">
         <ClientSelector
           :featured="featuredClients"
           :morePanel="morePanel" />
