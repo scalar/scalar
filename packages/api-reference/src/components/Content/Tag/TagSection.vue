@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed, nextTick, ref, useId } from 'vue'
 
@@ -10,6 +11,7 @@ import Tag from './Tag.vue'
 const props = defineProps<{
   id?: string
   tag: TagType
+  collection: Collection
   spec: Spec
 }>()
 
@@ -49,7 +51,8 @@ async function focusContents() {
       :id="id"
       :headerId="headerId"
       :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
-      :tag="tag" />
+      :tag="tag"
+      :collection="collection" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && moreThanOneTag"
       :id="id ?? ''"

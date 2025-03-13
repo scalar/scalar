@@ -1,5 +1,6 @@
 import type { createWorkspaceStore } from '@scalar/api-client/store'
-import type { Collection, Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import { type ComputedRef, computed } from 'vue'
 
@@ -21,31 +22,17 @@ export type BlockProps = {
    */
   location: `#/${string}`
   /**
-   * The name of the collection to use
-   *
-   * @default 'default'
+   * The collection to use
    */
-  collection?: string
+  collection: Collection
 }
 
 /**
  * Provides computed properties for the block, based on the standardized interface of the `createStore` function.
  */
-export function useBlockProps({ store, location }: BlockProps): {
+export function useBlockProps({ store, location, collection }: BlockProps): {
   operation: ComputedRef<RequestEntity | undefined>
 } {
-  // Just pick first collection for now
-  const collection = computed(() => {
-    return Object.values(store?.collections ?? {})[0]
-  }) as ComputedRef<Collection | undefined>
-
-  // TODO: Use the collection name from the props
-  //   const collection = computed(() => {
-  //     return Object.values(store.collections).find(
-  //       ({ name }) => name === (collection ?? 'default'),
-  //     )
-  //   })
-
   /** Resolve the operation (request) from the store */
   const operation = computed<RequestEntity | undefined>(() => {
     if (!store?.collections || !store.requests) {
@@ -53,7 +40,7 @@ export function useBlockProps({ store, location }: BlockProps): {
     }
 
     const collectionRequests = Object.values(store.requests).filter((request) =>
-      collection.value?.requests.includes(request.uid),
+      collection.requests.includes(request.uid),
     )
 
     // Check whether we’re using the correct location
