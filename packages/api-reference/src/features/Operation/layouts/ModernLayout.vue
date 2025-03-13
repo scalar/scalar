@@ -50,7 +50,8 @@ const title = computed(() => operation.summary || operation.path)
   <Section
     :id="id"
     :aria-labelledby="labelId"
-    :label="title">
+    :label="title"
+    tabindex="-1">
     <SectionContent>
       <Badge
         v-if="getOperationStability(operation)"

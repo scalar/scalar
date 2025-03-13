@@ -337,7 +337,7 @@ export type SorterOption = {
  * it uses the lazyBus to ensure the section is open before scrolling to it
  *
  */
-export const scrollToOperation = (operationId: string) => {
+export const scrollToOperation = (operationId: string, focus?: boolean) => {
   const sectionId = navState.value?.getSectionId(operationId)
 
   if (sectionId && sectionId !== operationId) {
@@ -345,12 +345,12 @@ export const scrollToOperation = (operationId: string) => {
     if (!collapsedSidebarItems[sectionId]) {
       const unsubscribe = lazyBus.on((ev) => {
         if (ev.id === operationId) {
-          scrollToId(operationId)
+          scrollToId(operationId, focus)
           unsubscribe()
         }
       })
       setCollapsedSidebarItem(sectionId, true)
-    } else scrollToId(operationId)
+    } else scrollToId(operationId, focus)
   }
 }
 
