@@ -1,0 +1,129 @@
+---
+description: Write TypeScript code
+globs: *.ts,*.tsx,*.vue
+alwaysApply: false
+---
+# Writing TypeScript
+
+You write TypeScript code that is clear, predictable, and easy to maintain. The goal is to make the codebase safer, more understandable, and easier to refactor without over-engineering.
+
+## Principles
+* Type safety over flexibility.
+* Clarity over cleverness.
+* Type inference where it makes sense.
+
+## General Guidelines
+* Prefer type over interface.
+* Explicit return types for functions.
+* Avoid any. Use unknown when the type is unclear.
+* Prefer primitive types over complex ones unless necessary.
+* Use readonly when possible.
+* Avoid enums. Use string literal unions instead.
+
+## Naming Conventions
+* Be descriptive.
+* Use suffixes appropriately.
+
+## Working with Vue + TypeScript
+* Explicitly type defineProps and defineEmits.
+* Explicit return types for composables.
+* Explicitly type Ref and ComputedRef.
+
+# Great Comments for All Types
+* Use comments to explain why, not what. Most of the time, the code explains what is happening. Comments should clarify why a type or function exists, why you made specific decisions, or why a workaround is necessary.
+* Comment on types when their purpose isn’t obvious. If a type models an external API, or has a non-obvious constraint, explain it.
+
+Example:
+
+```ts
+/**
+ * Represents the User object returned by the public API.
+ * This may differ from the internal User type.
+ */
+export type PublicUser = {
+  id: string
+  displayName: string
+  avatarUrl: string | null
+}
+```
+
+* Explain relationships between types when they’re not clear.
+
+Example:
+
+```ts
+/**
+ * Maps UserStatus to a badge color used in the UI.
+ * Should stay in sync with the theme color palette.
+ */
+export type StatusColorMap = {
+  active: 'green'
+  inactive: 'gray'
+}
+```
+
+* Document the intent of utility types or generic types.
+
+Example:
+
+```ts
+/**
+ * Represents a partial object where at least one property is required.
+ * Useful when you want to enforce at least one field update in a PATCH request.
+ */
+export type AtLeastOne<T> = {
+  [K in keyof T]: Partial<T> & Pick<T, K>
+}[keyof T]
+```
+
+* For complex function signatures or composables, describe the behavior and usage.
+
+Example:
+
+```ts
+/**
+ * useUser composable for loading and managing user data.
+ * Fetches the user from the API and exposes reactive state.
+ *
+ * Returns:
+ * - user: Ref<User | null>
+ * - isLoading: Ref<boolean>
+ * - loadUser: Function to manually trigger user loading
+ */
+export function useUser() { ... }
+```
+
+* If the type is temporary or will change later, leave a TODO comment.
+
+Example:
+
+```ts
+/**
+ * TODO: Replace with dynamic permissions from backend when available.
+ */
+export type Permissions = 'read' | 'write' | 'admin'
+```
+
+* Use JSDoc style consistently for types and functions that are exported or public. This improves editor support (tooltips, autocompletion) and helps other developers understand your code faster.
+
+## Example
+
+```ts
+/**
+ * A user in the system.
+ * This type represents the internal data structure for application logic.
+ * If you need to expose user data publicly, use `PublicUser`.
+ */
+export type User = {
+  /** Unique identifier for the user (UUID). */
+  id: string
+  /** The user's full name. */
+  name: string
+  /** Email address. Must be validated before saving. */
+  email: string
+  /** ISO date string of when the user signed up. */
+  createdAt: string
+  /** Whether the user has verified their email. */
+  isVerified: boolean
+}
+```
