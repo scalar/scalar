@@ -94,7 +94,7 @@ const inDevelopment = import.meta.env.DEV
       <PageLink
         :href="
           inDevelopment
-            ? 'http://localhost:5053/reference'
+            ? 'http://localhost:5053'
             : 'https://scalar-example-fastify-p6gnzjpyuq-uc.a.run.app/reference'
         ">
         <template #title>Fastify</template>
