@@ -1,3 +1,4 @@
+import { useNavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type ApiReferenceConfiguration,
@@ -65,6 +66,8 @@ const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguratio
 }
 
 export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipleDocumentsProps) => {
+  const { isIntersectionEnabled } = useNavState()
+
   /**
    * All available API definitions that can be selected
    */
@@ -105,8 +108,10 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     url.hash = ''
     window.history.replaceState({}, '', url.toString())
 
-    // Scroll to the top of the page
+    // Scroll to the top of the page, disable scroll listener when doing so
+    isIntersectionEnabled.value = false
     window.scrollTo({ top: 0, behavior: 'instant' })
+    setTimeout(() => (isIntersectionEnabled.value = true), 300)
   }
 
   /**
