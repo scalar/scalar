@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.28.2
+
+### Patch Changes
+
+- 22c7445: fix: updates collapsible section trigger style
+- 3a956c0: fix: hides sidebar arrow on default open all tags configuration
+- cf58fba: fix(api-reference): focus and screenreader improvements for client libraries, endpoints list and API client
+- da6bbc5: feat: show if a parameter is deprecated
+- Updated dependencies [e0ee082]
+- Updated dependencies [1437882]
+- Updated dependencies [060ada9]
+- Updated dependencies [cf58fba]
+- Updated dependencies [e00fa7e]
+- Updated dependencies [632978d]
+  - @scalar/components@0.13.36
+  - @scalar/api-client@2.3.2
+  - @scalar/themes@0.9.78
+  - @scalar/code-highlight@0.0.25
+  - @scalar/oas-utils@0.2.119
+  - @scalar/use-hooks@0.1.32
+
 ## 1.28.1
 
 ### Patch Changes

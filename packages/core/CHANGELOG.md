@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.2.0
+
+### Minor Changes
+
+- 01f2610: feat: use new JS API
+
 ## 0.1.3
 
 ### Patch Changes

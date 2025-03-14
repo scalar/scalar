@@ -1,5 +1,16 @@
 # @scalar/express-api-reference
 
+## 0.6.0
+
+### Minor Changes
+
+- 01f2610: feat: use new JS API
+
+### Patch Changes
+
+- Updated dependencies [01f2610]
+  - @scalar/core@0.2.0
+
 ## 0.5.0
 
 ### Minor Changes

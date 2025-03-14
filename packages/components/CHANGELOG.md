@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.13.36
+
+### Patch Changes
+
+- e0ee082: fix(components): improve ScalarCombobox screen reader a11y
+- 1437882: feat(components): create ScalarTextInput and ScalarTextArea
+- Updated dependencies [1437882]
+- Updated dependencies [e00fa7e]
+- Updated dependencies [632978d]
+  - @scalar/themes@0.9.78
+  - @scalar/code-highlight@0.0.25
+  - @scalar/use-hooks@0.1.32
+
 ## 0.13.35
 
 ### Patch Changes

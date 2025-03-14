@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.3.2
+
+### Patch Changes
+
+- 1437882: feat(components): create ScalarTextInput and ScalarTextArea
+- 060ada9: feat: adds server deselection
+- cf58fba: fix(api-reference): focus and screenreader improvements for client libraries, endpoints list and API client
+- Updated dependencies [e0ee082]
+- Updated dependencies [1437882]
+- Updated dependencies [e00fa7e]
+- Updated dependencies [632978d]
+  - @scalar/components@0.13.36
+  - @scalar/themes@0.9.78
+  - @scalar/use-codemirror@0.11.81
+  - @scalar/oas-utils@0.2.119
+  - @scalar/use-hooks@0.1.32
+  - @scalar/import@0.3.1
+  - @scalar/postman-to-openapi@0.1.42
+
 ## 2.3.1
 
 ### Patch Changes

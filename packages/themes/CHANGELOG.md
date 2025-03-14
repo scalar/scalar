@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.78
+
+### Patch Changes
+
+- 1437882: feat(components): create ScalarTextInput and ScalarTextArea
+- e00fa7e: feat(api-reference): add p3 color support to default scalar theme
+- 632978d: fix(themes): hide summary caret in reset
+
 ## 0.9.77
 
 ### Patch Changes
