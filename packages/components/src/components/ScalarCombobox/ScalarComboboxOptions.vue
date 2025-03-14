@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { nanoid } from 'nanoid'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
+import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
   type ComboboxSlots,
   type Option,
@@ -29,7 +29,7 @@ defineSlots<Omit<ComboboxSlots, 'default'>>()
 defineOptions({ inheritAttrs: false })
 
 /** A unique ID for the combobox */
-const id = `scalar-combobox-items-${nanoid()}`
+const id = `scalar-combobox-items-${useId()}`
 
 /** Generate a unique ID for an option */
 function getOptionId(option: Option) {
@@ -133,7 +133,7 @@ function moveActive(dir: 1 | -1) {
       :aria-activedescendant="active ? getOptionId(active) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
-      class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 outline-none"
+      class="min-w-0 flex-1 rounded border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 -outline-offset-1"
       data-1p-ignore
       :placeholder="placeholder"
       role="combobox"
@@ -148,24 +148,22 @@ function moveActive(dir: 1 | -1) {
     :id="id"
     :aria-multiselectable="multiselect"
     class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
-    role="listbox">
+    role="listbox"
+    tabindex="-1">
     <slot name="before" />
-    <div
+    <ComboboxOptionGroup
       v-for="(group, i) in groups"
+      :id="`${id}-group-${i}`"
       :key="i"
-      :aria-labelledby="group.label ? `${id}-group-label-${i}` : undefined"
-      class="contents"
-      :role="group.label ? 'group' : undefined">
-      <div
-        v-if="
-          group.label &&
-          // Only show the group label if there are some results
-          group.options.some((o) => filtered.some((f) => f.id === o.id))
-        "
-        :id="`${id}-group-label-${i}`"
-        class="min-w-0 truncate px-2.5 py-1.5 text-left text-c-2">
+      :hidden="
+        // Only show the group label if there are some results
+        !group.options.some((o) => filtered.some((f) => f.id === o.id)) ||
+        // And it has a label
+        !group.label
+      ">
+      <template #label>
         {{ group.label }}
-      </div>
+      </template>
       <template
         v-for="option in filtered"
         :key="option.id">
@@ -183,7 +181,7 @@ function moveActive(dir: 1 | -1) {
           {{ option.label }}
         </ComboboxOption>
       </template>
-    </div>
+    </ComboboxOptionGroup>
     <slot name="after" />
   </ul>
 </template>
