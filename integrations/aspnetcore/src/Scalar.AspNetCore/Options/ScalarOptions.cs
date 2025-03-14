@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Http;
 
 namespace Scalar.AspNetCore;
 
@@ -14,14 +13,7 @@ public sealed class ScalarOptions
     /// </summary>
     internal bool IsOpenApiRoutePatternUrl => RegexHelper.IsUrlRegex().IsMatch(OpenApiRoutePattern);
 
-    internal List<string> Documents { get; } = [];
-
-    /// <summary>
-    /// Gets or sets a function that provides document names.
-    /// </summary>
-    /// <value>A function that returns an <see cref="IEnumerable{T}" /> of document names.</value>
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents. If this property is set, the <see cref="Documents" /> property will be ignored.</remarks>
-    internal Func<HttpContext, CancellationToken, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
+    internal List<ScalarDocument> Documents { get; } = [];
 
     /// <summary>
     /// Gets or sets the title of the HTML document.
@@ -237,7 +229,7 @@ public sealed class ScalarOptions
     /// <![CDATA[
     /// <body>
     ///     <header>Welcome to my API reference</header>
-    ///     <script id="api-reference"></script>
+    ///     <div id="app"></div>
     /// </body>
     /// ]]>
     /// </code>

@@ -126,18 +126,11 @@ public static class ScalarEndpointRouteBuilderExtensions
         // Handle static assets
         scalarEndpointGroup.MapStaticAssetsEndpoint();
 
-        return scalarEndpointGroup.MapGet("/{documentName?}", async (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName, CancellationToken cancellationToken) =>
+        return scalarEndpointGroup.MapGet("/{documentName?}", (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
         {
-            // Redirect to the trailing slash if the path does not end with a slash but only when the document name is not provided
-            var path = httpContext.Request.Path;
-            if (documentName is null && path.HasValue && !path.Value.EndsWith('/'))
+            if (ShouldRedirectToTrailingSlash(httpContext, documentName, out var redirectUrl))
             {
-                var lastSlashIndex = path.Value.LastIndexOf('/');
-                if (lastSlashIndex != -1)
-                {
-                    var redirectUrl = $"{path.Value[(lastSlashIndex + 1)..]}/";
-                    return Results.Redirect(redirectUrl);
-                }
+                return Results.Redirect(redirectUrl);
             }
 
             var options = optionsSnapshot.Value;
@@ -149,51 +142,37 @@ public static class ScalarEndpointRouteBuilderExtensions
                 options.Documents.Clear();
                 options.AddDocument(documentName);
             }
-            // If a document names provider is provided, clear the document names and get the document names from the provider
-            else if (options.DocumentNamesProvider is not null)
-            {
-                options.Documents.Clear();
-                var documentNames = await options.DocumentNamesProvider.Invoke(httpContext, cancellationToken);
-                options.AddDocument(documentNames);
-            }
             // If no document names or provider are provided, fallback to the default document name
             else if (options.Documents.Count == 0)
             {
                 options.AddDocument("v1");
             }
 
-            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
-
             var configuration = options.ToScalarConfiguration();
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
-            var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0]) : options.Title;
-
-            // Workaround. Once we support multiple OpenAPI documents, we must update this.
-            var documentUrl = configuration.Documents.First();
+            var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
+            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
 
             return Results.Content(
-                $"""
+                $$"""
                  <!doctype html>
                  <html>
                  <head>
-                     <title>{title}</title>
+                     <title>{{title}}</title>
                      <meta charset="utf-8" />
                      <meta name="viewport" content="width=device-width, initial-scale=1" />
-                     {options.HeadContent}
+                     {{options.HeadContent}}
                  </head>
                  <body>
-                     {options.HeaderContent}
-                     <script id="api-reference"></script>
-                     <script src="{ScalarJavaScriptHelperFile}"></script>
-                     <script>
-                         const basePath = getBasePath('{httpContext.Request.Path}');
-                         const openApiUrl = `{(options.IsOpenApiRoutePatternUrl ? documentUrl : $"${{window.location.origin}}${{basePath}}/{documentUrl}")}`
-                         const reference = document.getElementById('api-reference')
-                         reference.dataset.url = openApiUrl;
-                         reference.dataset.configuration = JSON.stringify({serializedConfiguration})
+                     {{options.HeaderContent}}
+                     <div id="app"></div>
+                     <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
+                     <script type="module" src="{{standaloneResourceUrl}}"></script>
+                     <script type="module">
+                         import { initialize } from './{{ScalarJavaScriptHelperFile}}'
+                         initialize('{{httpContext.Request.Path}}', {{options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}}, {{serializedConfiguration}})
                      </script>
-                     <script src="{standaloneResourceUrl}"></script>
                  </body>
                  </html>
                  """, "text/html");
@@ -223,5 +202,22 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
         return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+    }
+
+    private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
+    {
+        redirectUrl = null;
+        // Redirect to the trailing slash if the path does not end with a slash but only when the document name is not provided
+        var path = httpContext.Request.Path;
+        if (documentName is null && path.HasValue && !path.Value.EndsWith('/'))
+        {
+            var lastSlashIndex = path.Value.LastIndexOf('/');
+            if (lastSlashIndex != -1)
+            {
+                redirectUrl = $"{path.Value[(lastSlashIndex + 1)..]}/";
+            }
+        }
+
+        return redirectUrl is not null;
     }
 }
