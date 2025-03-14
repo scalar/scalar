@@ -5,22 +5,18 @@
  *
  * Example:
  * - URL: /my-app/docs/
- * - Suffix: /docs
+ * - Suffix: /docs/
  * - Result: /my-app
  *
  * @param {string} suffix - The URL suffix to remove (can be empty)
  * @returns {string} The normalized base path with no trailing slash
  */
 export const getBasePath = (suffix) => {
-  const url = new URL(window.location.href)
-
-  const normalizedPath = url.pathname.replace(/\/$/, '')
-
-  if (!suffix) {
-    return normalizedPath
+  const path = window.location.pathname
+  if (path.endsWith(suffix)) {
+    return path.slice(0, -suffix.length)
   }
-
-  return normalizedPath.endsWith(suffix) ? normalizedPath.slice(0, -suffix.length) : normalizedPath
+  return ''
 }
 
 /**
@@ -60,6 +56,8 @@ export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sou
       }
     })
   }
+
+  console.log(normalizedConfig)
 
   Scalar.createApiReference('#app', normalizedConfig)
 }

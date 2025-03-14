@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="StaticAssets/*">
+    <EmbeddedResource Include="StaticAssets/*" Exclude="StaticAssets/*test.js">
       <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>

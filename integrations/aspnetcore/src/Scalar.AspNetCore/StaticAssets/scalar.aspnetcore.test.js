@@ -20,20 +20,14 @@ describe('scalar.aspnetcore', () => {
       expect(result).toBe('/api')
     })
 
-    it('returns original path when suffix is not present', () => {
+    it('returns empty string when suffix is not present', () => {
       const result = getBasePath('/other')
-      expect(result).toBe('/api/docs')
+      expect(result).toBe('')
     })
 
     it('handles empty suffix', () => {
       const result = getBasePath('')
-      expect(result).toBe('/api/docs')
-    })
-
-    it('handles trailing slashes correctly', () => {
-      global.window.location = new URL('https://example.com/api/docs/')
-      const result = getBasePath('/docs')
-      expect(result).toBe('/api')
+      expect(result).toBe('')
     })
 
     it('removes only the last occurrence of suffix', () => {

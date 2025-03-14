@@ -155,22 +155,23 @@ public static class ScalarEndpointRouteBuilderExtensions
             var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
 
             return Results.Content(
-                $"""
+                $$"""
                  <!doctype html>
                  <html>
                  <head>
-                     <title>{title}</title>
+                     <title>{{title}}</title>
                      <meta charset="utf-8" />
                      <meta name="viewport" content="width=device-width, initial-scale=1" />
-                     {options.HeadContent}
+                     {{options.HeadContent}}
                  </head>
                  <body>
-                     {options.HeaderContent}
+                     {{options.HeaderContent}}
                      <div id="app"></div>
-                     <script src="{ScalarJavaScriptHelperFile}"></script>
-                     <script src="{standaloneResourceUrl}"></script>
-                     <script>
-                         initialize('{httpContext.Request.Path}', {options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}, {serializedConfiguration})
+                     <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
+                     <script type="module" src="{{standaloneResourceUrl}}"></script>
+                     <script type="module">
+                         import { initialize } from './{{ScalarJavaScriptHelperFile}}'
+                         initialize('{{httpContext.Request.Path}}', {{options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}}, {{serializedConfiguration}})
                      </script>
                  </body>
                  </html>
