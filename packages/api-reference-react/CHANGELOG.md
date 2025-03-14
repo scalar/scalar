@@ -1,5 +1,19 @@
 # @scalar/api-reference-react
 
+## 0.6.0
+
+### Minor Changes
+
+- 39c0f47: feat: update to allow multi documents
+
+### Patch Changes
+
+- Updated dependencies [cd75eeb]
+- Updated dependencies [39c0f47]
+- Updated dependencies [b4a8f65]
+  - @scalar/api-reference@1.28.3
+  - @scalar/types@0.1.1
+
 ## 0.5.2
 
 ### Patch Changes

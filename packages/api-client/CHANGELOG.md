@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.3.3
+
+### Patch Changes
+
+- cd75eeb: fix: update collection in multi doc
+- 4093692: fix: updates multiple auth style
+- Updated dependencies [cd75eeb]
+- Updated dependencies [39c0f47]
+  - @scalar/oas-utils@0.2.120
+  - @scalar/types@0.1.1
+  - @scalar/import@0.3.2
+  - @scalar/postman-to-openapi@0.1.43
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.79
+  - @scalar/components@0.13.37
+  - @scalar/use-codemirror@0.11.82
+  - @scalar/use-hooks@0.1.33
+
 ## 2.3.2
 
 ### Patch Changes

@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.28.3
+
+### Patch Changes
+
+- cd75eeb: fix: update collection in multi doc
+- 39c0f47: chore: export multi doc types
+- b4a8f65: feat: adds badges + show more button fixtures
+- Updated dependencies [cd75eeb]
+- Updated dependencies [39c0f47]
+- Updated dependencies [4093692]
+  - @scalar/api-client@2.3.3
+  - @scalar/oas-utils@0.2.120
+  - @scalar/types@0.1.1
+  - @scalar/openapi-parser@0.10.10
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.79
+  - @scalar/code-highlight@0.0.25
+  - @scalar/components@0.13.37
+  - @scalar/use-hooks@0.1.33
+
 ## 1.28.2
 
 ### Patch Changes

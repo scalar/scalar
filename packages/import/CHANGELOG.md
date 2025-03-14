@@ -1,5 +1,13 @@
 # @scalar/import
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [cd75eeb]
+  - @scalar/oas-utils@0.2.120
+  - @scalar/openapi-parser@0.10.10
+
 ## 0.3.1
 
 ### Patch Changes
