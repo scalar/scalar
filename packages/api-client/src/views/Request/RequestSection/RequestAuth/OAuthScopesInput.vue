@@ -53,7 +53,7 @@ function setScope(id: string, checked: boolean) {
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 pr-2.5 text-left',
+            'group/scopes-accordion hover:text-c-1 pr-2.25 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 text-left',
             (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
