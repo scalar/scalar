@@ -57,7 +57,5 @@ export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sou
     })
   }
 
-  console.log(normalizedConfig)
-
   Scalar.createApiReference('#app', normalizedConfig)
 }
