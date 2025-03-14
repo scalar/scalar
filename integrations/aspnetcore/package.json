@@ -19,7 +19,8 @@
     "format:check": "scalar-format-check",
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",
-    "lint:fix": "scalar-lint-fix"
+    "lint:fix": "scalar-lint-fix",
+    "test": "vitest"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
