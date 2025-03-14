@@ -83,3 +83,23 @@
   --scalar-background-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-background-1) 95%);
   --scalar-background-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-background-1) 95%);
 }
+@supports (color: color(display-p3 1 1 1)) {
+  .light-mode {
+    --scalar-color-accent: color(display-p3 0.0 0.6 1.0 / 1.0);
+    --scalar-color-green: color(display-p3 0.023529 0.564706 0.380392 / 1.0);
+    --scalar-color-red: color(display-p3 0.937255 0.0 0.023529 / 1.0);
+    --scalar-color-yellow: color(display-p3 0.929412 0.745098 0.12549 / 1.0);
+    --scalar-color-blue: color(display-p3 0.0 0.509804 0.815686 / 1.0);
+    --scalar-color-orange: color(display-p3 0.984314 0.537255 0.172549 / 1.0);
+    --scalar-color-purple: color(display-p3 0.321569 0.011765 0.819608 / 1.0);
+  }
+  .dark-mode {
+    --scalar-color-accent: color(display-p3 0.243137 0.65098 1.0 / 1.0);
+    --scalar-color-green: color(display-p3 0.0 0.713725 0.282353 / 1.0);
+    --scalar-color-red: color(display-p3 0.862745 0.105882 0.098039 / 1.0);
+    --scalar-color-yellow: color(display-p3 1.0 0.788235 0.05098 / 1.0);
+    --scalar-color-blue: color(display-p3 0.305882 0.701961 0.92549 / 1.0);
+    --scalar-color-orange: color(display-p3 1.0 0.552941 0.301961 / 1.0);
+    --scalar-color-purple: color(display-p3 0.694118 0.568627 0.976471 / 1.0);
+  }
+}
