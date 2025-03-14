@@ -1,12 +1,11 @@
-import type { ReferenceProps } from '../src'
-
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
 import { ApiReferenceReact } from '../src'
+import type { ApiReferenceConfiguration } from '@scalar/api-reference'
 
 function App() {
-  const [auth, setAuth] = useState<Required<ReferenceProps>['configuration']['authentication']>({})
+  const [auth, setAuth] = useState<Required<ApiReferenceConfiguration>['authentication']>({})
 
   const apiKeys = ['apiKeyHeader', 'apiKeyQuery', 'apiKeyCookie', 'basicAuth', 'bearerAuth']
 
@@ -35,21 +34,17 @@ function App() {
 
   return (
     <ApiReferenceReact
-      configuration={{
-        sources: [
-          {
-            url: 'https://petstore.swagger.io/v2/swagger.json',
-          },
-          {
-            title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
-            slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
-        ],
-        // Avoid CORS issues
-        proxyUrl: 'https://proxy.scalar.com',
-        authentication: auth,
-      }}
+      configuration={[
+        {
+          url: 'https://petstore.swagger.io/v2/swagger.json',
+        },
+        {
+          title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
+          slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          authentication: auth,
+        },
+      ]}
     />
   )
 }

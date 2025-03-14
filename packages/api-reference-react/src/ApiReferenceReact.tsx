@@ -19,10 +19,16 @@ export const ApiReferenceReact = (props: { configuration: MultiReferenceConfigur
 
   const [reference, setReference] = useState<ApiReferenceInstance | null>(null)
 
+  /** handle adding the integration to the config */
+  const addIntegration = () =>
+    Array.isArray(props.configuration)
+      ? props.configuration.map((c) => ({ _integration: 'react' as const, ...c }))
+      : { _integration: 'react' as const, ...props.configuration }
+
   useEffect(() => {
     if (!el.current) return reference?.app?.unmount
 
-    const instance = createApiReference(el.current, { _integration: 'react', ...props.configuration })
+    const instance = createApiReference(el.current, addIntegration())
     setReference(instance)
 
     // Unmount on cleanup
@@ -30,7 +36,7 @@ export const ApiReferenceReact = (props: { configuration: MultiReferenceConfigur
   }, [el])
 
   useEffect(() => {
-    reference?.updateConfiguration({ _integration: 'react', ...props.configuration })
+    reference?.updateConfiguration(addIntegration())
   }, [props.configuration, reference])
 
   return <div ref={el} />

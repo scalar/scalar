@@ -1,5 +1,9 @@
 import type { ReferenceProps } from '@/types'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import {
+  type ApiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
+  type MultiReferenceConfiguration,
+} from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { type App, createApp, h, reactive } from 'vue'
 
@@ -169,18 +173,18 @@ export type ApiReferenceInstance = {
   app: App<Element>
   /** Destroy the current API Reference instance */
   destroy: () => void
-  /** Get the current configuration */
-  getConfiguration: () => Partial<ApiReferenceConfiguration>
-  /** Update the configuration */
-  updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => void
+  /** Get the current configuration[s] */
+  getConfiguration: () => MultiReferenceConfiguration
+  /** Update all configuration[s] */
+  updateConfiguration: (newConfig: MultiReferenceConfiguration) => void
 }
 
 /** Function overload for createApiReference to allow multiple different signatures */
 export type CreateApiReference = {
   /** Pass in the configuration only */
-  (configuration: Partial<ApiReferenceConfiguration>): ApiReferenceInstance
+  (configuration: MultiReferenceConfiguration): ApiReferenceInstance
   /** Pass in the element or selector and configuration */
-  (elementOrSelector: Element | string, configuration: Partial<ApiReferenceConfiguration>): ApiReferenceInstance
+  (elementOrSelector: Element | string, configuration: MultiReferenceConfiguration): ApiReferenceInstance
 }
 
 /**
@@ -193,11 +197,11 @@ export type CreateApiReference = {
  */
 export const createApiReference: CreateApiReference = (
   elementOrSelectorOrConfig,
-  optionalConfiguration?: Partial<ApiReferenceConfiguration>,
+  optionalConfiguration?: MultiReferenceConfiguration,
 ) => {
   const props = reactive<ReferenceProps>({
     // Either the configuration will be the second arugment or it MUST be the first (configuration only)
-    configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as Partial<ApiReferenceConfiguration>) ?? {},
+    configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as MultiReferenceConfiguration) ?? {},
   })
 
   // Create a new Vue app instance
@@ -296,7 +300,7 @@ export const createApiReference: CreateApiReference = (
   return {
     app,
     getConfiguration: () => props.configuration ?? {},
-    updateConfiguration: (newConfig: Partial<ApiReferenceConfiguration>) => {
+    updateConfiguration: (newConfig: MultiReferenceConfiguration) => {
       props.configuration = newConfig
     },
     destroy,
