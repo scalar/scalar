@@ -64,11 +64,6 @@
     transform: rotate(90deg);
   }
 
-  /* Fix for Safari displaying default caret next to `<summary>` */
-  .markdown summary::-webkit-details-marker {
-    display: none;
-  }
-
   .markdown img {
     overflow: hidden;
     border-radius: var(--scalar-radius);
