@@ -106,6 +106,7 @@ function handleChange(value: string) {
     // Prevent table value population on current request
     return null
   }
+
   return props.handleFieldChange
     ? props.handleFieldChange(value)
     : emit('update:modelValue', value)
@@ -184,20 +185,9 @@ const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
 })
 
 // Computed property to check if type is boolean and nullable
-const booleanOptions = computed(() => {
-  return props.type === 'boolean' ||
-    props.type?.includes('boolean') ||
-    props.nullable
-    ? ['true', 'false', 'null']
-    : ['true', 'false']
-})
-
-/** Expose focus method */
-defineExpose({
-  focus: () => {
-    codeMirror.value?.focus()
-  },
-})
+const booleanOptions = computed(() =>
+  props.nullable ? ['true', 'false', 'null'] : ['true', 'false'],
+)
 
 const handleKeyDown = (key: string, event: KeyboardEvent) => {
   if (showDropdown.value) {
@@ -225,6 +215,20 @@ const defaultType = computed(() => {
     : // If it’s not an array, just return the type
       props.type
 })
+
+defineExpose({
+  /** Expose focus method */
+  focus: () => {
+    codeMirror.value?.focus()
+  },
+  // Expose these methods for testing
+  handleChange,
+  handleSubmit,
+  handleBlur,
+  booleanOptions,
+  codeMirror,
+  modelValue: props.modelValue,
+})
 </script>
 <script lang="ts">
 // use normal <script> to declare options
@@ -235,6 +239,7 @@ export default {
 <template>
   <template v-if="disabled">
     <div
+      data-testid="code-input-disabled"
       class="text-c-2 flex cursor-default items-center justify-center"
       :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'">
       <span class="whitespace-nowrap">{{ modelValue }}</span>

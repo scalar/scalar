@@ -21,6 +21,7 @@ let isConsoleWarnEnabled = false
 
 /** Spy on console.error */
 export const consoleErrorSpy = vi.spyOn(console, 'error')
+let isConsoleErrorEnabled = false
 
 /** Reset the spies */
 export const resetConsoleSpies = () => {
@@ -33,6 +34,12 @@ export const enableConsoleWarn = () => (isConsoleWarnEnabled = true)
 
 /** Helper to disable console warn checks */
 export const disableConsoleWarn = () => (isConsoleWarnEnabled = false)
+
+/** Helper to enable console error checks */
+export const enableConsoleError = () => (isConsoleErrorEnabled = true)
+
+/** Helper to disable console error checks */
+export const disableConsoleError = () => (isConsoleErrorEnabled = false)
 
 // Set default values for the mocks
 beforeEach(() => {
@@ -67,9 +74,14 @@ afterEach(() => {
     expect(consoleWarnSpy).not.toHaveBeenCalled()
   }
 
+  if (isConsoleErrorEnabled) {
+    expect(consoleErrorSpy).not.toHaveBeenCalled()
+  }
+
   // Reset the spies
   resetConsoleSpies()
   disableConsoleWarn()
+  disableConsoleError()
 
   vi.clearAllMocks()
 })
