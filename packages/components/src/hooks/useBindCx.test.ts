@@ -108,4 +108,93 @@ describe('useBindCx', () => {
     expect(wrapper.attributes('data-testid')).toBe('test')
     expect(wrapper.attributes('aria-label')).toBe('test label')
   })
+
+  it('should merge classes with classCx without other attributes', () => {
+    const ClassCxComponent = defineComponent({
+      props: { active: Boolean },
+      inheritAttrs: false,
+      setup() {
+        const { classCx } = useBindCx()
+        return { classCx }
+      },
+      template: '<div v-bind="classCx(\'internal-class\')">Test</div>',
+    })
+
+    const wrapper = mount(ClassCxComponent, {
+      props: { active: true },
+      attrs: { 'data-testid': 'test', class: 'external-class' },
+    })
+
+    expect(wrapper.attributes('class')).toBe('internal-class external-class')
+    expect(wrapper.attributes('data-testid')).toBeUndefined()
+  })
+
+  it('should provide other attributes via otherAttrs', () => {
+    const OtherAttrsComponent = defineComponent({
+      inheritAttrs: false,
+      setup() {
+        const { otherAttrs } = useBindCx()
+        return { otherAttrs }
+      },
+      template: '<div v-bind="otherAttrs">Test</div>',
+    })
+
+    const wrapper = mount(OtherAttrsComponent, {
+      attrs: {
+        class: 'should-not-appear',
+        'data-testid': 'test',
+        'aria-label': 'test label',
+      },
+    })
+
+    expect(wrapper.attributes('class')).toBeUndefined()
+    expect(wrapper.attributes('data-testid')).toBe('test')
+    expect(wrapper.attributes('aria-label')).toBe('test label')
+  })
+
+  it('should handle reactive attribute changes with classCx and otherAttrs', async () => {
+    const WrapperComponent = defineComponent({
+      props: {
+        className: { type: String, default: '' },
+        testId: { type: String, default: '' },
+      },
+      components: {
+        InnerComponent: defineComponent({
+          inheritAttrs: false,
+          setup() {
+            const { classCx, otherAttrs } = useBindCx()
+            return { classCx, otherAttrs, variants }
+          },
+          template: `
+            <div>
+              <div data-test="class" v-bind="classCx(variants({}))">Class</div>
+              <div data-test="attrs" v-bind="otherAttrs">Attrs</div>
+            </div>
+          `,
+        }),
+      },
+      template: '<InnerComponent :class="className" :data-testid="testId" />',
+    })
+
+    const wrapper = mount(WrapperComponent, {
+      props: {
+        className: 'initial-class',
+        testId: 'initial-id',
+      },
+    })
+
+    const classDiv = wrapper.find('[data-test="class"]')
+    const attrsDiv = wrapper.find('[data-test="attrs"]')
+
+    expect(classDiv.attributes('class')).toBe('bg-base initial-class')
+    expect(attrsDiv.attributes('data-testid')).toBe('initial-id')
+
+    await wrapper.setProps({
+      className: 'updated-class',
+      testId: 'updated-id',
+    })
+
+    expect(classDiv.attributes('class')).toBe('bg-base updated-class')
+    expect(attrsDiv.attributes('data-testid')).toBe('updated-id')
+  })
 })

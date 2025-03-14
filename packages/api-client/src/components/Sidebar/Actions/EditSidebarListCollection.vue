@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarTextField } from '@scalar/components'
+import { ScalarButton, ScalarTextInput } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { ref } from 'vue'
 
@@ -37,7 +37,7 @@ const newIcon = ref(props.icon)
           </ScalarButton>
         </IconSelector>
       </div>
-      <ScalarTextField
+      <ScalarTextInput
         v-model="newName"
         autofocus
         class="flex-1" />
