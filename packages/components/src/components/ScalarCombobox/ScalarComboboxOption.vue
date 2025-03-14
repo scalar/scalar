@@ -35,7 +35,10 @@ const variants = cva({
 })
 </script>
 <template>
-  <li :class="cx(variants({ active, selected }))">
+  <li
+    :aria-selected="selected"
+    :class="cx(variants({ active, selected }))"
+    role="option">
     <ScalarListboxCheckbox
       :selected="selected"
       :style="style" />

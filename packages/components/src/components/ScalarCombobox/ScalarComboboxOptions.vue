@@ -130,6 +130,7 @@ function moveActive(dir: 1 | -1) {
       size="md" />
     <input
       v-model="query"
+      :aria-activedescendant="active ? getOptionId(active) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"
       class="min-w-0 flex-1 rounded-none border-0 py-2.5 pl-8 pr-3 leading-none text-c-1 outline-none"
@@ -145,17 +146,23 @@ function moveActive(dir: 1 | -1) {
   <ul
     v-show="filtered.length || $slots.before || $slots.after"
     :id="id"
-    class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0">
+    :aria-multiselectable="multiselect"
+    class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0"
+    role="listbox">
     <slot name="before" />
-    <template
+    <div
       v-for="(group, i) in groups"
-      :key="i">
+      :key="i"
+      :aria-labelledby="group.label ? `${id}-group-label-${i}` : undefined"
+      class="contents"
+      :role="group.label ? 'group' : undefined">
       <div
         v-if="
           group.label &&
           // Only show the group label if there are some results
           group.options.some((o) => filtered.some((f) => f.id === o.id))
         "
+        :id="`${id}-group-label-${i}`"
         class="min-w-0 truncate px-2.5 py-1.5 text-left text-c-2">
         {{ group.label }}
       </div>
@@ -176,7 +183,7 @@ function moveActive(dir: 1 | -1) {
           {{ option.label }}
         </ComboboxOption>
       </template>
-    </template>
+    </div>
     <slot name="after" />
   </ul>
 </template>
