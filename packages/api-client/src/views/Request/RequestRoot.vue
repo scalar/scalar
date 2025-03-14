@@ -117,14 +117,6 @@ onMounted(() => {
   events.cancelRequest.on(cancelRequest)
 })
 
-/** Focus the first button in the layout when the modal is mounted */
-onMounted(() => {
-  if (element.value && layout === 'modal') {
-    const button = element.value.querySelector('button')
-    if (button) button.focus()
-  }
-})
-
 useOpenApiWatcher()
 
 /**
