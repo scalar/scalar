@@ -243,7 +243,7 @@ const dataTableInputProps = {
     <DataTableRow class="min-w-full">
       <div class="border-t-1/2 flex h-8 w-full items-center justify-end">
         <ScalarButton
-          class="mr-1 p-0 px-2 py-0.5"
+          class="mr-0.75 p-0 px-2 py-0.5"
           :loading="loadingState"
           size="sm"
           variant="outlined"
