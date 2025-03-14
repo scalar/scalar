@@ -164,7 +164,7 @@ export const createContainer = (doc: Document, element?: Element | null) => {
 }
 
 // Add a type for our enhanced app
-type ApiReferenceInstance = {
+export type ApiReferenceInstance = {
   /** The vue app instance */
   app: App<Element>
   /** Destroy the current API Reference instance */

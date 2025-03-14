@@ -2,6 +2,7 @@ export {
   type ApiClientConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
+  type MultiReferenceConfiguration,
   type SpecConfiguration,
   apiClientConfigurationSchema,
   apiReferenceConfigurationSchema,
