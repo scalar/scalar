@@ -26,13 +26,13 @@ import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
-  getCurrentInstance,
   onBeforeMount,
   onMounted,
   onServerPrefetch,
   onUnmounted,
   provide,
   ref,
+  useId,
   useSSRContext,
   watch,
 } from 'vue'
@@ -243,24 +243,7 @@ onServerPrefetch(() => {
  *
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
-provideUseId(() => {
-  const instance = getCurrentInstance()
-  const ATTR_KEY = 'scalar-instance-id'
-
-  if (!instance) return ATTR_KEY
-  let instanceId = instance.uid
-
-  // SSR: grab the instance ID from vue and set it as an attribute
-  if (typeof window === 'undefined') {
-    instance.attrs ||= {}
-    instance.attrs[ATTR_KEY] = instanceId
-  }
-  // Client: grab the instanceId from the attribute and return it to headless UI
-  else if (instance.vnode.el?.getAttribute) {
-    instanceId = instance.vnode.el.getAttribute(ATTR_KEY)
-  }
-  return `${ATTR_KEY}-${instanceId}`
-})
+provideUseId(() => useId())
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({

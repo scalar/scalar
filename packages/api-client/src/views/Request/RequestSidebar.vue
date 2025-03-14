@@ -59,6 +59,7 @@ const { layout } = useLayout()
 
 const workspaceContext = useWorkspace()
 const {
+  activeCollection,
   activeWorkspaceCollections,
   activeRequest,
   activeWorkspaceRequests,
@@ -249,6 +250,14 @@ const showGettingStarted = computed(() =>
     requests,
   ),
 )
+
+/** We ensure in modal mode we only show the current requests collection */
+const collections = computed(() => {
+  if (layout === 'modal' && activeCollection.value) {
+    return [activeCollection.value]
+  }
+  return activeWorkspaceCollections.value
+})
 </script>
 <template>
   <Sidebar
@@ -341,7 +350,7 @@ const showGettingStarted = computed(() =>
           class="contents">
           <!-- Collection -->
           <RequestSidebarItem
-            v-for="collection in activeWorkspaceCollections"
+            v-for="collection in collections"
             :key="collection.uid"
             :isDraggable="
               layout !== 'modal' && collection.info?.title !== 'Drafts'

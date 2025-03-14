@@ -7,6 +7,7 @@ import { ref } from 'vue'
 import { mockUseLayout } from '@/vitest.setup'
 
 import RequestRoot from './RequestRoot.vue'
+import { collectionSchema } from '@scalar/oas-utils/entities/spec'
 
 // Mock vue-router
 vi.mock('vue-router', () => ({
@@ -29,6 +30,13 @@ const mockWorkspace = {
   hideClientButton: false,
   showSidebar: true,
   requestHistory: [],
+  collections: {},
+  cookies: {},
+  requestExamples: {},
+  requests: {},
+  securitySchemes: {},
+  servers: {},
+  tags: {},
   collectionMutators: {
     edit: vi.fn(),
   },
@@ -42,7 +50,7 @@ const mockUseActiveEntities = useActiveEntities as Mock
 const mockActiveEntities = {
   activeRequest: ref(null),
   activeExample: ref(null),
-  activeCollection: ref({ documentUrl: null, watchMode: false }),
+  activeCollection: ref(collectionSchema.parse({ watchMode: false })),
   activeEnvironment: ref(null),
   activeWorkspace: ref(null),
   activeWorkspaceRequests: ref([]),

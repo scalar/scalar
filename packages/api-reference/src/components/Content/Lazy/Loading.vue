@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useActiveEntities } from '@scalar/api-client/store'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
@@ -39,6 +40,8 @@ import { lazyBus } from './lazyBus'
  */
 const props = withDefaults(
   defineProps<{
+    collection: Collection
+    server?: Server
     layout?: 'modern' | 'classic'
     parsedSpec: Spec
   }>(),
@@ -50,7 +53,6 @@ const hideTag = ref(false)
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
-const { activeCollection, activeServer } = useActiveEntities()
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
 
@@ -161,14 +163,15 @@ onMounted(() => {
       :key="tag.name + idx">
       <TagSection
         v-if="tag.operations && tag.operations.length > 0"
+        :collection="collection"
         :spec="parsedSpec"
         :tag="tag">
         <Operation
           v-for="operation in tag.lazyOperations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :collection="activeCollection"
+          :collection="collection"
           :layout="layout"
-          :server="activeServer"
+          :server="server"
           :transformedOperation="operation" />
       </TagSection>
     </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Tag } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -10,6 +11,7 @@ import OperationsListItem from './OperationsListItem.vue'
 
 const props = defineProps<{
   tag: Tag
+  collection: Collection
   isCollapsed?: boolean
 }>()
 
@@ -36,7 +38,8 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
             :key="getOperationId(operation, tag)"
             :isCollapsed="isCollapsed"
             :tag="tag"
-            :transformedOperation="operation" />
+            :transformedOperation="operation"
+            :collection="collection" />
         </ul>
       </CardContent>
     </Card>

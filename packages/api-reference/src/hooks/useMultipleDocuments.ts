@@ -1,3 +1,4 @@
+import { useNavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type ApiReferenceConfiguration,
@@ -65,6 +66,8 @@ const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguratio
 }
 
 export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipleDocumentsProps) => {
+  const { isIntersectionEnabled } = useNavState()
+
   /**
    * All available API definitions that can be selected
    */
@@ -103,11 +106,12 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
 
     // Reset location on the page
     url.hash = ''
-
-    // Scroll to the top of the page
-    window.scrollTo({ top: 0, behavior: 'instant' })
-
     window.history.replaceState({}, '', url.toString())
+
+    // Scroll to the top of the page, disable scroll listener when doing so
+    isIntersectionEnabled.value = false
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    setTimeout(() => (isIntersectionEnabled.value = true), 300)
   }
 
   /**
@@ -143,6 +147,7 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
 
   /**
    * The currently selected API configuration
+   * we also add the source options (slug, title, etc) to the configuration
    */
   const selectedConfiguration = computed(() => {
     // Multiple sources
@@ -150,10 +155,15 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
       return apiReferenceConfigurationSchema.parse({
         ...configuration.value,
         ...configuration.value?.sources?.[selectedDocumentIndex.value],
+        ...availableDocuments.value[selectedDocumentIndex.value],
       })
     }
 
-    return apiReferenceConfigurationSchema.parse([configuration.value].flat()[selectedDocumentIndex.value] ?? {})
+    const flattenedConfig = [configuration.value].flat()[selectedDocumentIndex.value] ?? {}
+    return apiReferenceConfigurationSchema.parse({
+      ...flattenedConfig,
+      ...availableDocuments.value[selectedDocumentIndex.value],
+    })
   })
 
   // Update URL when selection changes

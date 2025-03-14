@@ -19,10 +19,16 @@
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
       Scalar.createApiReference('#app', {
-        spec: {
-          // The URL of the OpenAPI/Swagger document
-          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        },
+        sources: [
+          {
+            url: 'https://petstore.swagger.io/v2/swagger.json',
+          },
+          {
+            title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
+            slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          },
+        ],
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
       })

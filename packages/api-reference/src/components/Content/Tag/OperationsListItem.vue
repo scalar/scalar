@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@scalar/api-client/store'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -11,9 +12,10 @@ import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
 import { isOperationDeprecated } from '@/libs/operation'
 
-const { transformedOperation, tag } = defineProps<{
+const { transformedOperation, tag, collection } = defineProps<{
   transformedOperation: TransformedOperation
   tag: Tag
+  collection: Collection
   isCollapsed?: boolean
 }>()
 
@@ -38,6 +40,7 @@ const store = useWorkspace()
  */
 const { operation } = useBlockProps({
   store,
+  collection,
   location: getPointer([
     'paths',
     transformedOperation.path,
