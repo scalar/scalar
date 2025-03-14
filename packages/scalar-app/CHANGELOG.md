@@ -1,5 +1,21 @@
 # scalar-app
 
+## 0.1.160
+
+### Patch Changes
+
+- cef8100: fix: PNGs line ending broke
+- Updated dependencies [e0ee082]
+- Updated dependencies [1437882]
+- Updated dependencies [060ada9]
+- Updated dependencies [cf58fba]
+- Updated dependencies [e00fa7e]
+- Updated dependencies [632978d]
+  - @scalar/components@0.13.36
+  - @scalar/api-client@2.3.2
+  - @scalar/themes@0.9.78
+  - @scalar/import@0.3.1
+
 ## 0.1.159
 
 ### Patch Changes

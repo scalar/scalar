@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.5.2
+
+### Patch Changes
+
+- cef8100: fix: PNGs line ending broke
+- 632978d: fix(themes): hide summary caret in reset
+  - @scalar/api-reference-react@0.5.2
+
 ## 0.5.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.25
+
+### Patch Changes
+
+- 632978d: fix(themes): hide summary caret in reset
+
 ## 0.0.24
 
 ### Patch Changes

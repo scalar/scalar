@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.0.33
+
+### Patch Changes
+
+- cef8100: fix: PNGs line ending broke
+- Updated dependencies [22c7445]
+- Updated dependencies [3a956c0]
+- Updated dependencies [cf58fba]
+- Updated dependencies [da6bbc5]
+  - @scalar/api-reference@1.28.2
+
 ## 2.0.32
 
 ### Patch Changes
