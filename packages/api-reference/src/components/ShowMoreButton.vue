@@ -24,12 +24,11 @@ const { setCollapsedSidebarItem } = useSidebar()
 
 <style scoped>
 .show-more {
-  background: var(--scalar-background-1);
   appearance: none;
   border: none;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   margin: auto;
-  padding: 8px 12px;
+  padding: 8px 12px 8px 16px;
   border-radius: 30px;
   color: var(--scalar-color-1);
   font-weight: var(--scalar-semibold);
@@ -41,7 +40,7 @@ const { setCollapsedSidebarItem } = useSidebar()
   top: -48px;
 }
 .show-more:hover {
-  color: var(--scalar-color-2);
+  background: var(--scalar-background-2);
   cursor: pointer;
 }
 .show-more-icon {
