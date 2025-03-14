@@ -46,6 +46,7 @@ const variants = cva({
     <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
     <ScalarIcon
       v-if="isDeletable"
+      aria-label="Delete"
       class="text-c-2 opacity-0 group-hover/item:opacity-100"
       icon="Delete"
       size="md"
