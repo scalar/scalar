@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.1
+
+### Patch Changes
+
+- 39c0f47: chore: export multi doc types
+
 ## 0.1.0
 
 ### Minor Changes

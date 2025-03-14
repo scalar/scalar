@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.120
+
+### Patch Changes
+
+- cd75eeb: fix: update collection in multi doc
+- Updated dependencies [39c0f47]
+  - @scalar/types@0.1.1
+  - @scalar/themes@0.9.79
+
 ## 0.2.119
 
 ### Patch Changes
