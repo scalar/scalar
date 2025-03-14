@@ -1151,9 +1151,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@types/react':
         specifier: ^19.0.1
         version: 19.0.1

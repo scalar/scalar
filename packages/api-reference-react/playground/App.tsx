@@ -1,6 +1,5 @@
 import type { ReferenceProps } from '../src'
 
-import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
@@ -37,7 +36,18 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        content: ScalarGalaxy,
+        sources: [
+          {
+            url: 'https://petstore.swagger.io/v2/swagger.json',
+          },
+          {
+            title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
+            slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
+            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          },
+        ],
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
         authentication: auth,
       }}
     />
