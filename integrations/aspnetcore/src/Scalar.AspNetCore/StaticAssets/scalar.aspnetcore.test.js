@@ -110,5 +110,22 @@ describe('scalar.aspnetcore', () => {
 
       expect(() => initialize('/docs', false, configuration)).not.toThrow()
     })
+
+    it('handles sources without url property', () => {
+      const configuration = {
+        sources: [{ title: 'Source without URL' }, { url: 'swagger.json' }],
+      }
+
+      initialize('/docs', false, configuration)
+
+      // Get the normalized config that was passed to createApiReference
+      const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
+
+      // The configuration should remain unchanged for sources without URLs
+      expect(normalizedConfig.sources[0]).toEqual({ title: 'Source without URL' })
+      // Sources with URLs should still be processed normally
+      expect(normalizedConfig.sources[1].url).toBe('https://example.com/api/swagger.json')
+      expect(mockScalar.createApiReference).toHaveBeenCalledWith('#app', normalizedConfig)
+    })
   })
 })

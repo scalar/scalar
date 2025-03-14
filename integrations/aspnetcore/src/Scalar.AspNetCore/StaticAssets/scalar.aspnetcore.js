@@ -41,6 +41,7 @@ export const getBasePath = (suffix) => {
  */
 export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sources: [] }) => {
   const basePath = getBasePath(path)
+
   const normalizedConfig = {
     ...configuration,
     sources: configuration?.sources?.map((source) => ({ ...source })) || [],
@@ -48,10 +49,16 @@ export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sou
 
   if (!isOpenApiRoutePatternUrl) {
     // Construct full URLs for subdirectory hosting support
-    normalizedConfig.sources = normalizedConfig.sources.map((source) => ({
-      ...source,
-      url: new URL(source.url, `${window.location.origin}${basePath}/`).toString(),
-    }))
+    normalizedConfig.sources = normalizedConfig.sources.map((source) => {
+      if (!source.url) {
+        return source
+      }
+
+      return {
+        ...source,
+        url: new URL(source.url, `${window.location.origin}${basePath}/`).toString(),
+      }
+    })
   }
 
   Scalar.createApiReference('#app', normalizedConfig)
