@@ -46,8 +46,11 @@ const activeFlow = ref('')
 
 const generateLabel = (scheme: SecurityScheme) => {
   // ApiKeyHeader: header
+  const description = scheme.description ? `: ${scheme.description}` : ''
+  const baseLabel = `${capitalize(scheme.nameKey)}${description || `: ${scheme.type}`}`
+
   if (scheme.type === 'apiKey') {
-    return `${capitalize(scheme.nameKey)}: ${scheme.in}`
+    return `${capitalize(scheme.nameKey)}${description || `: ${scheme.in}`}`
   }
 
   // OAuth2: Authorization Code
@@ -56,16 +59,16 @@ const generateLabel = (scheme: SecurityScheme) => {
 
     return `${capitalize(scheme.nameKey)}: ${
       activeFlow.value ? activeFlow.value : (firstFlow?.type ?? '')
-    }`
+    }${description}`
   }
 
   // HTTP: Bearer
   if (scheme.type === 'http') {
-    return `${capitalize(scheme.nameKey)}: ${scheme.scheme}`
+    return `${capitalize(scheme.nameKey)}: ${scheme.scheme}${description}`
   }
 
   // Default
-  return `${capitalize(scheme.nameKey)}: ${scheme.type}`
+  return `${baseLabel}${description}`
 }
 
 /** Update the scheme */
@@ -88,7 +91,7 @@ const dataTableInputProps = {
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="({ scheme }, index) in security"
+    v-for="{ scheme } in security"
     :key="scheme?.uid">
     <!-- Header -->
     <DataTableRow
@@ -97,18 +100,16 @@ const dataTableInputProps = {
         'request-example-references-header': layout === 'reference',
       }">
       <DataTableCell
-        class="text-c-3 flex items-center pl-3 font-medium"
-        :class="
-          layout === 'reference' && `border-t ${index !== 0 ? 'mt-2' : ''}`
-        ">
+        class="auth-bg-description text-c-2 flex items-center pl-3"
+        :class="layout === 'reference' && 'border-b'">
         {{ generateLabel(scheme!) }}
       </DataTableCell>
     </DataTableRow>
 
     <!-- Description -->
-    <DataTableRow v-if="scheme?.description">
+    <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        class="text-c-3 flex items-center overflow-auto whitespace-nowrap pl-3 font-medium">
+        class="auth-bg-description text-c-2 flex items-center overflow-auto whitespace-nowrap pl-3">
         {{ scheme.description }}
       </DataTableCell>
     </DataTableRow>
@@ -242,5 +243,9 @@ const dataTableInputProps = {
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+.auth-bg-description {
+  background: color-mix(in srgb, var(--scalar-background-2), transparent 50%);
 }
 </style>
