@@ -91,6 +91,11 @@
     appearance: none;
   }
 
+  /* Fix for Safari displaying default caret next to `<summary>` */
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
   /** Remove yellow/blue autofill indicator */
   input:-webkit-autofill {
     background-clip: text !important;
