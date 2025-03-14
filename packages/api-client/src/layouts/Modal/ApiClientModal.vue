@@ -5,6 +5,7 @@ import {
 } from '@scalar/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
+  nextTick,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
@@ -26,7 +27,6 @@ const id = useId()
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
-    initialFocus: () => client.value,
     fallbackFocus: `#${id}`,
   })
 
@@ -42,8 +42,9 @@ watch(
       window.addEventListener('keydown', handleKeyDown)
       // Disable scrolling
       document.documentElement.style.overflow = 'hidden'
+
       // Focus trap the modal
-      activateFocusTrap()
+      activateFocusTrap({ checkCanFocusTrap: () => nextTick() })
     } else {
       // Remove the global hotkey listener
       window.removeEventListener('keydown', handleKeyDown)
@@ -82,7 +83,7 @@ onBeforeUnmount(() => {
         aria-modal="true"
         class="scalar-app-layout scalar-client"
         role="dialog"
-        tabindex="0">
+        tabindex="-1">
         <ScalarTeleportRoot>
           <RouterView key="$route.fullPath" />
         </ScalarTeleportRoot>
