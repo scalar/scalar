@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { type ReferenceProps, createScalarReferences } from '@scalar/api-reference'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import type { MultiReferenceConfiguration } from '@scalar/types/api-reference'
+import { type ApiReferenceInstance, createApiReference } from '@scalar/api-reference'
 
 import './style.css'
 
@@ -14,32 +14,30 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
 /**
  * React wrapper around the Scalar API Reference
  */
-export const ApiReferenceReact = (props: ReferenceProps) => {
+export const ApiReferenceReact = (props: { configuration: MultiReferenceConfiguration }) => {
   const el = useRef<HTMLDivElement | null>(null)
 
-  const [reference, setReference] = useState<ReturnType<typeof createScalarReferences> | null>(null)
+  const [reference, setReference] = useState<ApiReferenceInstance | null>(null)
+
+  /** handle adding the integration to the config */
+  const addIntegration = () =>
+    Array.isArray(props.configuration)
+      ? props.configuration.map((c) => ({ _integration: 'react' as const, ...c }))
+      : { _integration: 'react' as const, ...props.configuration }
 
   useEffect(() => {
-    if (!el.current) return reference?.unmount
+    if (!el.current) return reference?.app?.unmount
 
-    const mergedConfig = apiReferenceConfigurationSchema.parse({ _integration: 'react', ...props.configuration })
-
-    const instance = createScalarReferences(el.current, mergedConfig)
+    const instance = createApiReference(el.current, addIntegration())
     setReference(instance)
 
     // Unmount on cleanup
-    return instance.unmount
+    return instance.destroy
   }, [el])
 
   useEffect(() => {
-    const mergedConfig = apiReferenceConfigurationSchema.parse({ _integration: 'react', ...props.configuration })
-
-    reference?.updateConfig(
-      mergedConfig,
-      /** For React we will just replace the config if it changes */
-      false,
-    )
-  }, [props.configuration])
+    reference?.updateConfiguration(addIntegration())
+  }, [props.configuration, reference])
 
   return <div ref={el} />
 }

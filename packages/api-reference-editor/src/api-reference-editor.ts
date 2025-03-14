@@ -1,6 +1,5 @@
 import ApiReferenceEditor from '@/components/ApiReferenceEditor.vue'
 import { UPDATE_EVENT } from '@/constants'
-import type { ReferenceProps } from '@scalar/api-reference'
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { createApp, h, reactive } from 'vue'
@@ -10,7 +9,7 @@ export function mountApiReferenceEditable(
   /** Element to mount the references to */
   elementOrSelector: string | HTMLElement | null,
   /** Base configuration */
-  configuration: ReferenceProps['configuration'] & {
+  configuration: Partial<ApiReferenceConfiguration> & {
     useExternalState?: boolean
   } = {},
   /** Optional event handler to trigger when the editor input changes */
