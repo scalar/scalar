@@ -35,13 +35,18 @@ const variants = cva({
 })
 </script>
 <template>
-  <li :class="cx(variants({ active, selected }))">
+  <li
+    :aria-selected="selected"
+    :class="cx(variants({ active, selected }))"
+    role="option"
+    tabindex="-1">
     <ScalarListboxCheckbox
       :selected="selected"
       :style="style" />
     <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
     <ScalarIcon
       v-if="isDeletable"
+      aria-label="Delete"
       class="text-c-2 opacity-0 group-hover/item:opacity-100"
       icon="Delete"
       size="md"
