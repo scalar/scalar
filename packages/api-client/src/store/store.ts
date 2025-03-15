@@ -27,7 +27,7 @@ declare global {
   }
 }
 
-type CreateWorkspaceStoreOptions = {
+export type CreateWorkspaceStoreOptions = {
   /**
    * When true, changes made to the store will be saved in the browser’s localStorage.
    *
