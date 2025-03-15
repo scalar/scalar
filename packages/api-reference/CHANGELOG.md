@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.28.4
+
+### Patch Changes
+
+- ebc29d5: fix: missing requestBody description
+- 3af0c08: fix(api-references): change search button outline from shadow to border
+- Updated dependencies [ed2b1fb]
+- Updated dependencies [ebc29d5]
+- Updated dependencies [58acdc6]
+  - @scalar/api-client@2.3.4
+
 ## 1.28.3
 
 ### Patch Changes

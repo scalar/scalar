@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.3.4
+
+### Patch Changes
+
+- ed2b1fb: chore: removed isReadOnly property as it isn't used anymore
+- ebc29d5: fix: boolean values being nullable with tests
+- 58acdc6: fix(api-client): focus the client modal sidebar button when modal opens
+
 ## 2.3.3
 
 ### Patch Changes
