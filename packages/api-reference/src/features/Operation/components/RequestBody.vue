@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -30,6 +31,11 @@ if (requestBody?.content) {
         @selectContentType="
           ({ contentType }) => (selectedContentType = contentType)
         " />
+      <div
+        v-if="requestBody.description"
+        class="request-body-description">
+        <ScalarMarkdown :value="requestBody.description" />
+      </div>
     </div>
     <div
       v-if="requestBody.content?.[selectedContentType]"
