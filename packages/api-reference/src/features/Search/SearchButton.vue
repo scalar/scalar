@@ -89,12 +89,14 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
   );
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   border-radius: var(--scalar-radius);
-  box-shadow: 0 0 0 0.5px
-    var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
+  border-width: var(--scalar-border-width);
+  border-color: var(
+    --scalar-sidebar-search-border-color,
+    var(--scalar-border-color)
+  );
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
-  border: none;
 }
 
 .sidebar-search-input {
