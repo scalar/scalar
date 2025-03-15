@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.3.5
+
+### Patch Changes
+
+- 0fb83f2: fix: the tj actions in ci reference commit
+
 ## 2.3.4
 
 ### Patch Changes

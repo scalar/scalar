@@ -1,5 +1,12 @@
 # @scalar/api-reference-react
 
+## 0.6.2
+
+### Patch Changes
+
+- 0fb83f2: chore: export types from the react package for ease of use
+  - @scalar/api-reference@1.28.5
+
 ## 0.6.1
 
 ### Patch Changes
