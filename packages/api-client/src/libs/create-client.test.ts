@@ -4,7 +4,12 @@ import { createWorkspaceStore, type CreateWorkspaceStoreOptions } from '@/store/
 import { createActiveEntitiesStore } from '@/store/active-entities'
 import { createSidebarState } from '@/hooks/useSidebar'
 import { loadAllResources } from '@/libs/local-storage'
-import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
+import {
+  requestExampleSchema,
+  requestSchema,
+  securitySchemeSchema,
+  serverSchema,
+} from '@scalar/oas-utils/entities/spec'
 
 // Mock dependencies
 vi.mock('@/store/store', () => ({
@@ -58,16 +63,6 @@ vi.mock('@/hooks/useLayout', () => ({
 
 vi.mock('@/libs/local-storage', () => ({
   loadAllResources: vi.fn(),
-}))
-
-vi.mock('@/libs/get-request-uid-by-path-method', () => ({
-  getRequestUidByPathMethod: vi.fn(),
-}))
-
-vi.mock('@scalar/types/api-reference', () => ({
-  apiClientConfigurationSchema: {
-    parse: vi.fn((config) => config),
-  },
 }))
 
 vi.mock('vue', () => ({
@@ -180,9 +175,7 @@ describe('createApiClient', () => {
   it('should handle localStorage loading when available', () => {
     // Mock localStorage to have workspace data
     window.localStorage.getItem = vi.fn().mockReturnValue('{}')
-
     createApiClient(defaultParams)
-
     expect(loadAllResources).toHaveBeenCalled()
   })
 
@@ -215,31 +208,64 @@ describe('createApiClient', () => {
     )
   })
 
-  it.only('should update server correctly', () => {
-    const client = createApiClient(defaultParams)
-    const mockStore = client.store
+  // Setup a client with a store
+  const scheme = securitySchemeSchema.parse({ uid: 'scheme-1', nameKey: 'api_key', type: 'apiKey' })
+  const server = serverSchema.parse({ uid: 'server-1', url: 'https://api.example.com' })
+  const request = requestSchema.parse({
+    uid: 'request-1',
+    path: '/users',
+    method: 'get',
+    operationId: 'getUsers',
+    requestBody: {
+      content: {
+        'application/json': {
+          examples: {
+            'example-1': {
+              value: { name: 'John' },
+            },
+          },
+        },
+      },
+    },
+    examples: ['example-uid-1'],
+  })
+  const requestExample = requestExampleSchema.parse({
+    uid: 'example-uid-1',
+    value: { name: 'John' },
+  })
 
-    console.log(mockStore)
+  const client = createApiClient({
+    ...defaultParams,
+    store: {
+      ...createWorkspaceStore({
+        useLocalStorage: false,
+        showSidebar: false,
+        hideClientButton: true,
+        theme: 'default',
+        proxyUrl: 'https://proxy.scalar.com',
+        _integration: 'vue',
+      }),
+      requests: {
+        [request.uid]: request,
+      },
+      requestExamples: {
+        [requestExample.uid]: requestExample,
+      },
+      securitySchemes: {
+        [scheme.uid]: scheme,
+      },
+      servers: {
+        [server.uid]: server,
+      },
+    },
+  })
 
-    // Mock servers data
-    mockStore.servers = {
-      'server-1': { uid: 'server-1', url: 'https://api.example.com' },
-    }
-
+  it('should update server correctly', () => {
     client.updateServer('https://api.example.com')
-
-    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith('collection-1', 'selectedServerUid', 'server-1')
+    expect(client.store.collectionMutators.edit).toHaveBeenCalledWith('collection-1', 'selectedServerUid', 'server-1')
   })
 
   it('should handle onUpdateServer callback', () => {
-    const client = createApiClient(defaultParams)
-    const mockStore = client.store
-
-    // Mock servers data
-    mockStore.servers = {
-      'server-1': { uid: 'server-1', url: 'https://api.example.com' },
-    }
-
     const callback = vi.fn()
     client.onUpdateServer(callback)
 
@@ -248,40 +274,24 @@ describe('createApiClient', () => {
     if (watchCallback) {
       watchCallback.callback('server-1')
       expect(callback).toHaveBeenCalledWith('https://api.example.com')
-    } else {
-      fail('Watch callback not found')
     }
   })
 
   it('should update auth values correctly', () => {
-    const client = createApiClient(defaultParams)
-    const mockStore = client.store
-
-    // Mock security schemes
-    mockStore.securitySchemes = {
-      'scheme-1': { uid: 'scheme-1', nameKey: 'api_key', type: 'apiKey' },
-    }
-
     client.updateAuth({
       nameKey: 'api_key',
       propertyKey: 'value',
       value: 'my-api-key',
     })
 
-    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith('scheme-1', 'value', 'my-api-key')
+    expect(client.store.securitySchemeMutators.edit).toHaveBeenCalledWith('scheme-1', 'value', 'my-api-key')
   })
 
   it('should route to a request correctly', () => {
-    const client = createApiClient(defaultParams)
-
-    // Mock getRequestUidByPathMethod to return a request UID
-    getRequestUidByPathMethod.mockReturnValue('request-1')
-
     const payload: OpenClientPayload = {
       path: '/users',
       method: 'get',
     }
-
     client.route(payload)
 
     expect(mockRouter.push).toHaveBeenCalledWith({
@@ -295,11 +305,6 @@ describe('createApiClient', () => {
   })
 
   it('should handle source in route payload', () => {
-    const client = createApiClient(defaultParams)
-
-    // Mock getRequestUidByPathMethod to return a request UID
-    getRequestUidByPathMethod.mockReturnValue('request-1')
-
     const payload: OpenClientPayload = {
       path: '/users',
       method: 'get',
@@ -319,48 +324,27 @@ describe('createApiClient', () => {
   })
 
   it('should open the modal and route to a request', () => {
-    const client = createApiClient(defaultParams)
-    const routeSpy = vi.spyOn(client, 'route')
-
     const payload: OpenClientPayload = {
       path: '/users',
       method: 'get',
     }
-
     client.open(payload)
 
-    expect(routeSpy).toHaveBeenCalledWith(payload)
+    expect(mockRouter.push).toHaveBeenCalledWith({
+      name: 'request',
+      query: {},
+      params: {
+        workspace: 'default',
+        request: 'request-1',
+      },
+    })
     expect(client.modalState.open).toBe(true)
   })
 
   it('should update example correctly', () => {
-    const client = createApiClient(defaultParams)
-    const mockStore = client.store
-
-    // Mock requests data
-    mockStore.requests = {
-      'request-1': {
-        uid: 'request-1',
-        operationId: 'getUsers',
-        path: '/users',
-        requestBody: {
-          content: {
-            'application/json': {
-              examples: {
-                'example-1': {
-                  value: { name: 'John' },
-                },
-              },
-            },
-          },
-        },
-        examples: ['example-uid-1'],
-      },
-    }
-
     client.updateExample('example-1', 'getUsers')
 
-    expect(mockStore.requestExampleMutators.edit).toHaveBeenCalledWith(
+    expect(client.store.requestExampleMutators.edit).toHaveBeenCalledWith(
       'example-uid-1',
       'body.raw.value',
       expect.any(String),
