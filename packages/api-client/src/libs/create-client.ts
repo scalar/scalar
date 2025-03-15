@@ -165,7 +165,6 @@ export const createApiClient = ({
     const workspace = workspaceSchema.parse({
       uid: 'default',
       name: 'Workspace',
-      isReadOnly: true,
       proxyUrl: configuration.proxyUrl,
     })
     store.workspaceMutators.rawAdd(workspace)
