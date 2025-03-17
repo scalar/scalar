@@ -9,6 +9,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
@@ -38,6 +39,11 @@ const { operation } = defineProps<{
   operation: Operation
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -107,12 +113,15 @@ const title = computed(() => operation.summary || operation.path)
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
-          <OperationParameters :operation="operation" />
+          <OperationParameters
+            :operation="operation"
+            :schemas="schemas" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :operation="transformedOperation" />
+            :operation="transformedOperation"
+            :schemas="schemas" />
         </div>
       </div>
       <ExampleResponses :responses="operation.responses" />
