@@ -1,6 +1,6 @@
 export * from './useClientStore'
 export * from './useNavState'
 export * from './useOperation'
-export * from './useReactiveSpec'
+export { useReactiveSpec } from './useReactiveSpec'
 export * from './useRefOnMount'
 export * from './useSidebar'

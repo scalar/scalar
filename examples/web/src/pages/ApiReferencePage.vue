@@ -54,11 +54,10 @@ watch(
   },
 )
 
+// TODO:
 const { parsedSpec } = useReactiveSpec({
   proxyUrl: () => configuration.proxyUrl ?? '',
-  specConfig: () => ({
-    content: content.value,
-  }),
+  content: content.value,
 })
 </script>
 <template>

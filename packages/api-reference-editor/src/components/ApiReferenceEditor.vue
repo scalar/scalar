@@ -121,9 +121,11 @@ function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
 const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
+// TODO: Fetch URLs
+
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.value.proxyUrl || ''),
-  specConfig: toRef(() => configuration.value || {}),
+  content: toRef(() => configuration.value.content || ''),
 })
 </script>
 <template>

@@ -32,9 +32,34 @@ if (configuration.metaData) {
   useSeoMeta(configuration.metaData)
 }
 
+// TODO: Fetch URLs
+
+const content = computed(() => {
+  if (typeof configuration.content === 'function') {
+    return configuration.content()
+  }
+
+  if (typeof configuration.content === 'string') {
+    return configuration.content
+  }
+
+  if (typeof configuration.content === 'object') {
+    return JSON.stringify(configuration.content)
+  }
+
+  return JSON.stringify({
+    openapi: '3.1.0',
+    info: {
+      title: 'Example',
+      version: '1.0.0',
+    },
+    paths: {},
+  })
+})
+
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.proxyUrl || ''),
-  specConfig: toRef(() => configuration || {}),
+  content: toRef(() => content.value || ''),
 })
 
 // TODO: defineSlots
@@ -43,7 +68,7 @@ const favicon = computed(() => configuration.favicon)
 useFavicon(favicon)
 </script>
 <template>
-  <!-- SingleApiReference -->
+  content: {{ content }}
   <!-- Inject any custom CSS directly into a style tag -->
   <component
     :is="'style'"
@@ -66,6 +91,9 @@ useFavicon(favicon)
   </Layouts>
 </template>
 <style>
+* {
+  background: white;
+}
 @layer scalar-base {
   body {
     margin: 0;
