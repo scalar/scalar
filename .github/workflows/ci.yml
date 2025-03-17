@@ -258,7 +258,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [harden_security, build, format, types, test]
+    needs:
+      [harden_security, build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [20]
@@ -311,7 +312,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
-    needs: [build, test]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [20]
@@ -576,7 +577,16 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    needs: [harden_security, build, format, types, test, aspnetcore-build-test]
+    needs:
+      [
+        harden_security,
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        aspnetcore-build-test,
+      ]
 
     steps:
       - name: Checkout repository
