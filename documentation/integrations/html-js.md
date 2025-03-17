@@ -1,6 +1,7 @@
 # HTML
 
-To get started, you can just use a simple HTML file. It’s the easiest, and probably also the quickest way to get up and running, literally in seconds.
+To get started, you can just use a simple HTML file. It’s the easiest, and probably also the quickest way to get up
+and running, literally in seconds.
 
 ```html
 <!doctype html>
@@ -33,6 +34,10 @@ To get started, you can just use a simple HTML file. It’s the easiest, and pro
 ```
 
 This renders our `@scalar/galaxy` OpenAPI example, using the latest version of `@scalar/api-reference`.
+
+## Configuration
+
+Check out the [Configuration](../configuration.md) page to learn more about customizing your API reference.
 
 ## Version
 
@@ -112,3 +117,4 @@ createApiReference('#app', {
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
 ```
+
