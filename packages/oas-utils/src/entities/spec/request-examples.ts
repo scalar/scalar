@@ -1,10 +1,9 @@
-import { nanoidSchema } from '@/entities/shared'
+import { nanoidSchema, type ENTITY_BRANDS } from '@scalar/types/entities'
 import { schemaModel } from '@/helpers'
 import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-getters'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
 
-import type { ENTITY_BRANDS } from '@/entities/shared/utility'
 import type { RequestParameter } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'

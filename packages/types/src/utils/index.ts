@@ -1,1 +1,1 @@
-export * from './utility-types.ts'
+export type { UnknownObject } from './utility-types.ts'

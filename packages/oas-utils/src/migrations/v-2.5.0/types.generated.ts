@@ -1,6 +1,7 @@
 import type { Cookie } from '@/entities/cookie'
 import type { Environment } from '@/entities/environment'
-import type { Collection, Request, RequestExample, Server, SecurityScheme, Tag } from '@/entities/spec'
+import type { Collection, Request, RequestExample, Server, Tag } from '@/entities/spec'
+import type { SecurityScheme } from '@scalar/types/entities'
 import type { Workspace } from '@/entities/workspace'
 
 export type v_2_5_0 = {
