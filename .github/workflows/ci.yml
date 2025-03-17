@@ -206,7 +206,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
@@ -297,7 +297,7 @@ jobs:
       - name: Stash changes
         run: git stash
       - name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the app
         id: changed-files
@@ -305,10 +305,10 @@ jobs:
         with:
           files_yaml: |
             api_client_app:
-              - packages/scalar-app/package.json
+              - projects/scalar-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Check whether appFiles are there
-        run: ls -R ./packages/scalar-app/dist
+        run: ls -R ./projects/scalar-app/dist
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build in the toDesktop cloud
         run: pnpm --filter scalar-app todesktop:build:ci
@@ -519,7 +519,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: 20
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: integrations/aspnetcore
@@ -586,7 +586,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: 20
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference

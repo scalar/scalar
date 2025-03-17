@@ -1,12 +1,12 @@
-import { _electron, expect, test } from '@playwright/test'
 import { statSync } from 'node:fs'
 import { join } from 'node:path'
+import { _electron, expect, test } from '@playwright/test'
 
 import { waitFor } from './utils/waitFor'
 
 // Helper function to find the frontend build
 const findFolder = () => {
-  const possiblePaths = ['../../packages/scalar-app', '../packages/scalar-app', './packages/scalar-app']
+  const possiblePaths = ['../../projects/scalar-app', '../projects/scalar-app', './projects/scalar-app']
 
   for (const path of possiblePaths) {
     try {
@@ -66,7 +66,7 @@ test.describe('Electron', () => {
           return false
         }
 
-        expect(mainWindow.url()).toContain('packages/scalar-app/dist/renderer/index.html')
+        expect(mainWindow.url()).toContain('projects/scalar-app/dist/renderer/index.html')
 
         return true
       },
