@@ -83,7 +83,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+        uses: aquasecurity/trivy-action@6c175e9c4083a92bbca2f9724c8a5e33bc2d97a5
         with:
           scan-type: 'config'
           scan-ref: 'packages/api-reference/docker/src/Dockerfile'
