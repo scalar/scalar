@@ -23,3 +23,14 @@ ignoredBuiltDependencies:
   - protobufjs
   - sharp
   - workerd
+catalog:
+  '@types/node': ^20.17.10
+  '@vueuse/core': ^10.10.0
+  nanoid: ^5.0.9
+  postcss: ^8.4.38
+  tailwindcss: ^3.4.4
+  vite: ^5.4.10
+  vitest: ^1.6.0
+  vue: ^3.5.12
+  yaml: ^2.4.5
+  zod: ^3.23.8

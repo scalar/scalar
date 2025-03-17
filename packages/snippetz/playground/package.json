@@ -13,14 +13,12 @@
   },
   "dependencies": {
     "@scalar/snippetz": "workspace:*",
-    "vue": "^3.5.12"
+    "vue": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "shikiji": "^0.10.2",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.10",
-    "vue-tsc": "^2.1.10"
+    "vite": "catalog:"
   }
 }

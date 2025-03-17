@@ -29,14 +29,14 @@
   },
   "type": "module",
   "dependencies": {
-    "vue": "^3.5.12"
+    "vue": "catalog:"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",
     "@scalar/api-client": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.4.10",
-    "vitest": "^1.6.0",
+    "vite": "catalog:",
+    "vitest": "catalog:",
     "wrangler": "^3.62.0"
   }
 }

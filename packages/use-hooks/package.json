@@ -51,14 +51,14 @@
   "dependencies": {
     "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@vueuse/core": "^10.10.0",
-    "vue": "^3.5.12",
-    "zod": "^3.23.8"
+    "@vueuse/core": "catalog:",
+    "vue": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.4.10",
+    "vite": "catalog:",
     "zod-to-ts": "^1.2.0"
   }
 }

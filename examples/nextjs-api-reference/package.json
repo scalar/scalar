@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.1.1",
-    "@types/node": "^20.17.10",
+    "@types/node": "catalog:",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2"
   }

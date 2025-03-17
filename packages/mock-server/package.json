@@ -57,7 +57,7 @@
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
-    "@types/node": "^20.17.10",
-    "vite": "^5.4.10"
+    "@types/node": "catalog:",
+    "vite": "catalog:"
   }
 }

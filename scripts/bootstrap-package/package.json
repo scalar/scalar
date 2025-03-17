@@ -40,9 +40,9 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.1.1",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.5.12"
+    "vue": "catalog:"
   },
   "dependencies": {
-    "vue": "^3.5.12"
+    "vue": "catalog:"
   }
 }

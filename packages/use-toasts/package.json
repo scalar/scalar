@@ -40,8 +40,8 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "nanoid": "^5.0.9",
-    "vue": "^3.5.12",
+    "nanoid": "catalog:",
+    "vue": "catalog:",
     "vue-sonner": "^1.0.3"
   },
   "devDependencies": {
@@ -49,8 +49,8 @@
     "@vitejs/plugin-vue": "^5.0.4",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.1",
-    "vite": "^5.4.10",
+    "vite": "catalog:",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "^1.6.0"
+    "vitest": "catalog:"
   }
 }

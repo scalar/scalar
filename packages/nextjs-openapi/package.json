@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/node": "^20.17.10",
+    "@types/node": "catalog:",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "next": "^15.1.2",

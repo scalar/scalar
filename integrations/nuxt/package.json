@@ -61,9 +61,9 @@
     "@nuxt/module-builder": "^0.8.1",
     "@nuxt/schema": "^3.12.3",
     "@nuxt/test-utils": "^3.13.1",
-    "@types/node": "^20.17.10",
+    "@types/node": "catalog:",
     "changelogen": "^0.5.5",
     "nuxt": "^3.12.4",
-    "vitest": "^1.6.0"
+    "vitest": "catalog:"
   }
 }

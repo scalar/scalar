@@ -30,7 +30,7 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
-    "@types/node": "^20.17.10",
-    "vite": "^5.4.10"
+    "@types/node": "catalog:",
+    "vite": "catalog:"
   }
 }
