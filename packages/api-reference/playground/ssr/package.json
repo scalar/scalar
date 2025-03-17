@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node server",
+    "dev": "vite-node server.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --outDir dist/client",
     "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
-    "preview": "cross-env NODE_ENV=production node server",
+    "preview": "cross-env NODE_ENV=production vite-node server.ts",
     "check": "vue-tsc"
   },
   "dependencies": {
