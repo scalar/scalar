@@ -306,12 +306,12 @@ onBeforeUnmount(() => {
           <input
             id="commandmenu"
             ref="commandInputRef"
-            :value="commandQuery"
             autocomplete="off"
             autofocus
             class="w-full rounded border-none bg-none py-1.5 text-sm focus:outline-none"
             placeholder="Search commands..."
             type="text"
+            :value="commandQuery"
             @input="handleInput(($event.target as HTMLInputElement).value)"
             @keydown.down.stop="handleArrowKey('down', $event)"
             @keydown.enter.stop="handleSelect"

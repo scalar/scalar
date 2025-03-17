@@ -49,10 +49,10 @@ async function focusContents() {
     <Tag
       v-if="moreThanOneDefaultTag"
       :id="id"
+      :collection="collection"
       :headerId="headerId"
       :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
-      :tag="tag"
-      :collection="collection" />
+      :tag="tag" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && moreThanOneTag"
       :id="id ?? ''"

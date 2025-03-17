@@ -117,11 +117,11 @@ const humanizeType = (type: string) => {
             <Tab
               v-for="(schema, index) in value[discriminator]"
               :key="index"
-              @click="selectedOneOfIndex = index"
               class="cursor-pointer"
               :class="
                 cx(buttonVariants({ selected: selectedOneOfIndex === index }))
-              ">
+              "
+              @click="selectedOneOfIndex = index">
               {{ getModelNameFromSchema(schema) || 'Schema' }}
             </Tab>
           </div>
@@ -132,19 +132,19 @@ const humanizeType = (type: string) => {
           class="discriminator-panel">
           <Schema
             :compact="compact"
+            :hideHeading="hideHeading"
             :noncollapsible="true"
             :schemas="schemas"
-            :value="schema"
-            :hideHeading="hideHeading" />
+            :value="schema" />
         </TabPanel>
       </TabGroup>
     </template>
     <template v-else>
       <Schema
         :compact="compact"
+        :level="level"
         :noncollapsible="level != 0 ? false : true"
         :schemas="schemas"
-        :level="level"
         :value="mergeAllOfSchemas(value[discriminator])" />
     </template>
   </div>

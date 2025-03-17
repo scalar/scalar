@@ -1,7 +1,4 @@
 import type { ScalarListboxOption } from '../..'
-import type ScalarMenu from './ScalarMenu.vue'
-import type ScalarMenuButton from './ScalarMenuButton.vue'
-import type ScalarMenuTeamPicker from './ScalarMenuTeamPicker.vue'
 
 /**
  * A team option for the ScalarMenuTeamPicker component

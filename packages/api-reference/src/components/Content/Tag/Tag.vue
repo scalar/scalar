@@ -55,8 +55,8 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
         </SectionColumn>
         <SectionColumn>
           <OperationsList
-            :tag="tag"
-            :collection="collection" />
+            :collection="collection"
+            :tag="tag" />
         </SectionColumn>
       </SectionColumns>
     </SectionContent>

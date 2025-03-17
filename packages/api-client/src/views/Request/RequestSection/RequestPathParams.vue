@@ -119,9 +119,9 @@ watch(
       :columns="['32px', '', '']"
       :envVariables="envVariables"
       :environment="environment"
+      :invalidParams="invalidParams"
       :items="params"
       :workspace="workspace"
-      :invalidParams="invalidParams"
       @updateRow="updateRow" />
   </ViewLayoutCollapse>
 </template>

@@ -26,8 +26,8 @@ const { responses } = useResponses(props.operation)
   <ParameterList
     :collapsableItems="collapsableItems"
     :parameters="responses"
-    :withExamples="false"
-    :schemas="schemas">
+    :schemas="schemas"
+    :withExamples="false">
     <template #title>Responses</template>
   </ParameterList>
 </template>

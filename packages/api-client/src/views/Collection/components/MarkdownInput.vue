@@ -36,8 +36,8 @@ watch(mode, (newMode) => {
       <ScalarButton
         v-if="mode === 'preview'"
         class="text-c-2 hover:text-c-1 flex items-center gap-2"
-        type="button"
         size="sm"
+        type="button"
         variant="outlined"
         @click="mode = 'edit'">
         <ScalarIcon
@@ -55,9 +55,9 @@ watch(mode, (newMode) => {
           <template v-if="modelValue">
             <ScalarMarkdown
               v-if="modelValue"
-              withImages
               class="hover:border-b-3 h-full rounded border border-transparent p-1.5"
               :value="modelValue"
+              withImages
               @dblclick="mode = 'edit'" />
             <div
               class="brightness-lifted -z-1 bg-b-1 absolute inset-0 hidden rounded group-hover:block group-has-[:focus-visible]:hidden" />
@@ -67,8 +67,8 @@ watch(mode, (newMode) => {
             class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
             <ScalarButton
               class="hover:bg-b-2 hover:text-c-1 text-c-2 flex items-center gap-2"
-              variant="ghost"
               size="sm"
+              variant="ghost"
               @click="mode = 'edit'">
               <ScalarIcon
                 icon="Pencil"
@@ -84,9 +84,9 @@ watch(mode, (newMode) => {
           <CodeInput
             ref="codeInputRef"
             class="h-full border px-0.5 py-0"
-            :modelValue="modelValue"
-            :environment="environment"
             :envVariables="envVariables"
+            :environment="environment"
+            :modelValue="modelValue"
             :workspace="workspace"
             @blur="mode = 'preview'"
             @update:modelValue="emit('update:modelValue', $event)" />

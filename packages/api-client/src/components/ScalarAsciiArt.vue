@@ -25,7 +25,9 @@ const getLineAnimation = (chars: number, row: number): StyleValue => ({
       class="inline-block"
       :style="{ width: `calc(${line.length + 1}ch)` }">
       <!-- prettier-ignore -->
-      <span class="inline-block whitespace-pre overflow-hidden" :style="getLineAnimation(line.length, i)">{{
+      <span
+class="inline-block whitespace-pre overflow-hidden"
+:style="getLineAnimation(line.length, i)">{{
        line
       }}</span>
     </span>

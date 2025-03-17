@@ -105,9 +105,9 @@ const handleLabelClick = () => {
           " />
         <CodeInput
           v-else
-          ref="codeInput"
           v-bind="$attrs"
           :id="id"
+          ref="codeInput"
           class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none -outline-offset-1"
           :class="[
             type === 'password' && description && 'pr-12',
@@ -115,6 +115,7 @@ const handleLabelClick = () => {
           ]"
           disableCloseBrackets
           disableTabIndent
+          :description="description"
           :envVariables="envVariables"
           :environment="environment"
           :max="max"
@@ -125,7 +126,6 @@ const handleLabelClick = () => {
           spellcheck="false"
           :type="inputType"
           :workspace="workspace"
-          :description="description"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />

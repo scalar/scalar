@@ -14,7 +14,7 @@ export const platformVariants = ['mac', 'windows', 'linux'] as const
  * Modified from `@todesktop/tailwind-variants`
  * @see https://github.com/todesktop/tailwind-variants
  */
-export const desktopVariants = plugin(function ({ addVariant }) {
+export const desktopVariants = plugin(({ addVariant }) => {
   // Add support for `desktop` modifier
   // Usage: <div class="desktop:rounded-lg">...</div>
   addVariant('desktop', () => '.app-platform-desktop &')

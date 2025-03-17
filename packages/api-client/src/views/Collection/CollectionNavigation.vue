@@ -109,8 +109,8 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
           : 'flex md:mx-auto md:max-w-[720px]'
       ">
       <div
-        class="flex max-w-40 items-center"
-        v-if="isSticky">
+        v-if="isSticky"
+        class="flex max-w-40 items-center">
         <LibraryIcon
           class="text-c-2 hidden size-3.5 md:block"
           :src="

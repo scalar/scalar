@@ -1,7 +1,5 @@
 import type { Middleware, OffsetOptions, Placement } from '@floating-ui/vue'
 
-import { ScalarTeleportRoot } from '../ScalarTeleport'
-
 /** The props for the ScalarFloating component */
 export type FloatingOptions = {
   /**

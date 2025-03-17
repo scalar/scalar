@@ -36,10 +36,10 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
           <OperationsListItem
             v-for="operation in tag.operations"
             :key="getOperationId(operation, tag)"
+            :collection="collection"
             :isCollapsed="isCollapsed"
             :tag="tag"
-            :transformedOperation="operation"
-            :collection="collection" />
+            :transformedOperation="operation" />
         </ul>
       </CardContent>
     </Card>

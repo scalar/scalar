@@ -65,10 +65,10 @@ const data = computed(() => {
     </IconSelector>
     <div class="ml-1.25 group relative">
       <LabelInput
+        class="text-xl font-bold"
         inputId="collectionName"
         placeholder="Untitled Collection"
         :value="data.title"
-        class="text-xl font-bold"
         @updateValue="updateCollectionTitle" />
     </div>
   </div>
