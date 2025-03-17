@@ -51,7 +51,9 @@ const groups = computed<OptionGroup[]>(() =>
 )
 
 const query = ref<string>('')
-const active = ref<Option>(props.modelValue?.[0] ?? options.value[0])
+const active = ref<Option | undefined>(
+  props.modelValue?.[0] ?? options.value[0],
+)
 
 // Clear the query on open and close
 onMounted(async () => {
@@ -110,7 +112,7 @@ function moveActive(dir: 1 | -1) {
   const list = filtered.value
 
   // Find active index
-  const activeIdx = list.findIndex((option) => option.id === active.value.id)
+  const activeIdx = list.findIndex((option) => option.id === active.value?.id)
 
   // Calculate next index and exit if it's out of bounds
   const nextIdx = activeIdx + dir
@@ -145,7 +147,7 @@ function moveActive(dir: 1 | -1) {
       tabindex="0"
       type="text"
       @keydown.down.prevent="moveActive(1)"
-      @keydown.enter.prevent="toggleSelected(active)"
+      @keydown.enter.prevent="active && toggleSelected(active)"
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
