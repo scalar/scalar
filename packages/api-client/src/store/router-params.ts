@@ -24,8 +24,8 @@ export function getRouterParams(router?: Router) {
 
     if (currentRoute) {
       ;(Object.keys(pathParams) as (keyof typeof pathParams)[]).forEach((k) => {
-        // @ts-expect-error this gives us good types without redoing PathId :)
         if (currentRoute.params[k]) {
+          // @ts-expect-error this gives us good types without redoing PathId :)
           pathParams[k] = currentRoute.params[k]
         }
       })
