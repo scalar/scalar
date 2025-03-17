@@ -399,4 +399,36 @@ describe('useMultipleDocuments', () => {
       expect(availableDocuments.value[1].title).toBe('Second API')
     })
   })
+
+  describe('SSR compatibility', () => {
+    it('works in SSR environment without window object', () => {
+      // Temporarily remove window.location and window.history
+      const originalWindow = global.window
+      // @ts-expect-error Testing SSR environment
+      global.window = undefined
+
+      const config = {
+        configuration: ref({
+          sources: [
+            {
+              url: '/openapi-1.yaml',
+              title: 'My API',
+            },
+          ],
+        }),
+      }
+
+      const { selectedConfiguration, availableDocuments } = useMultipleDocuments(config)
+
+      expect(availableDocuments.value).toHaveLength(1)
+      expect(selectedConfiguration.value).toMatchObject({
+        url: '/openapi-1.yaml',
+        title: 'My API',
+        slug: 'my-api',
+      })
+
+      // Restore window object
+      global.window = originalWindow
+    })
+  })
 })

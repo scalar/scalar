@@ -90,7 +90,10 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
    * We only want to update the URL if we have more than one document
    */
   const updateUrlParameter = (value: number) => {
-    // If there is only one document, don’t add the query parameter.
+    // Skip URL updates during SSR
+    if (typeof window === 'undefined') return
+
+    // If there is only one document, don't add the query parameter.
     if (availableDocuments.value.length === 1) {
       return
     }
@@ -110,7 +113,9 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
 
     // Scroll to the top of the page, disable scroll listener when doing so
     isIntersectionEnabled.value = false
-    window.scrollTo({ top: 0, behavior: 'instant' })
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'instant' })
+    }
     setTimeout(() => (isIntersectionEnabled.value = true), 300)
   }
 
@@ -118,6 +123,11 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
    * Determines the initially selected API definition from the URL
    */
   const getInitialSelection = (): number => {
+    // During SSR or if window is not available, use initial index or default to 0
+    if (typeof window === 'undefined') {
+      return typeof initialIndex === 'number' ? initialIndex : 0
+    }
+
     const url = new URL(window.location.href)
     const parameter = url.searchParams.get(QUERY_PARAMETER) || '0'
 
