@@ -1,24 +1,24 @@
 import { describe, it, expect } from 'vitest'
 import { z } from 'zod'
-import { cleanSchema } from './clean-schema.ts'
+import { zodDeepPartial } from './zod-deep-partial.ts'
 
-describe('cleanSchema', () => {
+describe('zodDeepPartial', () => {
   // Test basic types
   it('should make basic types optional', () => {
     const schema = z.string()
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
     expect(result.isOptional()).toBe(true)
   })
 
   it('should not have default values', () => {
     const schema = z.object({ defaulted: z.string().default('test') })
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
     expect(result.parse({})).toEqual({})
   })
 
   it('should not have nested default values', () => {
     const schema = z.object({ parent: z.object({ defaulted: z.string().default('test') }) })
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
     expect(result.parse({})).toEqual({})
   })
 
@@ -32,7 +32,7 @@ describe('cleanSchema', () => {
       }),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Check if the schema is optional
     expect(result.isOptional()).toBe(true)
@@ -58,14 +58,14 @@ describe('cleanSchema', () => {
       }),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Check if defaults are removed
     expect(result.parse({})).toEqual({})
   })
 
   // Test catch values
-  it('should remove catch values', () => {
+  it('should remove catch values for non-existent parameters', () => {
     const schema = z.object({
       withCatch: z.string().catch('fallback'),
       nested: z.object({
@@ -73,10 +73,26 @@ describe('cleanSchema', () => {
       }),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
+    expect(result.parse({})).toEqual({})
+  })
 
-    // Invalid data should not be caught and transformed
-    expect(() => result.parse({ withCatch: 123, nested: { deepWithCatch: 'invalid' } })).toThrow()
+  // Test catch values
+  it('should catch invalid values for existing parameters', () => {
+    const schema = z.object({
+      withCatch: z.string().catch('fallback'),
+      nested: z.object({
+        deepWithCatch: z.number().catch(0),
+      }),
+    })
+
+    const result = zodDeepPartial(schema)
+
+    // Invalid data should be caught
+    expect(result.parse({ withCatch: 123, nested: { deepWithCatch: 'invalid' } })).toEqual({
+      withCatch: 'fallback',
+      nested: { deepWithCatch: 0 },
+    })
   })
 
   // Test complex nested structure
@@ -92,7 +108,7 @@ describe('cleanSchema', () => {
       union: z.union([z.string(), z.number().default(0)]),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Everything should be optional
     const valid: z.infer<typeof result> = {}
@@ -127,7 +143,7 @@ describe('cleanSchema', () => {
       uid: z.string().default(''),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Should not include any default values
     expect(result.parse({})).toEqual({})
@@ -154,7 +170,7 @@ describe('cleanSchema', () => {
         .default({}),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Should not include any default values
     expect(result.parse({})).toEqual({})
@@ -196,7 +212,7 @@ describe('cleanSchema', () => {
       }),
     )
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Should not include any default values
     expect(result.parse({})).toEqual({})
@@ -239,7 +255,7 @@ describe('cleanSchema', () => {
       }),
     })
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     const input = {
       apiKey: {
@@ -275,7 +291,7 @@ describe('cleanSchema', () => {
       }),
     ])
 
-    const result = cleanSchema(schema)
+    const result = zodDeepPartial(schema)
 
     // Test with http type
     expect(
