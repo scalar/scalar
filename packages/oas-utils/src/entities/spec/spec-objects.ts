@@ -1,4 +1,4 @@
-import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/entities'
 import { z } from 'zod'
 
 /**

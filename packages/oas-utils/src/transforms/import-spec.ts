@@ -19,7 +19,7 @@ import {
   type SecurityScheme,
   type SecuritySchemePayload,
   securitySchemeSchema,
-} from '@/entities/spec/security'
+} from '@scalar/types/entities'
 import { combineUrlAndPath, isDefined } from '@/helpers'
 import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'

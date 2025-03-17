@@ -2105,6 +2105,9 @@ importers:
       '@unhead/schema':
         specifier: ^1.11.11
         version: 1.11.11
+      nanoid:
+        specifier: ^5.0.9
+        version: 5.1.0
       zod:
         specifier: 'catalog:'
         version: 3.23.8

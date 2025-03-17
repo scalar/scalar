@@ -7,8 +7,7 @@ import {
   securitySchemeSchema,
   oasSecurityRequirementSchema,
   pkceOptions,
-  type SecurityScheme,
-} from './security'
+} from './security-scheme.ts'
 
 describe('Security Schemas', () => {
   describe('API Key Schema', () => {
@@ -305,7 +304,7 @@ describe('Security Schemas', () => {
 
   describe('Combined Security Scheme', () => {
     it('should validate all security scheme types', () => {
-      const apiKey: SecurityScheme = {
+      const apiKey = {
         type: 'apiKey',
         name: 'api_key',
         in: 'header',
@@ -313,20 +312,20 @@ describe('Security Schemas', () => {
         value: 'test-api-key',
       }
 
-      const http: SecurityScheme = {
+      const http = {
         type: 'http',
         scheme: 'bearer',
         uid: 'http123',
         token: 'bearer-token',
       }
 
-      const openId: SecurityScheme = {
+      const openId = {
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
         uid: 'openid123',
       }
 
-      const oauth2: SecurityScheme = {
+      const oauth2 = {
         type: 'oauth2',
         uid: 'oauth123',
         flows: {
