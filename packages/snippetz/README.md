@@ -7,8 +7,6 @@
 
 A modern way to generate HTTP request examples for different languages and libraries.
 
-Check out some examples [here](https://scalar-snippetz-801498848929.us-central1.run.app/)
-
 ## Installation
 
 ```bash
