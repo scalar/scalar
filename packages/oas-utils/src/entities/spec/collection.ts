@@ -1,4 +1,5 @@
-import { type ENTITY_BRANDS, nanoidSchema, oasSecurityRequirementSchema } from '@scalar/types/entities'
+import { oasSecurityRequirementSchema } from '@scalar/types/entities'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { selectedSecuritySchemeUidSchema } from '@/entities/shared'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
