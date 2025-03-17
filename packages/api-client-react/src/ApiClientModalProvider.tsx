@@ -62,8 +62,8 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
       configuration,
     })
 
-    const updateSpec = async () => {
-      await _client.updateSpec(configuration.spec!)
+    const updateConfig = async () => {
+      await _client.updateConfig(configuration!)
       if (initialRequest) {
         _client.route(initialRequest)
       }
@@ -74,11 +74,7 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
     clientDict[key] = _client
 
     // We update the config as we are using the sync version
-    if (configuration.spec) {
-      updateSpec()
-    } else if (initialRequest) {
-      _client.route(initialRequest)
-    }
+    updateConfig()
 
     // Ensure we unmount the vue app on unmount
     return () => {
