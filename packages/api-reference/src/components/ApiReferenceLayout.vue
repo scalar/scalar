@@ -339,11 +339,11 @@ const themeStyleTag = computed(
     }"
     @scroll.passive="debouncedScroll">
     <!-- Header -->
-    <div class="references-header">
+    <!-- <div class="references-header">
       <slot
         v-bind="referenceSlotProps"
         name="header" />
-    </div>
+    </div> -->
     <!-- Navigation (sidebar) wrapper -->
     <aside
       v-if="configuration.showSidebar"

@@ -68,7 +68,9 @@ const favicon = computed(() => configuration.favicon)
 useFavicon(favicon)
 </script>
 <template>
-  content: {{ content }}
+  <div class="debug">
+    <pre>{{ content }}</pre>
+  </div>
   <!-- Inject any custom CSS directly into a style tag -->
   <component
     :is="'style'"
@@ -91,8 +93,10 @@ useFavicon(favicon)
   </Layouts>
 </template>
 <style>
-* {
+.debug {
   background: white;
+  font-family: monospace;
+  padding: 1rem;
 }
 @layer scalar-base {
   body {
