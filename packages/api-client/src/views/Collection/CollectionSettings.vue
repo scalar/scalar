@@ -34,9 +34,13 @@ function handleToggleWatchMode() {
 }
 
 function handleDeleteCollection() {
-  if (!activeCollection.value) return
+  if (!activeCollection.value) {
+    return
+  }
 
-  if (!activeWorkspace.value) return
+  if (!activeWorkspace.value) {
+    return
+  }
 
   collectionMutators.delete(activeCollection.value, activeWorkspace.value)
 

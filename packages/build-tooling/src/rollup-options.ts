@@ -52,7 +52,7 @@ export function createRollupConfig(props: {
     )
   }
   // Optional list of files to copy over
-  if (props?.copy)
+  if (props?.copy) {
     plugins.push(
       copy({
         targets: props.copy,
@@ -60,8 +60,11 @@ export function createRollupConfig(props: {
         hook: 'generateBundle',
       }),
     )
+  }
   // For vanilla rollup (not Vite) we need to enable transpilation
-  if (props.typescript) plugins.push(typescript())
+  if (props.typescript) {
+    plugins.push(typescript())
+  }
   plugins.push(json())
   plugins.push(yaml())
   plugins.push(css())
@@ -76,9 +79,15 @@ export function createRollupConfig(props: {
 
   const external = Array.isArray(props.options?.external) ? props.options.external : []
 
-  if ('dependencies' in pkgFile) external.push(...Object.keys(pkgFile.dependencies))
-  if ('devDependencies' in pkgFile) external.push(...Object.keys(pkgFile.devDependencies))
-  if ('peerDependencies' in pkgFile) external.push(...Object.keys(pkgFile.peerDependencies))
+  if ('dependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.dependencies))
+  }
+  if ('devDependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.devDependencies))
+  }
+  if ('peerDependencies' in pkgFile) {
+    external.push(...Object.keys(pkgFile.peerDependencies))
+  }
 
   return {
     treeshake: {

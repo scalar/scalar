@@ -27,7 +27,9 @@ const selectedVariableIndex = ref(0)
 const router = useRouter()
 
 const redirectToEnvironment = () => {
-  if (!router) return
+  if (!router) {
+    return
+  }
   const { currentRoute, push } = router
 
   const workspaceId = currentRoute.value.params.workspace
@@ -73,7 +75,9 @@ const handleArrowKey = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = filteredVariables.value.length
 
-  if (length === 0) return
+  if (length === 0) {
+    return
+  }
 
   selectedVariableIndex.value =
     (selectedVariableIndex.value + offset + length) % length

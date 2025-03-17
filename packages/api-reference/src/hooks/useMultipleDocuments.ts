@@ -134,7 +134,9 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     }
 
     // Allow the user to hard-code the initial index
-    if (typeof initialIndex === 'number') return initialIndex
+    if (typeof initialIndex === 'number') {
+      return initialIndex
+    }
 
     // Default to first item if no match found
     return 0

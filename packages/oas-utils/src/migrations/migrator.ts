@@ -25,15 +25,25 @@ export const migrator = (): v_2_5_0['DataArray'] => {
   } as any
 
   // 0.0.0 -> 2.1.0 migration
-  if (semverLessThan(dataVersion, '2.1.0')) data = migrate_v_2_1_0(data)
+  if (semverLessThan(dataVersion, '2.1.0')) {
+    data = migrate_v_2_1_0(data)
+  }
   // 2.1.0 -> 2.2.0 migration
-  if (semverLessThan(dataVersion, '2.2.0')) data = migrate_v_2_2_0(data)
+  if (semverLessThan(dataVersion, '2.2.0')) {
+    data = migrate_v_2_2_0(data)
+  }
   // 2.2.0 -> 2.3.0 migration
-  if (semverLessThan(dataVersion, '2.3.0')) data = migrate_v_2_3_0(data)
+  if (semverLessThan(dataVersion, '2.3.0')) {
+    data = migrate_v_2_3_0(data)
+  }
   // 2.3.0 -> 2.4.0 migration
-  if (semverLessThan(dataVersion, '2.4.0')) data = migrate_v_2_4_0(data)
+  if (semverLessThan(dataVersion, '2.4.0')) {
+    data = migrate_v_2_4_0(data)
+  }
   // 2.4.0 -> 2.5.0 migration
-  if (semverLessThan(dataVersion, '2.5.0')) data = migrate_v_2_5_0(data)
+  if (semverLessThan(dataVersion, '2.5.0')) {
+    data = migrate_v_2_5_0(data)
+  }
 
   // Convert to data array
   data = {

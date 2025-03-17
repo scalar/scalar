@@ -61,7 +61,9 @@ export const getSnippet = <T extends TargetId>(
 
     if (snippetz().hasPlugin(snippetzTargetKey, client)) {
       const payload = snippetz().print(snippetzTargetKey, client as ClientId<TargetId>, harRequest)
-      if (!payload) return [new Error('Error generating snippet'), null]
+      if (!payload) {
+        return [new Error('Error generating snippet'), null]
+      }
 
       return [null, payload.replace(`${INVALID_URLS_PREFIX}${separator}`, '')]
     }

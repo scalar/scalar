@@ -116,7 +116,9 @@ const handleItemDelete = () => {
 // Manually focus the popup - not pretty but it works
 const menuRef = ref<typeof ScalarDropdown | null>(null)
 watch([() => props.menuItem.open, menuRef], async ([open]) => {
-  if (open && menuRef.value?.$parent?.$el) menuRef.value.$parent.$el.focus()
+  if (open && menuRef.value?.$parent?.$el) {
+    menuRef.value.$parent.$el.focus()
+  }
 })
 
 // Close menu on click because headless doesn't seem to work

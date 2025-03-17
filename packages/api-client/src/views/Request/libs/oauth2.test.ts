@@ -81,7 +81,9 @@ describe('oauth2', () => {
       },
     })
     const flow = scheme.flows.authorizationCode
-    if (!flow) throw new Error('Flow is undefined')
+    if (!flow) {
+      throw new Error('Flow is undefined')
+    }
 
     it('should handle successful authorization code flow', async () => {
       const promise = authorizeOauth2(flow, mockServer)
@@ -336,7 +338,9 @@ describe('oauth2', () => {
       },
     })
     const flow = scheme.flows.clientCredentials
-    if (!flow) throw new Error('Flow is undefined')
+    if (!flow) {
+      throw new Error('Flow is undefined')
+    }
 
     it('should handle successful client credentials flow', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -385,7 +389,9 @@ describe('oauth2', () => {
       },
     })
     const flow = scheme.flows.implicit
-    if (!flow) throw new Error('Flow is undefined')
+    if (!flow) {
+      throw new Error('Flow is undefined')
+    }
 
     it('should handle successful implicit flow', async () => {
       const promise = authorizeOauth2(flow, mockServer)
@@ -434,7 +440,9 @@ describe('oauth2', () => {
       },
     })
     const flow = scheme.flows.password
-    if (!flow) throw new Error('Flow is undefined')
+    if (!flow) {
+      throw new Error('Flow is undefined')
+    }
 
     it('should handle successful password flow', async () => {
       // Mock fetch

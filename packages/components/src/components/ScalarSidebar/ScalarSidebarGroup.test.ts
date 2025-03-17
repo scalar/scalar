@@ -105,8 +105,9 @@ describe('ScalarSidebarGroup', () => {
     })
 
     // Open all groups
-    while (wrapper.find('button[aria-expanded="false"]').exists())
+    while (wrapper.find('button[aria-expanded="false"]').exists()) {
       await wrapper.find('button[aria-expanded="false"]').trigger('click')
+    }
 
     const items = wrapper.findAll('a')
 

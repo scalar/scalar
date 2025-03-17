@@ -22,18 +22,24 @@ export const getJSDocFromNode = (node: Node) => {
     // Check for multiple lines to set both summary and description
     if (comment) {
       const [_title, _desc] = comment.split(/\n(.*)/s)
-      if (_title) title = _title
-      if (_desc?.length) description = _desc.trim()
+      if (_title) {
+        title = _title
+      }
+      if (_desc?.length) {
+        description = _desc.trim()
+      }
     }
 
     // Check jsDoc tags
     jsDoc.tags?.forEach((tag) => {
       // Summary
-      if (tag.tagName.escapedText.toString().match(/^name|summary/g) && tag.comment?.toString())
+      if (tag.tagName.escapedText.toString().match(/^name|summary/g) && tag.comment?.toString()) {
         title = tag.comment.toString()
+      }
       // Description
-      if (tag.tagName.escapedText.toString().match(/^desc/) && tag.comment?.toString())
+      if (tag.tagName.escapedText.toString().match(/^desc/) && tag.comment?.toString()) {
         description = tag.comment.toString()
+      }
     })
   }
 

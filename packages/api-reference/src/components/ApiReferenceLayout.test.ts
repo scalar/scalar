@@ -79,7 +79,7 @@ describe('ApiReferenceLayout', () => {
 
   describe('real-world examples', () => {
     test.each(EXAMPLE_API_DEFINITIONS)(
-      `$title ($url)`,
+      '$title ($url)',
       async ({ url, title }) => {
         // Spy for console.error to avoid errors in the console
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

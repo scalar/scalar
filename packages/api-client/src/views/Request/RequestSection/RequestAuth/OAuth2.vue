@@ -47,7 +47,9 @@ const updateScheme: UpdateScheme = (path, value) =>
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
-  if (loadingState.isLoading || !collection?.uid) return
+  if (loadingState.isLoading || !collection?.uid) {
+    return
+  }
   loadingState.startLoading()
 
   if (!server) {
@@ -61,8 +63,9 @@ const handleAuthorize = async () => {
     workspace?.proxyUrl,
   ).finally(() => loadingState.stopLoading())
 
-  if (accessToken) updateScheme(`flows.${flow.type}.token`, accessToken)
-  else {
+  if (accessToken) {
+    updateScheme(`flows.${flow.type}.token`, accessToken)
+  } else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
   }

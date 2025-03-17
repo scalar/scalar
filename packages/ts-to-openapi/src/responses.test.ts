@@ -10,10 +10,14 @@ const sourceFile = program.getSourceFile(__dirname + '/fixtures/test-responses.t
 
 // First we get to the body
 const getNode = sourceFile?.statements[0]
-if (!getNode || !isVariableStatement(getNode)) throw 'Not a variable statement'
+if (!getNode || !isVariableStatement(getNode)) {
+  throw 'Not a variable statement'
+}
 
 const initializer = getNode.declarationList.declarations[0].initializer
-if (!initializer || !isArrowFunction(initializer)) throw 'Not an arrow function'
+if (!initializer || !isArrowFunction(initializer)) {
+  throw 'Not an arrow function'
+}
 
 // Test return statements
 describe('getReturnStatements', () => {
@@ -23,7 +27,9 @@ describe('getReturnStatements', () => {
     const statement = generator.next().value as ReturnStatement
     expect(statement.kind).toEqual(SyntaxKind.ReturnStatement)
 
-    if (!statement.expression || !isCallExpression(statement.expression)) return
+    if (!statement.expression || !isCallExpression(statement.expression)) {
+      return
+    }
     expect(statement.expression.arguments.length).toEqual(2)
   })
   it('should get another return statement', () =>

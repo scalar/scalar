@@ -36,7 +36,9 @@ const integrationIcon = computed(() => {
   const defaultIcon = 'Openapi' as const
   const integration = props.integration?.toLocaleLowerCase()
 
-  if (!integration) return defaultIcon
+  if (!integration) {
+    return defaultIcon
+  }
 
   const capitalized = integration.charAt(0).toUpperCase() + integration.slice(1)
 

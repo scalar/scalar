@@ -14,7 +14,9 @@ const addIndent = (str: string, spaces: number = 2, initialIndent: boolean = fal
   const lines = str.split('\n')
   return lines
     .map((line, index) => {
-      if (index === 0 && !initialIndent) return line
+      if (index === 0 && !initialIndent) {
+        return line
+      }
       return `${indent}${line}`
     })
     .join('\n')

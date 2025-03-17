@@ -11,13 +11,16 @@ const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
-  if (!props.label || !isIntersectionEnabled.value) return
+  if (!props.label || !isIntersectionEnabled.value) {
+    return
+  }
 
   replaceUrlState(props.id ?? '')
 
   // Open models and webhooks on scroll
-  if (props.id?.startsWith('model') || props.id?.startsWith('webhook'))
+  if (props.id?.startsWith('model') || props.id?.startsWith('webhook')) {
     setCollapsedSidebarItem(getSectionId(props.id), true)
+  }
 }
 </script>
 <template>

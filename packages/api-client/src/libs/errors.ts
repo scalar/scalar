@@ -19,7 +19,9 @@ export const normalizeError = (e: unknown, defaultMessage: string = ERRORS.DEFAU
     return e
   }
   // If we have a string, return an error
-  if (typeof e === 'string') return new Error(prettyErrorMessage(e))
+  if (typeof e === 'string') {
+    return new Error(prettyErrorMessage(e))
+  }
 
   return new Error(defaultMessage)
 }
@@ -34,14 +36,19 @@ export type ErrorResponse<ResponseType> = [Error, null] | [null, ResponseType]
 /** Takes javascript errors and returns a prettier message */
 export const prettyErrorMessage = (message: string) => {
   // Missing file
-  if (message === `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`)
+  if (message === `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`) {
     return ERRORS.MISSING_FILE
+  }
 
   // Invalid URL
-  if (message === `Failed to construct 'URL': Invalid URL`) return ERRORS.INVALID_URL
+  if (message === `Failed to construct 'URL': Invalid URL`) {
+    return ERRORS.INVALID_URL
+  }
 
   // Invalid Header
-  if (message === `Failed to execute 'fetch' on 'Window': Invalid name`) return ERRORS.INVALID_HEADER
+  if (message === `Failed to execute 'fetch' on 'Window': Invalid name`) {
+    return ERRORS.INVALID_HEADER
+  }
 
   return message
 }

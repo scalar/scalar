@@ -27,14 +27,17 @@ const document =
         : await $fetch<string>('/_openapi.json')
 
 // Check for empty spec
-if (!document)
+if (!document) {
   throw new Error('You must provide a document for Scalar API References')
+}
 
 const parsedSpec = reactive(await parse(document))
 const rawSpec = JSON.stringify(document)
 
 // Load up the metadata
-if (props.configuration?.metaData) useSeoMeta(props.configuration.metaData)
+if (props.configuration?.metaData) {
+  useSeoMeta(props.configuration.metaData)
+}
 
 useHead({
   bodyAttrs: {

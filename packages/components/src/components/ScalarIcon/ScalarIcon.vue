@@ -53,8 +53,12 @@ const accessibilityAttrs = computed(() =>
 )
 
 const svg = computed(() => {
-  if (props.icon) return getIcon(props.icon)
-  if (props.logo) return getLogo(props.logo)
+  if (props.icon) {
+    return getIcon(props.icon)
+  }
+  if (props.logo) {
+    return getLogo(props.logo)
+  }
 
   return undefined
 })

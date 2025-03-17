@@ -16,7 +16,9 @@ export function schemaModel<T, I = any>(data: I, schema: ZodSchema<T, ZodTypeDef
     console.groupEnd()
   }
 
-  if (throwError && !result.success) throw new Error('Zod validation failure')
+  if (throwError && !result.success) {
+    throw new Error('Zod validation failure')
+  }
 
   return result.success ? result.data : null
 }

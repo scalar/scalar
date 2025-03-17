@@ -22,7 +22,9 @@ const popoverButtonRef = ref<typeof PopoverButton | null>(null)
 
 /** Open the popover of the up or down arrows are pressed */
 const handleKeydown = (e: KeyboardEvent) => {
-  if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return
+  if (!['ArrowUp', 'ArrowDown'].includes(e.key)) {
+    return
+  }
   e.preventDefault()
   e.target?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
 }

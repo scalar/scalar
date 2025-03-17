@@ -23,20 +23,28 @@ export async function request<T>({
   const headers: { [x: string]: string } = {}
 
   for (const headerKey in config.headers) {
-    if (config.headers[headerKey]) headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
+    if (config.headers[headerKey]) {
+      headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
+    }
   }
 
   // Default to JSON content if not specified
-  if (!('content-type' in headers)) headers['content-type'] = 'application/json'
+  if (!('content-type' in headers)) {
+    headers['content-type'] = 'application/json'
+  }
 
   // Must let the browser set content header for form data
-  if (data instanceof FormData) delete headers['content-type']
+  if (data instanceof FormData) {
+    delete headers['content-type']
+  }
 
   // Add the bearer auth unless disabled
   if (!!accessToken && !disableAuth) {
     // Get the token string or call the function
     const token = accessToken ? (typeof accessToken === 'function' ? accessToken() : accessToken) : undefined
-    if (!token) console.warn('WARNING: Auth token function returned an empty value')
+    if (!token) {
+      console.warn('WARNING: Auth token function returned an empty value')
+    }
 
     headers['authorization'] = `Bearer ${token}`
   }

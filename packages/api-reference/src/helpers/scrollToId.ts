@@ -5,7 +5,11 @@
  */
 export const scrollToId = async (id: string, focus?: boolean) => {
   const el = document.getElementById(id)
-  if (!el) return
+  if (!el) {
+    return
+  }
   el.scrollIntoView()
-  if (focus) el.focus()
+  if (focus) {
+    el.focus()
+  }
 }

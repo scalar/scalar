@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useActiveEntities } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
@@ -62,8 +61,13 @@ const isLoading = ref(props.layout !== 'classic' && hash.value)
 watch(
   () => props.parsedSpec.tags?.length,
   (tagsLength) => {
-    if (!hash.value || typeof tagsLength !== 'number' || !props.parsedSpec.tags)
+    if (
+      !hash.value ||
+      typeof tagsLength !== 'number' ||
+      !props.parsedSpec.tags
+    ) {
       return
+    }
 
     const sectionId = getSectionId()
 
@@ -89,7 +93,9 @@ watch(
       // Add a few tags to the loading section
       const tag = props.parsedSpec.tags[tagIndex]
 
-      if (!tag) return
+      if (!tag) {
+        return
+      }
       if (tag.name !== 'default') {
         hideTag.value = sectionId !== hash.value && sectionId.startsWith('tag')
       }
@@ -113,14 +119,18 @@ watch(
           ? 0
           : modelKeys.findIndex((key) => key.toLowerCase() === modelKey)
 
-      if (modelIndex === -1) return
+      if (modelIndex === -1) {
+        return
+      }
 
       // Display a couple models
       models.value = modelKeys.slice(modelIndex, modelIndex + 3)
     }
     // Descriptions
     else {
-      if (typeof window !== 'undefined') scrollToId(hash.value)
+      if (typeof window !== 'undefined') {
+        scrollToId(hash.value)
+      }
       setTimeout(() => (isIntersectionEnabled.value = true), 1000)
     }
   },
@@ -130,7 +140,9 @@ watch(
 // Scroll to hash when component has rendered
 const unsubscribe = lazyBus.on(({ id }) => {
   const hashStr = hash.value
-  if (!hashStr || id !== hashStr) return
+  if (!hashStr || id !== hashStr) {
+    return
+  }
 
   // Unsubscribe once our element has loaded
   unsubscribe()
@@ -138,7 +150,9 @@ const unsubscribe = lazyBus.on(({ id }) => {
   // Timeout is to allow codemirror to finish loading and prevent layout shift
   // TODO mutation observer
   setTimeout(() => {
-    if (typeof window !== 'undefined') scrollToId(hashStr)
+    if (typeof window !== 'undefined') {
+      scrollToId(hashStr)
+    }
     isLoading.value = false
     setTimeout(() => (isIntersectionEnabled.value = true), 1000)
   }, 300)
@@ -146,7 +160,9 @@ const unsubscribe = lazyBus.on(({ id }) => {
 
 // Enable intersection observer withb timeout when not deep linking
 onMounted(() => {
-  if (!hash.value) setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+  if (!hash.value) {
+    setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+  }
 })
 </script>
 <template>

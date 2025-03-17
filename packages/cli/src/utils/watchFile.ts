@@ -28,7 +28,7 @@ export async function watchFile(file: string, callback: () => void, options?: { 
   const directory = path.dirname(absoluteFilePath)
 
   // Start the watcher
-  await watcher.subscribe(directory, (err, events) => {
+  await watcher.subscribe(directory, (_err, events) => {
     // Match the file path
     if (events.some((event) => event.path === absoluteFilePath)) {
       callback()

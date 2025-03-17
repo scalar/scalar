@@ -54,8 +54,12 @@ export const createActiveEntitiesStore = ({
         .map((uid) => collections[uid])
         .filter(isDefined)
         .sort((a, b) => {
-          if (a.info?.title === 'Drafts') return 1
-          if (b.info?.title === 'Drafts') return -1
+          if (a.info?.title === 'Drafts') {
+            return 1
+          }
+          if (b.info?.title === 'Drafts') {
+            return -1
+          }
           return 0
         }) ?? [],
   )
@@ -141,11 +145,15 @@ export const createActiveEntitiesStore = ({
     // Grab the collection from route parameters.
     const collection = collections[activeRouterParams.value[PathId.Collection]]
 
-    if (collection) return collection
+    if (collection) {
+      return collection
+    }
 
     // If no collection is found, try to grab the collection from the request.
     const requestUid = activeRequest.value?.uid
-    if (requestUid) return Object.values(collections).find((c) => c.requests?.includes(requestUid))
+    if (requestUid) {
+      return Object.values(collections).find((c) => c.requests?.includes(requestUid))
+    }
 
     // If no collection is found, try to grab the collection from the workspace.
     const fallbackUid = activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
@@ -159,14 +167,18 @@ export const createActiveEntitiesStore = ({
     if (activeRequest.value?.selectedServerUid) {
       // Return server if selected
       const server = servers[activeRequest.value.selectedServerUid]
-      if (server) return server
+      if (server) {
+        return server
+      }
     }
 
     // Collection has a selected server
     if (activeCollection.value?.selectedServerUid) {
       // Return server if selected
       const server = servers[activeCollection.value.selectedServerUid]
-      if (server) return server
+      if (server) {
+        return server
+      }
     }
 
     return undefined
@@ -243,6 +255,8 @@ export const ACTIVE_ENTITIES_SYMBOL = Symbol() as InjectionKey<ActiveEntitiesSto
  */
 export const useActiveEntities = (): ActiveEntitiesStore => {
   const store = inject(ACTIVE_ENTITIES_SYMBOL)
-  if (!store) throw new Error('Active entities store not provided')
+  if (!store) {
+    throw new Error('Active entities store not provided')
+  }
   return store
 }

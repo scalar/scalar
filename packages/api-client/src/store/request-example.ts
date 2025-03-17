@@ -52,7 +52,9 @@ export function extendedExampleDataFactory({
 
   /** Ensure we remove from the base as well as from the request it is in */
   const deleteRequestExample = (requestExample: RequestExample) => {
-    if (!requestExample.requestUid) return
+    if (!requestExample.requestUid) {
+      return
+    }
 
     // Remove from request
     requestMutators.edit(

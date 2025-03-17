@@ -3,7 +3,9 @@
  */
 export const iterateTitle = (title: string, checkDuplicates: (title: string) => boolean, separator = ' #'): string => {
   // If the title is not a duplicate return
-  if (!checkDuplicates(title)) return title
+  if (!checkDuplicates(title)) {
+    return title
+  }
 
   const split = title.split(separator)
   const newTitle =

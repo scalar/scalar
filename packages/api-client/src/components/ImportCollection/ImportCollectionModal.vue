@@ -75,7 +75,9 @@ const companyLogo = computed(() => {
     const logo =
       darkLightMode.value === 'dark' ? query.dark_logo : query.light_logo
 
-    if (logo) return decodeURIComponent(logo as string)
+    if (logo) {
+      return decodeURIComponent(logo as string)
+    }
   } catch {
     // No harm no foul
   }

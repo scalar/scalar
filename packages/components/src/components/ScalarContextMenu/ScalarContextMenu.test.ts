@@ -13,8 +13,8 @@ describe('ScalarContextMenu', () => {
         ],
       },
       slots: {
-        trigger: `<span>Right click here</span>`,
-        content: `<div>Context Menu Content</div>`,
+        trigger: '<span>Right click here</span>',
+        content: '<div>Context Menu Content</div>',
       },
     })
 

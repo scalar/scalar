@@ -37,9 +37,13 @@ export function getParametersFromOperation(
 
   return params.sort((a, b) => {
     // Move a up if a is required and b is not
-    if (a.required && !b.required) return -1
+    if (a.required && !b.required) {
+      return -1
+    }
     // Move b up if b is required and a is not
-    if (!a.required && b.required) return 1
+    if (!a.required && b.required) {
+      return 1
+    }
     // Keep original order if both have the same required status
     return 0
   })

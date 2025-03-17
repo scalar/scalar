@@ -22,7 +22,9 @@ const { layout } = useLayout()
 const { activeWorkspace, activeCollection, activeRequest } = useActiveEntities()
 
 const addRequest = () => {
-  if (!activeCollection.value?.uid) return
+  if (!activeCollection.value?.uid) {
+    return
+  }
 
   // If the request has tags, add the first tag to the new request
   const requestData = activeRequest.value?.tags?.length

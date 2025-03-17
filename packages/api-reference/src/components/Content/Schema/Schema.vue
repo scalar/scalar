@@ -36,7 +36,9 @@ const props = withDefaults(
 )
 
 const shouldShowToggle = computed(() => {
-  if (props.noncollapsible || props.level === 0) return false
+  if (props.noncollapsible || props.level === 0) {
+    return false
+  }
   return true
 })
 

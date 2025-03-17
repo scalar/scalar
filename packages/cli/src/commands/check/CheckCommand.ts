@@ -24,8 +24,8 @@ export function CheckCommand() {
     // Check if `scalar.config.json` already exists
     if (!fs.existsSync(file)) {
       console.log()
-      console.error(kleur.red().bold(`ERROR`))
-      console.error(kleur.red(`Couldn’t find the Scalar Configuration file:`))
+      console.error(kleur.red().bold('ERROR'))
+      console.error(kleur.red('Couldn’t find the Scalar Configuration file:'))
       console.error(kleur.red(file))
       console.log()
       process.exit(1)

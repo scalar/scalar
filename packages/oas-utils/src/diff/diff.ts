@@ -32,11 +32,12 @@ export function diffSpec(a: object, b: object) {
         .map((p) => String(p).replaceAll('/', '~1'))
         .join('/')
 
-      if (!requestChanges[key])
+      if (!requestChanges[key]) {
         requestChanges[key] = {
           type: types[d.type],
           mutations: [],
         }
+      }
 
       if (d.type === 'CHANGE') {
         requestChanges[key].mutations.push({

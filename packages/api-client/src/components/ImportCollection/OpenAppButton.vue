@@ -15,9 +15,15 @@ const APP_DOWNLOAD_URL = 'https://scalar.com/download'
 const platform = computed((): 'Windows' | 'macOS' | 'Linux' | '' => {
   const userAgent = navigator.userAgent.toLowerCase()
 
-  if (userAgent.includes('win')) return 'Windows'
-  if (userAgent.includes('mac')) return 'macOS'
-  if (userAgent.includes('linux')) return 'Linux'
+  if (userAgent.includes('win')) {
+    return 'Windows'
+  }
+  if (userAgent.includes('mac')) {
+    return 'macOS'
+  }
+  if (userAgent.includes('linux')) {
+    return 'Linux'
+  }
 
   return ''
 })

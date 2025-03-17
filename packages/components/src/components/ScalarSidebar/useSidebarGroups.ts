@@ -27,8 +27,11 @@ export const useSidebarGroups = ({
 } = {}) => {
   const level = inject(SIDEBAR_GROUPS_SYMBOL, 0)
 
-  if (increment && level < 6) provide(SIDEBAR_GROUPS_SYMBOL, (level + 1) as SidebarGroupLevel)
-  else provide(SIDEBAR_GROUPS_SYMBOL, level)
+  if (increment && level < 6) {
+    provide(SIDEBAR_GROUPS_SYMBOL, (level + 1) as SidebarGroupLevel)
+  } else {
+    provide(SIDEBAR_GROUPS_SYMBOL, level)
+  }
 
   return { level }
 }

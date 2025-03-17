@@ -292,7 +292,9 @@ export const createApiReference: CreateApiReference = (
       console.warn(
         'scalar:update-references-config event has been deprecated, please use window.Scalar.updateConfiguration instead',
       )
-      if ('detail' in ev) Object.assign(props, ev.detail)
+      if ('detail' in ev) {
+        Object.assign(props, ev.detail)
+      }
     },
     false,
   )

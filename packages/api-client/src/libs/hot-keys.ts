@@ -51,14 +51,24 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 
 /** Checks if we are in an "input" */
 export const isInput = (ev: KeyboardEvent) => {
-  if (!(ev.target instanceof HTMLElement)) return false
+  if (!(ev.target instanceof HTMLElement)) {
+    return false
+  }
   const target = ev.target
 
   // For actual inputs we would like to allow certain hotkeys to go through even without modifiers
-  if (target.tagName === 'INPUT') return !inputHotkeys.includes(ev.key)
-  if (target.tagName === 'TEXTAREA') return true
-  if (target.getAttribute('contenteditable')) return true
-  if (target.contentEditable === 'true') return true
+  if (target.tagName === 'INPUT') {
+    return !inputHotkeys.includes(ev.key)
+  }
+  if (target.tagName === 'TEXTAREA') {
+    return true
+  }
+  if (target.getAttribute('contenteditable')) {
+    return true
+  }
+  if (target.contentEditable === 'true') {
+    return true
+  }
 
   return false
 }

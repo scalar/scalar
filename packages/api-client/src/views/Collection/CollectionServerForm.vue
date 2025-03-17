@@ -51,7 +51,9 @@ const activeServer = computed(() => {
 })
 
 const pathVariables = computed(() => {
-  if (!activeServer.value?.url) return []
+  if (!activeServer.value?.url) {
+    return []
+  }
   return (
     activeServer.value.url.match(REGEX.PATH)?.map((m) => m.slice(1, -1)) ?? []
   )
@@ -60,7 +62,9 @@ const pathVariables = computed(() => {
 watch(
   pathVariables,
   (newPathVariables) => {
-    if (!activeServer.value) return
+    if (!activeServer.value) {
+      return
+    }
 
     const variables = activeServer.value.variables
       ? { ...activeServer.value.variables }
@@ -86,12 +90,16 @@ watch(
 )
 
 const updateServer = (key: string, value: string) => {
-  if (!activeWorkspaceCollections.value || !activeServer.value) return
+  if (!activeWorkspaceCollections.value || !activeServer.value) {
+    return
+  }
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 }
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!activeServer.value) return
+  if (!activeServer.value) {
+    return
+  }
 
   const variables = activeServer.value.variables || {}
   variables[key] = { ...variables[key], default: value }

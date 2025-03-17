@@ -19,7 +19,9 @@ export const hasItemProperties = (item: RequestExampleParameter) =>
  */
 export const parameterIsInvalid = (item: RequestExampleParameter) => {
   return computed(() => {
-    if (item.value === undefined || item.value === '') return false
+    if (item.value === undefined || item.value === '') {
+      return false
+    }
 
     // Type validation
     if (item.type) {

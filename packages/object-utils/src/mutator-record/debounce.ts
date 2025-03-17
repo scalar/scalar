@@ -17,7 +17,9 @@ export function debounce<T extends CallbackFunction>(
   let maxTimer: ReturnType<typeof setTimeout> | null = null
 
   return function (this: any, ...args: any[]) {
-    if (timer) clearTimeout(timer)
+    if (timer) {
+      clearTimeout(timer)
+    }
 
     timer = setTimeout(() => {
       maxTimer !== null ? clearTimeout(maxTimer) : null
@@ -25,11 +27,12 @@ export function debounce<T extends CallbackFunction>(
       fn.apply(this, args)
     }, wait)
 
-    if (maxWait && !maxTimer)
+    if (maxWait && !maxTimer) {
       maxTimer = setTimeout(() => {
         timer !== null ? clearTimeout(timer) : null
         maxTimer = null
         fn.apply(this, args)
       }, maxWait)
+    }
   }
 }

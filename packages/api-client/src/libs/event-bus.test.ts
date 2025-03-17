@@ -15,7 +15,9 @@ describe('createEventBus', () => {
     let val = false
     const { emit, on, reset, listeners } = createEventBus<boolean>()
     on((_event) => {
-      if (!_event) return
+      if (!_event) {
+        return
+      }
       val = _event
     })
     emit(true)
@@ -81,7 +83,9 @@ describe('createEventBus', () => {
     const { on, emit } = createEventBus<['inc' | 'dec', number]>()
     const counter = useCounter(0)
     on((value) => {
-      if (!value) return
+      if (!value) {
+        return
+      }
       const [direction, amount] = value
       counter[direction](amount)
     })

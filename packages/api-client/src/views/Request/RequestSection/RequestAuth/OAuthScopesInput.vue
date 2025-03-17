@@ -29,17 +29,19 @@ const selectedScopes = computed(() => flow?.selectedScopes || [])
 
 function setScope(id: string, checked: boolean) {
   // Checked - Add scope to list
-  if (checked)
+  if (checked) {
     updateScheme(`flows.${flow.type}.selectedScopes`, [
       ...selectedScopes.value,
       id,
     ])
+  }
   // Unchecked - Remove scope from list
-  else
+  else {
     updateScheme(
       `flows.${flow.type}.selectedScopes`,
       selectedScopes.value.filter((scope) => scope !== id),
     )
+  }
 }
 </script>
 

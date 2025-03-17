@@ -38,7 +38,9 @@ export function createScalarReferences(
     app.mount(mountingEl)
   }
 
-  if (mountOnInitialize) mount()
+  if (mountOnInitialize) {
+    mount()
+  }
 
   return {
     /** Update the configuration for a mounted reference */

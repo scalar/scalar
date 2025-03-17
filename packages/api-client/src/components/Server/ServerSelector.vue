@@ -38,7 +38,9 @@ const selectedServer = computed<ServerOption | undefined>({
       ? serverOptions.value.find((option) => option.id === server.uid)
       : undefined,
   set: (option) => {
-    if (!option) return
+    if (!option) {
+      return
+    }
     collectionMutators.edit(
       collection.uid,
       'selectedServerUid',
@@ -55,7 +57,9 @@ const selectedServer = computed<ServerOption | undefined>({
 watch(
   () => collection,
   (newCollection) => {
-    if (!newCollection || newCollection.selectedServerUid) return
+    if (!newCollection || newCollection.selectedServerUid) {
+      return
+    }
 
     const firstServer = collection.servers?.[0]
 

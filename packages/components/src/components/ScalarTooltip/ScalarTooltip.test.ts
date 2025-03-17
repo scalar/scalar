@@ -8,8 +8,8 @@ describe('ScalarTooltip', () => {
     const wrapper = mount(ScalarTooltip, {
       props: {},
       slots: {
-        trigger: `<button>Button</button>`,
-        content: `<div>Tooltip Content</div>`,
+        trigger: '<button>Button</button>',
+        content: '<div>Tooltip Content</div>',
       },
     })
 

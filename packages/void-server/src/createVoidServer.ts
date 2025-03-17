@@ -46,9 +46,15 @@ export async function createVoidServer() {
 
     const { filename } = c.req.param()
 
-    if (filename?.endsWith('.html')) return createHtmlResponse(c, requestData)
-    if (filename?.endsWith('.xml')) return createXmlResponse(c, requestData)
-    if (filename?.endsWith('.zip')) return createZipFileResponse(c)
+    if (filename?.endsWith('.html')) {
+      return createHtmlResponse(c, requestData)
+    }
+    if (filename?.endsWith('.xml')) {
+      return createXmlResponse(c, requestData)
+    }
+    if (filename?.endsWith('.zip')) {
+      return createZipFileResponse(c)
+    }
 
     return createJsonResponse(c, requestData)
   })

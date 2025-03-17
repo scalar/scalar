@@ -113,9 +113,9 @@ const handleLabelClick = () => {
             type === 'password' && description && 'pr-12',
             description && 'pr-8',
           ]"
+          :description="description"
           disableCloseBrackets
           disableTabIndent
-          :description="description"
           :envVariables="envVariables"
           :environment="environment"
           :max="max"

@@ -19,21 +19,29 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
     colorMode.value = darkLightMode.value === 'dark' ? 'light' : 'dark'
 
     // Store in local storage
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      return
+    }
     window?.localStorage?.setItem('colorMode', colorMode.value)
   }
 
   /** Sets the color mode to the specified value. */
   function setColorMode(value: ColorMode) {
     colorMode.value = value
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      return
+    }
     window?.localStorage?.setItem('colorMode', colorMode.value)
   }
 
   /** Gets the system mode preference. */
   function getSystemModePreference(): DarkLightMode {
-    if (typeof window === 'undefined') return 'light'
-    if (typeof window?.matchMedia !== 'function') return 'dark'
+    if (typeof window === 'undefined') {
+      return 'light'
+    }
+    if (typeof window?.matchMedia !== 'function') {
+      return 'dark'
+    }
 
     return window?.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
   }
@@ -52,7 +60,9 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   /** Applies the appropriate color mode class to the body. */
   function applyColorMode(mode: ColorMode): void {
-    if (typeof document === 'undefined' || typeof window === 'undefined') return
+    if (typeof document === 'undefined' || typeof window === 'undefined') {
+      return
+    }
 
     const classMode = overrideColorMode ?? (mode === 'system' ? getSystemModePreference() : mode)
 

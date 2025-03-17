@@ -14,12 +14,13 @@ const loading = useLoadingState()
 const timeout = ref<ReturnType<typeof setTimeout>>()
 
 events.requestStatus.on((status) => {
-  if (status === 'start')
+  if (status === 'start') {
     timeout.value = setTimeout(() => loading.startLoading(), 1000)
-  else
+  } else {
     clearTimeout(timeout.value),
       (timeout.value = undefined),
       loading.stopLoading()
+  }
 })
 </script>
 <template>

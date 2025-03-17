@@ -103,10 +103,14 @@ export const useCodeMirror = (
 
   /** Set the codemirror content value */
   const setCodeMirrorContent = (newValue = '') => {
-    if (!codeMirror.value) return
+    if (!codeMirror.value) {
+      return
+    }
 
     // No need to set the CodeMirror content if nothing has changed
-    if (codeMirror.value.state.doc.toString() === newValue) return
+    if (codeMirror.value.state.doc.toString() === newValue) {
+      return
+    }
 
     codeMirror.value.dispatch({
       changes: {
@@ -168,7 +172,9 @@ export const useCodeMirror = (
       })
 
       // Set the initial content if a provider is not in use
-      if (!hasProvider(params)) setCodeMirrorContent(toValue(params.content))
+      if (!hasProvider(params)) {
+        setCodeMirrorContent(toValue(params.content))
+      }
     }
   }
 
@@ -189,7 +195,9 @@ export const useCodeMirror = (
   watch(
     extensionConfig,
     () => {
-      if (!codeMirror.value) return
+      if (!codeMirror.value) {
+        return
+      }
       // If a provider is
 
       const provider = hasProvider(params) ? toValue(params.provider) : null
@@ -214,7 +222,9 @@ export const useCodeMirror = (
     () => toValue(params.content),
     () => {
       // When a provider is in use we do not map the content value back to the codemirror instance
-      if (hasProvider(params)) return
+      if (hasProvider(params)) {
+        return
+      }
 
       setCodeMirrorContent(toValue(params.content))
     },
@@ -311,7 +321,9 @@ function getCodeMirrorExtensions({
     }),
     // Listen to updates
     EditorView.updateListener.of((v) => {
-      if (!v.docChanged) return
+      if (!v.docChanged) {
+        return
+      }
       onChange?.(v.state.doc.toString())
     }),
     EditorView.domEventHandlers({
@@ -328,10 +340,14 @@ function getCodeMirrorExtensions({
   ]
 
   // Enable the provider
-  if (provider) extensions.push(provider)
+  if (provider) {
+    extensions.push(provider)
+  }
 
   // Add the theme as needed
-  if (!withoutTheme) extensions.push(customTheme)
+  if (!withoutTheme) {
+    extensions.push(customTheme)
+  }
 
   // Read only
   if (readOnly) {
@@ -345,7 +361,9 @@ function getCodeMirrorExtensions({
       bracketMatching(),
     )
 
-    if (!disableCloseBrackets) extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
+    if (!disableCloseBrackets) {
+      extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
+    }
 
     if (disableTabIndent) {
       extensions.push(
@@ -435,7 +453,9 @@ function getCodeMirrorExtensions({
   }
 
   // Highlight variables
-  if (withVariables) extensions.push(variables())
+  if (withVariables) {
+    extensions.push(variables())
+  }
 
   if (disableEnter) {
     extensions.push(

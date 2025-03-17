@@ -37,7 +37,9 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a tag.', 'error')
     return
   }
-  if (!name.value || !selectedCollection.value) return
+  if (!name.value || !selectedCollection.value) {
+    return
+  }
 
   const tag = tagMutators.add(
     {
@@ -45,7 +47,9 @@ const handleSubmit = () => {
     },
     selectedCollection.value.id,
   )
-  if (tag) emits('close')
+  if (tag) {
+    emits('close')
+  }
 }
 </script>
 <template>

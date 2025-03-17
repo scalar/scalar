@@ -85,7 +85,9 @@ const securityRequirements = computed(() => {
 /** Indicates if auth is required */
 const authIndicator = computed(() => {
   const { filteredRequirements, requirements } = securityRequirements.value
-  if (!requirements.length) return null
+  if (!requirements.length) {
+    return null
+  }
 
   /**
    * Security is optional if one empty object exists in the array &
@@ -124,9 +126,13 @@ const authIndicator = computed(() => {
 const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
     .map((s) => {
-      if (Array.isArray(s)) return formatComplexScheme(s, securitySchemes)
+      if (Array.isArray(s)) {
+        return formatComplexScheme(s, securitySchemes)
+      }
       const scheme = securitySchemes[s ?? '']
-      if (!scheme) return undefined
+      if (!scheme) {
+        return undefined
+      }
       return formatScheme(scheme)
     })
     .filter(isDefined),
@@ -151,7 +157,9 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
       addNewOption.payload,
       collection?.uid,
     )
-    if (scheme) _entries.push(scheme.uid)
+    if (scheme) {
+      _entries.push(scheme.uid)
+    }
   }
 
   editSelectedSchemeUids(_entries)
@@ -175,7 +183,9 @@ function handleDeleteScheme({ id, label }: { id: string; label: string }) {
 }
 
 const unselectAuth = (unSelectUid?: string) => {
-  if (!unSelectUid) return
+  if (!unSelectUid) {
+    return
+  }
   const newUids = selectedSecuritySchemeUids.filter((uid) => {
     const arr = unSelectUid.split(',')
     // Handle complex auth

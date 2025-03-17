@@ -92,7 +92,9 @@ const { copyToClipboard } = useClipboard()
 function handleChange(value: string) {
   // We need to be careful, only if the value is different we trigger an update
   // on initial load of the component, this gets triggered cause we set the content
-  if (value === props.modelValue) return null
+  if (value === props.modelValue) {
+    return null
+  }
   if (props.importCurl && value.trim().toLowerCase().startsWith('curl')) {
     emit('curl', value)
     // Maintain previous input value
@@ -122,7 +124,9 @@ function handleSubmit(value: string) {
 /** Optional submit on blur.  */
 function handleBlur(value: string) {
   isFocused.value = false
-  if (props.emitOnBlur && props.modelValue) handleSubmit(value)
+  if (props.emitOnBlur && props.modelValue) {
+    handleSubmit(value)
+  }
   emit('blur', value)
 }
 
@@ -132,7 +136,9 @@ function handleBlur(value: string) {
 // WARNING: Extensions are non-reactive! If props change nothing will happen
 
 const extensions: Extension[] = []
-if (props.colorPicker) extensions.push(colorPickerExtension)
+if (props.colorPicker) {
+  extensions.push(colorPickerExtension)
+}
 extensions.push(
   pillPlugin({
     environment: props.environment,
@@ -202,7 +208,9 @@ const handleKeyDown = (key: string, event: KeyboardEvent) => {
       dropdownRef.value?.handleSelect()
     }
   } else if (key === 'escape') {
-    if (!props.disableTabIndent) event.stopPropagation()
+    if (!props.disableTabIndent) {
+      event.stopPropagation()
+    }
   } else if (key === 'enter' && event.target instanceof HTMLDivElement) {
     handleSubmit(event.target.textContent ?? '')
   }

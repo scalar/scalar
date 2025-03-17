@@ -26,7 +26,9 @@ function handleInput(e: Event) {
 function handleClear() {
   emit('update:modelValue', '')
   // Push focus back to the input
-  if (inputRef.value) inputRef.value.focus()
+  if (inputRef.value) {
+    inputRef.value.focus()
+  }
 }
 
 defineOptions({ inheritAttrs: false })

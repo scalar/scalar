@@ -220,7 +220,9 @@ export function setNestedValue<T, P extends Path<T>>(obj: T, path: P, value: Pat
 
   // Loop over to get the nested object reference. Then assign the value to it
   keys.reduce((acc, current, idx) => {
-    if (idx === keys.length - 1) acc[current] = value
+    if (idx === keys.length - 1) {
+      acc[current] = value
+    }
 
     return acc[current]
   }, obj as any)

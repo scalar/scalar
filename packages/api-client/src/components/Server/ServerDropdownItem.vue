@@ -30,7 +30,9 @@ const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
 const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
-  if (hasVariables(serverUid)) event?.stopPropagation()
+  if (hasVariables(serverUid)) {
+    event?.stopPropagation()
+  }
 
   // Handle selected server deselection
   if (isSelectedServer.value) {
@@ -82,7 +84,9 @@ const isSelectedServer = computed(() => {
 })
 
 const hasVariables = (serverUid: string) => {
-  if (!serverUid) return false
+  if (!serverUid) {
+    return false
+  }
 
   const server = servers[serverUid]
 

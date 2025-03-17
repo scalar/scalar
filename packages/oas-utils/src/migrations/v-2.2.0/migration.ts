@@ -106,10 +106,14 @@ export const migrate_v_2_2_0 = (data: v_2_1_0.DataRecord): v_2_2_0.DataRecord =>
     (prev, s) => {
       const collection = Object.values(data.collections).find((c) => c.securitySchemes.includes(s.uid))
       const auth = collection?.auth?.[s.uid]
-      if (!auth) return prev
+      if (!auth) {
+        return prev
+      }
 
       const newScheme = migrateSecurityScheme(s, auth)
-      if (newScheme) prev[s.uid] = newScheme
+      if (newScheme) {
+        prev[s.uid] = newScheme
+      }
 
       return prev
     },

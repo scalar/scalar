@@ -28,7 +28,9 @@ const updateCollectionIcon = (value: string) => {
  * Update info.title
  */
 const updateCollectionTitle = (value: string) => {
-  if (!activeCollection.value) return
+  if (!activeCollection.value) {
+    return
+  }
 
   collectionMutators.edit(activeCollection.value.uid, 'info.title', value)
 }

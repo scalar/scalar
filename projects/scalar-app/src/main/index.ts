@@ -23,7 +23,9 @@ todesktop.init({
   updateReadyAction: {
     showNotification: 'never',
     showInstallAndRestartPrompt: async (context) => {
-      if (!context.appIsInForeground) return
+      if (!context.appIsInForeground) {
+        return
+      }
 
       return {
         message: 'Update Available',
@@ -203,7 +205,9 @@ function createWindow(): void {
           accelerator: 'Shift+CmdOrCtrl+W',
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow()
-            if (focusedWindow) focusedWindow.close()
+            if (focusedWindow) {
+              focusedWindow.close()
+            }
           },
         },
         {
@@ -211,7 +215,9 @@ function createWindow(): void {
           accelerator: 'CmdOrCtrl+W',
           click: () => {
             const focusedWindow = BrowserWindow.getFocusedWindow()
-            if (focusedWindow) focusedWindow.webContents.send('closeTab')
+            if (focusedWindow) {
+              focusedWindow.webContents.send('closeTab')
+            }
           },
         },
       ],
@@ -287,7 +293,9 @@ app.on('second-instance', async (_, commandLine) => {
 
   // Someone tried to run a second instance, we should focus our window.
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore()
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore()
+    }
     mainWindow.focus()
   }
   // the commandLine is array of strings in which last element is the deep link url
@@ -318,7 +326,9 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
   })
 
   /**

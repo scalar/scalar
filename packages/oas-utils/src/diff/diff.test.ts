@@ -1,5 +1,5 @@
 import { parseJsonOrYaml } from '@/helpers'
-import fs from 'fs'
+import fs from 'node:fs'
 import { describe, it } from 'vitest'
 
 import { diffSpec } from './diff'

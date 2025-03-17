@@ -16,7 +16,9 @@ const { collectionMutators } = useWorkspace()
  * Update info.description
  */
 const updateCollectionDescription = (value: string) => {
-  if (!activeCollection.value) return
+  if (!activeCollection.value) {
+    return
+  }
 
   collectionMutators.edit(activeCollection.value.uid, 'info.description', value)
 }

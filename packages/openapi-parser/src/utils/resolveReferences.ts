@@ -85,7 +85,9 @@ function dereference(
 
   options?: ResolveReferencesOptions,
 ): void {
-  if (schema === null || resolvedSchemas.has(schema)) return
+  if (schema === null || resolvedSchemas.has(schema)) {
+    return
+  }
   resolvedSchemas.add(schema)
 
   function resolveExternal(externalFile: FilesystemEntry) {
@@ -99,7 +101,9 @@ function dereference(
     const resolved = resolveUri(schema.$ref, options, entrypoint, filesystem, resolveExternal, errors)
 
     // invalid
-    if (typeof resolved !== 'object' || resolved === null) break
+    if (typeof resolved !== 'object' || resolved === null) {
+      break
+    }
     const dereferencedRef = schema.$ref
 
     // Get rid of the reference
@@ -199,7 +203,7 @@ function resolveUri(
     return segments.reduce((acc, key) => {
       return acc[key]
     }, file.specification)
-  } catch (error) {
+  } catch (_error) {
     if (options?.throwOnError) {
       throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))
     }

@@ -14,10 +14,11 @@ if (
   !meta.configuration?.spec?.url &&
   // @ts-expect-error support the old syntax for a bit
   !meta.configuration?.spec?.content
-)
+) {
   throw new Error(
     'You must either provide a spec to scalar, or enable experimental openApi in the Nitro config.',
   )
+}
 </script>
 
 <template>

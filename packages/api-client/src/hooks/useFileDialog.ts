@@ -33,7 +33,9 @@ export function useFileDialog({ multiple, accept, onChange, onError }: UseFileDi
   }
 
   const open = () => {
-    if (!input) return onError?.()
+    if (!input) {
+      return onError?.()
+    }
 
     input.click()
   }

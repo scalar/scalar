@@ -22,7 +22,9 @@ export function dragHandlerFactory(
 
   /** Drag handler that mutates depending on the entity types */
   const handleDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
-    if (!draggingItem || !hoveredItem) return
+    if (!draggingItem || !hoveredItem) {
+      return
+    }
 
     const { id: draggingUid, parentId: draggingParentUid } = draggingItem
     const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
@@ -56,7 +58,9 @@ export function dragHandlerFactory(
     // Place it at the end of the list of the hoveredItem
     if (offset === 2) {
       const parent = collections[hoveredUid] || tags[hoveredUid]
-      if (parent) mutateTagOrCollection(parent, [...(parent.children ?? []), draggingUid])
+      if (parent) {
+        mutateTagOrCollection(parent, [...(parent.children ?? []), draggingUid])
+      }
     }
     // Special case for collections
     else if (!hoveredParentUid) {
@@ -69,7 +73,9 @@ export function dragHandlerFactory(
     // Place it into the list at an index
     else {
       const parent = collections[hoveredParentUid] || tags[hoveredParentUid]
-      if (!parent) return
+      if (!parent) {
+        return
+      }
 
       const newChildUids = [...(parent.children ?? [])] as string[]
       const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
@@ -82,11 +88,17 @@ export function dragHandlerFactory(
   /** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
   const isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     // Cannot drop in read only mode
-    if (layout === 'modal') return false
+    if (layout === 'modal') {
+      return false
+    }
     // Cannot drop requests/folders into a workspace
-    if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
+    if (!collections[draggingItem.id] && hoveredItem.offset !== 2) {
+      return false
+    }
     // Collections cannot drop over Drafts
-    if (collections[draggingItem.id] && collections[hoveredItem.id]?.info?.title === 'Drafts') return false
+    if (collections[draggingItem.id] && collections[hoveredItem.id]?.info?.title === 'Drafts') {
+      return false
+    }
 
     return true
   }

@@ -23,15 +23,19 @@ export function useResponseBody(props: {
   })
 
   const dataUrl = computed<string>(() => {
-    if (isBlob(props.data)) return URL.createObjectURL(props.data)
-    if (typeof props.data === 'string')
+    if (isBlob(props.data)) {
+      return URL.createObjectURL(props.data)
+    }
+    if (typeof props.data === 'string') {
       return URL.createObjectURL(new Blob([props.data], { type: mimeType.value.toString() }))
-    if (props.data instanceof Object && Object.keys(props.data).length)
+    }
+    if (props.data instanceof Object && Object.keys(props.data).length) {
       return URL.createObjectURL(
         new Blob([JSON.stringify(props.data)], {
           type: mimeType.value.toString(),
         }),
       )
+    }
     return ''
   })
 

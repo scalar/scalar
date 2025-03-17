@@ -75,13 +75,14 @@ const selectedPlugin = computed(() => {
   const selectedClient = workspace.selectedHttpClient
 
   // Backups on backups
-  if (!selectedClient)
+  if (!selectedClient) {
     return (
       snippets.value.options[0]?.options[0] ?? {
         id: 'js,fetch',
         label: 'Fetch',
       }
     )
+  }
 
   const id = `${selectedClient.targetKey},${selectedClient.clientKey}`
   return {
@@ -104,7 +105,9 @@ const selectedClient = computed(
 /** Update the store with the newly selected client */
 const selectClient = ({ id }: ScalarComboboxOption) => {
   const [target, client] = id.split(',')
-  if (!target || !client) return
+  if (!target || !client) {
+    return
+  }
 
   workspaceMutators.edit(workspace.uid, 'selectedHttpClient', {
     targetKey: target,

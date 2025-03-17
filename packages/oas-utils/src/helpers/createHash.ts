@@ -8,7 +8,9 @@ export const createHash = (input?: string): number => {
   let hash = 0
   let i = 0
 
-  if (!input?.length) return hash
+  if (!input?.length) {
+    return hash
+  }
 
   for (i = 0; i < input.length; i++) {
     chr = input.charCodeAt(i)

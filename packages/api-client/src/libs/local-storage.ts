@@ -25,7 +25,9 @@ const loadResources = <T extends (object & { uid: string })[]>(
     const resource = schemaModel(payload, schema, false)
 
     // Success, a failure should log a warning in the console already through the schema model
-    if (resource) add(resource)
+    if (resource) {
+      add(resource)
+    }
   })
 
 /**

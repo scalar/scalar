@@ -36,14 +36,17 @@ watch(hash, (id) => {
     !isIntersectionEnabled.value ||
     disableScroll.value ||
     typeof window === 'undefined'
-  )
+  ) {
     return
+  }
   scrollSidebar(id)
 })
 
 const scrollSidebar = (id: string) => {
   const el = document.getElementById(`sidebar-${id}`)
-  if (!el || !scrollerEl.value) return
+  if (!el || !scrollerEl.value) {
+    return
+  }
 
   let top = SCROLL_OFFSET
 

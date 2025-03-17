@@ -45,7 +45,9 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
 
   // Iterate through all security schemes
   for (const scheme of Object.values(securitySchemes)) {
-    if (!isOAuth2Scheme(scheme)) continue
+    if (!isOAuth2Scheme(scheme)) {
+      continue
+    }
 
     const flows = scheme.flows // Type assertion no longer needed
 

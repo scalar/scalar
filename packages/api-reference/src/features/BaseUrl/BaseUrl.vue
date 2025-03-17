@@ -21,7 +21,9 @@ const id = useId()
 const config = useConfig()
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!server) return
+  if (!server) {
+    return
+  }
 
   const variables = server.variables || {}
   variables[key] = { ...variables[key], default: value }

@@ -22,8 +22,12 @@ export const buildRequestSecurity = (
     if (scheme.type === 'apiKey') {
       const value = replaceTemplateVariables(scheme.value, env) || emptyTokenPlaceholder
 
-      if (scheme.in === 'header') headers[scheme.name] = value
-      if (scheme.in === 'query') urlParams.append(scheme.name, value)
+      if (scheme.in === 'header') {
+        headers[scheme.name] = value
+      }
+      if (scheme.in === 'query') {
+        urlParams.append(scheme.name, value)
+      }
       if (scheme.in === 'cookie') {
         cookies.push(
           cookieSchema.parse({

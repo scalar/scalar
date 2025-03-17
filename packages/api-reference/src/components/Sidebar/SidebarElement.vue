@@ -41,7 +41,9 @@ const config = useConfig()
 
 // We disable intersection observer on click
 const handleClick = async () => {
-  if (props.hasChildren) emit('toggleOpen')
+  if (props.hasChildren) {
+    emit('toggleOpen')
+  }
   props.item?.select?.()
 
   // If the section was open, wait for a short delay before enabling intersection observer
@@ -56,11 +58,13 @@ const handleClick = async () => {
 const generateLink = () => {
   if (pathRouting.value) {
     return combineUrlAndPath(pathRouting.value.basePath, props.item.id)
-  } else if (typeof window !== 'undefined') {
+  }
+  if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
     newUrl.hash = getFullHash(props.item.id)
     return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
-  } else return `#${getFullHash(props.item.id)}`
+  }
+  return `#${getFullHash(props.item.id)}`
 }
 
 // For path routing we want to handle the clicks
@@ -69,7 +73,9 @@ const onAnchorClick = async (ev: Event) => {
     ev.preventDefault()
 
     // Due to the prevent default
-    if (props.hasChildren) emit('toggleOpen')
+    if (props.hasChildren) {
+      emit('toggleOpen')
+    }
     props.item?.select?.()
 
     // Make sure to open the section

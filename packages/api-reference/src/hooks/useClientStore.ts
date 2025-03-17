@@ -1,5 +1,5 @@
-const initialize = () => {}
+const _initialize = () => {}
 
 export const useClientStore = () => {
-  initialize
+  _initialize
 }

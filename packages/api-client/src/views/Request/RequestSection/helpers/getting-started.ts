@@ -11,10 +11,14 @@ export const isGettingStarted = (
   const draftCollection = activeWorkspaceCollections.find((collection) => collection.info?.title === 'Drafts')
   const hasSingleRequest = activeWorkspaceRequests.length === 1
 
-  if (!activeWorkspaceRequests[0]) return false
+  if (!activeWorkspaceRequests[0]) {
+    return false
+  }
   const isDraftsRequest = draftCollection?.requests.includes(activeWorkspaceRequests[0])
 
-  if (!isDraftsRequest) return false
+  if (!isDraftsRequest) {
+    return false
+  }
   const isRenamed = requests[draftCollection?.requests[0] ?? '']?.summary !== 'My First Request'
 
   return hasSingleRequest && isDraftsRequest && !isRenamed

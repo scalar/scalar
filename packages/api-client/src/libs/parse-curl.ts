@@ -124,7 +124,9 @@ function parseContentType(arg: string, result: any) {
   const header = arg.replace(/['"]/g, '').split(/:(.+)/)
   result.headers = result.headers || {}
 
-  if (!header[0]) return
+  if (!header[0]) {
+    return
+  }
 
   if (header[1] !== undefined) {
     result.headers[header[0].trim()] = header[1].trim()

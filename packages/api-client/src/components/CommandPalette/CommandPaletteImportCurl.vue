@@ -62,13 +62,17 @@ const selectedCollection = ref<ScalarComboboxOption | undefined>(
 )
 
 function createRequestFromCurl({ collectionUid }: { collectionUid: string }) {
-  if (!metaData.parsedCurl) return
+  if (!metaData.parsedCurl) {
+    return
+  }
 
   const collection = activeWorkspaceCollections.value.find(
     (c) => c.uid === collectionUid,
   )
 
-  if (!collection) return
+  if (!collection) {
+    return
+  }
 
   const isDrafts = collection?.info?.title === 'Drafts'
 

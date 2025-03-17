@@ -9,8 +9,9 @@ export function createFetchHeaders(example: Pick<RequestExample, 'parameters'>, 
     const lowerCaseKey = h.key.trim().toLowerCase()
 
     // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
-    if (h.enabled && (lowerCaseKey !== 'content-type' || h.value !== 'multipart/form-data'))
+    if (h.enabled && (lowerCaseKey !== 'content-type' || h.value !== 'multipart/form-data')) {
       headers[lowerCaseKey] = replaceTemplateVariables(h.value, env)
+    }
   })
 
   return headers

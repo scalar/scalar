@@ -41,7 +41,9 @@ const showAllWebhooks = computed(
 
 const webhooksFiltered = computed(() => {
   const webhooks = webhookKeys.value
-  if (showAllWebhooks.value) return webhooks
+  if (showAllWebhooks.value) {
+    return webhooks
+  }
   // return only first MAX_WEBHOOKS_INITIALLY_SHOWN webhooks
   return webhooks.slice(0, MAX_WEBHOOKS_INITIALLY_SHOWN)
 })

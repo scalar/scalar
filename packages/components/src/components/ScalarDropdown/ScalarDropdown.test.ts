@@ -8,8 +8,8 @@ describe('ScalarIconButton', () => {
     const wrapper = mount(ScalarDropdown, {
       props: {},
       slots: {
-        default: `<button>Button</button>`,
-        items: `<div>Items</div>`,
+        default: '<button>Button</button>',
+        items: '<div>Items</div>',
       },
     })
 

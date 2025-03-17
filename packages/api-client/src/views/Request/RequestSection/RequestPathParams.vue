@@ -42,7 +42,9 @@ const params = computed(() =>
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   const parameters = example.parameters[paramKey]
   const oldKey = parameters[rowIdx]?.key
-  if (!oldKey) return
+  if (!oldKey) {
+    return
+  }
 
   /** Change variable in path as well */
   if (field === 'key') {
@@ -103,7 +105,9 @@ const handlePathVariableUpdate = (url: string) => {
 watch(
   () => operation.path,
   (newURL) => {
-    if (newURL) handlePathVariableUpdate(newURL)
+    if (newURL) {
+      handlePathVariableUpdate(newURL)
+    }
   },
 )
 </script>

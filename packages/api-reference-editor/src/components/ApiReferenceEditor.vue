@@ -83,8 +83,9 @@ function handleContentChange(value: string) {
 
 /** When using internal state we capture the event and assign the value */
 function handleInput(evt: CustomEvent<{ value: string }>) {
-  if (!props.configuration?.useExternalState)
+  if (!props.configuration?.useExternalState) {
     editorContent.value = evt.detail.value
+  }
 }
 
 // Set defaults as needed on the provided configuration
@@ -108,7 +109,9 @@ function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   watch(
     () => configuration.value?.[key],
     (newValue) => {
-      if (typeof newValue !== 'undefined') setter(newValue)
+      if (typeof newValue !== 'undefined') {
+        setter(newValue)
+      }
     },
     { immediate: true },
   )

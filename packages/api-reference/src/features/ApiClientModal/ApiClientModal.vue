@@ -18,7 +18,9 @@ const { selectedExampleKey, operationId } = useExampleStore()
 const store = useWorkspace()
 
 onMounted(() => {
-  if (!el.value) return
+  if (!el.value) {
+    return
+  }
 
   // Initialize the client
   init({

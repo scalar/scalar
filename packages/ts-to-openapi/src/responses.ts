@@ -88,7 +88,9 @@ export function* getReturnStatements(node: Node): Generator<ReturnStatement | Ex
  * - pass in a predicate as this if statement is meant for next
  */
 export const generateResponses = (node: Node | undefined, typeChecker: TypeChecker): OpenAPIV3_1.ResponsesObject => {
-  if (!node) return {}
+  if (!node) {
+    return {}
+  }
 
   const generator = getReturnStatements(node)
   const statements = Array.from(generator)
@@ -115,7 +117,7 @@ export const generateResponses = (node: Node | undefined, typeChecker: TypeCheck
       const optionsSchema = options ? getSchemaFromNode(options, typeChecker) : null
       const status = (optionsSchema?.properties?.status as OpenAPIV3_1.SchemaObject)?.example ?? 200
 
-      if (status)
+      if (status) {
         return {
           ...prev,
           [String(status)]: {
@@ -130,6 +132,7 @@ export const generateResponses = (node: Node | undefined, typeChecker: TypeCheck
             },
           },
         }
+      }
     }
     return {
       ...prev,

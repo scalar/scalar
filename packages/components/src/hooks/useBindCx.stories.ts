@@ -79,7 +79,9 @@ const meta = {
         () => {
           observer.disconnect()
 
-          if (!mock.value) return
+          if (!mock.value) {
+            return
+          }
           rendered.value = mock.value.$el.outerHTML
           observer.observe(mock.value.$el, { attributes: true })
         },

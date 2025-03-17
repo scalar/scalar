@@ -34,11 +34,12 @@ export const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}
   let example = createExampleFromRequest(request, 'example')
 
   // Overwrite any example properties
-  if (metaRequestPayload.requestExamplePayload)
+  if (metaRequestPayload.requestExamplePayload) {
     example = requestExampleSchema.parse({
       ...example,
       ...metaRequestPayload.requestExamplePayload,
     })
+  }
 
   return {
     auth: {},
@@ -60,7 +61,7 @@ beforeAll(async () => {
     if (result.ok) {
       return
     }
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`
 
 [sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
@@ -78,7 +79,7 @@ $ pnpm dev:proxy-server
     if (result.ok) {
       return
     }
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`
 
 [sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
@@ -100,7 +101,7 @@ describe('create-request-operation', () => {
 
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `/api` },
+        serverPayload: { url: '/api' },
         requestPayload: {
           path: '/{path}',
           parameters: [
@@ -123,7 +124,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
@@ -142,7 +145,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
@@ -161,7 +166,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
@@ -178,7 +185,9 @@ describe('create-request-operation', () => {
         serverPayload: { url: VOID_URL },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -199,7 +208,9 @@ describe('create-request-operation', () => {
         proxyUrl: PROXY_URL,
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -236,7 +247,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -264,7 +277,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -285,7 +300,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     expect(requestOperation.request.url).toBe(`${VOID_URL}/path?test=query`)
   })
@@ -300,7 +317,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -338,7 +357,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -371,7 +392,9 @@ describe('create-request-operation', () => {
           },
         }),
       )
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -405,7 +428,9 @@ describe('create-request-operation', () => {
           },
         }),
       )
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -425,7 +450,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -452,7 +479,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -479,7 +508,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -495,7 +526,9 @@ describe('create-request-operation', () => {
         serverPayload: { url: `${VOID_URL}/204` },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -509,7 +542,9 @@ describe('create-request-operation', () => {
         serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1` },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -526,7 +561,9 @@ describe('create-request-operation', () => {
         serverPayload: { url: `${VOID_URL}/v1/` },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -559,7 +596,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -614,7 +653,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -645,7 +686,9 @@ describe('create-request-operation', () => {
         },
       }),
     )
-    if (error) throw error
+    if (error) {
+      throw error
+    }
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
@@ -694,7 +737,9 @@ describe('create-request-operation', () => {
       selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
     })
 
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -724,7 +769,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -751,7 +798,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -780,7 +829,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['basic-auth'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -807,7 +858,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['bearer-auth'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -844,7 +897,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: [['bearer-auth', 'api-key']] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -880,7 +935,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['oauth2-auth'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       const [requestError, result] = await requestOperation.sendRequest()
 
@@ -907,7 +964,9 @@ describe('create-request-operation', () => {
         },
         selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
-      if (error) throw error
+      if (error) {
+        throw error
+      }
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')
     })
   })

@@ -69,13 +69,15 @@ const currentJsonResponse = computed(() => {
  * or the only example if there is only one example response.
  */
 const getFirstExampleResponse = () => {
-  if (!hasMultipleExamples.value) return currentJsonResponse.value.example
-  else if (Array.isArray(currentJsonResponse.value.examples))
-    return currentJsonResponse.value.examples[0]
-  else {
-    const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
-    return currentJsonResponse.value.examples[firstProperty]
+  if (!hasMultipleExamples.value) {
+    return currentJsonResponse.value.example
   }
+  if (Array.isArray(currentJsonResponse.value.examples)) {
+    return currentJsonResponse.value.examples[0]
+  }
+
+  const firstProperty = Object.keys(currentJsonResponse.value.examples)[0]
+  return currentJsonResponse.value.examples[firstProperty]
 }
 
 const currentResponseWithExample = computed(() => ({

@@ -14,7 +14,9 @@ export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.Sc
   }
 
   formdata.forEach((item: FormParameter) => {
-    if (!schema.properties) return
+    if (!schema.properties) {
+      return
+    }
 
     const property: OpenAPIV3_1.SchemaObject = {
       type: 'string',

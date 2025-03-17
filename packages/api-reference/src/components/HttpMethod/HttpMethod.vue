@@ -30,15 +30,17 @@ const normalized = computed(() => props.method.trim().toUpperCase())
  * ```
  */
 const abbreviated = computed<string>(() => {
-  if (isRequestMethod(normalized.value))
+  if (isRequestMethod(normalized.value)) {
     return requestMethodAbbreviations[normalized.value]
+  }
 
   return normalized.value.slice(0, 4)
 })
 
 const color = computed<string>(() => {
-  if (isRequestMethod(normalized.value))
+  if (isRequestMethod(normalized.value)) {
     return requestMethodColors[normalized.value]
+  }
 
   return 'var(--scalar-color-ghost)'
 })

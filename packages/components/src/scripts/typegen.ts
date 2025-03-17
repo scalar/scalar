@@ -20,8 +20,11 @@ function generateTypes(folder: string, name: 'LOGOS' | 'ICONS') {
   writeStr += '] as const\n'
 
   writeFile(indexFile, writeStr, (err) => {
-    if (err) console.error(err)
-    else console.log(`Success! Check for the icon names in ${indexFile}`)
+    if (err) {
+      console.error(err)
+    } else {
+      console.log(`Success! Check for the icon names in ${indexFile}`)
+    }
   })
 }
 

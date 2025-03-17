@@ -75,7 +75,7 @@ export function extendedSecurityDataFactory({
         )
       }
       // Remove from any requests that have it selected
-      if (r.selectedSecuritySchemeUids.flat().includes(schemeUid))
+      if (r.selectedSecuritySchemeUids.flat().includes(schemeUid)) {
         requestMutators.edit(
           r.uid,
           'selectedSecuritySchemeUids',
@@ -86,6 +86,7 @@ export function extendedSecurityDataFactory({
             return uid !== schemeUid
           }),
         )
+      }
     })
 
     securitySchemeMutators.delete(schemeUid)

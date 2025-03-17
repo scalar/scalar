@@ -8,8 +8,8 @@ describe('ScalarPopover', () => {
     const wrapper = mount(ScalarPopover, {
       props: {},
       slots: {
-        default: `<button>Button</button>`,
-        popover: `<div>Popover</div>`,
+        default: '<button>Button</button>',
+        popover: '<div>Popover</div>',
       },
     })
 

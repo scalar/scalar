@@ -55,7 +55,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   if (plugin) {
     try {
       content = normalize(await plugin.get(value))
-    } catch (error) {
+    } catch (_error) {
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
       }

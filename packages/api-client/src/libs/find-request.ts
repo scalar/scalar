@@ -22,8 +22,12 @@ export const findRequestByPathMethod = (path: string, method: string, requests: 
   let pathParams: { key: string; value: string }[] = []
 
   const request = requests.find((r) => {
-    if (r.method.toLowerCase() !== method.toLowerCase()) return false
-    if (r.path === path) return true
+    if (r.method.toLowerCase() !== method.toLowerCase()) {
+      return false
+    }
+    if (r.path === path) {
+      return true
+    }
 
     const regex = pathToRegex(r.path)
     const match = path.match(regex)
@@ -32,7 +36,9 @@ export const findRequestByPathMethod = (path: string, method: string, requests: 
     if (match) {
       pathParams = match.slice(1).flatMap((value, index) => {
         const key = r.path.split('{')[index + 1]?.split('}')[0]
-        if (!key) return []
+        if (!key) {
+          return []
+        }
         return [{ key, value }]
       })
       return true
