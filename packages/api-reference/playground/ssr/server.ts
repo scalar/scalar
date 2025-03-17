@@ -1,5 +1,14 @@
 import fs from 'node:fs/promises'
-import express from 'express'
+import express, { type Request, type Response } from 'express'
+import type { ViteDevServer } from 'vite'
+
+// Types
+type RenderedOutput = {
+  head?: string
+  html?: string
+}
+
+type ServerRender = (url: string) => Promise<RenderedOutput>
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
@@ -13,8 +22,8 @@ const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html'
 const app = express()
 
 // Add Vite or respective production middlewares
-/** @type {import('vite').ViteDevServer | undefined} */
-let vite
+let vite: ViteDevServer | undefined
+
 if (!isProduction) {
   const { createServer } = await import('vite')
   vite = await createServer({
@@ -31,19 +40,19 @@ if (!isProduction) {
 }
 
 // Serve HTML
-app.use('*', async (req, res) => {
+app.use('*', async (req: Request, res: Response) => {
   try {
     const url = req.originalUrl.replace(base, '')
 
-    /** @type {string} */
-    let template
-    /** @type {import('./src/entry-server.ts').render} */
-    let render
+    let template: string
+    let render: ServerRender
+
     if (!isProduction) {
       // Always read fresh template in development
       template = await fs.readFile('./index.html', 'utf-8')
-      template = await vite.transformIndexHtml(url, template)
-      render = (await vite.ssrLoadModule('/src/entry-server.ts')).render
+      template = (await vite?.transformIndexHtml(url, template)) ?? ''
+      render =
+        (await vite?.ssrLoadModule('/src/entry-server.ts'))?.render ?? (() => Promise.resolve({ head: '', html: '' }))
     } else {
       template = templateHtml
       render = (await import('./dist/server/entry-server.js')).render
@@ -56,10 +65,12 @@ app.use('*', async (req, res) => {
       .replace('<!--app-html-->', rendered.html ?? '')
 
     res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
-  } catch (e) {
-    vite?.ssrFixStacktrace(e)
-    console.log(e.stack)
-    res.status(500).end(e.stack)
+  } catch (e: unknown) {
+    if (vite) {
+      vite.ssrFixStacktrace(e as Error)
+    }
+    console.log((e as Error).stack)
+    res.status(500).end((e as Error).stack)
   }
 })
 
