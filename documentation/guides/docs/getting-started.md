@@ -27,10 +27,10 @@ Scalar Docs offers multiple ways to connect your OpenAPI document. Pick whatever
 - Paste your OpenAPI document in the editor
 - Upload an OpenAPI document to the editor
 - Import an URL (you can even create a “Live Link”, which means it’ll fetch updates from the URL vs. just fetching it once)
-- [Sync your OpenAPI document from GitHub](/scalar/scalar-docs/markdown-sync)
+- [Sync your OpenAPI document from GitHub](/scalar/scalar-docs/github-sync)
 
 ## Scalar Pro
 
 Most of our stuff is actually freely available. You might consider to upgrade to a Scalar Pro account, though:
 
-It gives you access to custom domains, [the GitHub sync](/scalar/scalar-docs/markdown-sync), guides, versioning of your guides, TypeSense search and even priority support and a private Discord channel or a dedicated Slack connect channel (if you like).
+It gives you access to custom domains, [the GitHub sync](/scalar/scalar-docs/github-sync), guides, versioning of your guides, TypeSense search and even priority support and a private Discord channel or a dedicated Slack connect channel (if you like).
