@@ -1,4 +1,4 @@
-import { nanoidSchema, type ENTITY_BRANDS } from '@scalar/types/entities'
+import { nanoidSchema, type ENTITY_BRANDS } from '@scalar/types/utils'
 import { schemaModel } from '@/helpers'
 import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-getters'
 import { keysOf } from '@scalar/object-utils/arrays'

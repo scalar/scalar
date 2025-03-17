@@ -1,4 +1,4 @@
-import type { ENTITY_BRANDS } from '@scalar/types/entities'
+import type { ENTITY_BRANDS } from '@scalar/types/utils'
 import { z } from 'zod'
 
 /** Schema for selectedSecuritySchemeUids */

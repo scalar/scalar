@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/entities'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 
 export const environmentSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['ENVIRONMENT']>(),

@@ -1,7 +1,7 @@
 import { themeIds } from '@scalar/themes'
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/entities'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys'
 
 const modifier = z
