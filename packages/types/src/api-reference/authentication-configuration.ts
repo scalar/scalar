@@ -6,8 +6,15 @@ const _authenticationConfigurationSchema = cleanSchema(securitySchemeSchema)
 
 /**
  * Authentication Configuration
- * This takes our securitySchemeSchema and makes each field optional
- * We will then override the schema with these values
+ * This allows us to overwrite and value that we support for any security scheme component
  */
-export const authenticationConfigurationSchema = z.record(z.string(), _authenticationConfigurationSchema)
+export const authenticationConfigurationSchema = z.record(z.string(), _authenticationConfigurationSchema).and(
+  z.object({
+    /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
+    preferredSecurityScheme: z
+      .union([z.string(), z.array(z.union([z.string(), z.array(z.string())]))])
+      .nullable()
+      .optional(),
+  }),
+)
 export type AuthenticationConfiguration = z.infer<typeof authenticationConfigurationSchema>
