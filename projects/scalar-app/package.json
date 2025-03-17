@@ -50,7 +50,7 @@
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@rushstack/eslint-patch": "^1.10.3",
-    "@todesktop/cli": "^1.12.0",
+    "@todesktop/cli": "^1.12.1",
     "@types/node": "^20.17.10",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/eslint-config-prettier": "^9.0.0",
