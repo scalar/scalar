@@ -13,18 +13,17 @@
   },
   "dependencies": {
     "compression": "^1.8.0",
-    "express": "^5.0.1",
+    "express": "^4.21.2",
     "sirv": "^3.0.1",
-    "vue": "^3.5.13",
+    "vue": "^3.5.12",
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
-    "@types/node": "^22.13.4",
-    "@vitejs/plugin-vue": "^5.2.1",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.17.10",
+    "@vitejs/plugin-vue": "^5.0.4",
     "cross-env": "^7.0.3",
-    "typescript": "^5.7.3",
-    "vite": "^6.1.1",
-    "vue-tsc": "^2.2.2"
+    "vite": "^5.4.10",
+    "vue-tsc": "^2.1.10"
   }
 }
