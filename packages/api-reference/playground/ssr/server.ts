@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises'
-import express, { type Request, type Response } from 'express'
+import { serve } from '@hono/node-server'
+import { type Context, Hono } from 'hono'
 import type { ViteDevServer } from 'vite'
 
 // Types
@@ -12,14 +13,13 @@ type ServerRender = (url: string) => Promise<RenderedOutput>
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
-const port = process.env.PORT || 5173
+const port = Number(process.env.PORT) || 5173
 const base = process.env.BASE || '/'
 
 // Cached production assets
 const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html', 'utf-8') : ''
 
-// Create http server
-const app = express()
+const app = new Hono()
 
 // Add Vite or respective production middlewares
 let vite: ViteDevServer | undefined
@@ -31,18 +31,49 @@ if (!isProduction) {
     appType: 'custom',
     base,
   })
-  app.use(vite.middlewares)
+
+  // Fixed middleware handling
+  app.use('*', async (c: Context, next) => {
+    try {
+      // Create a middleware promise that resolves when Vite is done
+      await new Promise((resolve) => {
+        vite?.middlewares(c.env.incoming, c.env.outgoing, resolve)
+      })
+
+      // If the response has already been handled by Vite, return
+      if (c.env.outgoing.writableEnded) {
+        return c.body(null)
+      }
+
+      // If Vite didn't handle the request, continue to next middleware
+      return next()
+    } catch (error) {
+      console.error('Vite middleware error:', error)
+      return next()
+    }
+  })
 } else {
   const compression = (await import('compression')).default
   const sirv = (await import('sirv')).default
-  app.use(compression())
-  app.use(base, sirv('./dist/client', { extensions: [] }))
+
+  // Adapt compression middleware for Hono
+  app.use('*', async (c: Context, next) => {
+    await compression()(c.env.incoming, c.env.outgoing, () => {})
+    await next()
+  })
+
+  // Serve static files using Hono's built-in static file serving
+  app.use(base, async (c: Context, next) => {
+    const handler = sirv('./dist/client', { extensions: [] })
+    await handler(c.env.incoming, c.env.outgoing, () => {})
+    await next()
+  })
 }
 
-// Serve HTML
-app.use('*', async (req: Request, res: Response) => {
+// Main route handler
+app.get('*', async (c: Context) => {
   try {
-    const url = req.originalUrl.replace(base, '')
+    const url = c.req.path.replace(base, '')
 
     let template: string
     let render: ServerRender
@@ -64,17 +95,23 @@ app.use('*', async (req: Request, res: Response) => {
       .replace('<!--app-head-->', rendered.head ?? '')
       .replace('<!--app-html-->', rendered.html ?? '')
 
-    res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
+    return c.html(html)
   } catch (e: unknown) {
     if (vite) {
       vite.ssrFixStacktrace(e as Error)
     }
     console.log((e as Error).stack)
-    res.status(500).end((e as Error).stack)
+    return c.text((e as Error).stack ?? 'Internal Server Error', 500)
   }
 })
 
-// Start http server
-app.listen(port, () => {
-  console.log(`Server started at http://localhost:${port}`)
-})
+// Start the server
+serve(
+  {
+    fetch: app.fetch,
+    port,
+  },
+  () => {
+    console.log(`Server started at http://localhost:${port}`)
+  },
+)

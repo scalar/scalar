@@ -14,13 +14,13 @@
   "dependencies": {
     "@scalar/api-reference": "workspace:*",
     "compression": "^1.8.0",
-    "express": "^4.21.2",
+    "hono": "^4.6.5",
+    "@hono/node-server": "^1.11.0",
     "sirv": "^3.0.1",
     "vue": "^3.5.12"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",
-    "@types/express": "^4.17.21",
     "@types/node": "^20.17.10",
     "@vitejs/plugin-vue": "^5.0.4",
     "cross-env": "^7.0.3",
