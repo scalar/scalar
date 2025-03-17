@@ -401,9 +401,8 @@ function handleRemoveFileFormData(rowIdx: number) {
     updatedParams.splice(rowIdx, 1)
   } else {
     // File name updated then remove file only
-    const param = updatedParams[rowIdx]
-    if (param) {
-      param.file = undefined
+    if (updatedParams[rowIdx]) {
+      updatedParams[rowIdx].file = undefined
     }
   }
   requestExampleMutators.edit(example.uid, 'body.formData.value', updatedParams)

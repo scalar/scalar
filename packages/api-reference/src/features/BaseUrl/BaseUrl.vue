@@ -31,8 +31,8 @@ const updateServerVariable = (key: string, value: string) => {
   serverMutators.edit(server.uid, 'variables', variables)
 }
 
-const updateServer = (server: string) => {
-  config.value.onServerChange?.(server)
+const updateServer = (newServer: string) => {
+  config.value.onServerChange?.(newServer)
 }
 </script>
 <template>

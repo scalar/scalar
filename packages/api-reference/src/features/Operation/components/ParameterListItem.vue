@@ -7,7 +7,6 @@ import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '@/components/Content/Schema'
-import ScreenReader from '@/components/ScreenReader.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'

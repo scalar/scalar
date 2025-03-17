@@ -11,7 +11,7 @@ const lint = ref<boolean>(true)
 const disableTabIndent = ref<boolean>(false)
 const forceFoldGutter = ref<boolean>(false)
 
-const { codeMirror, setCodeMirrorContent } = useCodeMirror({
+useCodeMirror({
   codeMirrorRef,
   content: JSON.stringify(
     {

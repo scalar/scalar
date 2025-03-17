@@ -35,7 +35,6 @@ const {
   activeCollection: _activeCollection,
   activeEnvVariables,
   activeEnvironment,
-  activeServer: _activeServer,
   activeWorkspace,
 } = useActiveEntities()
 
