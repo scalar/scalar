@@ -1,2 +1,2 @@
 export { default as ScalarIcon } from './ScalarIcon.vue'
-export { type Icon } from './utils'
+export type { Icon } from './utils'

@@ -66,14 +66,14 @@ const contentTypeSelect = cva({
   <ScalarListbox
     v-if="prop?.requestBody && contentTypes.length > 1"
     v-model="selectedOption"
+    class="font-normal"
     :options="options"
     placement="bottom-end"
-    @update:modelValue="handleSelectContentType"
-    class="font-normal">
+    @update:modelValue="handleSelectContentType">
     <ScalarButton
-      variant="ghost"
       class="h-fit"
-      :class="contentTypeSelect({ dropdown: true })">
+      :class="contentTypeSelect({ dropdown: true })"
+      variant="ghost">
       <ScreenReader>Selected Content Type:</ScreenReader>
       <span>{{ selectedContentType }}</span>
       <ScalarIcon

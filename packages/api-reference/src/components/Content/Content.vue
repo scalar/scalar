@@ -147,10 +147,10 @@ const introCardsSlot = computed(() =>
         v-else
         :collection="activeCollection"
         :layout="layout"
+        :schemas="getModels(parsedSpec)"
         :server="activeServer"
         :spec="parsedSpec"
-        :tags="parsedSpec.tags"
-        :schemas="getModels(parsedSpec)" />
+        :tags="parsedSpec.tags" />
     </template>
 
     <template v-if="parsedSpec.webhooks">

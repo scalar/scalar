@@ -121,27 +121,27 @@ const handleClick = (e: MouseEvent) =>
                 v-for="property in Object.keys(value?.properties)"
                 :key="property"
                 :compact="compact"
+                :hideHeading="hideHeading"
                 :level="level + 1"
                 :name="property"
                 :required="
                   value.required?.includes(property) ||
                   value.properties?.[property]?.required === true
                 "
-                :value="value.properties?.[property]"
                 :schemas="schemas"
-                :hideHeading="hideHeading" />
+                :value="value.properties?.[property]" />
             </template>
             <template v-if="value.patternProperties">
               <SchemaProperty
                 v-for="property in Object.keys(value?.patternProperties)"
                 :key="property"
                 :compact="compact"
+                :hideHeading="hideHeading"
                 :level="level"
                 :name="property"
                 pattern
-                :value="value.patternProperties?.[property]"
                 :schemas="schemas"
-                :hideHeading="hideHeading" />
+                :value="value.patternProperties?.[property]" />
             </template>
             <template v-if="value.additionalProperties">
               <!--
@@ -156,35 +156,35 @@ const handleClick = (e: MouseEvent) =>
                 "
                 additional
                 :compact="compact"
+                :hideHeading="hideHeading"
                 :level="level"
                 noncollapsible
+                :schemas="schemas"
                 :value="{
                   type: 'anything',
                   ...(typeof value.additionalProperties === 'object'
                     ? value.additionalProperties
                     : {}),
-                }"
-                :hideHeading="hideHeading"
-                :schemas="schemas" />
+                }" />
               <!-- Allows a specific type of additional property value -->
               <SchemaProperty
                 v-else
                 additional
                 :compact="compact"
+                :hideHeading="hideHeading"
                 :level="level"
                 noncollapsible
-                :value="value.additionalProperties"
                 :schemas="schemas"
-                :hideHeading="hideHeading" />
+                :value="value.additionalProperties" />
             </template>
           </template>
           <template v-else>
             <SchemaProperty
               :compact="compact"
+              :hideHeading="hideHeading"
               :name="(value as OpenAPIV2.SchemaObject).name"
-              :value="value"
               :schemas="schemas"
-              :hideHeading="hideHeading" />
+              :value="value" />
           </template>
         </DisclosurePanel>
       </div>

@@ -239,9 +239,9 @@ export default {
 <template>
   <template v-if="disabled">
     <div
-      data-testid="code-input-disabled"
       class="text-c-2 flex cursor-default items-center justify-center"
-      :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'">
+      :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'"
+      data-testid="code-input-disabled">
       <span class="whitespace-nowrap">{{ modelValue }}</span>
     </div>
   </template>

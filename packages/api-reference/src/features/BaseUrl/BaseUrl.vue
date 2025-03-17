@@ -10,12 +10,12 @@ import { useId } from 'vue'
 
 import { useConfig } from '@/hooks/useConfig'
 
-const { serverMutators } = useWorkspace()
-
 const { collection, server } = defineProps<{
   collection: Collection
   server?: Server
 }>()
+
+const { serverMutators } = useWorkspace()
 
 const id = useId()
 const config = useConfig()

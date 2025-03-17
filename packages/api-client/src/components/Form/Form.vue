@@ -60,8 +60,8 @@ const id = useId()
               </label>
             </template>
             <template
-              #icon
-              v-if="option.key === 'description'">
+              v-if="option.key === 'description'"
+              #icon>
               <div class="bg-b-2 flex-center border-l px-2">
                 <ScalarIcon
                   icon="Markdown"

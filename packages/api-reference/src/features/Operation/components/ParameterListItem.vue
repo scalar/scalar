@@ -98,14 +98,14 @@ const shouldShowParameter = computed(() => {
           :name="shouldCollapse ? '' : parameter.name"
           :noncollapsible="showChildren"
           :required="parameter.required"
+          :schemas="schemas"
           :value="{
             deprecated: parameter.deprecated,
             ...(parameter.content
               ? parameter.content?.[selectedContentType]?.schema
               : parameter.schema),
           }"
-          :withExamples="withExamples"
-          :schemas="schemas" />
+          :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
     <div

@@ -126,8 +126,8 @@ const handleImportClick = () => {
 <template>
   <div class="text-c-2 flex-center py-1.5 text-sm">Import cURL</div>
   <CommandActionForm
-    @submit="handleImportClick"
-    class="mt-1.5 min-h-fit">
+    class="mt-1.5 min-h-fit"
+    @submit="handleImportClick">
     <div
       class="flex h-9 flex-row items-center gap-2 rounded border p-[3px] text-sm">
       <div class="flex h-full">

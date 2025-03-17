@@ -201,20 +201,20 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         :columns="['32px', '', '']"
         :envVariables="envVariables"
         :environment="environment"
+        :invalidParams="invalidParams"
         isGlobal
         isReadOnly
         :items="readOnlyEntries"
-        :workspace="workspace"
-        :invalidParams="invalidParams" />
+        :workspace="workspace" />
       <!-- Dynamic entries -->
       <RequestTable
         class="flex-1"
         :columns="['32px', '', '']"
         :envVariables="envVariables"
         :environment="environment"
+        :invalidParams="invalidParams"
         :items="params"
         :workspace="workspace"
-        :invalidParams="invalidParams"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />
     </div>

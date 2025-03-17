@@ -261,8 +261,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               ? ((activeCollection?.['x-scalar-icon'] || 'Collection') as Icon)
               : (topNavItem.icon as Icon)
           "
-          :label="topNavItem.label"
           :isCollection="topNavItem.isCollection || false"
+          :label="topNavItem.label"
           @click="setNavItemIdx(index)"
           @close="removeNavItem(index)"
           @closeOtherTabs="closeOtherTabs(index)"

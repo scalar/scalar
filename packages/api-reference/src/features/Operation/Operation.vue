@@ -57,18 +57,18 @@ const { operation } = useBlockProps({
         :id="id"
         :collection="collection"
         :operation="operation"
+        :schemas="schemas"
         :server="server"
-        :transformedOperation="transformedOperation"
-        :schemas="schemas" />
+        :transformedOperation="transformedOperation" />
     </template>
     <template v-else>
       <ModernLayout
         :id="id"
         :collection="collection"
         :operation="operation"
+        :schemas="schemas"
         :server="server"
-        :transformedOperation="transformedOperation"
-        :schemas="schemas" />
+        :transformedOperation="transformedOperation" />
     </template>
   </template>
 </template>

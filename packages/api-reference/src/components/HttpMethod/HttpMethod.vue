@@ -47,8 +47,8 @@ const color = computed<string>(() => {
   <component
     :is="as ?? 'span'"
     :style="{ [property || 'color']: color }">
-    <slot v-bind="{ normalized, abbreviated, color }">{{
-      short ? abbreviated : normalized
-    }}</slot>
+    <slot v-bind="{ normalized, abbreviated, color }">
+      {{ short ? abbreviated : normalized }}
+    </slot>
   </component>
 </template>

@@ -85,8 +85,8 @@ const models = computed(() => {
               <Schema
                 :hideHeading="true"
                 noncollapsible
-                :value="(schemas as any)[name]"
-                :schemas="schemas" />
+                :schemas="schemas"
+                :value="(schemas as any)[name]" />
             </ScalarErrorBoundary>
           </CompactSection>
         </Lazy>

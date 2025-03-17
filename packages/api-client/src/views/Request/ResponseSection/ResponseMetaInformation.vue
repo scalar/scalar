@@ -25,7 +25,7 @@ events.requestStatus.on((status) => {
 
 /** Size of the response */
 const getContentLength = (response: ResponseInstance) => {
-  const contentLength = parseInt(
+  const contentLength = Number.parseInt(
     response.headers?.['Content-Length'] ||
       response.headers?.['content-length'] ||
       '0',

@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, it } from 'vitest'
 
 import { ScalarCli } from '../../../tests/invoke-cli'
 

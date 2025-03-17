@@ -36,9 +36,9 @@ withDefaults(
         :key="item.name"
         :collapsableItems="collapsableItems"
         :parameter="item"
+        :schemas="schemas"
         :showChildren="showChildren"
-        :withExamples="withExamples"
-        :schemas="schemas" />
+        :withExamples="withExamples" />
     </ul>
   </div>
 </template>

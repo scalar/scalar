@@ -54,9 +54,7 @@ function normalizeArray(parts, allowAboveRoot) {
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
 const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/
-const splitPath = function (filename) {
-  return splitPathRe.exec(filename).slice(1)
-}
+const splitPath = (filename) => splitPathRe.exec(filename).slice(1)
 
 // path.resolve([from ...], to)
 // posix version
@@ -83,9 +81,7 @@ export function resolve(...parameters) {
 
   // Normalize the path
   resolvedPath = normalizeArray(
-    filter(resolvedPath.split('/'), function (p) {
-      return !!p
-    }),
+    filter(resolvedPath.split('/'), (p) => !!p),
     !resolvedAbsolute,
   ).join('/')
 
@@ -100,9 +96,7 @@ export function normalize(path) {
 
   // Normalize the path
   path = normalizeArray(
-    filter(path.split('/'), function (p) {
-      return !!p
-    }),
+    filter(path.split('/'), (p) => !!p),
     !isPathAbsolute,
   ).join('/')
 
@@ -124,7 +118,7 @@ export function isAbsolute(path) {
 // posix version
 export function join(...paths: string[]) {
   return normalize(
-    filter(paths, function (p, index) {
+    filter(paths, (p, index) => {
       if (typeof p !== 'string') {
         throw new TypeError('Arguments to path.join must be strings')
       }
@@ -234,10 +228,8 @@ function filter(xs, f) {
 // String.prototype.substr - negative index don't work in IE8
 const substr =
   'ab'.substr(-1) === 'b'
-    ? function (str, start, len) {
-        return str.substr(start, len)
-      }
-    : function (str, start, len) {
+    ? (str, start, len) => str.substr(start, len)
+    : (str, start, len) => {
         if (start < 0) start = str.length + start
         return str.substr(start, len)
       }

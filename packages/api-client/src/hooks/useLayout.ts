@@ -1,4 +1,3 @@
-import type { createApiClient } from '@/libs/create-client'
 import { type InjectionKey, inject } from 'vue'
 
 /**

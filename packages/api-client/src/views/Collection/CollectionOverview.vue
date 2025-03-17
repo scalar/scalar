@@ -26,10 +26,10 @@ const updateCollectionDescription = (value: string) => {
   <ViewLayoutSection>
     <MarkdownInput
       v-if="activeEnvironment && activeWorkspace"
-      :environment="activeEnvironment"
       :envVariables="activeEnvVariables"
-      :workspace="activeWorkspace"
+      :environment="activeEnvironment"
       :modelValue="activeCollection?.info?.description ?? ''"
+      :workspace="activeWorkspace"
       @update:modelValue="updateCollectionDescription" />
   </ViewLayoutSection>
 </template>

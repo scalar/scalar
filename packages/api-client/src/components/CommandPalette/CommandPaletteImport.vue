@@ -195,9 +195,9 @@ const handleInput = (value: string) => {
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         :modelValue="inputContent"
-        @update:modelValue="handleInput"
         placeholder="OpenAPI/Swagger/Postman URL or cURL"
-        @onDelete="emits('back', $event)" />
+        @onDelete="emits('back', $event)"
+        @update:modelValue="handleInput" />
     </template>
     <template v-else>
       <!-- OpenAPI document preview -->
