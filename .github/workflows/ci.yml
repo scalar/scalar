@@ -206,7 +206,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
@@ -519,7 +519,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: 20
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: integrations/aspnetcore
@@ -586,7 +586,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: 20
-          packages-only: 'api-reference'
+          packages-only: '@scalar/api-reference'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference

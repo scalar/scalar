@@ -46,6 +46,6 @@ runs:
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
       name: Build package
       shell: bash
-      run: pnpm turbo --concurrency=2 --filter './packages/${{inputs.packages-only}}' build
+      run: pnpm turbo --concurrency=2 --filter '${{inputs.packages-only}}' build
       env:
         NODE_OPTIONS: '--max_old_space_size=8192'
