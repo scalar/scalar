@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { securitySchemeSchema } from '@scalar/types/entities'
-import { cleanSchema } from '@/utils/clean-schema.ts'
+import { zodDeepPartial } from '@/utils/zod-deep-partial.ts'
 
-const _authenticationConfigurationSchema = cleanSchema(securitySchemeSchema)
+const _authenticationConfigurationSchema = zodDeepPartial(securitySchemeSchema)
 
 /**
  * Authentication Configuration
@@ -12,7 +12,7 @@ export const authenticationConfigurationSchema = z
   .object({
     /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
     preferredSecurityScheme: z
-      .union([z.string(), z.array(z.union([z.string(), z.array(z.string())]))])
+      .union([z.string(), z.array(z.union([z.string(), z.array(z.string()).min(1)])).min(1)])
       .nullable()
       .optional(),
   })
