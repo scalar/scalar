@@ -220,7 +220,7 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
       - name: Run tests for the proxy server (Go)
-        run: cd projects/proxy-scalar-com && pnpm test
+        run: cd projects/proxy-scalar-com && go test -v
 
   stats:
     needs: [build]
