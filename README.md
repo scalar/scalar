@@ -92,24 +92,33 @@ You’re just one HTML file away from having an awesome API reference:
       name="viewport"
       content="width=device-width, initial-scale=1" />
   </head>
-  <body>
-    <!-- Need a Custom Header? Check out this example: https://codepen.io/scalarorg/pen/VwOXqam -->
-    <!-- Note: We’re using our public proxy to avoid CORS issues. You can remove the `data-proxy-url` attribute if you don’t need it. -->
-    <script
-      id="api-reference"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"
-      data-proxy-url="https://proxy.scalar.com"></script>
 
+  <body>
+    <div id="app"></div>
+
+    <!-- Load the Script -->
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+
+    <!-- Initialize the Scalar API Reference -->
+    <script>
+      Scalar.createApiReference('#app', {
+        // The URL of the OpenAPI/Swagger document
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        // Avoid CORS issues
+        proxyUrl: 'https://proxy.scalar.com',
+      })
+    </script>
   </body>
 </html>
 ```
+
+> Need a Custom Header? Check out this example: https://codepen.io/scalarorg/pen/VwOXqam
 
 And there’s an ever-growing list of plugins and integrations:
 
 ### Integrations
 
-- [HTML](documentation/integrations/html.md) (works everywhere)
+- [HTML/JS API](documentation/integrations/html-js.md) (works everywhere)
 - [.NET](integrations/aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django](https://github.com/m1guer/django-scalar)
