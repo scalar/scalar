@@ -2,11 +2,12 @@ import { authenticationConfigurationSchema } from './authentication-configuratio
 import { describe, expect, it } from 'vitest'
 
 describe('authenticationConfigurationSchema', () => {
-  it('should accept empty record', () => {
-    expect(authenticationConfigurationSchema.safeParse({}).success).toBe(true)
+  it('accepts empty record', () => {
+    const config = {}
+    expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
   })
 
-  it('should accept partial security schemes', () => {
+  it('accepts partial security schemes', () => {
     const validConfig = {
       apiKey: {
         type: 'apiKey',
@@ -19,10 +20,10 @@ describe('authenticationConfigurationSchema', () => {
       },
     }
 
-    expect(authenticationConfigurationSchema.safeParse(validConfig).success).toBe(true)
+    expect(authenticationConfigurationSchema.parse(validConfig)).toEqual(validConfig)
   })
 
-  it('should reject invalid security schemes', () => {
+  it('rejects invalid security schemes', () => {
     const invalidConfig = {
       apiKey: {
         type: 'invalid', // Invalid type
@@ -30,6 +31,55 @@ describe('authenticationConfigurationSchema', () => {
       },
     }
 
-    expect(authenticationConfigurationSchema.safeParse(invalidConfig).success).toBe(false)
+    expect(() => authenticationConfigurationSchema.parse(invalidConfig)).toThrow()
+  })
+
+  describe('preferredSecurityScheme', () => {
+    it('accepts a single string security scheme', () => {
+      const config = {
+        preferredSecurityScheme: 'apiKey',
+      }
+      expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
+    })
+
+    it('accepts an array of security schemes', () => {
+      const config = {
+        preferredSecurityScheme: ['apiKey', 'basic'],
+      }
+      expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
+    })
+
+    it('accepts complex security with array of arrays', () => {
+      const config = {
+        preferredSecurityScheme: ['apiKey', ['basic', 'oauth2']],
+      }
+      expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
+    })
+
+    it('accepts null value', () => {
+      const config = {
+        preferredSecurityScheme: null,
+      }
+      expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
+    })
+
+    it('accepts undefined value', () => {
+      const config = {}
+      expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
+    })
+
+    it('rejects invalid types', () => {
+      const invalidConfigs = [
+        { preferredSecurityScheme: 123 },
+        { preferredSecurityScheme: {} },
+        { preferredSecurityScheme: [{}] },
+        { preferredSecurityScheme: [123] },
+        { preferredSecurityScheme: [[123]] },
+      ]
+
+      invalidConfigs.forEach((config) => {
+        expect(() => authenticationConfigurationSchema.parse(config)).toThrow()
+      })
+    })
   })
 })
