@@ -104,6 +104,9 @@ importers:
       remark-validate-links:
         specifier: ^13.0.2
         version: 13.0.2
+      rollup:
+        specifier: ^4.24.1
+        version: 4.24.4
       start-server-and-test:
         specifier: ^2.0.9
         version: 2.0.9
