@@ -16,6 +16,7 @@ updates:
       - dependency-name: 'vite'
       - dependency-name: 'vitest'
       - dependency-name: 'rollup'
+      - dependency-name: 'tsup'
   - package-ecosystem: 'nuget'
     directory: '/integrations/aspnetcore'
     schedule:
