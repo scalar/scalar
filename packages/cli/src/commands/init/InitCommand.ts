@@ -114,10 +114,10 @@ export function InitCommand() {
 
     while (!validInput) {
       const response = await text({
-        message: `What’s the name of your project? We’ll use that to create a custom subdomain for you.`,
+        message: 'What’s the name of your project? We’ll use that to create a custom subdomain for you.',
         validate(value: string) {
           if (value.trim().length === 0) {
-            return `You didn’t provide a project name. Please provide a name!`
+            return 'You didn’t provide a project name. Please provide a name!'
           }
 
           return
@@ -161,7 +161,7 @@ export function InitCommand() {
         message: `Where is your OpenAPI file? ${kleur.reset().grey('(Add a path to the file)')}`,
         validate(value: string) {
           if (value.length === 0) {
-            return `Value is required!`
+            return 'Value is required!'
           }
 
           return

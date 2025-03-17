@@ -23,7 +23,7 @@ export function BundleCommand() {
     const cache: any[] = []
     const json = JSON.stringify(
       newContent,
-      (key, value) => {
+      (_key, value) => {
         if (typeof value === 'object' && value !== null) {
           if (cache.indexOf(value) !== -1) {
             // Circular reference found, discard key

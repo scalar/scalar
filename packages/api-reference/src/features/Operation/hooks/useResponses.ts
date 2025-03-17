@@ -7,7 +7,9 @@ import { computed } from 'vue'
  */
 export function useResponses(operation: TransformedOperation) {
   const r = computed(() => {
-    if (!operation.information) return []
+    if (!operation.information) {
+      return []
+    }
 
     const { responses } = operation.information
 
@@ -18,7 +20,9 @@ export function useResponses(operation: TransformedOperation) {
       headers?: { [key: string]: OpenAPI.HeaderObject }
     }[] = []
 
-    if (!responses) return res
+    if (!responses) {
+      return res
+    }
 
     Object.entries(responses).forEach(([statusCode, response]) => {
       res.push({

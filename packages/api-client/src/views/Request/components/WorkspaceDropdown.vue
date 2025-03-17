@@ -24,7 +24,9 @@ const { workspaces, workspaceMutators, events } = useWorkspace()
 const { push } = useRouter()
 
 const updateSelected = (uid: Workspace['uid']) => {
-  if (uid === activeWorkspace.value?.uid) return
+  if (uid === activeWorkspace.value?.uid) {
+    return
+  }
 
   push({
     name: 'workspace',
@@ -46,7 +48,9 @@ const deleteModal = useModal()
 
 const openRenameModal = (uid: Workspace['uid']) => {
   const workspace = workspaces[uid]
-  if (!workspace) return
+  if (!workspace) {
+    return
+  }
 
   tempName.value = workspace.name
   tempUid.value = uid
@@ -64,7 +68,9 @@ const handleWorkspaceEdit = (name: string) => {
 
 const openDeleteModal = (uid: Workspace['uid']) => {
   const workspace = workspaces[uid]
-  if (!workspace) return
+  if (!workspace) {
+    return
+  }
 
   tempName.value = workspace.name
   tempUid.value = uid

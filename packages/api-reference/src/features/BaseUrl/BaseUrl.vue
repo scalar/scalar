@@ -21,7 +21,9 @@ const id = useId()
 const config = useConfig()
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!server) return
+  if (!server) {
+    return
+  }
 
   const variables = server.variables || {}
   variables[key] = { ...variables[key], default: value }
@@ -29,8 +31,8 @@ const updateServerVariable = (key: string, value: string) => {
   serverMutators.edit(server.uid, 'variables', variables)
 }
 
-const updateServer = (server: string) => {
-  config.value.onServerChange?.(server)
+const updateServer = (newServer: string) => {
+  config.value.onServerChange?.(newServer)
 }
 </script>
 <template>

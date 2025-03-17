@@ -66,8 +66,10 @@ export function filterHiddenClients(targets: Target[], exclude: Ref<HiddenClient
         (client) => !exclude.value.includes(client.client),
       )
       // Remove targets that don’t have any clients left
-      if (!target.clients.length) return []
-      else return [target]
+      if (!target.clients.length) {
+        return []
+      }
+      return [target]
     }
 
     // Determine if the whole target (language) is to be excluded
@@ -111,7 +113,9 @@ const excludedClients = ref<HiddenClients>({})
 const defaultHttpClient = ref<HttpClientState>()
 
 function setDefaultHttpClient(httpClient?: HttpClientState) {
-  if (httpClient === undefined) return
+  if (httpClient === undefined) {
+    return
+  }
 
   defaultHttpClient.value = httpClient
   setHttpClient(getDefaultHttpClient())

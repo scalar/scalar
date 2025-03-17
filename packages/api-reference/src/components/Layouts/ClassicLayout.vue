@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarColorModeToggleIcon } from '@scalar/components'
-import { computed, type Slot } from 'vue'
+import { computed } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'

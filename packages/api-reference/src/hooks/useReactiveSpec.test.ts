@@ -108,7 +108,9 @@ describe('useReactiveSpec', () => {
 
     await new Promise((resolve) => {
       watch(rawSpec, (value) => {
-        if (!value) return
+        if (!value) {
+          return
+        }
         expect(JSON.parse(value)).toMatchObject({
           openapi: '3.1.0',
           info: {

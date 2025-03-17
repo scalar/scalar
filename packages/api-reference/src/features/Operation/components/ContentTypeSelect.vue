@@ -40,7 +40,9 @@ const selectedOption = computed({
   get: () =>
     options.value.find((option) => option.id === selectedContentType.value),
   set: (option) => {
-    if (option) selectedContentType.value = option.id as ContentType
+    if (option) {
+      selectedContentType.value = option.id as ContentType
+    }
   },
 })
 

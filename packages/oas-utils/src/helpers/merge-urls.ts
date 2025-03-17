@@ -41,9 +41,13 @@ export const mergeSearchParams = (...params: URLSearchParams[]): URLSearchParams
 
 /** Combines a base URL and a path ensuring there's only one slash between them */
 export const combineUrlAndPath = (url: string, path: string) => {
-  if (!path || url === path) return url.trim()
+  if (!path || url === path) {
+    return url.trim()
+  }
 
-  if (!url) return path.trim()
+  if (!url) {
+    return path.trim()
+  }
 
   return `${url.trim()}/${path.trim()}`.replace(REGEX.MULTIPLE_SLASHES, '/')
 }
@@ -86,7 +90,8 @@ export const mergeUrls = (
     // Build the final URL
     const search = mergedSearchParams.toString()
     return search ? `${mergedUrl}?${search}` : mergedUrl
-  } else if (path) {
+  }
+  if (path) {
     return combineUrlAndPath(url, path)
   }
   return ''

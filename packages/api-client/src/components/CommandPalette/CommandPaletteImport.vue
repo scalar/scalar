@@ -54,7 +54,9 @@ const documentType = computed(() =>
 )
 
 function navigateToCollectionPage(collection?: { uid: string }) {
-  if (!collection) return
+  if (!collection) {
+    return
+  }
 
   router.push({
     name: 'collection',
@@ -106,16 +108,22 @@ const { open: openSpecFileDialog } = useFileDialog({
 
 // Enable watch mode if the input is a URL
 watch(isInputUrl, (newVal) => {
-  if (!newVal) watchMode.value = false
+  if (!newVal) {
+    watchMode.value = false
+  }
 })
 
 // Disable watch mode if the input is not a URL
 watch(inputContent, (newVal) => {
-  if (!isUrl(newVal)) watchMode.value = false
+  if (!isUrl(newVal)) {
+    watchMode.value = false
+  }
 })
 
 async function importCollection() {
-  if (!inputContent.value || loader.isLoading) return
+  if (!inputContent.value || loader.isLoading) {
+    return
+  }
 
   loader.startLoading()
   try {

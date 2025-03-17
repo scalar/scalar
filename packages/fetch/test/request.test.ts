@@ -23,7 +23,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data.length).toEqual(1)
   })
 
@@ -36,7 +38,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data).toEqual('first post title')
   })
 
@@ -54,7 +58,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data).toEqual({
       userId: 1,
       id: 1,
@@ -81,7 +87,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
 
     expect(result.data).toEqual({
       userId: 1,
@@ -104,7 +112,9 @@ describe('Executes requests and handles errors', () => {
     expect(result.error).toEqual(true)
     expect(result.status).toEqual(400)
     console.log(result)
-    if (!result.error) return
+    if (!result.error) {
+      return
+    }
     expect(result.message).toEqual('Invalid request body')
   })
 
@@ -125,7 +135,9 @@ describe('Executes requests and handles errors', () => {
     expect(result.error).toEqual(true)
     expect(result.status).toEqual(500)
 
-    if (!result.error) return
+    if (!result.error) {
+      return
+    }
     expect(result.message).toEqual('Invalid response data from endpoint: https://rest-endpoint.example/object-fetch')
   })
 
@@ -164,7 +176,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.error).toEqual(true)
-    if (result.error) expect(result.message).toEqual('Unauthorized')
+    if (result.error) {
+      expect(result.message).toEqual('Unauthorized')
+    }
   })
 
   it('Handles string access token', async () => {
@@ -176,7 +190,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data).toEqual('first post title')
   })
 
@@ -189,7 +205,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data).toEqual('first post title')
   })
   it('Handles empty function access token', async () => {
@@ -201,7 +219,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.error).toEqual(true)
-    if (result.error) expect(result.message).toEqual('Unauthorized')
+    if (result.error) {
+      expect(result.message).toEqual('Unauthorized')
+    }
   })
 
   it.todo('Handles Promise<string> access token', async () => {
@@ -213,7 +233,9 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    if (result.error) return
+    if (result.error) {
+      return
+    }
     expect(result.data).toEqual('first post title')
   })
 })

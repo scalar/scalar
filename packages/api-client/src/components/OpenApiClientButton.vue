@@ -57,10 +57,12 @@ const href = computed((): string | undefined => {
     const darkLogo = document.querySelector("img.dark\\:block[alt='Logo']")
     const lightLogo = document.querySelector("img.dark\\:hidden[alt='Logo']")
 
-    if (darkLogo && darkLogo instanceof HTMLImageElement)
+    if (darkLogo && darkLogo instanceof HTMLImageElement) {
       link.searchParams.set('dark_logo', encodeURIComponent(darkLogo.src))
-    if (lightLogo && lightLogo instanceof HTMLImageElement)
+    }
+    if (lightLogo && lightLogo instanceof HTMLImageElement) {
       link.searchParams.set('light_logo', encodeURIComponent(lightLogo.src))
+    }
   }
 
   return link.toString()

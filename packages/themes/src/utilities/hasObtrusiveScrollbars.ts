@@ -6,7 +6,9 @@
  * @see https://www.filamentgroup.com/lab/scrollbars/
  */
 export function hasObtrusiveScrollbars(): boolean {
-  if (typeof window === 'undefined') return false
+  if (typeof window === 'undefined') {
+    return false
+  }
 
   // Create a 30px square div
   const parent = document.createElement('div')

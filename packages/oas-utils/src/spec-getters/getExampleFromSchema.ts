@@ -261,14 +261,13 @@ export const getExampleFromSchema = (
           )
 
           return cache(schema, wrapItems ? [{ [itemsXmlTagName]: mergedExample }] : [mergedExample])
-        } else {
-          // For non-objects (like strings), collect all examples
-          const examples = schema.items.allOf
-            .map((item: Record<string, any>) => getExampleFromSchema(item, options, level + 1, schema))
-            .filter((item: any) => item !== undefined)
-
-          return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
         }
+        // For non-objects (like strings), collect all examples
+        const examples = schema.items.allOf
+          .map((item: Record<string, any>) => getExampleFromSchema(item, options, level + 1, schema))
+          .filter((item: any) => item !== undefined)
+
+        return cache(schema, wrapItems ? examples.map((example: any) => ({ [itemsXmlTagName]: example })) : examples)
       }
 
       // Handle other rules (anyOf, oneOf)

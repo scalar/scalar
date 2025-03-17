@@ -47,9 +47,11 @@ const extractPathParams = (node: ParameterDeclaration, program: Program): OpenAP
     node.type.members[0].name.escapedText === 'params' &&
     node.type.members[0].type &&
     isTypeLiteralNode(node.type.members[0].type)
-  )
+  ) {
     return node.type.members[0].type?.members.flatMap((member) => {
-      if (!isPropertySignature(member) || !member.type) return []
+      if (!isPropertySignature(member) || !member.type) {
+        return []
+      }
 
       return {
         name: member.name?.getText(),
@@ -57,6 +59,7 @@ const extractPathParams = (node: ParameterDeclaration, program: Program): OpenAP
         in: 'path',
       } as OpenAPIV3_1.ParameterObject
     })
+  }
 
   return []
 }

@@ -40,7 +40,9 @@ export function setRequestCookies({
   // Add global cookies that match the current domain
   globalCookies.forEach((c) => {
     const { name, value, domain: configuredHostname, ...params } = c
-    if (!matchesDomain(serverUrl, configuredHostname) || !name) return
+    if (!matchesDomain(serverUrl, configuredHostname) || !name) {
+      return
+    }
 
     cookieParams.push(
       cookieSchema.parse({
@@ -54,7 +56,9 @@ export function setRequestCookies({
 
   // Add local cookies
   example.parameters.cookies.forEach((c) => {
-    if (!c.enabled || !c.key) return
+    if (!c.enabled || !c.key) {
+      return
+    }
 
     cookieParams.push(
       cookieSchema.parse({
@@ -102,7 +106,9 @@ const determineCookieDomain = (url: string) => {
  * - matches the current host with a wildcard.
  */
 export const matchesDomain = (givenUrl?: string, configuredHostname?: string): boolean => {
-  if (!givenUrl || !configuredHostname) return true
+  if (!givenUrl || !configuredHostname) {
+    return true
+  }
 
   try {
     // Add protocol if not present

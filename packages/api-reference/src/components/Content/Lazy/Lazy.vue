@@ -40,7 +40,9 @@ const shouldRender = ref(!props.isLazy)
 if (props.isLazy) {
   onIdle(() => {
     shouldRender.value = true
-    if (props.id) nextTick(() => lazyBus.emit({ id: props.id! }))
+    if (props.id) {
+      nextTick(() => lazyBus.emit({ id: props.id! }))
+    }
   })
 } else if (props.id) {
   nextTick(() => lazyBus.emit({ id: props.id! }))

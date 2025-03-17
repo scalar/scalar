@@ -1,1 +1,1 @@
-export * from '@/createVoidServer.ts'
+export { createVoidServer } from '@/createVoidServer.ts'

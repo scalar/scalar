@@ -24,7 +24,9 @@ const { toast } = useToasts()
 const workspaceName = ref('')
 
 const updateSelected = (uid: string) => {
-  if (uid === activeWorkspace.value?.uid) return
+  if (uid === activeWorkspace.value?.uid) {
+    return
+  }
 
   push({
     name: 'workspace',

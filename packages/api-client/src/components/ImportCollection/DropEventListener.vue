@@ -51,7 +51,9 @@ async function handleDrop(event: DragEvent) {
     // Files
     else if (event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0]
-      if (!file) return
+      if (!file) {
+        return
+      }
 
       const reader = new FileReader()
 

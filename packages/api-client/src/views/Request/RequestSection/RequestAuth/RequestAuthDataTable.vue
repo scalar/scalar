@@ -44,7 +44,9 @@ const activeAuthIndex = ref(0)
 /** Return currently selected schemes including complex auth */
 const activeScheme = computed(() => {
   const option = selectedSchemeOptions[activeAuthIndex.value]
-  if (!option) return []
+  if (!option) {
+    return []
+  }
   const keys = option?.id.split(',')
   return keys.length > 1 ? keys : [option.id]
 })

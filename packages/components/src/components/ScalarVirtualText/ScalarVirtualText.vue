@@ -85,7 +85,9 @@ onBeforeUnmount(() => {
 })
 
 watchEffect(() => {
-  if (!contentRef.value) return
+  if (!contentRef.value) {
+    return
+  }
 
   contentRef.value.style.transform = `translateY(${Math.max(0, visibleStartIndex.value - 10) * props.lineHeight}px)`
 })

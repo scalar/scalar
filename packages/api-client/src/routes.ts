@@ -83,7 +83,7 @@ const requestRoutes = [
           },
           {
             name: 'collection.servers',
-            path: `servers`,
+            path: 'servers',
             component: () => import('@/views/Collection/CollectionServers.vue'),
             children: [
               {
@@ -95,32 +95,32 @@ const requestRoutes = [
           },
           {
             name: 'collection.environment',
-            path: `environment`,
+            path: 'environment',
             component: () => import('@/views/Collection/CollectionEnvironment.vue'),
           },
           {
             name: 'collection.authentication',
-            path: `authentication`,
+            path: 'authentication',
             component: () => import('@/views/Collection/CollectionAuthentication.vue'),
           },
           {
             name: 'collection.cookies',
-            path: `cookies`,
+            path: 'cookies',
             component: () => import('@/views/Collection/CollectionCookies.vue'),
           },
           {
             name: 'collection.scripts',
-            path: `scripts`,
+            path: 'scripts',
             component: () => import('@/views/Collection/CollectionScripts.vue'),
           },
           {
             name: 'collection.sync',
-            path: `sync`,
+            path: 'sync',
             component: () => import('@/views/Collection/CollectionSync.vue'),
           },
           {
             name: 'collection.settings',
-            path: `settings`,
+            path: 'settings',
             component: () => import('@/views/Collection/CollectionSettings.vue'),
           },
         ],

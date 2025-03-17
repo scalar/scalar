@@ -26,7 +26,9 @@ export function getDomainFromUrl(url: string): string {
  * Extracts the path from a given URL, removing any Postman variables.
  */
 export function extractPathFromUrl(url: string | undefined): string {
-  if (!url) return '/'
+  if (!url) {
+    return '/'
+  }
 
   // Remove scheme, domain, query parameters, and hash fragments
   const path = url.replace(/^(?:https?:\/\/)?[^/]+(\/|$)/, '/').split(/[?#]/)[0]

@@ -54,7 +54,7 @@ export function ShareCommand() {
         console.log(kleur.white('Use the token to update the existing sandbox:'))
         console.log()
         console.log(
-          `${kleur.grey('$')} ${kleur.bold().white(`scalar share --token=`)}${kleur.bold().cyan(`${newToken}`)} `,
+          `${kleur.grey('$')} ${kleur.bold().white('scalar share --token=')}${kleur.bold().cyan(`${newToken}`)} `,
         )
         console.log()
       })

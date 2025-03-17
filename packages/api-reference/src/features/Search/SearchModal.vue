@@ -118,7 +118,9 @@ watch(selectedSearchResult, (index) => {
 /** Screen reader label for the search input */
 const srLabel = computed<string>(() => {
   const results = searchResultsWithPlaceholderResults.value
-  if (!results.length) return 'No results found'
+  if (!results.length) {
+    return 'No results found'
+  }
 
   const result = results[selectedSearchResult.value].item
 

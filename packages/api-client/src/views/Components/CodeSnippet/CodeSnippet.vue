@@ -31,7 +31,9 @@ const {
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() =>
   securitySchemes.flatMap((scheme) => {
-    if (scheme.type === 'apiKey') return scheme.value
+    if (scheme.type === 'apiKey') {
+      return scheme.value
+    }
     if (scheme?.type === 'http') {
       return [
         scheme.token,
@@ -63,7 +65,9 @@ const content = computed(() => {
 /** CodeMirror syntax highlighting language */
 const language = computed(() => {
   // Normalize languages
-  if (target === 'shell' && client === 'curl') return 'curl'
+  if (target === 'shell' && client === 'curl') {
+    return 'curl'
+  }
   // TODO: js -> javascript?
 
   return target ?? 'plaintext'

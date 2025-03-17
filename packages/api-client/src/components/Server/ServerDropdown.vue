@@ -58,8 +58,9 @@ watch([() => collection, () => operation], ([newCollection, newOperation]) => {
     !newCollection ||
     newCollection.selectedServerUid ||
     newOperation?.selectedServerUid
-  )
+  ) {
     return
+  }
 
   const firstServer = collection.servers?.[0]
 
@@ -82,7 +83,9 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 })
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!server) return
+  if (!server) {
+    return
+  }
 
   const variables = server.variables || {}
   variables[key] = { ...variables[key], default: value }

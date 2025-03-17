@@ -13,7 +13,9 @@ type PrimitiveOrObject = object | string | null | number | boolean | undefined
  * Check if value is a valid JSON string
  */
 const isJsonString = (value?: any) => {
-  if (typeof value !== 'string') return false
+  if (typeof value !== 'string') {
+    return false
+  }
 
   return !!json.parseSafe(value, false)
 }
@@ -23,7 +25,9 @@ const json = {
   /** Parse and throw if the return value is not an object */
   parse: (val: string): AnyObject => {
     const jsonObject = JSON.parse(val)
-    if (typeof jsonObject !== 'object') throw Error('Invalid JSON object')
+    if (typeof jsonObject !== 'object') {
+      throw Error('Invalid JSON object')
+    }
     return jsonObject
   },
   /** Parse and return a fallback on failure */

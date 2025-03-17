@@ -47,7 +47,9 @@ export function extendedCollectionDataFactory({
   }
 
   const deleteCollection = (collection: Collection, workspace: Workspace) => {
-    if (!workspace.uid) return
+    if (!workspace.uid) {
+      return
+    }
 
     if (collections[collection.uid]?.info?.title === 'Drafts') {
       console.warn('The drafts collection cannot be deleted')
@@ -68,7 +70,9 @@ export function extendedCollectionDataFactory({
     // Remove requests
     collection.requests.forEach((uid) => {
       const request = requests[uid]
-      if (!request) return
+      if (!request) {
+        return
+      }
 
       requestMutators.delete(uid)
       request.examples.forEach((e) => requestExamples[e] && requestExampleMutators.delete(e))

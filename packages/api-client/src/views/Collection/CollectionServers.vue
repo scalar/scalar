@@ -24,7 +24,9 @@ const deleteModal = useModal()
 const selectedServerUid = ref<Server['uid'] | null>(null)
 
 const collectionServers = computed(() => {
-  if (!servers || !activeCollection.value?.servers) return []
+  if (!servers || !activeCollection.value?.servers) {
+    return []
+  }
   return Object.values(servers).filter((server) =>
     activeCollection.value?.servers.includes(server.uid),
   )
@@ -38,7 +40,9 @@ const handleAddServer = () =>
 
 /** Delete server */
 const handleDeleteServer = () => {
-  if (!activeCollection.value?.uid || !selectedServerUid.value) return
+  if (!activeCollection.value?.uid || !selectedServerUid.value) {
+    return
+  }
 
   serverMutators.delete(selectedServerUid.value, activeCollection.value.uid)
   deleteModal.hide()

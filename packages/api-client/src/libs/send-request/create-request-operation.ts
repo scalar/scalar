@@ -62,7 +62,9 @@ export const createRequestOperation = ({
 
     /** Parsed and evaluated values for path parameters */
     const pathVariables = example.parameters.path.reduce<Record<string, string>>((vars, param) => {
-      if (param.enabled) vars[param.key] = replaceTemplateVariables(param.value, env)
+      if (param.enabled) {
+        vars[param.key] = replaceTemplateVariables(param.value, env)
+      }
 
       return vars
     }, {})
@@ -77,7 +79,9 @@ export const createRequestOperation = ({
     let url = serverString || pathString
 
     // Handle empty url
-    if (!url) throw ERRORS.URL_EMPTY
+    if (!url) {
+      throw ERRORS.URL_EMPTY
+    }
 
     // lets set the server variables
     // for now we only support default values

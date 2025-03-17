@@ -13,7 +13,9 @@ export const LEGACY_PREFIXES = PREFIX_MIGRATIONS.map(([legacy]) => legacy)
  */
 export function migrateThemeVariables(styles: string): string {
   const hasLegacyPrefixes = LEGACY_PREFIXES.some((p) => styles.includes(p))
-  if (!hasLegacyPrefixes) return styles
+  if (!hasLegacyPrefixes) {
+    return styles
+  }
 
   console.warn(
     `DEPRECATION WARNING: It looks like you're using legacy CSS variables in your custom CSS string. Please migrate them to use the updated prefixes. See https://github.com/scalar/scalar/blob/main/documentation/themes.md#theme-prefix-changes`,

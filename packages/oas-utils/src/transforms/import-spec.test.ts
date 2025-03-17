@@ -82,7 +82,9 @@ describe('importSpecToWorkspace', () => {
       const res = await importSpecToWorkspace(circular)
 
       // console.log(JSON.stringify(res, null, 2))
-      if (res.error) return
+      if (res.error) {
+        return
+      }
 
       expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
       expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
@@ -115,7 +117,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithParams)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const request = res.requests[0]
       expect(request.parameters).toHaveLength(2)
@@ -125,7 +129,9 @@ describe('importSpecToWorkspace', () => {
 
     it('handles requests in the order defined in the OpenAPI document', async () => {
       const res = await importSpecToWorkspace(galaxy)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.requests.map((r) => r.operationId)).toEqual([
         'getAllData',
@@ -267,7 +273,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithUndefinedTags)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.tags.some((t) => t.name === 'undefined-tag')).toBe(true)
     })
@@ -286,7 +294,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithUntaggedRequest)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       // The untagged request should be in the collection's root children
       expect(res.collection.children).toContain(res.requests[0].uid)
@@ -418,7 +428,9 @@ describe('importSpecToWorkspace', () => {
 
     it('handles vanilla security schemes', async () => {
       const res = await importSpecToWorkspace(galaxy)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(testSchemes)
     })
@@ -429,7 +441,9 @@ describe('importSpecToWorkspace', () => {
         'test-default-client-id'
 
       const res = await importSpecToWorkspace(clonedGalaxy)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const authScheme = res.securitySchemes[5] as SecuritySchemeOauth2
       expect(authScheme.flows.authorizationCode?.['x-scalar-client-id']).toEqual('test-default-client-id')
@@ -462,7 +476,9 @@ describe('importSpecToWorkspace', () => {
         },
         setCollectionSecurity: true,
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       // test if the values were filled
       const clonedSchemes = structuredClone(testSchemes)
@@ -500,7 +516,9 @@ describe('importSpecToWorkspace', () => {
       clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode.scopes = ['read:account', 'read:planets']
 
       const res = await importSpecToWorkspace(clonedGalaxy)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect((res.securitySchemes[5] as SecuritySchemeOauth2).flows!.authorizationCode!.scopes).toEqual({
         'read:account': '',
@@ -522,7 +540,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithEmptySecurity)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.requests[0].security).toEqual([{}])
     })
@@ -546,7 +566,9 @@ describe('importSpecToWorkspace', () => {
           preferredSecurityScheme: 'basicAuth',
         },
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const scheme = res.securitySchemes.find((s) => s.nameKey === 'basicAuth')
       expect(res.collection.selectedSecuritySchemeUids).toEqual([scheme?.uid])
@@ -562,7 +584,9 @@ describe('importSpecToWorkspace', () => {
         },
       })
 
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
       expect(res.requests[0].security).toEqual([])
     })
 
@@ -582,7 +606,9 @@ describe('importSpecToWorkspace', () => {
 
       const res = await importSpecToWorkspace(example)
 
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.requests[0].parameters).toMatchObject([
         { name: 'foo', in: 'path' },
@@ -604,7 +630,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithGlobalAndOperationSecurity)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       // Operation level security should override global security
       expect(res.requests[0].security).toEqual([{ basicAuth: [] }])
@@ -617,7 +645,9 @@ describe('importSpecToWorkspace', () => {
           preferredSecurityScheme: 'basicAuth',
         },
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.collection.selectedSecuritySchemeUids).toHaveLength(1)
       const scheme = res.securitySchemes.find((s) => s.uid === res.collection.selectedSecuritySchemeUids[0])
@@ -634,7 +664,9 @@ describe('importSpecToWorkspace', () => {
           },
         },
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows.authorizationCode
       expect(flow?.['x-scalar-client-id']).toBe('test-client')
@@ -655,7 +687,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithAndSecurity)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
       expect(res.requests[0].selectedSecuritySchemeUids).toEqual([])
     })
 
@@ -664,7 +698,9 @@ describe('importSpecToWorkspace', () => {
       const res = await importSpecToWorkspace(noSecurity, {
         setCollectionSecurity: true,
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       expect(res.collection.selectedSecuritySchemeUids).toEqual([])
     })
@@ -685,7 +721,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithAndSecurity)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const selectedSecuritySchemeUids = [
         [findSchemeUidByKey('apiKeyHeader', res.securitySchemes), findSchemeUidByKey('basicAuth', res.securitySchemes)],
@@ -709,7 +747,9 @@ describe('importSpecToWorkspace', () => {
       const res = await importSpecToWorkspace(specWithAndSecurity, {
         setCollectionSecurity: true,
       })
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       const selectedSecuritySchemeUids = [
         [findSchemeUidByKey('apiKeyHeader', res.securitySchemes), findSchemeUidByKey('basicAuth', res.securitySchemes)],
@@ -732,7 +772,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithOrSecurity)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       // Check that the request inherits both options
       expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
@@ -757,7 +799,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithOptionalAndRequired)
-      if (res.error) throw res.error
+      if (res.error) {
+        throw res.error
+      }
 
       // Check that both the security requirement and the optional empty object are preserved
       expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
@@ -795,7 +839,9 @@ describe('importSpecToWorkspace', () => {
         ],
       })
 
-      if (result.error) throw result.error
+      if (result.error) {
+        throw result.error
+      }
 
       expect(result.servers).toMatchObject([
         { url: 'https://api.example.com' },
@@ -941,7 +987,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [{ url: 'https://example.com' }],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
   })
@@ -958,7 +1006,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [{ url: '/api/v1' }],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000/api/v1' }])
 
@@ -976,7 +1026,9 @@ describe('getServersFromOpenApiDocument', () => {
       },
     )
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
   })
@@ -986,7 +1038,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [{}],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
@@ -1009,7 +1063,9 @@ describe('getServersFromOpenApiDocument', () => {
       ],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers[0].url).toBe('{protocol}://api.example.com/{basePath}')
     expect(result.servers[0].variables).toBeDefined()
@@ -1025,7 +1081,9 @@ describe('getServersFromOpenApiDocument', () => {
       },
     )
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([
       { url: 'https://prod.example.com' },
@@ -1044,7 +1102,9 @@ describe('getServersFromOpenApiDocument', () => {
       },
     )
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
   })
@@ -1059,7 +1119,9 @@ describe('getServersFromOpenApiDocument', () => {
       },
     )
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
   })
@@ -1067,7 +1129,9 @@ describe('getServersFromOpenApiDocument', () => {
   it('returns an empty array for undefined servers', async () => {
     const result = await importSpecToWorkspace({})
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
@@ -1077,7 +1141,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [{ url: false }],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
@@ -1091,7 +1157,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [{ url: '/api/v1' }],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: '/api/v1' }])
 
@@ -1111,7 +1179,9 @@ describe('getServersFromOpenApiDocument', () => {
       servers: [],
     })
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
 
@@ -1129,7 +1199,9 @@ describe('getServersFromOpenApiDocument', () => {
 
     const result = await importSpecToWorkspace({})
 
-    if (result.error) throw result.error
+    if (result.error) {
+      throw result.error
+    }
 
     expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
 

@@ -16,7 +16,9 @@ const pathRouting = ref<PathRouting | undefined>()
 const isIntersectionEnabled = ref(false)
 
 const getPathRoutingId = (pathName: string) => {
-  if (!pathRouting.value) return ''
+  if (!pathRouting.value) {
+    return ''
+  }
 
   const reggy = new RegExp('^' + pathRouting.value?.basePath + '/?')
   return decodeURIComponent(pathName.replace(reggy, ''))
@@ -93,12 +95,16 @@ export const useNavState = () => {
       return `${config.value.generateHeadingSlug(heading)}`
     }
 
-    if (heading.slug) return `description/${heading.slug}`
+    if (heading.slug) {
+      return `description/${heading.slug}`
+    }
     return ''
   }
 
   const getModelId = (model?: { name: string }) => {
-    if (!model?.name) return 'models'
+    if (!model?.name) {
+      return 'models'
+    }
 
     if (typeof config.value.generateModelSlug === 'function') {
       return `model/${config.value.generateModelSlug(model)}`
@@ -126,7 +132,9 @@ export const useNavState = () => {
   }
 
   const getWebhookId = (webhook?: { name: string; method?: string }) => {
-    if (!webhook?.name) return 'webhooks'
+    if (!webhook?.name) {
+      return 'webhooks'
+    }
 
     if (typeof config.value.generateWebhookSlug === 'function') {
       return `webhook/${config.value.generateWebhookSlug(webhook)}`

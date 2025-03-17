@@ -48,28 +48,31 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
 
   /** Migrate values from old securitySchemes to the new auth */
   const migrateAuth = (scheme: v_0_0_0.SecurityScheme): NonNullable<v_2_1_0.Collection['auth']>[string] => {
-    if (scheme.type === 'apiKey')
+    if (scheme.type === 'apiKey') {
       // ApiKey
       return { type: 'apiKey', name: scheme.name, value: scheme.value ?? '' }
+    }
 
     // HTTP
-    if (scheme.type === 'http')
+    if (scheme.type === 'http') {
       return {
         type: 'http',
         username: scheme.value ?? '',
         password: scheme.secondValue ?? '',
         token: scheme.value ?? '',
       }
+    }
 
     // Oauth2 Implicit
-    if (scheme.type === 'oauth2' && scheme.flow.type === 'implicit')
+    if (scheme.type === 'oauth2' && scheme.flow.type === 'implicit') {
       return {
         type: 'oauth-implicit',
         token: scheme.flow.token ?? '',
       }
+    }
 
     // Oauth2 Password
-    if (scheme.type === 'oauth2' && scheme.flow.type === 'password')
+    if (scheme.type === 'oauth2' && scheme.flow.type === 'password') {
       return {
         type: 'oauth-password',
         token: scheme.flow.token ?? '',
@@ -77,22 +80,25 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
         password: scheme.flow.secondValue ?? '',
         clientSecret: scheme.flow.clientSecret ?? '',
       }
+    }
 
     // Oauth2 clientCredentials
-    if (scheme.type === 'oauth2' && scheme.flow.type === 'clientCredentials')
+    if (scheme.type === 'oauth2' && scheme.flow.type === 'clientCredentials') {
       return {
         type: 'oauth-clientCredentials',
         token: scheme.flow.token ?? '',
         clientSecret: scheme.flow.clientSecret ?? '',
       }
+    }
 
     // Oauth2 Authorization Code
-    if (scheme.type === 'oauth2' && scheme.flow.type === 'authorizationCode')
+    if (scheme.type === 'oauth2' && scheme.flow.type === 'authorizationCode') {
       return {
         type: 'oauth-authorizationCode',
         token: scheme.flow.token ?? '',
         clientSecret: scheme.flow.clientSecret ?? '',
       }
+    }
 
     // Default - should not get hit
     return {
@@ -120,7 +126,9 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
     const auth = securitySchemes.reduce(
       (_prev, uid) => {
         const scheme = oldData.securitySchemes[uid]
-        if (scheme?.uid && _prev) _prev[uid] = migrateAuth(scheme)
+        if (scheme?.uid && _prev) {
+          _prev[uid] = migrateAuth(scheme)
+        }
         return _prev
       },
       {} as v_2_1_0.Collection['auth'],
@@ -215,25 +223,28 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
       scopes: flow.scopes || {},
     } as const
 
-    if (flow.type === 'implicit')
+    if (flow.type === 'implicit') {
       return {
         ...flow,
         ...base,
         'type': 'implicit',
         'x-scalar-redirect-uri': ('redirectUri' in flow ? flow.redirectUri : '') || '',
       }
-    if (flow.type === 'password')
+    }
+    if (flow.type === 'password') {
       return {
         ...flow,
         ...base,
         tokenUrl: flow.tokenUrl || '',
       }
-    if (flow.type === 'clientCredentials')
+    }
+    if (flow.type === 'clientCredentials') {
       return {
         ...flow,
         ...base,
         tokenUrl: flow.tokenUrl || '',
       }
+    }
 
     return {
       ...flow,
@@ -256,7 +267,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
       case 'oauth2':
         return camelToTitleWords(scheme.flow.type)
       case 'openIdConnect':
-        return `Open ID Connect`
+        return 'Open ID Connect'
       default:
         return 'None'
     }

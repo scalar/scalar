@@ -83,7 +83,7 @@ export function useUrlPrefetcher() {
           content: null,
           url: null,
           input,
-          error: `Oops, we got invalid content for the given URL.`,
+          error: 'Oops, we got invalid content for the given URL.',
         }
       }
 

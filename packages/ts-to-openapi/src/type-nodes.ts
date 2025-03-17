@@ -39,32 +39,37 @@ export const getSchemaFromTypeNode = (
   fileNameResolver: FileNameResolver,
 ): OpenAPIV3_1.SchemaObject => {
   // String
-  if (SyntaxKind.StringKeyword === typeNode.kind)
+  if (SyntaxKind.StringKeyword === typeNode.kind) {
     return {
       type: 'string',
     }
+  }
   // Number
-  if (SyntaxKind.NumberKeyword === typeNode.kind)
+  if (SyntaxKind.NumberKeyword === typeNode.kind) {
     return {
       type: 'number',
     }
+  }
   // Boolean
-  if (SyntaxKind.BooleanKeyword === typeNode.kind)
+  if (SyntaxKind.BooleanKeyword === typeNode.kind) {
     return {
       type: 'boolean',
     }
+  }
   // BigInt
-  if (SyntaxKind.BigIntKeyword === typeNode.kind)
+  if (SyntaxKind.BigIntKeyword === typeNode.kind) {
     return {
       type: 'integer',
     }
+  }
   // Object
-  if (SyntaxKind.ObjectKeyword === typeNode.kind)
+  if (SyntaxKind.ObjectKeyword === typeNode.kind) {
     return {
       type: 'object',
     }
+  }
   // Any - can be any type
-  if (SyntaxKind.AnyKeyword === typeNode.kind)
+  if (SyntaxKind.AnyKeyword === typeNode.kind) {
     return {
       anyOf: [
         { type: 'string' },
@@ -75,36 +80,42 @@ export const getSchemaFromTypeNode = (
         { type: 'array', items: {} },
       ],
     }
+  }
   // Literal
   if (isLiteralTypeNode(typeNode)) {
     // String
-    if (isStringLiteral(typeNode.literal))
+    if (isStringLiteral(typeNode.literal)) {
       return {
         type: 'string',
         example: typeNode.literal.text,
       }
+    }
     // Number
-    if (isNumericLiteral(typeNode.literal))
+    if (isNumericLiteral(typeNode.literal)) {
       return {
         type: 'number',
         example: Number(typeNode.literal.text),
       }
+    }
     // Boolean
-    if (SyntaxKind.TrueKeyword === typeNode.literal.kind || SyntaxKind.FalseKeyword === typeNode.literal.kind)
+    if (SyntaxKind.TrueKeyword === typeNode.literal.kind || SyntaxKind.FalseKeyword === typeNode.literal.kind) {
       return {
         type: 'boolean',
         example: SyntaxKind.TrueKeyword === typeNode.literal.kind,
       }
-    if (SyntaxKind.NullKeyword === typeNode.literal.kind)
+    }
+    if (SyntaxKind.NullKeyword === typeNode.literal.kind) {
       return {
         type: 'null',
         example: null,
       }
-    if (isBigIntLiteral(typeNode.literal))
+    }
+    if (isBigIntLiteral(typeNode.literal)) {
       return {
         type: 'integer',
         example: typeNode.literal.text,
       }
+    }
   }
   // TypeQuery
   // else if (isTypeQueryNode(typeNode)) {
@@ -159,28 +170,33 @@ export const getSchemaFromTypeNode = (
     // We need to find a way to check for enum vs oneOf
     typeNode.types.forEach((type) => {
       const schema = getSchemaFromTypeNode(type, program, fileNameResolver)
-      if (isLiteralTypeNode(type)) literals[schema.type as Literals].push(schema)
+      if (isLiteralTypeNode(type)) {
+        literals[schema.type as Literals].push(schema)
+      }
       anyOf.push(schema)
     })
 
     // Enum if all literals
-    if (literals.string.length === length)
+    if (literals.string.length === length) {
       return {
         type: 'string',
         enum: literals.string.map((literal) => literal.example),
       }
+    }
     // All numbers
-    if (literals.number.length === length)
+    if (literals.number.length === length) {
       return {
         type: 'number',
         enum: literals.number.map((literal) => literal.example),
       }
+    }
     // All booleans
-    if (literals.boolean.length === length)
+    if (literals.boolean.length === length) {
       return {
         type: 'boolean',
         enum: literals.boolean.map((literal) => literal.example),
       }
+    }
     // Mixed anyOf
 
     return {
@@ -188,23 +204,25 @@ export const getSchemaFromTypeNode = (
     }
   }
   // Intersection
-  else if (isIntersectionTypeNode(typeNode))
+  else if (isIntersectionTypeNode(typeNode)) {
     return {
       allOf: typeNode.types.map((type) => getSchemaFromTypeNode(type, program, fileNameResolver)),
     }
+  }
   // Type reference
   else if (isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName)) {
     const typeChecker = program.getTypeChecker()
     const symbol = typeChecker.getSymbolAtLocation(typeNode.typeName)
 
     // Array<type>
-    if (typeNode.typeName.escapedText === 'Array')
+    if (typeNode.typeName.escapedText === 'Array') {
       return {
         type: 'array',
         items: typeNode.typeArguments?.length
           ? getSchemaFromTypeNode(typeNode.typeArguments?.[0], program, fileNameResolver)
           : {},
       }
+    }
     if (symbol) {
       const name = symbol.escapedName
 
@@ -214,8 +232,9 @@ export const getSchemaFromTypeNode = (
       if (declarations && declarations.length > 0) {
         for (const declaration of declarations) {
           // Reference in same file aka type alias
-          if (isTypeAliasDeclaration(declaration))
+          if (isTypeAliasDeclaration(declaration)) {
             return getSchemaFromTypeNode(declaration.type, program, fileNameResolver)
+          }
           // For a reference in another file
           if (isImportSpecifier(declaration)) {
             const declarationSourceFile = declaration.getSourceFile()
@@ -227,10 +246,13 @@ export const getSchemaFromTypeNode = (
               const targetSourceFile = program.getSourceFile(targetPath)
 
               // Keeping it ultra basic for now and just checking top level typeAliases
-              if (targetSourceFile && isSourceFile(targetSourceFile))
-                for (const statement of targetSourceFile.statements)
-                  if (isTypeAliasDeclaration(statement) && statement.name.escapedText === name)
+              if (targetSourceFile && isSourceFile(targetSourceFile)) {
+                for (const statement of targetSourceFile.statements) {
+                  if (isTypeAliasDeclaration(statement) && statement.name.escapedText === name) {
                     return getSchemaFromTypeNode(statement.type, program, fileNameResolver)
+                  }
+                }
+              }
             }
           }
         }

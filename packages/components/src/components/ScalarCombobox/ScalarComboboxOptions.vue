@@ -93,10 +93,13 @@ const selected = computed<Option[]>({
 function toggleSelected(option: Option) {
   if (props.multiselect) {
     // Remove from selection list
-    if (selected.value.some((o) => o.id === option.id))
+    if (selected.value.some((o) => o.id === option.id)) {
       selected.value = selected.value.filter((o) => o.id !== option.id)
+    }
     // Add to selection list
-    else selected.value = [...selected.value, option]
+    else {
+      selected.value = [...selected.value, option]
+    }
   } else {
     // Set selection for single select mode
     selected.value = [option]
@@ -111,7 +114,9 @@ function moveActive(dir: 1 | -1) {
 
   // Calculate next index and exit if it's out of bounds
   const nextIdx = activeIdx + dir
-  if (nextIdx < 0 || nextIdx > list.length - 1) return
+  if (nextIdx < 0 || nextIdx > list.length - 1) {
+    return
+  }
 
   active.value = list[nextIdx]
 

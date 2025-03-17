@@ -40,12 +40,16 @@ export const combineRenameDiffs = (diff: Difference[], pathPrefix: string[] = []
     const current = diff[i]
     const next = diff[i + 1]
 
-    if (!current) continue
+    if (!current) {
+      continue
+    }
 
     // Prefix the paths when nested
     if (pathPrefix.length) {
       current.path = [...pathPrefix, ...current.path]
-      if (next) next.path = [...pathPrefix, ...next.path]
+      if (next) {
+        next.path = [...pathPrefix, ...next.path]
+      }
     }
     // Only mutate paths
     else if (current.path[0] !== 'paths') {
@@ -116,17 +120,27 @@ export const findResource = <T>(
 ): T | null => {
   for (const uid of arr) {
     const resource = resources[uid]
-    if (resource && condition(resource)) return resource
+    if (resource && condition(resource)) {
+      return resource
+    }
   }
   return null
 }
 
 /** Helper function to unwrap optional and default schemas */
 const unwrapSchema = (schema: ZodSchema): ZodSchema => {
-  if (schema instanceof z.ZodOptional) return unwrapSchema(schema.unwrap())
-  if (schema instanceof z.ZodDefault) return unwrapSchema(schema._def.innerType)
-  if (schema instanceof z.ZodEffects) return unwrapSchema(schema._def.schema)
-  if (schema instanceof z.ZodCatch) return unwrapSchema(schema._def.innerType)
+  if (schema instanceof z.ZodOptional) {
+    return unwrapSchema(schema.unwrap())
+  }
+  if (schema instanceof z.ZodDefault) {
+    return unwrapSchema(schema._def.innerType)
+  }
+  if (schema instanceof z.ZodEffects) {
+    return unwrapSchema(schema._def.schema)
+  }
+  if (schema instanceof z.ZodCatch) {
+    return unwrapSchema(schema._def.innerType)
+  }
   return schema
 }
 
@@ -200,22 +214,27 @@ export const parseDiff = <T>(
   value: PathValue<T, Path<T>> | undefined
 } | null => {
   const parsedSchema = traverseZodSchema(schema, diff.path)
-  if (!parsedSchema) return null
+  if (!parsedSchema) {
+    return null
+  }
 
   const path = diff.path.join('.') as Path<T>
   const pathMinusOne = diff.path.slice(0, -1).join('.') as Path<T>
 
   // If we are removing, value is undefined
-  if (diff.type === 'REMOVE')
+  if (diff.type === 'REMOVE') {
     return {
       path,
       pathMinusOne,
       value: undefined,
     }
+  }
 
   // Safe parse the value as well
   const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
-  if (!parsedValue) return null
+  if (!parsedValue) {
+    return null
+  }
 
   return {
     path,
@@ -234,7 +253,9 @@ export const mutateCollectionDiff = (
   { activeCollection }: ActiveEntitiesStore,
   { collectionMutators }: WorkspaceStore,
 ): boolean => {
-  if (!activeCollection.value) return false
+  if (!activeCollection.value) {
+    return false
+  }
 
   // We need to handle a special case for arrays, it only adds or removes the last element,
   // the rest are a series of changes
@@ -243,7 +264,9 @@ export const mutateCollectionDiff = (
       ...diff,
       path: diff.path,
     })
-    if (!parsed) return false
+    if (!parsed) {
+      return false
+    }
 
     const oldValue = [...getNestedValue(activeCollection.value, parsed.pathMinusOne)]
     if (diff.type === 'CREATE') {
@@ -256,7 +279,9 @@ export const mutateCollectionDiff = (
   // Non array + array change
   else {
     const parsed = parseDiff(collectionSchema, diff)
-    if (!parsed) return false
+    if (!parsed) {
+      return false
+    }
 
     collectionMutators.edit(activeCollection.value.uid, parsed.path, parsed.value)
   }
@@ -275,11 +300,12 @@ const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
 
   request?.examples.forEach((exampleUid) => {
     const newExample = createExampleFromRequest(request, requestExamples[exampleUid]?.name ?? 'Default')
-    if (newExample)
+    if (newExample) {
       requestExampleMutators.set({
         ...newExample,
         uid: exampleUid,
       })
+    }
   })
 }
 
@@ -291,7 +317,9 @@ export const mutateRequestDiff = (
   { activeCollection }: ActiveEntitiesStore,
   store: WorkspaceStore,
 ): boolean => {
-  if (!activeCollection.value) return false
+  if (!activeCollection.value) {
+    return false
+  }
   const { requests, requestMutators } = store
 
   const [, path, method, ...keys] = diff.path as [
@@ -328,7 +356,9 @@ export const mutateRequestDiff = (
       ...diff,
       path: diff.path.slice(3),
     })
-    if (!request || !parsed) return false
+    if (!request || !parsed) {
+      return false
+    }
 
     // Chop off the path, method and array index
     const oldValue = [...getNestedValue(request, parsed.pathMinusOne)]
@@ -342,7 +372,9 @@ export const mutateRequestDiff = (
     requestMutators.edit(request.uid, parsed.pathMinusOne, oldValue)
 
     // Generate new examples
-    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody') updateRequestExamples(request.uid, store)
+    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody') {
+      updateRequestExamples(request.uid, store)
+    }
   }
 
   // Add
@@ -373,14 +405,16 @@ export const mutateRequestDiff = (
 
     // Add list of UIDs to associate security schemes
     // As per the spec if there is operation level security we ignore the top level requirements
-    if (operationSecurity?.length)
+    if (operationSecurity?.length) {
       requestPayload.security = operationSecurity.map((s) => {
         const _keys = Object.keys(s)
 
         // Handle the case of {} for optional
         if (_keys.length) {
           const [key] = Object.keys(s)
-          if (!key) return s
+          if (!key) {
+            return s
+          }
 
           return {
             [key]: s[key],
@@ -388,10 +422,13 @@ export const mutateRequestDiff = (
         }
         return s
       })
+    }
 
     // Save parse the request
     const request = schemaModel(requestPayload, requestSchema, false)
-    if (!request) return false
+    if (!request) {
+      return false
+    }
 
     requestMutators.add(request, activeCollection.value.uid)
   }
@@ -402,7 +439,9 @@ export const mutateRequestDiff = (
       requests,
       (_request) => _request.path === path && _request.method === method,
     )
-    if (!request) return false
+    if (!request) {
+      return false
+    }
 
     requestMutators.delete(request, activeCollection.value.uid)
   }
@@ -415,12 +454,16 @@ export const mutateRequestDiff = (
     )
 
     const parsed = parseDiff(requestSchema, { ...diff, path: keys })
-    if (!request || !parsed) return false
+    if (!request || !parsed) {
+      return false
+    }
 
     requestMutators.edit(request.uid, parsed.path, parsed.value)
 
     // Update the examples
-    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody') updateRequestExamples(request.uid, store)
+    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody') {
+      updateRequestExamples(request.uid, store)
+    }
   }
 
   return true
@@ -432,19 +475,25 @@ export const mutateServerDiff = (
   { activeCollection }: ActiveEntitiesStore,
   { servers, serverMutators }: WorkspaceStore,
 ): boolean => {
-  if (!activeCollection.value) return false
+  if (!activeCollection.value) {
+    return false
+  }
 
   const [, index, ...keys] = diff.path as ['servers', number, keyof Server]
 
   // Edit: update properties
   if (keys?.length) {
     const serverUid = activeCollection.value.servers[index]
-    if (!serverUid) return false
+    if (!serverUid) {
+      return false
+    }
 
     const server = servers[serverUid]
     const parsed = parseDiff(serverSchema, { ...diff, path: keys })
 
-    if (!server || !parsed) return false
+    if (!server || !parsed) {
+      return false
+    }
 
     const removeVariables = diff.type === 'REMOVE' && keys[keys.length - 1] === 'variables'
     const value = removeVariables ? {} : parsed.value
@@ -453,14 +502,18 @@ export const mutateServerDiff = (
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
-    if (!activeCollection.value.servers[index]) return false
+    if (!activeCollection.value.servers[index]) {
+      return false
+    }
 
     serverMutators.delete(activeCollection.value.servers[index], activeCollection.value.uid)
   }
   // Add whole object
   else if (diff.type === 'CREATE') {
     const parsed = schemaModel(diff.value, serverSchema, false)
-    if (!parsed) return false
+    if (!parsed) {
+      return false
+    }
 
     serverMutators.add(parsed, activeCollection.value.uid)
   }
@@ -473,35 +526,47 @@ export const mutateTagDiff = (
   { activeCollection }: ActiveEntitiesStore,
   { tags, tagMutators }: WorkspaceStore,
 ): boolean => {
-  if (!activeCollection.value) return false
+  if (!activeCollection.value) {
+    return false
+  }
 
   const [, index, ...keys] = diff.path as ['tags', number, ...string[]]
 
   if (keys?.length) {
     const tagUid = activeCollection.value.tags[index]
-    if (!tagUid) return false
+    if (!tagUid) {
+      return false
+    }
 
     const tag = tags[tagUid]
     const parsed = parseDiff(tagSchema, { ...diff, path: keys })
 
-    if (!tag || !parsed) return false
+    if (!tag || !parsed) {
+      return false
+    }
 
     tagMutators.edit(tagUid, parsed.path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
     const tagUid = activeCollection.value.tags[index]
-    if (!tagUid) return false
+    if (!tagUid) {
+      return false
+    }
 
     const tag = tags[tagUid]
-    if (!tag) return false
+    if (!tag) {
+      return false
+    }
 
     tagMutators.delete(tag, activeCollection.value.uid)
   }
   // Add whole object
   else if (diff.type === 'CREATE') {
     const parsed = schemaModel(diff.value, tagSchema, false)
-    if (!parsed) return false
+    if (!parsed) {
+      return false
+    }
 
     tagMutators.add(parsed, activeCollection.value.uid)
   }
@@ -540,7 +605,9 @@ export const mutateSecuritySchemeDiff = (
   { activeCollection }: ActiveEntitiesStore,
   { securitySchemes, securitySchemeMutators }: WorkspaceStore,
 ): boolean => {
-  if (!activeCollection.value) return false
+  if (!activeCollection.value) {
+    return false
+  }
 
   const [, , schemeName, ...keys] = diff.path as ['components', 'securitySchemes', string, ...string[]]
 
@@ -556,21 +623,28 @@ export const mutateSecuritySchemeDiff = (
   if (keys?.length) {
     // Narrows the schema and path based on type of security scheme
     const schema = narrowUnionSchema(securitySchemeSchema, 'type', scheme?.type ?? '')
-    if (!schema || !scheme) return false
+    if (!schema || !scheme) {
+      return false
+    }
     const parsed = parseDiff(schema, { ...diff, path: keys })
-    if (!parsed) return false
+    if (!parsed) {
+      return false
+    }
 
     const path = parsed.path as Path<SecurityScheme>
     securitySchemeMutators.edit(scheme.uid, path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
-    if (!scheme) return false
+    if (!scheme) {
+      return false
+    }
     securitySchemeMutators.delete(scheme.uid)
   }
   // Add whole object
-  else if (diff.type === 'CREATE')
+  else if (diff.type === 'CREATE') {
     securitySchemeMutators.add(securitySchemeSchema.parse(diff.value), activeCollection.value.uid)
+  }
 
   return true
 }

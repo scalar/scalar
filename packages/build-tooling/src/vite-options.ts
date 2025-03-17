@@ -81,7 +81,9 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
   ({
     name: 'autoload-css',
     generateBundle(_, bundle) {
-      if (!(bundle['style.css'] && 'source' in bundle['style.css'])) return
+      if (!(bundle['style.css'] && 'source' in bundle['style.css'])) {
+        return
+      }
 
       const {
         'style.css': { source: css },
@@ -111,6 +113,8 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
         })()`
 
       const component = bundle['index.js'] || bundle['index.cjs'] || bundle['index.mjs']
-      if (component && 'code' in component) component.code += IIFEcss
+      if (component && 'code' in component) {
+        component.code += IIFEcss
+      }
     },
   })

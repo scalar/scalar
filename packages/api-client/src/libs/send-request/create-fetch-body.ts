@@ -9,7 +9,9 @@ import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
  * If so we must allow the user to override the content type header
  */
 export function createFetchBody(method: RequestMethod, example: RequestExample, env: object) {
-  if (!canMethodHaveBody(method)) return { body: undefined, contentType: undefined }
+  if (!canMethodHaveBody(method)) {
+    return { body: undefined, contentType: undefined }
+  }
 
   if (example.body.activeBody === 'formData' && example.body.formData) {
     const contentType =
@@ -19,12 +21,18 @@ export function createFetchBody(method: RequestMethod, example: RequestExample, 
 
     // Build formData
     example.body.formData.value.forEach((entry) => {
-      if (!entry.enabled || !entry.key) return
+      if (!entry.enabled || !entry.key) {
+        return
+      }
 
       // File upload
-      if (entry.file && form instanceof FormData) form.append(entry.key, entry.file, entry.file.name)
+      if (entry.file && form instanceof FormData) {
+        form.append(entry.key, entry.file, entry.file.name)
+      }
       // Text input with variable replacement
-      else if (entry.value !== undefined) form.append(entry.key, replaceTemplateVariables(entry.value, env))
+      else if (entry.value !== undefined) {
+        form.append(entry.key, replaceTemplateVariables(entry.value, env))
+      }
     })
     return { body: form, contentType }
   }

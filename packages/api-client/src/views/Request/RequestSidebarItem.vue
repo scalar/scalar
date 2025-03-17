@@ -86,7 +86,7 @@ const item = computed<SidebarItem>(() => {
   const request = requests[uid]
   const requestExample = requestExamples[uid]
 
-  if (collection)
+  if (collection) {
     return {
       title: collection.info?.title || 'Untitled Collection',
       entity: collection,
@@ -109,15 +109,19 @@ const item = computed<SidebarItem>(() => {
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
         collectionMutators.edit(collection.uid, 'info.title', name)
-        if (icon) collectionMutators.edit(collection.uid, 'x-scalar-icon', icon)
+        if (icon) {
+          collectionMutators.edit(collection.uid, 'x-scalar-icon', icon)
+        }
       },
       delete: () => {
-        if (activeWorkspace.value)
+        if (activeWorkspace.value) {
           collectionMutators.delete(collection, activeWorkspace.value)
+        }
       },
     }
+  }
 
-  if (tag)
+  if (tag) {
     return {
       title: tag.name,
       entity: tag,
@@ -130,8 +134,9 @@ const item = computed<SidebarItem>(() => {
         parentUids[0] &&
         tagMutators.delete(tag, parentUids[0] as Collection['uid']),
     }
+  }
 
-  if (request)
+  if (request) {
     return {
       title: request.summary ?? request.path,
       to: {
@@ -152,8 +157,9 @@ const item = computed<SidebarItem>(() => {
         parentUids[0] &&
         requestMutators.delete(request, parentUids[0] as Collection['uid']),
     }
+  }
 
-  if (requestExample?.requestUid)
+  if (requestExample?.requestUid) {
     return {
       title: requestExample.name,
       to: {
@@ -174,6 +180,7 @@ const item = computed<SidebarItem>(() => {
         requestExampleMutators.edit(requestExample.uid, 'name', name),
       delete: () => requestExampleMutators.delete(requestExample),
     }
+  }
 
   // Catch all item which we should never see
   return {
@@ -199,14 +206,22 @@ const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
-  if (!parentUids.length) return '12px'
-  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
-  else return `${parentUids.length * 12}px`
+  if (!parentUids.length) {
+    return '12px'
+  }
+  if (layout === 'modal') {
+    return `${(parentUids.length - 1) * 12}px`
+  }
+  return `${parentUids.length * 12}px`
 })
 const paddingOffset = computed(() => {
-  if (!parentUids.length) return '0px'
-  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
-  else return `${parentUids.length * 12}px`
+  if (!parentUids.length) {
+    return '0px'
+  }
+  if (layout === 'modal') {
+    return `${(parentUids.length - 1) * 12}px`
+  }
+  return `${parentUids.length * 12}px`
 })
 
 /**
@@ -240,7 +255,9 @@ const getDraggableOffsets = computed(() => {
   let ceiling = 0.5
   let floor = 0.5
 
-  if (!draggableRef.value) return { ceiling, floor }
+  if (!draggableRef.value) {
+    return { ceiling, floor }
+  }
   const { draggingItem } = draggableRef.value
 
   // If hovered over is collection && dragging is not a collection
@@ -263,11 +280,17 @@ const getDraggableOffsets = computed(() => {
 /** Guard to check if an element is able to be dropped on */
 const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   // Cannot drop in read only mode
-  if (layout === 'modal') return false
+  if (layout === 'modal') {
+    return false
+  }
   // RequestExamples cannot be dropped on
-  if (requestExamples[hoveredItem.id]) return false
+  if (requestExamples[hoveredItem.id]) {
+    return false
+  }
   // Collection cannot be dropped into another collection
-  if (collections[draggingItem.id]) return false
+  if (collections[draggingItem.id]) {
+    return false
+  }
 
   return true
 }
@@ -277,8 +300,11 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
     const modifier = getModifiers(['default'])
     const isModifierPressed = modifier.some((key) => event[key])
 
-    if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
-    else if (_item.to) router.push(_item.to)
+    if (isModifierPressed) {
+      emit('newTab', _item.title || '', _item.entity.uid)
+    } else if (_item.to) {
+      router.push(_item.to)
+    }
 
     nextTick(() => events.focusAddressBar.emit())
   }
@@ -319,9 +345,15 @@ function addRequest(entityUid: string) {
 const watchIconColor = computed(() => {
   const { uid: _uid, watchModeStatus } = activeCollection.value || {}
 
-  if (_uid !== item.value.entity.uid) return 'text-c-3'
-  if (watchModeStatus === 'WATCHING') return 'text-c-1'
-  if (watchModeStatus === 'ERROR') return 'text-red'
+  if (_uid !== item.value.entity.uid) {
+    return 'text-c-3'
+  }
+  if (watchModeStatus === 'WATCHING') {
+    return 'text-c-1'
+  }
+  if (watchModeStatus === 'ERROR') {
+    return 'text-red'
+  }
   return 'text-c-3'
 })
 
@@ -339,10 +371,14 @@ const hasDraftRequests = computed(() => {
  */
 const shouldShowItem = computed(() => {
   const request = requests[uid]
-  if (request) return !shouldIgnoreEntity(request)
+  if (request) {
+    return !shouldIgnoreEntity(request)
+  }
 
   const tag = tags[uid]
-  if (tag) return !shouldIgnoreEntity(tag)
+  if (tag) {
+    return !shouldIgnoreEntity(tag)
+  }
 
   return true
 })

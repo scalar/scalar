@@ -14,7 +14,7 @@ describe('ScalarListbox', () => {
         ],
       },
       slots: {
-        default: `<button>Button</button>`,
+        default: '<button>Button</button>',
       },
     })
 

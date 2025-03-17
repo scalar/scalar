@@ -29,7 +29,9 @@ export function schemaModel<T, I = any>(
     console.groupEnd()
   }
 
-  if (throwError && !result.success) throw new Error('Zod validation failure')
+  if (throwError && !result.success) {
+    throw new Error('Zod validation failure')
+  }
 
   return result.data
 }

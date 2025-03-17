@@ -19,7 +19,9 @@ function tryGetInfo(info: any) {
  * Get the base Swagger/OpenAPI details from the given string
  */
 export function getOpenApiDocumentDetails(input: string | null): OpenApiDocumentDetails | undefined {
-  if (!input || isUrl(input)) return undefined
+  if (!input || isUrl(input)) {
+    return undefined
+  }
 
   try {
     const result = json.parse(input ?? '')

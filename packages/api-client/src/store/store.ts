@@ -120,8 +120,12 @@ export const createWorkspaceStore = ({
 
   // Set some defaults on all workspaces
   Object.values(workspaces).forEach(({ uid }) => {
-    if (proxyUrl) workspaceMutators.edit(uid, 'proxyUrl', proxyUrl)
-    if (theme) workspaceMutators.edit(uid, 'themeId', theme)
+    if (proxyUrl) {
+      workspaceMutators.edit(uid, 'proxyUrl', proxyUrl)
+    }
+    if (theme) {
+      workspaceMutators.edit(uid, 'themeId', theme)
+    }
   })
 
   /**
@@ -239,6 +243,8 @@ export const WORKSPACE_SYMBOL = Symbol() as InjectionKey<WorkspaceStore>
  */
 export const useWorkspace = (): WorkspaceStore => {
   const store = inject(WORKSPACE_SYMBOL)
-  if (!store) throw new Error('Workspace store not provided')
+  if (!store) {
+    throw new Error('Workspace store not provided')
+  }
   return store
 }

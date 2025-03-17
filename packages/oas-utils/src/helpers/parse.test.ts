@@ -4,7 +4,7 @@ import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './pa
 
 describe('Handles yaml and json parsing', () => {
   it('Parses basic yaml', () => {
-    expect(yaml.parse(`openapi: 3.0.0`)).toEqual({
+    expect(yaml.parse('openapi: 3.0.0')).toEqual({
       openapi: '3.0.0',
     })
 
@@ -19,7 +19,7 @@ describe('Handles yaml and json parsing', () => {
   })
 
   it('transforms Yaml to JSON', () => {
-    expect(transformToJson(`openapi: 3.0.0`)).toMatchObject(JSON.stringify({ openapi: '3.0.0' }))
+    expect(transformToJson('openapi: 3.0.0')).toMatchObject(JSON.stringify({ openapi: '3.0.0' }))
   })
 })
 

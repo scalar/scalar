@@ -43,7 +43,9 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
   // Create a lowlight instance if not provided
   const lowlight = options?.lowlight ?? createLowlight(languages)
 
-  if (aliases) lowlight.registerAlias(aliases)
+  if (aliases) {
+    lowlight.registerAlias(aliases)
+  }
 
   if (prefix) {
     const pos = prefix.indexOf('-')
@@ -111,15 +113,25 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
 function language(node: Element) {
   const list = node.properties.className
 
-  if (!Array.isArray(list)) return ''
+  if (!Array.isArray(list)) {
+    return ''
+  }
 
   const name: string = list.reduce<string>((result, _item) => {
-    if (result) return result
+    if (result) {
+      return result
+    }
     const item = String(_item)
 
-    if (item === 'no-highlight' || item === 'nohighlight') return 'no-highlight'
-    if (item.slice(0, 5) === 'lang-') return item.slice(5)
-    if (item.slice(0, 9) === 'language-') return item.slice(9)
+    if (item === 'no-highlight' || item === 'nohighlight') {
+      return 'no-highlight'
+    }
+    if (item.slice(0, 5) === 'lang-') {
+      return item.slice(5)
+    }
+    if (item.slice(0, 9) === 'language-') {
+      return item.slice(9)
+    }
 
     return result
   }, '')

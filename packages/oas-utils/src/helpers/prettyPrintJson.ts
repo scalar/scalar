@@ -34,7 +34,7 @@ export function replaceCircularDependencies(content: any) {
 
   return JSON.stringify(
     content,
-    (key, value) => {
+    (_key, value) => {
       if (typeof value === 'object' && value !== null) {
         if (cache.has(value)) {
           return '[Circular]'

@@ -39,31 +39,34 @@ export const convertToHarRequest = ({
   }
 
   // Handle cookies from Cookie header
-  if (cookies.length)
+  if (cookies.length) {
     harRequest.cookies = cookies
       .filter((c) => c.enabled)
       .map(({ key, value }) => ({
         name: key,
         value,
       }))
+  }
 
   // Convert headers
-  if (headers.length)
+  if (headers.length) {
     harRequest.headers = headers
       .filter((h) => h.enabled && !(h.key.toLowerCase() === 'accept' && h.value === '*/*'))
       .map(({ key, value }) => ({
         name: key.replace(/\b\w/g, (letter) => letter.toUpperCase()),
         value,
       }))
+  }
 
   // Handle query parameters
-  if (query.length)
+  if (query.length) {
     harRequest.queryString = query
       .filter((q) => q.enabled)
       .map(({ key, value }) => ({
         name: key,
         value,
       }))
+  }
 
   // Handle request body if present
   if (body) {
@@ -75,7 +78,9 @@ export const convertToHarRequest = ({
         const formDataObject: Record<string, any> = {}
 
         body.formData.value.forEach(({ key, value, file, enabled }) => {
-          if (!enabled) return
+          if (!enabled) {
+            return
+          }
 
           if (file) {
             formDataObject[key] = {
@@ -91,7 +96,9 @@ export const convertToHarRequest = ({
           else {
             // If key already exists, make an array and append
             if (formDataObject[key]) {
-              if (!Array.isArray(formDataObject[key])) formDataObject[key] = [formDataObject[key]]
+              if (!Array.isArray(formDataObject[key])) {
+                formDataObject[key] = [formDataObject[key]]
+              }
 
               formDataObject[key].push(value)
             }
@@ -121,7 +128,7 @@ export const convertToHarRequest = ({
           text: body.raw?.value ?? '',
         }
       }
-    } catch (e) {
+    } catch (_e) {
       // Invalid request body, leave postData empty
     }
   }

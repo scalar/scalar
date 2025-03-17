@@ -26,7 +26,9 @@ export const ApiReferenceReact = (props: { configuration: MultiReferenceConfigur
       : { _integration: 'react' as const, ...props.configuration }
 
   useEffect(() => {
-    if (!el.current) return reference?.app?.unmount
+    if (!el.current) {
+      return reference?.app?.unmount
+    }
 
     const instance = createApiReference(el.current, addIntegration())
     setReference(instance)

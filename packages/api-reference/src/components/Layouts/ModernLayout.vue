@@ -31,7 +31,9 @@ const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
-  if (oldValue && !newValue) isSidebarOpen.value = false
+  if (oldValue && !newValue) {
+    isSidebarOpen.value = false
+  }
 })
 
 const { hash } = useNavState()

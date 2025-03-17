@@ -12,7 +12,9 @@ const emit = defineEmits<{
 }>()
 
 function toggle() {
-  if (props.disabled) return
+  if (props.disabled) {
+    return
+  }
   emit('update:modelValue', !props.modelValue)
 }
 

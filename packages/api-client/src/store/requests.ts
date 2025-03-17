@@ -46,7 +46,9 @@ export function extendedRequestDataFactory(
   /** Add request */
   const addRequest = (payload: RequestPayload, collectionUid: Collection['uid']) => {
     const request = schemaModel(payload, requestSchema, false)
-    if (!request) return console.error('INVALID REQUEST DATA', payload)
+    if (!request) {
+      return console.error('INVALID REQUEST DATA', payload)
+    }
 
     const collection = collections[collectionUid]
 
@@ -69,16 +71,23 @@ export function extendedRequestDataFactory(
     }
 
     // Add to the tags
-    if (request.tags?.length)
+    if (request.tags?.length) {
       request.tags.forEach((tagName) => {
         const tagUid = collection?.tags.find((uid) => tags[uid]?.name === tagName)
 
-        if (tagUid && tags[tagUid]) tagMutators.edit(tagUid, 'children', [...tags[tagUid].children, request.uid])
+        if (tagUid && tags[tagUid]) {
+          tagMutators.edit(tagUid, 'children', [...tags[tagUid].children, request.uid])
+        }
         // We must add a new tag
-        else addTag({ name: tagName, children: [request.uid] }, collectionUid)
+        else {
+          addTag({ name: tagName, children: [request.uid] }, collectionUid)
+        }
       })
+    }
     // Add to the collection children if no tags
-    else if (collection) collectionMutators.edit(collectionUid, 'children', [...collection.children, request.uid])
+    else if (collection) {
+      collectionMutators.edit(collectionUid, 'children', [...collection.children, request.uid])
+    }
 
     return request
   }
@@ -108,7 +117,9 @@ export function extendedRequestDataFactory(
       // And from all tags
       request.tags?.forEach((tagName) => {
         const tagUid = collection.tags.find((uid) => tags[uid]?.name === tagName)
-        if (!tagUid) return
+        if (!tagUid) {
+          return
+        }
 
         tagMutators.edit(tagUid, 'children', tags[tagUid]?.children.filter((r) => r !== request.uid) || [])
       })
@@ -136,7 +147,9 @@ export function findRequestParentsFactory({
   /** Recursively find all parent folders (tags and collections) of a request */
   function findRequestParentss(r: Request) {
     const collection = Object.values(collections).find((c) => c.requests?.includes(r.uid))
-    if (!collection) return []
+    if (!collection) {
+      return []
+    }
 
     // Initialized an empty children array for each tag and once for the top level collection
     const tagChildren = Object.keys(tags).reduce<Record<string, string[]>>(
@@ -154,7 +167,9 @@ export function findRequestParentsFactory({
       // tagChildren[current.uid].push(...current.children)
 
       current.children.forEach((t) => {
-        if (tags[t]) addChildren(tags[t], [...parentUids, t])
+        if (tags[t]) {
+          addChildren(tags[t], [...parentUids, t])
+        }
       })
     }
     addChildren(collection, [collection.uid])
@@ -164,7 +179,9 @@ export function findRequestParentsFactory({
 
     // Anytime a tag has the request somewhere in its tree we make it open
     Object.entries(tagChildren).forEach(([tagUid, totalChildren]) => {
-      if (totalChildren.includes(r.uid)) parents.add(tagUid)
+      if (totalChildren.includes(r.uid)) {
+        parents.add(tagUid)
+      }
     })
     return [...parents]
   }

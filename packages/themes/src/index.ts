@@ -112,7 +112,9 @@ type GetThemeOpts = {
  * Get the theme CSS for a given theme ID.
  */
 export const getThemeById = (themeId?: ThemeId) => {
-  if (themeId === 'none') return ''
+  if (themeId === 'none') {
+    return ''
+  }
 
   return presets[themeId || 'default'] ?? defaultTheme
 }
@@ -127,7 +129,9 @@ export const getThemeStyles = (themeId?: ThemeId, opts?: GetThemeOpts) => {
   const styles = [getThemeById(themeId), fonts ? defaultFonts : ''].join('')
 
   // Wrap the styles in a layer if configured
-  if (layer) return `@layer ${layer} {\n${styles}}`
+  if (layer) {
+    return `@layer ${layer} {\n${styles}}`
+  }
   return styles
 }
 

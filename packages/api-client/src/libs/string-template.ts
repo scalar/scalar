@@ -27,7 +27,9 @@ export function replaceTemplateVariables(templateString: string, context: object
 
     const value = getDotPathValue(key, context)
     // value can be an empty string but not null or undefined
-    if (value !== null && value !== undefined) substitutedString = substitutedString.replaceAll(m, value)
+    if (value !== null && value !== undefined) {
+      substitutedString = substitutedString.replaceAll(m, value)
+    }
   })
 
   return substitutedString

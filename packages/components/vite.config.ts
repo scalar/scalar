@@ -1,6 +1,6 @@
 import { createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
-import { fileURLToPath } from 'url'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 import { configDefaults } from 'vitest/config'

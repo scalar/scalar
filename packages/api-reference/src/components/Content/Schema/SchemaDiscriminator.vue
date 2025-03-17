@@ -80,7 +80,9 @@ const mergeAllOfSchemas = (schemas: any[]) => {
 
 // Get model name from schema
 const getModelNameFromSchema = (schema: any): string | null => {
-  if (!schema) return null
+  if (!schema) {
+    return null
+  }
 
   // returns a matching schema name based on the schema object
   if (props.schemas && typeof props.schemas === 'object') {

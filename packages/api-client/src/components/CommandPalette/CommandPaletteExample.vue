@@ -61,7 +61,9 @@ const handleSubmit = () => {
     exampleName.value,
   )
 
-  if (!example) return
+  if (!example) {
+    return
+  }
 
   // Go to new request example
   push({

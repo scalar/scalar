@@ -17,7 +17,9 @@ const emit = defineEmits<{
 const { securitySchemeMutators } = useWorkspace()
 
 const deleteScheme = () => {
-  if (props.scheme?.id) securitySchemeMutators.delete(props.scheme.id)
+  if (props.scheme?.id) {
+    securitySchemeMutators.delete(props.scheme.id)
+  }
   emit('delete')
 }
 </script>

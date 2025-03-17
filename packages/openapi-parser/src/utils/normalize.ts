@@ -21,7 +21,7 @@ export function normalize(specification: string | UnknownObject | Filesystem): U
 
     try {
       return JSON.parse(specification)
-    } catch (error) {
+    } catch (_error) {
       return parse(specification, {
         maxAliasCount: 10000,
       })

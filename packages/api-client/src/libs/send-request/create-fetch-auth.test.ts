@@ -23,7 +23,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -50,7 +52,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -77,7 +81,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -104,7 +110,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['basic-auth'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -133,7 +141,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['bearer-auth'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -170,7 +180,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: [['bearer-auth', 'api-key']] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -206,7 +218,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['oauth2-auth'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     const [requestError, result] = await requestOperation.sendRequest()
 
@@ -245,7 +259,9 @@ describe('authentication', () => {
       },
       selectedSecuritySchemeUids: ['oauth2-auth'] as SelectedSecuritySchemeUids,
     })
-    if (error) throw error
+    if (error) {
+      throw error
+    }
 
     expect(requestOperation.request.headers.get('Authorization')).toEqual('Bearer header-token')
   })

@@ -35,7 +35,6 @@ const {
   activeCollection: _activeCollection,
   activeEnvVariables,
   activeEnvironment,
-  activeServer: _activeServer,
   activeWorkspace,
 } = useActiveEntities()
 
@@ -43,18 +42,24 @@ const {
 const activeCollection = computed(() => {
   if (config.value.slug) {
     const collection = collections[getSlugUid(config.value.slug)]
-    if (collection) return collection
+    if (collection) {
+      return collection
+    }
   }
   return _activeCollection.value
 })
 
 /** Ensure the server is the one selected in the collection */
 const activeServer = computed(() => {
-  if (!activeCollection.value) return undefined
+  if (!activeCollection.value) {
+    return undefined
+  }
 
   if (activeCollection.value.selectedServerUid) {
     const server = servers[activeCollection.value.selectedServerUid]
-    if (server) return server
+    if (server) {
+      return server
+    }
   }
 
   return servers[activeCollection.value.servers[0]]

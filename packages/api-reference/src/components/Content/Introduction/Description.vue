@@ -48,7 +48,9 @@ const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
   useNavState()
 
 function handleScroll(headingId = '') {
-  if (!isIntersectionEnabled.value) return
+  if (!isIntersectionEnabled.value) {
+    return
+  }
 
   replaceUrlState(headingId)
 }

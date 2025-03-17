@@ -58,7 +58,9 @@ export const getSchemeOptions = (
     const schemeDict = collectionSchemeUids.reduce(
       (acc, uid) => {
         const scheme = securitySchemes[uid]
-        if (scheme) acc[scheme.nameKey] = scheme
+        if (scheme) {
+          acc[scheme.nameKey] = scheme
+        }
         return acc
       },
       {} as Record<string, DisplayScheme>,
@@ -76,7 +78,9 @@ export const getSchemeOptions = (
       // Simple auth
       if (keys[0]) {
         const scheme = schemeDict[keys[0]]
-        if (scheme) return formatScheme(scheme)
+        if (scheme) {
+          return formatScheme(scheme)
+        }
       }
 
       return []
@@ -87,7 +91,9 @@ export const getSchemeOptions = (
       .filter((uid) => !requiredFormatted.some((r) => r.id === uid))
       .map((uid) => {
         const scheme = securitySchemes[uid]
-        if (scheme) return formatScheme(scheme)
+        if (scheme) {
+          return formatScheme(scheme)
+        }
         return null
       })
       .filter(isDefined)
@@ -97,7 +103,9 @@ export const getSchemeOptions = (
       { label: 'Available authentication', options: availableFormatted },
     ]
 
-    if (isReadOnly) return requiredFormatted.length ? options : availableFormatted
+    if (isReadOnly) {
+      return requiredFormatted.length ? options : availableFormatted
+    }
 
     options.push({
       label: 'Add new authentication',

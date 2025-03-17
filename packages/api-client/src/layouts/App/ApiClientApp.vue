@@ -51,7 +51,9 @@ const handleKeyDown = (ev: KeyboardEvent) =>
   handleHotKeyDown(ev, events.hotKeys, { hotKeys })
 
 const handleHotKey = (event?: HotKeyEvent) => {
-  if (!event) return
+  if (!event) {
+    return
+  }
 
   // We prevent default on open command so we can use it on the web
   if (event.openCommandPalette) {

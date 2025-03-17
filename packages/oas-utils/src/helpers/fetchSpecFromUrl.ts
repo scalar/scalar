@@ -36,6 +36,8 @@ export async function fetchSpecFromUrl(url: string, proxy?: string, beautify = t
   }
 
   // If it’s JSON, make it pretty
-  if (beautify) return formatJsonOrYamlString(await response.text())
-  else return await response.text()
+  if (beautify) {
+    return formatJsonOrYamlString(await response.text())
+  }
+  return await response.text()
 }

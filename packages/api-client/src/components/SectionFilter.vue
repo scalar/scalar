@@ -29,7 +29,9 @@ const navigateSection = (direction: 'next' | 'prev') => {
       const selectedButton = tablist.value.querySelector(
         `button[aria-selected="true"]`,
       ) satisfies HTMLButtonElement | null
-      if (selectedButton) selectedButton.focus()
+      if (selectedButton) {
+        selectedButton.focus()
+      }
     }
   })
 }

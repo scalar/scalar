@@ -33,31 +33,42 @@ const signNumber = (operator: PrefixUnaryOperator, operand: UnaryExpression) =>
  * method. However when dealing with non constant values we can no longer use the type to generate the schema
  */
 export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPIV3_1.SchemaObject => {
-  if (!node) throw 'A node must be provided to the getSchemaFromNode function'
+  if (!node) {
+    throw 'A node must be provided to the getSchemaFromNode function'
+  }
 
   // As expression
-  if (isAsExpression(node)) return getSchemaFromNode(node.expression, typeChecker)
+  if (isAsExpression(node)) {
+    return getSchemaFromNode(node.expression, typeChecker)
+  }
   // String literal
-  if (isStringLiteral(node))
+  if (isStringLiteral(node)) {
     return {
       type: 'string',
       example: node.text,
     }
+  }
   // Number
-  if (isNumericLiteral(node))
+  if (isNumericLiteral(node)) {
     return {
       type: 'number',
       example: Number(node.text),
     }
+  }
   // BigInt
-  if (isBigIntLiteral(node)) return { type: 'integer', example: node.text }
+  if (isBigIntLiteral(node)) {
+    return { type: 'integer', example: node.text }
+  }
   // Boolean and null
   if (isLiteralTypeLiteral(node)) {
     // Boolean
-    if (SyntaxKind.FalseKeyword === node.kind || SyntaxKind.TrueKeyword === node.kind)
+    if (SyntaxKind.FalseKeyword === node.kind || SyntaxKind.TrueKeyword === node.kind) {
       return { type: 'boolean', example: SyntaxKind.TrueKeyword === node.kind }
+    }
     // Null
-    if (SyntaxKind.NullKeyword === node.kind) return { type: 'null', example: null }
+    if (SyntaxKind.NullKeyword === node.kind) {
+      return { type: 'null', example: null }
+    }
     // Negative nums
     if (isPrefixUnaryExpression(node)) {
       return {
@@ -70,11 +81,12 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
   // Identifier
   else if (isIdentifier(node)) {
     const text = node.escapedText
-    if (text === 'undefined')
+    if (text === 'undefined') {
       return {
         type: 'string',
         description: 'This value was undefined',
       }
+    }
     // Grab the type of the variable
 
     const symbol = typeChecker.getSymbolAtLocation(node)
@@ -87,21 +99,26 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
           isVariableDeclaration(declaration) && isIdentifier(declaration.name) && declaration.name.escapedText === text,
       ) as VariableDeclaration
 
-      if (varDeclaration.initializer) return getSchemaFromNode(varDeclaration.initializer, typeChecker)
+      if (varDeclaration.initializer) {
+        return getSchemaFromNode(varDeclaration.initializer, typeChecker)
+      }
     }
   }
   // Array
-  else if (isArrayLiteralExpression(node))
+  else if (isArrayLiteralExpression(node)) {
     return {
       type: 'array',
       example: node.elements.map((elem) => getSchemaFromNode(elem, typeChecker).example),
       // Not sure how the spec handles mixed arrays
       items: node.elements.map((element) => getSchemaFromNode(element, typeChecker))[0],
     }
+  }
   // Property assignment
-  else if (isPropertyAssignment(node)) return getSchemaFromNode(node.initializer, typeChecker)
+  else if (isPropertyAssignment(node)) {
+    return getSchemaFromNode(node.initializer, typeChecker)
+  }
   // Object
-  else if (isObjectLiteralExpression(node))
+  else if (isObjectLiteralExpression(node)) {
     return {
       type: 'object',
       properties: node.properties.reduce((prev, property) => {
@@ -112,14 +129,16 @@ export const getSchemaFromNode = (node: Node, typeChecker: TypeChecker): OpenAPI
         }
       }, {}),
     }
+  }
   // Call expression
   else if (isCallExpression(node)) {
     // BigInt
-    if (isIdentifier(node.expression) && node.expression.escapedText === 'BigInt')
+    if (isIdentifier(node.expression) && node.expression.escapedText === 'BigInt') {
       return {
         type: 'integer',
         example: node.arguments[0].getText() + 'n',
       }
+    }
   }
 
   // To be added/handled

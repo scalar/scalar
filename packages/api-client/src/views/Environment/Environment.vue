@@ -208,7 +208,9 @@ function removeCollectionEnvironment(environmentName: string) {
         remainingCollectionEnvironments.length - 1
       ]
 
-    if (!lastCollectionEnvironment) return
+    if (!lastCollectionEnvironment) {
+      return
+    }
 
     const currentCollection = activeWorkspaceCollections.value.find(
       (collection) =>

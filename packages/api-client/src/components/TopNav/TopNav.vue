@@ -142,7 +142,9 @@ function removeNavItem(idx: number) {
 }
 
 const copyUrl = (idx: number) => {
-  if (!topNavItems[idx]?.path) return
+  if (!topNavItems[idx]?.path) {
+    return
+  }
 
   const fullUrl = new URL(window.location.href)
   fullUrl.pathname = topNavItems[idx].path
@@ -158,20 +160,30 @@ const closeOtherTabs = (idx: number) => {
 
 /** Handle hotkeys */
 const handleHotKey = (event?: HotKeyEvent) => {
-  if (!event) return
-  if (event.addTopNav) addNavItem()
-  if (event.closeTopNav) removeNavItem(activeNavItemIdx.value)
-  if (event.navigateTopNavLeft)
+  if (!event) {
+    return
+  }
+  if (event.addTopNav) {
+    addNavItem()
+  }
+  if (event.closeTopNav) {
+    removeNavItem(activeNavItemIdx.value)
+  }
+  if (event.navigateTopNavLeft) {
     setNavItemIdx(Math.max(activeNavItemIdx.value - 1, 0))
-  if (event.navigateTopNavRight)
+  }
+  if (event.navigateTopNavRight) {
     setNavItemIdx(Math.min(activeNavItemIdx.value + 1, topNavItems.length - 1))
+  }
   if (event.jumpToTab) {
     const tabIndex = Number(event.jumpToTab.key) - 1
     if (tabIndex >= 0 && tabIndex < topNavItems.length) {
       setNavItemIdx(tabIndex)
     }
   }
-  if (event.jumpToLastTab) setNavItemIdx(topNavItems.length - 1)
+  if (event.jumpToLastTab) {
+    setNavItemIdx(topNavItems.length - 1)
+  }
 }
 
 const addTopNavTab = (item: { name: string; uid: string }) => {

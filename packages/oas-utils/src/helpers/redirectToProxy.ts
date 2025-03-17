@@ -39,13 +39,19 @@ export const isRelativePath = (url: string) => {
 /** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
 export function shouldUseProxy(proxy?: string, url?: string): boolean {
   // No proxy or url
-  if (!proxy || !url) return false
+  if (!proxy || !url) {
+    return false
+  }
 
   // Relative URLs
-  if (isRelativePath(url)) return false
+  if (isRelativePath(url)) {
+    return false
+  }
 
   // Requests to localhost
-  if (isLocalUrl(url)) return false
+  if (isLocalUrl(url)) {
+    return false
+  }
 
   return true
 }

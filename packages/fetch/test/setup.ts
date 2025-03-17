@@ -28,13 +28,17 @@ export const restHandlers = [
   }),
   http.post('https://rest-endpoint.example/posts', async ({ request }) => {
     const errorResponse = handleAuth(request)
-    if (errorResponse) return errorResponse
+    if (errorResponse) {
+      return errorResponse
+    }
 
     return HttpResponse.json(posts)
   }),
   http.get('https://rest-endpoint.example/object-fetch', async ({ request }) => {
     const errorResponse = handleAuth(request)
-    if (errorResponse) return errorResponse
+    if (errorResponse) {
+      return errorResponse
+    }
 
     const url = new URL(request.url)
     // Read the "id" URL query parameter using the "URLSearchParams" API.
@@ -49,7 +53,9 @@ export const restHandlers = [
   }),
   http.get('https://rest-endpoint.example/object-fetch/:id', async ({ request, params }) => {
     const errorResponse = handleAuth(request)
-    if (errorResponse) return errorResponse
+    if (errorResponse) {
+      return errorResponse
+    }
 
     const response = posts.find((post) => post.id === Number(params.id))
     if (!response) {
@@ -59,7 +65,9 @@ export const restHandlers = [
   }),
   http.post('https://rest-endpoint.example/object-fetch', async ({ request }) => {
     const errorResponse = handleAuth(request)
-    if (errorResponse) return errorResponse
+    if (errorResponse) {
+      return errorResponse
+    }
 
     const data = await request.json()
     if (!data || typeof data !== 'object' || !('title' in data)) {

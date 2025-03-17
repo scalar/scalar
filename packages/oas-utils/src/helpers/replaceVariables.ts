@@ -12,9 +12,8 @@ export function replaceVariables(
   const callback = (_: string, match: string): string => {
     if (typeof variablesOrCallback === 'function') {
       return variablesOrCallback(match)
-    } else {
-      return variablesOrCallback[match]?.toString() || `{${match}}`
     }
+    return variablesOrCallback[match]?.toString() || `{${match}}`
   }
 
   // Loop through all matches and replace the match with the variable value

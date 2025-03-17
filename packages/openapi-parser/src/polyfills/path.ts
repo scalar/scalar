@@ -68,7 +68,8 @@ export function resolve(...parameters) {
     // Skip empty and invalid entries
     if (typeof path !== 'string') {
       throw new TypeError('Arguments to path.resolve must be strings')
-    } else if (!path) {
+    }
+    if (!path) {
       continue
     }
 
@@ -118,7 +119,7 @@ export function isAbsolute(path) {
 // posix version
 export function join(...paths: string[]) {
   return normalize(
-    filter(paths, (p, index) => {
+    filter(paths, (p, _index) => {
       if (typeof p !== 'string') {
         throw new TypeError('Arguments to path.join must be strings')
       }
@@ -136,15 +137,21 @@ export function relative(from, to) {
   function trim(arr) {
     let start = 0
     for (; start < arr.length; start++) {
-      if (arr[start] !== '') break
+      if (arr[start] !== '') {
+        break
+      }
     }
 
     let end = arr.length - 1
     for (; end >= 0; end--) {
-      if (arr[end] !== '') break
+      if (arr[end] !== '') {
+        break
+      }
     }
 
-    if (start > end) return []
+    if (start > end) {
+      return []
+    }
     return arr.slice(start, end - start + 1)
   }
 
@@ -217,10 +224,14 @@ export default {
   resolve: resolve,
 }
 function filter(xs, f) {
-  if (xs.filter) return xs.filter(f)
+  if (xs.filter) {
+    return xs.filter(f)
+  }
   const res = []
   for (let i = 0; i < xs.length; i++) {
-    if (f(xs[i], i, xs)) res.push(xs[i])
+    if (f(xs[i], i, xs)) {
+      res.push(xs[i])
+    }
   }
   return res
 }
@@ -230,6 +241,8 @@ const substr =
   'ab'.substr(-1) === 'b'
     ? (str, start, len) => str.substr(start, len)
     : (str, start, len) => {
-        if (start < 0) start = str.length + start
+        if (start < 0) {
+          start = str.length + start
+        }
         return str.substr(start, len)
       }

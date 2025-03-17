@@ -60,7 +60,9 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   const currentParams = params.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
-    if (!updatedParams[rowIdx]) return
+    if (!updatedParams[rowIdx]) {
+      return
+    }
 
     updatedParams[rowIdx] = { ...updatedParams[rowIdx], [field]: value }
 
@@ -93,7 +95,9 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
     /** focus the new row */
     nextTick(() => {
-      if (!tableWrapperRef.value) return
+      if (!tableWrapperRef.value) {
+        return
+      }
       const inputs = tableWrapperRef.value.querySelectorAll('input')
       const inputsIndex = field === 'key' ? 0 : 1
       inputs[inputsIndex]?.focus()
@@ -150,7 +154,9 @@ const showTooltip = computed(() => params.value.length > 1)
 watch(
   () => example,
   (newVal, oldVal) => {
-    if (newVal !== oldVal) defaultRow()
+    if (newVal !== oldVal) {
+      defaultRow()
+    }
   },
   { immediate: true },
 )

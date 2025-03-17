@@ -223,7 +223,9 @@ export function getContentOfScriptTag(html: string): string | undefined {
   for (const pattern of patterns) {
     const match = html.match(pattern)
 
-    if (match?.[1]) return match[1].trim()
+    if (match?.[1]) {
+      return match[1].trim()
+    }
   }
 
   return undefined
@@ -290,7 +292,9 @@ export function getConfigurationAttribute(html: string): string | undefined {
 /** Grab the URL from the configuration data attribute */
 export const getConfigurationAttributeUrl = (html: string): string | undefined => {
   const configString = getConfigurationAttribute(html)
-  if (!configString) return undefined
+  if (!configString) {
+    return undefined
+  }
 
   const config = JSON.parse(decodeHtmlEntities(configString))
   return config.url || config.spec?.url
@@ -301,7 +305,9 @@ export const getConfigurationAttributeUrl = (html: string): string | undefined =
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
   const configString = getConfigurationAttribute(html)
-  if (!configString) return undefined
+  if (!configString) {
+    return undefined
+  }
 
   try {
     const config = JSON.parse(decodeHtmlEntities(configString))

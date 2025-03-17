@@ -122,7 +122,9 @@ if (props.configuration.redirect && typeof window !== 'undefined') {
   const newPath = props.configuration.redirect(
     (pathRouting.value ? window.location.pathname : '') + window.location.hash,
   )
-  if (newPath) history.replaceState({}, '', newPath)
+  if (newPath) {
+    history.replaceState({}, '', newPath)
+  }
 }
 
 // Ideally this triggers absolutely first on the client so we can set hash value
@@ -135,7 +137,9 @@ const scrollToSection = async (id?: string) => {
 
   if (id) {
     scrollToOperation(id)
-  } else documentEl.value?.scrollTo(0, 0)
+  } else {
+    documentEl.value?.scrollTo(0, 0)
+  }
 
   await sleep(100)
   isIntersectionEnabled.value = true
@@ -208,7 +212,9 @@ watch(() => props.parsedSpec, setParsedSpec, { deep: true })
 // Initialize the server state
 onServerPrefetch(() => {
   const ctx = useSSRContext<SSRState>()
-  if (!ctx) return
+  if (!ctx) {
+    return
+  }
 
   ctx.payload ||= { data: defaultStateFactory() }
   ctx.payload.data ||= defaultStateFactory()
@@ -222,15 +228,18 @@ onServerPrefetch(() => {
     // For sidebar items we need to reset the state as it persists between requests
     // This is a temp hack, need to come up with a better solution
     for (const key in collapsedSidebarItems) {
-      if (Object.hasOwn(collapsedSidebarItems, key))
+      if (Object.hasOwn(collapsedSidebarItems, key)) {
         delete collapsedSidebarItems[key]
+      }
     }
 
     if (id) {
       setCollapsedSidebarItem(getSectionId(id), true)
     } else {
       const firstTag = props.parsedSpec.tags?.[0]
-      if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+      if (firstTag) {
+        setCollapsedSidebarItem(getTagId(firstTag), true)
+      }
     }
     ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
       collapsedSidebarItems
@@ -287,7 +296,9 @@ function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
   watch(
     () => configuration.value[key],
     (newValue) => {
-      if (typeof newValue !== 'undefined') setter(newValue)
+      if (typeof newValue !== 'undefined') {
+        setter(newValue)
+      }
     },
     { immediate: true },
   )

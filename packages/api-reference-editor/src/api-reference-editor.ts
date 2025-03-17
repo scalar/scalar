@@ -45,7 +45,9 @@ export function mountApiReferenceEditable(
   // Attempt to mount if an element is provided
   if (elementOrSelector) {
     const el = typeof elementOrSelector === 'string' ? document.querySelector(elementOrSelector) : elementOrSelector
-    if (el) mount(elementOrSelector)
+    if (el) {
+      mount(elementOrSelector)
+    }
   }
 
   return {

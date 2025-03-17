@@ -67,8 +67,9 @@ const parentId = computed(() => parentIds.at(-1) ?? null)
 
 // Start draggin, we want to store the uid + parentUid
 const onDragStart = (ev: DragEvent) => {
-  if (!ev.dataTransfer || !(ev.target instanceof HTMLElement) || !isDraggable)
+  if (!ev.dataTransfer || !(ev.target instanceof HTMLElement) || !isDraggable) {
     return
+  }
 
   ev.target.classList.add('dragging')
   ev.dataTransfer.dropEffect = 'move'
@@ -96,8 +97,9 @@ const onDragOver = throttle((ev: DragEvent) => {
     !draggingItem.value ||
     draggingItem.value.id === id ||
     parentIds.includes(draggingItem.value?.id ?? '')
-  )
+  ) {
     return
+  }
 
   const previousOffset = hoveredItem.value?.offset
   const height = (ev.target as HTMLDivElement).offsetHeight
@@ -123,7 +125,9 @@ const onDragOver = throttle((ev: DragEvent) => {
   }
 
   // Hover guard
-  if (!_isDroppable(offset)) return
+  if (!_isDroppable(offset)) {
+    return
+  }
 
   hoveredItem.value = { id: id, parentId: parentId.value, offset }
 }, 25)
@@ -141,7 +145,9 @@ const containerClass = computed(() => {
 })
 
 const onDragEnd = () => {
-  if (!hoveredItem.value || !draggingItem.value) return
+  if (!hoveredItem.value || !draggingItem.value) {
+    return
+  }
 
   const _draggingItem = { ...draggingItem.value }
   const _hoveredItem = { ...hoveredItem.value }
@@ -153,7 +159,9 @@ const onDragEnd = () => {
     .querySelectorAll('div.dragging')
     .forEach((el) => el.classList.remove('dragging'))
 
-  if (_draggingItem.id === _hoveredItem.id) return
+  if (_draggingItem.id === _hoveredItem.id) {
+    return
+  }
 
   emit('onDragEnd', _draggingItem, _hoveredItem)
 }

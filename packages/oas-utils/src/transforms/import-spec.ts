@@ -63,7 +63,9 @@ export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = t
   const { specification } = upgrade(filesystem)
   const { schema, errors: derefErrors = [] } = await dereference(specification)
 
-  if (!schema) console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')
+  if (!schema) {
+    console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')
+  }
   return {
     /**
      * Temporary fix for the parser returning an empty array
@@ -144,7 +146,9 @@ export async function importSpecToWorkspace(
   const { schema, errors } = await parseSchema(spec, { shouldLoad })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
-  if (!schema) return { importWarnings, error: true, collection: undefined }
+  if (!schema) {
+    return { importWarnings, error: true, collection: undefined }
+  }
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const start = performance.now()
@@ -188,7 +192,9 @@ export async function importSpecToWorkspace(
         const flowKeys = Object.keys(payload.flows) as Array<keyof typeof payload.flows>
 
         flowKeys.forEach((key) => {
-          if (!payload.flows?.[key]) return
+          if (!payload.flows?.[key]) {
+            return
+          }
           const flow = payload.flows[key] as Oauth2FlowPayload
 
           // Set the type
@@ -196,7 +202,9 @@ export async function importSpecToWorkspace(
 
           // Prefill values from authorization config
           if (authentication?.oAuth2) {
-            if (authentication.oAuth2.accessToken) flow.token = authentication.oAuth2.accessToken
+            if (authentication.oAuth2.accessToken) {
+              flow.token = authentication.oAuth2.accessToken
+            }
 
             if (flow.type === 'password') {
               flow.username = authentication.oAuth2.username
@@ -209,16 +217,22 @@ export async function importSpecToWorkspace(
           }
 
           // Convert scopes to an object
-          if (Array.isArray(flow.scopes)) flow.scopes = flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
+          if (Array.isArray(flow.scopes)) {
+            flow.scopes = flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
+          }
 
           // Handle x-defaultClientId
-          if (flow['x-defaultClientId']) flow['x-scalar-client-id'] = flow['x-defaultClientId']
+          if (flow['x-defaultClientId']) {
+            flow['x-scalar-client-id'] = flow['x-defaultClientId']
+          }
         })
       }
       // Otherwise we just prefill
       else if (authentication) {
         // ApiKey
-        if (payload.type === 'apiKey' && authentication.apiKey?.token) payload.value = authentication.apiKey.token
+        if (payload.type === 'apiKey' && authentication.apiKey?.token) {
+          payload.value = authentication.apiKey.token
+        }
         // HTTP
         else if (payload.type === 'http') {
           if (payload.scheme === 'basic' && authentication.http?.basic) {
@@ -239,7 +253,9 @@ export async function importSpecToWorkspace(
       }
 
       const scheme = schemaModel(payload, securitySchemeSchema, false)
-      if (!scheme) importWarnings.push(`Security scheme ${nameKey} is invalid.`)
+      if (!scheme) {
+        importWarnings.push(`Security scheme ${nameKey} is invalid.`)
+      }
 
       return scheme
     })
@@ -257,7 +273,9 @@ export async function importSpecToWorkspace(
   keysOf(schema.paths ?? {}).forEach((pathString) => {
     const path = schema?.paths?.[pathString]
 
-    if (!path) return
+    if (!path) {
+      return
+    }
     // Path level servers must be saved
     const pathServers = serverSchema.array().parse(path.servers ?? [])
     servers.push(...pathServers)
@@ -322,7 +340,7 @@ export async function importSpecToWorkspace(
 
       // Add list of UIDs to associate security schemes
       // As per the spec if there is operation level security we ignore the top level requirements
-      if (operationSecurity?.length)
+      if (operationSecurity?.length) {
         requestPayload.security = operationSecurity.map((s: OpenAPIV3_1.SecurityRequirementObject) => {
           const keys = Object.keys(s)
 
@@ -335,12 +353,16 @@ export async function importSpecToWorkspace(
           }
           return s
         })
+      }
 
       // Save parse the request
       const request = schemaModel(requestPayload, requestSchema, false)
 
-      if (!request) importWarnings.push(`${method} Request at ${path} is invalid.`)
-      else requests.push(request)
+      if (!request) {
+        importWarnings.push(`${method} Request at ${path} is invalid.`)
+      } else {
+        requests.push(request)
+      }
     })
   })
 
@@ -471,7 +493,9 @@ export function getServersFromOpenApiDocument(
   servers: OpenAPIV3_1.ServerObject[] | undefined,
   { baseServerURL }: Pick<ApiReferenceConfiguration, 'baseServerURL'> = {},
 ): Server[] {
-  if (!servers || !Array.isArray(servers)) return []
+  if (!servers || !Array.isArray(servers)) {
+    return []
+  }
 
   return servers
     .map((server): Server | undefined => {

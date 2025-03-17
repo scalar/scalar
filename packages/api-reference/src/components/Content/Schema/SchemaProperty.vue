@@ -123,8 +123,9 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 
 /** Find the type of discriminator. */
 const discriminatorType = discriminators.find((r) => {
-  if (!optimizedValue.value || typeof optimizedValue.value !== 'object')
+  if (!optimizedValue.value || typeof optimizedValue.value !== 'object') {
     return false
+  }
 
   return (
     r in optimizedValue.value ||

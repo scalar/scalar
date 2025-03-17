@@ -146,19 +146,23 @@ const fastifyApiReference = fp<
 
     const specSource = (() => {
       const { content, url } = configuration ?? {}
-      if (content)
+      if (content) {
         return {
           type: 'content' as const,
           get: () => {
-            if (typeof content === 'function') return content()
+            if (typeof content === 'function') {
+              return content()
+            }
             return content
           },
         }
-      if (url)
+      }
+      if (url) {
         return {
           type: 'url' as const,
           get: () => url,
         }
+      }
 
       if (fastify.hasPlugin('@fastify/swagger')) {
         return {
@@ -187,7 +191,9 @@ const fastifyApiReference = fp<
       const additionalHooks: (keyof FastifyApiReferenceHooksOptions)[] = ['onRequest', 'preHandler']
 
       for (const hook of additionalHooks) {
-        if (options.hooks[hook]) hooks[hook] = options.hooks[hook]
+        if (options.hooks[hook]) {
+          hooks[hook] = options.hooks[hook]
+        }
       }
     }
 

@@ -126,7 +126,9 @@ function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
 function parseEmbeddedOpenApi(html: string): object | undefined {
   const match = html.match(/<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/)
 
-  if (!match) return undefined
+  if (!match) {
+    return undefined
+  }
 
   try {
     const configString = decodeHtmlEntities(match[1])

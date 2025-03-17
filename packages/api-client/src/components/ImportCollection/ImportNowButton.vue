@@ -36,7 +36,9 @@ async function importCollection() {
             watchMode: props.watchMode,
           },
         )
-        if (!error) redirectToFirstRequestInCollection(entities?.collection)
+        if (!error) {
+          redirectToFirstRequestInCollection(entities?.collection)
+        }
       } else {
         const entities = await importSpecFile(
           props.source,

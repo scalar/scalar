@@ -45,7 +45,9 @@ const sendButtonRef = ref<typeof ScalarButton | null>(null)
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
-  if (operation.path === newPath) return
+  if (operation.path === newPath) {
+    return
+  }
   requestMutators.edit(operation.uid, 'path', newPath)
 }
 
@@ -53,7 +55,9 @@ const onUrlChange = (newPath: string) => {
 watch(
   () => operation.path,
   (newURL) => {
-    if (!newURL) return
+    if (!newURL) {
+      return
+    }
     onUrlChange(newURL)
   },
 )
@@ -84,7 +88,9 @@ function load() {
 }
 
 function startLoading() {
-  if (interval.value) return
+  if (interval.value) {
+    return
+  }
   isRequesting.value = true
   interval.value = setInterval(load, 20)
 }
@@ -102,15 +108,24 @@ function abortLoading() {
 }
 
 events.requestStatus.on((status) => {
-  if (status === 'start') startLoading()
-  if (status === 'stop') stopLoading()
-  if (status === 'abort') abortLoading()
+  if (status === 'start') {
+    startLoading()
+  }
+  if (status === 'stop') {
+    stopLoading()
+  }
+  if (status === 'abort') {
+    abortLoading()
+  }
 })
 
 /** Focus the address bar (or the send button if in modal layout) */
 events.focusAddressBar.on(() => {
-  if (layout === 'modal') sendButtonRef.value?.$el?.focus()
-  else addressBarRef.value?.focus()
+  if (layout === 'modal') {
+    sendButtonRef.value?.$el?.focus()
+  } else {
+    addressBarRef.value?.focus()
+  }
 })
 
 function updateRequestMethod(method: RequestMethod) {
@@ -123,15 +138,21 @@ function getBackgroundColor() {
 }
 
 function handleExecuteRequest() {
-  if (isRequesting.value) return
+  if (isRequesting.value) {
+    return
+  }
   isRequesting.value = true
   events.executeRequest.emit({ requestUid: operation.uid })
 }
 
 /** Handle hotkeys */
 events.hotKeys.on((event) => {
-  if (event?.focusAddressBar) addressBarRef.value?.focus()
-  if (event?.executeRequest) handleExecuteRequest()
+  if (event?.focusAddressBar) {
+    addressBarRef.value?.focus()
+  }
+  if (event?.executeRequest) {
+    handleExecuteRequest()
+  }
 })
 
 /**

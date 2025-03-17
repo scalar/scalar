@@ -208,7 +208,9 @@ export const createApiClient = ({
     }
     app.mount(mountingEl)
   }
-  if (mountOnInitialize) mount()
+  if (mountOnInitialize) {
+    mount()
+  }
 
   /**
    * Update the spec
@@ -241,7 +243,7 @@ export const createApiClient = ({
     const resolvedRequestUid = getRequestUidByPathMethod(requests, payload)
 
     // Redirect to the request
-    if (resolvedRequestUid)
+    if (resolvedRequestUid) {
       router.push({
         name: 'request',
         query: payload?._source ? { source: payload._source } : {},
@@ -250,7 +252,9 @@ export const createApiClient = ({
           request: resolvedRequestUid,
         },
       })
-    else console.warn('[@scalar/api-client] Could not find request for path and method', payload)
+    } else {
+      console.warn('[@scalar/api-client] Could not find request for path and method', payload)
+    }
   }
 
   return {
@@ -287,8 +291,9 @@ export const createApiClient = ({
     updateServer: (serverUrl: string) => {
       const server = Object.values(servers).find((s) => s.url === serverUrl)
 
-      if (server && activeCollection.value)
+      if (server && activeCollection.value) {
         collectionMutators.edit(activeCollection.value?.uid, 'selectedServerUid', server.uid)
+      }
     },
     /** Update the currently selected server via URL */
     onUpdateServer: (callback: (url: string) => void) => {
@@ -296,7 +301,9 @@ export const createApiClient = ({
         () => activeCollection.value?.selectedServerUid,
         (uid) => {
           const server = Object.values(servers).find((s) => s.uid === uid)
-          if (server?.url) callback(server.url)
+          if (server?.url) {
+            callback(server.url)
+          }
         },
       )
     },
@@ -315,7 +322,9 @@ export const createApiClient = ({
       const schemes = Object.values(securitySchemes)
       const scheme = schemes.find((s) => s.nameKey === nameKey)
 
-      if (scheme) securitySchemeMutators.edit(scheme.uid, propertyKey, value)
+      if (scheme) {
+        securitySchemeMutators.edit(scheme.uid, propertyKey, value)
+      }
     },
     /** Route to a method + path */
     route,
@@ -323,7 +332,9 @@ export const createApiClient = ({
     /** Open the API client modal and optionally route to a request */
     open: (payload?: OpenClientPayload) => {
       const { method, path, requestUid } = payload ?? {}
-      if ((method && path) || requestUid) route(payload)
+      if ((method && path) || requestUid) {
+        route(payload)
+      }
 
       // Open the modal
       modalState.open = true
@@ -336,16 +347,22 @@ export const createApiClient = ({
     store,
     /** Update the currently selected example */
     updateExample: (exampleKey: string, operationId: string) => {
-      if (!exampleKey || !operationId) return
+      if (!exampleKey || !operationId) {
+        return
+      }
 
       const request = Object.values(requests).find(
         ({ operationId: reqOperationId, path }) => reqOperationId === operationId || path === operationId,
       )
-      if (!request) return
+      if (!request) {
+        return
+      }
 
       const contentType = Object.keys(request.requestBody?.content || {})[0] || ''
       const example = request.requestBody?.content?.[contentType]?.examples?.[exampleKey]
-      if (!example) return
+      if (!example) {
+        return
+      }
 
       requestExampleMutators.edit(request.examples[0], 'body.raw.value', prettyPrintJson(example.value))
     },

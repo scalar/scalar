@@ -99,11 +99,15 @@ export class Mutation<DataType> {
     previousValue: PathValue<DataType, K> | null = null,
   ) {
     // If already rolled back then clear roll forward values before assigning new mutation
-    if (this.idx < this.records.length - 1) this.records.splice(this.idx + 1)
+    if (this.idx < this.records.length - 1) {
+      this.records.splice(this.idx + 1)
+    }
 
     // Check for a change
     const prev = getNestedValue(this.parentData, path)
-    if (prev === value) return
+    if (prev === value) {
+      return
+    }
 
     // Save new mutation record with previous value
     setNestedValue(this.parentData, path, value)
@@ -119,7 +123,9 @@ export class Mutation<DataType> {
     this.idx = this.records.length - 1
 
     // If the record has overflowed remove first entry
-    if (this.records.length > this.maxRecords) this.records.shift()
+    if (this.records.length > this.maxRecords) {
+      this.records.shift()
+    }
 
     if (this.debug) {
       console.info(`Set object '${this.idx}' '${path}' to ${value}`, 'debug')
@@ -128,26 +134,38 @@ export class Mutation<DataType> {
 
   /** Undo the previous mutation */
   undo() {
-    if (this.idx < 0 || this.records.length < 1) return false
+    if (this.idx < 0 || this.records.length < 1) {
+      return false
+    }
 
-    if (this.debug) console.info('Undoing Mutation', 'debug')
+    if (this.debug) {
+      console.info('Undoing Mutation', 'debug')
+    }
 
     const record = this.records[this.idx]
     this.idx -= 1
-    if (record) this._unsavedMutate(record.path, record.prev)
+    if (record) {
+      this._unsavedMutate(record.path, record.prev)
+    }
 
     return true
   }
 
   /** Roll forward to the next available mutation if its exists */
   redo() {
-    if (this.idx > this.records.length - 2) return false
+    if (this.idx > this.records.length - 2) {
+      return false
+    }
 
-    if (this.debug) console.info('Redoing Mutation', 'debug')
+    if (this.debug) {
+      console.info('Redoing Mutation', 'debug')
+    }
 
     const record = this.records[this.idx + 1]
     this.idx += 1
-    if (record) this._unsavedMutate(record.path, record.value)
+    if (record) {
+      this._unsavedMutate(record.path, record.value)
+    }
 
     return true
   }

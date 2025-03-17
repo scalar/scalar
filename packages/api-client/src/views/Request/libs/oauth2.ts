@@ -32,7 +32,9 @@ const generateCodeVerifier = (): string => {
  * Creates a code challenge from the code verifier
  */
 export const generateCodeChallenge = async (verifier: string, encoding: 'SHA-256' | 'plain'): Promise<string> => {
-  if (encoding === 'plain') return verifier
+  if (encoding === 'plain') {
+    return verifier
+  }
 
   // ASCII encoding is just taking the lower 8 bits of each character
   const encoder = new TextEncoder()
@@ -59,7 +61,9 @@ export const authorizeOauth2 = async (
   proxyUrl?: string,
 ): Promise<ErrorResponse<string>> => {
   try {
-    if (!flow) return [new Error('Flow not found'), null]
+    if (!flow) {
+      return [new Error('Flow not found'), null]
+    }
 
     const scopes = flow.selectedScopes.join(' ')
 
@@ -119,7 +123,9 @@ export const authorizeOauth2 = async (
     // Common to all flows
     url.searchParams.set('client_id', flow['x-scalar-client-id'])
     url.searchParams.set('state', state)
-    if (scopes) url.searchParams.set('scope', scopes)
+    if (scopes) {
+      url.searchParams.set('scope', scopes)
+    }
 
     const windowFeatures = 'left=100,top=100,width=800,height=600'
     const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
@@ -208,7 +214,9 @@ export const authorizeServers = async (
     proxyUrl?: string | undefined
   } = {},
 ): Promise<ErrorResponse<string>> => {
-  if (!flow) return [new Error('OAuth2 flow was not defined'), null]
+  if (!flow) {
+    return [new Error('OAuth2 flow was not defined'), null]
+  }
 
   const formData = new URLSearchParams()
   formData.set('client_id', flow['x-scalar-client-id'])
@@ -218,9 +226,12 @@ export const authorizeServers = async (
     formData.set('scope', scopes)
   }
 
-  if (flow.clientSecret) formData.set('client_secret', flow.clientSecret)
-  if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri'])
+  if (flow.clientSecret) {
+    formData.set('client_secret', flow.clientSecret)
+  }
+  if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri']) {
     formData.set('redirect_uri', flow['x-scalar-redirect-uri'])
+  }
 
   // Authorization Code
   if (code) {

@@ -45,33 +45,45 @@ export const useOpenApiWatcher = () => {
     // Info/Security
     if (d.path[0] === 'info' || d.path[0] === 'security') {
       const success = mutateCollectionDiff(d, activeEntities, store)
-      if (!success) toastError('collection')
+      if (!success) {
+        toastError('collection')
+      }
     }
     // Components.securitySchemes
     else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
       const success = mutateSecuritySchemeDiff(d, activeEntities, store)
-      if (!success) toastError('securitySchemes')
+      if (!success) {
+        toastError('securitySchemes')
+      }
     }
     // Servers
     else if (d.path[0] === 'servers') {
       const success = mutateServerDiff(d, activeEntities, store)
-      if (!success) toastError('servers')
+      if (!success) {
+        toastError('servers')
+      }
     }
     // Tags
     else if (d.path[0] === 'tags') {
       const success = mutateTagDiff(d, activeEntities, store)
-      if (!success) toastError('tags')
+      if (!success) {
+        toastError('tags')
+      }
     }
     // Requests
     else if (d.path[0] === 'paths') {
       const success = mutateRequestDiff(d, activeEntities, store)
-      if (!success) toastError('requests')
+      if (!success) {
+        toastError('requests')
+      }
     }
   }
 
   const { pause, resume } = useTimeoutPoll(async () => {
     const url = activeCollection.value?.documentUrl
-    if (!url) return
+    if (!url) {
+      return
+    }
 
     const old = specDictionary[url]
 
@@ -86,11 +98,12 @@ export const useOpenApiWatcher = () => {
       if (!old?.hash) {
         const { schema } = await parseSchema(spec)
 
-        if (schema)
+        if (schema) {
           specDictionary[url] = {
             hash,
             schema,
           }
+        }
       }
       // If the hashes do not match, start diffin
       else if (old.hash && old.hash !== hash) {
@@ -112,14 +125,16 @@ export const useOpenApiWatcher = () => {
         } catch (e) {
           console.error('[useOpenApiWatcher] Error:', e)
         }
-      } else console.log('[useOpenApiWatcher] No changes detected yet…')
+      } else {
+        console.log('[useOpenApiWatcher] No changes detected yet…')
+      }
     } catch (e) {
       console.error('[useOpenApiWatcher] Error:', e)
       console.info('[useOpenApiWatcher] Pausing watcher for 60 seconds')
 
       pause()
       collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'ERROR')
-      toast(`[useOpenApiWatcher] Unable to fetch the spec file, paused the watcher for 60 seconds`, 'error')
+      toast('[useOpenApiWatcher] Unable to fetch the spec file, paused the watcher for 60 seconds', 'error')
 
       setTimeout(() => {
         console.info('[useOpenApiWatcher] Resuming watcher')

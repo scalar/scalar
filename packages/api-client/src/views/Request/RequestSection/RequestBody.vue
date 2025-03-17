@@ -70,15 +70,20 @@ const activeExampleContentType = computed(() => {
   const { activeBody, formData, raw } = example.body
 
   // Form
-  if (activeBody === 'formData')
+  if (activeBody === 'formData') {
     return formData?.encoding === 'urlencoded'
       ? 'formUrlEncoded'
       : 'multipartForm'
+  }
   // Binary
-  if (activeBody === 'binary') return 'binaryFile'
+  if (activeBody === 'binary') {
+    return 'binaryFile'
+  }
   // Raw
   if (activeBody === 'raw' && raw?.encoding) {
-    if (raw.encoding === 'html') return 'other'
+    if (raw.encoding === 'html') {
+      return 'other'
+    }
     return raw.encoding
   }
 
@@ -96,7 +101,9 @@ const selectedContentType = computed({
     contentTypeOptions[contentTypeOptions.length - 1] ??
     contentTypeOptions[0],
   set: (opt) => {
-    if (opt?.id) updateActiveBody(opt.id)
+    if (opt?.id) {
+      updateActiveBody(opt.id)
+    }
   },
 })
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
@@ -155,7 +162,9 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
     /** focus the new row */
     nextTick(() => {
-      if (!tableWrapperRef.value) return
+      if (!tableWrapperRef.value) {
+        return
+      }
       const inputs = tableWrapperRef.value.querySelectorAll('input')
       const inputsIndex = field === 'key' ? 0 : 1
       inputs[inputsIndex]?.focus()
@@ -187,13 +196,14 @@ const addRow = () => {
   const newParams = [...formParams.value, newParam]
 
   // Ensure we have formData
-  if (example.body.formData)
+  if (example.body.formData) {
     requestExampleMutators.edit(example.uid, 'body.formData.value', newParams)
-  else
+  } else {
     requestExampleMutators.edit(example.uid, 'body.formData', {
       value: newParams,
       encoding: 'form-data',
     })
+  }
 }
 
 /** Enable and disables the row */
@@ -218,24 +228,27 @@ const updateRequestBody = (value: string) =>
 
 /** Take the select option and return bodyType with encoding and header */
 const getBodyType = (type: Content) => {
-  if (type === 'multipartForm')
+  if (type === 'multipartForm') {
     return {
       activeBody: 'formData',
       encoding: 'form-data',
       header: 'multipart/form-data',
     } as const
-  if (type === 'formUrlEncoded')
+  }
+  if (type === 'formUrlEncoded') {
     return {
       activeBody: 'formData',
       encoding: 'urlencoded',
       header: 'application/x-www-form-urlencoded',
     } as const
-  if (type === 'binaryFile')
+  }
+  if (type === 'binaryFile') {
     return {
       activeBody: 'binary',
       encoding: undefined,
       header: 'application/octet-stream',
     } as const
+  }
   if (type === 'json' || type.endsWith('+json')) {
     return {
       activeBody: 'raw',
@@ -245,30 +258,34 @@ const getBodyType = (type: Content) => {
         : 'application/json',
     } as const
   }
-  if (type === 'xml')
+  if (type === 'xml') {
     return {
       activeBody: 'raw',
       encoding: 'xml',
       header: 'application/xml',
     } as const
-  if (type === 'yaml')
+  }
+  if (type === 'yaml') {
     return {
       activeBody: 'raw',
       encoding: 'yaml',
       header: 'application/yaml',
     } as const
-  if (type === 'edn')
+  }
+  if (type === 'edn') {
     return {
       activeBody: 'raw',
       encoding: 'edn',
       header: 'application/edn',
     } as const
-  if (type === 'other')
+  }
+  if (type === 'other') {
     return {
       activeBody: 'raw',
       encoding: 'html',
       header: 'application/html',
     } as const
+  }
 
   return { activeBody: 'raw', encoding: undefined, header: undefined } as const
 }
@@ -284,11 +301,12 @@ const updateActiveBody = (type: Content) => {
       encoding,
       value: example.body.raw?.value ?? '',
     })
-  } else if (encoding && activeBody === 'formData')
+  } else if (encoding && activeBody === 'formData') {
     requestExampleMutators.edit(example.uid, 'body.formData', {
       encoding,
       value: example.body.formData?.value ?? [],
     })
+  }
   // Remove raw if no encoding and not binary
   else if (!encoding && activeBody !== 'binary') {
     const { raw: deleteMe, ...body } = example.body
@@ -383,9 +401,8 @@ function handleRemoveFileFormData(rowIdx: number) {
     updatedParams.splice(rowIdx, 1)
   } else {
     // File name updated then remove file only
-    const param = updatedParams[rowIdx]
-    if (param) {
-      param.file = undefined
+    if (updatedParams[rowIdx]) {
+      updatedParams[rowIdx].file = undefined
     }
   }
   requestExampleMutators.edit(example.uid, 'body.formData.value', updatedParams)
@@ -409,8 +426,9 @@ function handleFileUpload() {
 watch(
   selectedContentType,
   (val) => {
-    if (['multipartForm', 'formUrlEncoded'].includes(val?.id || ''))
+    if (['multipartForm', 'formUrlEncoded'].includes(val?.id || '')) {
       defaultRow()
+    }
   },
   { immediate: true },
 )
@@ -427,8 +445,9 @@ watch(
       ['multipartForm', 'formUrlEncoded'].includes(
         activeExampleContentType.value as Content,
       )
-    )
+    ) {
       defaultRow()
+    }
   },
   { immediate: true },
 )

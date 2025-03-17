@@ -7,7 +7,7 @@ export function isPostmanCollection(content: string): boolean {
     const isPostman =
       parsed.info?._postman_id !== undefined && new URL(parsed.info?.schema).host === 'schema.getpostman.com'
     return isPostman
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }
@@ -18,7 +18,7 @@ export async function convertPostmanToOpenApi(postmanJson: string): Promise<stri
     const postmanCollection = JSON.parse(postmanJson)
     const openApiDoc = convert(postmanCollection)
     return JSON.stringify(openApiDoc, null, 2)
-  } catch (error) {
+  } catch (_error) {
     throw new Error('Failed to convert Postman collection to OpenAPI')
   }
 }

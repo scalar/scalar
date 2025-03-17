@@ -63,9 +63,15 @@ const { layout } = useLayout()
 const filters = computed<Filter[]>(() => {
   const allSections = new Set<Filter>(['All', ...requestSections])
 
-  if (!example.parameters.path.length) allSections.delete('Variables')
-  if (!canMethodHaveBody(operation.method ?? 'get')) allSections.delete('Body')
-  if (isAuthHidden.value) allSections.delete('Auth')
+  if (!example.parameters.path.length) {
+    allSections.delete('Variables')
+  }
+  if (!canMethodHaveBody(operation.method ?? 'get')) {
+    allSections.delete('Body')
+  }
+  if (isAuthHidden.value) {
+    allSections.delete('Auth')
+  }
 
   return [...allSections]
 })

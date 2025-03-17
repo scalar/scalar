@@ -46,11 +46,15 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
       const { createApiClientModalSync } = await import('@scalar/api-client/layouts/Modal')
       clientStore.setCreateClient(createApiClientModalSync)
     }
-    if (!isLoading) loadApiClientJs()
+    if (!isLoading) {
+      loadApiClientJs()
+    }
   }, [])
 
   useEffect(() => {
-    if (!el.current || !state.createClient || clientDict[key]) return () => null
+    if (!el.current || !state.createClient || clientDict[key]) {
+      return () => null
+    }
 
     // Check for cached client first
     const _client = state.createClient({
@@ -60,7 +64,9 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
 
     const updateSpec = async () => {
       await _client.updateSpec(configuration.spec!)
-      if (initialRequest) _client.route(initialRequest)
+      if (initialRequest) {
+        _client.route(initialRequest)
+      }
     }
 
     // Add the client to the store and dict
@@ -68,8 +74,11 @@ export const ApiClientModalProvider = ({ children, initialRequest, configuration
     clientDict[key] = _client
 
     // We update the config as we are using the sync version
-    if (configuration.spec) updateSpec()
-    else if (initialRequest) _client.route(initialRequest)
+    if (configuration.spec) {
+      updateSpec()
+    } else if (initialRequest) {
+      _client.route(initialRequest)
+    }
 
     // Ensure we unmount the vue app on unmount
     return () => {

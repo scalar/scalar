@@ -17,7 +17,9 @@ export function mutationFactory<T extends Record<string, any>>(
   function getMutator(uid: T['uid']) {
     const mutator = mutationMap[uid]
 
-    if (!mutator) console.warn(`Missing ${entityMap[uid] ? 'mutator' : 'object'} for uid: ${uid}`)
+    if (!mutator) {
+      console.warn(`Missing ${entityMap[uid] ? 'mutator' : 'object'} for uid: ${uid}`)
+    }
 
     return mutator ?? null
   }

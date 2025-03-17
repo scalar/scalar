@@ -20,7 +20,7 @@ describe('replaceVariables', () => {
   })
 
   it('replaces variables with a custom callback', () => {
-    expect(replaceVariables('foo{{bar}}foo', (match) => (match === 'bar' ? `<span>foo</span>` : ''))).toMatchObject(
+    expect(replaceVariables('foo{{bar}}foo', (match) => (match === 'bar' ? '<span>foo</span>' : ''))).toMatchObject(
       'foo<span>foo</span>foo',
     )
   })

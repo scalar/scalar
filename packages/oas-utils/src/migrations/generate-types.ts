@@ -10,7 +10,7 @@ import {
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { workspaceSchema } from '@/entities/workspace'
 import { DATA_VERSION } from '@/migrations/data-version'
-import { writeFile } from 'fs'
+import { writeFile } from 'node:fs'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 
 console.warn('Make sure the generate types file is updated for the current version')

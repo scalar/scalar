@@ -5,7 +5,9 @@ import type { RequestExample } from '@scalar/oas-utils/entities/spec'
  */
 export const validateParameters = (example: Partial<RequestExample> | null) => {
   const invalidParams = new Set<string>()
-  if (!example) return invalidParams
+  if (!example) {
+    return invalidParams
+  }
 
   // Validate parameters and add to invalidParams if invalid
   const paramTypes = ['path', 'query', 'headers', 'cookies'] as const

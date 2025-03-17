@@ -71,7 +71,9 @@ const filterIds = computed(
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
 const shouldVirtualize = computed(() => {
-  if (!response) return false
+  if (!response) {
+    return false
+  }
 
   // Get content type from headers
   const contentType =
@@ -83,7 +85,9 @@ const shouldVirtualize = computed(() => {
   }
 
   // Do not virtualize html
-  if (contentType.includes('text/html')) return false
+  if (contentType.includes('text/html')) {
+    return false
+  }
 
   // Common text-based content types
   const textBasedTypes = [

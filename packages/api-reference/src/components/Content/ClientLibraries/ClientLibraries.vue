@@ -24,7 +24,9 @@ const morePanel = useId()
 watch(
   httpClient,
   (client) => {
-    if (!client) return
+    if (!client) {
+      return
+    }
 
     index.value = featuredClients.findIndex(
       (tab) =>
@@ -37,7 +39,9 @@ watch(
 
 function handleChange(i: number) {
   const tab = featuredClients[i]
-  if (!tab) return
+  if (!tab) {
+    return
+  }
   setHttpClient(tab)
 }
 </script>

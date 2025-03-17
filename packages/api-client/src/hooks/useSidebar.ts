@@ -18,7 +18,9 @@ export const SIDEBAR_SYMBOL = Symbol() as InjectionKey<ReturnType<typeof createS
 /** Handles any logic related to sidebar */
 export const useSidebar = () => {
   const sidebarState = inject(SIDEBAR_SYMBOL)
-  if (!sidebarState) throw new Error('useSidebar must have injected SIDEBAR_SYMBOL')
+  if (!sidebarState) {
+    throw new Error('useSidebar must have injected SIDEBAR_SYMBOL')
+  }
 
   const { collapsedSidebarFolders, isSidebarOpen } = sidebarState
 

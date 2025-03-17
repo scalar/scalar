@@ -30,7 +30,9 @@ const model = computed<string>({
 
 /** Re-emits enter as a submit event for the form  */
 function handleEnter(event: KeyboardEvent) {
-  if (event.shiftKey || !event.target) return
+  if (event.shiftKey || !event.target) {
+    return
+  }
   event.preventDefault()
   const target = event.target as HTMLTextAreaElement
   const submitEvent = new Event('submit', { cancelable: true })
@@ -39,7 +41,9 @@ function handleEnter(event: KeyboardEvent) {
 
 /** Emits a back event if the input is empty */
 function handleBack(event: KeyboardEvent) {
-  if (model.value !== '') return
+  if (model.value !== '') {
+    return
+  }
   event.preventDefault()
   event.stopPropagation()
   emit('onDelete', event)

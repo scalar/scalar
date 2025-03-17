@@ -118,7 +118,9 @@ function updateHeadings(description: string) {
 
 // Create the list of sidebar items from the given spec
 const items = computed(() => {
-  if (!navState.value) return { entries: [], titles: {} }
+  if (!navState.value) {
+    return { entries: [], titles: {} }
+  }
 
   const { getHeadingId, getModelId, getOperationId, getTagId, getWebhookId } = navState.value
 
@@ -350,7 +352,9 @@ export const scrollToOperation = (operationId: string, focus?: boolean) => {
         }
       })
       setCollapsedSidebarItem(sectionId, true)
-    } else scrollToId(operationId, focus)
+    } else {
+      scrollToId(operationId, focus)
+    }
   }
 }
 
@@ -374,10 +378,14 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
       () => {
         if (hash.value) {
           const hashSectionId = getSectionId(hash.value)
-          if (hashSectionId) setCollapsedSidebarItem(hashSectionId, true)
+          if (hashSectionId) {
+            setCollapsedSidebarItem(hashSectionId, true)
+          }
         } else {
           const firstTag = parsedSpec.value?.tags?.[0]
-          if (firstTag) setCollapsedSidebarItem(getTagId(firstTag), true)
+          if (firstTag) {
+            setCollapsedSidebarItem(getTagId(firstTag), true)
+          }
         }
       },
     )

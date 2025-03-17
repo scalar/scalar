@@ -15,19 +15,27 @@ export function useResizeWithTarget(
   const targetHeight = ref(0)
   const observer = ref<ResizeObserver>()
 
-  if (typeof ResizeObserver !== 'undefined')
+  if (typeof ResizeObserver !== 'undefined') {
     observer.value = new ResizeObserver(([entry]) => {
-      if (!entry) return
+      if (!entry) {
+        return
+      }
       targetWidth.value = entry.borderBoxSize[0]?.inlineSize ?? 0
       targetHeight.value = entry.borderBoxSize[0]?.blockSize ?? 0
     })
+  }
 
   watch(
     [() => toValue(opts.enabled), () => toValue(target)],
     ([enabled, element]) => {
-      if (!element || !observer.value) return
-      if (enabled) observer.value.observe(element)
-      else observer.value.disconnect()
+      if (!element || !observer.value) {
+        return
+      }
+      if (enabled) {
+        observer.value.observe(element)
+      } else {
+        observer.value.disconnect()
+      }
     },
     { immediate: true },
   )

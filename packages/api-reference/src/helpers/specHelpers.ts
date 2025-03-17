@@ -14,7 +14,7 @@ type PropertyObject = {
 
 function formatProperty(key: string, obj: PropertyObject): string {
   let output = key
-  const isRequired = obj.required && obj.required.includes(key)
+  const isRequired = obj.required?.includes(key)
   output += isRequired ? ' REQUIRED ' : ' optional '
 
   // Check existence before accessing
@@ -62,7 +62,7 @@ function extractRequestBody(operation: Operation): string[] | boolean {
     }
 
     return recursiveLogger(body)
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }

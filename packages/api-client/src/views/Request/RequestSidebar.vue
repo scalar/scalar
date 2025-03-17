@@ -88,7 +88,9 @@ const isSearchVisible = ref(false)
 watch(
   activeRequest,
   (request) => {
-    if (!request) return
+    if (!request) {
+      return
+    }
 
     // Ensure the sidebar folders are open
     findRequestParents(request).forEach((uid: string) =>
@@ -112,9 +114,15 @@ const {
 
 /** Handle hotkey events from the bus */
 const handleHotKey = (event?: HotKeyEvent) => {
-  if (!event) return
-  if (event.toggleSidebar) toggleSidebarOpen()
-  if (event.focusRequestSearch) searchInputRef.value?.focus()
+  if (!event) {
+    return
+  }
+  if (event.toggleSidebar) {
+    toggleSidebarOpen()
+  }
+  if (event.focusRequestSearch) {
+    searchInputRef.value?.focus()
+  }
 }
 
 onMounted(() => events.hotKeys.on(handleHotKey))
@@ -154,7 +162,9 @@ watch(
         activeWorkspaceCollections.value[index]
       ) {
         const currentCollection = activeWorkspaceCollections.value[index]
-        if (!currentCollection) return
+        if (!currentCollection) {
+          return
+        }
 
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
         toast(message, 'info')
@@ -166,10 +176,14 @@ watch(
 /** Screen reader label for the search input */
 const srLabel = computed<string>(() => {
   const results = searchResultsWithPlaceholderResults.value
-  if (!results.length) return 'No results found'
+  if (!results.length) {
+    return 'No results found'
+  }
 
   const result = results[selectedSearchResult.value]?.item
-  if (!result) return 'No result selected'
+  if (!result) {
+    return 'No result selected'
+  }
 
   const resultsFoundLabel = searchText.value.length
     ? `${results.length} result${results.length === 1 ? '' : 's'} found, `

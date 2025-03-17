@@ -18,28 +18,42 @@ export function rehypeAlert() {
 
       // Find the first non-whitespace child
       const headIndex = node.children.findIndex((child) => !isWhitespace(child))
-      if (headIndex === -1) return
+      if (headIndex === -1) {
+        return
+      }
 
       const head = node.children[headIndex]
 
-      if (!head || head.type !== 'element' || head.tagName !== 'p') return
+      if (!head || head.type !== 'element' || head.tagName !== 'p') {
+        return
+      }
 
       const text = head.children[0]
-      if (!text || text.type !== 'text' || !text.value.startsWith('[!')) return
+      if (!text || text.type !== 'text' || !text.value.startsWith('[!')) {
+        return
+      }
 
       const end = text.value.indexOf(']')
-      if (end === -1) return
+      if (end === -1) {
+        return
+      }
 
       // Extract the alert type
       const alertType = text.value.slice(2, end).toLowerCase() as (typeof ALERT_TYPES)[number]
-      if (!ALERT_TYPES.includes(alertType)) return
+      if (!ALERT_TYPES.includes(alertType)) {
+        return
+      }
 
       // Remove the blockquote if it's empty
       if (end + 1 === text.value.length) {
         const next = head.children[1]
         if (next) {
-          if (next.type !== 'element' || next.tagName !== 'br') return
-          if (!head.children[2]) return
+          if (next.type !== 'element' || next.tagName !== 'br') {
+            return
+          }
+          if (!head.children[2]) {
+            return
+          }
           head.children = head.children.slice(2)
           const node = head.children[0]
           if (node && node.type === 'text' && node.value.charAt(0) === '\n') {

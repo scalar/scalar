@@ -32,7 +32,9 @@ function findVariable(collection: PostmanCollection, key: string): Variable | un
  */
 function processLicense(collection: PostmanCollection): OpenAPIV3_1.LicenseObject | undefined {
   const nameVar = findVariable(collection, VARIABLE_KEYS.LICENSE.NAME)
-  if (!nameVar?.value || typeof nameVar.value !== 'string') return undefined
+  if (!nameVar?.value || typeof nameVar.value !== 'string') {
+    return undefined
+  }
 
   const urlVar = findVariable(collection, VARIABLE_KEYS.LICENSE.URL)
   return {
@@ -49,7 +51,9 @@ function processContact(collection: PostmanCollection): OpenAPIV3_1.ContactObjec
   const urlVar = findVariable(collection, VARIABLE_KEYS.CONTACT.URL)
   const emailVar = findVariable(collection, VARIABLE_KEYS.CONTACT.EMAIL)
 
-  if (!nameVar?.value && !urlVar?.value && !emailVar?.value) return undefined
+  if (!nameVar?.value && !urlVar?.value && !emailVar?.value) {
+    return undefined
+  }
 
   return {
     ...(nameVar?.value && typeof nameVar.value === 'string' && { name: nameVar.value }),

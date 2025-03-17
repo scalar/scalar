@@ -79,7 +79,7 @@
     "format": "prettier --write . && biome format --write",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
-    "lint:fix": "biome lint --fix && pnpm eslint '**/*.vue' --fix",
+    "lint:fix": "biome lint --write && pnpm eslint '**/*.vue' --fix",
     "pack:packages": "./scripts/pack.sh",
     "playwright:install": "npx playwright install --with-deps",
     "scripts:generate-cloudbuild": "vite-node ./tooling/cloudbuild/generateCloudbuild.ts",

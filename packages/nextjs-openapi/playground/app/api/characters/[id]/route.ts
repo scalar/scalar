@@ -21,7 +21,9 @@ export async function GET(
 
   console.log(params)
 
-  if (error) return Response.json({ error: { message: 'There was a validation error' } }, { status: 400 })
+  if (error) {
+    return Response.json({ error: { message: 'There was a validation error' } }, { status: 400 })
+  }
 
   return NextResponse.json('Sweet success, 200 response')
 }

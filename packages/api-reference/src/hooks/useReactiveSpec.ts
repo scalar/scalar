@@ -75,7 +75,9 @@ export function useReactiveSpec({
    * If there are errors continue to show the previous valid spec
    */
   function parseInput(value?: string) {
-    if (!value) return Object.assign(parsedSpec, createEmptySpecification())
+    if (!value) {
+      return Object.assign(parsedSpec, createEmptySpecification())
+    }
 
     return parse(value, {
       proxyUrl: proxyUrl ? toValue(proxyUrl) : undefined,
@@ -99,7 +101,9 @@ export function useReactiveSpec({
     async (newConfig) => {
       if (newConfig) {
         const specContent = (await getSpecContent(newConfig, toValue(proxyUrl)))?.trim()
-        if (typeof specContent === 'string') rawSpec.value = specContent
+        if (typeof specContent === 'string') {
+          rawSpec.value = specContent
+        }
       }
     },
     { immediate: true, deep: true },

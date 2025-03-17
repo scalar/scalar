@@ -14,7 +14,9 @@
  */
 export function objectFromArray<T extends object>(data: T[], keyGenerator: (val: T) => string) {
   return data.reduce<Record<string, T>>((map, current) => {
-    if (map[keyGenerator(current)]) console.warn(`Duplicate entry in object mapping for ${current}`)
+    if (map[keyGenerator(current)]) {
+      console.warn(`Duplicate entry in object mapping for ${current}`)
+    }
 
     map[keyGenerator(current)] = current
     return map

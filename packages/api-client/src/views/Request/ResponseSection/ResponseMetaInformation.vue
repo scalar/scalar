@@ -15,12 +15,13 @@ const interval = ref<ReturnType<typeof setInterval>>()
 const stopwatch = ref(0)
 
 events.requestStatus.on((status) => {
-  if (status === 'start')
+  if (status === 'start') {
     interval.value = setInterval(() => (stopwatch.value += 1000), 1000)
-  else
+  } else {
     clearInterval(interval.value),
       (interval.value = undefined),
       (stopwatch.value = 0)
+  }
 })
 
 /** Size of the response */

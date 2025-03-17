@@ -110,7 +110,9 @@ const generateSnippet = () => {
 
   // TODO: Currently we just grab the first one but we should sync up the store with the example picker
   const example = requestExamples[operation.examples[0]]
-  if (!example) return ''
+  if (!example) {
+    return ''
+  }
 
   // Ensure the selected security is in the security requirements
   const schemes = filterSecurityRequirements(
@@ -125,7 +127,9 @@ const generateSnippet = () => {
     server,
     securitySchemes: schemes,
   })
-  if (error) return error.message ?? ''
+  if (error) {
+    return error.message ?? ''
+  }
   return payload
 }
 
@@ -149,8 +153,12 @@ const language = computed(() => {
         httpClient.targetKey
 
   // Normalize language
-  if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'Objective-C') return 'objc'
+  if (key === 'shell' && generatedCode.value.includes('curl')) {
+    return 'curl'
+  }
+  if (key === 'Objective-C') {
+    return 'objc'
+  }
 
   return key
 })
@@ -158,15 +166,19 @@ const language = computed(() => {
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() =>
   Object.values(securitySchemes).flatMap((scheme) => {
-    if (scheme.type === 'apiKey') return scheme.value
-    if (scheme?.type === 'http')
+    if (scheme.type === 'apiKey') {
+      return scheme.value
+    }
+    if (scheme?.type === 'http') {
       return [
         scheme.token,
         scheme.password,
         btoa(`${scheme.username}:${scheme.password}`),
       ]
-    if (scheme.type === 'oauth2')
+    }
+    if (scheme.type === 'oauth2') {
       return Object.values(scheme.flows).map((flow) => flow.token)
+    }
 
     return []
   }),
@@ -194,7 +206,7 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
+  if (customRequestExamples.value.length) {
     entries.unshift({
       value: 'customExamples',
       label: 'Examples',
@@ -206,6 +218,7 @@ const options = computed<TextSelectOptions>(() => {
         label: example.label ?? example.lang ?? `Example #${index + 1}`,
       })),
     })
+  }
 
   return entries
 })

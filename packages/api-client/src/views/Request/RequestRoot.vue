@@ -58,8 +58,9 @@ const selectedSecuritySchemeUids = computed(
  * called from the send button as well as keyboard shortcuts
  */
 const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value || !activeCollection.value)
+  if (!activeRequest.value || !activeExample.value || !activeCollection.value) {
     return
+  }
 
   invalidParams.value = validateParameters(activeExample.value)
 
@@ -68,7 +69,9 @@ const executeRequest = async () => {
       ? activeEnvironment.value.value
       : '{}'
   const e = safeJSON.parse(environmentValue)
-  if (e.error) console.error('INVALID ENVIRONMENT!')
+  if (e.error) {
+    console.error('INVALID ENVIRONMENT!')
+  }
   const environment =
     e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
 
@@ -103,9 +106,13 @@ const executeRequest = async () => {
   const [sendRequestError, result] = await requestOperation.sendRequest()
 
   // Send error toast
-  if (sendRequestError) toast(sendRequestError.message, 'error')
+  if (sendRequestError) {
+    toast(sendRequestError.message, 'error')
+  }
   // we need to deep clone the result because it's a ref and updates will break the history
-  else requestHistory.push(JSON.parse(JSON.stringify(result)))
+  else {
+    requestHistory.push(JSON.parse(JSON.stringify(result)))
+  }
 }
 
 /** Cancel a live request */

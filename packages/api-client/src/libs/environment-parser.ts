@@ -11,7 +11,7 @@ export function parseEnvVariables(activeEnvVariables: EnvVariables) {
           value: parsedValue[key],
           source: variable.source,
         }))
-      } catch (e) {
+      } catch (_e) {
         // Skip invalid environment editor JSON entries
       }
     }
