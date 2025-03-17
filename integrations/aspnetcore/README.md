@@ -19,11 +19,11 @@ If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration gui
 1. **Install the package**
 
 ```shell
-dotnet add package Scalar.AspNetCore --version 2.0.*
+dotnet add package Scalar.AspNetCore --version 2.1.*
 ```
 
 > [!NOTE]
-> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `2.0.*`.
+> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `2.1.*`.
 
 2. **Add the using directive**
 
@@ -35,7 +35,7 @@ using Scalar.AspNetCore;
 
 Add the following to `Program.cs` based on your OpenAPI generator:
 
-For .NET 9 using `Microsoft.AspNetCore.OpenApi`:
+For `Microsoft.AspNetCore.OpenApi`:
 
 ```csharp
 builder.Services.AddOpenApi();
@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-For .NET 8 using `Swashbuckle`:
+For `Swashbuckle`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -63,7 +63,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-For .NET 8 using `NSwag`:
+For `NSwag`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -79,7 +79,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That’s it! 🎉 With the default settings, you can now access the Scalar API reference at `/scalar` to see the API reference for the `v1` document. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v2`) to view the API reference for a specific document.
+That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API reference for a specific document.
 
 ## Configuration
 

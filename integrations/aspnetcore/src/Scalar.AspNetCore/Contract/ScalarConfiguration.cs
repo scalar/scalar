@@ -61,9 +61,7 @@ internal sealed class ScalarConfiguration
 
     public required bool HideClientButton { get; init; }
 
-    /// <remarks>This feature will be public once we support multiple OpenAPI documents</remarks>
-    [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
-    internal IEnumerable<string> Documents { get; init; } = null!;
+    public required IEnumerable<ScalarSource> Sources { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

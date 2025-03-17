@@ -11,7 +11,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="AwesomeAssertions" Version="8.0.1" />
+    <PackageReference Include="AwesomeAssertions" Version="8.0.2" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -26,11 +26,11 @@
   </ItemGroup>
   
   <ItemGroup Condition="$(TargetFrameWork) == 'net8.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.14" />
   </ItemGroup>
 
   <ItemGroup Condition="$(TargetFrameWork) == 'net9.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.3" />
   </ItemGroup>
 
   <ItemGroup>

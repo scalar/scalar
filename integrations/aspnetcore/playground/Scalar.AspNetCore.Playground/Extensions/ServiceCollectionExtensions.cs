@@ -26,6 +26,7 @@ internal static class ServiceCollectionExtensions
 
         foreach (var version in versions)
         {
+            services.Configure<ScalarOptions>(options => options.AddDocument(version, $"Version {version}"));
             services.AddOpenApi(version, options =>
             {
                 // Adds api key security scheme to the api

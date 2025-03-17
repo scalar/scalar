@@ -55,7 +55,7 @@ app.MapScalarApiReference("/", configureOptions);
 app.MapScalarApiReference("/scalar-url-pattern", (options, context) =>
 {
     configureOptions.Invoke(options);
-    options.OpenApiRoutePattern = $"{context.Request.Scheme}://{context.Request.Host}/openapi/v1.json";
+    options.OpenApiRoutePattern = $"{context.Request.Scheme}://{context.Request.Host}/openapi/{{documentName}}.json";
 });
 
 app.MapBookEndpoints();
