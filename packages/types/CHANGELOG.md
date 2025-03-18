@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.1.2
+
+### Patch Changes
+
+- 7a8965c: chore: remove spec prefix
+- 49dffff: feat: expose the isLoading prop to control loading of references
+
 ## 0.1.1
 
 ### Patch Changes

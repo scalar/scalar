@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.3.6
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- 49dffff: fix: re-create store every time we update the config
+- Updated dependencies [7a8965c]
+- Updated dependencies [0f13162]
+- Updated dependencies [cc1ec74]
+- Updated dependencies [49dffff]
+- Updated dependencies [2716898]
+- Updated dependencies [0212daa]
+  - @scalar/types@0.1.2
+  - @scalar/openapi-parser@0.10.11
+  - @scalar/components@0.13.38
+  - @scalar/oas-utils@0.2.121
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.80
+  - @scalar/import@0.3.3
+  - @scalar/use-codemirror@0.11.83
+  - @scalar/postman-to-openapi@0.1.44
+  - @scalar/use-hooks@0.1.34
+
 ## 2.3.5
 
 ### Patch Changes

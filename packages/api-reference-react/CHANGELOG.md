@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.6.3
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- Updated dependencies [7a8965c]
+- Updated dependencies [0f13162]
+- Updated dependencies [8ca4584]
+- Updated dependencies [49dffff]
+  - @scalar/api-reference@1.28.6
+  - @scalar/types@0.1.2
+
 ## 0.6.2
 
 ### Patch Changes

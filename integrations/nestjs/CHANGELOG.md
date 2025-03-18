@@ -1,5 +1,15 @@
 # @scalar/nestjs-api-reference
 
+## 0.4.2
+
+### Patch Changes
+
+- 2047bf6: fix: apply the previous fix to the nestjs express integration as well
+- 28197f4: fix: missing app.service nest.js playground import
+- Updated dependencies [7a8965c]
+- Updated dependencies [49dffff]
+  - @scalar/types@0.1.2
+
 ## 0.4.1
 
 ### Patch Changes

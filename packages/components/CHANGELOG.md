@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.38
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- cc1ec74: fix(components): use nearest for combobox scrollIntoView
+- 2716898: fix(components): handle no active option for combobox
+  - @scalar/themes@0.9.80
+  - @scalar/code-highlight@0.0.25
+  - @scalar/use-hooks@0.1.34
+
 ## 0.13.37
 
 ### Patch Changes
