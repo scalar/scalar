@@ -138,18 +138,27 @@ export const useMultipleDocuments = ({
     }
 
     const url = new URL(window.location.href)
-    const parameter = url.searchParams.get(QUERY_PARAMETER) || '0'
+    const parameter = url.searchParams.get(QUERY_PARAMETER)
 
-    // Try finding by slug first
-    const indexBySlug = availableDocuments.value.findIndex((option) => option.slug === parameter)
-    if (indexBySlug !== -1) {
-      return indexBySlug
+    // If there’s a query parameter, try to find the matching document
+    if (parameter) {
+      // Try finding by slug first
+      const indexBySlug = availableDocuments.value.findIndex((option) => option.slug === parameter)
+      if (indexBySlug !== -1) {
+        return indexBySlug
+      }
+
+      // Try parsing as numeric index if slug lookup fails
+      const numericIndex = Number.parseInt(parameter, 10)
+      if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
+        return numericIndex
+      }
     }
 
-    // Try parsing as numeric index if slug lookup fails
-    const numericIndex = Number.parseInt(parameter, 10)
-    if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
-      return numericIndex
+    // If no query parameter is set, look for a default source
+    const defaultIndex = availableDocuments.value.findIndex((doc) => doc.default === true)
+    if (defaultIndex !== -1) {
+      return defaultIndex
     }
 
     // Allow the user to hard-code the initial index

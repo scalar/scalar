@@ -419,7 +419,18 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
 /** Configuration for the Api Reference with sources before transforming */
 const _apiReferenceConfigurationWithSourcesSchema = _apiReferenceConfigurationSchema.merge(
   z.object({
-    sources: z.array(specConfigurationSchema),
+    sources: z.array(
+      specConfigurationSchema.merge(
+        z.object({
+          /**
+           * Whether to use this source as the default one
+           *
+           * @default false
+           */
+          default: z.boolean().optional().default(false).catch(false),
+        }),
+      ),
+    ),
   }),
 )
 
