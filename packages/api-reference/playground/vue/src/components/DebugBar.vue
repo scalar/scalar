@@ -143,31 +143,22 @@ const themes = [
             :key="source.url"
             class="flex items-center gap-2">
             <input
-              :checked="
-                modelValue.spec?.sources?.some((s) => s.url === source.url)
-              "
+              :checked="modelValue.sources?.some((s) => s.url === source.url)"
               class="rounded border-stone-700 bg-stone-800"
               type="checkbox"
               @change="
                 $emit('update:modelValue', {
                   ...modelValue,
-                  spec: {
-                    ...modelValue.spec,
-                    sources: modelValue.spec?.sources?.some(
-                      (s) => s.url === source.url,
-                    )
-                      ? modelValue.spec.sources.filter(
-                          (s) => s.url !== source.url,
-                        ).length > 0
-                        ? modelValue.spec.sources.filter(
-                            (s) => s.url !== source.url,
-                          )
-                        : []
-                      : [
-                          ...(modelValue.spec?.sources || []),
-                          { title: source.title, url: source.url },
-                        ],
-                  },
+
+                  sources: modelValue.sources?.some((s) => s.url === source.url)
+                    ? modelValue.sources.filter((s) => s.url !== source.url)
+                        .length > 0
+                      ? modelValue.sources.filter((s) => s.url !== source.url)
+                      : []
+                    : [
+                        ...(modelValue.sources || []),
+                        { title: source.title, url: source.url },
+                      ],
                 })
               " />
             <span>{{ source.title }}</span>

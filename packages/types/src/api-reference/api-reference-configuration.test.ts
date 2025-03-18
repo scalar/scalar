@@ -12,10 +12,8 @@ describe('api-reference-configuration', () => {
       const completeConfig = {
         theme: 'default',
         layout: 'modern',
-        spec: {
-          url: 'https://example.com/openapi.json',
-          content: '{"openapi": "3.1.0"}',
-        },
+        url: 'https://example.com/openapi.json',
+        content: '{"openapi": "3.1.0"}',
         proxyUrl: 'https://proxy.example.com',
         isEditable: true,
         showSidebar: true,

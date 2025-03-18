@@ -10,7 +10,7 @@ const configuration = reactive(
   apiReferenceConfigurationSchema.parse({
     proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
     isEditable: false,
-    spec: { content },
+    content,
   }),
 )
 </script>
