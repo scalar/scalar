@@ -2106,7 +2106,7 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       nanoid:
-        specifier: ^5.0.9
+        specifier: 'catalog:'
         version: 5.1.0
       zod:
         specifier: 'catalog:'
