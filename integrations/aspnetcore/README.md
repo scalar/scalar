@@ -86,13 +86,13 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API reference for a specific document.
+That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API Reference for a specific document. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details.
 
 ## Configuration
 
 For detailed configuration options, refer to the [integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md). This documentation focuses on the features provided by the package.
 
-For more realistic examples and advanced usage scenarios, such as authentication, API versioning and handling multiple documents, check out our [extended examples documentation](TODO).
+For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/README.md). This documentation is also useful if you need more context on what `Scalar.AspNetCore` is for.
 
 ## Development
 
