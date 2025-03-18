@@ -85,6 +85,41 @@ describe('useMultipleDocuments', () => {
       const { availableDocuments } = useMultipleDocuments(multiConfig)
       expect(availableDocuments.value).toHaveLength(0)
     })
+
+    it('selects first default source when no query parameter is set', () => {
+      mockUrl = new URL('http://example.com')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref([
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api', default: true },
+          { url: '/openapi-3.yaml', slug: 'third-api', default: true },
+        ]),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
+
+      expect(selectedDocumentIndex.value).toBe(1)
+      expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[1])
+    })
+
+    it('selects first source when no default is set and no query parameter exists', () => {
+      mockUrl = new URL('http://example.com')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multiConfig = {
+        configuration: ref([
+          { url: '/openapi.json', slug: 'first-api' },
+          { url: '/openapi-2.yaml', slug: 'second-api' },
+        ]),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
+
+      expect(selectedDocumentIndex.value).toBe(0)
+      expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[0])
+    })
   })
 
   describe('URL management', () => {
