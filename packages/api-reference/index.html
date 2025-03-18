@@ -31,6 +31,13 @@
         ],
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
+        authentication: {
+          preferredSecurityScheme: 'apiKey',
+          apiKey: {
+            name: 'api_key',
+            in: 'header',
+          },
+        },
       })
     </script>
   </body>

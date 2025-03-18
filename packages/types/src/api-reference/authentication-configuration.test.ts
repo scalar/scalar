@@ -1,5 +1,5 @@
-import { authenticationConfigurationSchema } from './authentication-configuration.ts'
 import { describe, expect, it } from 'vitest'
+import { authenticationConfigurationSchema } from './authentication-configuration.ts'
 
 describe('authenticationConfigurationSchema', () => {
   it('accepts empty record', () => {
@@ -9,14 +9,16 @@ describe('authenticationConfigurationSchema', () => {
 
   it('accepts partial security schemes', () => {
     const validConfig = {
-      apiKey: {
-        type: 'apiKey',
-        name: 'api_key',
-        in: 'header',
-      },
-      basic: {
-        type: 'http',
-        scheme: 'basic',
+      securitySchemes: {
+        apiKey: {
+          type: 'apiKey',
+          name: 'api_key',
+          in: 'header',
+        },
+        basic: {
+          type: 'http',
+          scheme: 'basic',
+        },
       },
     }
 
@@ -25,9 +27,11 @@ describe('authenticationConfigurationSchema', () => {
 
   it('rejects invalid security schemes', () => {
     const invalidConfig = {
-      apiKey: {
-        type: 'invalid', // Invalid type
-        name: 123, // Invalid type for name
+      securitySchemes: {
+        apiKey: {
+          type: 'invalid', // Invalid type
+          name: 123, // Invalid type for name
+        },
       },
     }
 
@@ -86,23 +90,25 @@ describe('authenticationConfigurationSchema', () => {
   describe('oauth2 security scheme', () => {
     it('accepts oauth2 configuration with different flows', () => {
       const validConfig = {
-        oauth2: {
-          type: 'oauth2',
-          description: 'OAuth2 Authentication',
-          flows: {
-            implicit: {
-              type: 'implicit',
-              scopes: {
-                'read:items': 'Read access to items',
-                'write:items': 'Write access to items',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            description: 'OAuth2 Authentication',
+            flows: {
+              implicit: {
+                type: 'implicit',
+                scopes: {
+                  'read:items': 'Read access to items',
+                  'write:items': 'Write access to items',
+                },
+                selectedScopes: ['read:items'],
+                'x-scalar-redirect-uri': 'http://localhost:3000',
               },
-              selectedScopes: ['read:items'],
-              'x-scalar-redirect-uri': 'http://localhost:3000',
-            },
-            authorizationCode: {
-              type: 'authorizationCode',
-              scopes: {
-                'full_access': 'Full API access',
+              authorizationCode: {
+                type: 'authorizationCode',
+                scopes: {
+                  'full_access': 'Full API access',
+                },
               },
             },
           },
@@ -114,11 +120,13 @@ describe('authenticationConfigurationSchema', () => {
 
     it('rejects invalid oauth2 flow configuration', () => {
       const invalidConfig = {
-        oauth2: {
-          type: 'oauth2',
-          flows: {
-            implicit: {
-              type: 'implidfcit',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                type: 'implidfcit',
+              },
             },
           },
         },
@@ -131,26 +139,28 @@ describe('authenticationConfigurationSchema', () => {
   describe('security scheme combinations', () => {
     it('accepts multiple security schemes with different configurations', () => {
       const config = {
-        apiKey: {
-          type: 'apiKey',
-          name: 'x-api-key',
-          in: 'header',
-          description: 'API Key Authentication',
-        },
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
-        },
-        oauth2: {
-          type: 'oauth2',
-          flows: {
-            clientCredentials: {
-              type: 'clientCredentials',
-              tokenUrl: 'https://api.example.com/oauth/token',
-              scopes: {
-                'read:api': 'Read access',
-                'write:api': 'Write access',
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'x-api-key',
+            in: 'header',
+            description: 'API Key Authentication',
+          },
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              clientCredentials: {
+                type: 'clientCredentials',
+                tokenUrl: 'https://api.example.com/oauth/token',
+                scopes: {
+                  'read:api': 'Read access',
+                  'write:api': 'Write access',
+                },
               },
             },
           },
@@ -161,11 +171,13 @@ describe('authenticationConfigurationSchema', () => {
 
     it('accepts security schemes with optional fields', () => {
       const config = {
-        apiKey: {
-          type: 'apiKey',
-          name: 'api_key',
-          in: 'header',
-          description: undefined,
+        securitySchemes: {
+          apiKey: {
+            type: 'apiKey',
+            name: 'api_key',
+            in: 'header',
+            description: undefined,
+          },
         },
       }
       expect(authenticationConfigurationSchema.parse(config)).toEqual(config)
@@ -198,39 +210,41 @@ describe('authenticationConfigurationSchema', () => {
   describe('oauth2 security scheme extended', () => {
     it('accepts oauth2 with all supported flow types', () => {
       const config = {
-        oauth2: {
-          type: 'oauth2',
-          description: 'OAuth2 Authentication',
-          flows: {
-            implicit: {
-              type: 'implicit',
-              authorizationUrl: 'https://auth.example.com/oauth/authorize',
-              scopes: {
-                'read:user': 'Read user data',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            description: 'OAuth2 Authentication',
+            flows: {
+              implicit: {
+                type: 'implicit',
+                authorizationUrl: 'https://auth.example.com/oauth/authorize',
+                scopes: {
+                  'read:user': 'Read user data',
+                },
+                selectedScopes: ['read:user'],
+                'x-scalar-redirect-uri': 'http://localhost:3000',
               },
-              selectedScopes: ['read:user'],
-              'x-scalar-redirect-uri': 'http://localhost:3000',
-            },
-            authorizationCode: {
-              type: 'authorizationCode',
-              authorizationUrl: 'https://auth.example.com/oauth/authorize',
-              tokenUrl: 'https://auth.example.com/oauth/token',
-              scopes: {
-                'full_access': 'Full API access',
+              authorizationCode: {
+                type: 'authorizationCode',
+                authorizationUrl: 'https://auth.example.com/oauth/authorize',
+                tokenUrl: 'https://auth.example.com/oauth/token',
+                scopes: {
+                  'full_access': 'Full API access',
+                },
               },
-            },
-            clientCredentials: {
-              type: 'clientCredentials',
-              tokenUrl: 'https://auth.example.com/oauth/token',
-              scopes: {
-                'service_access': 'Service account access',
+              clientCredentials: {
+                type: 'clientCredentials',
+                tokenUrl: 'https://auth.example.com/oauth/token',
+                scopes: {
+                  'service_access': 'Service account access',
+                },
               },
-            },
-            password: {
-              type: 'password',
-              tokenUrl: 'https://auth.example.com/oauth/token',
-              scopes: {
-                'user_access': 'User level access',
+              password: {
+                type: 'password',
+                tokenUrl: 'https://auth.example.com/oauth/token',
+                scopes: {
+                  'user_access': 'User level access',
+                },
               },
             },
           },
@@ -241,32 +255,36 @@ describe('authenticationConfigurationSchema', () => {
 
     it('validates required URLs for each oauth2 flow type', () => {
       const partialConfig = {
-        oauth2: {
-          type: 'oauth2',
-          flows: {
-            implicit: {
-              type: 'implicit',
-            },
-            authorizationCode: {
-              type: 'authorizationCode',
-              authorizationUrl: 'https://example.com',
-              scopes: '',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                type: 'implicit',
+              },
+              authorizationCode: {
+                type: 'authorizationCode',
+                authorizationUrl: 'https://example.com',
+                scopes: '',
+              },
             },
           },
         },
       }
 
       expect(authenticationConfigurationSchema.parse(partialConfig)).toEqual({
-        oauth2: {
-          type: 'oauth2',
-          flows: {
-            implicit: {
-              type: 'implicit',
-            },
-            authorizationCode: {
-              type: 'authorizationCode',
-              authorizationUrl: 'https://example.com',
-              scopes: {},
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                type: 'implicit',
+              },
+              authorizationCode: {
+                type: 'authorizationCode',
+                authorizationUrl: 'https://example.com',
+                scopes: {},
+              },
             },
           },
         },
@@ -277,13 +295,15 @@ describe('authenticationConfigurationSchema', () => {
   describe('custom extensions', () => {
     it('accepts custom x- scalar extensions', () => {
       const config = {
-        oauth2: {
-          type: 'oauth2',
-          flows: {
-            implicit: {
-              type: 'implicit',
-              'x-scalar-redirect-uri': 'http://localhost:3000',
-              'x-scalar-client-id': '123',
+        securitySchemes: {
+          oauth2: {
+            type: 'oauth2',
+            flows: {
+              implicit: {
+                type: 'implicit',
+                'x-scalar-redirect-uri': 'http://localhost:3000',
+                'x-scalar-client-id': '123',
+              },
             },
           },
         },

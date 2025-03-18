@@ -11,6 +11,11 @@ export {
 } from './api-reference-configuration.ts'
 
 export {
+  type AuthenticationConfiguration,
+  authenticationConfigurationSchema,
+} from './authentication-configuration.ts'
+
+export {
   type HtmlRenderingConfiguration,
   htmlRenderingConfigurationSchema,
 } from './html-rendering-configuration.ts'
