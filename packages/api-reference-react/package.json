@@ -59,8 +59,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rollup-preserve-directives": "^1.1.1",
-    "vite": "^5.4.10",
-    "vue": "^3.5.12"
+    "vite": "catalog:",
+    "vue": "catalog:"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

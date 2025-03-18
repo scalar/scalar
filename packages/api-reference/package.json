@@ -77,13 +77,13 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@unhead/vue": "^1.11.11",
-    "@vueuse/core": "^10.10.0",
+    "@vueuse/core": "catalog:",
     "flatted": "^3.3.1",
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
-    "nanoid": "^5.0.9",
-    "vue": "^3.5.12",
-    "zod": "^3.23.8"
+    "nanoid": "catalog:",
+    "vue": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -92,12 +92,12 @@
     "@vue/server-renderer": "^3.5.13",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
-    "postcss": "^8.4.38",
+    "postcss": "catalog:",
     "rollup-plugin-webpack-stats": "^0.2.5",
-    "tailwindcss": "^3.4.4",
-    "vite": "^5.4.10",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "^1.6.0"
+    "vitest": "catalog:"
   }
 }

@@ -67,7 +67,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@scalar/build-tooling": "workspace:*",
-    "@types/node": "^20.17.10",
+    "@types/node": "catalog:",
     "@types/prettyjson": "^0.0.33",
     "execa": "^8.0.1",
     "rollup-plugin-delete": "^2.0.0",

@@ -66,12 +66,12 @@
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
     "@unhead/schema": "^1.11.11",
-    "zod": "^3.23.8"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.15",
-    "vite": "^5.4.10",
-    "vitest": "^1.6.0"
+    "vite": "catalog:",
+    "vitest": "catalog:"
   }
 }
