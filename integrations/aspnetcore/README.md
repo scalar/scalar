@@ -8,6 +8,13 @@ This .NET package `Scalar.AspNetCore` provides an easy way to render beautiful A
 
 Made possible by the wonderful work of [@captainsafia](https://github.com/captainsafia) on [building the integration and docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents?view=aspnetcore-9.0#use-scalar-for-interactive-api-documentation) for the Scalar & .NET integration. Thanks to [@xC0dex](https://github.com/xC0dex) for making it awesome.
 
+## Features
+
+- Stunning API Reference
+- Compatible with .NET 8 and above
+- Independent of OpenAPI document generators
+- Fully AOT (Ahead-of-Time) compatible
+
 ![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/integrations/aspnetcore/dotnet.jpg)
 
 ## Migration Guide
@@ -79,11 +86,13 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API reference for a specific document.
+That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API Reference for a specific document. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details.
 
 ## Configuration
 
-For a full configuration guide and examples, including OAuth integration and custom settings, refer to the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md).
+For detailed configuration options, refer to the [integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md). This documentation focuses on the features provided by the package.
+
+For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/README.md). This documentation is also useful if you need more context on what `Scalar.AspNetCore` is for.
 
 ## Development
 
