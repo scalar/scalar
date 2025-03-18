@@ -1,0 +1,251 @@
+import { describe, it, expect } from 'vitest'
+import { transformAuth } from './transform-auth'
+import type { AuthenticationConfiguration } from '@scalar/types/api-reference'
+import type { OpenAPIV3 } from '@scalar/types/legacy'
+
+describe('transformAuth', () => {
+  it('should transform HTTP Basic authentication', () => {
+    const oldAuth = {
+      http: {
+        basic: {
+          username: 'testuser',
+          password: 'testpass',
+        },
+      },
+    }
+
+    const securitySchemes = {
+      basicAuth: {
+        type: 'http',
+        scheme: 'basic',
+      },
+    } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+    const expected: AuthenticationConfiguration = {
+      basicAuth: {
+        type: 'http',
+        scheme: 'basic',
+        username: 'testuser',
+        password: 'testpass',
+      },
+    }
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+
+  it('should transform HTTP Bearer authentication', () => {
+    const oldAuth = {
+      http: {
+        bearer: {
+          token: 'bearer-token-123',
+        },
+      },
+    }
+
+    const securitySchemes = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+      },
+    } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+    const expected: AuthenticationConfiguration = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'bearer-token-123',
+      },
+    }
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+
+  it('should transform API Key authentication', () => {
+    const oldAuth = {
+      apiKey: {
+        token: 'api-key-123',
+      },
+    }
+
+    const securitySchemes = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-Key',
+      },
+    } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+    const expected: AuthenticationConfiguration = {
+      apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-Key',
+        value: 'api-key-123',
+      },
+    }
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+
+  describe('OAuth2 flows', () => {
+    it('should transform OAuth2 password flow', () => {
+      const oldAuth = {
+        oAuth2: {
+          clientId: 'client-123',
+          scopes: ['read', 'write'],
+          accessToken: 'access-token-123',
+          username: 'oauth-user',
+          password: 'oauth-pass',
+        },
+      }
+
+      const securitySchemes = {
+        oauth2Auth: {
+          type: 'oauth2',
+          flows: {
+            password: {
+              tokenUrl: 'https://api.example.com/token',
+              scopes: {
+                read: 'Read access',
+                write: 'Write access',
+              },
+            },
+          },
+        },
+      } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+      const expected: AuthenticationConfiguration = {
+        oauth2Auth: {
+          type: 'oauth2',
+          flows: {
+            password: {
+              type: 'password',
+              tokenUrl: 'https://api.example.com/token',
+              selectedScopes: ['read', 'write'],
+              token: 'access-token-123',
+              username: 'oauth-user',
+              password: 'oauth-pass',
+              'x-scalar-client-id': 'client-123',
+            },
+          },
+        },
+      }
+
+      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    })
+
+    it('should transform OAuth2 implicit flow', () => {
+      const oldAuth = {
+        oAuth2: {
+          clientId: 'client-123',
+          scopes: ['read'],
+          accessToken: 'access-token-123',
+        },
+      }
+
+      const securitySchemes = {
+        oauth2Auth: {
+          type: 'oauth2',
+          flows: {
+            implicit: {
+              authorizationUrl: 'https://api.example.com/authorize',
+              scopes: {
+                read: 'Read access',
+              },
+            },
+          },
+        },
+      } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+      const expected: AuthenticationConfiguration = {
+        oauth2Auth: {
+          type: 'oauth2',
+          flows: {
+            implicit: {
+              type: 'implicit',
+              authorizationUrl: 'https://api.example.com/authorize',
+              selectedScopes: ['read'],
+              token: 'access-token-123',
+              'x-scalar-client-id': 'client-123',
+            },
+          },
+        },
+      }
+
+      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    })
+  })
+
+  it('should handle empty authentication config', () => {
+    const oldAuth = {}
+    const securitySchemes = {}
+
+    const expected: AuthenticationConfiguration = {}
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+
+  it('should set preferredSecurityScheme when specified', () => {
+    const oldAuth = {
+      preferredSecurityScheme: 'bearerAuth',
+      http: {
+        bearer: {
+          token: 'bearer-token-123',
+        },
+      },
+    }
+
+    const securitySchemes = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+    } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+    const expected: AuthenticationConfiguration = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'bearer-token-123',
+      },
+      preferredSecurityScheme: 'bearerAuth',
+    }
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+
+  it('should handle complex preferredSecurityScheme configuration', () => {
+    const oldAuth = {
+      preferredSecurityScheme: [['bearerAuth', 'apiKeyAuth']],
+      http: {
+        bearer: {
+          token: 'bearer-token-123',
+        },
+      },
+    }
+
+    const securitySchemes = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+      },
+      apiKeyAuth: {
+        type: 'apiKey',
+        in: 'header',
+        name: 'X-API-Key',
+      },
+    } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
+
+    const expected: AuthenticationConfiguration = {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        token: 'bearer-token-123',
+      },
+      preferredSecurityScheme: [['bearerAuth', 'apiKeyAuth']],
+    }
+
+    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+  })
+})

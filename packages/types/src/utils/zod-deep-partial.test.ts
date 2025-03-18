@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import { zodDeepPartial } from './zod-deep-partial.ts'
 
 describe('zodDeepPartial', () => {
   // Test basic types
-  it('should make basic types optional', () => {
+  it('should not make basic types optional', () => {
     const schema = z.string()
     const result = zodDeepPartial(schema)
-    expect(result.isOptional()).toBe(true)
+    expect(result.isOptional()).toBe(false)
   })
 
   it('should not have default values', () => {
@@ -33,9 +33,6 @@ describe('zodDeepPartial', () => {
     })
 
     const result = zodDeepPartial(schema)
-
-    // Check if the schema is optional
-    expect(result.isOptional()).toBe(true)
 
     // Create type to verify structure
     type Result = z.infer<typeof result>

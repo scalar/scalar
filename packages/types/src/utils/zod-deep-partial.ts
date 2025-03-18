@@ -19,7 +19,7 @@ type ZodDeepPartial<T extends z.ZodTypeAny> = T extends z.ZodObject<infer Shape>
  * A custom implementation of zodDeepPartial which removes defaults while preserving catch
  * This is temporary while the zod .deepPartial is deprecated, once Colin brings back a new one we can use that instead
  */
-export const zodDeepPartial = <T extends z.ZodTypeAny>(schema: T): z.ZodOptional<ZodDeepPartial<T>> => {
+export const zodDeepPartial = <T extends z.ZodTypeAny>(schema: T): ZodDeepPartial<T> => {
   // Remove any default values from the schema
   const removeDefaults = (s: z.ZodTypeAny): z.ZodTypeAny => {
     if (s instanceof z.ZodDefault) {
@@ -36,7 +36,7 @@ export const zodDeepPartial = <T extends z.ZodTypeAny>(schema: T): z.ZodOptional
       const newShape = {} as z.ZodRawShape
       for (const [key, value] of Object.entries(schema.shape)) {
         // Add type assertion to ensure value is ZodTypeAny
-        newShape[key] = zodDeepPartial(value as z.ZodTypeAny)
+        newShape[key] = zodDeepPartial(value as z.ZodTypeAny).optional()
       }
       return z.object(newShape)
     }
@@ -61,5 +61,5 @@ export const zodDeepPartial = <T extends z.ZodTypeAny>(schema: T): z.ZodOptional
     return schema
   }
 
-  return processSchema(schema).optional() as z.ZodOptional<ZodDeepPartial<T>>
+  return processSchema(schema) as ZodDeepPartial<T>
 }
