@@ -1,8 +1,8 @@
 import type { ReferenceProps } from '@/types'
 import {
   type ApiReferenceConfiguration,
-  apiReferenceConfigurationSchema,
   type MultiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { type App, createApp, h, reactive } from 'vue'
@@ -199,6 +199,8 @@ export const createApiReference: CreateApiReference = (
   elementOrSelectorOrConfig,
   optionalConfiguration?: MultiReferenceConfiguration,
 ) => {
+  console.log('createApiReference', elementOrSelectorOrConfig, optionalConfiguration)
+
   const props = reactive<ReferenceProps>({
     // Either the configuration will be the second arugment or it MUST be the first (configuration only)
     configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as MultiReferenceConfiguration) ?? {},

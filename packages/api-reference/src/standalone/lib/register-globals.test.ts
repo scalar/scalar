@@ -1,6 +1,6 @@
-import { registerGlobals } from './register-globals'
 import { describe, expect, it } from 'vitest'
-import { createApiReference } from './html-api'
+import { createApiReference } from './html-api/create-api-reference'
+import { registerGlobals } from './register-globals'
 
 describe('registerGlobals', () => {
   it('registers the createApiReference method on the global window', () => {

@@ -5,7 +5,9 @@ import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
-import { useReactiveSpec } from '../hooks'
+import { createStore } from '@/helpers/create-store'
+import { useReactiveSpec } from '@/hooks'
+
 import { Layouts } from './Layouts'
 
 const { configuration } = defineProps<{
@@ -50,17 +52,37 @@ const content = computed(() => {
   return JSON.stringify({
     openapi: '3.1.0',
     info: {
-      title: 'Example',
+      title: 'We should fetch URLs I guess',
       version: '1.0.0',
     },
-    paths: {},
+    paths: {
+      '/foobar': {
+        get: {
+          summary: 'Foobar',
+          responses: {
+            200: {
+              description: 'Success',
+              content: {
+                'application/json': {
+                  schema: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   })
 })
 
+// Old data
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(() => configuration.proxyUrl || ''),
   content: toRef(() => content.value || ''),
 })
+
+// New data
+createStore(content, configuration)
 
 // TODO: defineSlots
 
@@ -69,7 +91,7 @@ useFavicon(favicon)
 </script>
 <template>
   <div class="debug">
-    <pre>{{ content }}</pre>
+    <pre>{{ JSON.stringify(JSON.parse(content), null, 2) }}</pre>
   </div>
   <!-- Inject any custom CSS directly into a style tag -->
   <component

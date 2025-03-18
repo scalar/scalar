@@ -500,7 +500,7 @@ export type ApiReferenceConfigurationWithSources = Omit<
   'proxy' | 'spec'
 >
 
-/** Configuration for multiple Api References */
+/** Configuration for multiple API References */
 export type MultiReferenceConfiguration =
   | Partial<ApiReferenceConfiguration>
   | Partial<ApiReferenceConfiguration>[]

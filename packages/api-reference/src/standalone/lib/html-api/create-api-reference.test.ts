@@ -1,14 +1,14 @@
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { flushPromises } from '@vue/test-utils'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   createApiReference,
   createContainer,
   findDataAttributes,
   getConfigurationFromDataAttributes,
-} from '@/standalone/lib/html-api'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { flushPromises } from '@vue/test-utils'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+} from './create-api-reference'
 
-describe('html-api', () => {
+describe('create-api-reference', () => {
   beforeEach(() => {
     global.document = createHtmlDocument(`
       <html>

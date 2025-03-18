@@ -2,12 +2,6 @@
 import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
-  ACTIVE_ENTITIES_SYMBOL,
-  createActiveEntitiesStore,
-  createWorkspaceStore,
-  WORKSPACE_SYMBOL,
-} from '@scalar/api-client/store'
-import {
   addScalarClassesToHeadless,
   ScalarErrorBoundary,
 } from '@scalar/components'
@@ -254,39 +248,11 @@ onServerPrefetch(() => {
  */
 provideUseId(() => useId())
 
-// Create the workspace store and provide it
-const workspaceStore = createWorkspaceStore({
-  useLocalStorage: false,
-  ...configuration.value,
-})
-// Populate the workspace store
-watch(
-  () => props.rawSpec,
-  (spec) =>
-    spec &&
-    workspaceStore.importSpecFile(spec, 'default', {
-      shouldLoad: false,
-      documentUrl: configuration.value.spec?.url,
-      setCollectionSecurity: true,
-      ...configuration.value,
-    }),
-  { immediate: true },
-)
-
-provide(WORKSPACE_SYMBOL, workspaceStore)
-
-// Same for the active entities store
-const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
-provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
-
 // Provide the client layout
 provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
 provide(CONFIGURATION_SYMBOL, configuration)
-
-// ---------------------------------------------------------------------------/
-// HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
 function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
