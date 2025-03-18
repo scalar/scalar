@@ -68,7 +68,7 @@ onMounted(async () => {
     setTimeout(() => {
       document
         ?.getElementById(getOptionId(selected.value[0]))
-        ?.scrollIntoView({ block: 'center' })
+        ?.scrollIntoView({ block: 'nearest' })
     }, 10)
   }
 })
