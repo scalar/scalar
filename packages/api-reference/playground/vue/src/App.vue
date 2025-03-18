@@ -13,14 +13,12 @@ const containerRef = ref<HTMLDivElement>()
 const configuration = reactive({
   layout: 'modern' as const,
   theme: 'default' as const,
-  spec: {
-    sources: [
-      {
-        title: 'Scalar Galaxy',
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-      },
-    ],
-  },
+  sources: [
+    {
+      title: 'Scalar Galaxy',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    },
+  ],
   showSidebar: true,
   withDefaultFonts: true,
 })

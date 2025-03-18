@@ -1,8 +1,8 @@
 import type { ReferenceProps } from '@/types'
 import {
   type ApiReferenceConfiguration,
-  apiReferenceConfigurationSchema,
   type MultiReferenceConfiguration,
+  apiReferenceConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { type App, createApp, h, reactive } from 'vue'
@@ -188,11 +188,11 @@ export type CreateApiReference = {
 }
 
 /**
- * Create and mount a new Scalar API Reference
+ * Create (and mount) a new Scalar API Reference
  *
- * @example createApiReference({ spec: { url: '/scalar.json' } })
- * @example createApiReference('#api-reference', { spec: { url: '/scalar.json' } })
- * @example createApiReference(document.body, { spec: { url: '/scalar.json' } })
+ * @example createApiReference({ url: '/scalar.json' }).mount('#app')
+ * @example createApiReference('#app', { url: '/scalar.json' })
+ * @example createApiReference(document.getElementById('app'), { url: '/scalar.json' })
  *
  */
 export const createApiReference: CreateApiReference = (

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { ref, computed, inject } from 'vue'
-import { useConfig, CONFIGURATION_SYMBOL } from './useConfig'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { computed, inject, ref } from 'vue'
+import { CONFIGURATION_SYMBOL, useConfig } from './useConfig'
 
 // Mock Vue's inject function
 vi.mock('vue', async () => {
@@ -28,7 +28,7 @@ describe('useConfig', () => {
   it('returns the injected config', () => {
     // Create a mock config
     const mockConfig = apiReferenceConfigurationSchema.parse({
-      spec: { url: 'https://example.com/openapi.json' },
+      url: 'https://example.com/openapi.json',
       theme: 'default',
     })
 
@@ -43,7 +43,7 @@ describe('useConfig', () => {
     // Create a reactive source of truth
     const configSource = ref(
       apiReferenceConfigurationSchema.parse({
-        spec: { url: 'https://example.com/openapi.json' },
+        url: 'https://example.com/openapi.json',
         theme: 'default',
       }),
     )
@@ -82,7 +82,7 @@ describe('useConfig', () => {
       // Initial config
       const configSource = ref(
         apiReferenceConfigurationSchema.parse({
-          spec: { url: 'https://example.com/openapi.json' },
+          url: 'https://example.com/openapi.json',
           theme: 'default',
         }),
       )

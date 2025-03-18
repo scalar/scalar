@@ -20,9 +20,7 @@ npm install @scalar/core
 import { getHtmlDocument } from '@scalar/core/lib/html-rendering'
 
 const html = getHtmlDocument({
-  spec: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-  },
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
 ```
 
