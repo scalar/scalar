@@ -101,7 +101,10 @@ describe('useMultipleDocuments', () => {
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multiConfig)
 
       expect(selectedDocumentIndex.value).toBe(1)
-      expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[1])
+      expect(selectedConfiguration.value).toMatchObject({
+        url: '/openapi-2.yaml',
+        slug: 'second-api',
+      })
     })
 
     it('selects first source when no default is set and no query parameter exists', () => {

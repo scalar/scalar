@@ -156,7 +156,7 @@ export const useMultipleDocuments = ({
     }
 
     // If no query parameter is set, look for a default source
-    const defaultIndex = availableDocuments.value.findIndex((doc) => doc.default === true)
+    const defaultIndex = availableDocuments.value.findIndex((doc) => 'default' in doc && doc.default === true)
     if (defaultIndex !== -1) {
       return defaultIndex
     }
