@@ -206,13 +206,17 @@ export async function importSpecToWorkspace(
               flow.token = authentication.oAuth2.accessToken
             }
 
+            if (authentication.oAuth2.clientId) {
+              flow['x-scalar-client-id'] = authentication.oAuth2.clientId
+            }
+
+            if (authentication.oAuth2.scopes) {
+              flow.selectedScopes = authentication.oAuth2.scopes
+            }
+
             if (flow.type === 'password') {
               flow.username = authentication.oAuth2.username
               flow.password = authentication.oAuth2.password
-            }
-            if (authentication.oAuth2.scopes) {
-              flow.selectedScopes = authentication.oAuth2.scopes
-              flow['x-scalar-client-id'] = authentication.oAuth2.clientId
             }
           }
 
