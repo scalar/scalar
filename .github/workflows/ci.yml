@@ -166,7 +166,7 @@ jobs:
       - name: Check types
         run: pnpm types:check
 
-  test:
+  test-packages:
     needs: [build]
     runs-on: ubuntu-22.04
     timeout-minutes: 10
@@ -183,13 +183,44 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages-only: 'true'
       - name: Run tests
-        run: pnpm test:ci
+        run: pnpm test:packages:ci
+
+  test-integrations:
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [18, 20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build packages
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: './integrations/*'
+      - name: Run tests
+        run: pnpm test:integrations:ci
+
+  test-proxy-server:
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        go-version: ['1.21']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Setup Go
         uses: actions/setup-go@f111f3307d8850f501ac008e886eec1fd1932a34
         with:
-          go-version: '1.21'
+          go-version: ${{ matrix.go-version }}
       - name: Run tests for the proxy server (Go)
-        run: cd projects/proxy-scalar-com && pnpm test
+        run: cd projects/proxy-scalar-com && go test -v
 
   stats:
     needs: [build]
@@ -227,7 +258,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [harden_security, build, format, types, test]
+    needs:
+      [harden_security, build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
         node-version: [20]
@@ -280,7 +312,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
-    needs: [build, test]
+    needs: [build, test-packages]
     strategy:
       matrix:
         node-version: [20]
@@ -545,7 +577,16 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    needs: [harden_security, build, format, types, test, aspnetcore-build-test]
+    needs:
+      [
+        harden_security,
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        aspnetcore-build-test,
+      ]
 
     steps:
       - name: Checkout repository
