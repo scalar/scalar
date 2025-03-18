@@ -23,6 +23,7 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
+import { useConfig } from '@/hooks/useConfig'
 import {
   getOperationStability,
   getOperationStabilityColor,
@@ -47,6 +48,7 @@ const { operation } = defineProps<{
 }>()
 
 const labelId = useId()
+const config = useConfig()
 
 /** The title of the operation (summary or path) */
 const title = computed(() => operation.summary || operation.path)
@@ -58,7 +60,7 @@ const title = computed(() => operation.summary || operation.path)
     :aria-labelledby="labelId"
     :label="title"
     tabindex="-1">
-    <SectionContent>
+    <SectionContent :loading="config.isLoading">
       <Badge
         v-if="getOperationStability(operation)"
         :class="getOperationStabilityColor(operation)">

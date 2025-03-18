@@ -6,11 +6,10 @@ import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/activ
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { LS_KEYS, objectMerge, prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { LS_KEYS, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
 import type { OpenAPI } from '@scalar/types/legacy'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
@@ -212,31 +211,6 @@ export const createApiClient = ({
     mount()
   }
 
-  /**
-   * Update the spec
-   *
-   * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
-   */
-  const updateSpec = async (spec: SpecConfiguration) => {
-    if (spec?.url) {
-      await importSpecFromUrl(spec.url, activeWorkspace.value?.uid ?? '', {
-        ...configuration,
-        setCollectionSecurity: true,
-      })
-    } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value?.uid ?? '', {
-        ...configuration,
-        setCollectionSecurity: true,
-      })
-    } else {
-      console.error(
-        '[@scalar/api-client-modal] Could not create the API client.',
-        'Please provide an OpenAPI document: { url: "…" }',
-        'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
-      )
-    }
-  }
-
   /** Route to the specified method and path */
   const route = (payload?: OpenClientPayload) => {
     // Find the request from path + method
@@ -260,31 +234,53 @@ export const createApiClient = ({
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
-    updateSpec,
     /**
      * Update the API client config
      *
-     * Deletes the current store before importing again for now, in the future will Diff
+     * Deletes the current store before importing again for now, in the future will Diff and only update what is needed
      */
-    updateConfig(_newConfig: Partial<ApiClientConfiguration>, mergeConfigs = true) {
+    updateConfig: async (_newConfig: Partial<ApiClientConfiguration>) => {
       const newConfig = apiClientConfigurationSchema.parse(_newConfig)
-      if (mergeConfigs) {
-        Object.assign(configuration ?? {}, newConfig)
-      } else {
-        objectMerge(configuration ?? {}, newConfig)
-      }
-      // Update the spec, reset the store first
-      if (newConfig.spec) {
+
+      // When to rigger rebuilding the store (until we diff) this is just a temp hack BUT do not put anything that
+      // has a default here as it will always trigger as the config has already been parsed
+      if (
+        newConfig.url ||
+        newConfig.content ||
+        newConfig.servers ||
+        newConfig.authentication ||
+        newConfig.slug ||
+        newConfig.title ||
+        newConfig.baseServerURL ||
+        newConfig.proxyUrl ||
+        newConfig.showSidebar
+      ) {
+        // Update the spec, reset the store first
         store.collectionMutators.reset()
         store.requestMutators.reset()
         store.requestExampleMutators.reset()
         store.securitySchemeMutators.reset()
         store.serverMutators.reset()
         store.tagMutators.reset()
-
         workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
 
-        updateSpec(newConfig.spec)
+        if (newConfig.url) {
+          await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', {
+            ...newConfig,
+            setCollectionSecurity: true,
+          })
+        } else if (newConfig.content) {
+          await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', {
+            ...newConfig,
+            setCollectionSecurity: true,
+          })
+        } else {
+          console.error(
+            '[@scalar/api-client-modal] Could not create the API client.',
+            'Please provide an OpenAPI document: { url: "…" }',
+            'Read more: https://github.com/scalar/scalar/tree/main/packages/api-client',
+          )
+        }
       }
     },
     /** Update the currently selected server via URL */

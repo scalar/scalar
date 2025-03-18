@@ -133,7 +133,6 @@ describe('createApiClient', () => {
     expect(createSidebarState).toHaveBeenCalled()
 
     expect(client).toHaveProperty('app')
-    expect(client).toHaveProperty('updateSpec')
     expect(client).toHaveProperty('updateConfig')
     expect(client).toHaveProperty('updateServer')
     expect(client).toHaveProperty('onUpdateServer')
@@ -184,9 +183,7 @@ describe('createApiClient', () => {
     const mockStore = client.store
 
     client.updateConfig({
-      spec: {
-        url: 'https://example.com/openapi.json',
-      },
+      url: 'https://example.com/openapi.json',
     })
 
     // Should reset all stores

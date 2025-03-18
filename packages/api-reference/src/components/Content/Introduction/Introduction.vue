@@ -62,7 +62,8 @@ onMounted(() => config.value.onLoaded?.())
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
     <Section class="introduction-section gap-12">
-      <SectionContent :loading="!info?.description && !info?.title">
+      <SectionContent
+        :loading="config.isLoading ?? (!info?.description && !info?.title)">
         <div class="flex gap-1">
           <Badge v-if="version">{{ version }}</Badge>
           <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>

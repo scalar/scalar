@@ -14,6 +14,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
 import OperationsList from './OperationsList.vue'
@@ -27,6 +28,7 @@ const props = defineProps<{
 }>()
 
 const { getTagId } = useNavState()
+const config = useConfig()
 
 const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 </script>
@@ -35,7 +37,7 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
     :id="id"
     :label="tag.name.toUpperCase()"
     role="none">
-    <SectionHeader>
+    <SectionHeader v-show="!config.isLoading">
       <Anchor :id="getTagId(tag)">
         <SectionHeaderTag
           :id="headerId"
@@ -45,7 +47,7 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
         </SectionHeaderTag>
       </Anchor>
     </SectionHeader>
-    <SectionContent>
+    <SectionContent :loading="config.isLoading">
       <SectionColumns>
         <SectionColumn>
           <ScalarMarkdown

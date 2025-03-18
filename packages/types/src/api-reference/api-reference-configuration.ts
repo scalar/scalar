@@ -214,7 +214,7 @@ export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
-/** Configuration for the Api Reference without the transform since it cannot be merged */
+/** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
   z.object({
     /**
@@ -232,6 +232,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default false
      */
     isEditable: z.boolean().optional().default(false).catch(false),
+    /**
+     * Controls whether the references show a loading state in the intro
+     * @default false
+     */
+    isLoading: z.boolean().optional().default(false).catch(false),
     /**
      * Whether to show models in the sidebar, search, and content.
      * @default false
