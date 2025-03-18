@@ -427,7 +427,7 @@ const _apiReferenceConfigurationWithSourcesSchema = _apiReferenceConfigurationSc
            *
            * @default false
            */
-          default: z.boolean().optional().default(false).catch(false),
+          default: z.boolean().optional().catch(false),
         }),
       ),
     ),
