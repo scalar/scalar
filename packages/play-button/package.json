@@ -63,7 +63,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "vite": "catalog:",
     "vite-plugin-banner": "^0.7.1",

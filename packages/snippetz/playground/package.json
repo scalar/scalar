@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "shikiji": "^0.10.2",
     "vite": "catalog:"
   }

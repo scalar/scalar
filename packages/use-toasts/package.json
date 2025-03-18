@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.1",
     "vite": "catalog:",

@@ -80,7 +80,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "@vitest/coverage-v8": "^1.6.0",
     "vite": "catalog:",
     "vitest": "catalog:",
