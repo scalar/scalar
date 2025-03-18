@@ -14,7 +14,7 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('document selection', () => {
-    it('should select document using numeric index from query parameter', () => {
+    it('selects document using numeric index from query parameter', () => {
       mockUrl = new URL('http://example.com?api=1')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -34,7 +34,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[1])
     })
 
-    it('should select document using slug from query parameter', () => {
+    it('selects document using slug from query parameter', () => {
       mockUrl = new URL('http://example.com?api=second-api')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -54,7 +54,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[1])
     })
 
-    it('should default to first API when query parameter is invalid', () => {
+    it('defaults to first API when query parameter is invalid', () => {
       mockUrl = new URL('http://example.com?api=invalid')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -88,8 +88,7 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('URL management', () => {
-    // We do not set the initial url as its not needed, also was breaking the hash
-    it.todo('should update URL when initializing with a selection', () => {
+    it.todo('updates URL when initializing with a selection', () => {
       const multiConfig = {
         configuration: ref([
           { url: '/openapi.json', slug: 'first-api' },
@@ -107,7 +106,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toMatchObject(multiConfig.configuration.value[0])
     })
 
-    it('should not update URL when there is only one document', () => {
+    it('does not update URL when there is only one document', () => {
       const singleConfig = {
         configuration: ref([{ url: '/openapi.json', slug: 'single-api' }]),
         hash: ref(''),
@@ -122,7 +121,7 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('edge cases', () => {
-    it('should handle single API configuration', () => {
+    it('handles single API configuration', () => {
       const singleConfig = {
         configuration: ref({ url: '/openapi.json', slug: 'single-api' }),
         hash: ref(''),
@@ -136,7 +135,7 @@ describe('useMultipleDocuments', () => {
       expect(selectedConfiguration.value).toMatchObject(singleConfig.configuration.value)
     })
 
-    it('should handle undefined configuration', () => {
+    it('handles undefined configuration', () => {
       const emptyConfig = {
         configuration: ref(undefined),
         hash: ref(''),
@@ -162,7 +161,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should filter out APIs with undefined sources/url/content', () => {
+    it('filters out APIs with undefined sources/url/content', () => {
       const configWithUndefinedSpec = {
         configuration: ref([{ url: undefined }, { url: '/openapi-2.yaml', slug: 'valid-api' }]),
         hash: ref(''),
@@ -177,7 +176,7 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('multiple sources', () => {
-    it('should select API using numeric index from query parameter', () => {
+    it('selects API using numeric index from query parameter', () => {
       mockUrl = new URL('http://example.com?api=1')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -208,7 +207,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should select API using slug from query parameter', () => {
+    it('selects API using slug from query parameter', () => {
       mockUrl = new URL('http://example.com?api=second-api')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -239,7 +238,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should default to first API if query parameter is invalid', () => {
+    it('defaults to first API if query parameter is invalid', () => {
       mockUrl = new URL('http://example.com?api=invalid-api')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
 
@@ -270,7 +269,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should update URL when selection changes', async () => {
+    it('updates URL when selection changes', async () => {
       mockUrl = new URL('http://example.com')
       vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
       const replaceStateSpy = vi.spyOn(window.history, 'replaceState')
@@ -300,7 +299,7 @@ describe('useMultipleDocuments', () => {
       expect(replaceStateSpy).toHaveBeenCalledWith({}, '', 'http://example.com/?api=second-api')
     })
 
-    it('should filter out undefined sources', () => {
+    it('filters out undefined sources', () => {
       const configWithUndefinedSource = {
         configuration: ref({
           sources: [
@@ -322,7 +321,7 @@ describe('useMultipleDocuments', () => {
   })
 
   describe('title and slug handling', () => {
-    it('should generate slug from title if only title exists', () => {
+    it('generates slug from title if only title exists', () => {
       const config = {
         configuration: ref({
           sources: [
@@ -345,7 +344,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should use slug as title if only slug exists', () => {
+    it('uses slug as title if only slug exists', () => {
       const config = {
         configuration: ref({
           sources: [
@@ -368,7 +367,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should generate both title and slug from index if neither exists', () => {
+    it('generates both title and slug from index if neither exists', () => {
       const config = {
         configuration: ref({
           sources: [
@@ -397,7 +396,7 @@ describe('useMultipleDocuments', () => {
       })
     })
 
-    it('should preserve existing slug when title is present', () => {
+    it('preserves existing slug when title is present', () => {
       const config = {
         configuration: ref({
           sources: [
