@@ -77,6 +77,8 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Documents
 
+Add multiple OpenAPI documents to render all of them. We’ll need a slug and title to distinguish them in the UI and in
+the URL. You can just omit those attributes and we try our best to still distinguish them, though.
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -94,6 +96,26 @@ Scalar.createApiReference('#app', {
     // API #3
     {
       content: '{ "openapi": "3.1.1", … }',
+    }
+  ]
+})
+```
+
+The first one in the list is the default one. Sometimes, this list is auto-generated and you might want to explicitly
+set the default like this:
+
+```ts
+Scalar.createApiReference('#app', {
+  sources: [
+    // API #1
+    {
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    },
+    // API #2
+    {
+      url: 'https://example.com/openapi.json',
+      // This will make it the default OpenAPI document:
+      default: true,
     }
   ]
 })
