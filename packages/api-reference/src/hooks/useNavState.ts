@@ -1,81 +1,23 @@
 import { useConfig } from '@/hooks/useConfig'
-import { combineUrlAndPath, ssrState } from '@scalar/oas-utils/helpers'
-import type { Heading, PathRouting, Tag, TransformedOperation } from '@scalar/types/legacy'
+import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
+import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
-import { ref } from 'vue'
+import { type InjectionKey, type Ref, inject, ref } from 'vue'
 
-const hashPrefix = ref('')
-
-// Keeps track of the URL hash without the #
-const hash = ref(ssrState.hash ?? '')
-
-// Are we using path routing
-const pathRouting = ref<PathRouting | undefined>()
-
-// To disable the intersection observer on click
-const isIntersectionEnabled = ref(false)
-
-const getPathRoutingId = (pathName: string) => {
-  if (!pathRouting.value) {
-    return ''
-  }
-
-  const reggy = new RegExp('^' + pathRouting.value?.basePath + '/?')
-  return decodeURIComponent(pathName.replace(reggy, ''))
+export type NavState = {
+  /** The URL hash without the #, also the "hash" pulled from pathRouting */
+  hash: Ref<string>
+  /** The prefix for the hash, used in ORG */
+  hashPrefix: Ref<string>
+  /** Whether the intersection observer is enabled and updating the hash as we scroll */
+  isIntersectionEnabled: Ref<boolean>
 }
+export const NAV_STATE_SYMBOL = Symbol() as InjectionKey<NavState>
 
-// Grabs the sectionId of the hash to open the section before scrolling
-const getSectionId = (hashStr = hash.value) => {
-  const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
-  const modelId = hashStr.startsWith('model') ? 'models' : ''
-  const webhookId = hashStr.startsWith('webhook') ? 'webhooks' : ''
-
-  return tagId || modelId || webhookId
-}
-
-// Update the reactive hash state
-const updateHash = () => {
-  hash.value = pathRouting.value
-    ? getPathRoutingId(window.location.pathname)
-    : // Must remove the prefix from the hash as the internal hash value should be pure
-      decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(hashPrefix.value.length)
-}
-
-const replaceUrlState = (replacementHash: string, url = window.location.href) => {
-  const newUrl = new URL(url)
-
-  // If we are pathrouting, set path instead of hash
-  if (pathRouting.value) {
-    newUrl.pathname = combineUrlAndPath(pathRouting.value.basePath, replacementHash)
-  } else {
-    newUrl.hash = hashPrefix.value + replacementHash
-  }
-
-  // Update the hash ref
-  hash.value = replacementHash
-
-  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
-  // this is why we set the hash value directly
-  window.history.replaceState({}, '', newUrl)
-}
-
-const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
-  const newUrl = new URL(url)
-  newUrl.hash = hashPrefix.value + replacementHash
-  newUrl.search = search
-  return newUrl.toString()
-}
-
-const getFullHash = (hashTarget: string = hash.value) => {
-  return `${hashPrefix.value}${hashTarget}`
-}
-
-/**
- * Gets the portion of the hash used by the references
- *
- * @returns The hash without the prefix
- */
-const getReferenceHash = () => decodeURIComponent(window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length))
+/** We inject a backup global refs in case one isn't provided for any integrations not using ApiReference */
+const isIntersectionEnabledBackup = ref(false)
+const hashBackup = ref('')
+const hashPrefixBackup = ref('')
 
 /**
  * Hook which provides reactive hash state from the URL
@@ -85,7 +27,78 @@ const getReferenceHash = () => decodeURIComponent(window.location.hash.replace(/
  * when clicking on sidebar links or going backwards
  */
 export const useNavState = () => {
+  const { isIntersectionEnabled, hash, hashPrefix } = inject(NAV_STATE_SYMBOL, {
+    isIntersectionEnabled: isIntersectionEnabledBackup,
+    hash: hashBackup,
+    hashPrefix: hashPrefixBackup,
+  })
+
   const config = useConfig()
+
+  console.log({ hash: hash.value, hashPrefix: hashPrefix.value })
+
+  const getPathRoutingId = (pathName: string) => {
+    if (!config.value.pathRouting) {
+      return ''
+    }
+
+    const reggy = new RegExp('^' + config.value.pathRouting?.basePath + '/?')
+    return decodeURIComponent(pathName.replace(reggy, ''))
+  }
+
+  // Grabs the sectionId of the hash to open the section before scrolling
+  const getSectionId = (hashStr = hash.value) => {
+    const tagId = hashStr.match(/(tag\/[^/]+)/)?.[0]
+    const modelId = hashStr.startsWith('model') ? 'models' : ''
+    const webhookId = hashStr.startsWith('webhook') ? 'webhooks' : ''
+
+    return tagId || modelId || webhookId
+  }
+
+  // Update the reactive hash state
+  const updateHash = () => {
+    hash.value = config.value.pathRouting
+      ? getPathRoutingId(window.location.pathname)
+      : // Must remove the prefix from the hash as the internal hash value should be pure
+        decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(hashPrefix.value.length)
+  }
+
+  const replaceUrlState = (replacementHash: string, url = window.location.href) => {
+    const newUrl = new URL(url)
+
+    // If we are pathrouting, set path instead of hash
+    if (config.value.pathRouting) {
+      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, replacementHash)
+    } else {
+      newUrl.hash = hashPrefix.value + replacementHash
+    }
+
+    // Update the hash ref
+    hash.value = replacementHash
+
+    // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
+    // this is why we set the hash value directly
+    window.history.replaceState({}, '', newUrl)
+  }
+
+  const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
+    const newUrl = new URL(url)
+    newUrl.hash = hashPrefix.value + replacementHash
+    newUrl.search = search
+    return newUrl.toString()
+  }
+
+  const getFullHash = (hashTarget: string = hash.value) => {
+    return `${hashPrefix.value}${hashTarget}`
+  }
+
+  /**
+   * Gets the portion of the hash used by the references
+   *
+   * @returns The hash without the prefix
+   */
+  const getReferenceHash = () =>
+    decodeURIComponent(window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length))
 
   /**
    * ID creation methods
@@ -176,7 +189,6 @@ export const useNavState = () => {
     getSectionId,
     getTagId,
     isIntersectionEnabled,
-    pathRouting,
     updateHash,
   }
 }
