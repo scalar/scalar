@@ -78,9 +78,14 @@ export const shellCurl: Plugin = {
       if (normalizedRequest.postData.mimeType === 'application/json') {
         // Pretty print JSON data
         if (normalizedRequest.postData.text) {
-          const jsonData = JSON.parse(normalizedRequest.postData.text)
-          const prettyJson = JSON.stringify(jsonData, null, 2)
-          parts.push(`--data '${prettyJson}'`)
+          try {
+            const jsonData = JSON.parse(normalizedRequest.postData.text)
+            const prettyJson = JSON.stringify(jsonData, null, 2)
+            parts.push(`--data '${prettyJson}'`)
+          } catch {
+            // If JSON parsing fails, use the original text
+            parts.push(`--data '${normalizedRequest.postData.text}'`)
+          }
         }
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         parts.push(`--data-binary '${normalizedRequest.postData.text}'`)
@@ -102,7 +107,14 @@ export const shellCurl: Plugin = {
           }
         })
       } else {
-        parts.push(`--data "${normalizedRequest.postData.text}"`)
+        // Try to parse and pretty print if it's JSON, otherwise use raw text
+        try {
+          const jsonData = JSON.parse(normalizedRequest.postData.text ?? '')
+          const prettyJson = JSON.stringify(jsonData, null, 2)
+          parts.push(`--data '${prettyJson}'`)
+        } catch {
+          parts.push(`--data '${normalizedRequest.postData.text}'`)
+        }
       }
     }
 

@@ -229,6 +229,32 @@ describe('shellCurl', () => {
   --form 'field=value'`)
   })
 
+  it('handles multipart form data with JSON payload', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'multipart/form-data',
+        },
+      ],
+      postData: {
+        mimeType: 'multipart/form-data',
+        text: JSON.stringify({
+          foo: 'bar',
+        }),
+      },
+    })
+
+    expect(result).toBe(`curl https://example.com \\
+  --request POST \\
+  --header 'Content-Type: multipart/form-data' \\
+  --data '{
+  "foo": "bar"
+}'`)
+  })
+
   it('handles url-encoded form data with special characters', () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
