@@ -32,10 +32,16 @@ export const getBasePath = (suffix) => {
  * @param {string} path - The current request path used to calculate the base URL
  * @param {boolean} isOpenApiRoutePatternUrl - When true, treats OpenAPI URLs as absolute paths
  *                                            When false, prepends the base path to make URLs relative
+ * @param {boolean} useDynamicBaseServerUrl - When true, uses the current server URL as the base URL
  * @param {Object} configuration - Scalar configuration object
  * @param {Array<Object>} [configuration.sources=[]] - Array of OpenAPI source configurations
  */
-export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sources: [] }) => {
+export const initialize = (
+  path,
+  isOpenApiRoutePatternUrl,
+  useDynamicBaseServerUrl,
+  configuration = { sources: [] },
+) => {
   const basePath = getBasePath(path)
 
   const normalizedConfig = {
@@ -55,6 +61,10 @@ export const initialize = (path, isOpenApiRoutePatternUrl, configuration = { sou
         url: new URL(source.url, `${window.location.origin}${basePath}/`).toString(),
       }
     })
+  }
+
+  if (useDynamicBaseServerUrl) {
+    normalizedConfig.baseServerURL = `${window.location.origin}${basePath}`
   }
 
   Scalar.createApiReference('#app', normalizedConfig)

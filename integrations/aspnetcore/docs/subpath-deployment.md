@@ -67,3 +67,45 @@ app.MapScalarApiReference(options =>  options.AddDocuments("v1", "v2"));
 ```
 
 Scalar will automatically handle the base path for all document URLs.
+
+## Server URL Configuration
+
+### Base Server URL
+
+You can configure a base URL that will be prepended to all relative server URLs defined in your OpenAPI document. This is useful when your API is deployed behind a reverse proxy or when you want to ensure all server URLs have the correct base path.
+
+```csharp
+app.MapScalarApiReference(options => options.WithBaseServerUrl("https://api.example.com/my-api"));
+```
+
+For example, if your OpenAPI document defines a server URL as `/server`, it will be transformed to `https://api.example.com/my-api/server`.
+
+### Dynamic Base Server URL
+
+Alternatively, you can enable dynamic base server URL detection, which will automatically use the request's scheme, host, and path base to construct the base URL:
+
+```csharp
+app.MapScalarApiReference(options =>  options.WithDynamicBaseServerUrl());
+```
+
+When enabled, if your application receives a request to `https://api.example.com/my-api/scalar`, any relative server URLs in your OpenAPI document will be automatically prefixed with `https://api.example.com/my-api`.
+
+### Combined Configuration Example
+
+Here's a complete example showing how to use these options together:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddOpenApi();
+
+var app = builder.Build();
+
+app.MapScalarApiReference(options => {
+    options
+      .AddDocuments("v1", "v2")
+      .WithDynamicBaseServerUrl();
+});
+```
+
+When both `BaseServerUrl` and `DynamicBaseServerUrl` are configured, `DynamicBaseServerUrl` takes precedence. Only relative server URLs are affected by these options; absolute URLs remain unchanged.

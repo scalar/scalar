@@ -156,26 +156,30 @@ public static class ScalarEndpointRouteBuilderExtensions
 
             return Results.Content(
                 $$"""
-                 <!doctype html>
-                 <html>
-                 <head>
-                     <title>{{title}}</title>
-                     <meta charset="utf-8" />
-                     <meta name="viewport" content="width=device-width, initial-scale=1" />
-                     {{options.HeadContent}}
-                 </head>
-                 <body>
-                     {{options.HeaderContent}}
-                     <div id="app"></div>
-                     <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
-                     <script type="module" src="{{standaloneResourceUrl}}"></script>
-                     <script type="module">
-                         import { initialize } from './{{ScalarJavaScriptHelperFile}}'
-                         initialize('{{httpContext.Request.Path}}', {{options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}}, {{serializedConfiguration}})
-                     </script>
-                 </body>
-                 </html>
-                 """, "text/html");
+                  <!doctype html>
+                  <html>
+                  <head>
+                      <title>{{title}}</title>
+                      <meta charset="utf-8" />
+                      <meta name="viewport" content="width=device-width, initial-scale=1" />
+                      {{options.HeadContent}}
+                  </head>
+                  <body>
+                      {{options.HeaderContent}}
+                      <div id="app"></div>
+                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
+                      <script type="module" src="{{standaloneResourceUrl}}"></script>
+                      <script type="module">
+                          import { initialize } from './{{ScalarJavaScriptHelperFile}}'
+                          initialize(
+                          '{{httpContext.Request.Path}}',
+                          {{options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}},
+                          {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
+                          {{serializedConfiguration}})
+                      </script>
+                  </body>
+                  </html>
+                  """, "text/html");
         });
     }
 
