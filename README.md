@@ -130,6 +130,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Go](documentation/integrations/go.md)
 - [Hono](integrations/hono/README.md)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
+- [Micronaut](https://micronaut-projects.github.io/micronaut-openapi/latest/guide/index.html#scalar)
 - [NestJS](integrations/nestjs/README.md)
 - [Next.js](integrations/nextjs/README.md)
 - [Nuxt](integrations/nuxt/README.md)
