@@ -66,7 +66,7 @@ const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguratio
 }
 
 export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipleDocumentsProps) => {
-  const { isIntersectionEnabled } = useNavState()
+  const { hash, setHashPrefix, isIntersectionEnabled, pathRouting } = useNavState()
 
   /**
    * All available API definitions that can be selected
@@ -111,12 +111,16 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     url.hash = ''
     window.history.replaceState({}, '', url.toString())
 
-    // Scroll to the top of the page, disable scroll listener when doing so
+    // Reset all global state
+    hash.value = ''
+    setHashPrefix('')
     isIntersectionEnabled.value = false
+    pathRouting.value = undefined
+
+    // Scroll to the top of the page
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'instant' })
     }
-    setTimeout(() => (isIntersectionEnabled.value = true), 300)
   }
 
   /**
