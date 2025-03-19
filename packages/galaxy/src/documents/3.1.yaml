@@ -177,7 +177,7 @@ paths:
       tags:
         - Planets
       summary: Update a planet
-      description: Sometimes you make mistakes, that’s fine. No worries, you can update all planets.
+      description: Sometimes you make mistakes, that's fine. No worries, you can update all planets.
       operationId: updatePlanet
       requestBody:
         description: New information about the planet
@@ -269,7 +269,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              allOf:
+                - $ref: '#/components/schemas/User'
+                - $ref: '#/components/schemas/Credentials'
             examples:
               Marc:
                 value:
@@ -283,7 +285,9 @@ paths:
                   password: scalar-is-cool
           application/xml:
             schema:
-              $ref: '#/components/schemas/User'
+              allOf:
+                - $ref: '#/components/schemas/User'
+                - $ref: '#/components/schemas/Credentials'
             examples:
               Marc:
                 value:
@@ -554,22 +558,20 @@ components:
   schemas:
     User:
       description: A user
-      allOf:
-        - type: object
-          xml:
-            name: user
-          properties:
-            id:
-              type: integer
-              format: int64
-              readOnly: true
-              examples:
-                - 1
-            name:
-              type: string
-              examples:
-                - Marc
-        - $ref: '#/components/schemas/Credentials'
+      type: object
+      xml:
+        name: user
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          examples:
+            - 1
+        name:
+          type: string
+          examples:
+            - Marc
     Credentials:
       description: Credentials to authenticate a user
       type: object
@@ -596,7 +598,7 @@ components:
           examples:
             - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     Planet:
-      description: A planet
+      description: A planet in the Scalar Galaxy
       type: object
       required:
         - id
@@ -615,19 +617,119 @@ components:
           type: string
           examples:
             - Mars
+            - Jupiter
+            - HD 40307g
         description:
           type:
             - string
             - 'null'
           examples:
             - The red planet
+            - A gas giant with a great red spot
+        type:
+          type: string
+          enum:
+            - terrestrial
+            - gas_giant
+            - ice_giant
+            - dwarf
+            - super_earth
+          examples:
+            - terrestrial
+        habitabilityIndex:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: A score from 0 to 1 indicating potential habitability
+          examples:
+            - 0.68
+        physicalProperties:
+          type: object
+          properties:
+            mass:
+              type: number
+              format: float
+              description: Mass in Earth masses
+              examples:
+                - 0.107
+            radius:
+              type: number
+              format: float
+              description: Radius in Earth radii
+              examples:
+                - 0.532
+            gravity:
+              type: number
+              format: float
+              description: Surface gravity in Earth g
+              examples:
+                - 0.378
+            temperature:
+              type: object
+              properties:
+                min:
+                  type: number
+                  format: float
+                  description: Minimum temperature in Kelvin
+                  examples:
+                    - 130
+                max:
+                  type: number
+                  format: float
+                  description: Maximum temperature in Kelvin
+                  examples:
+                    - 308
+                average:
+                  type: number
+                  format: float
+                  description: Average temperature in Kelvin
+                  examples:
+                    - 210
+        atmosphere:
+          type: array
+          description: Atmospheric composition
+          items:
+            type: object
+            properties:
+              compound:
+                type: string
+                examples:
+                  - CO2
+                  - N2
+              percentage:
+                type: number
+                format: float
+                examples:
+                  - 95.3
+        discoveredAt:
+          type: string
+          format: date-time
+          examples:
+            - '1610-01-07T00:00:00Z'
         image:
           type: string
           nullable: true
           examples:
             - https://cdn.scalar.com/photos/mars.jpg
+        satellites:
+          type: array
+          items:
+            $ref: '#/components/schemas/Satellite'
         creator:
           $ref: '#/components/schemas/User'
+        tags:
+          type: array
+          items:
+            type: string
+          examples:
+            - ['solar-system', 'rocky', 'explored']
+        lastUpdated:
+          type: string
+          format: date-time
+          readOnly: true
+          examples:
+            - '2024-01-15T14:30:00Z'
     PaginatedResource:
       description: A paginated resource
       type: object
@@ -819,3 +921,19 @@ components:
           type: string
           examples:
             - The request was invalid.
+    Satellite:
+      description: A natural satellite (moon) orbiting a planet
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          examples:
+            - Phobos
+        diameter:
+          type: number
+          format: float
+          description: Diameter in kilometers
+          examples:
+            - 22.2
