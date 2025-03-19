@@ -127,6 +127,19 @@ paths:
       summary: Create a planet
       description: Time to play god and create a new planet. What do you think? Ah, don’t think too much. What could go wrong anyway?
       operationId: createPlanet
+      callbacks:
+        planetCreated:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                description: Information about the newly created planet
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Planet'
+              responses:
+                '200':
+                  description: Your server returns this code if it accepts the callback
       requestBody:
         description: Planet
         content:
@@ -730,6 +743,12 @@ components:
           readOnly: true
           examples:
             - '2024-01-15T14:30:00Z'
+        callbackUrl:
+          type: string
+          format: uri
+          description: URL to receive notifications about this planet
+          examples:
+            - https://example.com/webhook
     PaginatedResource:
       description: A paginated resource
       type: object
