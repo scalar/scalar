@@ -18,7 +18,6 @@ describe('createMockServer', () => {
       data: [
         {
           creator: {
-            email: 'marc@scalar.com',
             id: 1,
             name: 'Marc',
           },
