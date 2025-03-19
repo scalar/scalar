@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.2.121
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- 0212daa: fix(api-client): client not being set without scope
+- Updated dependencies [7a8965c]
+- Updated dependencies [49dffff]
+  - @scalar/types@0.1.2
+  - @scalar/themes@0.9.80
+
 ## 0.2.120
 
 ### Patch Changes

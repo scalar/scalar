@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.11
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+
 ## 0.10.10
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/core
 
+## 0.2.2
+
+### Patch Changes
+
+- 7a8965c: chore: remove spec prefix
+- Updated dependencies [7a8965c]
+- Updated dependencies [49dffff]
+  - @scalar/types@0.1.2
+
 ## 0.2.1
 
 ### Patch Changes

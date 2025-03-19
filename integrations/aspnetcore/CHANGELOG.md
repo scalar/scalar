@@ -1,5 +1,19 @@
 # @scalar/aspnetcore
 
+## 2.1.0
+
+### Minor Changes
+
+- 61c7ec8: feat: Support Multiple OpenAPI documents. Please checkout [the related docs](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents)!
+
+### Patch Changes
+
+- Updated dependencies [7a8965c]
+- Updated dependencies [0f13162]
+- Updated dependencies [8ca4584]
+- Updated dependencies [49dffff]
+  - @scalar/api-reference@1.28.6
+
 ## 2.0.36
 
 ### Patch Changes

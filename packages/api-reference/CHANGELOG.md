@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.28.6
+
+### Patch Changes
+
+- 7a8965c: chore: remove spec prefix
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- 8ca4584: feat: updates schema discriminator display
+- 49dffff: feat: expose the isLoading prop to control loading of references
+- Updated dependencies [7a8965c]
+- Updated dependencies [0f13162]
+- Updated dependencies [cc1ec74]
+- Updated dependencies [49dffff]
+- Updated dependencies [2716898]
+- Updated dependencies [49dffff]
+- Updated dependencies [0212daa]
+  - @scalar/types@0.1.2
+  - @scalar/openapi-parser@0.10.11
+  - @scalar/api-client@2.3.6
+  - @scalar/components@0.13.38
+  - @scalar/oas-utils@0.2.121
+  - @scalar/snippetz@0.2.16
+  - @scalar/themes@0.9.80
+  - @scalar/code-highlight@0.0.25
+  - @scalar/use-hooks@0.1.34
+
 ## 1.28.5
 
 ### Patch Changes

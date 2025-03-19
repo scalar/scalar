@@ -1,5 +1,20 @@
 # @scalar/cli
 
+## 0.2.324
+
+### Patch Changes
+
+- 0f13162: chore: enable more Biome flags, apply linter fixes
+- Updated dependencies [7a8965c]
+- Updated dependencies [0f13162]
+- Updated dependencies [8ca4584]
+- Updated dependencies [49dffff]
+- Updated dependencies [0212daa]
+  - @scalar/api-reference@1.28.6
+  - @scalar/openapi-parser@0.10.11
+  - @scalar/oas-utils@0.2.121
+  - @scalar/mock-server@0.3.3
+
 ## 0.2.323
 
 ### Patch Changes
