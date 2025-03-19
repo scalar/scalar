@@ -32,6 +32,9 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     delete specification.basePath
     delete specification.schemes
     delete specification.host
+  } else if (specification.basePath) {
+    specification.servers = [{ url: specification.basePath }]
+    delete specification.basePath
   }
 
   // Schemas

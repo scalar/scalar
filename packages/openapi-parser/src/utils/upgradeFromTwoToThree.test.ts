@@ -36,6 +36,23 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
+  it('upgrades basePath to new server syntax', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      basePath: '/v2',
+    })
+
+    expect(result.servers).toStrictEqual([
+      {
+        url: '/v2',
+      },
+    ])
+
+    expect(result.basePath).toBeUndefined()
+    expect(result.schemes).toBeUndefined()
+    expect(result.host).toBeUndefined()
+  })
+
   it('upgrades host to new server syntax', async () => {
     const result = upgradeFromTwoToThree({
       swagger: '2.0',
