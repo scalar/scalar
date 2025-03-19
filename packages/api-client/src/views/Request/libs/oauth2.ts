@@ -260,7 +260,9 @@ export const authorizeServers = async (
     }
 
     // Add client id + secret to headers
-    headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
+    if (flow.clientSecret) {
+      headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
+    }
 
     // Check if we should use the proxy
     const url = shouldUseProxy(proxyUrl, flow.tokenUrl)
