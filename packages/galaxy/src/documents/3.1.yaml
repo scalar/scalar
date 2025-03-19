@@ -222,7 +222,7 @@ paths:
         '204':
           description: No Content
         '404':
-          description: Not Found
+          $ref: '#/components/responses/NotFound'
   '/planets/{planetId}/image':
     post:
       tags:
@@ -244,8 +244,8 @@ paths:
                   format: binary
                   description: The image file to upload
                   examples:
-                    mars: '@mars.jpg'
-                    jupiter: '@jupiter.png'
+                    - '@mars.jpg'
+                    - '@jupiter.png'
       responses:
         '200':
           $ref: '#/components/responses/ImageUploaded'
@@ -307,6 +307,14 @@ paths:
                 $ref: '#/components/schemas/User'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
   '/auth/token':
     post:
       tags:
@@ -335,6 +343,12 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '400':
+          $ref: '#/components/responses/BadRequest'
   '/me':
     get:
       tags:
@@ -519,6 +533,24 @@ components:
         application/xml:
           schema:
             $ref: '#/components/schemas/UnauthorizedError'
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Conflict'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Conflict'
+    UnprocessableEntity:
+      description: Unprocessable Entity
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnprocessableEntity'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/UnprocessableEntity'
   schemas:
     User:
       description: A user
@@ -743,3 +775,47 @@ components:
           type: string
           examples:
             - You are not authorized to access this resource.
+    Conflict:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/conflict
+        title:
+          type: string
+          examples:
+            - Conflict
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 409
+        detail:
+          type: string
+          examples:
+            - The resource you are trying to access is in conflict.
+    UnprocessableEntity:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/unprocessable-entity
+        title:
+          type: string
+          examples:
+            - Unprocessable Entity
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 422
+        detail:
+          type: string
+          examples:
+            - The request was invalid.
