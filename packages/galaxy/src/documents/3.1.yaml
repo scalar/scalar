@@ -56,7 +56,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/license/MIT
-externalDocumentation:
+externalDocs:
   description: Documentation
   url: https://github.com/scalar/scalar
 servers:
