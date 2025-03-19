@@ -35,8 +35,6 @@ export const useNavState = () => {
 
   const config = useConfig()
 
-  console.log({ hash: hash.value, hashPrefix: hashPrefix.value })
-
   const getPathRoutingId = (pathName: string) => {
     if (!config.value.pathRouting) {
       return ''
