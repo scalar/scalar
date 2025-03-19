@@ -223,7 +223,7 @@
     "@scalar/galaxy": "workspace:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",

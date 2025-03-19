@@ -1,0 +1,30 @@
+{
+  "name": "@scalar-examples/vue-ssr",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite-node server.ts",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build --outDir dist/client",
+    "build:server": "vite build --ssr src/entry-server.ts --outDir dist/server",
+    "preview": "cross-env NODE_ENV=production vite-node server.ts",
+    "check": "vue-tsc"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*",
+    "compression": "^1.8.0",
+    "hono": "^4.6.5",
+    "@hono/node-server": "^1.11.0",
+    "sirv": "^3.0.1",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/node": "catalog:",
+    "@vitejs/plugin-vue": "catalog:",
+    "cross-env": "^7.0.3",
+    "vite": "catalog:",
+    "vue-tsc": "^2.1.10"
+  }
+}

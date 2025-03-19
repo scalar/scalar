@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "catalog:",
     "vite": "catalog:",
     "vite-svg-loader": "^5.1.0"
   }

@@ -9,6 +9,9 @@ catalogs:
     '@types/node':
       specifier: ^20.17.10
       version: 20.17.10
+    '@vitejs/plugin-vue':
+      specifier: ^5.0.4
+      version: 5.2.0
     '@vueuse/core':
       specifier: ^10.10.0
       version: 10.11.0
@@ -231,8 +234,8 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitejs/plugin-vue-jsx':
         specifier: ^3.1.0
         version: 3.1.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -274,8 +277,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -311,8 +314,8 @@ importers:
         version: 4.3.3(vue@3.5.12(typescript@5.6.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.19(postcss@8.4.47)
@@ -956,8 +959,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
@@ -1102,8 +1105,8 @@ importers:
         specifier: workspace:*
         version: link:../galaxy
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/server-renderer':
         specifier: ^3.5.13
         version: 3.5.13(vue@3.5.12(typescript@5.6.2))
@@ -1166,8 +1169,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -1225,6 +1228,46 @@ importers:
         version: 3.5.12(typescript@5.6.2)
 
   packages/api-reference/docker: {}
+
+  packages/api-reference/playground/ssr:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.11.0
+        version: 1.11.3
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../..
+      compression:
+        specifier: ^1.8.0
+        version: 1.8.0
+      hono:
+        specifier: ^4.6.5
+        version: 4.6.5
+      sirv:
+        specifier: ^3.0.1
+        version: 3.0.1
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.12(typescript@5.6.2)
+    devDependencies:
+      '@types/compression':
+        specifier: ^1.7.5
+        version: 1.7.5
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.17.10
+      '@vitejs/plugin-vue':
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
+      vite:
+        specifier: 'catalog:'
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vue-tsc:
+        specifier: ^2.1.10
+        version: 2.1.10(typescript@5.6.2)
 
   packages/build-tooling:
     dependencies:
@@ -1512,8 +1555,8 @@ importers:
         specifier: 'catalog:'
         version: 20.17.10
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
@@ -1599,8 +1642,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -1667,8 +1710,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       svglint:
         specifier: ^2.7.1
         version: 2.7.1
@@ -1932,8 +1975,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.24.4)
@@ -1995,8 +2038,8 @@ importers:
         specifier: workspace:*
         version: link:../../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       shikiji:
         specifier: ^0.10.2
         version: 0.10.2
@@ -2014,8 +2057,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
@@ -2143,8 +2186,8 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
@@ -2177,8 +2220,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -2202,8 +2245,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
@@ -2233,8 +2276,8 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
@@ -2283,8 +2326,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-client
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -2347,8 +2390,8 @@ importers:
         specifier: 'catalog:'
         version: 20.17.10
       '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/eslint-config-prettier':
         specifier: ^9.0.0
         version: 9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
@@ -7551,6 +7594,9 @@ packages:
   '@types/caseless@0.12.5':
     resolution: {integrity: sha512-hWtVTC2q7hc7xZ/RLbxapMvDMgUnDvKvMOpKal4DrMyfGBUfB1oKaZlIRr6mJL+If3bAP6sV/QneGzF6tJjZDg==}
 
+  '@types/compression@1.7.5':
+    resolution: {integrity: sha512-AAQvK5pxMpaT+nDvhHrsBhLSYG5yQdtkaJE1WYieSNY2mVFKAgmU4ks65rkZD5oqnGCFLyQpUr1CqI4DmUMyDg==}
+
   '@types/concat-stream@2.0.3':
     resolution: {integrity: sha512-3qe4oQAPNwVNwK4C9c8u+VJqv9kez+2MR4qJpoPFfXtgxxif1QbFusvXzK0/Wra2VX07smostI2VMmJNSpZjuQ==}
 
@@ -7996,13 +8042,6 @@ packages:
     peerDependencies:
       vite: ^5.0.0
       vue: ^3.0.0
-
-  '@vitejs/plugin-vue@5.0.5':
-    resolution: {integrity: sha512-LOjm7XeIimLBZyzinBQ6OSm3UBCNVCpLkxGC0oWmm2YPzVZoxMsdvNVimLTBzpAnR9hl/yn1SHGuRfe6/Td9rQ==}
-    engines: {node: ^18.0.0 || >=20.0.0}
-    peerDependencies:
-      vite: ^5.0.0
-      vue: ^3.2.25
 
   '@vitejs/plugin-vue@5.2.0':
     resolution: {integrity: sha512-7n7KdUEtx/7Yl7I/WVAMZ1bEb0eVvXF3ummWTeLcs/9gvo9pJhuLdouSXGjdZ/MKD1acf1I272+X0RMua4/R3g==}
@@ -9417,8 +9456,8 @@ packages:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
     engines: {node: '>= 0.6'}
 
-  compression@1.7.4:
-    resolution: {integrity: sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ==}
+  compression@1.8.0:
+    resolution: {integrity: sha512-k6WLKfunuqCYD3t6AsuPGvQWaKwuLLh2/xHNcX4qE+vIfDNXpSqnrhwA7O53R7WVQUnt8dVAIW+YHr7xTgOgGA==}
     engines: {node: '>= 0.8.0'}
 
   computeds@0.0.1:
@@ -9605,6 +9644,11 @@ packages:
 
   cronstrue@2.50.0:
     resolution: {integrity: sha512-ULYhWIonJzlScCCQrPUG5uMXzXxSixty4djud9SS37DoNxDdkeRocxzHuAo4ImRBUK+mAuU5X9TSwEDccnnuPg==}
+    hasBin: true
+
+  cross-env@7.0.3:
+    resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
+    engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
     hasBin: true
 
   cross-spawn@5.1.0:
@@ -13539,6 +13583,10 @@ packages:
     resolution: {integrity: sha512-+EUsqGPLsM+j/zdChZjsnX51g4XrHFOIXwfnCVPGlQk/k5giakcKsuxCObBRu6DSm9opw/O6slWbJdghQM4bBg==}
     engines: {node: '>= 0.6'}
 
+  negotiator@0.6.4:
+    resolution: {integrity: sha512-myRT3DiWPHqho5PrJaIRyaMv2kgYf0mUVgBNOYMuCH5Ki1yEiQaf/ZJuQ62nvpc44wL5WDbTX7yGJi1Neevw8w==}
+    engines: {node: '>= 0.6'}
+
   neo-async@2.6.2:
     resolution: {integrity: sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==}
 
@@ -16011,6 +16059,10 @@ packages:
     resolution: {integrity: sha512-94Bdh3cC2PKrbgSOUqTiGPWVZeSiXfKOVZNJniWoqrWrRkB1CJzBU3NEbiTsPcYy1lDsANA/THzS+9WBiy5nfQ==}
     engines: {node: '>= 10'}
 
+  sirv@3.0.1:
+    resolution: {integrity: sha512-FoqMu0NCGBLCcAkS1qA+XJIQTR6/JHfQXl+uGteNCQ76T91DMUjPa9xfmeqMY3z80nLSg9yQmNjK0Px6RWsH/A==}
+    engines: {node: '>=18'}
+
   sisteransi@1.0.5:
     resolution: {integrity: sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==}
 
@@ -17610,8 +17662,8 @@ packages:
   vue-component-type-helpers@2.0.21:
     resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
-  vue-component-type-helpers@3.0.0-alpha.2:
-    resolution: {integrity: sha512-dv9YzsuJFLnpRNxKU0exwIlCIA/v+rXrgCsEtaENsFJLPFMw1Sr4IRctilwfjnjCzoJGgGACHRZfxo6ZwlH2fQ==}
+  vue-component-type-helpers@2.2.8:
+    resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
 
   vue-demi@0.14.10:
     resolution: {integrity: sha512-nMZBOwuzabUO0nLgIcc6rycZEebF6eeUfaiQx9+WSk8e29IbLvPU9feI6tqW4kTo3hvoYAJkMh8n8D0fuISphg==}
@@ -24714,7 +24766,7 @@ snapshots:
       '@yarnpkg/libzip': 2.3.0
       chalk: 4.1.2
       commander: 6.2.1
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       detect-indent: 6.1.0
       envinfo: 7.13.0
       execa: 5.1.1
@@ -24794,7 +24846,7 @@ snapshots:
       '@yarnpkg/fslib': 2.10.3
       '@yarnpkg/libzip': 2.3.0
       chalk: 4.1.2
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       esbuild: 0.20.2
       esbuild-register: 3.5.0(esbuild@0.20.2)
       execa: 5.1.1
@@ -24855,7 +24907,7 @@ snapshots:
       better-opn: 3.0.2
       chalk: 4.1.2
       cli-table3: 0.6.5
-      compression: 1.7.4
+      compression: 1.8.0
       detect-port: 1.6.1
       diff: 5.2.0
       express: 4.21.2
@@ -25082,7 +25134,7 @@ snapshots:
       ts-dedent: 2.2.0
       type-fest: 2.19.0
       vue: 3.5.12(typescript@5.6.2)
-      vue-component-type-helpers: 3.0.0-alpha.2
+      vue-component-type-helpers: 2.2.8
     transitivePeerDependencies:
       - encoding
       - prettier
@@ -25466,6 +25518,10 @@ snapshots:
       '@types/responselike': 1.0.3
 
   '@types/caseless@0.12.5': {}
+
+  '@types/compression@1.7.5':
+    dependencies:
+      '@types/express': 4.17.21
 
   '@types/concat-stream@2.0.3':
     dependencies:
@@ -26035,11 +26091,6 @@ snapshots:
       vue: 3.5.12(typescript@5.6.2)
     transitivePeerDependencies:
       - supports-color
-
-  '@vitejs/plugin-vue@5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))':
-    dependencies:
-      vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-      vue: 3.5.12(typescript@5.6.2)
 
   '@vitejs/plugin-vue@5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))':
     dependencies:
@@ -27825,14 +27876,14 @@ snapshots:
     dependencies:
       mime-db: 1.52.0
 
-  compression@1.7.4:
+  compression@1.8.0:
     dependencies:
-      accepts: 1.3.8
-      bytes: 3.0.0
+      bytes: 3.1.2
       compressible: 2.0.18
       debug: 2.6.9
+      negotiator: 0.6.4
       on-headers: 1.0.2
-      safe-buffer: 5.1.2
+      safe-buffer: 5.2.1
       vary: 1.1.2
     transitivePeerDependencies:
       - supports-color
@@ -28047,6 +28098,10 @@ snapshots:
   croner@9.0.0: {}
 
   cronstrue@2.50.0: {}
+
+  cross-env@7.0.3:
+    dependencies:
+      cross-spawn: 7.0.6
 
   cross-spawn@5.1.0:
     dependencies:
@@ -29350,7 +29405,7 @@ snapshots:
 
   execa@7.2.0:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       get-stream: 6.0.1
       human-signals: 4.3.1
       is-stream: 3.0.0
@@ -29826,7 +29881,7 @@ snapshots:
 
   foreground-child@3.2.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
   fork-ts-checker-webpack-plugin@6.5.3(eslint@9.20.1(jiti@2.4.0))(typescript@5.6.2)(vue-template-compiler@2.7.16)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15))):
@@ -33217,6 +33272,8 @@ snapshots:
 
   negotiator@0.6.3: {}
 
+  negotiator@0.6.4: {}
+
   neo-async@2.6.2: {}
 
   next@15.1.7(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
@@ -35046,7 +35103,7 @@ snapshots:
       address: 1.2.2
       browserslist: 4.23.2
       chalk: 4.1.2
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       detect-port-alt: 1.1.6
       escape-string-regexp: 4.0.0
       filesize: 8.0.7
@@ -36156,6 +36213,12 @@ snapshots:
       semver: 7.6.3
 
   sirv@2.0.4:
+    dependencies:
+      '@polka/url': 1.0.0-next.25
+      mrmime: 2.0.0
+      totalist: 3.0.1
+
+  sirv@3.0.1:
     dependencies:
       '@polka/url': 1.0.0-next.25
       mrmime: 2.0.0
@@ -38157,7 +38220,7 @@ snapshots:
 
   vue-component-type-helpers@2.0.21: {}
 
-  vue-component-type-helpers@3.0.0-alpha.2: {}
+  vue-component-type-helpers@2.2.8: {}
 
   vue-demi@0.14.10(vue@3.5.12(typescript@5.6.2)):
     dependencies:
@@ -38323,7 +38386,7 @@ snapshots:
       bonjour-service: 1.2.1
       chokidar: 3.6.0
       colorette: 2.0.20
-      compression: 1.7.4
+      compression: 1.8.0
       connect-history-api-fallback: 2.0.0
       default-gateway: 6.0.3
       express: 4.21.2
