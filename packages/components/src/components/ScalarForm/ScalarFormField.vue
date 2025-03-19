@@ -30,6 +30,7 @@ const { cx } = useBindCx()
       })
     ">
     <div
+      v-if="$slots.label"
       class="flex items-start justify-between gap-2 text-sm leading-none text-c-1">
       <span class="whitespace-nowrap font-medium">
         <slot name="label" />
