@@ -25,8 +25,8 @@ const resultStatus = computed(() => {
       <!-- Title -->
       <div class="grid grid-cols-[14px_1fr] items-center gap-3">
         <ScalarIcon
-          :icon="resultStatus.icon as Icon"
           :class="resultStatus.color"
+          :icon="resultStatus.icon as Icon"
           size="sm" />
 
         <span class="text-c-2 overflow-hidden text-ellipsis whitespace-nowrap">

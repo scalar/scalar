@@ -51,11 +51,11 @@ const totalDuration = computed(
     <template #title> Tests </template>
     <template #suffix>
       <TestResultIndicator
-        inline
-        :state="currentState"
-        :passedTestsCount="passedTests?.length"
         :failedTestsCount="failedTests?.length"
+        inline
+        :passedTestsCount="passedTests?.length"
         :pendingTestsCount="pendingTests?.length"
+        :state="currentState"
         :totalTestsCount="results?.length" />
     </template>
 

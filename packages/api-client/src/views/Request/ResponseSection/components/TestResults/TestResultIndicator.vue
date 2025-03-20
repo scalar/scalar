@@ -57,8 +57,8 @@ const getTestCountDisplay = computed(() => {
   <div v-bind="cx(statusVariants({ status: state }))">
     <ScalarIcon
       v-if="state"
-      :icon="icon.name as Icon"
       :class="icon.color"
+      :icon="icon.name as Icon"
       size="sm" />
     <span
       v-if="!inline"

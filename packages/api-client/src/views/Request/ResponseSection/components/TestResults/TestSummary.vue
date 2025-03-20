@@ -16,11 +16,11 @@ defineProps<{
 <template>
   <div class="flex h-8 items-center gap-1.5 pl-1 pr-3">
     <TestResultIndicator
-      :passedTestsCount="passedTests?.length"
       :failedTestsCount="failedTests?.length"
+      :passedTestsCount="passedTests?.length"
       :pendingTestsCount="pendingTests?.length"
-      :totalTestsCount="results?.length"
-      :state="allTestsPassed ? 'passed' : 'failed'" />
+      :state="allTestsPassed ? 'passed' : 'failed'"
+      :totalTestsCount="results?.length" />
     <span
       v-if="pendingTests?.length"
       class="text-orange">
