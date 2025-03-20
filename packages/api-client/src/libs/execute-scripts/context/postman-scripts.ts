@@ -54,6 +54,14 @@ export interface ExpectChain {
       oneOf: (expected: any[]) => boolean
     }
     include: (expected: string) => boolean
+    have: {
+      length: (expected: number) => boolean
+    }
+    equal: (expected: any) => boolean
+    deep: {
+      equal: (expected: any) => boolean
+    }
+    match: (pattern: RegExp) => boolean
   }
 }
 
@@ -293,6 +301,42 @@ export const createExpectChain = (actual: any): ExpectChain => {
           throw new Error(`Expected "${actual}" to include "${expected}"`)
         }
 
+        return true
+      },
+      have: {
+        length: (expected: number) => {
+          if (typeof actual?.length !== 'number') {
+            throw new Error('Expected value to have a length property')
+          }
+          if (actual.length !== expected) {
+            throw new Error(`Expected ${JSON.stringify(actual)} to have length ${expected} but got ${actual.length}`)
+          }
+          return true
+        },
+      },
+      equal: (expected: any) => {
+        if (actual !== expected) {
+          throw new Error(`Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`)
+        }
+        return true
+      },
+      deep: {
+        equal: (expected: any) => {
+          const actualStr = JSON.stringify(actual)
+          const expectedStr = JSON.stringify(expected)
+          if (actualStr !== expectedStr) {
+            throw new Error(`Expected ${actualStr} to deeply equal ${expectedStr}`)
+          }
+          return true
+        },
+      },
+      match: (pattern: RegExp) => {
+        if (typeof actual !== 'string') {
+          throw new Error('Expected value to be a string')
+        }
+        if (!pattern.test(actual)) {
+          throw new Error(`Expected "${actual}" to match ${pattern}`)
+        }
         return true
       },
     },

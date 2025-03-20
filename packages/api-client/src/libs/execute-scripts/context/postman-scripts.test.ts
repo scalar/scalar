@@ -270,5 +270,75 @@ describe('postman-scripts', () => {
         'Expected value cannot be a Promise. Make sure to await async values before using expect.',
       )
     })
+
+    describe('to.equal', () => {
+      it('passes when values are strictly equal', () => {
+        const chain = createExpectChain(42)
+        expect(chain.to.equal(42)).toBe(true)
+      })
+
+      it('throws when values are not equal', () => {
+        const chain = createExpectChain(42)
+        expect(() => chain.to.equal(43)).toThrow('Expected 42 to equal 43')
+      })
+
+      it('distinguishes between different types', () => {
+        const chain = createExpectChain('42')
+        expect(() => chain.to.equal(42)).toThrow('Expected "42" to equal 42')
+      })
+    })
+
+    describe('to.deep.equal', () => {
+      it('passes when objects are deeply equal', () => {
+        const chain = createExpectChain({ a: 1, b: { c: 2 } })
+        expect(chain.to.deep.equal({ a: 1, b: { c: 2 } })).toBe(true)
+      })
+
+      it('throws when objects are not deeply equal', () => {
+        const chain = createExpectChain({ a: 1, b: { c: 2 } })
+        expect(() => chain.to.deep.equal({ a: 1, b: { c: 3 } })).toThrow(
+          'Expected {"a":1,"b":{"c":2}} to deeply equal {"a":1,"b":{"c":3}}',
+        )
+      })
+    })
+
+    describe('to.match', () => {
+      it('passes when string matches regex pattern', () => {
+        const chain = createExpectChain('hello123')
+        expect(chain.to.match(/^[a-z]+\d+$/)).toBe(true)
+      })
+
+      it('throws when string does not match pattern', () => {
+        const chain = createExpectChain('hello123')
+        expect(() => chain.to.match(/^\d+$/)).toThrow('Expected "hello123" to match /^\\d+$/')
+      })
+
+      it('throws when value is not a string', () => {
+        const chain = createExpectChain(123)
+        expect(() => chain.to.match(/\d+/)).toThrow('Expected value to be a string')
+      })
+    })
+
+    describe('to.have.length', () => {
+      it('passes when array has expected length', () => {
+        const chain = createExpectChain([1, 2, 3])
+        expect(chain.to.have.length(3)).toBe(true)
+      })
+
+      it('passes when string has expected length', () => {
+        const chain = createExpectChain('hello')
+        expect(chain.to.have.length(5)).toBe(true)
+      })
+
+      it('throws when length does not match', () => {
+        const chain = createExpectChain([1, 2, 3])
+        expect(() => chain.to.have.length(4)).toThrow('Expected [1,2,3] to have length 4 but got 3')
+      })
+
+      it('throws when value has no length property', () => {
+        const chain = createExpectChain(42)
+        expect(() => chain.to.have.length(2)).toThrow('Expected value to have a length property')
+      })
+    })
   })
 })
