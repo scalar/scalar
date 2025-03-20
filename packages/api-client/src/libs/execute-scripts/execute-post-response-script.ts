@@ -1,11 +1,5 @@
 import { type ConsoleContext, createConsoleContext } from './context/console'
-import {
-  type PostmanContext,
-  createEnvironmentUtils,
-  createExpectChain,
-  createResponseUtils,
-  createTestUtils,
-} from './context/postman-scripts'
+import { type PostmanContext, createPostmanContext } from './context/postman-scripts'
 
 export type TestResult = {
   title: string
@@ -53,7 +47,7 @@ const createResponseContext = (response: Response): ResponseContext => ({
   headers: Object.fromEntries(response.headers.entries()),
 })
 
-const createScriptContext = ({
+const createContext = ({
   response,
   responseText,
   onTestResultsUpdate,
@@ -65,32 +59,10 @@ const createScriptContext = ({
   const globalProxy = createGlobalProxy()
   const testResults: TestResult[] = []
 
-  // Parse JSON synchronously
-  let responseJson = null
-  try {
-    responseJson = JSON.parse(responseText)
-  } catch {
-    // Keep responseJson as null if parsing fails
-  }
-
   const context: ScriptContext = {
     response: createResponseContext(response),
     console: createConsoleContext(),
-    pm: {
-      response: {
-        ...createResponseUtils(response),
-        text: () => Promise.resolve(responseText),
-        json: () => {
-          if (responseJson === null) {
-            throw new Error('Response is not valid JSON')
-          }
-          return responseJson
-        },
-      },
-      environment: createEnvironmentUtils(),
-      test: createTestUtils(testResults, onTestResultsUpdate).test,
-      expect: createExpectChain,
-    },
+    pm: createPostmanContext(response, responseText, {}, testResults, onTestResultsUpdate),
     testResults,
   }
 
@@ -124,7 +96,7 @@ export const executePostResponseScript = async (
   // Get response text before executing script
   const responseText = await data.response.clone().text()
 
-  const { globalProxy, context } = createScriptContext({
+  const { globalProxy, context } = createContext({
     response: data.response,
     responseText,
     onTestResultsUpdate: data.onTestResultsUpdate,
