@@ -67,6 +67,10 @@ const scrollSidebar = (id: string) => {
 
 /** Adds an observer to watch for elements */
 const observeSidebarElement = (id: string) => {
+  if (!scrollerEl.value) {
+    return
+  }
+
   const observer = new MutationObserver((mutations, obs) => {
     const el = document.getElementById(`sidebar-${id}`)
     if (el) {
