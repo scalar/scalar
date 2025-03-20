@@ -33,7 +33,7 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Check JSON response',
     script: `pm.test("Response is valid JSON", () => {
-    const responseData = pm.response.json()
+  const responseData = pm.response.json()
   pm.expect(responseData).to.be.an('object')
 })`,
     mockResponse: {
