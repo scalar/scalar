@@ -30,9 +30,8 @@ export function useSearchIndex({
 }: {
   specification: Ref<Spec>
 }) {
-  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
-
   const { hideModels } = useSidebar()
+  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
 
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])

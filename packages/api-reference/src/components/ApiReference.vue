@@ -3,11 +3,12 @@ import type {
   ApiReferenceConfiguration,
   ApiReferenceConfigurationWithSources,
 } from '@scalar/types/api-reference'
-import { toRef } from 'vue'
+import { provide, ref, toRef } from 'vue'
 
 import { DocumentSelector } from '@/components/DocumentSelector'
 import SingleApiReference from '@/components/SingleApiReference.vue'
 import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
+import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 
 const props = defineProps<{
   /**
@@ -20,10 +21,22 @@ const props = defineProps<{
     | Partial<ApiReferenceConfigurationWithSources>
 }>()
 
-const { selectedConfiguration, availableDocuments, selectedDocumentIndex } =
-  useMultipleDocuments({
-    configuration: toRef(props, 'configuration'),
-  })
+const {
+  availableDocuments,
+  selectedConfiguration,
+  selectedDocumentIndex,
+  isIntersectionEnabled,
+  hash,
+  hashPrefix,
+} = useMultipleDocuments({
+  configuration: toRef(props, 'configuration'),
+  isIntersectionEnabled: ref(false),
+  hash: ref(''),
+  hashPrefix: ref(''),
+})
+
+// Provide the intersection observer which has defaults
+provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 </script>
 
 <template>

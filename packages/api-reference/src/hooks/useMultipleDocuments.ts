@@ -1,4 +1,4 @@
-import { useNavState } from '@/hooks/useNavState'
+import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type ApiReferenceConfiguration,
@@ -27,7 +27,7 @@ type UseMultipleDocumentsProps = {
   >
   /** The initial index to pre-select a document, if there is no query parameter available */
   initialIndex?: number
-}
+} & NavState
 
 const slugger = new GithubSlugger()
 
@@ -65,9 +65,13 @@ const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguratio
   }
 }
 
-export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipleDocumentsProps) => {
-  const { isIntersectionEnabled } = useNavState()
-
+export const useMultipleDocuments = ({
+  configuration,
+  initialIndex,
+  isIntersectionEnabled,
+  hash,
+  hashPrefix,
+}: UseMultipleDocumentsProps) => {
   /**
    * All available API definitions that can be selected
    */
@@ -91,7 +95,9 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
    */
   const updateUrlParameter = (value: number) => {
     // Skip URL updates during SSR
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') {
+      return
+    }
 
     // If there is only one document, don't add the query parameter.
     if (availableDocuments.value.length === 1) {
@@ -111,12 +117,15 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     url.hash = ''
     window.history.replaceState({}, '', url.toString())
 
-    // Scroll to the top of the page, disable scroll listener when doing so
+    // Reset all global state
+    hash.value = ''
+    hashPrefix.value = ''
     isIntersectionEnabled.value = false
+
+    // Scroll to the top of the page
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'instant' })
     }
-    setTimeout(() => (isIntersectionEnabled.value = true), 300)
   }
 
   /**
@@ -185,5 +194,8 @@ export const useMultipleDocuments = ({ configuration, initialIndex }: UseMultipl
     selectedConfiguration,
     availableDocuments,
     selectedDocumentIndex,
+    isIntersectionEnabled,
+    hash,
+    hashPrefix,
   }
 }
