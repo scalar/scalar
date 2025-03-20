@@ -29,8 +29,14 @@ const allTestsPassed = computed(
 )
 
 const currentState = computed(() => {
-  if (allTestsPassed.value) return 'passed'
-  if (pendingTests.value?.length) return 'pending'
+  if (allTestsPassed.value) {
+    return 'passed'
+  }
+
+  if (pendingTests.value?.length) {
+    return 'pending'
+  }
+
   return 'failed'
 })
 

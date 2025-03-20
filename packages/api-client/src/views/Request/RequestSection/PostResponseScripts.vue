@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import ExampleScripts from '@/views/Request/RequestSection/components/ExampleScripts.vue'
 
 import ScriptEditor from './components/ScriptEditor.vue'
 
@@ -46,6 +47,12 @@ const updatePostResponseScript = (value: string) => {
       <ScriptEditor
         :modelValue="script"
         @update:modelValue="updatePostResponseScript" />
+
+      <div class="border-y p-3">
+        <ExampleScripts
+          :modelValue="script"
+          @update:modelValue="updatePostResponseScript" />
+      </div>
     </ViewLayoutCollapse>
   </div>
 </template>
