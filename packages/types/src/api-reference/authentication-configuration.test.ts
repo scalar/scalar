@@ -101,8 +101,6 @@ describe('authenticationConfigurationSchema', () => {
                   'read:items': 'Read access to items',
                   'write:items': 'Write access to items',
                 },
-                selectedScopes: ['read:items'],
-                'x-scalar-redirect-uri': 'http://localhost:3000',
               },
               authorizationCode: {
                 type: 'authorizationCode',
