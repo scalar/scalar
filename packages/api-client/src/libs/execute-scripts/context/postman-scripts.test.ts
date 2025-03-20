@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { TestResult } from '../execute-post-response-script'
 import {
   createEnvironmentUtils,
+  createExpectChain,
   createResponseAssertions,
   createResponseUtils,
   createTestUtils,
@@ -10,24 +11,37 @@ import {
 describe('postman-scripts', () => {
   describe('createResponseUtils', () => {
     let mockResponse: Response
+    let responseText: string
 
     beforeEach(() => {
-      mockResponse = new Response(JSON.stringify({ data: 'test' }), {
+      responseText = JSON.stringify({ data: 'test' })
+      mockResponse = new Response(responseText, {
         status: 200,
         headers: new Headers({ 'content-type': 'application/json' }),
       })
+
+      // Override the text() and json() methods to be synchronous
+      mockResponse.text = () => Promise.resolve(responseText)
+      mockResponse.json = () => Promise.resolve(JSON.parse(responseText))
     })
 
     it('parses JSON response correctly', async () => {
       const utils = createResponseUtils(mockResponse)
-      const result = await utils.json()
+      // Wait for the text promise to resolve
+      await utils.text()
+      const result = utils.json()
       expect(result).toEqual({ data: 'test' })
     })
 
     it('throws error for invalid JSON', async () => {
       const invalidResponse = new Response('invalid json')
+      invalidResponse.text = () => Promise.resolve('invalid json')
+      invalidResponse.json = () => Promise.reject(new Error('Response is not valid JSON'))
+
       const utils = createResponseUtils(invalidResponse)
-      await expect(utils.json()).rejects.toThrow('Response is not valid JSON')
+      // Wait for the text promise to resolve
+      await utils.text()
+      expect(() => utils.json()).toThrow('Response is not valid JSON')
     })
 
     it('returns response text', async () => {
@@ -177,6 +191,84 @@ describe('postman-scripts', () => {
         passed: true,
         status: 'passed',
       })
+    })
+  })
+
+  describe('createExpectChain', () => {
+    describe('to.be.below', () => {
+      it('passes when number is below expected', () => {
+        const chain = createExpectChain(5)
+        expect(chain.to.be.below(10)).toBe(true)
+      })
+
+      it('throws when number is equal to expected', () => {
+        const chain = createExpectChain(10)
+        expect(() => chain.to.be.below(10)).toThrow('Expected 10 to be below 10')
+      })
+
+      it('throws when number is greater than expected', () => {
+        const chain = createExpectChain(15)
+        expect(() => chain.to.be.below(10)).toThrow('Expected 15 to be below 10')
+      })
+
+      it('throws when value is not a number', () => {
+        const chain = createExpectChain('not a number')
+        expect(() => chain.to.be.below(10)).toThrow('Expected value to be a number')
+      })
+    })
+
+    describe('to.be.an', () => {
+      it('correctly identifies arrays', () => {
+        const chain = createExpectChain([1, 2, 3])
+        expect(chain.to.be.an('array')).toBe(true)
+      })
+
+      it('throws when type does not match', () => {
+        const chain = createExpectChain('string')
+        expect(() => chain.to.be.an('array')).toThrow('Expected "string" to be an array, but got string')
+      })
+    })
+
+    describe('to.be.oneOf', () => {
+      it('passes when value is in expected array', () => {
+        const chain = createExpectChain('apple')
+        expect(chain.to.be.oneOf(['apple', 'banana', 'orange'])).toBe(true)
+      })
+
+      it('throws when value is not in expected array', () => {
+        const chain = createExpectChain('grape')
+        expect(() => chain.to.be.oneOf(['apple', 'banana', 'orange'])).toThrow(
+          'Expected "grape" to be one of ["apple","banana","orange"]',
+        )
+      })
+
+      it('throws when expected is not an array', () => {
+        const chain = createExpectChain('apple')
+        expect(() => chain.to.be.oneOf('not an array' as any)).toThrow('Expected argument to be an array')
+      })
+    })
+
+    describe('to.include', () => {
+      it('passes when string includes expected substring', () => {
+        const chain = createExpectChain('hello world')
+        expect(chain.to.include('world')).toBe(true)
+      })
+
+      it('throws when string does not include expected substring', () => {
+        const chain = createExpectChain('hello world')
+        expect(() => chain.to.include('goodbye')).toThrow('Expected "hello world" to include "goodbye"')
+      })
+
+      it('throws when value is not a string', () => {
+        const chain = createExpectChain(123)
+        expect(() => chain.to.include('23')).toThrow('Expected value to be a string')
+      })
+    })
+
+    it('throws when trying to expect a Promise', () => {
+      expect(() => createExpectChain(Promise.resolve())).toThrow(
+        'Expected value cannot be a Promise. Make sure to await async values before using expect.',
+      )
     })
   })
 })
