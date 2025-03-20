@@ -23,6 +23,7 @@ import { type ConsoleContext, createConsoleContext } from './context/console'
 import {
   type PostmanContext,
   createEnvironmentUtils,
+  createExpectChain,
   createResponseUtils,
   createTestUtils,
 } from './context/postman-scripts'
@@ -69,6 +70,7 @@ const createScriptContext = ({
       response: createResponseUtils(response),
       environment: createEnvironmentUtils(),
       test: createTestUtils(testResults, onTestResultsUpdate).test,
+      expect: createExpectChain,
     },
     testResults,
   }

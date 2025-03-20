@@ -6,12 +6,14 @@ export interface ResponseUtils {
   code: number
   headers: Record<string, string>
   to: ResponseAssertions
+  responseTime: number
 }
 
 export interface ResponseAssertions {
   have: {
     status: (expectedStatus: number) => boolean
     header: (headerName: string) => HeaderAssertions
+    jsonSchema: (schema: object) => Promise<boolean>
   }
   be: {
     json: () => Promise<boolean>
@@ -34,22 +36,96 @@ export interface PostmanContext {
   response: ResponseUtils
   environment: EnvironmentUtils
   test: (name: string, fn: () => void | Promise<void>) => Promise<void>
+  expect: (actual: any) => ExpectChain
 }
 
-export const createResponseUtils = (response: Response): ResponseUtils => ({
-  json: async () => {
-    const text = await response.text()
-    try {
-      return JSON.parse(text)
-    } catch {
-      throw new Error('Response is not valid JSON')
+export interface PM {
+  response: ResponseUtils
+  environment: EnvironmentUtils
+  test: (name: string, fn: () => void | Promise<void>) => Promise<void>
+  expect: (actual: any) => ExpectChain
+}
+
+export interface ExpectChain {
+  to: {
+    be: {
+      below: (expected: number) => boolean
+      an: (type: string) => boolean
+      oneOf: (expected: any[]) => boolean
     }
-  },
-  text: async () => response.text(),
-  code: response.status,
-  headers: Object.fromEntries(response.headers.entries()),
-  to: createResponseAssertions(response),
-})
+    include: (expected: string) => Promise<boolean>
+  }
+}
+
+const validateJsonSchema = (data: any, schema: any): boolean => {
+  if (schema.type === 'object') {
+    if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+      throw new Error(`Expected object but got ${typeof data}`)
+    }
+
+    if (schema.required) {
+      for (const prop of schema.required) {
+        if (!(prop in data)) {
+          throw new Error(`Missing required property: ${prop}`)
+        }
+      }
+    }
+
+    if (schema.properties) {
+      for (const [key, propSchema] of Object.entries<any>(schema.properties)) {
+        if (key in data) {
+          validateJsonSchema(data[key], propSchema)
+        }
+      }
+    }
+  } else if (schema.type === 'array') {
+    if (!Array.isArray(data)) {
+      throw new Error(`Expected array but got ${typeof data}`)
+    }
+    if (schema.items) {
+      for (const item of data) {
+        validateJsonSchema(item, schema.items)
+      }
+    }
+  } else if (schema.type === 'string') {
+    if (typeof data !== 'string') {
+      throw new Error(`Expected string but got ${typeof data}`)
+    }
+  } else if (schema.type === 'number') {
+    if (typeof data !== 'number') {
+      throw new Error(`Expected number but got ${typeof data}`)
+    }
+  } else if (schema.type === 'boolean') {
+    if (typeof data !== 'boolean') {
+      throw new Error(`Expected boolean but got ${typeof data}`)
+    }
+  }
+  return true
+}
+
+export const createResponseUtils = (response: Response): ResponseUtils => {
+  const responseStartTime = performance.now()
+  const jsonClone = response.clone()
+  const textClone = response.clone()
+
+  return {
+    json: async () => {
+      const text = await jsonClone.text()
+      try {
+        return JSON.parse(text)
+      } catch {
+        throw new Error('Response is not valid JSON')
+      }
+    },
+    text: () => textClone.text(),
+    code: response.status,
+    headers: Object.fromEntries(response.headers.entries()),
+    to: createResponseAssertions(response),
+    get responseTime() {
+      return Number((performance.now() - responseStartTime).toFixed(2))
+    },
+  }
+}
 
 export const createResponseAssertions = (response: Response): ResponseAssertions => ({
   have: {
@@ -77,6 +153,14 @@ export const createResponseAssertions = (response: Response): ResponseAssertions
         },
       },
     }),
+    jsonSchema: async (schema: object) => {
+      try {
+        const responseData = await response.clone().json()
+        return validateJsonSchema(responseData, schema)
+      } catch (error) {
+        throw new Error(`JSON Schema validation failed: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    },
   },
   be: {
     json: async () => {
@@ -142,5 +226,71 @@ const updateTestResult = (testResults: TestResult[], name: string, result: TestR
   const index = testResults.findIndex((t) => t.title === name)
   if (index !== -1) {
     testResults[index] = result
+  }
+}
+
+export const createExpectChain = (actual: any): ExpectChain => ({
+  to: {
+    be: {
+      below: (expected: number) => {
+        if (typeof actual !== 'number') {
+          throw new Error('Expected value to be a number')
+        }
+        if (actual >= expected) {
+          throw new Error(`Expected ${actual} to be below ${expected}`)
+        }
+        return true
+      },
+      an: (type: string) => {
+        const actualType = Array.isArray(actual) ? 'array' : typeof actual
+        if (actualType !== type) {
+          throw new Error(`Expected ${JSON.stringify(actual)} to be an ${type}, but got ${actualType}`)
+        }
+        return true
+      },
+      oneOf: (expected: any[]) => {
+        if (!Array.isArray(expected)) {
+          throw new Error('Expected argument to be an array')
+        }
+        if (!expected.includes(actual)) {
+          throw new Error(`Expected ${JSON.stringify(actual)} to be one of ${JSON.stringify(expected)}`)
+        }
+        return true
+      },
+    },
+    include: async (expected: string) => {
+      const actualValue = await Promise.resolve(actual)
+      if (typeof actualValue !== 'string') {
+        throw new Error('Expected value to be a string')
+      }
+      if (!actualValue.includes(expected)) {
+        throw new Error(`Expected "${actualValue}" to include "${expected}"`)
+      }
+      return true
+    },
+  },
+})
+
+export const createPostmanContext = (
+  response: Response,
+  env: Record<string, any> = {},
+  testResults: TestResult[],
+  onTestResultsUpdate?: (results: TestResult[]) => void,
+): PostmanContext & { pm: PM } => {
+  const expect = (actual: any) => createExpectChain(actual)
+
+  const context = {
+    response: createResponseUtils(response),
+    environment: createEnvironmentUtils(env),
+    test: createTestUtils(testResults, onTestResultsUpdate).test,
+    expect,
+  }
+
+  return {
+    ...context,
+    pm: {
+      ...context,
+      expect,
+    },
   }
 }
