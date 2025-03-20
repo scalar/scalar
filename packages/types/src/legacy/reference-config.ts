@@ -243,12 +243,12 @@ export type AuthenticationState = {
     token: string
   }
   oAuth2?: {
-    clientId: string
-    scopes: string[]
-    accessToken: string
-    state: string
-    username: string
-    password: string
+    clientId?: string
+    scopes?: string[]
+    accessToken?: string
+    state?: string
+    username?: string
+    password?: string
   }
 }
 

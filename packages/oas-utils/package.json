@@ -138,6 +138,7 @@
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
     "nanoid": "catalog:",
+    "type-fest": "catalog:",
     "yaml": "catalog:",
     "zod": "catalog:"
   },
@@ -145,7 +146,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "type-fest": "^4.20.0",
     "vite": "catalog:",
     "vitest": "catalog:",
     "zod-to-ts": "github:amritk/zod-to-ts#build"

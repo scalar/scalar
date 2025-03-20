@@ -35,6 +35,9 @@ describe('ApiReferenceConfiguration', () => {
           type: 'oauth2',
           flows: {
             implicit: { type: 'implicit', scopes: { 'read:items': 'Read access to items' } },
+            password: {
+              type: 'password',
+            },
           },
         },
       },

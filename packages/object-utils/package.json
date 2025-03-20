@@ -81,11 +81,11 @@
   "dependencies": {
     "flatted": "^3.3.1",
     "just-clone": "^6.2.0",
-    "ts-deepmerge": "^7.0.1"
+    "ts-deepmerge": "^7.0.1",
+    "type-fest": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "type-fest": "^4.20.0",
     "vite": "catalog:"
   }
 }
