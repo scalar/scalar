@@ -3,17 +3,19 @@ import { z } from 'zod'
 /**
  * Type of a schema that makes fields optional while removing defaults and preserving catch
  */
-type ZodDeepPartial<T extends z.ZodTypeAny> = T extends z.ZodObject<infer Shape>
-  ? z.ZodObject<{ [K in keyof Shape]: z.ZodOptional<ZodDeepPartial<Shape[K]>> }>
-  : T extends z.ZodArray<infer U>
-    ? z.ZodArray<ZodDeepPartial<U>>
-    : T extends z.ZodRecord<infer K, infer V>
-      ? z.ZodRecord<K, ZodDeepPartial<V>>
-      : T extends z.ZodUnion<infer U>
-        ? z.ZodUnion<[ZodDeepPartial<U[number]>]>
-        : T extends z.ZodOptional<infer U>
-          ? z.ZodOptional<ZodDeepPartial<U>>
-          : T
+type ZodDeepPartial<T extends z.ZodTypeAny> = T extends z.ZodDefault<infer U>
+  ? ZodDeepPartial<U>
+  : T extends z.ZodObject<infer Shape>
+    ? z.ZodObject<{ [K in keyof Shape]: z.ZodOptional<ZodDeepPartial<Shape[K]>> }>
+    : T extends z.ZodArray<infer U>
+      ? z.ZodArray<ZodDeepPartial<U>>
+      : T extends z.ZodRecord<infer K, infer V>
+        ? z.ZodRecord<K, ZodDeepPartial<V>>
+        : T extends z.ZodUnion<infer U>
+          ? z.ZodUnion<[ZodDeepPartial<U[number]>]>
+          : T extends z.ZodOptional<infer U>
+            ? z.ZodOptional<ZodDeepPartial<U>>
+            : T
 
 /**
  * A custom implementation of zodDeepPartial which removes defaults while preserving catch
@@ -50,7 +52,6 @@ export const zodDeepPartial = <T extends z.ZodTypeAny>(schema: T): ZodDeepPartia
     }
 
     if (schema instanceof z.ZodUnion) {
-      // Add explicit type for option parameter
       return z.union(schema.options.map((option: z.ZodTypeAny) => zodDeepPartial(option)))
     }
 
