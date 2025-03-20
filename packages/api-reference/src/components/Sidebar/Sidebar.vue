@@ -94,7 +94,7 @@ onMounted(() => {
 
   // Cleanup the observer when component is unmounted
   onUnmounted(() => {
-    observer.disconnect()
+    observer?.disconnect()
   })
 })
 </script>
