@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.3.7
+
+### Patch Changes
+
+- 46b40ca: fix: ensure we only send the authorization header when we have a secret
+- Updated dependencies [427c325]
+- Updated dependencies [9a2d008]
+- Updated dependencies [4a42197]
+- Updated dependencies [cbc1d08]
+  - @scalar/components@0.13.39
+  - @scalar/snippetz@0.2.17
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/use-codemirror@0.11.84
+  - @scalar/import@0.3.4
+  - @scalar/oas-utils@0.2.121
+
 ## 2.3.6
 
 ### Patch Changes

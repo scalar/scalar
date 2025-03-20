@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.13.39
+
+### Patch Changes
+
+- 427c325: fix(components): add missing forms exports
+- 9a2d008: fix(components): don't show form field label if none is provided
+
 ## 0.13.38
 
 ### Patch Changes

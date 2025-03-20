@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 2.1.1
+
+### Patch Changes
+
+- 27c7612: feat: Dynamic baseServerUrl
+- Updated dependencies [d9ab0f0]
+  - @scalar/api-reference@1.28.7
+
 ## 2.1.0
 
 ### Minor Changes
