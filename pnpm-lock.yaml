@@ -1939,6 +1939,10 @@ importers:
         version: 2.8.0
 
   packages/openapi-types:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -23458,7 +23462,7 @@ snapshots:
 
   '@nuxt/devtools-wizard@1.6.0':
     dependencies:
-      consola: 3.2.3
+      consola: 3.4.2
       diff: 7.0.0
       execa: 7.2.0
       global-directory: 4.0.1
@@ -32908,7 +32912,7 @@ snapshots:
       '@parcel/watcher-wasm': 2.4.1
       citty: 0.1.6
       clipboardy: 4.0.0
-      consola: 3.2.3
+      consola: 3.4.2
       crossws: 0.3.1
       defu: 6.1.4
       get-port-please: 3.1.2
@@ -34488,7 +34492,7 @@ snapshots:
   nypm@0.3.8:
     dependencies:
       citty: 0.1.6
-      consola: 3.2.3
+      consola: 3.4.2
       execa: 8.0.1
       pathe: 1.1.2
       ufo: 1.5.4
@@ -38276,7 +38280,7 @@ snapshots:
 
   unenv-nightly@1.10.0-1717606461.a117952:
     dependencies:
-      consola: 3.2.3
+      consola: 3.4.2
       defu: 6.1.4
       mime: 3.0.0
       node-fetch-native: 1.6.4
@@ -38582,7 +38586,7 @@ snapshots:
   untun@0.1.3:
     dependencies:
       citty: 0.1.6
-      consola: 3.2.3
+      consola: 3.4.2
       pathe: 1.1.2
 
   untyped@1.4.2:
@@ -39439,7 +39443,7 @@ snapshots:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      consola: 3.2.3
+      consola: 3.4.2
       figures: 3.2.0
       markdown-table: 2.0.0
       pretty-time: 1.1.0
