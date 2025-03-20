@@ -511,11 +511,31 @@ export type ApiReferenceConfigurationWithSources = Omit<
   'proxy' | 'spec'
 >
 
+/** Schema for multiple Api References with default flag */
+export const multipleApiReferenceConfigurationsSchema = z.array(
+  _apiReferenceConfigurationSchema
+    .partial()
+    .merge(
+      z.object({
+        /**
+         * Whether to use this source as the default one
+         *
+         * @default false
+         */
+        default: z.boolean().optional().catch(false),
+      }),
+    )
+    .transform((config) => migrateConfiguration(config as z.infer<typeof _apiReferenceConfigurationSchema>)),
+)
+
+/** Configuration for multiple Api References with default flag */
+export type MultipleApiReferenceConfigurations = z.infer<typeof multipleApiReferenceConfigurationsSchema>
+
 /** Configuration for multiple Api References */
 export type MultiReferenceConfiguration =
   | Partial<ApiReferenceConfiguration>
-  | Partial<ApiReferenceConfiguration>[]
   | Partial<ApiReferenceConfigurationWithSources>
+  | MultipleApiReferenceConfigurations
 
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (
