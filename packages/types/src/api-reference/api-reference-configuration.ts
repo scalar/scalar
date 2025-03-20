@@ -416,30 +416,8 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
   }),
 )
 
-/** Configuration for the Api Reference with sources before transforming */
-const _apiReferenceConfigurationWithSourcesSchema = _apiReferenceConfigurationSchema.merge(
-  z.object({
-    sources: z.array(
-      specConfigurationSchema.merge(
-        z.object({
-          /**
-           * Whether to use this source as the default one
-           *
-           * @default false
-           */
-          default: z.boolean().optional().catch(false),
-        }),
-      ),
-    ),
-  }),
-)
-
 /** Migrate the configuration through a transform */
-const migrateConfiguration = <
-  T extends z.infer<typeof _apiReferenceConfigurationSchema | typeof _apiReferenceConfigurationWithSourcesSchema>,
->(
-  _configuration: T,
-): T => {
+const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>(_configuration: T): T => {
   const configuration = { ..._configuration }
 
   // Remove the spec prefix
@@ -502,40 +480,22 @@ export type ApiReferenceConfiguration = Omit<
   'proxy' | 'spec'
 >
 
-/** Props for the ApiReference components, coming from user input */
-export const apiReferenceConfigurationWithSourcesSchema =
-  _apiReferenceConfigurationWithSourcesSchema.transform(migrateConfiguration)
-export type ApiReferenceConfigurationWithSources = Omit<
-  z.infer<typeof apiReferenceConfigurationWithSourcesSchema>,
-  // Remove deprecated attributes
-  'proxy' | 'spec'
->
+/** Api Config which includes the default config */
+type ApiReferenceConfigurationWithDefault = ApiReferenceConfiguration & {
+  /** Whether to use this config as the default one */
+  default?: boolean
+}
 
-/** Schema for multiple Api References with default flag */
-export const multipleApiReferenceConfigurationsSchema = z.array(
-  _apiReferenceConfigurationSchema
-    .partial()
-    .merge(
-      z.object({
-        /**
-         * Whether to use this source as the default one
-         *
-         * @default false
-         */
-        default: z.boolean().optional().catch(false),
-      }),
-    )
-    .transform((config) => migrateConfiguration(config as z.infer<typeof _apiReferenceConfigurationSchema>)),
-)
-
-/** Configuration for multiple Api References with default flag */
-export type MultipleApiReferenceConfigurations = z.infer<typeof multipleApiReferenceConfigurationsSchema>
+/** Configuration for a single config with sources */
+export type ApiReferenceConfigurationWithSources = Omit<ApiReferenceConfigurationWithDefault, 'default'> & {
+  sources: (SpecConfiguration & { default?: boolean })[]
+}
 
 /** Configuration for multiple Api References */
 export type AnyApiReferenceConfiguration =
   | Partial<ApiReferenceConfiguration>
   | Partial<ApiReferenceConfigurationWithSources>
-  | MultipleApiReferenceConfigurations
+  | Partial<ApiReferenceConfigurationWithDefault>[]
 
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (

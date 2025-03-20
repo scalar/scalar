@@ -1,9 +1,7 @@
 import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
-  type ApiReferenceConfiguration,
-  type ApiReferenceConfigurationWithSources,
-  type MultipleApiReferenceConfigurations,
+  type AnyApiReferenceConfiguration,
   type SpecConfiguration,
   apiReferenceConfigurationSchema,
   isConfigurationWithSources,
@@ -20,12 +18,7 @@ type UseMultipleDocumentsProps = {
    * Configuration for the API reference.
    * Can be a single configuration or an array of configurations for multiple documents.
    */
-  configuration: Ref<
-    | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfigurationWithSources>
-    | MultipleApiReferenceConfigurations
-    | undefined
-  >
+  configuration: Ref<AnyApiReferenceConfiguration | undefined>
   /** The initial index to pre-select a document, if there is no query parameter available */
   initialIndex?: number
 } & NavState
@@ -83,8 +76,12 @@ export const useMultipleDocuments = ({
 
     // Map the sources down to an array of specs
     const sources = isConfigurationWithSources(configuration.value)
-      ? (configuration.value?.sources ?? [])
-      : [configuration.value].flat().map((config) => config)
+      ? // This IFFE is needed for the type guard as it doens't persist into the callback scope
+        (() => {
+          const { sources, ...rest } = configuration.value
+          return sources?.map((source) => ({ ...rest, ...source })) ?? []
+        })()
+      : [configuration.value].flat()
 
     // Process them
     return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
