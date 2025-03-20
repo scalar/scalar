@@ -75,7 +75,7 @@ describe('scalar.aspnetcore', () => {
 
     it('preserves URLs when using absolute paths', () => {
       const configuration = {
-        sources: [{ url: 'https://foo.bar/swagger.json' }, { url: 'http://foo.bar/openapi.json' }],
+        sources: [{ url: 'https://foo.bar/swagger.json' }, { url: 'htTP://foo.bar/openapi.json' }],
       }
 
       const originalUrls = configuration.sources.map((s) => s.url)

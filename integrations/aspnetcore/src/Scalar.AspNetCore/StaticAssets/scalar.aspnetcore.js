@@ -42,9 +42,11 @@ export const initialize = (path, useDynamicBaseServerUrl, configuration = { sour
     sources: configuration?.sources?.map((source) => ({ ...source })) || [],
   }
 
+  const httpUrlPattern = /^https?:\/\//i
+
   // Construct full URLs for subdirectory hosting support if URLs are relative
   normalizedConfig.sources = normalizedConfig.sources.map((source) => {
-    if (!source.url || source.url.startsWith('http://') || source.url.startsWith('https://')) {
+    if (!source.url || httpUrlPattern.test(source.url)) {
       return source
     }
 

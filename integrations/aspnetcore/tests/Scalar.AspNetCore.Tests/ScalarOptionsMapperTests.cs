@@ -188,7 +188,7 @@ public class ScalarOptionsMapperTests
         var options = new ScalarOptions();
         options
             .AddDocument("default")
-            .AddDocument("custom", pattern: "/external/{documentName}.json");
+            .AddDocument("custom", routePattern: "/external/{documentName}.json");
         
         // Act 
         var configuration = options.ToScalarConfiguration();

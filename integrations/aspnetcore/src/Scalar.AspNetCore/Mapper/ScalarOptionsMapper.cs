@@ -70,7 +70,7 @@ internal static class ScalarOptionsMapper
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
         return options.Documents.Select(document =>
         {
-            var openApiRoutePattern = document.OpenApiRoutePattern is null ? trimmedOpenApiRoutePattern : document.OpenApiRoutePattern.TrimStart('/'); 
+            var openApiRoutePattern = document.RoutePattern is null ? trimmedOpenApiRoutePattern : document.RoutePattern.TrimStart('/'); 
             return new ScalarSource
             {
                 Title = document.Title ?? document.Name,
