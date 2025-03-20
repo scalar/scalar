@@ -29,12 +29,7 @@ internal static class ScalarOptionsMapper
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
-        var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
-        var sources = options.Documents.Select(document => new ScalarSource
-        {
-            Title = document.Title ?? document.Name,
-            Url = trimmedOpenApiRoutePattern.Replace(DocumentName, document.Name)
-        });
+        var sources = GetSources(options);
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
@@ -68,6 +63,20 @@ internal static class ScalarOptionsMapper
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl
         };
+    }
+
+    private static IEnumerable<ScalarSource> GetSources(ScalarOptions options)
+    {
+        var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
+        return options.Documents.Select(document =>
+        {
+            var openApiRoutePattern = document.OpenApiRoutePattern is null ? trimmedOpenApiRoutePattern : document.OpenApiRoutePattern.TrimStart('/'); 
+            return new ScalarSource
+            {
+                Title = document.Title ?? document.Name,
+                Url = openApiRoutePattern.Replace(DocumentName, document.Name)
+            };
+        });
     }
 
     private static Dictionary<string, IEnumerable<string>>? GetHiddenClients(ScalarOptions options)

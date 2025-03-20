@@ -30,18 +30,11 @@ export const getBasePath = (suffix) => {
  * the application is hosted in a subdirectory or at the root path.
  *
  * @param {string} path - The current request path used to calculate the base URL
- * @param {boolean} isOpenApiRoutePatternUrl - When true, treats OpenAPI URLs as absolute paths
- *                                            When false, prepends the base path to make URLs relative
  * @param {boolean} useDynamicBaseServerUrl - When true, uses the current server URL as the base URL
  * @param {Object} configuration - Scalar configuration object
  * @param {Array<Object>} [configuration.sources=[]] - Array of OpenAPI source configurations
  */
-export const initialize = (
-  path,
-  isOpenApiRoutePatternUrl,
-  useDynamicBaseServerUrl,
-  configuration = { sources: [] },
-) => {
+export const initialize = (path, useDynamicBaseServerUrl, configuration = { sources: [] }) => {
   const basePath = getBasePath(path)
 
   const normalizedConfig = {
@@ -49,19 +42,17 @@ export const initialize = (
     sources: configuration?.sources?.map((source) => ({ ...source })) || [],
   }
 
-  if (!isOpenApiRoutePatternUrl) {
-    // Construct full URLs for subdirectory hosting support
-    normalizedConfig.sources = normalizedConfig.sources.map((source) => {
-      if (!source.url) {
-        return source
-      }
+  // Construct full URLs for subdirectory hosting support if URLs are relative
+  normalizedConfig.sources = normalizedConfig.sources.map((source) => {
+    if (!source.url || source.url.startsWith('http://') || source.url.startsWith('https://')) {
+      return source
+    }
 
-      return {
-        ...source,
-        url: new URL(source.url, `${window.location.origin}${basePath}/`).toString(),
-      }
-    })
-  }
+    return {
+      ...source,
+      url: new URL(source.url, `${window.location.origin}${basePath}/`).toString(),
+    }
+  })
 
   if (useDynamicBaseServerUrl) {
     normalizedConfig.baseServerURL = `${window.location.origin}${basePath}`
