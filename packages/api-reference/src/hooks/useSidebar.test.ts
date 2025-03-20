@@ -21,6 +21,9 @@ vi.mock('vue', () => {
       getHeadingId: vi.fn(),
       getModelId: vi.fn(),
       getWebhookId: vi.fn(),
+      hash: { value: '' },
+      hashPrefix: { value: '' },
+      isIntersectionEnabled: { value: false },
     }),
   }
 })
