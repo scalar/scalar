@@ -14,5 +14,12 @@ describe('zodDeepPartial', () => {
         implicit: { type: 'implicit', scopes: { 'read:items': 'Read access to items' } },
       },
     })
+
+    assertType<PartialSecuritySchemeSchema>({
+      type: 'oauth2',
+      flows: {
+        password: { type: 'password' },
+      },
+    })
   })
 })

@@ -72,6 +72,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@unhead/schema": "^1.11.11",
     "nanoid": "catalog:",
+    "type-fest": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
