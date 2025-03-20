@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.12
+
+### Patch Changes
+
+- cbc1d08: fix: swagger 2.0 basePath is ignored, if there’s no host
+
 ## 0.10.11
 
 ### Patch Changes

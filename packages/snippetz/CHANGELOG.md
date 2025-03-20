@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.17
+
+### Patch Changes
+
+- 4a42197: fix: multipart/form-data with JSON doesn’t pretty print
+
 ## 0.2.16
 
 ### Patch Changes
