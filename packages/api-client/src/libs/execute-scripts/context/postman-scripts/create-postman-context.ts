@@ -33,7 +33,9 @@ export const createPostmanContext = (
 
   const responseUtils = {
     ...createResponseUtils(response),
-    text: () => Promise.resolve(responseText),
+    text: () => {
+      return responseText
+    },
     json: () => {
       if (responseJson === null) {
         throw new Error('Response is not valid JSON')
