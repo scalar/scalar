@@ -118,6 +118,11 @@
       "types": "./dist/libs/execute-scripts/index.d.ts",
       "default": "./dist/libs/execute-scripts/index.js"
     },
+    "./libs/execute-scripts/context/postman-scripts": {
+      "import": "./dist/libs/execute-scripts/context/postman-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/context/postman-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/context/postman-scripts/index.js"
+    },
     "./layouts/Web": {
       "import": "./dist/layouts/Web/index.js",
       "types": "./dist/layouts/Web/index.d.ts",

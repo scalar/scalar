@@ -1,3 +1,12 @@
+import { type ConsoleContext, createConsoleContext } from './context/console'
+import {
+  type PostmanContext,
+  createEnvironmentUtils,
+  createExpectChain,
+  createResponseUtils,
+  createTestUtils,
+} from './context/postman-scripts'
+
 export type TestResult = {
   title: string
   passed: boolean
@@ -18,15 +27,6 @@ interface ResponseContext {
   statusText: string
   headers: Record<string, string>
 }
-
-import { type ConsoleContext, createConsoleContext } from './context/console'
-import {
-  type PostmanContext,
-  createEnvironmentUtils,
-  createExpectChain,
-  createResponseUtils,
-  createTestUtils,
-} from './context/postman-scripts'
 
 // Utilities
 const createGlobalProxy = () => {
@@ -79,7 +79,7 @@ const createScriptContext = ({
     pm: {
       response: {
         ...createResponseUtils(response),
-        text: () => responseText,
+        text: () => Promise.resolve(responseText),
         json: () => {
           if (responseJson === null) {
             throw new Error('Response is not valid JSON')
