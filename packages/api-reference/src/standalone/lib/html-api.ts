@@ -1,7 +1,7 @@
 import type { ReferenceProps } from '@/types'
 import {
+  type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
-  type MultiReferenceConfiguration,
   apiReferenceConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
@@ -174,17 +174,17 @@ export type ApiReferenceInstance = {
   /** Destroy the current API Reference instance */
   destroy: () => void
   /** Get the current configuration[s] */
-  getConfiguration: () => MultiReferenceConfiguration
+  getConfiguration: () => AnyApiReferenceConfiguration
   /** Update all configuration[s] */
-  updateConfiguration: (newConfig: MultiReferenceConfiguration) => void
+  updateConfiguration: (newConfig: AnyApiReferenceConfiguration) => void
 }
 
 /** Function overload for createApiReference to allow multiple different signatures */
 export type CreateApiReference = {
   /** Pass in the configuration only */
-  (configuration: MultiReferenceConfiguration): ApiReferenceInstance
+  (configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
   /** Pass in the element or selector and configuration */
-  (elementOrSelector: Element | string, configuration: MultiReferenceConfiguration): ApiReferenceInstance
+  (elementOrSelector: Element | string, configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
 }
 
 /**
@@ -197,11 +197,11 @@ export type CreateApiReference = {
  */
 export const createApiReference: CreateApiReference = (
   elementOrSelectorOrConfig,
-  optionalConfiguration?: MultiReferenceConfiguration,
+  optionalConfiguration?: AnyApiReferenceConfiguration,
 ) => {
   const props = reactive<ReferenceProps>({
     // Either the configuration will be the second arugment or it MUST be the first (configuration only)
-    configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as MultiReferenceConfiguration) ?? {},
+    configuration: optionalConfiguration ?? (elementOrSelectorOrConfig as AnyApiReferenceConfiguration) ?? {},
   })
 
   // Create a new Vue app instance
@@ -302,7 +302,7 @@ export const createApiReference: CreateApiReference = (
   return {
     app,
     getConfiguration: () => props.configuration ?? {},
-    updateConfiguration: (newConfig: MultiReferenceConfiguration) => {
+    updateConfiguration: (newConfig: AnyApiReferenceConfiguration) => {
       props.configuration = newConfig
     },
     destroy,

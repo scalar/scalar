@@ -532,13 +532,13 @@ export const multipleApiReferenceConfigurationsSchema = z.array(
 export type MultipleApiReferenceConfigurations = z.infer<typeof multipleApiReferenceConfigurationsSchema>
 
 /** Configuration for multiple Api References */
-export type MultiReferenceConfiguration =
+export type AnyApiReferenceConfiguration =
   | Partial<ApiReferenceConfiguration>
   | Partial<ApiReferenceConfigurationWithSources>
   | MultipleApiReferenceConfigurations
 
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (
-  config: MultiReferenceConfiguration,
+  config: AnyApiReferenceConfiguration,
 ): config is Partial<ApiReferenceConfigurationWithSources> =>
   Boolean(!Array.isArray(config) && config && 'sources' in config && Array.isArray(config.sources))
