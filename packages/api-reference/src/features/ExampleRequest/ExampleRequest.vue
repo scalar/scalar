@@ -11,11 +11,19 @@ import type {
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useExampleStore } from '#legacy'
-import { computed, ref, useId, watch } from 'vue'
+import {
+  computed,
+  ref,
+  useId,
+  VueElement,
+  watch,
+  type ComponentPublicInstance,
+} from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
 import { useHttpClientStore, type HttpClientState } from '@/stores'
 
@@ -223,9 +231,19 @@ const options = computed<TextSelectOptions>(() => {
   return entries
 })
 
+const elem = ref<ComponentPublicInstance | null>(null)
+
 /** Set custom example, or update the selected HTTP client globally */
 function updateHttpClient(value: string) {
   const data = JSON.parse(value)
+
+  // We need to freeze the ui to prevent scrolling as the clients change
+  if (elem.value) {
+    const unfreeze = freezeElement(elem.value.$el)
+    setTimeout(() => {
+      unfreeze()
+    }, 300)
+  }
 
   if (data.targetKey === 'customExamples') {
     localHttpClient.value = data
@@ -239,6 +257,7 @@ function updateHttpClient(value: string) {
     v-if="availableTargets.length || customRequestExamples.length"
     :aria-labelledby="`${id}-header`"
     class="dark-mode"
+    ref="elem"
     role="region">
     <CardHeader muted>
       <div
