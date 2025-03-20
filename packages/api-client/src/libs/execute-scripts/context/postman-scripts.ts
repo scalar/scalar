@@ -90,14 +90,8 @@ export const createResponseAssertions = (response: Response): ResponseAssertions
   },
 })
 
-export const createEnvironmentUtils = (): EnvironmentUtils => ({
-  get: (key: string) => {
-    const allowedVars = ['NODE_ENV', 'API_URL']
-    if (allowedVars.includes(key)) {
-      return import.meta.env[key]
-    }
-    return undefined
-  },
+export const createEnvironmentUtils = (env: Record<string, any> = {}): EnvironmentUtils => ({
+  get: (key: string) => env[key],
   set: () => false,
 })
 

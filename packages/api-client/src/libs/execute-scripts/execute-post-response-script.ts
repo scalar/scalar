@@ -19,12 +19,7 @@ interface ResponseContext {
   headers: Record<string, string>
 }
 
-interface ConsoleContext {
-  log: (...args: any[]) => void
-  error: (...args: any[]) => void
-  warn: (...args: any[]) => void
-}
-
+import { type ConsoleContext, createConsoleContext } from './context/console'
 import {
   type PostmanContext,
   createEnvironmentUtils,
@@ -50,12 +45,6 @@ const createGlobalProxy = () => {
     },
   )
 }
-
-const createConsoleContext = () => ({
-  log: (...args: any[]) => console.log('[Script]', ...args),
-  error: (...args: any[]) => console.error('[Script Error]', ...args),
-  warn: (...args: any[]) => console.warn('[Script Warning]', ...args),
-})
 
 const createResponseContext = (response: Response): ResponseContext => ({
   status: response.status,
@@ -114,14 +103,13 @@ export const executePostResponseScript = async (
   const { globalProxy, context } = createScriptContext(data)
   const startTime = performance.now()
 
+  // Executing script
   try {
-    console.log('[Post-Response Script] Executing script')
+    // console.log('[Post-Response Script] Executing script')
     const scriptFn = createScriptFunction(script)
     await scriptFn.call(globalProxy, globalProxy, context)
-
-    const duration = (performance.now() - startTime).toFixed(2)
-    console.log(`[Post-Response Script] Completed (${duration}ms)`)
   } catch (error: unknown) {
+    // Catching script errors
     const duration = (performance.now() - startTime).toFixed(2)
     const errorMessage = error instanceof Error ? error.message : String(error)
 
