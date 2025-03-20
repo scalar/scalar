@@ -2,6 +2,7 @@
 import type {
   ApiReferenceConfiguration,
   ApiReferenceConfigurationWithSources,
+  MultipleApiReferenceConfigurations,
 } from '@scalar/types/api-reference'
 import { toRef } from 'vue'
 
@@ -16,8 +17,8 @@ const props = defineProps<{
    */
   configuration?:
     | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfiguration>[]
     | Partial<ApiReferenceConfigurationWithSources>
+    | MultipleApiReferenceConfigurations
 }>()
 
 const { selectedConfiguration, availableDocuments, selectedDocumentIndex } =

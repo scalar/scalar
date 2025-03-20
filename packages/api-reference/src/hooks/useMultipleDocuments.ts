@@ -3,6 +3,7 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
+  type MultipleApiReferenceConfigurations,
   type SpecConfiguration,
   apiReferenceConfigurationSchema,
   isConfigurationWithSources,
@@ -21,8 +22,8 @@ type UseMultipleDocumentsProps = {
    */
   configuration: Ref<
     | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfiguration>[]
     | Partial<ApiReferenceConfigurationWithSources>
+    | MultipleApiReferenceConfigurations
     | undefined
   >
   /** The initial index to pre-select a document, if there is no query parameter available */
