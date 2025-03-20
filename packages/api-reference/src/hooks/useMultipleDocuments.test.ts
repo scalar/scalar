@@ -109,6 +109,9 @@ describe('useMultipleDocuments', () => {
             default: true,
           },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -130,6 +133,9 @@ describe('useMultipleDocuments', () => {
           { url: '/openapi.json', slug: 'first-api' },
           { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
