@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { python3 } from './python3/client.js'
-import { requests } from './requests/client.js'
 
 export const python = {
   info: {
@@ -11,6 +10,5 @@ export const python = {
   },
   clientsById: {
     python3,
-    requests,
   },
 }

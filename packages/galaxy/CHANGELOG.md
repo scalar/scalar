@@ -1,5 +1,16 @@
 # @scalar/galaxy
 
+## 0.3.0
+
+### Minor Changes
+
+- 9eb5c6b: feat: more data for planets
+
+### Patch Changes
+
+- 9eb5c6b: fix: examples for images are invalid
+- 9eb5c6b: fix: some responses are missing
+
 ## 0.2.24
 
 ### Patch Changes

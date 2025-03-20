@@ -1,15 +1,32 @@
 import { describe, expect, it, vi } from 'vitest'
 import { computed, toValue } from 'vue'
 
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { parse } from '../helpers'
 import { type SorterOption, useSidebar } from './useSidebar'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
   useConfig: vi.fn().mockReturnValue(computed(() => apiReferenceConfigurationSchema.parse({}))),
 }))
 
+// Mock vue's inject
+vi.mock('vue', () => {
+  const actual = require('vue')
+  return {
+    ...actual,
+    inject: vi.fn().mockReturnValue({
+      getTagId: vi.fn(),
+      getOperationId: vi.fn(),
+      getHeadingId: vi.fn(),
+      getModelId: vi.fn(),
+      getWebhookId: vi.fn(),
+      hash: { value: '' },
+      hashPrefix: { value: '' },
+      isIntersectionEnabled: { value: false },
+    }),
+  }
+})
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
  */

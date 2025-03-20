@@ -23,6 +23,9 @@ describe('useMultipleDocuments', () => {
           { url: '/openapi.json', slug: 'first-api' },
           { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -40,6 +43,9 @@ describe('useMultipleDocuments', () => {
           { url: '/openapi.json', slug: 'first-api' },
           { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -57,6 +63,9 @@ describe('useMultipleDocuments', () => {
           { url: '/openapi.json', slug: 'first-api' },
           { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -68,6 +77,9 @@ describe('useMultipleDocuments', () => {
     it('omits sources without url and content', () => {
       const multipleConfigurations = {
         configuration: ref({ sources: [{}] }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(multipleConfigurations)
@@ -134,6 +146,9 @@ describe('useMultipleDocuments', () => {
           { url: '/openapi.json', slug: 'first-api' },
           { url: '/openapi-2.yaml', slug: 'second-api' },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -146,6 +161,9 @@ describe('useMultipleDocuments', () => {
     it('does not update URL when there is only one document', () => {
       const singleConfig = {
         configuration: ref([{ url: '/openapi.json', slug: 'single-api' }]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       useMultipleDocuments(singleConfig)
@@ -158,6 +176,9 @@ describe('useMultipleDocuments', () => {
     it('handles single API configuration', () => {
       const singleConfig = {
         configuration: ref({ url: '/openapi.json', slug: 'single-api' }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(singleConfig)
@@ -169,6 +190,9 @@ describe('useMultipleDocuments', () => {
     it('handles undefined configuration', () => {
       const emptyConfig = {
         configuration: ref(undefined),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(emptyConfig)
@@ -192,6 +216,9 @@ describe('useMultipleDocuments', () => {
     it('filters out APIs with undefined sources/url/content', () => {
       const configWithUndefinedSpec = {
         configuration: ref([{ url: undefined }, { url: '/openapi-2.yaml', slug: 'valid-api' }]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(configWithUndefinedSpec)
@@ -218,6 +245,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -246,6 +276,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -274,6 +307,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration } = useMultipleDocuments(multipleConfigurations)
@@ -303,6 +339,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex } = useMultipleDocuments(multipleConfigurations)
@@ -344,6 +383,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(config)
@@ -364,6 +406,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(config)
@@ -386,6 +431,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(config)
@@ -411,6 +459,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(config)
@@ -440,6 +491,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { availableDocuments } = useMultipleDocuments(multipleConfigurations)
@@ -467,6 +521,9 @@ describe('useMultipleDocuments', () => {
             },
           ],
         }),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(config)

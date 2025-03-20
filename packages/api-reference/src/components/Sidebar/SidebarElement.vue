@@ -34,8 +34,7 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-const { getFullHash, isIntersectionEnabled, pathRouting, replaceUrlState } =
-  useNavState()
+const { getFullHash, isIntersectionEnabled, replaceUrlState } = useNavState()
 
 const config = useConfig()
 
@@ -56,8 +55,8 @@ const handleClick = async () => {
 
 // Build relative URL and add hash
 const generateLink = () => {
-  if (pathRouting.value) {
-    return combineUrlAndPath(pathRouting.value.basePath, props.item.id)
+  if (config.value.pathRouting) {
+    return combineUrlAndPath(config.value.pathRouting.basePath, props.item.id)
   }
   if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
@@ -69,7 +68,7 @@ const generateLink = () => {
 
 // For path routing we want to handle the clicks
 const onAnchorClick = async (ev: Event) => {
-  if (pathRouting.value) {
+  if (config.value.pathRouting) {
     ev.preventDefault()
 
     // Due to the prevent default

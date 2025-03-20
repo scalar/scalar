@@ -22,16 +22,6 @@ export type ReferenceLayoutProps = {
   isDark: boolean
 }
 
-/**
- * After the configuration is parsed, we can use the stricter types.
- */
-export type InternalReferenceProps = {
-  configuration: ApiReferenceConfiguration
-  parsedSpec: Spec
-  rawSpec: string
-  isDark: boolean
-}
-
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
 export type Parameter = {

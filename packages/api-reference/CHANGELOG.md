@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.28.7
+
+### Patch Changes
+
+- d9ab0f0: fix: move useNavState state to ApiReference and provide/inject
+- Updated dependencies [427c325]
+- Updated dependencies [9a2d008]
+- Updated dependencies [46b40ca]
+- Updated dependencies [4a42197]
+- Updated dependencies [cbc1d08]
+  - @scalar/components@0.13.39
+  - @scalar/api-client@2.3.7
+  - @scalar/snippetz@0.2.17
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/oas-utils@0.2.121
+
 ## 1.28.6
 
 ### Patch Changes

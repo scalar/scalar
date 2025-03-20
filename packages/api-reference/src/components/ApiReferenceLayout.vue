@@ -107,20 +107,15 @@ const {
   getTagId,
   hash,
   isIntersectionEnabled,
-  pathRouting,
   updateHash,
   replaceUrlState,
 } = useNavState()
 
-// Need to set these in navState as a hack
-if (configuration.value.pathRouting) {
-  pathRouting.value = configuration.value.pathRouting
-}
-
 // Front-end redirect
-if (props.configuration.redirect && typeof window !== 'undefined') {
-  const newPath = props.configuration.redirect(
-    (pathRouting.value ? window.location.pathname : '') + window.location.hash,
+if (configuration.value.redirect && typeof window !== 'undefined') {
+  const newPath = configuration.value.redirect(
+    (configuration.value.pathRouting ? window.location.pathname : '') +
+      window.location.hash,
   )
   if (newPath) {
     history.replaceState({}, '', newPath)
@@ -176,7 +171,7 @@ onMounted(() => {
   }
   // Handle back for path routing
   window.onpopstate = () =>
-    pathRouting.value &&
+    configuration.value.pathRouting &&
     scrollToSection(getPathRoutingId(window.location.pathname))
 })
 

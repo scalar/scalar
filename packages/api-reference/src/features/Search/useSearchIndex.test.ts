@@ -9,6 +9,13 @@ vi.mock('@/hooks/useConfig', () => ({
   useConfig: vi.fn().mockReturnValue({ value: {} }),
 }))
 
+vi.mock('@/hooks/useNavState', () => ({
+  useNavState: vi.fn().mockReturnValue({
+    getTagId: vi.fn(),
+    getOperationId: vi.fn(),
+  }),
+}))
+
 describe('useSearchIndex', () => {
   it('should create the search index from an OpenAPI document', async () => {
     const specification = await parse(
