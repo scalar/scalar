@@ -4,6 +4,6 @@ export * from './ApiReferenceReact'
 export type {
   ApiReferenceConfiguration,
   ApiReferenceConfigurationWithSources,
-  MultiReferenceConfiguration,
+  AnyApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
 export type { ReferenceProps } from '@scalar/api-reference'
