@@ -340,5 +340,165 @@ describe('postman-scripts', () => {
         expect(() => chain.to.have.length(2)).toThrow('Expected value to have a length property')
       })
     })
+
+    describe('to.exist', () => {
+      it('passes when value exists', () => {
+        const chain = createExpectChain({})
+        expect(chain.to.exist()).toBe(true)
+      })
+
+      it('throws when value is null', () => {
+        const chain = createExpectChain(null)
+        expect(() => chain.to.exist()).toThrow('Expected value to exist but got null')
+      })
+
+      it('throws when value is undefined', () => {
+        const chain = createExpectChain(undefined)
+        expect(() => chain.to.exist()).toThrow('Expected value to exist but got undefined')
+      })
+    })
+
+    describe('to.be.null', () => {
+      it('passes when value is null', () => {
+        const chain = createExpectChain(null)
+        expect(chain.to.be.null()).toBe(true)
+      })
+
+      it('throws when value is not null', () => {
+        const chain = createExpectChain({})
+        expect(() => chain.to.be.null()).toThrow('Expected value to be null')
+      })
+    })
+
+    describe('to.be.undefined', () => {
+      it('passes when value is undefined', () => {
+        const chain = createExpectChain(undefined)
+        expect(chain.to.be.undefined()).toBe(true)
+      })
+
+      it('throws when value is not undefined', () => {
+        const chain = createExpectChain(null)
+        expect(() => chain.to.be.undefined()).toThrow('Expected value to be undefined')
+      })
+    })
+
+    describe('to.be.empty', () => {
+      it('passes when array is empty', () => {
+        const chain = createExpectChain([])
+        expect(chain.to.be.empty()).toBe(true)
+      })
+
+      it('passes when string is empty', () => {
+        const chain = createExpectChain('')
+        expect(chain.to.be.empty()).toBe(true)
+      })
+
+      it('passes when object has no keys', () => {
+        const chain = createExpectChain({})
+        expect(chain.to.be.empty()).toBe(true)
+      })
+
+      it('throws when array is not empty', () => {
+        const chain = createExpectChain([1])
+        expect(() => chain.to.be.empty()).toThrow('Expected array to be empty')
+      })
+    })
+
+    describe('to.be.true/false', () => {
+      it('passes when value is true', () => {
+        const chain = createExpectChain(true)
+        expect(chain.to.be.true()).toBe(true)
+      })
+
+      it('passes when value is false', () => {
+        const chain = createExpectChain(false)
+        expect(chain.to.be.false()).toBe(true)
+      })
+
+      it('throws when checking true on non-true value', () => {
+        const chain = createExpectChain(1)
+        expect(() => chain.to.be.true()).toThrow('Expected value to be true')
+      })
+    })
+
+    describe('to.be.above', () => {
+      it('passes when number is above expected', () => {
+        const chain = createExpectChain(15)
+        expect(chain.to.be.above(10)).toBe(true)
+      })
+
+      it('throws when number is equal to expected', () => {
+        const chain = createExpectChain(10)
+        expect(() => chain.to.be.above(10)).toThrow('Expected 10 to be above 10')
+      })
+
+      it('throws when number is below expected', () => {
+        const chain = createExpectChain(5)
+        expect(() => chain.to.be.above(10)).toThrow('Expected 5 to be above 10')
+      })
+    })
+
+    describe('to.be.at.least', () => {
+      it('passes when number is greater than expected', () => {
+        const chain = createExpectChain(15)
+        expect(chain.to.be.at.least(10)).toBe(true)
+      })
+
+      it('passes when number is equal to expected', () => {
+        const chain = createExpectChain(10)
+        expect(chain.to.be.at.least(10)).toBe(true)
+      })
+
+      it('throws when number is less than expected', () => {
+        const chain = createExpectChain(5)
+        expect(() => chain.to.be.at.least(10)).toThrow('Expected 5 to be at least 10')
+      })
+    })
+
+    describe('to.have.property', () => {
+      it('passes when object has property', () => {
+        const chain = createExpectChain({ a: 1 })
+        expect(chain.to.have.property('a')).toBe(true)
+      })
+
+      it('passes when object has property with specific value', () => {
+        const chain = createExpectChain({ a: 1 })
+        expect(chain.to.have.property('a', 1)).toBe(true)
+      })
+
+      it('throws when property does not exist', () => {
+        const chain = createExpectChain({})
+        expect(() => chain.to.have.property('a')).toThrow('Expected object to have property "a"')
+      })
+
+      it('throws when property value does not match', () => {
+        const chain = createExpectChain({ a: 1 })
+        expect(() => chain.to.have.property('a', 2)).toThrow('Expected property "a" to equal 2 but got 1')
+      })
+    })
+
+    describe('to.have.keys', () => {
+      it('passes when object has all specified keys', () => {
+        const chain = createExpectChain({ a: 1, b: 2 })
+        expect(chain.to.have.keys(['a', 'b'])).toBe(true)
+      })
+
+      it('throws when object is missing keys', () => {
+        const chain = createExpectChain({ a: 1 })
+        expect(() => chain.to.have.keys(['a', 'b', 'c'])).toThrow('Expected object to have keys: b, c')
+      })
+    })
+
+    describe('not', () => {
+      it('inverts equal assertion', () => {
+        const chain = createExpectChain(1)
+        expect(chain.not.to.equal(2)).toBe(true)
+      })
+
+      it('throws when negated assertion would pass', () => {
+        const chain = createExpectChain(1)
+        expect(() => chain.not.to.equal(1)).toThrow('Expected 1 to not equal 1')
+      })
+    })
   })
 })
