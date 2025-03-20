@@ -240,6 +240,7 @@ describe('useMultipleDocuments', () => {
 
       const multipleConfigurations = {
         configuration: ref({
+          hideClientButton: true,
           sources: [
             {
               url: '/openapi-1.yaml',
@@ -260,6 +261,7 @@ describe('useMultipleDocuments', () => {
 
       expect(selectedDocumentIndex.value).toBe(1)
       expect(selectedConfiguration.value).toMatchObject({
+        hideClientButton: true,
         url: '/openapi-2.yaml',
         slug: 'second-api',
       })
