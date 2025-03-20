@@ -183,10 +183,13 @@ export const createRequestOperation = ({
 
         status?.emit('stop')
 
+        // Clone the response before reading it
+        const responseToRead = response.clone()
+
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
-        const arrayBuffer = await response.arrayBuffer()
+        const arrayBuffer = await responseToRead.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
 
         await executePostResponseScript(request['x-post-response'], {

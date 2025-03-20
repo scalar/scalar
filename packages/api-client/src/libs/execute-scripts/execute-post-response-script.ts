@@ -55,19 +55,38 @@ const createResponseContext = (response: Response): ResponseContext => ({
 
 const createScriptContext = ({
   response,
+  responseText,
   onTestResultsUpdate,
 }: {
   response: Response
+  responseText: string
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
 }): { globalProxy: any; context: ScriptContext } => {
   const globalProxy = createGlobalProxy()
   const testResults: TestResult[] = []
 
+  // Parse JSON synchronously
+  let responseJson = null
+  try {
+    responseJson = JSON.parse(responseText)
+  } catch {
+    // Keep responseJson as null if parsing fails
+  }
+
   const context: ScriptContext = {
     response: createResponseContext(response),
     console: createConsoleContext(),
     pm: {
-      response: createResponseUtils(response),
+      response: {
+        ...createResponseUtils(response),
+        text: () => responseText,
+        json: () => {
+          if (responseJson === null) {
+            throw new Error('Response is not valid JSON')
+          }
+          return responseJson
+        },
+      },
       environment: createEnvironmentUtils(),
       test: createTestUtils(testResults, onTestResultsUpdate).test,
       expect: createExpectChain,
@@ -102,16 +121,21 @@ export const executePostResponseScript = async (
     return
   }
 
-  const { globalProxy, context } = createScriptContext(data)
+  // Get response text before executing script
+  const responseText = await data.response.clone().text()
+
+  const { globalProxy, context } = createScriptContext({
+    response: data.response,
+    responseText,
+    onTestResultsUpdate: data.onTestResultsUpdate,
+  })
+
   const startTime = performance.now()
 
-  // Executing script
   try {
-    // console.log('[Post-Response Script] Executing script')
     const scriptFn = createScriptFunction(script)
-    await scriptFn.call(globalProxy, globalProxy, context)
+    scriptFn.call(globalProxy, globalProxy, context)
   } catch (error: unknown) {
-    // Catching script errors
     const duration = (performance.now() - startTime).toFixed(2)
     const errorMessage = error instanceof Error ? error.message : String(error)
 

@@ -38,7 +38,7 @@ const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
-const testResults = ref<any>(null)
+const testResults = ref<TestResult[]>([])
 
 /**
  * Selected scheme UIDs

@@ -1,7 +1,7 @@
 import type { TestResult } from '../execute-post-response-script'
 
 export interface ResponseUtils {
-  json: () => Promise<any>
+  json: () => any
   text: () => Promise<string>
   code: number
   headers: Record<string, string>
@@ -53,7 +53,7 @@ export interface ExpectChain {
       an: (type: string) => boolean
       oneOf: (expected: any[]) => boolean
     }
-    include: (expected: string) => Promise<boolean>
+    include: (expected: string) => boolean
   }
 }
 
@@ -104,20 +104,41 @@ const validateJsonSchema = (data: any, schema: any): boolean => {
 }
 
 export const createResponseUtils = (response: Response): ResponseUtils => {
+  let cachedJson: any
+  let cachedText: string | undefined
+
+  // Create a promise that will resolve when the text is ready
+  const textPromise = response
+    .clone()
+    .text()
+    .then((text) => {
+      cachedText = text
+      try {
+        cachedJson = JSON.parse(text)
+      } catch {
+        cachedJson = null
+      }
+    })
+
   const responseStartTime = performance.now()
-  const jsonClone = response.clone()
-  const textClone = response.clone()
 
   return {
-    json: async () => {
-      const text = await jsonClone.text()
-      try {
-        return JSON.parse(text)
-      } catch {
+    json: () => {
+      if (cachedJson === undefined) {
+        throw new Error('JSON response not ready. This is likely a bug.')
+      }
+      if (cachedJson === null) {
         throw new Error('Response is not valid JSON')
       }
+      return cachedJson
     },
-    text: () => textClone.text(),
+    text: async () => {
+      await textPromise // Wait for the text to be ready
+      if (cachedText === undefined) {
+        throw new Error('Text response not ready. This is likely a bug.')
+      }
+      return cachedText
+    },
     code: response.status,
     headers: Object.fromEntries(response.headers.entries()),
     to: createResponseAssertions(response),
@@ -229,47 +250,54 @@ const updateTestResult = (testResults: TestResult[], name: string, result: TestR
   }
 }
 
-export const createExpectChain = (actual: any): ExpectChain => ({
-  to: {
-    be: {
-      below: (expected: number) => {
-        if (typeof actual !== 'number') {
-          throw new Error('Expected value to be a number')
-        }
-        if (actual >= expected) {
-          throw new Error(`Expected ${actual} to be below ${expected}`)
-        }
-        return true
+export const createExpectChain = (actual: any): ExpectChain => {
+  if (actual instanceof Promise) {
+    throw new Error('Expected value cannot be a Promise. Make sure to await async values before using expect.')
+  }
+
+  return {
+    to: {
+      be: {
+        below: (expected: number) => {
+          if (typeof actual !== 'number') {
+            throw new Error('Expected value to be a number')
+          }
+          if (actual >= expected) {
+            throw new Error(`Expected ${actual} to be below ${expected}`)
+          }
+          return true
+        },
+        an: (type: string) => {
+          const actualType = Array.isArray(actual) ? 'array' : typeof actual
+          if (actualType !== type) {
+            throw new Error(`Expected ${JSON.stringify(actual)} to be an ${type}, but got ${actualType}`)
+          }
+          return true
+        },
+        oneOf: (expected: any[]) => {
+          if (!Array.isArray(expected)) {
+            throw new Error('Expected argument to be an array')
+          }
+          if (!expected.includes(actual)) {
+            throw new Error(`Expected ${JSON.stringify(actual)} to be one of ${JSON.stringify(expected)}`)
+          }
+          return true
+        },
       },
-      an: (type: string) => {
-        const actualType = Array.isArray(actual) ? 'array' : typeof actual
-        if (actualType !== type) {
-          throw new Error(`Expected ${JSON.stringify(actual)} to be an ${type}, but got ${actualType}`)
+      include: (expected: string) => {
+        if (typeof actual !== 'string') {
+          throw new Error('Expected value to be a string')
         }
-        return true
-      },
-      oneOf: (expected: any[]) => {
-        if (!Array.isArray(expected)) {
-          throw new Error('Expected argument to be an array')
+
+        if (!actual.includes(expected)) {
+          throw new Error(`Expected "${actual}" to include "${expected}"`)
         }
-        if (!expected.includes(actual)) {
-          throw new Error(`Expected ${JSON.stringify(actual)} to be one of ${JSON.stringify(expected)}`)
-        }
+
         return true
       },
     },
-    include: async (expected: string) => {
-      const actualValue = await Promise.resolve(actual)
-      if (typeof actualValue !== 'string') {
-        throw new Error('Expected value to be a string')
-      }
-      if (!actualValue.includes(expected)) {
-        throw new Error(`Expected "${actualValue}" to include "${expected}"`)
-      }
-      return true
-    },
-  },
-})
+  }
+}
 
 export const createPostmanContext = (
   response: Response,

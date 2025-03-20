@@ -23,8 +23,8 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Check response time',
     script: `pm.test("Response time is acceptable", () => {
-    pm.expect(pm.response.responseTime).to.be.below(200)
-  })`,
+  pm.expect(pm.response.responseTime).to.be.below(200)
+})`,
     mockResponse: {
       status: 200,
       body: { success: true },
@@ -34,8 +34,8 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
     title: 'Check JSON response',
     script: `pm.test("Response is valid JSON", () => {
     const responseData = pm.response.json()
-    pm.expect(responseData).to.be.an('object')
-  })`,
+  pm.expect(responseData).to.be.an('object')
+})`,
     mockResponse: {
       status: 200,
       body: { data: 'test' },
@@ -45,8 +45,8 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Check response headers',
     script: `pm.test("Content-Type header is present", () => {
-    pm.response.to.have.header('Content-Type')
-  })`,
+  pm.response.to.have.header('Content-Type')
+})`,
     mockResponse: {
       status: 200,
       body: { success: true },
@@ -56,15 +56,15 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Validate JSON schema',
     script: `pm.test("Response matches schema", () => {
-    const schema = {
-      required: ['id', 'name'],
-      properties: {
-        id: { type: 'number' },
-        name: { type: 'string' }
-      }
+  const schema = {
+    required: ['id', 'name'],
+    properties: {
+      id: { type: 'number' },
+      name: { type: 'string' }
     }
-    pm.response.to.have.jsonSchema(schema)
-  })`,
+  }
+  pm.response.to.have.jsonSchema(schema)
+})`,
     mockResponse: {
       status: 200,
       body: { id: 1, name: 'Test Item' },
@@ -74,8 +74,8 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Check response body',
     script: `pm.test("Response body contains string", () => {
-      pm.expect(pm.response.text()).to.include('success')
-    })`,
+  pm.expect(pm.response.text()).to.include('success')
+})`,
     mockResponse: {
       status: 200,
       body: 'This is a successful response',
@@ -84,8 +84,8 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
   {
     title: 'Successful POST request',
     script: `pm.test("Successful POST request", () => {
-    pm.expect(pm.response.code).to.be.oneOf([201, 202])
-  })`,
+  pm.expect(pm.response.code).to.be.oneOf([201, 202])
+})`,
     mockResponse: {
       status: 201,
       body: { success: true },
