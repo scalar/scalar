@@ -149,6 +149,24 @@ Scalar.createApiReference('#app', [
 ])
 ```
 
+By default, the first one will be the default configuration. You can explicitly set one with `default: true`:
+
+```ts
+Scalar.createApiReference('#app', [
+  {
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  },
+  {
+    url: 'https://example.com/openapi.json',
+  }
+  {
+    // Make this the default configuration:
+    default: true,
+    content: '{ "openapi": "3.1.1", … }',
+  }
+])
+```
+
 ### JSON or YAML
 
 It is completely up to you whether you want to pass JSON or YAML. None of the differences make really a big difference,
