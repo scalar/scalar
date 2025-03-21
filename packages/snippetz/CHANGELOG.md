@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.18
+
+### Patch Changes
+
+- 6095530: feat: new python/request code generator
+
 ## 0.2.17
 
 ### Patch Changes

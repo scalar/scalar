@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.3.8
+
+### Patch Changes
+
+- Updated dependencies [6095530]
+  - @scalar/snippetz@0.2.18
+
 ## 2.3.7
 
 ### Patch Changes
