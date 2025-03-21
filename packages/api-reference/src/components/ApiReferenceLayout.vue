@@ -61,9 +61,11 @@ defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
 
-const configuration = computed(() =>
-  apiReferenceConfigurationSchema.parse(props.configuration),
-)
+const configuration = computed(() => {
+  console.log({ props })
+
+  return apiReferenceConfigurationSchema.parse(props.configuration)
+})
 
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()

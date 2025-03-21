@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 
 export const cookieSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['COOKIE']>(),

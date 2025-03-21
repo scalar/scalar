@@ -1,4 +1,4 @@
-import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 

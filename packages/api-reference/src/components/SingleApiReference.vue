@@ -9,7 +9,7 @@ import { useReactiveSpec } from '../hooks'
 import { Layouts } from './Layouts'
 
 const { configuration } = defineProps<{
-  configuration: ApiReferenceConfiguration
+  configuration: Partial<ApiReferenceConfiguration>
 }>()
 
 // If content changes it is emitted to the parent component to be handed back in as a spec string
