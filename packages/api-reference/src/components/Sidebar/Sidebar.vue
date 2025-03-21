@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Spec } from '@scalar/types/legacy'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
 import { useNavState, useSidebar, type SorterOption } from '../../hooks'
@@ -65,10 +65,37 @@ const scrollSidebar = (id: string) => {
   scrollerEl.value.scrollTo({ top, behavior: 'smooth' })
 }
 
-// TODO timeout is due to sidebar section opening time
+/** Adds an observer to watch for elements */
+const observeSidebarElement = (id: string) => {
+  if (!scrollerEl.value) {
+    return
+  }
+
+  const observer = new MutationObserver((mutations, obs) => {
+    const el = document.getElementById(`sidebar-${id}`)
+    if (el) {
+      scrollSidebar(id)
+      disableScroll.value = false
+      obs.disconnect() // Stop observing once we find the element
+    }
+  })
+
+  // Start observing the document with the configured parameters
+  observer.observe(scrollerEl.value, {
+    childList: true,
+    subtree: true,
+  })
+
+  return observer
+}
+
 onMounted(() => {
-  setTimeout(() => scrollSidebar(hash.value), 500)
-  disableScroll.value = false
+  const observer = observeSidebarElement(hash.value)
+
+  // Cleanup the observer when component is unmounted
+  onUnmounted(() => {
+    observer?.disconnect()
+  })
 })
 </script>
 <template>
