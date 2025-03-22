@@ -1,8 +1,7 @@
 import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
-  type ApiReferenceConfiguration,
-  type ApiReferenceConfigurationWithSources,
+  type AnyApiReferenceConfiguration,
   type SpecConfiguration,
   apiReferenceConfigurationSchema,
   isConfigurationWithSources,
@@ -19,12 +18,7 @@ type UseMultipleDocumentsProps = {
    * Configuration for the API reference.
    * Can be a single configuration or an array of configurations for multiple documents.
    */
-  configuration: Ref<
-    | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfiguration>[]
-    | Partial<ApiReferenceConfigurationWithSources>
-    | undefined
-  >
+  configuration: Ref<AnyApiReferenceConfiguration | undefined>
   /** The initial index to pre-select a document, if there is no query parameter available */
   initialIndex?: number
 } & NavState
@@ -82,8 +76,12 @@ export const useMultipleDocuments = ({
 
     // Map the sources down to an array of specs
     const sources = isConfigurationWithSources(configuration.value)
-      ? (configuration.value?.sources ?? [])
-      : [configuration.value].flat().map((config) => config)
+      ? // This IFFE is needed for the type guard as it doens't persist into the callback scope
+        (() => {
+          const { sources, ...rest } = configuration.value
+          return sources?.map((source) => ({ ...rest, ...source })) ?? []
+        })()
+      : [configuration.value].flat()
 
     // Process them
     return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
@@ -138,18 +136,27 @@ export const useMultipleDocuments = ({
     }
 
     const url = new URL(window.location.href)
-    const parameter = url.searchParams.get(QUERY_PARAMETER) || '0'
+    const parameter = url.searchParams.get(QUERY_PARAMETER)
 
-    // Try finding by slug first
-    const indexBySlug = availableDocuments.value.findIndex((option) => option.slug === parameter)
-    if (indexBySlug !== -1) {
-      return indexBySlug
+    // If there’s a query parameter, try to find the matching document
+    if (parameter) {
+      // Try finding by slug first
+      const indexBySlug = availableDocuments.value.findIndex((option) => option.slug === parameter)
+      if (indexBySlug !== -1) {
+        return indexBySlug
+      }
+
+      // Try parsing as numeric index if slug lookup fails
+      const numericIndex = Number.parseInt(parameter, 10)
+      if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
+        return numericIndex
+      }
     }
 
-    // Try parsing as numeric index if slug lookup fails
-    const numericIndex = Number.parseInt(parameter, 10)
-    if (!isNaN(numericIndex) && numericIndex >= 0 && numericIndex < availableDocuments.value.length) {
-      return numericIndex
+    // If no query parameter is set, look for a default source
+    const defaultIndex = availableDocuments.value.findIndex((doc) => 'default' in doc && doc.default === true)
+    if (defaultIndex !== -1) {
+      return defaultIndex
     }
 
     // Allow the user to hard-code the initial index

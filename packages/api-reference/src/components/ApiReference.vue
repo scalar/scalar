@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import type {
-  ApiReferenceConfiguration,
-  ApiReferenceConfigurationWithSources,
-} from '@scalar/types/api-reference'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { provide, ref, toRef } from 'vue'
 
 import { DocumentSelector } from '@/components/DocumentSelector'
@@ -15,10 +12,7 @@ const props = defineProps<{
    * Configuration for the API reference.
    * Can be a single configuration or an array of configurations for multiple documents.
    */
-  configuration?:
-    | Partial<ApiReferenceConfiguration>
-    | Partial<ApiReferenceConfiguration>[]
-    | Partial<ApiReferenceConfigurationWithSources>
+  configuration?: AnyApiReferenceConfiguration
 }>()
 
 const {

@@ -1,5 +1,5 @@
 import type { ThemeId } from '@scalar/themes'
-import type { ApiReferenceConfiguration, MultiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { ContentType, ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import type { HarRequest } from '@scalar/types/snippetz'
 import type { Slot } from 'vue'
@@ -9,7 +9,7 @@ export type { ApiReferenceConfiguration }
 export type { ReferenceConfiguration }
 
 export type ReferenceProps = {
-  configuration?: MultiReferenceConfiguration
+  configuration?: AnyApiReferenceConfiguration
 }
 
 /**

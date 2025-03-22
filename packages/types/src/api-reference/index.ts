@@ -2,11 +2,10 @@ export {
   type ApiClientConfiguration,
   type ApiReferenceConfiguration,
   type ApiReferenceConfigurationWithSources,
-  type MultiReferenceConfiguration,
+  type AnyApiReferenceConfiguration,
   type SpecConfiguration,
   apiClientConfigurationSchema,
   apiReferenceConfigurationSchema,
-  apiReferenceConfigurationWithSourcesSchema,
   specConfigurationSchema,
   isConfigurationWithSources,
 } from './api-reference-configuration.ts'
