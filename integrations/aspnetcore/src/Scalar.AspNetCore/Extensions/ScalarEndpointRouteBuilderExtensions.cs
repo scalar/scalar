@@ -173,7 +173,6 @@ public static class ScalarEndpointRouteBuilderExtensions
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
                           '{{httpContext.Request.Path}}',
-                          {{options.IsOpenApiRoutePatternUrl.ToString().ToLowerInvariant()}},
                           {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
                           {{serializedConfiguration}})
                       </script>

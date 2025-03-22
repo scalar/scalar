@@ -180,4 +180,24 @@ public class ScalarOptionsMapperTests
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
         hiddenClients.Should().NotContainKey("kotlin");
     }
+
+    [Fact]
+    public void GetSources_ShouldUseCorrectPattern_WhenCustomPatternIsProvided()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        options
+            .AddDocument("default")
+            .AddDocument("custom", routePattern: "/external/{documentName}.json");
+        
+        // Act 
+        var configuration = options.ToScalarConfiguration();
+        
+        // Assert
+        configuration.Sources.Should()
+            .SatisfyRespectively(
+                first => first.Url.Should().Be("openapi/default.json"),
+                second => second.Url.Should().Be("external/custom.json")
+            );
+    }
 }

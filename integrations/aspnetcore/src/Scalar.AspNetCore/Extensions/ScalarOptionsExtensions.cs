@@ -49,15 +49,17 @@ public static class ScalarOptionsExtensions
     /// Adds the specified OpenAPI document to the Scalar API reference.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
-    /// <param name="documentName">The name identifier for the OpenAPI document.</param>
+    /// <param name="documentName">The name identifier for the OpenAPI document. This value will be used to replace the '{documentName}' placeholder in the <see cref="ScalarOptions.OpenApiRoutePattern"/>.</param>
     /// <param name="title">Optional display title for the document. If not provided, the document name will be used as the title.</param>
+    /// <param name="routePattern">Optional route pattern for the OpenAPI document. If not provided, the <see cref="ScalarOptions.OpenApiRoutePattern"/> will be used. The pattern can include the '{documentName}' placeholder which will be replaced with the document name.</param>
     /// <remarks>
     /// When multiple documents are added, they will be displayed as selectable options in a dropdown menu.
     /// If no documents are explicitly added, a default document named 'v1' will be used.
+    /// The '{documentName}' placeholder in the route pattern will be replaced with the provided document name.
     /// </remarks>
-    public static ScalarOptions AddDocument(this ScalarOptions options, string documentName, string? title = null)
+    public static ScalarOptions AddDocument(this ScalarOptions options, string documentName, string? title = null, string? routePattern = null)
     {
-        options.Documents.Add(new ScalarDocument(documentName, title));
+        options.Documents.Add(new ScalarDocument(documentName, title, routePattern));
         return options;
     }
 

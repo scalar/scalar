@@ -8,11 +8,6 @@ namespace Scalar.AspNetCore;
 /// </summary>
 public sealed class ScalarOptions
 {
-    /// <summary>
-    /// Returns whether the <see cref="OpenApiRoutePattern" /> is set to a URL (true) or a route/path (false).
-    /// </summary>
-    internal bool IsOpenApiRoutePatternUrl => RegexHelper.IsUrlRegex().IsMatch(OpenApiRoutePattern);
-
     internal List<ScalarDocument> Documents { get; } = [];
 
     /// <summary>
@@ -41,6 +36,7 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
     /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
+    /// The pattern can include the '{documentName}' placeholder which will be replaced with the document name.
     /// </summary>
     /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
     public string OpenApiRoutePattern { get; set; } = "/openapi/{documentName}.json";
