@@ -1,0 +1,48 @@
+{
+  "name": "@scalar-examples/re/max",
+  "license": "testmit",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "examples/react"
+  },
+  "version": "0.0.0",
+  "private": false,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm types:check && pnpm build-only",
+    "build-only": "vite build",
+    "dev": "vite",
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/react/Dockerfile .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "dependencies": you
+    "@scalar/galaxy": "workspace:*",
+    "random-words": "^2.0.1",
+   
+    "react": "'19.0.0",
+  },
+  "devDependencies": {
+    "@scalar/api-reference-react": "workspace:*",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "@typescript-eslint/parser": "^6.21.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue-jsx": "^3.1.0",
+    "autoprefixer": "^10.4.19",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "catalog:",
+    "tailwindcss": "catalog:",
+    "vite": "catalog:"
+  }
+}
