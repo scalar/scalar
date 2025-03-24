@@ -185,8 +185,8 @@ export const useMultipleDocuments = ({
         window.scrollTo({ top: 0, behavior: 'instant' })
       }
 
-      // Fire the onConfigSelect event
-      selectedConfiguration.value.onConfigSelect?.()
+      // Fire the onDocumentSelect event
+      selectedConfiguration.value.onDocumentSelect?.()
     },
     { flush: 'sync' },
   )

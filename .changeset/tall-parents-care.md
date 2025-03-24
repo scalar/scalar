@@ -3,4 +3,4 @@
 '@scalar/types': patch
 ---
 
-feat: add onConfigSelect callback when switching multi configs
+feat: add onDocumentSelect callback when switching multi configs
