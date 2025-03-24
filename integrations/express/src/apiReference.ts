@@ -120,5 +120,7 @@ export function apiReference(givenConfiguration: Partial<ApiReferenceConfigurati
   }
 
   // Respond with the HTML document
-  return (_: Request, res: Response) => res.type('text/html').send(getHtmlDocument(configuration, customTheme))
+  return (_: Request, res: Response) => {
+    res.type('text/html').send(getHtmlDocument(configuration, customTheme))
+  }
 }
