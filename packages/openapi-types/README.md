@@ -28,6 +28,32 @@ const file: OpenAPI.Document = {
 }
 ```
 
+### Zod Schemas
+
+Experimental: This package exposes OpenAPI-compliant Zod schemas for all OpenAPI object types. You can use them to parse user input safely with Zod.
+
+```ts
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1'
+
+OpenApiObjectSchema.parse({
+  // This will be omitted:
+  invalidAttribute: 123,
+  // Those will pass:
+  openapi: '3.1.1',
+  info: {
+    title: 'Example API',
+    version: '1.0'
+  },
+  paths: {
+    '/example': {
+      get: {
+        description: 'My example operation',
+      }
+    }
+  },
+})
+```
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
