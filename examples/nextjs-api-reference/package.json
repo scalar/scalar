@@ -28,7 +28,7 @@
     "@scalar/api-client-react": "workspace:*",
     "@scalar/api-reference-react": "workspace:*",
     "@scalar/nextjs-api-reference": "workspace:*",
-    "next": "^15.1.2",
+    "next": "catalog:",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
