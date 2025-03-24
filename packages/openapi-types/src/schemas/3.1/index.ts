@@ -1,3 +1,7 @@
+export { ContactObjectSchema } from './contact-object'
+export { ExternalDocumentationObjectSchema } from './external-documentation-object'
+export { InfoObjectSchema } from './info-object'
 export { LicenseObjectSchema } from './license-object'
 export { ServerObjectSchema } from './server-object'
 export { ServerVariableObjectSchema } from './server-variable-object'
+export { TagObjectSchema } from './tag-object'
