@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import type { MultiReferenceConfiguration } from '@scalar/types/api-reference'
 import { type ApiReferenceInstance, createApiReference } from '@scalar/api-reference'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { useEffect, useRef, useState } from 'react'
 
 import './style.css'
 
@@ -14,7 +14,7 @@ globalThis.__VUE_PROD_DEVTOOLS__ = false
 /**
  * React wrapper around the Scalar API Reference
  */
-export const ApiReferenceReact = (props: { configuration: MultiReferenceConfiguration }) => {
+export const ApiReferenceReact = (props: { configuration: AnyApiReferenceConfiguration }) => {
   const el = useRef<HTMLDivElement | null>(null)
 
   const [reference, setReference] = useState<ApiReferenceInstance | null>(null)
