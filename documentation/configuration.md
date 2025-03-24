@@ -416,6 +416,11 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 }
 ```
 
+## onDocumentSelect?: () => void
+
+Triggered when multiple documents are configured and the users switches between them.
+
+
 ### onSpecUpdate?: (spec: string) => void
 
 You can listen to changes with onSpecUpdate that runs on spec/swagger content change
