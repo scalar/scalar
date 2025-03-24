@@ -64,7 +64,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }, { url: 'openapi.json' }],
       }
 
-      initialize('/docs', false, false, configuration)
+      initialize('/docs', false, configuration)
 
       // Get the configuration object passed to createApiReference
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
@@ -75,11 +75,11 @@ describe('scalar.aspnetcore', () => {
 
     it('preserves URLs when using absolute paths', () => {
       const configuration = {
-        sources: [{ url: 'swagger.json' }, { url: 'openapi.json' }],
+        sources: [{ url: 'https://foo.bar/swagger.json' }, { url: 'htTP://foo.bar/openapi.json' }],
       }
 
       const originalUrls = configuration.sources.map((s) => s.url)
-      initialize('/docs', true, false, configuration)
+      initialize('/docs', false, configuration)
 
       expect(configuration.sources[0].url).toBe(originalUrls[0])
       expect(configuration.sources[1].url).toBe(originalUrls[1])
@@ -87,12 +87,12 @@ describe('scalar.aspnetcore', () => {
     })
 
     it('handles empty configuration gracefully', () => {
-      expect(() => initialize('/docs', false, false, {})).not.toThrow()
+      expect(() => initialize('/docs', false, {})).not.toThrow()
     })
 
     it('handles empty sources array', () => {
       const configuration = { sources: [] }
-      initialize('/docs', false, false, configuration)
+      initialize('/docs', false, configuration)
       expect(mockScalar.createApiReference).toHaveBeenCalledWith('#app', configuration)
     })
 
@@ -102,7 +102,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      expect(() => initialize('/docs', false, false, configuration)).not.toThrow()
+      expect(() => initialize('/docs', false, configuration)).not.toThrow()
     })
 
     it('handles sources without url property', () => {
@@ -110,7 +110,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ title: 'Source without URL' }, { url: 'swagger.json' }],
       }
 
-      initialize('/docs', false, false, configuration)
+      initialize('/docs', false, configuration)
 
       // Get the normalized config that was passed to createApiReference
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
@@ -127,7 +127,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      initialize('/docs', false, true, configuration)
+      initialize('/docs', true, configuration)
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.baseServerURL).toBe('https://example.com/api')
@@ -138,7 +138,7 @@ describe('scalar.aspnetcore', () => {
         sources: [{ url: 'swagger.json' }],
       }
 
-      initialize('/docs', false, false, configuration)
+      initialize('/docs', false, configuration)
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.baseServerURL).toBeUndefined()

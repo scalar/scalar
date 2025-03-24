@@ -129,52 +129,53 @@ app.MapScalarApiReference(options =>
 
 ### Multiple OpenAPI Documents
 
-Scalar allows you to configure multiple OpenAPI documents using the `AddDocument` or `AddDocuments` methods. By default, the document name `v1` will be used. The final document URL is constructed by replacing the `{documentName}` placeholder in the `OpenApiRoutePattern` with the actual document names.
+Scalar allows you to configure multiple OpenAPI documents using the `AddDocument` or `AddDocuments` methods. By default, the document name `v1` will be used. Each document can have its own custom route pattern for accessing the OpenAPI specification.
 
 #### Add a Single Document
 
-To add a single OpenAPI document, use the `AddDocument` method:
-
 ```csharp
+// Basic usage with default route pattern /openapi/{documentName}.json. Only document name is required
 app.MapScalarApiReference(options => options.AddDocument("v1"));
 
-// You can also provide a more meaningful title for the document
-app.MapScalarApiReference(options => options.AddDocument("v1", "API v1"));
+// Optional title parameter
+app.MapScalarApiReference(options => options.AddDocument("v1", "Production API"));
+
+// Skip title but specify routePattern
+app.MapScalarApiReference(options => options.AddDocument("v1", routePattern: "api-specs/{documentName}/openapi.json"));
+
+// All parameters specified
+app.MapScalarApiReference(options => options.AddDocument("v1", "Production API", "api-specs/v1/openapi.json"));
+
+// Using external URL without title
+app.MapScalarApiReference(options => options.AddDocument("external", routePattern: "https://api.example.com/v1/openapi.json"));
 ```
 
 #### Add Multiple Documents
 
-To add multiple OpenAPI documents, you can chain the `AddDocument` or the `AddDocuments` method calls:
-
 ```csharp
+// Using AddDocument with different route patterns
 app.MapScalarApiReference(options =>
 {
     options
-        .AddDocument("v1", "API v1")
-        .AddDocument("v2", "API v2");
+        .AddDocument("v1", "Production API", "api/{documentName}/spec.json")
+        .AddDocument("v2-beta", "Beta API", "beta/openapi.json");
 });
-```
 
-Alternatively, you can use the `AddDocuments` method to pass an `IEnumerable<string>` of document names or an `IEnumerable<ScalarDocument>` of `ScalarDocument` objects:
-
-```csharp
-app.MapScalarApiReference(options => options.AddDocuments("v1", "v2"));
-
-// or
+// Using AddDocuments with string array (uses default route pattern)
 string[] versions = ["v1", "v2"];
 app.MapScalarApiReference(options => options.AddDocuments(versions));
 
-// or
-app.MapScalarApiReference(options => options.AddDocuments(versions.Select(version => new ScalarDocument(version, $"API {version}"))));
+// Using AddDocuments with ScalarDocument objects
+var documents = new[]
+{
+    new ScalarDocument("v1", "Production API", "api/v1/spec.json"),
+    new ScalarDocument("v2-beta", "Beta API", "beta/openapi.json"),
+    new ScalarDocument("v3-dev", "Development API", "dev/{documentName}.json")
+};
+app.MapScalarApiReference(options => options.AddDocuments(documents));
 ```
-> [!NOTE]
-> These configurations can also be pre-configured using the Options pattern.
 
-```csharp
-builder.Services.Configure<ScalarOptions>(options => options.AddDocument("v1"));
-```
-
-If more than one document is added, a dropdown will be visible to select the OpenAPI document. You can also access a specific document directly by navigating to `/scalar/{documentName}` in the browser, for example, `/scalar/v1`.
+The `routePattern` parameter in `AddDocument` allows you to customize the URL path where the OpenAPI document is served. If not specified, it uses the global `OpenApiRoutePattern` from the options. The pattern can include the `{documentName}` placeholder which will be replaced with the document name.
 
 ### Authentication
 
