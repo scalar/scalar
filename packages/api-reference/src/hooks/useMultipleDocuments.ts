@@ -88,45 +88,6 @@ export const useMultipleDocuments = ({
   })
 
   /**
-   * Updates the URL with the selected API definition
-   * We only want to update the URL if we have more than one document
-   */
-  const updateUrlParameter = (value: number) => {
-    // Skip URL updates during SSR
-    if (typeof window === 'undefined') {
-      return
-    }
-
-    // If there is only one document, don't add the query parameter.
-    if (availableDocuments.value.length === 1) {
-      return
-    }
-
-    const url = new URL(window.location.href)
-    const selectedDefinition = availableDocuments.value[value]
-
-    // Use slug if available, then fallback to index
-    const parameterValue = selectedDefinition?.slug ?? value.toString()
-
-    // Switch document
-    url.searchParams.set(QUERY_PARAMETER, parameterValue)
-
-    // Reset location on the page
-    url.hash = ''
-    window.history.replaceState({}, '', url.toString())
-
-    // Reset all global state
-    hash.value = ''
-    hashPrefix.value = ''
-    isIntersectionEnabled.value = false
-
-    // Scroll to the top of the page
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    }
-  }
-
-  /**
    * Determines the initially selected API definition from the URL
    */
   const getInitialSelection = (): number => {
@@ -194,8 +155,48 @@ export const useMultipleDocuments = ({
     })
   })
 
-  // Update URL when selection changes
-  watch(selectedDocumentIndex, updateUrlParameter, { flush: 'sync' })
+  // Update URL when selection changes, also clear global state
+  watch(
+    selectedDocumentIndex,
+    (value: number) => {
+      // Skip URL updates during SSR
+      if (typeof window === 'undefined') {
+        return
+      }
+
+      // If there is only one document, don't add the query parameter.
+      if (availableDocuments.value.length === 1) {
+        return
+      }
+
+      const url = new URL(window.location.href)
+      const selectedDefinition = availableDocuments.value[value]
+
+      // Use slug if available, then fallback to index
+      const parameterValue = selectedDefinition?.slug ?? value.toString()
+
+      // Switch document
+      url.searchParams.set(QUERY_PARAMETER, parameterValue)
+
+      // Reset location on the page
+      url.hash = ''
+      window.history.replaceState({}, '', url.toString())
+
+      // Reset all global state
+      hash.value = ''
+      hashPrefix.value = ''
+      isIntersectionEnabled.value = false
+
+      // Scroll to the top of the page
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+      }
+
+      // Fire the onDocumentSelect event
+      selectedConfiguration.value.onDocumentSelect?.()
+    },
+    { flush: 'sync' },
+  )
 
   return {
     selectedConfiguration,
