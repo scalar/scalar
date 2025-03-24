@@ -3,6 +3,19 @@ import { ContactObjectSchema } from './contact-object'
 import { LicenseObjectSchema } from './license-object'
 
 /**
+ * Type for the Info Object
+ */
+export type InfoObject = {
+  title: string
+  summary?: string
+  description?: string
+  termsOfService?: string
+  contact?: z.infer<typeof ContactObjectSchema>
+  license?: z.infer<typeof LicenseObjectSchema>
+  version: string
+}
+
+/**
  * Info Object
  *
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed,
@@ -10,7 +23,7 @@ import { LicenseObjectSchema } from './license-object'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#info-object
  */
-export const InfoObjectSchema = z.object({
+export const InfoObjectSchema: z.ZodType<InfoObject, z.ZodTypeDef, unknown> = z.object({
   /** REQUIRED. The title of the API. */
   title: z.string().catch('API'),
   /** A short summary of the API. */
