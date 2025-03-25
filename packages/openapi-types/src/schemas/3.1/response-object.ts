@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { LinkObjectSchema, MediaTypeObjectSchema } from '.'
 import { HeaderObjectSchema } from './header-object'
-
+import { LinkObjectSchema } from './link-object'
+import { MediaTypeObjectSchema } from './media-type-object'
 /**
  * Response Object
  *

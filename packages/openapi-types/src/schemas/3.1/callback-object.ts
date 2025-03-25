@@ -13,4 +13,9 @@ import { PathItemObjectSchema } from './path-item-object'
  */
 export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>>
 
-export const CallbackObjectSchema: z.ZodType<CallbackObject> = z.lazy(() => z.record(z.string(), PathItemObjectSchema))
+export const CallbackObjectSchema: z.ZodType<CallbackObject> = z.lazy(() =>
+  z.record(
+    z.string(),
+    z.lazy(() => PathItemObjectSchema),
+  ),
+)
