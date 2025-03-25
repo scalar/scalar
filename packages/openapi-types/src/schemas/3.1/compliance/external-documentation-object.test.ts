@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { ExternalDocumentationObjectSchema } from './external-documentation-object'
+import { ExternalDocumentationObjectSchema } from '../external-documentation-object'
 
 describe('external-documentation', () => {
   describe('ExternalDocumentationObjectSchema', () => {

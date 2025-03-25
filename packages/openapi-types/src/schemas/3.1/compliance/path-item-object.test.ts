@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { PathItemObjectSchema } from './path-item-object'
+import { PathItemObjectSchema } from '../path-item-object'
 
 describe('path-item', () => {
   describe('PathItemObjectSchema', () => {

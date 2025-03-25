@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { EncodingObjectSchema } from './encoding-object'
 import { ExampleObjectSchema } from './example-object'
+import { SchemaObjectSchema } from './schema-object'
 
 /**
  * Media Type Object
@@ -13,7 +14,7 @@ export const MediaTypeObjectSchema = z.object({
   /**
    * The schema defining the content of the request, response, or parameter.
    */
-  schema: z.any().optional(),
+  schema: SchemaObjectSchema.optional(),
   /**
    * Example of the media type. The example object SHOULD be in the correct format as specified by the media type.
    * The example field is mutually exclusive of the examples field. Furthermore, if referencing a schema which contains

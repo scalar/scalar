@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { MediaTypeObjectSchema } from './media-type-object'
+import { MediaTypeObjectSchema } from '../media-type-object'
 
 describe('media-type-object', () => {
   describe('MediaTypeObject', () => {

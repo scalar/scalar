@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ParameterObjectSchema } from './parameter-object'
+import { ParameterObjectSchema } from '../parameter-object'
 
 describe('parameter-object', () => {
   describe('ParameterObjectSchema', () => {

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { ExampleObjectSchema } from './example-object'
+import { SchemaObjectSchema } from './schema-object'
 import { BaseMediaContentSchema } from './shared-schema'
 
 /**
@@ -43,7 +44,7 @@ export const HeaderObjectSchema = z
     /**
      * The schema defining the type used for the header.
      */
-    schema: z.any().optional(),
+    schema: SchemaObjectSchema.optional(),
     /**
      * Example of the parameter's potential value.
      */

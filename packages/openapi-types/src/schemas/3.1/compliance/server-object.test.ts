@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ServerObjectSchema } from './server-object'
+import { ServerObjectSchema } from '../server-object'
 
 describe('server-object', () => {
   describe('ServerObjectSchema', () => {

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { SchemaObjectSchema } from './schema-object'
 
 /**
  * Base schema for objects that can contain media type information
@@ -7,8 +8,9 @@ import { z } from 'zod'
 export const BaseMediaContentSchema = z.record(
   z.string(),
   z.lazy(() =>
+    // TODO: Duplicate of MediaTypeObjectSchema
     z.object({
-      schema: z.any().optional(),
+      schema: SchemaObjectSchema.optional(),
       example: z.any().optional(),
       examples: z.record(z.string(), z.any()).optional(),
       encoding: z.record(z.string(), z.any()).optional(),

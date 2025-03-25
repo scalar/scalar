@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { InfoObjectSchema } from './info-object'
+import { InfoObjectSchema } from '../info-object'
 
 describe('info-object', () => {
   describe('InfoObjectSchema', () => {

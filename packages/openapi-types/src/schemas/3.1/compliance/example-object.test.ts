@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { OperationObjectSchema } from './operation-object'
+import { OperationObjectSchema } from '../operation-object'
 
 describe('example-object', () => {
   describe('ExampleObject', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { OperationObjectSchema } from './operation-object'
+import { OperationObjectSchema } from '../operation-object'
 
 describe('operation-object', () => {
   // TODO: Add 'Considerations for File Uploads': https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#considerations-for-file-uploads

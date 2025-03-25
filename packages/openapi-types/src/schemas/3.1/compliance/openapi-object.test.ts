@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { OpenApiObjectSchema } from './openapi-object'
+import { OpenApiObjectSchema } from '../openapi-object'
 
 describe('info-object', () => {
   describe('OpenApiObject', () => {
