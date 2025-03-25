@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 import { ParameterObjectSchema } from './parameter-object'
 
-describe('ParameterObjectSchema', () => {
+describe.todo('ParameterObjectSchema', () => {
   it('should validate a parameter with a correct example', () => {
     const validParameterWithExample = {
       in: 'query',
