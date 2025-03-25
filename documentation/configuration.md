@@ -4,10 +4,10 @@ You can pass a — what we call — universal configuration object to fine-tune 
 
 ## Universal Configuration
 
-It’s universal, because it works in all environments. You can pass it to the JS API directly, our you can use it in one
+It's universal, because it works in all environments. You can pass it to the JS API directly, our you can use it in one
 of our integrations.
 
-Let’s say you’re working with just an HTML file, that’s how you pass the configuration:
+Let's say you're working with just an HTML file, that's how you pass the configuration:
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -46,11 +46,11 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It’s the recommded way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
+It's the recommded way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
 and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just
-> search for “yourframework generate openapi document”.
+> search for "yourframework generate openapi document".
 
 ### Content
 
@@ -77,7 +77,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Documents
 
-Add multiple OpenAPI documents to render all of them. We’ll need a slug and title to distinguish them in the UI and in
+Add multiple OpenAPI documents to render all of them. We'll need a slug and title to distinguish them in the UI and in
 the URL. You can just omit those attributes and we try our best to still distinguish them, though.
 
 ```ts
@@ -485,45 +485,47 @@ You can listen to changes with onServerChange that runs on server change
 }
 ```
 
-### authentication?: Partial<AuthenticationState>
+### authentication?: AuthenticationConfiguration
 
 To make authentication easier you can prefill the credentials for your users:
 
-```js
+```ts
 {
   authentication: {
-    // The OpenAPI file has keys for all security schemes:
-    // Which one should be used by default?
+    // The OpenAPI file has keys for all security schemes.
+    // Specify which security scheme(s) should be used by default.
+    // Can be a single string:
     preferredSecurityScheme: 'my_custom_security_scheme',
-    // Can also be an array of preferred security schemes to select multiple:
-    preferredSecuritySchemes: ['my_custom_security_scheme', 'another_security_scheme'],
-    // Or an array of arrays for complex security requirements:
-    preferredSecuritySchemes: [['my_custom_security_scheme', 'another_security_scheme'], 'yet_another_security_scheme'],
-    // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
-    apiKey: {
-      token: 'super-secret-token',
-    },
-  },
+    // Or an array for multiple schemes (OR relationship):
+    preferredSecurityScheme: ['scheme1', 'scheme2'],
+    // Or an array of arrays for complex AND/OR relationships:
+    preferredSecurityScheme: [['scheme1', 'scheme2'], 'scheme3'],
+
+    // Define security scheme configurations:
+    securitySchemes: {
+      // For API Key authentication:
+      'my_custom_security_scheme': {
+        type: 'apiKey',
+        token: 'super-secret-token'
+      },
+      // For OAuth2:
+      'oauth2_scheme': {
+        type: 'oauth2',
+        clientId: 'foobar123',
+        scopes: ['read:planets', 'write:planets']
+      }
+    }
+  }
 }
 ```
 
-For OpenAuth2 it's more looking like this:
+The `authentication` configuration accepts:
 
-```js
-{
-  authentication: {
-    // The OpenAPI file has keys for all security schemes
-    // Which one should be used by default?
-    preferredSecurityScheme: 'oauth2',
-    // The `oauth2` security scheme is of type `oAuth2`, so prefill the client id and the scopes:
-    oAuth2: {
-    clientId: 'foobar123',
-    // optional:
-    scopes: ['read:planets', 'write:planets'],
-    },
-  },
-}
-```
+- `preferredSecurityScheme`: Specifies which security scheme(s) to use by default. Can be:
+  - A single security scheme name (string)
+  - An array of security scheme names (OR relationship)
+  - An array containing strings or arrays of strings (AND/OR relationship)
+- `securitySchemes`: An object mapping security scheme names to their configurations. Each security scheme can be configured with type-specific options.
 
 ### generateHeadingSlug?: (heading: Heading) => string
 

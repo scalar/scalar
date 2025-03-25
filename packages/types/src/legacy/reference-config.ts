@@ -218,6 +218,9 @@ export type TransformedOperation = Operation & {
 
 export type CollapsedSidebarItems = Record<string, boolean>
 
+/**
+ * @deprecated Use AuthenticationConfiguration instead
+ */
 export type AuthenticationState = {
   customSecurity?: boolean
   /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */

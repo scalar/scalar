@@ -21,21 +21,22 @@
       Scalar.createApiReference('#app', {
         sources: [
           {
-            url: 'https://petstore.swagger.io/v2/swagger.json',
-          },
-          {
             title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
             slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
             url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+          },
+          {
+            url: 'https://petstore.swagger.io/v2/swagger.json',
           },
         ],
         // Avoid CORS issues
         proxyUrl: 'https://proxy.scalar.com',
         authentication: {
-          preferredSecurityScheme: 'apiKey',
+          preferredSecurityScheme: 'apiKeyHeader',
           apiKey: {
             name: 'api_key',
             in: 'header',
+            token: 'whatever you like',
           },
         },
       })

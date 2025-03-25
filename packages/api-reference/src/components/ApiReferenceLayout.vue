@@ -21,6 +21,7 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
+import { migrateAuth } from '@scalar/types/api-reference/helpers'
 import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -62,7 +63,22 @@ defineEmits<{
 }>()
 
 const configuration = computed(() => {
-  console.log({ props })
+  // Transform the authentication config
+  if (props.configuration.authentication) {
+    const { preferredSecurityScheme, securitySchemes, ...rest } =
+      props.configuration.authentication ?? {}
+
+    // Check if we have any keys besides preferredSecurityScheme and securitySchemes, that means its the old config
+    if (Object.keys(rest ?? {}).length > 0) {
+      return apiReferenceConfigurationSchema.parse({
+        ...props.configuration,
+        authentication: migrateAuth(
+          props.configuration.authentication,
+          securitySchemes,
+        ),
+      })
+    }
+  }
 
   return apiReferenceConfigurationSchema.parse(props.configuration)
 })
