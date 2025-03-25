@@ -36,6 +36,7 @@ describe('ApiReferenceConfiguration', () => {
           flows: {
             implicit: { type: 'implicit', scopes: { 'read:items': 'Read access to items' } },
             password: {
+              username: undefined,
               type: 'password',
             },
           },

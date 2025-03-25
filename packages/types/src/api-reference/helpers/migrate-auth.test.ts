@@ -1,9 +1,9 @@
 import type { AuthenticationConfiguration } from '@/api-reference/authentication-configuration.ts'
 import type { AuthenticationState, OpenAPIV3 } from '@/legacy/reference-config.ts'
 import { describe, expect, it } from 'vitest'
-import { transformAuth } from './migrate-auth.ts'
+import { migrateAuth } from './migrate-auth.ts'
 
-describe('transformAuth', () => {
+describe('migrateAuth', () => {
   it('should transform HTTP Basic authentication', () => {
     const oldAuth = {
       http: {
@@ -32,7 +32,7 @@ describe('transformAuth', () => {
       },
     }
 
-    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
   })
 
   it('should transform HTTP Bearer authentication', () => {
@@ -62,7 +62,7 @@ describe('transformAuth', () => {
       },
     }
 
-    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
   })
 
   it('should transform API Key authentication', () => {
@@ -91,7 +91,7 @@ describe('transformAuth', () => {
       },
     }
 
-    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
   })
 
   describe('OAuth2 flows', () => {
@@ -141,7 +141,7 @@ describe('transformAuth', () => {
         },
       } satisfies AuthenticationConfiguration
 
-      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+      expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
     })
 
     it('should transform OAuth2 implicit flow', () => {
@@ -184,7 +184,7 @@ describe('transformAuth', () => {
         },
       } satisfies AuthenticationConfiguration
 
-      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+      expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
     })
   })
 
@@ -194,7 +194,7 @@ describe('transformAuth', () => {
 
     const expected: AuthenticationConfiguration = {}
 
-    expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+    expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
   })
 
   describe('preferredSecurityScheme', () => {
@@ -226,7 +226,7 @@ describe('transformAuth', () => {
         preferredSecurityScheme: 'bearerAuth',
       }
 
-      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+      expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
     })
 
     it('should handle complex preferredSecurityScheme configuration', () => {
@@ -262,7 +262,7 @@ describe('transformAuth', () => {
         preferredSecurityScheme: [['bearerAuth', 'apiKeyAuth']],
       }
 
-      expect(transformAuth(oldAuth, securitySchemes)).toEqual(expected)
+      expect(migrateAuth(oldAuth, securitySchemes)).toEqual(expected)
     })
   })
 })
