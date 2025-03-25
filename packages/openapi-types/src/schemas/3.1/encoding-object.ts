@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { HeaderObjectSchema } from './header-object'
 
-export const EncodingObjectSchema = z.object({
+export const EncodingObjectSchema: z.ZodType = z.object({
   /**
    * The Content-Type for encoding a specific property. The value is a comma-separated list, each element of which is
    * either a specific media type (e.g. image/png) or a wildcard media type (e.g. image/*). Default value depends on the
