@@ -58,6 +58,7 @@ export const migrateAuth = (
       result.securitySchemes[key] = {
         type: 'http',
         scheme: 'basic',
+        nameKey: key,
         username: auth.http.basic.username,
         password: auth.http.basic.password,
       }
@@ -74,6 +75,7 @@ export const migrateAuth = (
       result.securitySchemes[key] = {
         type: 'http',
         scheme: 'bearer',
+        nameKey: key,
         token: auth.http.bearer.token,
       }
     }
@@ -83,10 +85,14 @@ export const migrateAuth = (
   if (auth.apiKey) {
     const apiKeyScheme = securitySchemesEntries.find(([_, scheme]) => scheme.type === 'apiKey')
     if (apiKeyScheme) {
-      const [key] = apiKeyScheme
+      const [key, scheme] = apiKeyScheme as [string, OpenAPIV2.SecuritySchemeApiKey | OpenAPIV3_1.ApiKeySecurityScheme]
       result.securitySchemes[key] = {
         type: 'apiKey',
         value: auth.apiKey.token,
+        nameKey: key,
+        name: scheme.name,
+        // @ts-expect-error This will get parsed
+        in: scheme.in,
       }
     }
   }
@@ -155,6 +161,7 @@ export const migrateAuth = (
       result.securitySchemes[key] = {
         type: 'oauth2',
         flows,
+        nameKey: key,
       }
     }
   }

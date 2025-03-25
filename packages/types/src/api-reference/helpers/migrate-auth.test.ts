@@ -26,6 +26,7 @@ describe('migrateAuth', () => {
         basicAuth: {
           type: 'http',
           scheme: 'basic',
+          nameKey: 'basicAuth',
           username: 'testuser',
           password: 'testpass',
         },
@@ -57,6 +58,7 @@ describe('migrateAuth', () => {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
+          nameKey: 'bearerAuth',
           token: 'bearer-token-123',
         },
       },
@@ -75,8 +77,8 @@ describe('migrateAuth', () => {
     const securitySchemes = {
       apiKeyAuth: {
         type: 'apiKey',
-        in: 'header',
-        name: 'X-API-Key',
+        in: 'query',
+        name: 'W-API-Key',
       },
     } satisfies OpenAPIV3.ComponentsObject['securitySchemes']
 
@@ -84,7 +86,10 @@ describe('migrateAuth', () => {
       securitySchemes: {
         apiKeyAuth: {
           type: 'apiKey',
+          nameKey: 'apiKeyAuth',
           value: 'api-key-123',
+          name: 'W-API-Key',
+          in: 'query',
         },
       },
     }
@@ -108,6 +113,7 @@ describe('migrateAuth', () => {
       const securitySchemes = {
         oauth2Auth: {
           type: 'oauth2',
+          nameKey: 'oauth2Auth',
           flows: {
             password: {
               tokenUrl: 'https://api.example.com/token',
@@ -124,6 +130,7 @@ describe('migrateAuth', () => {
         securitySchemes: {
           oauth2Auth: {
             type: 'oauth2',
+            nameKey: 'oauth2Auth',
             flows: {
               password: {
                 type: 'password',
@@ -158,6 +165,7 @@ describe('migrateAuth', () => {
       const securitySchemes = {
         oauth2Auth: {
           type: 'oauth2',
+          nameKey: 'oauth2Auth',
           flows: {
             implicit: {
               authorizationUrl: 'https://api.example.com/authorize',
@@ -173,6 +181,7 @@ describe('migrateAuth', () => {
         securitySchemes: {
           oauth2Auth: {
             type: 'oauth2',
+            nameKey: 'oauth2Auth',
             flows: {
               implicit: {
                 type: 'implicit',
@@ -225,6 +234,7 @@ describe('migrateAuth', () => {
           bearerAuth: {
             type: 'http',
             scheme: 'bearer',
+            nameKey: 'bearerAuth',
             token: 'bearer-token-123',
           },
         },
@@ -261,6 +271,7 @@ describe('migrateAuth', () => {
           bearerAuth: {
             type: 'http',
             scheme: 'bearer',
+            nameKey: 'bearerAuth',
             token: 'bearer-token-123',
           },
         },

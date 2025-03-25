@@ -27,7 +27,7 @@ const oasSecuritySchemeApiKey = commonProps.extend({
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default(''),
   /** REQUIRED. The location of the API key. Valid values are "query", "header" or "cookie". */
-  in: z.enum(securitySchemeApiKeyIn).optional().default('header'),
+  in: z.enum(securitySchemeApiKeyIn).optional().default('header').catch('header'),
 })
 
 const apiKeyValueSchema = z.object({

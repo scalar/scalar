@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { authenticationConfigurationSchema } from '@/api-reference/authentication-configuration.ts'
 import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
 import type { TargetId } from '@/snippetz/index.ts'
 
@@ -183,8 +184,11 @@ export const apiClientConfigurationSchema = z.object({
    * @deprecated Use `url` and `content` on the top level instead.
    **/
   spec: specConfigurationSchema.optional(),
-  /** Prefill authentication */
-  authentication: z.any().optional(), // Temp until we bring in the new auth
+  /**
+   * Prefill authentication
+   * Since we need the security scheme keys the migration will be done before parsing
+   */
+  authentication: authenticationConfigurationSchema.optional(),
   /** Base URL for the API server */
   baseServerURL: z.string().optional(),
   /**

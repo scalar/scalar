@@ -21,6 +21,10 @@ export const authenticationConfigurationSchema = z.object({
     .union([z.string(), z.array(z.union([z.string(), z.array(z.string()).min(1)])).min(1)])
     .nullable()
     .optional(),
+  /**
+   * Specifies the security schemes to use for authentication.
+   * The key is the name of the security scheme, and the value is a partial of the security scheme object + any values.
+   */
   securitySchemes: z.record(z.string(), partialSecuritySchemeSchema).optional(),
 })
 
