@@ -24,11 +24,11 @@ export const HeaderObjectSchema = z.object({
   /**
    * Determines whether this header is mandatory. The default value is false.
    */
-  required: z.boolean().catch(false),
+  required: z.boolean().optional(),
   /**
    * Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false.
    */
-  deprecated: z.boolean().catch(false),
+  deprecated: z.boolean().optional(),
   /**
    * Describes how the parameter value will be serialized. Only "simple" is allowed for headers.
    */

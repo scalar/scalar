@@ -5,7 +5,7 @@ import { InfoObjectSchema } from './info-object'
 describe('info-object', () => {
   describe('InfoObjectSchema', () => {
     // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#info-object-example
-    it('parses the example', () => {
+    it('Info Object Example', () => {
       const result = InfoObjectSchema.parse({
         title: 'Example Pet Store App',
         summary: 'A pet store manager.',

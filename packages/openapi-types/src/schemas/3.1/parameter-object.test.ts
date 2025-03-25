@@ -1,84 +1,166 @@
 import { describe, expect, it } from 'vitest'
-import { z } from 'zod'
+
 import { ParameterObjectSchema } from './parameter-object'
 
-describe.todo('ParameterObjectSchema', () => {
-  it('should validate a parameter with a correct example', () => {
-    const validParameterWithExample = {
-      in: 'query',
-      name: 'limit',
-      example: 10,
-    }
+describe('parameter-object', () => {
+  describe('ParameterObjectSchema', () => {
+    // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#parameter-object-examples
+    describe('Parameter Object Examples', () => {
+      it('A header parameter with an array of 64-bit integer numbers', () => {
+        const result = ParameterObjectSchema.parse({
+          name: 'token',
+          in: 'header',
+          description: 'token to be passed as a header',
+          required: true,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'integer',
+              format: 'int64',
+            },
+          },
+          style: 'simple',
+        })
 
-    expect(() => ParameterObjectSchema.parse(validParameterWithExample)).not.toThrow()
-  })
+        expect(result).toEqual({
+          name: 'token',
+          in: 'header',
+          description: 'token to be passed as a header',
+          required: true,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'integer',
+              format: 'int64',
+            },
+          },
+          style: 'simple',
+        })
+      })
 
-  it('should validate examples as a record with correct structure', () => {
-    const validExamples = {
-      milkyWay: {
-        value: 'Milky Way',
-        summary: 'Our galaxy',
-      },
-      andromeda: {
-        value: 'Andromeda',
-        summary: 'Nearest major galaxy',
-      },
-    }
+      it('A path parameter of a string value', () => {
+        const result = ParameterObjectSchema.parse({
+          name: 'username',
+          in: 'path',
+          description: 'username to fetch',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        })
 
-    const validParameter = {
-      in: 'query',
-      name: 'galaxy',
-      examples: validExamples,
-    }
+        expect(result).toEqual({
+          name: 'username',
+          in: 'path',
+          description: 'username to fetch',
+          required: true,
+          schema: {
+            type: 'string',
+          },
+        })
+      })
 
-    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
-  })
+      it('An optional query parameter of a string value, allowing multiple values by repeating the query parameter', () => {
+        const result = ParameterObjectSchema.parse({
+          name: 'id',
+          in: 'query',
+          description: 'ID of the object to fetch',
+          required: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          style: 'form',
+          explode: true,
+        })
 
-  it('should fail validation if examples have incorrect structure', () => {
-    const invalidExamples = {
-      milkyWay: {
-        value: 'Milky Way',
-        // Summary is optional, so this should not cause a failure
-      },
-      andromeda: 'This should be an object, not a string',
-    }
+        expect(result).toEqual({
+          name: 'id',
+          in: 'query',
+          description: 'ID of the object to fetch',
+          required: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          style: 'form',
+          explode: true,
+        })
+      })
 
-    const invalidParameter = {
-      in: 'query',
-      name: 'galaxy',
-      examples: invalidExamples,
-    }
+      it('A free-form query parameter, allowing undefined parameters of a specific type', () => {
+        const result = ParameterObjectSchema.parse({
+          in: 'query',
+          name: 'freeForm',
+          schema: {
+            type: 'object',
+            additionalProperties: {
+              type: 'integer',
+            },
+          },
+          style: 'form',
+        })
 
-    expect(() => ParameterObjectSchema.parse(invalidParameter)).toThrow(z.ZodError)
-  })
+        expect(result).toEqual({
+          in: 'query',
+          name: 'freeForm',
+          schema: {
+            type: 'object',
+            additionalProperties: {
+              type: 'integer',
+            },
+          },
+          style: 'form',
+        })
+      })
 
-  it('should validate examples as an array', () => {
-    const validParameter = {
-      in: 'query',
-      name: 'galaxy',
-      examples: ['Milky Way', 'Andromeda'],
-    }
+      it('A complex parameter using content to define serialization', () => {
+        const result = ParameterObjectSchema.parse({
+          in: 'query',
+          name: 'coordinates',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['lat', 'long'],
+                properties: {
+                  lat: {
+                    type: 'number',
+                  },
+                  long: {
+                    type: 'number',
+                  },
+                },
+              },
+            },
+          },
+        })
 
-    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
-  })
-
-  it('should validate examples with a single array item', () => {
-    const validParameter = {
-      in: 'query',
-      name: 'galaxy',
-      examples: ['Milky Way'],
-    }
-
-    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
-  })
-
-  it('should validate with an empty array of examples', () => {
-    const validParameter = {
-      in: 'query',
-      name: 'galaxy',
-      examples: [],
-    }
-
-    expect(() => ParameterObjectSchema.parse(validParameter)).not.toThrow()
+        expect(result).toEqual({
+          in: 'query',
+          name: 'coordinates',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['lat', 'long'],
+                properties: {
+                  lat: {
+                    type: 'number',
+                  },
+                  long: {
+                    type: 'number',
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
+    })
   })
 })

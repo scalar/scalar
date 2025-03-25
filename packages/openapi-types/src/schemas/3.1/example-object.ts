@@ -11,11 +11,11 @@ export const ExampleObjectSchema = z.object({
   /**
    * Short description for the example.
    */
-  summary: z.string(),
+  summary: z.string().optional(),
   /**
    * Long description for the example. CommonMark syntax MAY be used for rich text representation.
    */
-  description: z.string(),
+  description: z.string().optional(),
   /**
    * Embedded literal example. The value field and externalValue field are mutually exclusive. To represent examples of media types that cannot naturally represented in JSON or YAML, use a string value to contain the example, escaping where necessary.
    */

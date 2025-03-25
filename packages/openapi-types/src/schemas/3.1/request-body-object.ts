@@ -20,5 +20,5 @@ export const RequestBodyObjectSchema = z.object({
   /**
    * Determines if the request body is required in the request. Defaults to false.
    */
-  required: z.boolean().catch(false),
+  required: z.boolean().optional(),
 })

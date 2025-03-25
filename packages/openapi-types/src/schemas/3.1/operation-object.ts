@@ -53,7 +53,16 @@ export const OperationObjectSchema = z.object({
   /**
    * The list of possible responses as they are returned from executing this operation.
    */
-  'responses': ResponseObjectSchema.optional(),
+  // TODO: Triggers strange error:
+  /**
+   * TypeError: Cannot read properties of undefined (reading 'optional')
+   * ❯ src/schemas/3.1/path-item-object.ts:34:30
+   * 32|    * A definition of a GET operation on this path.
+   * 33|
+   * 34|   get: OperationObjectSchema.optional(),
+   *   |                              ^
+   **/
+  'responses': z.record(z.string(), ResponseObjectSchema).optional(),
   /**
    * A map of possible out-of-band callbacks related to the parent operation. Each value in the map is a
    * Path Item Object that describes a set of requests that may be initiated by the API provider and the
@@ -75,5 +84,5 @@ export const OperationObjectSchema = z.object({
    * Declares this operation to be deprecated. Consumers SHOULD refrain from usage of the declared operation. Default
    * value is false.
    */
-  'deprecated': z.boolean().catch(false),
+  'deprecated': z.boolean().optional(),
 })
