@@ -84,8 +84,6 @@ describe('migrateAuth', () => {
       securitySchemes: {
         apiKeyAuth: {
           type: 'apiKey',
-          in: 'header',
-          name: 'X-API-Key',
           value: 'api-key-123',
         },
       },
@@ -135,6 +133,10 @@ describe('migrateAuth', () => {
                 username: 'oauth-user',
                 password: 'oauth-pass',
                 'x-scalar-client-id': 'client-123',
+                scopes: {
+                  read: '',
+                  write: '',
+                },
               },
             },
           },
@@ -178,6 +180,9 @@ describe('migrateAuth', () => {
                 selectedScopes: ['read'],
                 token: 'access-token-123',
                 'x-scalar-client-id': 'client-123',
+                scopes: {
+                  read: '',
+                },
               },
             },
           },
