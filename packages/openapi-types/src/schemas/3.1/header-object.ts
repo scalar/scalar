@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { ExampleObjectSchema } from './example-object'
-import { MediaTypeObjectSchema } from './media-type-object'
+import { BaseMediaContentSchema } from './shared-schema'
 
 /**
  * Header Object
@@ -43,7 +43,7 @@ export const HeaderObjectSchema = z
     /**
      * The schema defining the type used for the header.
      */
-    schema: z.any().optional(), // This should reference SchemaObject or ReferenceObject
+    schema: z.any().optional(),
     /**
      * Example of the parameter's potential value.
      */
@@ -57,6 +57,6 @@ export const HeaderObjectSchema = z
      * The key is the media type and the value describes it.
      * Only one of content or schema should be specified.
      */
-    content: z.record(z.string(), MediaTypeObjectSchema).optional(),
+    content: BaseMediaContentSchema.optional(),
   })
   .refine((data) => !(data.schema && data.content), 'Cannot have both schema and content fields')

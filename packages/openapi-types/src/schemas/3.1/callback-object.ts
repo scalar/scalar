@@ -11,9 +11,6 @@ import { PathItemObjectSchema } from './path-item-object'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#callback-object
  */
-export const CallbackObjectSchema = z.record(
-  // The key is a runtime expression that evaluates to a URL
-  z.string(),
-  // The value is a Path Item Object or a reference to one
-  PathItemObjectSchema,
-)
+export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>>
+
+export const CallbackObjectSchema: z.ZodType<CallbackObject> = z.lazy(() => z.record(z.string(), PathItemObjectSchema))
