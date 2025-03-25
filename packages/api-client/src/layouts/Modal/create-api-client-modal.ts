@@ -72,4 +72,5 @@ export const createApiClientModalSync = ({
     mountOnInitialize,
     store,
     router: createModalRouter(),
+    layout: 'modal',
   })
