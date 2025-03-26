@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { ComponentsObjectSchema } from '../components-object'
-import { SchemaObjectSchema } from '../schema-object'
+import { ComponentsObjectSchema } from '../unprocessed/components-object'
+import { SchemaObjectSchema } from '../unprocessed/schema-object'
 
 describe('schema-object', () => {
   describe('SchemaObjectSchema', () => {

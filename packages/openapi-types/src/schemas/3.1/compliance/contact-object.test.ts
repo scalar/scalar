@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ContactObjectSchema } from '../contact-object'
+import { ContactObjectSchema } from '../unprocessed/contact-object'
 
 describe('contact-object', () => {
   describe('ContactObjectSchema', () => {

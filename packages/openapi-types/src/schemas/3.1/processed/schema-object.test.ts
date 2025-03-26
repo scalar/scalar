@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { SchemaObjectSchema } from './schema-object'
+import { SchemaObjectSchema } from '../unprocessed/schema-object'
 
 describe('schema-object', () => {
   describe('basic validation', () => {

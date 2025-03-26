@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ReferenceObjectSchema } from '../reference-object'
+import { ReferenceObjectSchema } from '../unprocessed/reference-object'
 
 describe('reference-object', () => {
   describe('ReferenceObjectSchema', () => {

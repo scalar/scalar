@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { LicenseObjectSchema } from '../license-object'
+import { LicenseObjectSchema } from '../unprocessed/license-object'
 
 describe('license-object', () => {
   describe('LicenseObjectSchema', () => {

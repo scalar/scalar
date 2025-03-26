@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ResponsesObjectSchema } from '../responses-object'
+import { ResponsesObjectSchema } from '../unprocessed/responses-object'
 
 describe('responses-object', () => {
   describe('ResponsesObjectSchema', () => {

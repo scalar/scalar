@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { CallbackObjectSchema } from '../callback-object'
+import { CallbackObjectSchema } from '../unprocessed/callback-object'
 
 describe('callback-object', () => {
   describe('CallbackObjectSchema', () => {

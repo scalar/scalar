@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { HeaderObjectSchema } from '../header-object'
+import { HeaderObjectSchema } from '../unprocessed/header-object'
 
 describe('header-object', () => {
   describe('HeaderObjectSchema', () => {

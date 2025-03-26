@@ -104,6 +104,7 @@ export interface SchemaObject {
 }
 
 // The main Schema Object
+// TODO: Comment
 export const SchemaObjectSchema: z.ZodType<SchemaObject> = z.lazy(() =>
   z
     .object({

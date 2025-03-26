@@ -1,15 +1,16 @@
 import { z } from 'zod'
+import { SchemaObjectSchema } from '../unprocessed/schema-object'
+import { EncodingObjectSchema } from './encoding-object'
 import { ExampleObjectSchema } from './example-object'
-import { SchemaObjectSchema } from './schema-object'
 
 /**
- * Media Type Object (without encoding)
+ * Media Type Object
  *
  * Each Media Type Object provides schema and examples for the media type identified by its key.
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#media-type-object
  */
-export const MediaTypeObjectSchemaWithoutEncoding = z.object({
+export const MediaTypeObjectSchema = z.object({
   /**
    * The schema defining the content of the request, response, or parameter.
    */
@@ -26,7 +27,10 @@ export const MediaTypeObjectSchemaWithoutEncoding = z.object({
    * an example, the examples value SHALL override the example provided by the schema.
    */
   examples: z.record(z.string(), ExampleObjectSchema).optional(),
-  // Note: Don’t add `encoding` here.
-  // The MediaTypeObjectSchema is used in multiple places. And when it’s used in headers, we don’t want the encoding.
-  // That’s what the OpenAPI specification says.
+  /**
+   * A map between a property name and its encoding information. The key, being the property name, MUST exist in the
+   * schema as a property. The encoding object SHALL only apply to requestBody objects when the media type is
+   * multipart or application/x-www-form-urlencoded.
+   */
+  encoding: z.record(z.string(), EncodingObjectSchema).optional(),
 })

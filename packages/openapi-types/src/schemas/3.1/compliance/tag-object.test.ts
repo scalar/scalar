@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { TagObjectSchema } from '../tag-object'
+import { TagObjectSchema } from '../unprocessed/tag-object'
 
 describe('tag-object', () => {
   describe('TagObjectSchema', () => {

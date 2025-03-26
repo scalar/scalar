@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { RuntimeExpressionSchema } from '../runtime-expression'
+import { RuntimeExpressionSchema } from '../unprocessed/runtime-expression'
 
 describe('RuntimeExpressionSchema', () => {
   describe('validation', () => {

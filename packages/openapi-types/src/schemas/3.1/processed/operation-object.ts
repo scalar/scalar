@@ -2,18 +2,17 @@ import { z } from 'zod'
 import { CallbackObjectSchema } from './callback-object'
 import { BaseOperationObjectSchema } from './shared-path-schemas'
 
+export type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
+  callbacks?: Record<string, z.infer<typeof CallbackObjectSchema>>
+}
+
 /**
  * Operation Object
  *
-import { CallbackObjectSchema } from './callback-object'
  * Describes a single API operation on a path.
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#operation-object
  */
-export type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
-  // callbacks?: Record<string, z.infer<typeof CallbackObjectSchema>>
-}
-
 export const OperationObjectSchema: z.ZodType<OperationObject> = z.lazy(() =>
   BaseOperationObjectSchema.extend({
     /**
