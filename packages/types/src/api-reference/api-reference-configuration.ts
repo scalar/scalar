@@ -480,9 +480,9 @@ export const apiReferenceConfigurationSchema = _apiReferenceConfigurationSchema.
 export type ApiReferenceConfiguration = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
-  'proxy' | 'spec'
+  'proxy' | 'spec' | 'authentication'
 > & {
-  authentication: AuthenticationConfiguration
+  authentication?: AuthenticationConfiguration
 }
 
 /** Api Config which includes the default config */

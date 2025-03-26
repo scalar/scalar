@@ -449,7 +449,7 @@ describe('importSpecToWorkspace', () => {
       expect(authScheme.flows.authorizationCode?.['x-scalar-client-id']).toEqual('test-default-client-id')
     })
 
-    it('prefills from the authentication property', async () => {
+    it('prefills from the deprecated authentication property', async () => {
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
           apiKey: {
