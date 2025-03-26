@@ -2,28 +2,11 @@ import { z } from 'zod'
 import { ComponentsObjectSchema } from './components-object'
 import { ExternalDocumentationObjectSchema } from './external-documentation-object'
 import { InfoObjectSchema } from './info-object'
-import type { PathItemObjectSchema } from './path-item-object'
 import { PathsObjectSchema } from './paths-object'
 import { SecurityRequirementObjectSchema } from './security-requirement-object'
 import { ServerObjectSchema } from './server-object'
 import { TagObjectSchema } from './tag-object'
 import { WebhooksObjectSchema } from './webhooks-object'
-
-/**
- * Type definition for the OpenAPI Object structure
- */
-export type OpenApiObject = {
-  openapi: string
-  info: z.infer<typeof InfoObjectSchema>
-  jsonSchemaDialect?: string
-  servers?: z.infer<typeof ServerObjectSchema>[]
-  paths?: z.infer<typeof PathsObjectSchema>
-  webhooks?: Record<string, z.infer<typeof PathItemObjectSchema>>
-  components?: z.infer<typeof ComponentsObjectSchema>
-  security?: z.infer<typeof SecurityRequirementObjectSchema>[]
-  tags?: z.infer<typeof TagObjectSchema>[]
-  externalDocs?: z.infer<typeof ExternalDocumentationObjectSchema>
-}
 
 /**
  * OpenAPI Object
@@ -32,7 +15,7 @@ export type OpenApiObject = {
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#openapi-object
  */
-export const OpenApiObjectSchema: z.ZodType<OpenApiObject, z.ZodTypeDef, unknown> = z.object({
+export const OpenApiObjectSchema = z.object({
   /**
    * REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The
    * openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API
