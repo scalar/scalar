@@ -1,5 +1,5 @@
-import { findEntryPoints } from '@scalar/build-tooling'
 import { URL, fileURLToPath } from 'node:url'
+import { findEntryPoints } from '@scalar/build-tooling'
 import { defineConfig } from 'vite'
 
 import pkg from './package.json'
@@ -20,7 +20,7 @@ export default defineConfig({
     minify: false,
     target: 'esnext',
     lib: {
-      entry: await findEntryPoints({ allowCss: true }),
+      entry: await findEntryPoints({ allowCss: false }),
       formats: ['es'],
     },
     rollupOptions: {
