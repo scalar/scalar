@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { CallbackObjectSchema } from './callback-object'
 import { BaseOperationObjectSchema } from './shared-path-schemas'
 
-export type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
+type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
   callbacks?: Record<string, z.infer<typeof CallbackObjectSchema>>
 }
 

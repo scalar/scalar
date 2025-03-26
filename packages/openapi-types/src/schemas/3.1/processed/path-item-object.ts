@@ -2,7 +2,7 @@ import { z } from 'zod'
 import type { OperationObjectSchema } from './operation-object'
 import { BasePathItemObjectSchema } from './shared-path-schemas'
 
-export type PathItemObject = z.infer<typeof BasePathItemObjectSchema> & {
+type PathItemObject = z.infer<typeof BasePathItemObjectSchema> & {
   get?: z.infer<typeof OperationObjectSchema>
   put?: z.infer<typeof OperationObjectSchema>
   post?: z.infer<typeof OperationObjectSchema>

@@ -2,8 +2,6 @@ import { z } from 'zod'
 import { PathItemObjectSchema } from './path-item-object'
 import { RuntimeExpressionSchema } from './runtime-expression'
 
-export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>>
-
 /**
  * Callback Object
  *

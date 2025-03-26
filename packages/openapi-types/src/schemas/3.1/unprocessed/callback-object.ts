@@ -1,9 +1,4 @@
-import {
-  type CallbackObject as OriginalCallbackObject,
-  CallbackObjectSchema as OriginalCallbackObjectSchema,
-} from '../processed/callback-object'
-
-export type CallbackObject = OriginalCallbackObject
+import { CallbackObjectSchema as OriginalCallbackObjectSchema } from '../processed/callback-object'
 
 /**
  * Callback Object
