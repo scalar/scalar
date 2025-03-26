@@ -63,8 +63,7 @@ describe('media-type-object', () => {
             },
           },
           frog: {
-            // TODO: We don’t support $refs yet.
-            // $ref: '#/components/examples/frog-example',
+            $ref: '#/components/examples/frog-example',
           },
         },
       })
