@@ -93,8 +93,6 @@ export const getSelectedSecuritySchemeUids = (
 /** Create a "uid" from a slug */
 export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['uid']
 
-type A1 = Pick<NonNullable<ApiReferenceConfiguration>, 'authentication'>
-
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
   Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
@@ -257,10 +255,8 @@ export async function importSpecToWorkspace(
             payload.password = authentication.http.basic.password ?? ''
           }
           // Bearer
-          else if (payload.scheme === 'bearer') {
-            if (authentication.http?.bearer?.token) {
-              payload.token = authentication.http.bearer.token ?? ''
-            }
+          else if (payload.scheme === 'bearer' && authentication.http?.bearer?.token) {
+            payload.token = authentication.http.bearer.token ?? ''
           }
         }
       }
