@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.3.8
+
+### Patch Changes
+
+- 002a50e: fix: adds missing api client layout layout value
+- Updated dependencies [543a16c]
+- Updated dependencies [6095530]
+- Updated dependencies [57e96a0]
+  - @scalar/types@0.1.3
+  - @scalar/snippetz@0.2.18
+  - @scalar/oas-utils@0.2.122
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/themes@0.9.81
+  - @scalar/import@0.3.5
+  - @scalar/postman-to-openapi@0.1.45
+  - @scalar/components@0.13.40
+  - @scalar/use-codemirror@0.11.85
+  - @scalar/use-hooks@0.1.35
+
 ## 2.3.7
 
 ### Patch Changes

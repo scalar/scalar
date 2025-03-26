@@ -1,5 +1,16 @@
 # @scalar/aspnetcore
 
+## 2.1.2
+
+### Patch Changes
+
+- bc2769e: feat(Scalar.AspNetCore): Add custom pattern option for each document
+- Updated dependencies [f57e9c9]
+- Updated dependencies [543a16c]
+- Updated dependencies [57e96a0]
+- Updated dependencies [c0f6384]
+  - @scalar/api-reference@1.28.8
+
 ## 2.1.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.1.3
+
+### Patch Changes
+
+- 543a16c: feat: allow to explicitly set the default source
+- 57e96a0: feat: add onDocumentSelect callback when switching multi configs
+
 ## 0.1.2
 
 ### Patch Changes
