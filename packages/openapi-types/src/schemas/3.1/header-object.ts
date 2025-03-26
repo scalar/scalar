@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { ExampleObjectSchema } from './example-object'
-import { MediaTypeObjectSchema } from './media-type-object'
+import { MediaTypeObjectSchemaWithoutEncoding } from './media-type-object-without-encoding'
 import { SchemaObjectSchema } from './schema-object'
 
 /**
@@ -58,6 +58,6 @@ export const HeaderObjectSchema = z
      * The key is the media type and the value describes it.
      * Only one of content or schema should be specified.
      */
-    content: z.record(z.string(), MediaTypeObjectSchema).optional(),
+    content: z.record(z.string(), MediaTypeObjectSchemaWithoutEncoding).optional(),
   })
   .refine((data) => !(data.schema && data.content), 'Cannot have both schema and content fields')
