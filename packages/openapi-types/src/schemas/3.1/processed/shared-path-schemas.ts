@@ -12,7 +12,7 @@ import { ServerObjectSchema } from './server-object'
  *
  * TODO: Update comment
  */
-export const BaseOperationObjectSchema = z.object({
+export const OperationObjectSchemaWithoutCallbacks = z.object({
   /**
    * A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
@@ -86,35 +86,35 @@ export const BasePathItemObjectSchema = z.object({
   /**
    * A definition of a GET operation on this path.
    */
-  get: BaseOperationObjectSchema.optional(),
+  get: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a PUT operation on this path.
    */
-  put: BaseOperationObjectSchema.optional(),
+  put: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a POST operation on this path.
    */
-  post: BaseOperationObjectSchema.optional(),
+  post: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a DELETE operation on this path.
    */
-  delete: BaseOperationObjectSchema.optional(),
+  delete: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a OPTIONS operation on this path.
    */
-  options: BaseOperationObjectSchema.optional(),
+  options: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a HEAD operation on this path.
    */
-  head: BaseOperationObjectSchema.optional(),
+  head: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a PATCH operation on this path.
    */
-  patch: BaseOperationObjectSchema.optional(),
+  patch: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * A definition of a TRACE operation on this path.
    */
-  trace: BaseOperationObjectSchema.optional(),
+  trace: OperationObjectSchemaWithoutCallbacks.optional(),
   /**
    * An alternative server array to service all operations in this path.
    */

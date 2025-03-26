@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { PathItemObjectSchema } from './path-item-object'
+import { PathItemObjectSchemaWithoutCallbacks } from './path-item-object-without-callbacks'
 import { RuntimeExpressionSchema } from './runtime-expression'
 
 /**
@@ -15,6 +15,6 @@ import { RuntimeExpressionSchema } from './runtime-expression'
 export const CallbackObjectSchema = z.lazy(() =>
   z.record(
     RuntimeExpressionSchema,
-    z.lazy(() => PathItemObjectSchema),
+    z.lazy(() => PathItemObjectSchemaWithoutCallbacks),
   ),
 )

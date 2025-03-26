@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { CallbackObjectSchema } from './callback-object'
-import { BaseOperationObjectSchema } from './shared-path-schemas'
+import { OperationObjectSchemaWithoutCallbacks } from './shared-path-schemas'
 
-type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
+type OperationObject = z.infer<typeof OperationObjectSchemaWithoutCallbacks> & {
   callbacks?: Record<string, z.infer<typeof CallbackObjectSchema>>
 }
 
@@ -14,7 +14,7 @@ type OperationObject = z.infer<typeof BaseOperationObjectSchema> & {
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#operation-object
  */
 export const OperationObjectSchema: z.ZodType<OperationObject> = z.lazy(() =>
-  BaseOperationObjectSchema.extend({
+  OperationObjectSchemaWithoutCallbacks.extend({
     /**
      * A map of possible out-of-band callbacks related to the parent operation. Each value in the map is a
      * Path Item Object that describes a set of requests that may be initiated by the API provider and the
