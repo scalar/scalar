@@ -2,8 +2,8 @@ import { z } from 'zod'
 import { ComponentsObjectSchema } from './components-object'
 import { ExternalDocumentationObjectSchema } from './external-documentation-object'
 import { InfoObjectSchema } from './info-object'
-import { PathItemObjectSchema } from './path-item-object'
-import type { PathsObjectSchema } from './paths-object'
+import type { PathItemObjectSchema } from './path-item-object'
+import { PathsObjectSchema } from './paths-object'
 import { SecurityRequirementObjectSchema } from './security-requirement-object'
 import { ServerObjectSchema } from './server-object'
 import { TagObjectSchema } from './tag-object'
@@ -56,21 +56,7 @@ export const OpenApiObjectSchema: z.ZodType<OpenApiObject, z.ZodTypeDef, unknown
   /**
    * The available paths and operations for the API.
    */
-  // TODO: Doesn’t work?
-  // paths: PathsObjectSchema.optional(),
-  paths: z
-    .record(
-      /**
-       * A relative path to an individual endpoint. The field name MUST begin with a forward slash (/). The path is appended
-       * (no relative URL resolution) to the expanded URL from the Server Object's url field in order to construct the full
-       * URL. Path templating is allowed. When matching URLs, concrete (non-templated) paths would be matched before their
-       * templated counterparts. Templated paths with the same hierarchy but different templated names MUST NOT exist as
-       * they are identical. In case of ambiguous matching, it's up to the tooling to decide which one to use.
-       */
-      z.string(),
-      PathItemObjectSchema,
-    )
-    .optional(),
+  paths: PathsObjectSchema.optional(),
   /**
    * The incoming webhooks that MAY be received as part of this API and that the API consumer MAY choose to implement.
    * Closely related to the callbacks feature, this section describes requests initiated other than by an API call,

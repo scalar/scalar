@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { PathItemObjectSchema } from './path-item-object'
+import { RuntimeExpressionSchema } from './runtime-expression'
 
 /**
  * Callback Object
@@ -15,7 +16,7 @@ export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>
 
 export const CallbackObjectSchema: z.ZodType<CallbackObject> = z.lazy(() =>
   z.record(
-    z.string(),
+    RuntimeExpressionSchema,
     z.lazy(() => PathItemObjectSchema),
   ),
 )
