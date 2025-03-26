@@ -19,6 +19,12 @@
       "@scalar/themes": null,
       "@scalar/components": null,
       "@scalar/import": null
+    },
+    "devDependencies": {
+      "@types/node": null,
+      "@vitejs/plugin-vue": null,
+      "vite": null,
+      "vue": null
     }
   }
 }
