@@ -75,12 +75,6 @@ export const BaseOperationObjectSchema = z.object({
  */
 export const BasePathItemObjectSchema = z.object({
   /**
-   * Allows for a referenced definition of this path item. The referenced structure MUST be in the form of a Path Item
-   * Object. In case a Path Item Object field appears both in the defined object and the referenced object, the behavior
-   * is undefined. See the rules for resolving Relative References.
-   */
-  $ref: z.string().optional(),
-  /**
    * An optional, string summary, intended to apply to all operations in this path.
    */
   summary: z.string().optional(),
