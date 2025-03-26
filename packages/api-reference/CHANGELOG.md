@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.28.8
+
+### Patch Changes
+
+- f57e9c9: feat: freeze element in window when switching clients
+- 543a16c: feat: allow to explicitly set the default source
+- 57e96a0: feat: add onDocumentSelect callback when switching multi configs
+- c0f6384: fix: remove bad timeout code and replace with mutation observer
+- Updated dependencies [543a16c]
+- Updated dependencies [002a50e]
+- Updated dependencies [6095530]
+- Updated dependencies [57e96a0]
+  - @scalar/types@0.1.3
+  - @scalar/api-client@2.3.8
+  - @scalar/snippetz@0.2.18
+  - @scalar/oas-utils@0.2.122
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/themes@0.9.81
+  - @scalar/code-highlight@0.0.25
+  - @scalar/components@0.13.40
+  - @scalar/use-hooks@0.1.35
+
 ## 1.28.7
 
 ### Patch Changes

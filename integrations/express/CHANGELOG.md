@@ -1,5 +1,12 @@
 # @scalar/express-api-reference
 
+## 0.6.3
+
+### Patch Changes
+
+- b502cf1: fix(express): restore express middleware return value type
+  - @scalar/core@0.2.3
+
 ## 0.6.2
 
 ### Patch Changes

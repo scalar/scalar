@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.85
+
+### Patch Changes
+
+- @scalar/components@0.13.40
+
 ## 0.11.84
 
 ### Patch Changes

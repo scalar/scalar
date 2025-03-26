@@ -1,5 +1,16 @@
 # scalar-app
 
+## 0.1.166
+
+### Patch Changes
+
+- 90a8226: fix: ignore pnpm catalog dependencies
+- Updated dependencies [002a50e]
+  - @scalar/api-client@2.3.8
+  - @scalar/themes@0.9.81
+  - @scalar/import@0.3.5
+  - @scalar/components@0.13.40
+
 ## 0.1.165
 
 ### Patch Changes
