@@ -1,12 +1,7 @@
 import { cookieSchema } from '@/entities/cookie'
 import { environmentSchema } from '@/entities/environment'
-import {
-  collectionSchema,
-  requestExampleSchema,
-  requestSchema,
-  securitySchemeSchema,
-  serverSchema,
-} from '@/entities/spec'
+import { collectionSchema, requestExampleSchema, requestSchema, serverSchema } from '@/entities/spec'
+import { securitySchemeSchema } from '@scalar/types/entities'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { workspaceSchema } from '@/entities/workspace'
 import { DATA_VERSION } from '@/migrations/data-version'

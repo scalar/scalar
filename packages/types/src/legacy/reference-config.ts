@@ -1,7 +1,7 @@
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { HarRequest, TargetId } from '@/snippetz/index.ts'
 import type { ApiReferenceConfiguration } from '@/api-reference/index.ts'
+import type { HarRequest, TargetId } from '@/snippetz/index.ts'
 
 /**
  * This re-export is needed due to a typescript issue
@@ -219,36 +219,32 @@ export type TransformedOperation = Operation & {
 export type CollapsedSidebarItems = Record<string, boolean>
 
 export type AuthenticationState = {
-  customSecurity: boolean
+  customSecurity?: boolean
   /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
   preferredSecurityScheme: string | (string | string[])[] | null
   securitySchemes?:
     | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.ComponentsObject['securitySchemes']
     | OpenAPIV3_1.ComponentsObject['securitySchemes']
-  http: {
+  http?: {
     basic?: {
-      username: string
-      password: string
+      username?: string
+      password?: string
     }
     bearer?: {
       token?: string
-      /**
-       * @deprecated this is just temporary until the new auth
-       */
-      multiple?: Record<string, string>
     }
   }
-  apiKey: {
-    token: string
+  apiKey?: {
+    token?: string
   }
-  oAuth2: {
-    clientId: string
-    scopes: string[]
-    accessToken: string
-    state: string
-    username: string
-    password: string
+  oAuth2?: {
+    clientId?: string
+    scopes?: string[]
+    accessToken?: string
+    state?: string
+    username?: string
+    password?: string
   }
 }
 

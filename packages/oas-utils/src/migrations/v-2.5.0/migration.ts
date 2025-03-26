@@ -1,9 +1,4 @@
 import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
-
-import type { Cookie } from '@/entities/cookie/cookie'
-import type { Environment } from '@/entities/environment/environment'
-import type { Collection, Operation, RequestExample, SecurityScheme, Server, Tag } from '@/entities/spec'
-import type { Workspace } from '@/entities/workspace'
 import type { v_2_5_0 } from './types.generated'
 
 /** V-2.4.0 to V-2.5.0 migration */
@@ -13,7 +8,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
   const cookies = Object.entries(data.cookies || {}).reduce<Record<string, v_2_5_0['Cookie']>>((acc, [key, cookie]) => {
     acc[key] = {
       ...cookie,
-      uid: cookie.uid as Cookie['uid'],
+      uid: cookie.uid as v_2_5_0['Cookie']['uid'],
     } satisfies v_2_5_0['Cookie']
     return acc
   }, {})
@@ -26,13 +21,14 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
           title: 'API',
           version: '1.0',
         },
-        uid: collection.uid as Collection['uid'],
-        selectedSecuritySchemeUids: collection.selectedSecuritySchemeUids as Collection['selectedSecuritySchemeUids'],
-        servers: collection.servers.map((uid) => uid as Server['uid']),
-        tags: collection.tags.map((uid) => uid as Tag['uid']),
-        requests: collection.requests.map((uid) => uid as Operation['uid']),
-        children: collection.children.map((uid) => uid as Operation['uid'] | Tag['uid']),
-        selectedServerUid: collection.selectedServerUid as Server['uid'],
+        uid: collection.uid as v_2_5_0['Collection']['uid'],
+        selectedSecuritySchemeUids:
+          collection.selectedSecuritySchemeUids as v_2_5_0['Collection']['selectedSecuritySchemeUids'],
+        servers: collection.servers.map((uid) => uid as v_2_5_0['Server']['uid']),
+        tags: collection.tags.map((uid) => uid as v_2_5_0['Tag']['uid']),
+        requests: collection.requests.map((uid) => uid as v_2_5_0['Request']['uid']),
+        children: collection.children.map((uid) => uid as v_2_5_0['Request']['uid'] | v_2_5_0['Tag']['uid']),
+        selectedServerUid: collection.selectedServerUid as v_2_5_0['Server']['uid'],
       } satisfies v_2_5_0['Collection']
       return acc
     },
@@ -43,7 +39,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
     (acc, [key, environment]) => {
       acc[key] = {
         ...environment,
-        uid: environment.uid as Environment['uid'],
+        uid: environment.uid as v_2_5_0['Environment']['uid'],
       } satisfies v_2_5_0['Environment']
       return acc
     },
@@ -54,11 +50,12 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
     (acc, [key, request]) => {
       acc[key] = {
         ...request,
-        uid: request.uid as Operation['uid'],
-        servers: request.servers as Operation['servers'],
-        selectedServerUid: request.selectedServerUid as Operation['selectedServerUid'],
-        examples: request.examples as Operation['examples'],
-        selectedSecuritySchemeUids: request.selectedSecuritySchemeUids as Operation['selectedSecuritySchemeUids'],
+        uid: request.uid as v_2_5_0['Request']['uid'],
+        servers: request.servers as v_2_5_0['Request']['servers'],
+        selectedServerUid: request.selectedServerUid as v_2_5_0['Request']['selectedServerUid'],
+        examples: request.examples as v_2_5_0['Request']['examples'],
+        selectedSecuritySchemeUids:
+          request.selectedSecuritySchemeUids as v_2_5_0['Request']['selectedSecuritySchemeUids'],
       } satisfies v_2_5_0['Request']
       return acc
     },
@@ -80,8 +77,8 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
       // Update the example with potentially modified headers
       acc[key] = {
         ...example,
-        uid: example.uid as RequestExample['uid'],
-        requestUid: example.requestUid as RequestExample['requestUid'],
+        uid: example.uid as v_2_5_0['RequestExample']['uid'],
+        requestUid: example.requestUid as v_2_5_0['RequestExample']['requestUid'],
         parameters: {
           ...example.parameters,
           headers,
@@ -96,7 +93,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
     (acc, [key, securityScheme]) => {
       acc[key] = {
         ...securityScheme,
-        uid: securityScheme.uid as SecurityScheme['uid'],
+        uid: securityScheme.uid as v_2_5_0['SecurityScheme']['uid'],
       } satisfies v_2_5_0['SecurityScheme']
       return acc
     },
@@ -106,7 +103,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
   const servers = Object.entries(data.servers || {}).reduce<Record<string, v_2_5_0['Server']>>((acc, [key, server]) => {
     acc[key] = {
       ...server,
-      uid: server.uid as Server['uid'],
+      uid: server.uid as v_2_5_0['Server']['uid'],
       variables: Object.entries(server.variables || {}).reduce<
         Record<
           string,
@@ -132,8 +129,8 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
   const tags = Object.entries(data.tags || {}).reduce<Record<string, v_2_5_0['Tag']>>((acc, [key, tag]) => {
     acc[key] = {
       ...tag,
-      uid: tag.uid as Tag['uid'],
-      children: tag.children as Tag['children'],
+      uid: tag.uid as v_2_5_0['Tag']['uid'],
+      children: tag.children as v_2_5_0['Tag']['children'],
     } satisfies v_2_5_0['Tag']
     return acc
   }, {})
@@ -142,9 +139,9 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
     (acc, [key, workspace]) => {
       acc[key] = {
         ...workspace,
-        uid: workspace.uid as Workspace['uid'],
-        collections: workspace.collections.map((uid) => uid as Collection['uid']),
-        cookies: workspace.cookies.map((uid) => uid as Cookie['uid']),
+        uid: workspace.uid as v_2_5_0['Workspace']['uid'],
+        collections: workspace.collections.map((uid) => uid as v_2_5_0['Collection']['uid']),
+        cookies: workspace.cookies.map((uid) => uid as v_2_5_0['Cookie']['uid']),
         selectedHttpClient: {
           targetKey: 'shell',
           clientKey: 'curl',
