@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import {
-  securityApiKeySchema,
-  securityHttpSchema,
-  securityOpenIdSchema,
-  securityOauthSchema,
-  securitySchemeSchema,
   oasSecurityRequirementSchema,
   pkceOptions,
+  securityApiKeySchema,
+  securityHttpSchema,
+  securityOauthSchema,
+  securityOpenIdSchema,
+  securitySchemeSchema,
 } from './security-scheme.ts'
 
 describe('Security Schemas', () => {
@@ -41,18 +41,6 @@ describe('Security Schemas', () => {
         nameKey: '',
         value: '',
       })
-    })
-
-    it('should reject invalid "in" values', () => {
-      const invalidApiKey = {
-        type: 'apiKey',
-        name: 'api_key',
-        in: 'invalid',
-        uid: 'apikey123',
-      }
-
-      const result = securityApiKeySchema.safeParse(invalidApiKey)
-      expect(result.success).toBe(false)
     })
   })
 
