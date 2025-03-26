@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SchemaObjectSchema } from '../unprocessed/schema-object'
+import { SchemaObjectSchema } from '../processed/schema-object'
 import { EncodingObjectSchema } from './encoding-object'
 import { ExampleObjectSchema } from './example-object'
 

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { RuntimeExpressionSchema } from '../unprocessed/runtime-expression'
+import { RuntimeExpressionSchema } from '../processed/runtime-expression'
 import { ServerObjectSchema } from './server-object'
 
 /**

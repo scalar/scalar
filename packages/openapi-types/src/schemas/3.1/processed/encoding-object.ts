@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { HeaderObjectSchema } from '../unprocessed/header-object'
+import { HeaderObjectSchema } from '../processed/header-object'
 
 /**
  * Encoding Object
@@ -13,7 +13,7 @@ import { HeaderObjectSchema } from '../unprocessed/header-object'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#encoding-object
  */
-export const EncodingObjectSchema: z.ZodType = z.object({
+export const EncodingObjectSchema = z.object({
   /**
    * The Content-Type for encoding a specific property. The value is a comma-separated list, each element of which is
    * either a specific media type (e.g. image/png) or a wildcard media type (e.g. image/*). Default value depends on the

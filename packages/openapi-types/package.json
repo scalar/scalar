@@ -37,10 +37,20 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./schemas/3.1": {
-      "import": "./dist/schemas/3.1/index.js",
-      "types": "./dist/schemas/3.1/index.d.ts",
-      "default": "./dist/schemas/3.1/index.js"
+    "./schemas/extensions": {
+      "import": "./dist/schemas/extensions/index.js",
+      "types": "./dist/schemas/extensions/index.d.ts",
+      "default": "./dist/schemas/extensions/index.js"
+    },
+    "./schemas/3.1/unprocessed": {
+      "import": "./dist/schemas/3.1/unprocessed/index.js",
+      "types": "./dist/schemas/3.1/unprocessed/index.d.ts",
+      "default": "./dist/schemas/3.1/unprocessed/index.js"
+    },
+    "./schemas/3.1/processed": {
+      "import": "./dist/schemas/3.1/processed/index.js",
+      "types": "./dist/schemas/3.1/processed/index.d.ts",
+      "default": "./dist/schemas/3.1/processed/index.js"
     }
   },
   "files": [

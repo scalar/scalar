@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { RuntimeExpressionSchema } from '../unprocessed/runtime-expression'
+import { RuntimeExpressionSchema } from '../processed/runtime-expression'
 import { PathItemObjectSchema } from './path-item-object'
 
 export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>>
@@ -14,7 +14,7 @@ export type CallbackObject = Record<string, z.infer<typeof PathItemObjectSchema>
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#callback-object
  */
-export const CallbackObjectSchema: z.ZodType<CallbackObject> = z.lazy(() =>
+export const CallbackObjectSchema = z.lazy(() =>
   z.record(
     RuntimeExpressionSchema,
     z.lazy(() => PathItemObjectSchema),
