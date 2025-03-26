@@ -1,7 +1,7 @@
 import { z } from 'zod'
-import { MediaTypeObjectSchemaWithoutEncoding } from '../processed/media-type-object-without-encoding'
-import { SchemaObjectSchema } from '../processed/schema-object'
 import { ExampleObjectSchema } from './example-object'
+import { MediaTypeObjectSchemaWithoutEncoding } from './media-type-object-without-encoding'
+import { SchemaObjectSchema } from './schema-object'
 
 /**
  * Header Object

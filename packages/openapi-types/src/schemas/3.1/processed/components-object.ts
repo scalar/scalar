@@ -1,13 +1,13 @@
 import { z } from 'zod'
-import { ExampleObjectSchema } from '../processed/example-object'
-import { HeaderObjectSchema } from '../processed/header-object'
-import { LinkObjectSchema } from '../processed/link-object'
-import { ParameterObjectSchema } from '../processed/parameter-object'
-import { SchemaObjectSchema } from '../processed/schema-object'
 import { CallbackObjectSchema } from './callback-object'
+import { ExampleObjectSchema } from './example-object'
+import { HeaderObjectSchema } from './header-object'
+import { LinkObjectSchema } from './link-object'
+import { ParameterObjectSchema } from './parameter-object'
 import { PathItemObjectSchema } from './path-item-object'
 import { RequestBodyObjectSchema } from './request-body-object'
 import { ResponseObjectSchema } from './response-object'
+import { SchemaObjectSchema } from './schema-object'
 import { SecuritySchemeObjectSchema } from './security-scheme-object'
 
 /**

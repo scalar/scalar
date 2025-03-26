@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { HeaderObjectSchema } from '../processed/header-object'
+import { HeaderObjectSchema } from './header-object'
 
 /**
  * Encoding Object

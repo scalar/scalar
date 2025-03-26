@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SchemaObjectSchema } from '../processed/schema-object'
+import { SchemaObjectSchema } from './schema-object'
 
 /**
  * Parameter Object
