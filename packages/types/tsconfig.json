@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.node.json",
   "include": ["src", "test"],
   "compilerOptions": {
-    "rootDir": "./src",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
