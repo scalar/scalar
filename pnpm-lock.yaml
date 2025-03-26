@@ -27,6 +27,9 @@ catalogs:
     tailwindcss:
       specifier: ^3.4.4
       version: 3.4.4
+    type-fest:
+      specifier: ^4.20.0
+      version: 4.26.1
     vite:
       specifier: ^5.4.10
       version: 5.4.10
@@ -933,6 +936,9 @@ importers:
       shell-quote:
         specifier: ^1.8.1
         version: 1.8.1
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.26.1
       vue:
         specifier: 'catalog:'
         version: 3.5.12(typescript@5.6.2)
@@ -982,9 +988,6 @@ importers:
       tailwindcss-color-mix:
         specifier: ^0.0.8
         version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))
-      type-fest:
-        specifier: ^4.20.0
-        version: 4.20.0
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -1838,6 +1841,9 @@ importers:
       nanoid:
         specifier: 'catalog:'
         version: 5.1.5
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.26.1
       yaml:
         specifier: 'catalog:'
         version: 2.6.0
@@ -1854,9 +1860,6 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 20.17.10
-      type-fest:
-        specifier: ^4.20.0
-        version: 4.20.0
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -1878,13 +1881,13 @@ importers:
       ts-deepmerge:
         specifier: ^7.0.1
         version: 7.0.1
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.26.1
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      type-fest:
-        specifier: ^4.20.0
-        version: 4.20.0
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -2111,6 +2114,9 @@ importers:
       nanoid:
         specifier: 'catalog:'
         version: 5.1.5
+      type-fest:
+        specifier: 'catalog:'
+        version: 4.26.1
       zod:
         specifier: 'catalog:'
         version: 3.23.8
@@ -17304,10 +17310,6 @@ packages:
   type-fest@3.13.1:
     resolution: {integrity: sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==}
     engines: {node: '>=14.16'}
-
-  type-fest@4.20.0:
-    resolution: {integrity: sha512-MBh+PHUHHisjXf4tlx0CFWoMdjx8zCMLJHOjnV1prABYZFHqtFOyauCIK2/7w4oIfwkF8iNhLtnJEfVY2vn3iw==}
-    engines: {node: '>=16'}
 
   type-fest@4.26.1:
     resolution: {integrity: sha512-yOGpmOAL7CkKe/91I5O3gPICmJNLJ1G4zFYVAsRHg7M64biSnPtRj0WNQt++bRkjYOqjWXrhnUw1utzmVErAdg==}
@@ -38174,8 +38176,6 @@ snapshots:
   type-fest@2.19.0: {}
 
   type-fest@3.13.1: {}
-
-  type-fest@4.20.0: {}
 
   type-fest@4.26.1: {}
 

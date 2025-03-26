@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import type { AuthenticationConfiguration } from '@/api-reference/authentication-configuration.ts'
 import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
 import type { TargetId } from '@/snippetz/index.ts'
 
@@ -480,7 +481,9 @@ export type ApiReferenceConfiguration = Omit<
   z.infer<typeof apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
   'proxy' | 'spec'
->
+> & {
+  authentication: AuthenticationConfiguration
+}
 
 /** Api Config which includes the default config */
 type ApiReferenceConfigurationWithDefault = ApiReferenceConfiguration & {

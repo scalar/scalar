@@ -14,17 +14,17 @@ function App() {
     const changeInt = setInterval(() => {
       setAuth({
         preferredSecurityScheme: apiKeys[Math.floor(Math.random() * apiKeys.length)],
-        http: {
-          basic: {
+        securitySchemes: {
+          apiKeyHeader: {
+            token: (generate(2) as string[]).join('_'),
+          },
+          basicAuth: {
             username: (generate(2) as string[]).join('_'),
             password: (generate(2) as string[]).join('_'),
           },
-          bearer: {
+          bearerAuth: {
             token: (generate(2) as string[]).join('_'),
           },
-        },
-        apiKey: {
-          token: (generate(2) as string[]).join('_'),
         },
       })
     }, 10000)
