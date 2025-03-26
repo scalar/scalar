@@ -9,7 +9,6 @@ describe('operation-object', () => {
   // TODO: Add this: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-basic-multipart-form
   // TODO: Add this: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-multipart-form-with-encoding-objects
   // TODO: Add this: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-multipart-form-with-multiple-files
-  // TODO: Causes strange error
   describe('OperationObjectSchema', () => {
     // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#operation-object-example
     it('Operation Object Example', () => {

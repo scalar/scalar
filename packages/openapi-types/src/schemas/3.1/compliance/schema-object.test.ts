@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { ComponentsObjectSchema } from '../components-object'
 import { SchemaObjectSchema } from '../schema-object'
-
-// TODO: Some of those tests pass a whole document (components.schemas) and should be using another schema.
 
 describe('schema-object', () => {
   describe('SchemaObjectSchema', () => {
@@ -168,332 +167,320 @@ describe('schema-object', () => {
     })
 
     it('Models with Composition', () => {
-      const result = SchemaObjectSchema.parse({
-        components: {
-          schemas: {
-            ErrorModel: {
-              type: 'object',
-              required: ['message', 'code'],
-              properties: {
-                message: {
-                  type: 'string',
-                },
-                code: {
-                  type: 'integer',
-                  minimum: 100,
-                  maximum: 600,
-                },
+      const result = ComponentsObjectSchema.parse({
+        schemas: {
+          ErrorModel: {
+            type: 'object',
+            required: ['message', 'code'],
+            properties: {
+              message: {
+                type: 'string',
+              },
+              code: {
+                type: 'integer',
+                minimum: 100,
+                maximum: 600,
               },
             },
-            ExtendedErrorModel: {
-              allOf: [
-                {
-                  $ref: '#/components/schemas/ErrorModel',
-                },
-                {
-                  type: 'object',
-                  required: ['rootCause'],
-                  properties: {
-                    rootCause: {
-                      type: 'string',
-                    },
+          },
+          ExtendedErrorModel: {
+            allOf: [
+              {
+                $ref: '#/components/schemas/ErrorModel',
+              },
+              {
+                type: 'object',
+                required: ['rootCause'],
+                properties: {
+                  rootCause: {
+                    type: 'string',
                   },
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       })
 
       expect(result).toEqual({
-        components: {
-          schemas: {
-            ErrorModel: {
-              type: 'object',
-              required: ['message', 'code'],
-              properties: {
-                message: {
-                  type: 'string',
-                },
-                code: {
-                  type: 'integer',
-                  minimum: 100,
-                  maximum: 600,
-                },
+        schemas: {
+          ErrorModel: {
+            type: 'object',
+            required: ['message', 'code'],
+            properties: {
+              message: {
+                type: 'string',
+              },
+              code: {
+                type: 'integer',
+                minimum: 100,
+                maximum: 600,
               },
             },
-            ExtendedErrorModel: {
-              allOf: [
-                {
-                  $ref: '#/components/schemas/ErrorModel',
-                },
-                {
-                  type: 'object',
-                  required: ['rootCause'],
-                  properties: {
-                    rootCause: {
-                      type: 'string',
-                    },
+          },
+          ExtendedErrorModel: {
+            allOf: [
+              {
+                $ref: '#/components/schemas/ErrorModel',
+              },
+              {
+                type: 'object',
+                required: ['rootCause'],
+                properties: {
+                  rootCause: {
+                    type: 'string',
                   },
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       })
     })
 
     it('Models with Polymorphism Support', () => {
-      const result = SchemaObjectSchema.parse({
-        components: {
-          schemas: {
-            Pet: {
-              type: 'object',
-              discriminator: {
-                propertyName: 'petType',
+      const result = ComponentsObjectSchema.parse({
+        schemas: {
+          Pet: {
+            type: 'object',
+            discriminator: {
+              propertyName: 'petType',
+            },
+            properties: {
+              name: {
+                type: 'string',
               },
-              properties: {
-                name: {
-                  type: 'string',
-                },
-                petType: {
-                  type: 'string',
-                },
+              petType: {
+                type: 'string',
               },
-              required: ['name', 'petType'],
             },
-            Cat: {
-              description: 'A representation of a cat. Note that `Cat` will be used as the discriminating value.',
-              allOf: [
-                {
-                  $ref: '#/components/schemas/Pet',
-                },
-                {
-                  type: 'object',
-                  properties: {
-                    huntingSkill: {
-                      type: 'string',
-                      description: 'The measured skill for hunting',
-                      default: 'lazy',
-                      enum: ['clueless', 'lazy', 'adventurous', 'aggressive'],
-                    },
+            required: ['name', 'petType'],
+          },
+          Cat: {
+            description: 'A representation of a cat. Note that `Cat` will be used as the discriminating value.',
+            allOf: [
+              {
+                $ref: '#/components/schemas/Pet',
+              },
+              {
+                type: 'object',
+                properties: {
+                  huntingSkill: {
+                    type: 'string',
+                    description: 'The measured skill for hunting',
+                    default: 'lazy',
+                    enum: ['clueless', 'lazy', 'adventurous', 'aggressive'],
                   },
-                  'required': ['huntingSkill'],
                 },
-              ],
-            },
-            Dog: {
-              description: 'A representation of a dog. Note that `Dog` will be used as the discriminating value.',
-              allOf: [
-                {
-                  $ref: '#/components/schemas/Pet',
-                },
-                {
-                  type: 'object',
-                  properties: {
-                    packSize: {
-                      type: 'integer',
-                      format: 'int32',
-                      description: 'the size of the pack the dog is from',
-                      default: 0,
-                      'minimum': 0,
-                    },
+                'required': ['huntingSkill'],
+              },
+            ],
+          },
+          Dog: {
+            description: 'A representation of a dog. Note that `Dog` will be used as the discriminating value.',
+            allOf: [
+              {
+                $ref: '#/components/schemas/Pet',
+              },
+              {
+                type: 'object',
+                properties: {
+                  packSize: {
+                    type: 'integer',
+                    format: 'int32',
+                    description: 'the size of the pack the dog is from',
+                    default: 0,
+                    'minimum': 0,
                   },
-                  required: ['packSize'],
                 },
-              ],
-            },
+                required: ['packSize'],
+              },
+            ],
           },
         },
       })
 
       expect(result).toEqual({
-        components: {
-          schemas: {
-            Pet: {
-              type: 'object',
-              discriminator: {
-                propertyName: 'petType',
+        schemas: {
+          Pet: {
+            type: 'object',
+            discriminator: {
+              propertyName: 'petType',
+            },
+            properties: {
+              name: {
+                type: 'string',
               },
-              properties: {
-                name: {
-                  type: 'string',
-                },
-                petType: {
-                  type: 'string',
-                },
+              petType: {
+                type: 'string',
               },
-              required: ['name', 'petType'],
             },
-            Cat: {
-              description: 'A representation of a cat. Note that `Cat` will be used as the discriminating value.',
-              allOf: [
-                {
-                  $ref: '#/components/schemas/Pet',
-                },
-                {
-                  type: 'object',
-                  properties: {
-                    huntingSkill: {
-                      type: 'string',
-                      description: 'The measured skill for hunting',
-                      default: 'lazy',
-                      enum: ['clueless', 'lazy', 'adventurous', 'aggressive'],
-                    },
+            required: ['name', 'petType'],
+          },
+          Cat: {
+            description: 'A representation of a cat. Note that `Cat` will be used as the discriminating value.',
+            allOf: [
+              {
+                $ref: '#/components/schemas/Pet',
+              },
+              {
+                type: 'object',
+                properties: {
+                  huntingSkill: {
+                    type: 'string',
+                    description: 'The measured skill for hunting',
+                    default: 'lazy',
+                    enum: ['clueless', 'lazy', 'adventurous', 'aggressive'],
                   },
-                  'required': ['huntingSkill'],
                 },
-              ],
-            },
-            Dog: {
-              description: 'A representation of a dog. Note that `Dog` will be used as the discriminating value.',
-              allOf: [
-                {
-                  $ref: '#/components/schemas/Pet',
-                },
-                {
-                  type: 'object',
-                  properties: {
-                    packSize: {
-                      type: 'integer',
-                      format: 'int32',
-                      description: 'the size of the pack the dog is from',
-                      default: 0,
-                      'minimum': 0,
-                    },
+                'required': ['huntingSkill'],
+              },
+            ],
+          },
+          Dog: {
+            description: 'A representation of a dog. Note that `Dog` will be used as the discriminating value.',
+            allOf: [
+              {
+                $ref: '#/components/schemas/Pet',
+              },
+              {
+                type: 'object',
+                properties: {
+                  packSize: {
+                    type: 'integer',
+                    format: 'int32',
+                    description: 'the size of the pack the dog is from',
+                    default: 0,
+                    'minimum': 0,
                   },
-                  required: ['packSize'],
                 },
-              ],
-            },
+                required: ['packSize'],
+              },
+            ],
           },
         },
       })
     })
 
     it('Generic Data Structure Model', () => {
-      const result = SchemaObjectSchema.parse({
-        components: {
-          schemas: {
-            genericArrayComponent: {
-              $id: 'fully_generic_array',
-              type: 'array',
-              items: {
-                $dynamicRef: '#generic-array',
-              },
-              $defs: {
-                allowAll: {
-                  $dynamicAnchor: 'generic-array',
-                },
+      const result = ComponentsObjectSchema.parse({
+        schemas: {
+          genericArrayComponent: {
+            $id: 'fully_generic_array',
+            type: 'array',
+            items: {
+              $dynamicRef: '#generic-array',
+            },
+            $defs: {
+              allowAll: {
+                $dynamicAnchor: 'generic-array',
               },
             },
-            numberArray: {
-              $id: 'array_of_numbers',
-              $ref: 'fully_generic_array',
-              $defs: {
-                numbersOnly: {
-                  '$dynamicAnchor': 'generic-array',
-                  'type': 'number',
-                },
+          },
+          numberArray: {
+            $id: 'array_of_numbers',
+            $ref: 'fully_generic_array',
+            $defs: {
+              numbersOnly: {
+                '$dynamicAnchor': 'generic-array',
+                'type': 'number',
               },
             },
-            stringArray: {
-              $id: 'array_of_strings',
-              $ref: 'fully_generic_array',
-              $defs: {
-                stringsOnly: {
-                  $dynamicAnchor: 'generic-array',
-                  type: 'string',
-                },
+          },
+          stringArray: {
+            $id: 'array_of_strings',
+            $ref: 'fully_generic_array',
+            $defs: {
+              stringsOnly: {
+                $dynamicAnchor: 'generic-array',
+                type: 'string',
               },
             },
-            objWithTypedArray: {
-              $id: 'obj_with_typed_array',
-              type: 'object',
-              required: ['dataType', 'data'],
-              properties: {
-                dataType: {
-                  enum: ['string', 'number'],
+          },
+          objWithTypedArray: {
+            $id: 'obj_with_typed_array',
+            type: 'object',
+            required: ['dataType', 'data'],
+            properties: {
+              dataType: {
+                enum: ['string', 'number'],
+              },
+            },
+            oneOf: [
+              {
+                properties: {
+                  dataType: { const: 'string' },
+                  data: { $ref: 'array_of_strings' },
                 },
               },
-              oneOf: [
-                {
-                  properties: {
-                    dataType: { const: 'string' },
-                    data: { $ref: 'array_of_strings' },
-                  },
+              {
+                properties: {
+                  dataType: { const: 'number' },
+                  data: { $ref: 'array_of_numbers' },
                 },
-                {
-                  properties: {
-                    dataType: { const: 'number' },
-                    data: { $ref: 'array_of_numbers' },
-                  },
-                },
-              ],
-            },
+              },
+            ],
           },
         },
       })
 
       expect(result).toEqual({
-        components: {
-          schemas: {
-            genericArrayComponent: {
-              $id: 'fully_generic_array',
-              type: 'array',
-              items: {
-                $dynamicRef: '#generic-array',
-              },
-              $defs: {
-                allowAll: {
-                  $dynamicAnchor: 'generic-array',
-                },
+        schemas: {
+          genericArrayComponent: {
+            $id: 'fully_generic_array',
+            type: 'array',
+            items: {
+              $dynamicRef: '#generic-array',
+            },
+            $defs: {
+              allowAll: {
+                $dynamicAnchor: 'generic-array',
               },
             },
-            numberArray: {
-              $id: 'array_of_numbers',
-              $ref: 'fully_generic_array',
-              $defs: {
-                numbersOnly: {
-                  '$dynamicAnchor': 'generic-array',
-                  'type': 'number',
-                },
+          },
+          numberArray: {
+            $id: 'array_of_numbers',
+            $ref: 'fully_generic_array',
+            $defs: {
+              numbersOnly: {
+                '$dynamicAnchor': 'generic-array',
+                'type': 'number',
               },
             },
-            stringArray: {
-              $id: 'array_of_strings',
-              $ref: 'fully_generic_array',
-              $defs: {
-                stringsOnly: {
-                  $dynamicAnchor: 'generic-array',
-                  type: 'string',
-                },
+          },
+          stringArray: {
+            $id: 'array_of_strings',
+            $ref: 'fully_generic_array',
+            $defs: {
+              stringsOnly: {
+                $dynamicAnchor: 'generic-array',
+                type: 'string',
               },
             },
-            objWithTypedArray: {
-              $id: 'obj_with_typed_array',
-              type: 'object',
-              required: ['dataType', 'data'],
-              properties: {
-                dataType: {
-                  enum: ['string', 'number'],
+          },
+          objWithTypedArray: {
+            $id: 'obj_with_typed_array',
+            type: 'object',
+            required: ['dataType', 'data'],
+            properties: {
+              dataType: {
+                enum: ['string', 'number'],
+              },
+            },
+            oneOf: [
+              {
+                properties: {
+                  dataType: { const: 'string' },
+                  data: { $ref: 'array_of_strings' },
                 },
               },
-              oneOf: [
-                {
-                  properties: {
-                    dataType: { const: 'string' },
-                    data: { $ref: 'array_of_strings' },
-                  },
+              {
+                properties: {
+                  dataType: { const: 'number' },
+                  data: { $ref: 'array_of_numbers' },
                 },
-                {
-                  properties: {
-                    dataType: { const: 'number' },
-                    data: { $ref: 'array_of_numbers' },
-                  },
-                },
-              ],
-            },
+              },
+            ],
           },
         },
       })
