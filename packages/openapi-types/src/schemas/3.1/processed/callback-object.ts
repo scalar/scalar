@@ -12,9 +12,4 @@ import { RuntimeExpressionSchema } from './runtime-expression'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#callback-object
  */
-export const CallbackObjectSchema = z.lazy(() =>
-  z.record(
-    RuntimeExpressionSchema,
-    z.lazy(() => PathItemObjectSchemaWithoutCallbacks),
-  ),
-)
+export const CallbackObjectSchema = z.record(RuntimeExpressionSchema, PathItemObjectSchemaWithoutCallbacks)
