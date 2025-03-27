@@ -7,6 +7,7 @@ import { OperationObjectSchema } from '../unprocessed/operation-object'
 import { ParameterObjectSchema } from '../unprocessed/parameter-object'
 import { PathItemObjectSchema } from '../unprocessed/path-item-object'
 import { ReferenceObjectSchema } from '../unprocessed/reference-object'
+import { ResponseObjectSchema } from '../unprocessed/response-object'
 import { ResponsesObjectSchema } from '../unprocessed/responses-object'
 
 // For these tests, I’ve gone through the OpenAPI Specification and found places where the “Reference Object” is used.
@@ -162,6 +163,34 @@ describe('reference-object', () => {
       expect(result).toEqual({
         200: {
           $ref: '#/components/responses/foobar',
+        },
+      })
+    })
+  })
+
+  describe('ResponseObjectSchema', () => {
+    it('response object with $ref', () => {
+      const result = ResponseObjectSchema.parse({
+        description: 'foobar',
+        headers: {
+          foobar: {
+            $ref: '#/components/headers/foobar',
+          },
+        },
+        links: {
+          foobar: {
+            $ref: '#/components/links/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        description: 'foobar',
+        headers: {
+          foobar: { $ref: '#/components/headers/foobar' },
+        },
+        links: {
+          foobar: { $ref: '#/components/links/foobar' },
         },
       })
     })
