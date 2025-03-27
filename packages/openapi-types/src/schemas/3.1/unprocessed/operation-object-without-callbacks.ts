@@ -7,10 +7,11 @@ import { RequestBodyObjectSchema } from './request-body-object'
 import { SecurityRequirementObjectSchema } from './security-requirement-object'
 
 /**
- * Base Operation Object Schema
- * This helps break circular dependencies between operation-object and callback-object
+ * Operation Object (without callbacks, used in callbacks)
  *
- * TODO: Update comment
+ * Describes a single API operation on a path.
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#operation-object
  */
 export const OperationObjectSchemaWithoutCallbacks = OriginalOperationObjectSchemaWithoutCallbacks.extend({
   /**

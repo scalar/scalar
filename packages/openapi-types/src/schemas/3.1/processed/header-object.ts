@@ -36,10 +36,8 @@ export const HeaderObjectSchema = z.object({
   deprecated: z.boolean().optional(),
   /**
    * Describes how the parameter value will be serialized. Only "simple" is allowed for headers.
-   *
-   * TODO: There are other values allowed.
    */
-  style: z.literal('simple').optional(),
+  style: z.enum(['matrix', 'label', 'simple', 'form', 'spaceDelimited', 'pipeDelimited', 'deepObject']).optional(),
   /**
    * When this is true, parameter values of type array or object generate separate parameters
    * for each value of the array or key-value pair of the map.
