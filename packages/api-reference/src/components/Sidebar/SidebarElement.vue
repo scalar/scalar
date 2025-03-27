@@ -40,17 +40,17 @@ const config = useConfig()
 
 // We disable intersection observer on click
 const handleClick = async () => {
+  // wait for a short delay before enabling intersection observer
+  isIntersectionEnabled.value = false
+
   if (props.hasChildren) {
     emit('toggleOpen')
   }
   props.item?.select?.()
 
-  // If the section was open, wait for a short delay before enabling intersection observer
-  if (props.open) {
-    isIntersectionEnabled.value = false
-    await sleep(100)
-    isIntersectionEnabled.value = true
-  }
+  // Re-enable intersection observer
+  await sleep(100)
+  isIntersectionEnabled.value = true
 }
 
 // Build relative URL and add hash
