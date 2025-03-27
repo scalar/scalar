@@ -16,7 +16,7 @@ export { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls.ts
 export { normalizeMimeType } from './normalize-mime-type.ts'
 export { normalizeMimeTypeObject } from './normalize-mime-type-object.ts'
 export { objectMerge, getObjectKeys } from './object.ts'
-export { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse.ts'
+export { formatJsonOrYamlString, isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse.ts'
 export { prettyPrintJson, replaceCircularDependencies } from './pretty-print-json.ts'
 export { redirectToProxy, isRelativePath, shouldUseProxy } from './redirect-to-proxy.ts'
 export { REGEX } from './regex-helpers.ts'

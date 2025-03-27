@@ -5,13 +5,13 @@ import {
   ScalarIcon,
   type ScalarComboboxOption,
 } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type {
   Collection,
   Operation,
   RequestExample,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { snippetz, type ClientId, type TargetId } from '@scalar/snippetz'
 import { computed } from 'vue'
 

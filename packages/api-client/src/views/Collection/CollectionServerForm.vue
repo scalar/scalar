@@ -5,6 +5,7 @@ import { computed, watch } from 'vue'
 
 import Form from '@/components/Form/Form.vue'
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
+import type { ServerVariables } from '@/components/Server/types'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -117,7 +118,7 @@ const updateServerVariable = (key: string, value: string) => {
         :options="options" />
       <ServerVariablesForm
         v-if="activeServer.variables"
-        :variables="activeServer.variables"
+        :variables="activeServer.variables as ServerVariables"
         @update:variable="updateServerVariable" />
     </template>
   </div>

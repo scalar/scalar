@@ -1,12 +1,23 @@
 export { collectionSchema, type Collection, type CollectionPayload } from './collection.ts'
+export { oasParameterSchema, type RequestParameter, type RequestParameterPayload } from './parameters.ts'
 export { serverSchema, type Server, type ServerPayload } from './server.ts'
-export { requestSchema, type Request, type RequestPayload } from './requests.ts'
+export {
+  requestSchema,
+  type Request,
+  type RequestPayload,
+  type RequestMethod,
+  type ResponseInstance,
+  type RequestEvent,
+} from './requests.ts'
+
 export {
   requestExampleSchema,
   createExampleFromRequest,
+  requestExampleParametersSchema,
   type RequestExample,
   type RequestExampleParameter,
 } from './request-examples.ts'
+
 export {
   tagSchema,
   oasExternalDocumentationSchema,
@@ -14,8 +25,9 @@ export {
   oasContactSchema,
   oasLicenseSchema,
   type Tag,
+  type TagPayload,
 } from './spec-objects.ts'
-export { oasParameterSchema, type RequestParameter } from './parameters.ts'
+
 export {
   type Operation,
   type OperationPayload,
@@ -48,6 +60,3 @@ export {
   securityOpenIdSchema,
   securitySchemeSchema,
 } from '@scalar/types/entities'
-
-type FetchRequest = Request
-export type { FetchRequest }

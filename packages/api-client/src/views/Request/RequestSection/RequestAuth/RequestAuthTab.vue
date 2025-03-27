@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed, ref } from 'vue'
 

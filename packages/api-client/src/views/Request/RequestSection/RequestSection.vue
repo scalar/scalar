@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -9,6 +8,7 @@ import type {
   RequestExample,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { canMethodHaveBody, isDefined, REGEX } from '@scalar/oas-utils/helpers'
 import { computed, ref, useId, watch } from 'vue'
 

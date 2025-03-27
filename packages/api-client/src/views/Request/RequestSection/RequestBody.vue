@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   requestExampleParametersSchema,
   type Operation,
   type RequestExample,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'

@@ -8,6 +8,7 @@ import type {
 import { computed, useId } from 'vue'
 
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
+import type { ServerVariables } from '@/components/Server/types'
 import { useWorkspace } from '@/store/store'
 
 const props = defineProps<{
@@ -124,7 +125,7 @@ const updateServerVariable = (key: string, value: string) => {
       class="bg-b-2 divide divide-y rounded-b border-t *:pl-4"
       @click.stop>
       <ServerVariablesForm
-        :variables="server?.variables"
+        :variables="server?.variables as ServerVariables"
         @update:variable="updateServerVariable" />
       <!-- Description -->
       <div v-if="server?.description">

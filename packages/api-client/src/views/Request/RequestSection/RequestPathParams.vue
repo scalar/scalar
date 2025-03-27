@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { computed, watch } from 'vue'
 

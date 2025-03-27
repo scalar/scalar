@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import {
   colorPicker as colorPickerExtension,
