@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
 import { EncodingObjectSchema } from '../unprocessed/encoding-object'
+import { HeaderObjectSchema } from '../unprocessed/header-object'
 import { MediaTypeObjectSchema } from '../unprocessed/media-type-object'
 import { OperationObjectSchema } from '../unprocessed/operation-object'
 import { ParameterObjectSchema } from '../unprocessed/parameter-object'
@@ -191,6 +192,24 @@ describe('reference-object', () => {
         },
         links: {
           foobar: { $ref: '#/components/links/foobar' },
+        },
+      })
+    })
+  })
+
+  describe('HeaderObjectSchema', () => {
+    it('header object with $ref', () => {
+      const result = HeaderObjectSchema.parse({
+        examples: {
+          foobar: {
+            $ref: '#/components/examples/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        examples: {
+          foobar: { $ref: '#/components/examples/foobar' },
         },
       })
     })

@@ -108,7 +108,7 @@ export const RuntimeExpressionSchema = z.string().refine(isValidRuntimeExpressio
   - Or follow pattern: $request|response.(header|query|path|body)
   - For body refs, include valid JSON pointer (e.g. #/user/id)
   - For headers, use valid header names without spaces
-  Example valid expressions: 
+  Example valid expressions:
   - Pure: $method, $request.path.id, $response.body#/status
   - Embedded: "Hello {$request.body#/name}!", "Status: {$statusCode}"`,
 }))

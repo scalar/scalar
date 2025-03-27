@@ -20,47 +20,47 @@ import { SchemaObjectSchema } from './schema-object'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#header-object
  */
-export const HeaderObjectSchema = z
-  .object({
-    /**
-     * A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text
-     * representation.
-     */
-    description: z.string().optional(),
-    /**
-     * Determines whether this header is mandatory. The default value is false.
-     */
-    required: z.boolean().optional(),
-    /**
-     * Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false.
-     */
-    deprecated: z.boolean().optional(),
-    /**
-     * Describes how the parameter value will be serialized. Only "simple" is allowed for headers.
-     */
-    style: z.literal('simple').optional(),
-    /**
-     * When this is true, parameter values of type array or object generate separate parameters
-     * for each value of the array or key-value pair of the map.
-     */
-    explode: z.boolean().optional(),
-    /**
-     * The schema defining the type used for the header.
-     */
-    schema: SchemaObjectSchema.optional(),
-    /**
-     * Example of the parameter's potential value.
-     */
-    example: z.any().optional(),
-    /**
-     * Examples of the parameter's potential value.
-     */
-    examples: z.record(z.string(), ExampleObjectSchema).optional(),
-    /**
-     * A map containing the representations for the parameter.
-     * The key is the media type and the value describes it.
-     * Only one of content or schema should be specified.
-     */
-    content: z.record(z.string(), MediaTypeObjectSchemaWithoutEncoding).optional(),
-  })
-  .refine((data) => !(data.schema && data.content), 'Cannot have both schema and content fields')
+export const HeaderObjectSchema = z.object({
+  /**
+   * A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text
+   * representation.
+   */
+  description: z.string().optional(),
+  /**
+   * Determines whether this header is mandatory. The default value is false.
+   */
+  required: z.boolean().optional(),
+  /**
+   * Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false.
+   */
+  deprecated: z.boolean().optional(),
+  /**
+   * Describes how the parameter value will be serialized. Only "simple" is allowed for headers.
+   *
+   * TODO: There are other values allowed.
+   */
+  style: z.literal('simple').optional(),
+  /**
+   * When this is true, parameter values of type array or object generate separate parameters
+   * for each value of the array or key-value pair of the map.
+   */
+  explode: z.boolean().optional(),
+  /**
+   * The schema defining the type used for the header.
+   */
+  schema: SchemaObjectSchema.optional(),
+  /**
+   * Example of the parameter's potential value.
+   */
+  example: z.any().optional(),
+  /**
+   * Examples of the parameter's potential value.
+   */
+  examples: z.record(z.string(), ExampleObjectSchema).optional(),
+  /**
+   * A map containing the representations for the parameter.
+   * The key is the media type and the value describes it.
+   * Only one of content or schema should be specified.
+   */
+  content: z.record(z.string(), MediaTypeObjectSchemaWithoutEncoding).optional(),
+})
