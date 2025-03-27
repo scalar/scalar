@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { EncodingObjectSchema } from './encoding-object'
 import { MediaTypeObjectSchema } from './media-type-object'
 
 /**
@@ -21,4 +22,10 @@ export const RequestBodyObjectSchema = z.object({
    * Determines if the request body is required in the request. Defaults to false.
    */
   required: z.boolean().optional(),
+  /**
+   * Only mentioned in the example:
+   *
+   * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#request-body-object
+   */
+  encoding: z.record(z.string(), EncodingObjectSchema).optional(),
 })
