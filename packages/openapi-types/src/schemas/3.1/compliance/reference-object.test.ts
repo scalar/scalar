@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
+import { PathItemObjectSchema } from '../unprocessed/path-item-object'
 import { ReferenceObjectSchema } from '../unprocessed/reference-object'
 
 describe('reference-object', () => {
@@ -13,6 +14,36 @@ describe('reference-object', () => {
 
       expect(result).toEqual({
         $ref: '#/components/schemas/Pet',
+      })
+    })
+  })
+
+  describe('PathItemObjectSchema', () => {
+    it('path item object with $ref', () => {
+      const result = PathItemObjectSchema.parse({
+        $ref: '#/components/pathItems/foobar',
+      })
+
+      expect(result).toEqual({
+        $ref: '#/components/pathItems/foobar',
+      })
+    })
+
+    it('parameters with $ref', () => {
+      const result = PathItemObjectSchema.parse({
+        parameters: [
+          {
+            $ref: '#/components/parameters/foobar',
+          },
+        ],
+      })
+
+      expect(result).toEqual({
+        parameters: [
+          {
+            $ref: '#/components/parameters/foobar',
+          },
+        ],
       })
     })
   })
