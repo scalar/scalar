@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getRequestBodyFromOperation } from './get-request-body-from-operation'
+import { getRequestBodyFromOperation } from './get-request-body-from-operation.ts'
 
 describe('getRequestBodyFromOperation', () => {
   it('creates a JSON body from a requestBody schema', () => {

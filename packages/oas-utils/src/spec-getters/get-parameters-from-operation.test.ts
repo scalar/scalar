@@ -1,7 +1,7 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { describe, expect, it } from 'vitest'
 
-import { getParametersFromOperation } from './get-parameters-from-operation'
+import { getParametersFromOperation } from './get-parameters-from-operation.ts'
 
 describe('getParametersFromOperation', () => {
   it('operation query parameters', () => {

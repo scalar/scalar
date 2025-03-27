@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { findVariables } from './find-variables'
+import { findVariables } from './find-variables.ts'
 
 describe('findVariables', () => {
   it('finds variables', async () => {

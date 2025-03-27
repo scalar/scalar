@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { oasInfoSchema } from './spec-objects'
+
+import { oasInfoSchema } from './spec-objects.ts'
 
 describe('spec-objects', () => {
   describe('oasInfoSchema', () => {

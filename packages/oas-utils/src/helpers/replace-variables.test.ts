@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { replaceVariables } from './replace-variables'
+import { replaceVariables } from './replace-variables.ts'
 
 describe('replaceVariables', () => {
   it('replaces variables with a single bracket', () => {

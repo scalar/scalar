@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { semverLessThan } from './semver'
+import { semverLessThan } from './semver.ts'
 
 describe('compareSemVer', () => {
   it('should return true if version1 is less than version2', () => {

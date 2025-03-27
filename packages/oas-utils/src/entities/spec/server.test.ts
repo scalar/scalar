@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { serverSchema } from './server'
+import { serverSchema } from './server.ts'
 
 describe('serverSchema', () => {
   it('validates valid server object', () => {
