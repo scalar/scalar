@@ -3,12 +3,12 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { Request, Response } from 'express'
 import type { FastifyRequest } from 'fastify'
 
-export type NestJSReferenceConfiguration = ApiReferenceConfiguration & {
+export type NestJSReferenceConfiguration = Partial<ApiReferenceConfiguration> & {
   withFastify?: boolean
   cdn?: string
 }
 
-export type ApiReferenceOptions = ApiReferenceConfiguration & {
+export type ApiReferenceOptions = Partial<ApiReferenceConfiguration> & {
   cdn?: string
 }
 
