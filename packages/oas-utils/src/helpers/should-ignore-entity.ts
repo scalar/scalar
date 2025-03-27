@@ -1,6 +1,8 @@
-import type { Request, Tag } from '@/entities/spec'
 // TODO: Replace with a Webhook schema from the store (once it exists)
 import type { Webhook } from '@scalar/types/legacy'
+
+import type { Request } from '@/entities/spec/requests.ts'
+import type { Tag } from '@/entities/spec/spec-objects.ts'
 
 /**
  * Check if an entity should be ignored

@@ -1,6 +1,5 @@
-import { REGEX } from '@/helpers/regexHelpers'
-
-import { isLocalUrl } from './isLocalUrl'
+import { isLocalUrl } from './is-local-url.ts'
+import { REGEX } from './regex-helpers.ts'
 
 /** Redirects the request to a proxy server with a given URL. */
 export function redirectToProxy(proxy?: string, url?: string): string {

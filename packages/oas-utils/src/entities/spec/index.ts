@@ -1,10 +1,32 @@
-export * from './collection'
-export * from './server'
-export * from './requests'
-export * from './request-examples'
-export * from './spec-objects'
-export * from './parameters'
-export * from './x-scalar-environments'
+export { collectionSchema, type Collection, type CollectionPayload } from './collection.ts'
+export { serverSchema, type Server, type ServerPayload } from './server.ts'
+export { requestSchema, type Request, type RequestPayload } from './requests.ts'
+export {
+  requestExampleSchema,
+  createExampleFromRequest,
+  type RequestExample,
+  type RequestExampleParameter,
+} from './request-examples.ts'
+export {
+  tagSchema,
+  oasExternalDocumentationSchema,
+  oasInfoSchema,
+  oasContactSchema,
+  oasLicenseSchema,
+  type Tag,
+} from './spec-objects.ts'
+export { oasParameterSchema, type RequestParameter } from './parameters.ts'
+export {
+  type Operation,
+  type OperationPayload,
+  operationSchema,
+} from './operation.ts'
+
+export {
+  xScalarEnvironmentsSchema,
+  type XScalarEnvironment,
+  type XScalarEnvironments,
+} from './x-scalar-environments.ts'
 
 /** Re-exported here for ease of use but we should use the other ones directly */
 export {
@@ -29,9 +51,3 @@ export {
 
 type FetchRequest = Request
 export type { FetchRequest }
-
-export {
-  type Operation,
-  type OperationPayload,
-  operationSchema,
-} from './operation'

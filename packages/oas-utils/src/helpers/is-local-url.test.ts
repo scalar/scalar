@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isLocalUrl } from './isLocalUrl'
+import { isLocalUrl } from './is-local-url'
 
 describe('isLocalUrl ', () => {
   it('returns true for localhost', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { makeUrlAbsolute } from './makeUrlAbsolute'
+import { makeUrlAbsolute } from './make-url-absolute'
 
 /**
  * @vitest-environment jsdom

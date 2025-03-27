@@ -1,6 +1,6 @@
 import type { ContentType } from '@scalar/types/legacy'
 
-import { normalizeMimeType } from './normalizeMimeType'
+import { normalizeMimeType } from './normalize-mime-type.ts'
 
 /**
  * Remove charset from content types

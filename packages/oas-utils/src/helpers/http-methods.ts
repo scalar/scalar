@@ -1,4 +1,4 @@
-import { type RequestMethod, requestMethods } from '@/entities/spec/requests'
+import { type RequestMethod, requestMethods } from '@/entities/spec/requests.ts'
 
 /**
  * HTTP methods in a specific order

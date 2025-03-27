@@ -1,4 +1,4 @@
-import { REGEX } from './regexHelpers'
+import { REGEX } from './regex-helpers.ts'
 
 /** Ensure URL has a protocol prefix */
 export function ensureProtocol(url: string): string {

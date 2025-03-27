@@ -1,4 +1,4 @@
-import { REGEX } from './regexHelpers'
+import { REGEX } from './regex-helpers.ts'
 
 /**
  * Find all strings wrapped in {} or {{}} in value.

@@ -1,12 +1,13 @@
-import { nanoidSchema, type ENTITY_BRANDS } from '@scalar/types/utils'
-import { schemaModel } from '@/helpers'
-import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-getters'
+import { schemaModel } from '@/helpers/schema-model.ts'
+import { getServerVariableExamples } from '@/spec-getters/getServerVariableExamples.ts'
 import { keysOf } from '@scalar/object-utils/arrays'
+import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
-import type { RequestParameter } from './parameters'
-import type { Request } from './requests'
-import type { Server } from './server'
+import { getRequestBodyFromOperation } from '@/spec-getters/getRequestBodyFromOperation.ts'
+import type { RequestParameter } from './parameters.ts'
+import type { Request } from './requests.ts'
+import type { Server } from './server.ts'
 
 // ---------------------------------------------------------------------------
 // Example Parameters

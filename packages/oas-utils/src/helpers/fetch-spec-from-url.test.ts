@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { fetchSpecFromUrl } from './fetchSpecFromUrl'
+import { fetchSpecFromUrl } from './fetch-spec-from-url'
 
 const PROXY_PORT = 5051
 

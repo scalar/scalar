@@ -1,4 +1,4 @@
-import { isJsonString } from '@/helpers/parse'
+import { isJsonString } from './parse.ts'
 
 /**
  * Takes JSON and formats it.
