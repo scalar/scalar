@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.2.0"/>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.2.0"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src\Scalar.Aspire\Scalar.Aspire.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\Scalar.AspNetCore.Tests.Api\Scalar.AspNetCore.Tests.Api.csproj" />
+  </ItemGroup>
+
+</Project>

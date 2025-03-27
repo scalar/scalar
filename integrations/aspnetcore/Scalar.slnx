@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/playground/">
+    <Project Path="playground/Scalar.AspNetCore.Playground/Scalar.AspNetCore.Playground.csproj" />
+    <Project Path="playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Scalar.AspNetCore/Scalar.AspNetCore.csproj" />
+    <Project Path="src/Scalar.Aspire/Scalar.Aspire.csproj" Type="Classic C#" />
+    <File Path="src/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" />
+    <Project Path="tests/Scalar.Aspire.Tests/Scalar.Aspire.Tests.csproj" Type="Classic C#" />
+    <File Path="tests/.editorconfig" />
+    <File Path="tests/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/tests/apis/">
+    <Project Path="tests/apis/Scalar.AspNetCore.Tests.Api/Scalar.AspNetCore.Tests.Api.csproj" />
+    <Project Path="tests/apis/Scalar.Aspire.Tests.AppHost/Scalar.Aspire.Tests.AppHost.csproj" Type="Classic C#" />
+  </Folder>
+</Solution>

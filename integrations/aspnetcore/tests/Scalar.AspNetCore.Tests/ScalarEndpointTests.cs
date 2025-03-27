@@ -299,4 +299,33 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
+    
+    [Fact]
+    public async Task MapScalarApiReference_ShouldHandleMultipleConfigurations_WhenProvided()
+    {
+        // Arrange
+        ScalarOptions[] configurations = [new ScalarOptions().AddDocument("v1"), new ScalarOptions().AddDocument("v2")];
+        var endpointOptions = new ScalarEndpointOptions("url", "Multiple APIs");
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(app =>
+            {
+                app.UseRouting();
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapScalarApiReference("/multiple-configurations", endpointOptions, configurations);
+                });
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/multiple-configurations", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.Should().Contain("<title>Multiple APIs</title>");
+        content.Should().Contain("openapi/v1.json").And.Contain("openapi/v2.json");
+    }
 }

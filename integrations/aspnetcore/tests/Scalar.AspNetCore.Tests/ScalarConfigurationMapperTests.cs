@@ -1,6 +1,6 @@
 namespace Scalar.AspNetCore.Tests;
 
-public class ScalarOptionsMapperTests
+public class ScalarConfigurationMapperTests
 {
     [Fact]
     public void ToConfiguration_ShouldReturnCorrectDefaultConfiguration()
@@ -152,7 +152,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().HaveCount(ScalarConfigurationMapper.ClientOptions.Count - 1);
         hiddenClients.Should().NotContainKey("csharp");
     }
 
@@ -166,7 +166,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
+        hiddenClients.Should().HaveCount(ScalarConfigurationMapper.ClientOptions.Count);
         hiddenClients.Should().ContainKey("csharp")
             .WhoseValue.Should().ContainSingle().Which.Should().Be("restsharp");
         hiddenClients.Should().ContainKey("python")
@@ -183,7 +183,7 @@ public class ScalarOptionsMapperTests
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().HaveCount(ScalarConfigurationMapper.ClientOptions.Count - 1);
         hiddenClients.Should().NotContainKey("kotlin");
     }
 
