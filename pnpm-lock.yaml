@@ -2105,6 +2105,9 @@ importers:
       '@unhead/schema':
         specifier: ^1.11.11
         version: 1.11.11
+      nanoid:
+        specifier: 'catalog:'
+        version: 5.1.5
       zod:
         specifier: 'catalog:'
         version: 3.23.8
@@ -13830,11 +13833,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.1.0:
-    resolution: {integrity: sha512-zDAl/llz8Ue/EblwSYwdxGBYfj46IM1dhjVi8dyp9LQffoIGxJEAHj2oeZ4uNcgycSRcQ83CnfcZqEJzVDLcDw==}
-    engines: {node: ^18 || >=20}
-    hasBin: true
-
   nanoid@5.1.5:
     resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
     engines: {node: ^18 || >=20}
@@ -23848,7 +23846,7 @@ snapshots:
       is-docker: 3.0.0
       jiti: 1.21.6
       mri: 1.2.0
-      nanoid: 5.1.0
+      nanoid: 5.1.5
       ofetch: 1.4.1
       package-manager-detector: 0.2.0
       parse-git-config: 3.0.0
@@ -23873,7 +23871,7 @@ snapshots:
       is-docker: 3.0.0
       jiti: 1.21.6
       mri: 1.2.0
-      nanoid: 5.1.0
+      nanoid: 5.1.5
       ofetch: 1.4.1
       package-manager-detector: 0.2.0
       parse-git-config: 3.0.0
@@ -33977,8 +33975,6 @@ snapshots:
     optional: true
 
   nanoid@3.3.7: {}
-
-  nanoid@5.1.0: {}
 
   nanoid@5.1.5: {}
 

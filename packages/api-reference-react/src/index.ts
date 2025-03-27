@@ -1,4 +1,4 @@
-export * from './ApiReferenceReact'
+export { ApiReferenceReact } from './ApiReferenceReact'
 
 /** Re-export types for ease of use */
 export type {

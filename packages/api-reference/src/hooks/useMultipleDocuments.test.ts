@@ -204,19 +204,7 @@ describe('useMultipleDocuments', () => {
       const { selectedConfiguration, availableDocuments } = useMultipleDocuments(emptyConfig)
 
       expect(availableDocuments.value).toHaveLength(0)
-      expect(selectedConfiguration.value).toMatchObject({
-        hideClientButton: false,
-        showSidebar: true,
-        theme: 'default',
-        layout: 'modern',
-        isEditable: false,
-        hideModels: false,
-        hideDownloadButton: false,
-        hideTestRequestButton: false,
-        hideSearch: false,
-        hideDarkModeToggle: false,
-        withDefaultFonts: true,
-      })
+      expect(selectedConfiguration.value).toMatchObject({})
     })
 
     it('filters out APIs with undefined sources/url/content', () => {

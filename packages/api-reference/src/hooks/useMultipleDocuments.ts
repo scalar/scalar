@@ -3,7 +3,6 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
   type SpecConfiguration,
-  apiReferenceConfigurationSchema,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
 import GithubSlugger from 'github-slugger'
@@ -26,7 +25,13 @@ type UseMultipleDocumentsProps = {
 const slugger = new GithubSlugger()
 
 /** Process a single spec configuration so that it has a title and a slug */
-const addSlugAndTitle = (source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
+  const source = {
+    ..._source,
+    // @ts-expect-error this is before parsing so we transform the old style
+    ...(_source.spec ?? {}),
+  }
+
   if (!source?.url && !source?.content) {
     return undefined
   }
@@ -141,18 +146,18 @@ export const useMultipleDocuments = ({
   const selectedConfiguration = computed(() => {
     // Multiple sources
     if (configuration.value && isConfigurationWithSources(configuration.value)) {
-      return apiReferenceConfigurationSchema.parse({
+      return {
         ...configuration.value,
         ...configuration.value?.sources?.[selectedDocumentIndex.value],
         ...availableDocuments.value[selectedDocumentIndex.value],
-      })
+      }
     }
 
     const flattenedConfig = [configuration.value].flat()[selectedDocumentIndex.value] ?? {}
-    return apiReferenceConfigurationSchema.parse({
+    return {
       ...flattenedConfig,
       ...availableDocuments.value[selectedDocumentIndex.value],
-    })
+    }
   })
 
   // Update URL when selection changes, also clear global state

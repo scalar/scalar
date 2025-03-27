@@ -53,6 +53,11 @@
       "types": "./dist/legacy/index.d.ts",
       "default": "./dist/legacy/index.js"
     },
+    "./entities": {
+      "import": "./dist/entities/index.js",
+      "types": "./dist/entities/index.d.ts",
+      "default": "./dist/entities/index.js"
+    },
     "./api-reference": {
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",
@@ -66,6 +71,7 @@
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
     "@unhead/schema": "^1.11.11",
+    "nanoid": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

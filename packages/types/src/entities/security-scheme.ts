@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/utils/nanoid.ts'
 
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES
@@ -27,7 +27,7 @@ const oasSecuritySchemeApiKey = commonProps.extend({
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default(''),
   /** REQUIRED. The location of the API key. Valid values are "query", "header" or "cookie". */
-  in: z.enum(securitySchemeApiKeyIn).optional().default('header'),
+  in: z.enum(securitySchemeApiKeyIn).optional().default('header').catch('header'),
 })
 
 const apiKeyValueSchema = z.object({
@@ -133,13 +133,13 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
     .object({
       /** Configuration for the OAuth Implicit flow */
       implicit: flowsCommon.extend({
-        'type': z.literal('implicit'),
+        'type': z.literal('implicit').default('implicit'),
         authorizationUrl,
         'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
       }),
       /** Configuration for the OAuth Resource Owner Password flow */
       password: flowsCommon.extend({
-        type: z.literal('password'),
+        type: z.literal('password').default('password'),
         tokenUrl,
         clientSecret: z.string().default(''),
         username: z.string().default(''),
@@ -147,13 +147,13 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
       }),
       /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
       clientCredentials: flowsCommon.extend({
-        type: z.literal('clientCredentials'),
+        type: z.literal('clientCredentials').default('clientCredentials'),
         tokenUrl,
         clientSecret: z.string().default(''),
       }),
       /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
       authorizationCode: flowsCommon.extend({
-        'type': z.literal('authorizationCode'),
+        'type': z.literal('authorizationCode').default('authorizationCode'),
         authorizationUrl,
         /**
          * Whether to use PKCE for the authorization code flow.
