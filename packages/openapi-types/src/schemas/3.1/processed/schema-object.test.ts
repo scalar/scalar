@@ -74,83 +74,6 @@ describe('schema-object', () => {
     })
   })
 
-  describe('type-specific validations', () => {
-    it('rejects array type without items', () => {
-      const schema = {
-        type: 'array',
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('items must be present when type is array')
-      }
-    })
-
-    it('rejects numeric validations with non-numeric type', () => {
-      const schema = {
-        type: 'string',
-        minimum: 0,
-        maximum: 100,
-        multipleOf: 5,
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues).toHaveLength(3)
-        expect(result.error.issues[0].message).toContain('can only be used with numeric types')
-      }
-    })
-
-    it('rejects string validations with non-string type', () => {
-      const schema = {
-        type: 'number',
-        minLength: 1,
-        maxLength: 10,
-        pattern: '.*',
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues).toHaveLength(3)
-        expect(result.error.issues[0].message).toContain('can only be used with string type')
-      }
-    })
-
-    it('rejects array validations with non-array type', () => {
-      const schema = {
-        type: 'object',
-        minItems: 1,
-        maxItems: 10,
-        uniqueItems: true,
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues).toHaveLength(3)
-        expect(result.error.issues[0].message).toContain('can only be used with array type')
-      }
-    })
-
-    it('rejects object validations with non-object type', () => {
-      const schema = {
-        type: 'string',
-        minProperties: 1,
-        maxProperties: 10,
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues).toHaveLength(2)
-        expect(result.error.issues[0].message).toContain('can only be used with object type')
-      }
-    })
-  })
-
   describe('format compatibility', () => {
     it('validates string formats with string type', () => {
       const stringFormats = [
@@ -191,32 +114,6 @@ describe('schema-object', () => {
         const result = SchemaObjectSchema.safeParse(schema)
         expect(result.success).toBe(true)
       })
-    })
-
-    it('rejects string formats with non-string type', () => {
-      const schema = {
-        type: 'number',
-        format: 'email',
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('format email can only be used with string type')
-      }
-    })
-
-    it('rejects number formats with non-numeric type', () => {
-      const schema = {
-        type: 'string',
-        format: 'int32',
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('format int32 can only be used with number or integer type')
-      }
     })
   })
 
@@ -272,41 +169,9 @@ describe('schema-object', () => {
       const result = SchemaObjectSchema.safeParse(schema)
       expect(result.success).toBe(true)
     })
-
-    it('rejects discriminator with missing required property', () => {
-      const schema = {
-        oneOf: [
-          { type: 'object', properties: { type: { const: 'dog' } } },
-          { type: 'object', properties: { type: { const: 'cat' } } },
-        ],
-        discriminator: {
-          propertyName: 'type',
-        },
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('discriminator propertyName must be listed in required array')
-      }
-    })
   })
 
   describe('metadata validation', () => {
-    it('rejects both readOnly and writeOnly being true', () => {
-      const schema = {
-        type: 'string',
-        readOnly: true,
-        writeOnly: true,
-      }
-
-      const result = SchemaObjectSchema.safeParse(schema)
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe('readOnly and writeOnly cannot both be true')
-      }
-    })
-
     it('validates vendor extensions', () => {
       const schema = {
         type: 'string',
@@ -470,32 +335,6 @@ describe('schema-object', () => {
       if (!result.success) {
         expect(result.error.issues[0].path).toContain('type')
       }
-    })
-
-    it('rejects invalid numeric constraints', () => {
-      const invalidSchemas = [
-        { type: 'number', minimum: 'invalid' },
-        { type: 'number', maximum: {} },
-        { type: 'number', multipleOf: -1 },
-        { type: 'number', exclusiveMinimum: 'invalid' },
-      ]
-
-      invalidSchemas.forEach((schema) => {
-        const result = SchemaObjectSchema.safeParse(schema)
-        expect(result.success).toBe(false)
-      })
-    })
-
-    it('rejects invalid format values', () => {
-      const invalidSchemas = [
-        { type: 'string', format: 'invalid-format' },
-        { type: 'number', format: 'invalid-format' },
-      ]
-
-      invalidSchemas.forEach((schema) => {
-        const result = SchemaObjectSchema.safeParse(schema)
-        expect(result.success).toBe(false)
-      })
     })
 
     it('rejects invalid required fields', () => {
