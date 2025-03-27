@@ -2,8 +2,6 @@ import { describe, expect, it } from 'vitest'
 import { OperationObjectSchema } from '../unprocessed/operation-object'
 
 describe('operation-object', () => {
-  // TODO: Add this: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-multipart-form-with-encoding-objects
-  // TODO: Add this: https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#example-multipart-form-with-multiple-files
   describe('OperationObjectSchema', () => {
     // https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#operation-object-example
     it('Operation Object Example', () => {
@@ -343,6 +341,136 @@ describe('operation-object', () => {
                       items: {
                         $ref: '#/components/schemas/Address',
                       },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
+
+      it('Example: Multipart Form with Encoding Objects', () => {
+        const result = OperationObjectSchema.parse({
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      format: 'uuid',
+                    },
+                    addresses: {
+                      description: 'addresses in XML format',
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Address',
+                      },
+                    },
+                    profileImage: {
+                      type: 'string',
+                      format: 'binary',
+                    },
+                  },
+                },
+                encoding: {
+                  addresses: {
+                    contentType: 'application/xml; charset=utf-8',
+                  },
+                  profileImage: {
+                    contentType: 'image/png, image/jpeg',
+                    headers: {
+                      'X-Rate-Limit-Limit': {
+                        description: 'The number of allowed requests in the current period',
+                        schema: {
+                          type: 'integer',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        expect(result).toEqual({
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      format: 'uuid',
+                    },
+                    addresses: {
+                      description: 'addresses in XML format',
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/Address',
+                      },
+                    },
+                    profileImage: {
+                      type: 'string',
+                      format: 'binary',
+                    },
+                  },
+                },
+                encoding: {
+                  addresses: {
+                    contentType: 'application/xml; charset=utf-8',
+                  },
+                  profileImage: {
+                    contentType: 'image/png, image/jpeg',
+                    headers: {
+                      'X-Rate-Limit-Limit': {
+                        description: 'The number of allowed requests in the current period',
+                        schema: {
+                          type: 'integer',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+      })
+
+      it('Example: Multipart Form with Multiple Files', () => {
+        const result = OperationObjectSchema.parse({
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  properties: {
+                    // The property name 'file' will be used for all files.
+                    file: {
+                      type: 'array',
+                      items: {},
+                    },
+                  },
+                },
+              },
+            },
+          },
+        })
+
+        expect(result).toEqual({
+          requestBody: {
+            content: {
+              'multipart/form-data': {
+                schema: {
+                  properties: {
+                    // The property name 'file' will be used for all files.
+                    file: {
+                      type: 'array',
+                      items: {},
                     },
                   },
                 },
