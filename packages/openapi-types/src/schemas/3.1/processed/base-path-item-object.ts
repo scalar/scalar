@@ -4,9 +4,10 @@ import { ServerObjectSchema } from './server-object'
 
 /**
  * Base Path Item Object Schema
+ *
  * This helps break circular dependencies between path-item-object and callback-object
  *
- * TODO: Update comment
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#path-item-object
  */
 export const BasePathItemObjectSchema = z.object({
   /**

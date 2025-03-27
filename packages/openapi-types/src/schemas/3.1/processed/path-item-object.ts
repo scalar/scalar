@@ -1,5 +1,5 @@
+import { BasePathItemObjectSchema } from './base-path-item-object'
 import { OperationObjectSchema } from './operation-object'
-import { BasePathItemObjectSchema } from './shared-path-schemas'
 
 /**
  * Path Item Object
