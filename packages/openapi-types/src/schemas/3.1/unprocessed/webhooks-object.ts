@@ -1,4 +1,5 @@
-import { PathItemObjectSchemaWithoutCallbacks } from '../path-item-object-without-callbacks'
+import { z } from 'zod'
+import { PathItemObjectSchemaWithoutCallbacks } from './path-item-object-without-callbacks'
 
 /**
  * Webhooks Object

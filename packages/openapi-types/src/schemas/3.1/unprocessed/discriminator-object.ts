@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { DiscriminatorObjectSchema as OriginalDiscriminatorObjectSchema } from '../processed/discriminator-object'
 
 /**
  * Discriminator Object
@@ -12,16 +12,4 @@ import { z } from 'zod'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#discriminator-object
  */
-export const DiscriminatorObjectSchema = z.object({
-  /**
-   * REQUIRED. The name of the property in the payload that will hold the discriminator value.
-   * This property SHOULD be required in the payload schema.
-   */
-  propertyName: z.string(),
-
-  /**
-   * An object to hold mappings between payload values and schema names or references.
-   * Keys MUST be strings, but implementations MAY convert response values to strings for comparison.
-   */
-  mapping: z.record(z.string(), z.string()).optional(),
-})
+export const DiscriminatorObjectSchema = OriginalDiscriminatorObjectSchema
