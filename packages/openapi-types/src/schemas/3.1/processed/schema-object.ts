@@ -1,12 +1,10 @@
 import { z } from 'zod'
+import { DiscriminatorObjectSchema } from './discriminator-object'
+import { ExternalDocumentationObjectSchema } from './external-documentation-object'
+import { ReferenceObjectSchema } from './reference-object'
+import { XmlObjectSchema } from './xml-object'
 
-// Basic JSON Schema types
-const JsonSchemaTypes = z.enum(['string', 'number', 'integer', 'boolean', 'array', 'object', 'null'])
-const JsonSchemaType = z.union([JsonSchemaTypes, z.array(JsonSchemaTypes)])
-
-// OpenAPI specific formats
 const StringFormats = z.enum([
-  // String formats
   'date',
   'date-time',
   'duration',
@@ -21,250 +19,254 @@ const StringFormats = z.enum([
   'hostname',
   'ipv4',
   'ipv6',
-  // Number formats
-  'float',
-  'double',
-  'int32',
-  'int64',
 ])
 
-// Define the Schema Object type structure
-export interface SchemaObject {
-  // Core type
-  type?: z.infer<typeof JsonSchemaType>
+const NumberFormats = z.enum(['float', 'double', 'int32', 'int64'])
 
-  // Combining schemas
-  allOf?: SchemaObject[]
-  anyOf?: SchemaObject[]
-  oneOf?: SchemaObject[]
-  not?: SchemaObject
-
-  // Object properties
-  properties?: Record<string, SchemaObject>
-  additionalProperties?: boolean | SchemaObject
-  required?: string[]
-
-  // Array items
-  items?: SchemaObject
-
-  // Constraints
-  enum?: any[]
-  const?: any
-
-  // Numeric validations
-  minimum?: number
-  maximum?: number
-  exclusiveMinimum?: number
-  exclusiveMaximum?: number
-  multipleOf?: number
-
-  // String validations
-  minLength?: number
-  maxLength?: number
-  pattern?: string
-  format?: z.infer<typeof StringFormats>
-
-  // Array validations
-  minItems?: number
-  maxItems?: number
-  uniqueItems?: boolean
-
-  // Object validations
-  minProperties?: number
-  maxProperties?: number
-
-  // Metadata
-  title?: string
-  description?: string
-  default?: any
-  deprecated?: boolean
-  readOnly?: boolean
-  writeOnly?: boolean
-  example?: any
-
-  // OpenAPI extensions
-  discriminator?: {
-    propertyName: string
-    mapping?: Record<string, string>
-  }
-  xml?: {
-    name?: string
-    namespace?: string
-    prefix?: string
-    attribute?: boolean
-    wrapped?: boolean
-  }
-  externalDocs?: {
-    description?: string
-    url: string
-  }
-
-  // Allow additional properties (for extensions)
-  [key: string]: any
-}
-
-// The main Schema Object
-// TODO: Comment
-export const SchemaObjectSchema: z.ZodType<SchemaObject> = z.lazy(() =>
+/**
+ * The Schema Object allows the definition of input and output data types.
+ * These types can be objects, but also primitives and arrays.
+ */
+export const SchemaObjectSchema: z.ZodType<any> = z.lazy(() =>
   z
     .object({
-      // Core type
-      type: JsonSchemaType.optional(),
-      format: StringFormats.optional(),
-
-      // Combining schemas
-      allOf: z.array(z.lazy(() => SchemaObjectSchema)).optional(),
-      anyOf: z.array(z.lazy(() => SchemaObjectSchema)).optional(),
-      oneOf: z.array(z.lazy(() => SchemaObjectSchema)).optional(),
-      not: z.lazy(() => SchemaObjectSchema).optional(),
-
-      // Object properties
-      properties: z
-        .record(
-          z.string(),
-          z.lazy(() => SchemaObjectSchema),
-        )
-        .optional(),
-      additionalProperties: z.union([z.boolean(), z.lazy(() => SchemaObjectSchema)]).optional(),
-      required: z.array(z.string()).optional(),
-
-      // Array items
-      items: z.lazy(() => SchemaObjectSchema).optional(),
-
-      // Constraints
-      enum: z.array(z.any()).optional(),
-      const: z.any().optional(),
-
-      // Numeric validations
-      minimum: z.number().optional(),
-      maximum: z.number().optional(),
-      exclusiveMinimum: z.number().optional(),
-      exclusiveMaximum: z.number().optional(),
-      multipleOf: z.number().positive().optional(),
-
-      // String validations
-      minLength: z.number().int().nonnegative().optional(),
-      maxLength: z.number().int().nonnegative().optional(),
-      pattern: z.string().optional(),
-
-      // Array validations
-      minItems: z.number().int().nonnegative().optional(),
-      maxItems: z.number().int().nonnegative().optional(),
-      uniqueItems: z.boolean().optional(),
-
-      // Object validations
-      minProperties: z.number().int().nonnegative().optional(),
-      maxProperties: z.number().int().nonnegative().optional(),
-
-      // Metadata
+      // Standard JSON Schema fields
       title: z.string().optional(),
       description: z.string().optional(),
       default: z.any().optional(),
+      examples: z.array(z.any()).optional(),
+      multipleOf: z.number().optional(),
+      maximum: z.number().optional(),
+      exclusiveMaximum: z.union([z.boolean(), z.number()]).optional(),
+      minimum: z.number().optional(),
+      exclusiveMinimum: z.union([z.boolean(), z.number()]).optional(),
+      maxLength: z.number().int().optional(),
+      minLength: z.number().int().optional(),
+      pattern: z.string().optional(),
+      maxItems: z.number().int().optional(),
+      minItems: z.number().int().optional(),
+      uniqueItems: z.boolean().optional(),
+      maxProperties: z.number().int().optional(),
+      minProperties: z.number().int().optional(),
+      required: z.array(z.string()).optional(),
+      enum: z.array(z.any()).optional(),
+      type: z
+        .union([
+          z.literal('array'),
+          z.literal('boolean'),
+          z.literal('integer'),
+          z.literal('number'),
+          z.literal('object'),
+          z.literal('string'),
+          z.literal('null'),
+          z.array(
+            z.union([
+              z.literal('array'),
+              z.literal('boolean'),
+              z.literal('integer'),
+              z.literal('number'),
+              z.literal('object'),
+              z.literal('string'),
+              z.literal('null'),
+            ]),
+          ),
+        ])
+        .optional(),
+
+      // JSON Schema fields
+      $ref: z.string().optional(),
+      $id: z.string().optional(),
+      $schema: z.string().optional(),
+      $defs: z.record(z.lazy(() => SchemaObjectSchema)).optional(),
+      const: z.any().optional(),
+      $dynamicRef: z.string().optional(),
+      $dynamicAnchor: z.string().optional(),
+
+      // OpenAPI specific fields
+      format: z.string().optional(),
+      contentMediaType: z.string().optional(),
+      contentEncoding: z.string().optional(),
+      contentSchema: z.lazy(() => SchemaObjectSchema).optional(),
       deprecated: z.boolean().optional(),
       readOnly: z.boolean().optional(),
       writeOnly: z.boolean().optional(),
       example: z.any().optional(),
 
-      // OpenAPI extensions
-      discriminator: z
-        .object({
-          propertyName: z.string(),
-          mapping: z.record(z.string(), z.string()).optional(),
-        })
+      // Object-related fields
+      properties: z.record(z.string(), z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema])).optional(),
+      additionalProperties: z.union([z.boolean(), z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema]).optional(),
+      patternProperties: z
+        .record(z.string(), z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema]))
         .optional(),
-      xml: z
-        .object({
-          name: z.string().optional(),
-          namespace: z.string().optional(),
-          prefix: z.string().optional(),
-          attribute: z.boolean().optional(),
-          wrapped: z.boolean().optional(),
-        })
-        .optional(),
-      externalDocs: z
-        .object({
-          description: z.string().optional(),
-          url: z.string(),
-        })
-        .optional(),
+
+      // Array-related fields
+      items: z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema]).optional(),
+      prefixItems: z.array(z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema])).optional(),
+
+      // Composition-related fields
+      allOf: z.array(z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema])).optional(),
+      oneOf: z.array(z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema])).optional(),
+      anyOf: z.array(z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema])).optional(),
+      not: z.union([z.lazy(() => SchemaObjectSchema), ReferenceObjectSchema]).optional(),
+
+      // Discriminator (only valid with oneOf, anyOf, or allOf)
+      discriminator: DiscriminatorObjectSchema.optional(),
+
+      // Additional metadata
+      externalDocs: ExternalDocumentationObjectSchema.optional(),
+      xml: XmlObjectSchema.optional(),
     })
-    .passthrough()
+    .passthrough() // Allow vendor extensions
     .superRefine((schema, ctx) => {
-      // Validate that items is present when type is array
-      if (schema.type === 'array' && !schema.items) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'items must be present when type is array',
-          path: ['items'],
-        })
+      // Array type must have items
+      if (schema.type === 'array' || (Array.isArray(schema.type) && schema.type.includes('array'))) {
+        if (schema.items === undefined) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'items must be present when type is array',
+            path: ['items'],
+          })
+        }
       }
 
-      // Validate that properties is an object when type is object
-      if (schema.type === 'object' && schema.properties !== undefined && typeof schema.properties !== 'object') {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'properties must be an object when specified',
-          path: ['properties'],
-        })
-      }
-
-      // Validate that numeric validations are only used with numeric types
+      // Numeric validations only for numeric types
+      const isNumeric =
+        schema.type === 'number' ||
+        schema.type === 'integer' ||
+        (Array.isArray(schema.type) && (schema.type.includes('number') || schema.type.includes('integer')))
       const numericValidations = ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf']
-      if (schema.type && !['number', 'integer'].includes(schema.type as string)) {
-        numericValidations.forEach((prop) => {
-          if (schema[prop] !== undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `${prop} can only be used with numeric types`,
-              path: [prop],
-            })
-          }
-        })
-      }
+      numericValidations.forEach((prop) => {
+        if (schema[prop] !== undefined && !isNumeric) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${prop} can only be used with numeric types`,
+            path: [prop],
+          })
+        }
+      })
 
-      // Validate that string validations are only used with string type
+      // String validations only for string type
+      const isString = schema.type === 'string' || (Array.isArray(schema.type) && schema.type.includes('string'))
       const stringValidations = ['minLength', 'maxLength', 'pattern']
-      if (schema.type && schema.type !== 'string') {
-        stringValidations.forEach((prop) => {
-          if (schema[prop] !== undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `${prop} can only be used with string type`,
-              path: [prop],
-            })
-          }
-        })
-      }
+      stringValidations.forEach((prop) => {
+        if (schema[prop] !== undefined && !isString) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${prop} can only be used with string type`,
+            path: [prop],
+          })
+        }
+      })
 
-      // Validate that array validations are only used with array type
+      // Array validations only for array type
+      const isArray = schema.type === 'array' || (Array.isArray(schema.type) && schema.type.includes('array'))
       const arrayValidations = ['minItems', 'maxItems', 'uniqueItems']
-      if (schema.type && schema.type !== 'array') {
-        arrayValidations.forEach((prop) => {
-          if (schema[prop] !== undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `${prop} can only be used with array type`,
-              path: [prop],
-            })
-          }
-        })
-      }
+      arrayValidations.forEach((prop) => {
+        if (schema[prop] !== undefined && !isArray) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${prop} can only be used with array type`,
+            path: [prop],
+          })
+        }
+      })
 
-      // Validate that object validations are only used with object type
+      // Object validations only for object type
+      const isObject = schema.type === 'object' || (Array.isArray(schema.type) && schema.type.includes('object'))
       const objectValidations = ['minProperties', 'maxProperties']
-      if (schema.type && schema.type !== 'object') {
-        objectValidations.forEach((prop) => {
-          if (schema[prop] !== undefined) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: `${prop} can only be used with object type`,
-              path: [prop],
-            })
-          }
+      objectValidations.forEach((prop) => {
+        if (schema[prop] !== undefined && !isObject) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `${prop} can only be used with object type`,
+            path: [prop],
+          })
+        }
+      })
+
+      // Validate numeric constraints
+      if (schema.multipleOf !== undefined && (typeof schema.multipleOf !== 'number' || schema.multipleOf <= 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'multipleOf must be a positive number',
+          path: ['multipleOf'],
         })
       }
 
-      // Validate that readOnly and writeOnly are not both true
+      if (schema.minimum !== undefined && typeof schema.minimum !== 'number') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'minimum must be a number',
+          path: ['minimum'],
+        })
+      }
+
+      if (schema.maximum !== undefined && typeof schema.maximum !== 'number') {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'maximum must be a number',
+          path: ['maximum'],
+        })
+      }
+
+      if (
+        schema.exclusiveMinimum !== undefined &&
+        typeof schema.exclusiveMinimum !== 'number' &&
+        typeof schema.exclusiveMinimum !== 'boolean'
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'exclusiveMinimum must be a number or boolean',
+          path: ['exclusiveMinimum'],
+        })
+      }
+
+      if (
+        schema.exclusiveMaximum !== undefined &&
+        typeof schema.exclusiveMaximum !== 'number' &&
+        typeof schema.exclusiveMaximum !== 'boolean'
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'exclusiveMaximum must be a number or boolean',
+          path: ['exclusiveMaximum'],
+        })
+      }
+
+      // Format validation
+      if (schema.format) {
+        const isValidStringFormat = StringFormats.safeParse(schema.format).success
+        const isValidNumberFormat = NumberFormats.safeParse(schema.format).success
+
+        // Only validate format compatibility if a type is specified
+        if (schema.type) {
+          if (isValidStringFormat && !isString) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `format ${schema.format} can only be used with string type`,
+              path: ['format'],
+            })
+          }
+
+          if (isValidNumberFormat && !isNumeric) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: `format ${schema.format} can only be used with number or integer type`,
+              path: ['format'],
+            })
+          }
+        }
+
+        if (!isValidStringFormat && !isValidNumberFormat) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: `invalid format: ${schema.format}`,
+            path: ['format'],
+          })
+        }
+      }
+
+      // readOnly and writeOnly cannot both be true
       if (schema.readOnly === true && schema.writeOnly === true) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -273,9 +275,8 @@ export const SchemaObjectSchema: z.ZodType<SchemaObject> = z.lazy(() =>
         })
       }
 
-      // Validate discriminator
+      // Discriminator validation
       if (schema.discriminator) {
-        // Validate that discriminator property is required
         if (!schema.required?.includes(schema.discriminator.propertyName)) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
@@ -284,42 +285,7 @@ export const SchemaObjectSchema: z.ZodType<SchemaObject> = z.lazy(() =>
           })
         }
       }
-
-      // Validate that format is only used with appropriate types
-      if (schema.format) {
-        const stringOnlyFormats = [
-          'date',
-          'date-time',
-          'duration',
-          'password',
-          'byte',
-          'binary',
-          'email',
-          'uuid',
-          'uri',
-          'uri-reference',
-          'uri-template',
-          'hostname',
-          'ipv4',
-          'ipv6',
-        ]
-        const numberOnlyFormats = ['float', 'double', 'int32', 'int64']
-
-        if (stringOnlyFormats.includes(schema.format) && schema.type !== 'string') {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `format ${schema.format} can only be used with string type`,
-            path: ['format'],
-          })
-        }
-
-        if (numberOnlyFormats.includes(schema.format) && !['number', 'integer'].includes(schema.type as string)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: `format ${schema.format} can only be used with number or integer type`,
-            path: ['format'],
-          })
-        }
-      }
     }),
 )
+
+export interface SchemaObject extends z.infer<typeof SchemaObjectSchema> {}
