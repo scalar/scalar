@@ -184,12 +184,14 @@ const { copyToClipboard } = useClipboard()
           class="property-example-value group"
           @click="
             copyToClipboard(
-              formatExample(
-                value?.example ||
-                  (discriminatorType &&
-                    value?.items &&
-                    typeof value.items === 'object' &&
-                    value.items[discriminatorType]),
+              String(
+                formatExample(
+                  value?.example ||
+                    (discriminatorType &&
+                      value?.items &&
+                      typeof value.items === 'object' &&
+                      value.items[discriminatorType]),
+                ),
               ),
             )
           ">
