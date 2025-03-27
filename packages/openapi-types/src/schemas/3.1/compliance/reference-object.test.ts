@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
+import { OperationObjectSchema } from '../unprocessed/operation-object'
 import { PathItemObjectSchema } from '../unprocessed/path-item-object'
 import { ReferenceObjectSchema } from '../unprocessed/reference-object'
+
+// For these tests, I’ve gone through the OpenAPI Specification and found places where the “Reference Object” is used.
 
 describe('reference-object', () => {
   describe('ReferenceObjectSchema', () => {
@@ -44,6 +47,38 @@ describe('reference-object', () => {
             $ref: '#/components/parameters/foobar',
           },
         ],
+      })
+    })
+  })
+
+  describe('OperationObjectSchema', () => {
+    it('operation object with $ref', () => {
+      const result = OperationObjectSchema.parse({
+        parameters: [
+          {
+            $ref: '#/components/parameters/foobar',
+          },
+        ],
+        requestBody: {
+          $ref: '#/components/requestBodies/foobar',
+        },
+        callbacks: {
+          foobar: {
+            $ref: '#/components/callbacks/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        parameters: [{ $ref: '#/components/parameters/foobar' }],
+        requestBody: {
+          $ref: '#/components/requestBodies/foobar',
+        },
+        callbacks: {
+          foobar: {
+            $ref: '#/components/callbacks/foobar',
+          },
+        },
       })
     })
   })
