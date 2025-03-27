@@ -1,28 +1,50 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+
+import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
+import { discriminators } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     value?: Record<string, any>
     enum?: boolean
     required?: boolean
     additional?: boolean
     pattern?: boolean
+    withExamples?: boolean
   }>(),
   {
     level: 0,
     required: false,
+    withExamples: true,
   },
 )
+
+const discriminatorType = discriminators.find((r) => {
+  if (!props.value || typeof props.value !== 'object') {
+    return false
+  }
+
+  return (
+    r in props.value ||
+    (props.value.items &&
+      typeof props.value.items === 'object' &&
+      r in props.value.items)
+  )
+})
 
 const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
     ? value.default[0]
     : value?.default
 }
+
+const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <div class="property-heading">
@@ -147,6 +169,82 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       class="property-required">
       required
     </div>
+    <!-- example -->
+    <div
+      v-if="withExamples && (value?.example || value?.items?.example)"
+      class="property-example">
+      <button
+        type="button"
+        class="property-example-label">
+        <span> Example </span>
+      </button>
+      <div class="property-example-value-list">
+        <button
+          type="button"
+          class="property-example-value group"
+          @click="
+            copyToClipboard(
+              formatExample(
+                value?.example ||
+                  (discriminatorType &&
+                    value?.items &&
+                    typeof value.items === 'object' &&
+                    value.items[discriminatorType]),
+              ),
+            )
+          ">
+          <span>
+            {{
+              formatExample(
+                value?.example ||
+                  (discriminatorType &&
+                    value?.items &&
+                    typeof value.items === 'object' &&
+                    value.items[discriminatorType]),
+              )
+            }}
+          </span>
+          <ScalarIcon
+            icon="Clipboard"
+            size="xs"
+            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3" />
+        </button>
+      </div>
+    </div>
+    <template
+      v-if="
+        value?.examples &&
+        typeof value.examples === 'object' &&
+        Object.keys(value.examples).length > 0
+      ">
+      <div class="property-example">
+        <button
+          type="button"
+          class="property-example-label">
+          <span>
+            {{
+              Object.keys(value.examples).length === 1 ? 'Example' : 'Examples'
+            }}
+          </span>
+        </button>
+        <div class="property-example-value-list">
+          <button
+            type="button"
+            v-for="(example, key) in value.examples"
+            :key="key"
+            class="property-example-value group"
+            @click="copyToClipboard(example)">
+            <span>
+              {{ example }}
+            </span>
+            <ScalarIcon
+              icon="Clipboard"
+              size="xs"
+              class="text-c-3 group-hover:text-c-1 ml-auto min-h-3 min-w-3" />
+          </button>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 <style scoped>
@@ -220,5 +318,82 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 .deprecated {
   text-decoration: line-through;
+}
+
+.property-example {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--scalar-micro);
+  position: relative;
+}
+.property-example:hover:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 20px;
+  border-radius: var(--scalar-radius);
+}
+.property-example:hover .property-example-label span {
+  color: var(--scalar-color-1);
+}
+.property-example-label span {
+  color: var(--scalar-color-3);
+  position: relative;
+  border-bottom: var(--scalar-border-width) dotted currentColor;
+}
+.property-example-value {
+  font-family: var(--scalar-font-code);
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 6px;
+}
+.property-example-value span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.property-example-value :deep(svg) {
+  color: var(--scalar-color-3);
+}
+
+.property-example-value:hover :deep(svg) {
+  color: var(--scalar-color-1);
+}
+
+.property--compact .property-example {
+  background: transparent;
+}
+
+.property--compact .property-example-value {
+  background: var(--scalar-background-2);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius);
+}
+.property-example-value-list {
+  position: absolute;
+  z-index: 1;
+  top: 18px;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  overflow: auto;
+  background-color: var(--scalar-background-1);
+  box-shadow: var(--scalar-shadow-1);
+  border-radius: var(--scalar-radius-lg);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  padding: 9px;
+  min-width: 200px;
+  max-width: 300px;
+  flex-direction: column;
+  gap: 3px;
+  display: none;
+  z-index: 10;
+}
+.property-example:hover .property-example-value-list,
+.property-example:focus-within .property-example-value-list {
+  display: flex;
 }
 </style>

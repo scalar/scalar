@@ -4,7 +4,6 @@ import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
-import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import {
   discriminators,
   optimizeValueForDisplay,
@@ -15,9 +14,9 @@ import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
- * Note: We’re taking in a prop called `value` which should be a JSON Schema.
+ * Note: We're taking in a prop called `value` which should be a JSON Schema.
  *
- * We’re using `optimizeValueForDisplay` to merge null types in discriminators (anyOf, allOf, oneOf, not).
+ * We're using `optimizeValueForDisplay` to merge null types in discriminators (anyOf, allOf, oneOf, not).
  * So you should basically use the optimizedValue everywhere in the component.
  */
 
@@ -106,7 +105,7 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 //
 // - For enums with 9 or fewer values, all values are shown.
 // - For enums with more than 9 values, only first 5 are shown initially.
-// - A “Show more” button reveals the remaining values.
+// - A "Show more" button reveals the remaining values.
 const hasLongEnumList = computed(
   () => getEnumFromValue(optimizedValue.value).length > 9,
 )
@@ -209,46 +208,6 @@ const displayPropertyHeading = (
       <ScalarMarkdown
         :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
-    <!-- Example -->
-    <div
-      v-if="
-        withExamples &&
-        (optimizedValue?.example || optimizedValue?.items?.example)
-      "
-      class="property-example custom-scroll">
-      <span class="property-example-label">Example</span>
-      <code class="property-example-value">{{
-        formatExample(
-          optimizedValue?.example ||
-            (discriminatorType &&
-              optimizedValue?.items &&
-              typeof optimizedValue.items === 'object' &&
-              optimizedValue.items[discriminatorType]),
-        )
-      }}</code>
-    </div>
-    <template
-      v-if="
-        optimizedValue?.examples &&
-        typeof optimizedValue.examples === 'object' &&
-        Object.keys(optimizedValue.examples).length > 0
-      ">
-      <div class="property-example custom-scroll">
-        <span class="property-example-label">
-          {{
-            Object.keys(optimizedValue.examples).length === 1
-              ? 'Example'
-              : 'Examples'
-          }}
-        </span>
-        <code
-          v-for="(example, key) in optimizedValue.examples"
-          :key="key"
-          class="property-example-value">
-          {{ example }}
-        </code>
-      </div>
-    </template>
     <!-- Enum -->
     <div
       v-if="getEnumFromValue(optimizedValue)?.length > 0"
@@ -372,6 +331,12 @@ const displayPropertyHeading = (
   flex-direction: column;
   padding: 12px 8px;
   font-size: var(--scalar-mini);
+  position: relative;
+}
+
+/* increase z-index for example hovers */
+.property:hover {
+  z-index: 1;
 }
 
 .property--compact.property--level-0,
@@ -421,26 +386,6 @@ const displayPropertyHeading = (
   padding: 12px;
 }
 
-.property-example {
-  display: flex;
-  flex-direction: column;
-
-  margin-top: 6px;
-
-  max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
-
-  font-size: var(--scalar-micro);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  background: var(--scalar-background-2);
-  border-radius: var(--scalar-radius-lg);
-}
-
-.property-example-label {
-  font-weight: var(--scalar-semibold);
-  color: var(--scalar-color-3);
-
-  padding: 6px;
-}
 .property-example-value {
   all: unset;
   font-family: var(--scalar-font-code);
