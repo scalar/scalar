@@ -1,10 +1,10 @@
 import { schemaModel } from '@/helpers/schema-model.ts'
-import { getServerVariableExamples } from '@/spec-getters/getServerVariableExamples.ts'
+import { getServerVariableExamples } from '@/spec-getters/get-server-variable-examples.ts'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
-import { getRequestBodyFromOperation } from '@/spec-getters/getRequestBodyFromOperation.ts'
+import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation.ts'
 import type { RequestParameter } from './parameters.ts'
 import type { Request } from './requests.ts'
 import type { Server } from './server.ts'
