@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
+import { EncodingObjectSchema } from '../unprocessed/encoding-object'
 import { MediaTypeObjectSchema } from '../unprocessed/media-type-object'
 import { OperationObjectSchema } from '../unprocessed/operation-object'
 import { ParameterObjectSchema } from '../unprocessed/parameter-object'
@@ -122,6 +123,28 @@ describe('reference-object', () => {
       expect(result).toEqual({
         examples: {
           foobar: { $ref: '#/components/examples/foobar' },
+        },
+      })
+    })
+  })
+
+  describe('EncodingObjectSchema', () => {
+    it('encoding object with $ref', () => {
+      const result = EncodingObjectSchema.parse({
+        contentType: 'application/json',
+        headers: {
+          foobar: {
+            $ref: '#/components/headers/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        contentType: 'application/json',
+        headers: {
+          foobar: {
+            $ref: '#/components/headers/foobar',
+          },
         },
       })
     })

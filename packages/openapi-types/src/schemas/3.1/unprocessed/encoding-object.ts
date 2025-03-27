@@ -1,4 +1,7 @@
+import { z } from 'zod'
 import { EncodingObjectSchema as OriginalEncodingObjectSchema } from '../processed/encoding-object'
+import { HeaderObjectSchema } from './header-object'
+import { ReferenceObjectSchema } from './reference-object'
 
 /**
  * Encoding Object
@@ -12,4 +15,10 @@ import { EncodingObjectSchema as OriginalEncodingObjectSchema } from '../process
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#encoding-object
  */
-export const EncodingObjectSchema = OriginalEncodingObjectSchema
+export const EncodingObjectSchema = OriginalEncodingObjectSchema.extend({
+  /**
+   * A map allowing additional information to be provided as headers. Content-Type is described separately and SHALL be
+   * ignored in this section. This field SHALL be ignored if the request body media type is not a multipart.
+   */
+  headers: z.record(z.string(), z.union([ReferenceObjectSchema, HeaderObjectSchema])).optional(),
+})
