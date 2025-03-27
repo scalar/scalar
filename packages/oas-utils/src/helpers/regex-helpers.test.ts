@@ -71,21 +71,21 @@ describe('variableRegex', () => {
     const text = '{{example.com}}'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('example.com')
+    expect(matches[0]![1]).toBe('example.com')
   })
 
   it('matches variables with nested curly braces', () => {
     const text = '{{example.com:{port}}}'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('example.com:{port}')
+    expect(matches[0]![1]).toBe('example.com:{port}')
   })
 
   it('matches multiple variables', () => {
     const text = '{{{host}.example.com:{port}}}'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('{host}.example.com:{port}')
+    expect(matches[0]![1]).toBe('{host}.example.com:{port}')
   })
 
   it('does not match single curly braces', () => {
@@ -104,22 +104,22 @@ describe('variableRegex', () => {
     const text = '{{ example.com }}'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe(' example.com ')
+    expect(matches[0]![1]).toBe(' example.com ')
   })
 
   it('matches variables in longer text', () => {
     const text = 'prefix {{variable}} suffix'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('variable')
+    expect(matches[0]![1]).toBe('variable')
   })
 
   it('matches multiple separate variables', () => {
     const text = '{{first}} middle {{second}}'
     const matches = [...text.matchAll(REGEX.VARIABLES)]
     expect(matches.length).toBe(2)
-    expect(matches[0][1]).toBe('first')
-    expect(matches[1][1]).toBe('second')
+    expect(matches[0]![1]).toBe('first')
+    expect(matches[1]![1]).toBe('second')
   })
 })
 
@@ -128,15 +128,15 @@ describe('pathRegex', () => {
     const text = '/users/{id}'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('id')
+    expect(matches[0]![1]).toBe('id')
   })
 
   it('matches multiple path parameters', () => {
     const text = '/users/{userId}/posts/{postId}'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(2)
-    expect(matches[0][1]).toBe('userId')
-    expect(matches[1][1]).toBe('postId')
+    expect(matches[0]![1]).toBe('userId')
+    expect(matches[1]![1]).toBe('postId')
   })
 
   it('does not match double curly braces', () => {
@@ -149,15 +149,15 @@ describe('pathRegex', () => {
     const text = '/api/{version}/users'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('version')
+    expect(matches[0]![1]).toBe('version')
   })
 
   it('matches path parameters with hyphens and underscores', () => {
     const text = '/users/{user-id}/posts/{post_id}'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(2)
-    expect(matches[0][1]).toBe('user-id')
-    expect(matches[1][1]).toBe('post_id')
+    expect(matches[0]![1]).toBe('user-id')
+    expect(matches[1]![1]).toBe('post_id')
   })
 
   it('does not match nested curly braces', () => {
@@ -170,13 +170,13 @@ describe('pathRegex', () => {
     const text = '{version}/api'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('version')
+    expect(matches[0]![1]).toBe('version')
   })
 
   it('matches path parameters at end of string', () => {
     const text = '/api/{version}'
     const matches = [...text.matchAll(REGEX.PATH)]
     expect(matches.length).toBe(1)
-    expect(matches[0][1]).toBe('version')
+    expect(matches[0]![1]).toBe('version')
   })
 })

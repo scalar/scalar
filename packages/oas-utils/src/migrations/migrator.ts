@@ -4,7 +4,8 @@ import { migrate_v_2_1_0 } from '@/migrations/v-2.1.0/migration.ts'
 import { migrate_v_2_2_0 } from '@/migrations/v-2.2.0/migration.ts'
 import { migrate_v_2_3_0 } from '@/migrations/v-2.3.0/migration.ts'
 import { migrate_v_2_4_0 } from '@/migrations/v-2.4.0/migration.ts'
-import { migrate_v_2_5_0, type v_2_5_0 } from '@/migrations/v-2.5.0/migration.ts'
+import { migrate_v_2_5_0 } from '@/migrations/v-2.5.0/migration.ts'
+import type { v_2_5_0 } from '@/migrations/v-2.5.0/types.generated.ts'
 
 /** Handles all data migrations per entity */
 export const migrator = (): v_2_5_0['DataArray'] => {

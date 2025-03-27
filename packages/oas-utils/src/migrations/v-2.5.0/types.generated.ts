@@ -1,8 +1,12 @@
-import type { Cookie } from '@/entities/cookie'
-import type { Environment } from '@/entities/environment'
-import type { Collection, Request, RequestExample, Server, Tag } from '@/entities/spec'
+import type { Cookie } from '@/entities/cookie/cookie.ts'
+import type { Environment } from '@/entities/environment/environment.ts'
+import type { Collection } from '@/entities/spec/collection.ts'
+import type { RequestExample } from '@/entities/spec/request-examples.ts'
+import type { Request } from '@/entities/spec/requests.ts'
+import type { Server } from '@/entities/spec/server.ts'
+import type { Tag } from '@/entities/spec/spec-objects.ts'
+import type { Workspace } from '@/entities/workspace/workspace.ts'
 import type { SecurityScheme } from '@scalar/types/entities'
-import type { Workspace } from '@/entities/workspace'
 
 export type v_2_5_0 = {
   Cookie: Cookie

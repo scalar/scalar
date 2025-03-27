@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.node.json",
   "include": ["src", "test"],
   "compilerOptions": {
-    "types": ["vite/client"],
+    "types": ["vite/client", "@types/node"],
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]

@@ -1,1 +1,1 @@
-export * from './import-spec'
+export { importSpecToWorkspace } from './import-spec.ts'
