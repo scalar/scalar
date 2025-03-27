@@ -1,4 +1,4 @@
-import type { Server } from '../entities/spec/server'
+import type { Server } from '@/entities/spec/server.ts'
 
 /** Retrieve example values for server variables */
 export const getServerVariableExamples = (server: Server) => {

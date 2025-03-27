@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getExampleFromSchema } from './getExampleFromSchema'
+import { getExampleFromSchema } from './get-example-from-schema'
 
 describe('getExampleFromSchema', () => {
   it('sets example values', () => {

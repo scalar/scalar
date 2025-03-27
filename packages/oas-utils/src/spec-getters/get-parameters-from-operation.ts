@@ -1,6 +1,6 @@
 import type { BaseParameter, TransformedOperation } from '@scalar/types/legacy'
 
-import { getExampleFromSchema } from './getExampleFromSchema'
+import { getExampleFromSchema } from './get-example-from-schema.ts'
 
 /**
  * Get the query parameters from an operation.

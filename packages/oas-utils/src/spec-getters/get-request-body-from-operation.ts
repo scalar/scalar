@@ -1,10 +1,10 @@
 import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
-import { json2xml } from '../helpers/json2xml'
-import { normalizeMimeTypeObject } from '../helpers/normalizeMimeTypeObject'
-import { prettyPrintJson } from '../helpers/prettyPrintJson'
-import { getExampleFromSchema } from './getExampleFromSchema'
-import { getParametersFromOperation } from './getParametersFromOperation'
+import { json2xml } from '@/helpers/json2xml.ts'
+import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object.ts'
+import { prettyPrintJson } from '@/helpers/pretty-print-json.ts'
+import { getExampleFromSchema } from './get-example-from-schema.ts'
+import { getParametersFromOperation } from './get-parameters-from-operation.ts'
 
 type AnyObject = Record<string, any>
 
@@ -48,7 +48,7 @@ export function getRequestBodyFromOperation(
   omitEmptyAndOptionalProperties?: boolean,
 ): {
   mimeType: ContentType
-  text?: string
+  text?: string | undefined
   params?: {
     name: string
     value?: string
@@ -69,7 +69,7 @@ export function getRequestBodyFromOperation(
   const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
   // Let’s use the first example
-  const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0]]
+  const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0] ?? '']
 
   if (selectedExample) {
     return {
@@ -91,7 +91,7 @@ export function getRequestBodyFromOperation(
   if (bodyParameters.length > 0) {
     return {
       mimeType: 'application/json',
-      text: prettyPrintJson(bodyParameters[0].value),
+      text: prettyPrintJson(bodyParameters[0]?.value ?? ''),
     }
   }
 
@@ -146,7 +146,7 @@ export function getRequestBodyFromOperation(
     const exampleFromSchema = requestBodyObject?.schema
       ? getExampleFromSchema(requestBodyObject?.schema, {
           mode: 'write',
-          omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties,
+          omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties ?? false,
         })
       : null
 
