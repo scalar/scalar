@@ -852,6 +852,9 @@ importers:
 
   packages/api-client:
     dependencies:
+      '@codemirror/lang-javascript':
+        specifier: ^6.1.1
+        version: 6.2.2
       '@headlessui/tailwindcss':
         specifier: ^0.2.0
         version: 0.2.1(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))

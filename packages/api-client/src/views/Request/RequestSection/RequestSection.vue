@@ -18,6 +18,7 @@ import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
+import PostResponseScripts from '@/views/Request/RequestSection/PostResponseScripts.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
@@ -53,6 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
+  'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -171,7 +173,7 @@ const handleRequestNamePlaceholder = () => {
     </template>
     <div
       :id="filterIds.All"
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
         v-if="
@@ -262,10 +264,15 @@ const handleRequestNamePlaceholder = () => {
         title="Body"
         :workspace="workspace" />
 
-      <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <ScalarErrorBoundary>
+        <PostResponseScripts
+          v-show="selectedFilter === 'All' || selectedFilter === 'Scripts'"
+          :operation="operation" />
+      </ScalarErrorBoundary>
 
-      <!-- Code Snippet -->
+      <!-- Spacer -->
+      <div class="-mt-0.25 z-1 flex flex-grow border-b" />
+
       <ScalarErrorBoundary>
         <RequestCodeExample
           :collection="collection"

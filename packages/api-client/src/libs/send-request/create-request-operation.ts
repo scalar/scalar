@@ -17,6 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
+import { type TestResult, executePostResponseScript } from '@/libs/execute-scripts'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -41,6 +42,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids = [],
   server,
   status,
+  onTestResultsUpdate,
 }: {
   environment: object | undefined
   example: RequestExample
@@ -51,6 +53,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
   server?: Server | undefined
   status?: EventBus<RequestStatus>
+  onTestResultsUpdate?: (results: TestResult[]) => void
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -180,11 +183,19 @@ export const createRequestOperation = ({
 
         status?.emit('stop')
 
+        // Clone the response before reading it
+        const responseToRead = response.clone()
+
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
-        const arrayBuffer = await response.arrayBuffer()
+        const arrayBuffer = await responseToRead.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
+
+        await executePostResponseScript(request['x-post-response'], {
+          response,
+          onTestResultsUpdate,
+        })
 
         // Safely check for cookie headers
         // TODO: polyfill
