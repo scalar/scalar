@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
+import { MediaTypeObjectSchema } from '../unprocessed/media-type-object'
 import { OperationObjectSchema } from '../unprocessed/operation-object'
 import { ParameterObjectSchema } from '../unprocessed/parameter-object'
 import { PathItemObjectSchema } from '../unprocessed/path-item-object'
@@ -103,6 +104,24 @@ describe('reference-object', () => {
           foobar: {
             $ref: '#/components/examples/foobar',
           },
+        },
+      })
+    })
+  })
+
+  describe('MediaTypeObjectSchema', () => {
+    it('media type object with $ref', () => {
+      const result = MediaTypeObjectSchema.parse({
+        examples: {
+          foobar: {
+            $ref: '#/components/examples/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        examples: {
+          foobar: { $ref: '#/components/examples/foobar' },
         },
       })
     })
