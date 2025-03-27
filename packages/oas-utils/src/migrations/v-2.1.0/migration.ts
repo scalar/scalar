@@ -1,8 +1,8 @@
-import { camelToTitleWords, capitalize } from '@/helpers'
-import { parseLocalStorage } from '@/migrations/local-storage'
-import type { v_0_0_0 } from '@/migrations/v-0.0.0/types.generated'
+import { camelToTitleWords, capitalize } from '@/helpers/string.ts'
+import { parseLocalStorage } from '@/migrations/local-storage.ts'
+import type { v_0_0_0 } from '@/migrations/v-0.0.0/types.generated.ts'
 
-import type { v_2_1_0 } from './types.generated'
+import type { v_2_1_0 } from './types.generated.ts'
 
 /** V-0.0.0 to V-2.1.0 migration */
 export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {

@@ -1,5 +1,5 @@
-import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
-import type { v_2_5_0 } from './types.generated'
+import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated.ts'
+import type { v_2_5_0 } from './types.generated.ts'
 
 /** V-2.4.0 to V-2.5.0 migration */
 export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord'] => {
@@ -115,10 +115,9 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
         >
       >((variablesAcc, [variableKey, variable]) => {
         variablesAcc[variableKey] = {
-          ...variable,
-          enum: variable.enum && variable.enum.length > 0 ? (variable.enum as [string, ...string[]]) : undefined,
           default: variable.default ?? '',
-          description: variable.description,
+          description: variable.description ?? '',
+          ...(variable.enum?.length && { enum: variable.enum as [string, ...string[]] }),
         }
         return variablesAcc
       }, {}),

@@ -1,7 +1,7 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { v_2_4_0 } from '../v-2.4.0'
-import { migrate_v_2_5_0 } from '../v-2.5.0/migration'
+import type { v_2_4_0 } from '../v-2.4.0/types.generated'
+import { migrate_v_2_5_0 } from './migration'
 import type { v_2_5_0 } from './types.generated'
 
 describe('migrate_v_2_5_0', () => {
