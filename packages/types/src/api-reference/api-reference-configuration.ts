@@ -298,7 +298,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     /** onServerChange is fired on selected server change */
     onServerChange: z.function().args(z.string()).returns(z.void()).optional(),
     /** onDocumentSelect is fired when the config is selected */
-    onDocumentSelect: z.function().returns(z.void()).optional(),
+    onDocumentSelect: z.function().returns(z.void().or(z.void().promise())).optional(),
     /**
      * Route using paths instead of hashes, your server MUST support this
      * @example '/standalone-api-reference/:custom(.*)?'

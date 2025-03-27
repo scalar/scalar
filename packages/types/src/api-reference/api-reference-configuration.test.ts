@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { apiReferenceConfigurationSchema } from './api-reference-configuration.ts'
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration.ts'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {
@@ -245,6 +245,31 @@ describe('api-reference-configuration', () => {
 
       expect(migratedConfig.spec).toBeUndefined()
       expect(migratedConfig.content).toBe('{"openapi": "3.1.0"}')
+    })
+
+    it('allows a function as onDocumentSelect', () => {
+      const config = {
+        onDocumentSelect: () => console.log('selected'),
+      }
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
+    })
+
+    it('allows a function as onDocumentSelect', () => {
+      const config = {
+        onDocumentSelect: () => console.log('selected'),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+      expect(migratedConfig.onDocumentSelect).toBeInstanceOf(Function)
+    })
+
+    it('allows an async function as onDocumentSelect', async () => {
+      const config = {
+        onDocumentSelect: async () => console.log('selected'),
+      } satisfies Partial<ApiReferenceConfiguration>
+      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
+
+      expect(migratedConfig.onDocumentSelect?.()).toBeInstanceOf(Promise)
     })
   })
 })
