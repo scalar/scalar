@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { ExampleObjectSchema } from './example-object'
+import { MediaTypeObjectSchema } from './media-type-object'
 import { SchemaObjectSchema } from './schema-object'
 
 /**
@@ -80,10 +82,10 @@ export const ParameterObjectSchema = z.object({
    * if referencing a schema that contains an example, the examples value SHALL override the example provided by the
    * schema.
    **/
-  examples: z.record(z.string(), z.any()).optional(),
+  examples: z.record(z.string(), ExampleObjectSchema).optional(),
   /**
    * A map containing the representations for the parameter. The key is the media type and the value describes it.
    * The map MUST only contain one entry.
    **/
-  content: z.record(z.string(), z.any()).optional(),
+  content: z.record(z.string(), MediaTypeObjectSchema).optional(),
 })

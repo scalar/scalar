@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { ComponentsObjectSchema } from '../unprocessed/components-object'
 import { OperationObjectSchema } from '../unprocessed/operation-object'
+import { ParameterObjectSchema } from '../unprocessed/parameter-object'
 import { PathItemObjectSchema } from '../unprocessed/path-item-object'
 import { ReferenceObjectSchema } from '../unprocessed/reference-object'
 
@@ -77,6 +78,30 @@ describe('reference-object', () => {
         callbacks: {
           foobar: {
             $ref: '#/components/callbacks/foobar',
+          },
+        },
+      })
+    })
+  })
+
+  describe('ParameterObjectSchema', () => {
+    it('parameter object with $ref', () => {
+      const result = ParameterObjectSchema.parse({
+        name: 'foobar',
+        in: 'query',
+        examples: {
+          foobar: {
+            $ref: '#/components/examples/foobar',
+          },
+        },
+      })
+
+      expect(result).toEqual({
+        name: 'foobar',
+        in: 'query',
+        examples: {
+          foobar: {
+            $ref: '#/components/examples/foobar',
           },
         },
       })
