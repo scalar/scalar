@@ -22,7 +22,16 @@ export { ResponsesObjectSchema } from './responses-object'
 export { RuntimeExpressionSchema } from './runtime-expression'
 export { SchemaObjectSchema } from './schema-object'
 export { SecurityRequirementObjectSchema } from './security-requirement-object'
-export { SecuritySchemeObjectSchema } from './security-scheme-object'
+export {
+  SecuritySchemeObjectSchema,
+  ApiKeyInValues,
+  ApiKeySchema,
+  HttpSchema,
+  OpenIdConnectSchema,
+  OAuthFlowObjectSchema,
+  XUsePkceValues,
+  MutualTlsSchema,
+} from './security-scheme-object'
 export { ServerObjectSchema } from './server-object'
 export { ServerVariableObjectSchema } from './server-variable-object'
 export { TagObjectSchema } from './tag-object'

@@ -2,6 +2,9 @@ import { z } from 'zod'
 
 import { type ENTITY_BRANDS, nanoidSchema } from '@/utils/nanoid.ts'
 
+// TODO: Add
+// 'selectedScopes': z.array(z.string()).optional().default([]),
+
 const extendedSecuritySchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['SECURITY_SCHEME']>(),
   /** The name key that links a security requirement to a security object */
