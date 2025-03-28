@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.3.9
+
+### Patch Changes
+
+- ab6b166: style(api-client): add classes to target api client via CSS
+- Updated dependencies [8efedf3]
+- Updated dependencies [82a4ba8]
+- Updated dependencies [52f6f4c]
+- Updated dependencies [57feba6]
+  - @scalar/types@0.1.4
+  - @scalar/oas-utils@0.2.123
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/snippetz@0.2.18
+  - @scalar/themes@0.9.82
+  - @scalar/import@0.3.6
+  - @scalar/postman-to-openapi@0.1.46
+  - @scalar/components@0.13.41
+  - @scalar/use-codemirror@0.11.86
+  - @scalar/use-hooks@0.1.36
+
 ## 2.3.8
 
 ### Patch Changes

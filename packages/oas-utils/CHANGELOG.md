@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.2.123
+
+### Patch Changes
+
+- 52f6f4c: chore: updated oas-utils to use stricter node tsconfig
+- Updated dependencies [8efedf3]
+- Updated dependencies [82a4ba8]
+- Updated dependencies [57feba6]
+  - @scalar/types@0.1.4
+  - @scalar/themes@0.9.82
+
 ## 0.2.122
 
 ### Patch Changes

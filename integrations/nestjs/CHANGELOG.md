@@ -1,5 +1,15 @@
 # @scalar/nestjs-api-reference
 
+## 0.4.4
+
+### Patch Changes
+
+- eccf147: fix: configuration has too many required attributes
+- Updated dependencies [8efedf3]
+- Updated dependencies [82a4ba8]
+- Updated dependencies [57feba6]
+  - @scalar/types@0.1.4
+
 ## 0.4.3
 
 ### Patch Changes
