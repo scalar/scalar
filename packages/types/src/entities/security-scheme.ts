@@ -1,42 +1,48 @@
 import { z } from 'zod'
 
 import { type ENTITY_BRANDS, nanoidSchema } from '@/utils/nanoid.ts'
+import {
+  OAuth2FlowObjectSchema,
+  ApiKeySchema as OriginalApiKeySchema,
+  HttpSchema as OriginalHttpSchema,
+  MutualTlsSchema as OriginalMutualTlsSchema,
+  OpenIdConnectSchema as OriginalOpenIdConnectSchema,
+} from '@scalar/openapi-types/schemas/3.1/processed'
 
 // TODO: Add
 // 'selectedScopes': z.array(z.string()).optional().default([]),
 
-const extendedSecuritySchema = z.object({
+// Extend all security scheme schemas with a uid and nameKey
+const SecuritySchemeSchemaExtension = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['SECURITY_SCHEME']>(),
   /** The name key that links a security requirement to a security object */
   nameKey: z.string().optional().default(''),
 })
 
-// API KEY
-
-const apiKeyValueSchema = z.object({
+// API Key
+export const ApiKeySchema = OriginalApiKeySchema.merge(SecuritySchemeSchemaExtension).extend({
   value: z.string().default(''),
 })
-
-export const securityApiKeySchema = oasSecuritySchemeApiKey.merge(extendedSecuritySchema).merge(apiKeyValueSchema)
-export type SecuritySchemeApiKey = z.infer<typeof securityApiKeySchema>
+export type SecuritySchemeApiKey = z.infer<typeof ApiKeySchema>
 
 // HTTP
-
-const httpValueSchema = z.object({
+export const HttpSchema = OriginalHttpSchema.merge(SecuritySchemeSchemaExtension).extend({
   username: z.string().default(''),
   password: z.string().default(''),
   token: z.string().default(''),
 })
+export type SecuritySchemaHttp = z.infer<typeof HttpSchema>
 
-export const securityHttpSchema = oasSecuritySchemeHttp.merge(extendedSecuritySchema).merge(httpValueSchema)
-export type SecuritySchemaHttp = z.infer<typeof securityHttpSchema>
+// OpenID Connect
+export const OpenIdConnectSchema = OriginalOpenIdConnectSchema.merge(SecuritySchemeSchemaExtension)
+export type SecuritySchemaOpenId = z.infer<typeof OpenIdConnectSchema>
 
-// OPENID CONNECT
+// Mutual TLS
+export const MutualTlsSchema = OriginalMutualTlsSchema.merge(SecuritySchemeSchemaExtension)
+export type SecuritySchemaMutualTls = z.infer<typeof MutualTlsSchema>
 
-export const securityOpenIdSchema = oasSecuritySchemeOpenId.merge(extendedSecuritySchema)
-export type SecuritySchemaOpenId = z.infer<typeof securityOpenIdSchema>
-
-export const securityOauthSchema = oasSecuritySchemeOauth2.merge(extendedSecuritySchema)
+// OAuth2
+export const securityOauthSchema = OAuth2FlowObjectSchema.merge(SecuritySchemeSchemaExtension)
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 export type SecuritySchemeOauth2Payload = z.input<typeof securityOauthSchema>
@@ -51,20 +57,26 @@ export type Oauth2FlowPayload = NonNullable<SecuritySchemeOauth2Payload['flows']
   | 'password'] &
   Record<`x-${string}`, string>
 
-// Final Types
-
-/** Extended security schemes for workspace usage */
-export const securitySchemeSchema = z.union([
-  securityApiKeySchema,
-  securityHttpSchema,
-  securityOpenIdSchema,
-  securityOauthSchema,
-])
-
 /**
  * Security Scheme Object
  *
- * @see https://spec.openapis.org/oas/latest.html#security-scheme-object
+ * Defines a security scheme that can be used by the operations.
+ *
+ * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query
+ * parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials
+ * and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit
+ * flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is
+ * Authorization Code Grant flow with PKCE.
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#security-scheme-object
  */
-export type SecurityScheme = z.infer<typeof securitySchemeSchema>
-export type SecuritySchemePayload = z.input<typeof securitySchemeSchema>
+export const SecuritySchemeObjectSchema = z.union([
+  ApiKeySchema,
+  HttpSchema,
+  MutualTlsSchema,
+  OAuth2FlowObjectSchema,
+  OpenIdConnectSchema,
+])
+
+export type SecurityScheme = z.infer<typeof SecuritySchemeObjectSchema>
+export type SecuritySchemePayload = z.input<typeof SecuritySchemeObjectSchema>
