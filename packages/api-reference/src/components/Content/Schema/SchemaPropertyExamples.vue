@@ -14,29 +14,29 @@ const { copyToClipboard } = useClipboard()
 </script>
 <template>
   <!-- single example (deprecated) -->
-  <div
-    v-if="example"
-    class="property-example">
-    <button
-      type="button"
-      class="property-example-label">
-      <span>Example</span>
-    </button>
-    <div class="property-example-value-list">
+  <template v-if="example">
+    <div class="property-example">
       <button
         type="button"
-        class="property-example-value group"
-        @click="copyToClipboard(String(formatExample(example)))">
-        <span>
-          {{ formatExample(example) }}
-        </span>
-        <ScalarIcon
-          icon="Clipboard"
-          size="xs"
-          class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3" />
+        class="property-example-label">
+        <span>Example</span>
       </button>
+      <div class="property-example-value-list">
+        <button
+          type="button"
+          class="property-example-value group"
+          @click="copyToClipboard(String(formatExample(example)))">
+          <span>
+            {{ formatExample(example) }}
+          </span>
+          <ScalarIcon
+            icon="Clipboard"
+            size="xs"
+            class="group-hover:text-c-1 text-c-3 ml-auto min-h-3 min-w-3" />
+        </button>
+      </div>
     </div>
-  </div>
+  </template>
 
   <!-- multiple examples -->
   <template
