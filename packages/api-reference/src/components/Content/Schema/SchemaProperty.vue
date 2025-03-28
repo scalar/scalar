@@ -425,18 +425,18 @@ const displayPropertyHeading = (
   list-style: none;
 }
 
-.property--compact .property-example {
+.property-example {
   background: transparent;
   border: none;
   display: flex;
   flex-direction: row;
   gap: 8px;
 }
-.property--compact .property-example-label,
-.property--compact .property-example-value {
+.property-example-label,
+.property-example-value {
   padding: 3px 0 0 0;
 }
-.property--compact .property-example-value {
+.property-example-value {
   background: var(--scalar-background-2);
   border-top: 0;
   border-radius: var(--scalar-radius);

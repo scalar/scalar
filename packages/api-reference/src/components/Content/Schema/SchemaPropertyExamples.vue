@@ -116,11 +116,7 @@ const { copyToClipboard } = useClipboard()
   color: var(--scalar-color-1);
 }
 
-.property--compact .property-example {
-  background: transparent;
-}
-
-.property--compact .property-example-value {
+.property-example-value {
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
