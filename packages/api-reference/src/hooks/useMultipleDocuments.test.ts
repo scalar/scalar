@@ -1,4 +1,4 @@
-import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
+import { normalizeConfigurations, useMultipleDocuments } from '@/hooks/useMultipleDocuments'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
@@ -647,6 +647,122 @@ describe('useMultipleDocuments', () => {
 
       // Restore window object
       global.window = originalWindow
+    })
+  })
+})
+
+describe('normalizeConfigurations', () => {
+  it('returns empty array for undefined configuration', () => {
+    expect(normalizeConfigurations(undefined)).toEqual([])
+  })
+
+  it('handles single configuration without sources', () => {
+    const config = {
+      url: '/openapi.json',
+      title: 'Single API',
+    }
+    const result = normalizeConfigurations(config)
+    expect(result).toHaveLength(1)
+    expect(result[0]).toMatchObject({
+      url: '/openapi.json',
+      title: 'Single API',
+      slug: 'single-api',
+    })
+  })
+
+  it('handles array of configurations without sources', () => {
+    const configs = [
+      { url: '/api1.json', title: 'API 1' },
+      { url: '/api2.json', title: 'API 2' },
+    ]
+    const result = normalizeConfigurations(configs)
+    expect(result).toHaveLength(2)
+    expect(result[0].slug).toBe('api-1')
+    expect(result[1].slug).toBe('api-2')
+  })
+
+  it('flattens configurations with sources', () => {
+    const config = {
+      hideClientButton: true,
+      sources: [
+        { url: '/api1.json', title: 'API 1' },
+        { url: '/api2.json', title: 'API 2' },
+      ],
+    }
+    const result = normalizeConfigurations(config)
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({
+      hideClientButton: true,
+      url: '/api1.json',
+      title: 'API 1',
+    })
+    expect(result[1]).toMatchObject({
+      hideClientButton: true,
+      url: '/api2.json',
+      title: 'API 2',
+    })
+  })
+
+  it('filters out invalid sources without url or content', () => {
+    const config = {
+      sources: [{ title: 'Invalid API' }, { url: '/valid.json', title: 'Valid API' }],
+    }
+    const result = normalizeConfigurations(config)
+    expect(result).toHaveLength(1)
+    expect(result[0].title).toBe('Valid API')
+  })
+
+  it('generates slugs from titles when missing', () => {
+    const config = {
+      sources: [{ url: '/api.json', title: 'My Cool API!' }],
+    }
+    const result = normalizeConfigurations(config)
+    expect(result[0].slug).toBe('my-cool-api')
+  })
+
+  it('generates numeric slugs when no title or slug provided', () => {
+    const config = {
+      sources: [{ url: '/api1.json' }, { url: '/api2.json' }],
+    }
+    const result = normalizeConfigurations(config)
+    expect(result[0].slug).toBe('api-1')
+    expect(result[1].slug).toBe('api-2')
+  })
+
+  it('preserves existing slugs', () => {
+    const config = {
+      sources: [{ url: '/api.json', title: 'My API', slug: 'custom-slug' }],
+    }
+    const result = normalizeConfigurations(config)
+    expect(result[0].slug).toBe('custom-slug')
+  })
+
+  it('handles mixed configuration types', () => {
+    const configs = [
+      { url: '/api1.json', title: 'Direct API' },
+      {
+        sources: [{ url: '/api2.json', title: 'Source API' }],
+      },
+    ]
+    const result = normalizeConfigurations(configs)
+    expect(result).toHaveLength(2)
+    expect(result[0].title).toBe('Direct API')
+    expect(result[1].title).toBe('Source API')
+  })
+
+  it('merges spec properties from old format', () => {
+    const config = {
+      spec: {
+        customField: 'value',
+      },
+      url: '/api.json',
+      title: 'API',
+    }
+    const result = normalizeConfigurations(config)
+    expect(result[0]).toMatchObject({
+      customField: 'value',
+      url: '/api.json',
+      title: 'API',
     })
   })
 })
