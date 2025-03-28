@@ -1,3 +1,6 @@
+// TODO: Use the new names everywhere, keep the name of the export.
+// ✅ SecurityRequirementObjectSchema
+// ❌ oasSecurityRequirementSchema
 export {
   type Oauth2Flow,
   type Oauth2FlowPayload,
