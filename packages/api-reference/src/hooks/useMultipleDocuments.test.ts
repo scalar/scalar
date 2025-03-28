@@ -378,13 +378,13 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-1.yaml',
-                slug: 'first-api-1',
-                title: 'First API 1',
+                slug: 'first-api',
+                title: 'First API ',
               },
               {
                 url: '/openapi-2.yaml',
-                slug: 'first-api-2',
-                title: 'First API 2',
+                slug: 'second-api',
+                title: 'Second API',
               },
             ],
           },
@@ -392,17 +392,20 @@ describe('useMultipleDocuments', () => {
             sources: [
               {
                 url: '/openapi-3.yaml',
-                slug: 'second-api-1',
-                title: 'Second API 1',
+                slug: 'third-api',
+                title: 'Third API',
               },
               {
                 url: '/openapi-4.yaml',
-                slug: 'second-api-2',
-                title: 'Second API 2',
+                slug: 'fourth-api',
+                title: 'Fourth API',
               },
             ],
           },
         ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
       }
 
       const { selectedDocumentIndex, selectedConfiguration, availableDocuments } =
@@ -414,9 +417,67 @@ describe('useMultipleDocuments', () => {
       // Verify the selected document matches the query parameter
       expect(selectedDocumentIndex.value).toBe(3)
       expect(selectedConfiguration.value).toMatchObject({
-        url: '/openapi-4.yaml',
-        slug: 'second-api-2',
-        title: 'Second API 2',
+        url: '/openapi-3.yaml',
+        slug: 'third-api',
+        title: 'Third API',
+      })
+    })
+
+    it('handles multiple configurations with multiple sources and a default source', () => {
+      // Set up the URL with the query parameter we want to test
+      mockUrl = new URL('http://example.com?api=second-api-2')
+      vi.spyOn(window, 'location', 'get').mockReturnValue(mockUrl as any)
+
+      const multipleConfigurations = {
+        configuration: ref([
+          {
+            sources: [
+              {
+                url: '/openapi-1.yaml',
+                slug: 'first-api',
+                title: 'First API ',
+              },
+              {
+                url: '/openapi-2.yaml',
+                slug: 'second-api',
+                title: 'Second API',
+              },
+            ],
+          },
+          {
+            sources: [
+              {
+                url: '/openapi-3.yaml',
+                slug: 'third-api',
+                title: 'Third API',
+                // Setting the default source to the third AP
+                default: true,
+              },
+              {
+                url: '/openapi-4.yaml',
+                slug: 'fourth-api',
+                title: 'Fourth API',
+              },
+            ],
+          },
+        ]),
+        hash: ref(''),
+        hashPrefix: ref(''),
+        isIntersectionEnabled: ref(false),
+      }
+
+      const { selectedDocumentIndex, selectedConfiguration, availableDocuments } =
+        useMultipleDocuments(multipleConfigurations)
+
+      // Check that all documents are available
+      expect(availableDocuments.value).toHaveLength(4)
+
+      // Verify the selected document matches the query parameter
+      expect(selectedDocumentIndex.value).toBe(3)
+      expect(selectedConfiguration.value).toMatchObject({
+        url: '/openapi-3.yaml',
+        slug: 'third-api',
+        title: 'Third API',
       })
     })
   })
