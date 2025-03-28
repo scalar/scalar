@@ -167,6 +167,44 @@ Scalar.createApiReference('#app', [
 ])
 ```
 
+
+### Multiple Configurations with Sources (Advanced)
+
+You can even combine multiple configurations that each have their own set of sources. This gives you maximum flexibility in organizing and configuring your API documents:
+
+```ts
+Scalar.createApiReference('#app', [
+  // Configuration #1
+  {
+    // With sources! 🤯
+    sources: [
+      // API #1
+      {
+        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+      },
+      // API #2
+      {
+        url: 'https://example.com/openapi.json',
+        // This will make it the default OpenAPI document:
+        default: true,
+      }
+    ]
+  },
+  // Configuration #2
+  {
+    url: 'https://example.com/openapi.json',
+  },
+  // Configuration #3
+  {
+    sources: [
+      {
+        content: '{ "openapi": "3.1.1", … }',
+      }
+    ]
+  }
+])
+```
+
 ### JSON or YAML
 
 It is completely up to you whether you want to pass JSON or YAML. None of the differences make really a big difference,
