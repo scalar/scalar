@@ -216,8 +216,7 @@ describe('reference-object', () => {
   })
 
   describe('ComponentsObjectSchema', () => {
-    // TODO: Enable again
-    it.skip('schemas with $ref', () => {
+    it('schemas with $ref', () => {
       const result = ComponentsObjectSchema.parse({
         responses: {
           200: {

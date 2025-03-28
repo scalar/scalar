@@ -48,7 +48,7 @@ export const ComponentsObjectSchema = OriginalComponentsObjectSchema.extend({
   /**
    * An object to hold reusable Security Scheme Objects.
    */
-  securitySchemes: z.record(z.string(), SecuritySchemeObjectSchema).optional(),
+  securitySchemes: z.record(z.string(), z.union([ReferenceObjectSchema, SecuritySchemeObjectSchema])).optional(),
   /**
    * An object to hold reusable Link Objects.
    */
