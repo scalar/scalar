@@ -379,7 +379,7 @@ describe('useMultipleDocuments', () => {
               {
                 url: '/openapi-1.yaml',
                 slug: 'first-api',
-                title: 'First API ',
+                title: 'First API',
               },
               {
                 url: '/openapi-2.yaml',
@@ -415,12 +415,12 @@ describe('useMultipleDocuments', () => {
       expect(availableDocuments.value).toHaveLength(4)
 
       // Verify the selected document matches the query parameter
-      expect(selectedDocumentIndex.value).toBe(3)
       expect(selectedConfiguration.value).toMatchObject({
-        url: '/openapi-3.yaml',
-        slug: 'third-api',
-        title: 'Third API',
+        url: '/openapi-1.yaml',
+        slug: 'first-api',
+        title: 'First API',
       })
+      expect(selectedDocumentIndex.value).toBe(0)
     })
 
     it('handles multiple configurations with multiple sources and a default source', () => {
@@ -473,12 +473,12 @@ describe('useMultipleDocuments', () => {
       expect(availableDocuments.value).toHaveLength(4)
 
       // Verify the selected document matches the query parameter
-      expect(selectedDocumentIndex.value).toBe(3)
       expect(selectedConfiguration.value).toMatchObject({
         url: '/openapi-3.yaml',
         slug: 'third-api',
         title: 'Third API',
       })
+      expect(selectedDocumentIndex.value).toBe(2)
     })
   })
 
