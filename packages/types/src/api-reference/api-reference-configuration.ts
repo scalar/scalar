@@ -498,6 +498,7 @@ export type AnyApiReferenceConfiguration =
   | Partial<ApiReferenceConfiguration>
   | Partial<ApiReferenceConfigurationWithSources>
   | Partial<ApiReferenceConfigurationWithDefault>[]
+  | Partial<ApiReferenceConfigurationWithSources>[]
 
 /** Typeguard to check to narrow the configs to the one with sources */
 export const isConfigurationWithSources = (
