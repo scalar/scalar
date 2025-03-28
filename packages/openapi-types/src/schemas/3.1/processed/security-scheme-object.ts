@@ -91,19 +91,28 @@ export const OAuthFlowObjectSchema = z.object({
    * between the scope name and a short description for it. The map MAY be empty.
    */
   'scopes': z.record(z.string(), z.string().optional()).optional().default({}).catch({}),
-  /** Extension to save the client Id associated with an oauth flow */
-  // TODO: Move somewhere else
-  'x-scalar-client-id': z.string().optional(),
-  // TODO: Move somewhere else
-  /** The auth token */
-  // 'token': z.string(),
 })
 
-/** Setup a default redirect uri if we can */
-const defaultRedirectUri = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''
+export const ImplicitFlowSchema = OAuthFlowObjectSchema.extend({
+  type: z.literal('implicit').optional(),
+  authorizationUrl,
+})
 
-/** Options for the x-usePkce extension */
-export const XUsePkceValues = ['SHA-256', 'plain', 'no'] as const
+export const PasswordFlowSchema = OAuthFlowObjectSchema.extend({
+  type: z.literal('password').optional(),
+  tokenUrl,
+})
+
+export const ClientCredentialsFlowSchema = OAuthFlowObjectSchema.extend({
+  type: z.literal('clientCredentials').optional(),
+  tokenUrl,
+})
+
+export const AuthorizationCodeFlowSchema = OAuthFlowObjectSchema.extend({
+  type: z.literal('authorizationCode').optional(),
+  authorizationUrl,
+  tokenUrl,
+})
 
 /**
  * OAuth Flows Object
@@ -112,63 +121,35 @@ export const XUsePkceValues = ['SHA-256', 'plain', 'no'] as const
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#oauth-flows-object
  */
-export const OAuth2FlowObjectSchema = DescriptionSchema.extend({
+export const OAuthFlowsObjectSchema = DescriptionSchema.extend({
   /**
    * REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2",
    * "openIdConnect".
    */
   type: z.literal('oauth2'),
-  /** REQUIRED. An object containing configuration information for the flow types supported. */
+  /**
+   * REQUIRED. An object containing configuration information for the flow types supported.
+   */
   flows: z
     .object({
       /**
        * Configuration for the OAuth Implicit flow
        */
-      implicit: OAuthFlowObjectSchema.extend({
-        type: z.literal('implicit').optional(),
-        authorizationUrl,
-        // 'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
-      }).optional(),
+      implicit: ImplicitFlowSchema.optional(),
       /**
        * Configuration for the OAuth Resource Owner Password flow
        */
-      password: OAuthFlowObjectSchema.extend({
-        type: z.literal('password').optional(),
-        tokenUrl,
-        // TODO: Merge this somewhere else
-        // clientSecret: z.string().default(''),
-        username: z.string().default(''),
-        password: z.string().default(''),
-      }).optional(),
+      password: PasswordFlowSchema.optional(),
       /**
        * Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0.
        */
-      clientCredentials: OAuthFlowObjectSchema.extend({
-        type: z.literal('clientCredentials').optional(),
-        tokenUrl,
-        // TODO: Merge this somewhere else
-        // clientSecret: z.string().default(''),
-      }).optional(),
-      authorizationCode: OAuthFlowObjectSchema.extend({
-        type: z.literal('authorizationCode').optional(),
-        authorizationUrl,
-        /**
-         * Whether to use PKCE for the authorization code flow.
-         *
-         * TODO: add docs
-         */
-        // 'x-usePkce': z.enum(XUsePkceValues).optional().default('no'),
-        // 'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
-        tokenUrl,
-        // TODO: Merge this somewhere else
-        // clientSecret: z.string().default(''),
-      }).optional(),
+      clientCredentials: ClientCredentialsFlowSchema.optional(),
+      /**
+       * Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.
+       */
+      authorizationCode: AuthorizationCodeFlowSchema.optional(),
     })
-    .partial()
-    // TODO: Did we just define this, or does this come from the specification?
-    .default({
-      implicit: { type: 'implicit', authorizationUrl: 'http://localhost:8080' },
-    }),
+    .partial(),
 })
 
 export const MutualTlsSchema = DescriptionSchema.extend({
@@ -196,6 +177,6 @@ export const SecuritySchemeObjectSchema = z.union([
   ApiKeySchema,
   HttpSchema,
   MutualTlsSchema,
-  OAuth2FlowObjectSchema,
+  OAuthFlowsObjectSchema,
   OpenIdConnectSchema,
 ])

@@ -25,12 +25,16 @@ export { SecurityRequirementObjectSchema } from './security-requirement-object'
 export {
   ApiKeyInValues,
   ApiKeySchema,
+  AuthorizationCodeFlowSchema,
+  ClientCredentialsFlowSchema,
   HttpSchema,
+  ImplicitFlowSchema,
   MutualTlsSchema,
-  OAuth2FlowObjectSchema,
+  OAuthFlowObjectSchema,
+  OAuthFlowsObjectSchema,
   OpenIdConnectSchema,
+  PasswordFlowSchema,
   SecuritySchemeObjectSchema,
-  XUsePkceValues,
 } from './security-scheme-object'
 export { ServerObjectSchema } from './server-object'
 export { ServerVariableObjectSchema } from './server-variable-object'

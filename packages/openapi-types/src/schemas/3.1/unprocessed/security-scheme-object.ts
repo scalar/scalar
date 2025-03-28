@@ -1,13 +1,16 @@
 import {
   ApiKeyInValues as OriginalApiKeyInValues,
   ApiKeySchema as OriginalApiKeySchema,
+  AuthorizationCodeFlowSchema as OriginalAuthorizationCodeFlowSchema,
+  ClientCredentialsFlowSchema as OriginalClientCredentialsFlowSchema,
   HttpSchema as OriginalHttpSchema,
+  ImplicitFlowSchema as OriginalImplicitFlowSchema,
   MutualTlsSchema as OriginalMutualTlsSchema,
-  OAuth2FlowObjectSchema as OriginalOAuth2FlowObjectSchema,
   OAuthFlowObjectSchema as OriginalOAuthFlowObjectSchema,
+  OAuthFlowsObjectSchema as OriginalOAuthFlowsObjectSchema,
   OpenIdConnectSchema as OriginalOpenIdConnectSchema,
+  PasswordFlowSchema as OriginalPasswordFlowSchema,
   SecuritySchemeObjectSchema as OriginalSecuritySchemeObjectSchema,
-  XUsePkceValues as OriginalXUsePkceValues,
 } from '../processed/security-scheme-object'
 
 /**
@@ -24,11 +27,16 @@ import {
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#security-scheme-object
  */
 export const SecuritySchemeObjectSchema = OriginalSecuritySchemeObjectSchema
+
 export const ApiKeyInValues = OriginalApiKeyInValues
 export const ApiKeySchema = OriginalApiKeySchema
 export const HttpSchema = OriginalHttpSchema
-export const OpenIdConnectSchema = OriginalOpenIdConnectSchema
-export const OAuthFlowObjectSchema = OriginalOAuthFlowObjectSchema
-export const XUsePkceValues = OriginalXUsePkceValues
-export const OAuth2FlowObjectSchema = OriginalOAuth2FlowObjectSchema
 export const MutualTlsSchema = OriginalMutualTlsSchema
+export const OpenIdConnectSchema = OriginalOpenIdConnectSchema
+
+export const OAuthFlowsObjectSchema = OriginalOAuthFlowsObjectSchema
+export const OAuthFlowObjectSchema = OriginalOAuthFlowObjectSchema
+export const AuthorizationCodeFlowSchema = OriginalAuthorizationCodeFlowSchema
+export const ClientCredentialsFlowSchema = OriginalClientCredentialsFlowSchema
+export const ImplicitFlowSchema = OriginalImplicitFlowSchema
+export const PasswordFlowSchema = OriginalPasswordFlowSchema
