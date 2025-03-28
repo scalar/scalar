@@ -149,7 +149,7 @@ const shouldVirtualize = computed(() => {
     </template>
     <div
       :id="filterIds.All"
-      class="custom-scroll relative grid h-full justify-stretch divide-y"
+      class="custom-scroll response-section-content relative grid h-full justify-stretch"
       :class="{
         'content-start': response,
       }"
@@ -159,11 +159,13 @@ const shouldVirtualize = computed(() => {
       </template>
       <template v-else>
         <ResponseCookies
+          class="response-section-content-cookies"
           v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
           :id="filterIds.Cookies"
           :cookies="responseCookies"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <ResponseHeaders
+          class="response-section-content-headers"
           v-if="activeFilter === 'All' || activeFilter === 'Headers'"
           :id="filterIds.Headers"
           :headers="responseHeaders"
@@ -180,6 +182,7 @@ const shouldVirtualize = computed(() => {
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
           <ResponseBody
+            class="response-section-content-body"
             v-else
             :id="filterIds.Body"
             :active="true"

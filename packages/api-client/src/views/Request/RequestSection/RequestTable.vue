@@ -3,7 +3,7 @@ import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import type { RouteLocationRaw } from 'vue-router'
+import { RouterLink, type RouteLocationRaw } from 'vue-router'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'

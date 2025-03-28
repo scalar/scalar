@@ -174,6 +174,7 @@ const handleRequestNamePlaceholder = () => {
       class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
+        class="request-section-content-auth"
         v-if="
           collection &&
           workspace &&
@@ -195,6 +196,7 @@ const handleRequestNamePlaceholder = () => {
         title="Authentication"
         :workspace="workspace" />
       <RequestPathParams
+        class="request-section-content-path-params"
         v-show="
           (selectedFilter === 'All' || selectedFilter === 'Variables') &&
           example.parameters.path.length
@@ -210,6 +212,7 @@ const handleRequestNamePlaceholder = () => {
         title="Variables"
         :workspace="workspace" />
       <RequestParams
+        class="request-section-content-cookies"
         v-show="selectedFilter === 'All' || selectedFilter === 'Cookies'"
         :id="filterIds.Cookies"
         :envVariables="envVariables"
@@ -224,6 +227,7 @@ const handleRequestNamePlaceholder = () => {
         :workspace="workspace"
         workspaceParamKey="cookies" />
       <RequestParams
+        class="request-section-content-headers"
         v-show="selectedFilter === 'All' || selectedFilter === 'Headers'"
         :id="filterIds.Headers"
         :envVariables="envVariables"
@@ -236,6 +240,7 @@ const handleRequestNamePlaceholder = () => {
         title="Headers"
         :workspace="workspace" />
       <RequestParams
+        class="request-section-content-query"
         v-show="selectedFilter === 'All' || selectedFilter === 'Query'"
         :id="filterIds.Query"
         :envVariables="envVariables"
@@ -248,6 +253,7 @@ const handleRequestNamePlaceholder = () => {
         title="Query Parameters"
         :workspace="workspace" />
       <RequestBody
+        class="request-section-content-body"
         v-show="
           operation.method &&
           (selectedFilter === 'All' || selectedFilter === 'Body') &&
@@ -268,6 +274,7 @@ const handleRequestNamePlaceholder = () => {
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
+          class="request-section-content-code-example"
           :collection="collection"
           :example="example"
           :operation="operation"
