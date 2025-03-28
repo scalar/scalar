@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.28.9
+
+### Patch Changes
+
+- 8efedf3: fix: reduce section opening jank and ensure spec is changed correctly
+- 8efedf3: fix: allow async functions in onDocumentSelect
+- 7e5d385: fix: integration links on getting started component
+- 57feba6: feat: added new auth config (v2)
+- Updated dependencies [8efedf3]
+- Updated dependencies [ab6b166]
+- Updated dependencies [82a4ba8]
+- Updated dependencies [52f6f4c]
+- Updated dependencies [57feba6]
+  - @scalar/types@0.1.4
+  - @scalar/api-client@2.3.9
+  - @scalar/oas-utils@0.2.123
+  - @scalar/openapi-parser@0.10.12
+  - @scalar/snippetz@0.2.18
+  - @scalar/themes@0.9.82
+  - @scalar/code-highlight@0.0.25
+  - @scalar/components@0.13.41
+  - @scalar/use-hooks@0.1.36
+
 ## 1.28.8
 
 ### Patch Changes

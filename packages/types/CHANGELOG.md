@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.1.4
+
+### Patch Changes
+
+- 8efedf3: fix: allow async functions in onDocumentSelect
+- 82a4ba8: chore: move security schemes into types package for future reference
+- 57feba6: feat: added new auth config (v2)
+
 ## 0.1.3
 
 ### Patch Changes
