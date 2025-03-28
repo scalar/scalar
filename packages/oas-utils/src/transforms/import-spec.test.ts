@@ -499,14 +499,14 @@ describe('importSpecToWorkspace', () => {
       // test if the values were filled
       const clonedSchemes = structuredClone(testSchemes)
 
-      clonedSchemes[0].token = 'xyz token value'
-      clonedSchemes[1].username = 'username'
-      clonedSchemes[1].password = 'password'
-      clonedSchemes[2].value = 'tokenHeader'
-      clonedSchemes[3].value = 'tokenQuery'
-      clonedSchemes[4].value = 'tokenCookie'
+      clonedSchemes[0]!.token = 'xyz token value'
+      clonedSchemes[1]!.username = 'username'
+      clonedSchemes[1]!.password = 'password'
+      clonedSchemes[2]!.value = 'tokenHeader'
+      clonedSchemes[3]!.value = 'tokenQuery'
+      clonedSchemes[4]!.value = 'tokenCookie'
 
-      const flows = clonedSchemes[5].flows!
+      const flows = clonedSchemes[5]!.flows!
       flows.authorizationCode.token = 'auth code token'
       flows.password.token = 'user pass token'
       flows.password.username = 'user'
