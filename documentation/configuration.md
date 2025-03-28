@@ -4,10 +4,10 @@ You can pass a — what we call — universal configuration object to fine-tune 
 
 ## Universal Configuration
 
-It's universal, because it works in all environments. You can pass it to the JS API directly, our you can use it in one
+It is universal, because it works in all environments. You can pass it to the JS API directly, our you can use it in one
 of our integrations.
 
-Let's say you're working with just an HTML file, that's how you pass the configuration:
+Let’s say you are working with just an HTML file, that’s how you pass the configuration:
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -46,7 +46,7 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It's the recommded way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
+It’s the recommded way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
 and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just
@@ -77,7 +77,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Documents
 
-Add multiple OpenAPI documents to render all of them. We'll need a slug and title to distinguish them in the UI and in
+Add multiple OpenAPI documents to render all of them. We will need a slug and title to distinguish them in the UI and in
 the URL. You can just omit those attributes and we try our best to still distinguish them, though.
 
 ```ts
@@ -503,7 +503,7 @@ To make authentication easier you can prefill the credentials for your users:
 
     // Define security scheme configurations:
     securitySchemes: {
-      // For API Key 
+      // For API Key
       apiKeyHeader: {
         name: 'X-API-KEY',
         in: 'header',
