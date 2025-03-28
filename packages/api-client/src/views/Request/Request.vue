@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { computed } from 'vue'
 
 import EmptyState from '@/components/EmptyState.vue'
@@ -13,13 +14,14 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { invalidParams } = defineProps<{
+const { invalidParams, selectedSecuritySchemeUids } = defineProps<{
   invalidParams: Set<string>
+  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
 }>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
+
 const { events } = useWorkspace()
 const { isSidebarOpen } = useSidebar()
-
 const workspaceContext = useWorkspace()
 const { layout } = useLayout()
 
@@ -37,21 +39,6 @@ const { modalState, requestHistory } = workspaceContext
 
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
-)
-
-/**
- * Selected scheme UIDs
- *
- * In the modal we use collection.selectedSecuritySchemes and in the
- * standalone client we use request.selectedSecuritySchemeUids
- *
- * These are centralized here so they can be drilled down AND used in send-request
- */
-const selectedSecuritySchemeUids = computed(
-  () =>
-    (layout === 'modal'
-      ? activeCollection.value?.selectedSecuritySchemeUids
-      : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
 
 function handleCurlImport(curl: string) {

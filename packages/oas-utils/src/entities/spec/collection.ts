@@ -84,6 +84,12 @@ export const extendedCollectionSchema = z.object({
   /** Keeps track of which integration is associated with the specific collection */
   integration: z.string().nullable().optional(),
   /**
+   * Selected authentication will be set at the collection level instead of the request level
+   *
+   * @default false
+   */
+  useCollectionSecurity: z.boolean().optional().default(false),
+  /**
    * Status of the watcher from above
    *
    * @defaults to idle for all collections, doesn't mean that it can watch for changes

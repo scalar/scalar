@@ -70,7 +70,7 @@ function handleDeleteCollection() {
       <!-- Watch Mode -->
       <div class="bg-b-2 rounded-lg border text-sm">
         <div
-          class="bg-b-1 -m-1/2 flex items-center justify-between gap-4 rounded-t-lg border p-3">
+          class="bg-b-1 -m-1/2 flex items-center justify-between gap-4 rounded-t-lg border-l p-3">
           <div>
             <h4>Watch Mode</h4>
             <p class="text-c-2 mt-1">
@@ -85,7 +85,7 @@ function handleDeleteCollection() {
             @update:modelValue="handleToggleWatchMode" />
         </div>
         <div
-          class="text-c-1 flex items-center overflow-x-auto whitespace-nowrap py-1.5">
+          class="text-c-1 flex items-center overflow-x-auto whitespace-nowrap border-t py-1.5">
           <div class="flex items-center">
             <template v-if="activeCollection?.documentUrl">
               <span class="bg-b-2 sticky left-0 pl-3 pr-2">Source</span>

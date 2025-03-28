@@ -267,12 +267,10 @@ export const createApiClient = ({
         if (newConfig.url) {
           await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', {
             ...newConfig,
-            setCollectionSecurity: true,
           })
         } else if (newConfig.content) {
           await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', {
             ...newConfig,
-            setCollectionSecurity: true,
           })
         } else {
           console.error(
