@@ -79,14 +79,18 @@ export const useMultipleDocuments = ({
       return []
     }
 
-    // Map the sources down to an array of specs
-    const sources = isConfigurationWithSources(configuration.value)
-      ? // This IFFE is needed for the type guard as it doens't persist into the callback scope
-        (() => {
-          const { sources, ...rest } = configuration.value
-          return sources?.map((source) => ({ ...rest, ...source })) ?? []
-        })()
-      : [configuration.value].flat()
+    // Handle array of configurations
+    const configs = Array.isArray(configuration.value) ? configuration.value : [configuration.value]
+
+    // Flatten all configurations and their sources into a single array
+    const sources = configs.flatMap((config) => {
+      if (isConfigurationWithSources(config)) {
+        // Spread the config properties (except sources) into each source
+        const { sources: configSources, ...rest } = config
+        return configSources?.map((source) => ({ ...rest, ...source })) ?? []
+      }
+      return [config]
+    })
 
     // Process them
     return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
