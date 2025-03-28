@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { operationSchema } from './operation'
+import { operationSchema } from './operation.ts'
 
 describe('operationSchema', () => {
   describe('x-scalar-stability', () => {

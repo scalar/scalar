@@ -1,11 +1,11 @@
+import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility.ts'
+import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments.ts'
+import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets.ts'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
-import { selectedSecuritySchemeUidSchema } from '@/entities/shared'
-import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
-import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
 
-import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
+import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects.ts'
 
 export const oasCollectionSchema = z.object({
   /**

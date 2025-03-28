@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { v_2_3_0 } from '../v-2.3.0'
-import { migrate_v_2_4_0 } from './migration'
-import type { v_2_4_0 } from './types.generated'
+import type { v_2_3_0 } from '../v-2.3.0/types.generated.ts'
+import { migrate_v_2_4_0 } from './migration.ts'
+import type { v_2_4_0 } from './types.generated.ts'
 
 describe('migrate_v_2_4_0', () => {
   it('should migrate draft collection by removing servers and updating request paths', () => {
@@ -68,9 +68,9 @@ describe('migrate_v_2_4_0', () => {
 
     // Assertions
     expectTypeOf(result).toMatchTypeOf<v_2_4_0.DataRecord>()
-    expect(result.collections.draft1.servers).toEqual([])
-    expect(result.requests.request1.path).toBe('https://api.example.com/users')
-    expect(result.requests.request1.selectedServerUid).toBe('')
+    expect(result.collections.draft1?.servers).toEqual([])
+    expect(result.requests.request1?.path).toBe('https://api.example.com/users')
+    expect(result.requests.request1?.selectedServerUid).toBe('')
   })
 
   it('should preserve all other data properties', () => {

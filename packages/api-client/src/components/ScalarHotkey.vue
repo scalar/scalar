@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/components'
-import type { HotKeyModifiers } from '@scalar/oas-utils/entities'
+import type { HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
 import { isMacOS } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 

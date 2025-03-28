@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import { isDefined } from './is-defined'
+import { isDefined } from './is-defined.ts'
 
 describe('isDefined type', () => {
   it('should narrow type when filtering arrays', () => {

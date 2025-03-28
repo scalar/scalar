@@ -7,10 +7,6 @@
     "declarationMap": true,
     "noEmit": false,
     "emitDeclarationOnly": true,
-    "outDir": "dist/",
-    "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
-    }
+    "outDir": "dist/"
   }
 }

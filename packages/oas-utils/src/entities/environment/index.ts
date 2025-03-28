@@ -1,1 +1,1 @@
-export * from './environment'
+export { type Environment, environmentSchema } from './environment.ts'

@@ -1,6 +1,7 @@
-import { oasParameterSchema } from '@/entities/spec/parameters'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
+
+import { oasParameterSchema } from './parameters.ts'
 
 describe('oasParameterSchema', () => {
   it('should validate a parameter with a correct example', () => {

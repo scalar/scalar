@@ -1,8 +1,8 @@
-import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
-import { parseJsonOrYaml } from '@/helpers'
 import { describe, expect, it } from 'vitest'
 
-import baseDefinition from '../../spec-extentions/x-scalar-environments.yaml?raw'
+import { parseJsonOrYaml } from '@/helpers/parse.ts'
+import baseDefinition from '@/spec-extentions/x-scalar-environments.yaml?raw'
+import { xScalarEnvironmentsSchema } from './x-scalar-environments.ts'
 
 describe('x-scalar-environments', () => {
   it('Handles spec definition', () => {

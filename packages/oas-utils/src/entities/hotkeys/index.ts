@@ -1,1 +1,1 @@
-export * from './hotkeys'
+export { type HotkeyEventName, type KeydownKey, HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from './hotkeys.ts'

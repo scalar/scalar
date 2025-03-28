@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { v_2_4_0 } from '../v-2.4.0'
-import { migrate_v_2_5_0 } from '../v-2.5.0/migration'
-import type { v_2_5_0 } from './types.generated'
+import type { v_2_4_0 } from '../v-2.4.0/types.generated.ts'
+import { migrate_v_2_5_0 } from './migration.ts'
+import type { v_2_5_0 } from './types.generated.ts'
 
 describe('migrate_v_2_5_0', () => {
   it('should add default "Accept" header if it does not exist', () => {
@@ -41,8 +41,8 @@ describe('migrate_v_2_5_0', () => {
 
     // Assertions
     expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
-    expect(result.requestExamples.example1.parameters.headers[0].key).toBe('Accept')
-    expect(result.requestExamples.example1.parameters.headers[0].value).toBe('*/*')
+    expect(result.requestExamples.example1!.parameters.headers[0]!.key).toBe('Accept')
+    expect(result.requestExamples.example1!.parameters.headers[0]!.value).toBe('*/*')
   })
 
   it('should not add "Accept" header if it already exists', () => {
@@ -83,9 +83,9 @@ describe('migrate_v_2_5_0', () => {
 
     // Assertions
     expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
-    expect(result.requestExamples.example2.parameters.headers.length).toBe(2)
-    expect(result.requestExamples.example2.parameters.headers[0].key).toBe('Accept')
-    expect(result.requestExamples.example2.parameters.headers[0].value).toBe('application/json')
+    expect(result.requestExamples.example2!.parameters.headers.length).toBe(2)
+    expect(result.requestExamples.example2!.parameters.headers[0]!.key).toBe('Accept')
+    expect(result.requestExamples.example2!.parameters.headers[0]!.value).toBe('application/json')
   })
 
   it('should add default selectedHttpClient to workspaces', () => {
@@ -122,7 +122,7 @@ describe('migrate_v_2_5_0', () => {
 
     // Assertions
     expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
-    expect(result.workspaces.default.selectedHttpClient).toEqual({
+    expect(result.workspaces.default!.selectedHttpClient).toEqual({
       targetKey: 'shell',
       clientKey: 'curl',
     })

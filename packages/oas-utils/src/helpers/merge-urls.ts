@@ -1,7 +1,6 @@
-import { REGEX } from '@/helpers/regexHelpers'
-
-import { ensureProtocol } from './ensure-protocol'
-import { isRelativePath } from './redirectToProxy'
+import { ensureProtocol } from './ensure-protocol.ts'
+import { isRelativePath } from './redirect-to-proxy.ts'
+import { REGEX } from './regex-helpers.ts'
 
 /**
  * Merges multiple URLSearchParams objects, preserving multiple values per param

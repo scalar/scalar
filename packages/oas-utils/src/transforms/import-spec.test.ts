@@ -1,17 +1,17 @@
 /** @vitest-environment jsdom */
-import type { SecurityScheme, SecuritySchemeOauth2 } from '@/entities/spec/security'
-import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
-import circular from '@test/fixtures/basic-circular-spec.json'
-import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it, vi } from 'vitest'
 
-import galaxy from '../../../galaxy/dist/latest.json'
+import type { SecurityScheme, SecuritySchemeOauth2 } from '@/entities/spec/security.ts'
+import circular from '@test/fixtures/basic-circular-spec.json' assert { type: 'json' }
+import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json' assert { type: 'json' }
+import galaxy from '../../../galaxy/dist/latest.json' assert { type: 'json' }
+import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from './import-spec.ts'
 
 describe('getSelectedSecuritySchemeUids', () => {
   const securitySchemeMap = {
-    'basic-auth': 'basic-uid',
-    'api-key': 'apikey-uid',
-    'oauth2': 'oauth-uid',
+    'basic-auth': 'basic-uid' as SecurityScheme['uid'],
+    'api-key': 'apikey-uid' as SecurityScheme['uid'],
+    'oauth2': 'oauth-uid' as SecurityScheme['uid'],
   }
 
   it('should return first security requirement when no preferred scheme is provided', () => {
@@ -86,9 +86,9 @@ describe('importSpecToWorkspace', () => {
         return
       }
 
-      expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
-      expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
-      expect(res.tags[0].children.includes(Object.values(res.requests)[0].uid)).toEqual(true)
+      expect(res.requests[0]?.path).toEqual('/api/v1/updateEmployee')
+      expect(res.tags[0]?.children.includes(res.tags[1]!.uid)).toEqual(true)
+      expect(res.tags[0]?.children.includes(Object.values(res.requests)[0]!.uid)).toEqual(true)
     })
 
     it('handles a weird Petstore example', async () => {
@@ -122,9 +122,9 @@ describe('importSpecToWorkspace', () => {
       }
 
       const request = res.requests[0]
-      expect(request.parameters).toHaveLength(2)
-      expect(request.parameters?.map((p) => p.name)).toContain('id')
-      expect(request.parameters?.map((p) => p.name)).toContain('filter')
+      expect(request!.parameters).toHaveLength(2)
+      expect(request!.parameters?.map((p) => p.name)).toContain('id')
+      expect(request!.parameters?.map((p) => p.name)).toContain('filter')
     })
 
     it('handles requests in the order defined in the OpenAPI document', async () => {
@@ -213,7 +213,7 @@ describe('importSpecToWorkspace', () => {
       })
     })
 
-    it('throws away the contact if it’s not even strings', async () => {
+    it("throws away the contact if it's not even strings", async () => {
       const result = await importSpecToWorkspace({
         openapi: '3.1.0',
         info: {
@@ -299,7 +299,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       // The untagged request should be in the collection's root children
-      expect(res.collection.children).toContain(res.requests[0].uid)
+      expect(res.collection.children).toContain(res.requests[0]!.uid)
     })
   })
 
@@ -482,14 +482,14 @@ describe('importSpecToWorkspace', () => {
 
       // test if the values were filled
       const clonedSchemes = structuredClone(testSchemes)
-      clonedSchemes[0].token = 'test-bearer-token'
-      clonedSchemes[1].username = 'test-username'
-      clonedSchemes[1].password = 'test-password'
-      clonedSchemes[2].value = 'test-api-key'
-      clonedSchemes[3].value = 'test-api-key'
-      clonedSchemes[4].value = 'test-api-key'
+      clonedSchemes[0]!.token = 'test-bearer-token'
+      clonedSchemes[1]!.username = 'test-username'
+      clonedSchemes[1]!.password = 'test-password'
+      clonedSchemes[2]!.value = 'test-api-key'
+      clonedSchemes[3]!.value = 'test-api-key'
+      clonedSchemes[4]!.value = 'test-api-key'
 
-      const flows = clonedSchemes[5].flows!
+      const flows = clonedSchemes[5]!.flows!
       flows.authorizationCode['x-scalar-client-id'] = 'test-client-id'
       flows.authorizationCode.token = 'test-access-token'
       flows.authorizationCode.selectedScopes = ['read:account', 'read:planets']
@@ -544,7 +544,7 @@ describe('importSpecToWorkspace', () => {
         throw res.error
       }
 
-      expect(res.requests[0].security).toEqual([{}])
+      expect(res.requests[0]!.security).toEqual([{}])
     })
 
     it('handles empty security requirements with preferred security scheme', async () => {
@@ -587,7 +587,7 @@ describe('importSpecToWorkspace', () => {
       if (res.error) {
         throw res.error
       }
-      expect(res.requests[0].security).toEqual([])
+      expect(res.requests[0]!.security).toEqual([])
     })
 
     it('imports path-level parameters', async () => {
@@ -610,7 +610,7 @@ describe('importSpecToWorkspace', () => {
         throw res.error
       }
 
-      expect(res.requests[0].parameters).toMatchObject([
+      expect(res.requests[0]!.parameters).toMatchObject([
         { name: 'foo', in: 'path' },
         { name: 'bar', in: 'path' },
       ])
@@ -635,7 +635,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       // Operation level security should override global security
-      expect(res.requests[0].security).toEqual([{ basicAuth: [] }])
+      expect(res.requests[0]!.security).toEqual([{ basicAuth: [] }])
     })
 
     it('sets collection level security when specified', async () => {
@@ -657,7 +657,6 @@ describe('importSpecToWorkspace', () => {
     it('handles oauth2 authentication configuration', async () => {
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
-          // @ts-expect-error
           oAuth2: {
             clientId: 'test-client',
             scopes: ['read:account'],
@@ -690,7 +689,7 @@ describe('importSpecToWorkspace', () => {
       if (res.error) {
         throw res.error
       }
-      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([])
+      expect(res.requests[0]!.selectedSecuritySchemeUids).toEqual([])
     })
 
     it('sets the correct selectedSecuritySchemeUids when theres no collection security requirement', async () => {
@@ -728,7 +727,7 @@ describe('importSpecToWorkspace', () => {
       const selectedSecuritySchemeUids = [
         [findSchemeUidByKey('apiKeyHeader', res.securitySchemes), findSchemeUidByKey('basicAuth', res.securitySchemes)],
       ]
-      expect(res.requests[0].selectedSecuritySchemeUids).toEqual(selectedSecuritySchemeUids)
+      expect(res.requests[0]!.selectedSecuritySchemeUids).toEqual(selectedSecuritySchemeUids)
     })
 
     it('handles AND security requirements with setCollectionSecurity', async () => {
@@ -777,7 +776,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       // Check that the request inherits both options
-      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
+      expect(res.requests[0]!.selectedSecuritySchemeUids).toEqual([
         findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
       ])
     })
@@ -804,7 +803,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       // Check that both the security requirement and the optional empty object are preserved
-      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
+      expect(res.requests[0]!.selectedSecuritySchemeUids).toEqual([
         findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
       ])
     })
@@ -954,7 +953,7 @@ describe('parseSchema', () => {
         name: { type: 'string' },
       },
     })
-    expect(schema.paths?.['/foobar']?.get?.responses?.['200'].content['application/json'].schema).toMatchObject({
+    expect(schema.paths?.['/foobar']?.get?.responses?.['200']?.content?.['application/json']?.schema).toMatchObject({
       type: 'object',
       properties: {
         name: { type: 'string' },
@@ -1067,8 +1066,8 @@ describe('getServersFromOpenApiDocument', () => {
       throw result.error
     }
 
-    expect(result.servers[0].url).toBe('{protocol}://api.example.com/{basePath}')
-    expect(result.servers[0].variables).toBeDefined()
+    expect(result.servers[0]!.url).toBe('{protocol}://api.example.com/{basePath}')
+    expect(result.servers[0]!.variables).toBeDefined()
   })
 
   it('handles multiple servers with mixed formats', async () => {

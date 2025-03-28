@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { json2xml } from './json2xml'
+import { json2xml } from './json2xml.ts'
 
 describe('getUrlFromServerState', () => {
   it('transforms JSON to xml', () => {

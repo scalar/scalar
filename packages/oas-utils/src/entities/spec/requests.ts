@@ -1,13 +1,12 @@
+import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility.ts'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
-import { selectedSecuritySchemeUidSchema } from '@/entities/shared'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
 import { XScalarStability } from '@scalar/types'
-import { oasParameterSchema } from './parameters'
-import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
-import { oasExternalDocumentationSchema } from './spec-objects'
+import { oasParameterSchema } from './parameters.ts'
+import { type RequestExample, xScalarExampleSchema } from './request-examples.ts'
+import { oasExternalDocumentationSchema } from './spec-objects.ts'
 
 export const requestMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 
@@ -94,7 +93,7 @@ export const oasRequestSchema = z.object({
   /** Hide operations */
   'x-internal': z.boolean().optional(),
   'x-scalar-ignore': z.boolean().optional(),
-}) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
+})
 
 /**
  * An OpenAPI extension to indicate the stability of the operation

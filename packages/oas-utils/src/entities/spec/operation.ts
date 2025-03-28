@@ -2,7 +2,7 @@
  * Aliases Request to Operation which is closer to the spec,
  * also will not conflict with the builtin Request class
  */
-import { type RequestPayload, type Request as RequestType, requestSchema } from './requests'
+import { type RequestPayload, type Request as RequestType, requestSchema } from './requests.ts'
 
 export type Operation = RequestType
 export type OperationPayload = RequestPayload

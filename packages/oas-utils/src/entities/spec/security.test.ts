@@ -1,14 +1,14 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
+
 import {
-  securityApiKeySchema,
-  securityHttpSchema,
-  securityOpenIdSchema,
-  securityOauthSchema,
-  securitySchemeSchema,
   oasSecurityRequirementSchema,
   pkceOptions,
-  type SecurityScheme,
-} from './security'
+  securityApiKeySchema,
+  securityHttpSchema,
+  securityOauthSchema,
+  securityOpenIdSchema,
+  securitySchemeSchema,
+} from './security.ts'
 
 describe('Security Schemas', () => {
   describe('API Key Schema', () => {
@@ -305,28 +305,28 @@ describe('Security Schemas', () => {
 
   describe('Combined Security Scheme', () => {
     it('should validate all security scheme types', () => {
-      const apiKey: SecurityScheme = {
+      const apiKey = securitySchemeSchema.parse({
         type: 'apiKey',
         name: 'api_key',
         in: 'header',
         uid: 'apikey123',
         value: 'test-api-key',
-      }
+      })
 
-      const http: SecurityScheme = {
+      const http = securitySchemeSchema.parse({
         type: 'http',
         scheme: 'bearer',
         uid: 'http123',
         token: 'bearer-token',
-      }
+      })
 
-      const openId: SecurityScheme = {
+      const openId = securitySchemeSchema.parse({
         type: 'openIdConnect',
         openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
         uid: 'openid123',
-      }
+      })
 
-      const oauth2: SecurityScheme = {
+      const oauth2 = securitySchemeSchema.parse({
         type: 'oauth2',
         uid: 'oauth123',
         flows: {
@@ -337,7 +337,7 @@ describe('Security Schemas', () => {
             token: '',
           },
         },
-      }
+      })
 
       expect(securitySchemeSchema.safeParse(apiKey).success).toBe(true)
       expect(securitySchemeSchema.safeParse(http).success).toBe(true)

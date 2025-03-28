@@ -1,34 +1,27 @@
-import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility'
-import {
-  type Collection,
-  type CollectionPayload,
-  type Request,
-  type RequestExample,
-  type RequestParameterPayload,
-  type RequestPayload,
-  type Server,
-  type Tag,
-  collectionSchema,
-  createExampleFromRequest,
-  requestSchema,
-  serverSchema,
-  tagSchema,
-} from '@/entities/spec'
-import {
-  type Oauth2FlowPayload,
-  type SecurityScheme,
-  type SecuritySchemePayload,
-  securitySchemeSchema,
-} from '@/entities/spec/security'
-import { combineUrlAndPath, isDefined } from '@/helpers'
-import { isHttpMethod } from '@/helpers/httpMethods'
-import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
+
+import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility.ts'
+import { type Collection, type CollectionPayload, collectionSchema } from '@/entities/spec/collection.ts'
+import type { RequestParameterPayload } from '@/entities/spec/parameters.ts'
+import { type RequestExample, createExampleFromRequest } from '@/entities/spec/request-examples.ts'
+import { type Request, type RequestPayload, requestSchema } from '@/entities/spec/requests.ts'
+import {
+  type Oauth2FlowPayload,
+  type SecurityScheme,
+  type SecuritySchemePayload,
+  securitySchemeSchema,
+} from '@/entities/spec/security.ts'
+import { type Server, serverSchema } from '@/entities/spec/server.ts'
+import { type Tag, tagSchema } from '@/entities/spec/spec-objects.ts'
+import { isHttpMethod } from '@/helpers/http-methods.ts'
+import { isDefined } from '@/helpers/is-defined.ts'
+import { combineUrlAndPath } from '@/helpers/merge-urls.ts'
+import { schemaModel } from '@/helpers/schema-model.ts'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
 export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = true } = {}) => {
@@ -88,7 +81,9 @@ export const getSelectedSecuritySchemeUids = (
 
   // Map names to uids
   const uids = names
-    .map((name) => (Array.isArray(name) ? name.map((k) => securitySchemeMap[k]) : securitySchemeMap[name]))
+    .map((name) =>
+      Array.isArray(name) ? name.map((k) => securitySchemeMap[k]).filter(isDefined) : securitySchemeMap[name],
+    )
     .filter(isDefined)
 
   return uids
@@ -351,8 +346,10 @@ export async function importSpecToWorkspace(
           // Handle the case of {} for optional
           if (keys.length) {
             const [key] = Object.keys(s)
-            return {
-              [key]: s[key],
+            if (key) {
+              return {
+                [key]: s[key],
+              }
             }
           }
           return s
@@ -395,11 +392,14 @@ export async function importSpecToWorkspace(
   tags.forEach((t) => {
     t['x-scalar-children']?.forEach((c) => {
       // Add the uid to the appropriate parent.children
-      const nestedUid = tagMap[c.tagName].uid
-      t.children.push(nestedUid)
+      const nestedUid = tagMap[c.tagName]?.uid
 
-      // Remove the nested uid from the root folder
-      collectionChildren.delete(nestedUid)
+      if (nestedUid) {
+        t.children.push(nestedUid)
+
+        // Remove the nested uid from the root folder
+        collectionChildren.delete(nestedUid)
+      }
     })
   })
 
@@ -407,7 +407,7 @@ export async function importSpecToWorkspace(
   requests.forEach((r) => {
     if (r.tags?.length) {
       r.tags.forEach((t) => {
-        tagMap[t].children.push(r.uid)
+        tagMap[t]?.children.push(r.uid)
       })
     } else {
       collectionChildren.add(r.uid)
