@@ -24,6 +24,42 @@ type UseMultipleDocumentsProps = {
 
 const slugger = new GithubSlugger()
 
+/**
+ * Take any configuration and return a flat array of configurations.
+ */
+export const normalizeConfigurations = (
+  configuration: AnyApiReferenceConfiguration | undefined,
+): SpecConfiguration[] => {
+  if (!configuration) {
+    return []
+  }
+
+  // Make it an array, even if it’s a single configuration
+  const configs = Array.isArray(configuration) ? configuration : [configuration]
+
+  // Flatten all configurations and their sources into a single array
+
+  // Process each configuration to extract and normalize sources
+  const sources = configs.flatMap((config) => {
+    // Check if this config has a 'sources' array property
+    if (isConfigurationWithSources(config)) {
+      // Destructure to separate sources array from other config properties
+      const { sources: configSources, ...rest } = config
+
+      // For each source in the array:
+      // - Merge the source with the parent config properties
+      // - Handle undefined sources by returning empty array via ?? []
+      return configSources?.map((source) => ({ ...rest, ...source })) ?? []
+    }
+
+    // If config doesn’t have sources array, treat the config itself as a source
+    return [config]
+  })
+
+  // Process them
+  return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
+}
+
 /** Process a single spec configuration so that it has a title and a slug */
 const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfiguration | undefined => {
   const source = {
@@ -74,36 +110,7 @@ export const useMultipleDocuments = ({
   /**
    * All available documents that can be selected
    */
-  const availableDocuments = computed((): SpecConfiguration[] => {
-    if (!configuration.value) {
-      return []
-    }
-
-    // Make it an array, even if it’s a single configuration
-    const configs = Array.isArray(configuration.value) ? configuration.value : [configuration.value]
-
-    // Flatten all configurations and their sources into a single array
-
-    // Process each configuration to extract and normalize sources
-    const sources = configs.flatMap((config) => {
-      // Check if this config has a 'sources' array property
-      if (isConfigurationWithSources(config)) {
-        // Destructure to separate sources array from other config properties
-        const { sources: configSources, ...rest } = config
-
-        // For each source in the array:
-        // - Merge the source with the parent config properties
-        // - Handle undefined sources by returning empty array via ?? []
-        return configSources?.map((source) => ({ ...rest, ...source })) ?? []
-      }
-
-      // If config doesn’t have sources array, treat the config itself as a source
-      return [config]
-    })
-
-    // Process them
-    return sources.map((source, index) => source && addSlugAndTitle(source, index)).filter(isDefined)
-  })
+  const availableDocuments = computed((): SpecConfiguration[] => normalizeConfigurations(configuration.value))
 
   /**
    * Determines the initially selected API definition from the URL
