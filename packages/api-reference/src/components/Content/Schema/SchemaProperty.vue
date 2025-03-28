@@ -14,9 +14,9 @@ import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
- * Note: We're taking in a prop called `value` which should be a JSON Schema.
+ * Note: We’re taking in a prop called `value` which should be a JSON Schema.
  *
- * We're using `optimizeValueForDisplay` to merge null types in discriminators (anyOf, allOf, oneOf, not).
+ * We’re using `optimizeValueForDisplay` to merge null types in discriminators (anyOf, allOf, oneOf, not).
  * So you should basically use the optimizedValue everywhere in the component.
  */
 
@@ -105,7 +105,7 @@ const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
 //
 // - For enums with 9 or fewer values, all values are shown.
 // - For enums with more than 9 values, only first 5 are shown initially.
-// - A "Show more" button reveals the remaining values.
+// - A “Show more” button reveals the remaining values.
 const hasLongEnumList = computed(
   () => getEnumFromValue(optimizedValue.value).length > 9,
 )
