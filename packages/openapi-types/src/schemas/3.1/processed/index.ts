@@ -23,14 +23,14 @@ export { RuntimeExpressionSchema } from './runtime-expression'
 export { SchemaObjectSchema } from './schema-object'
 export { SecurityRequirementObjectSchema } from './security-requirement-object'
 export {
-  SecuritySchemeObjectSchema,
   ApiKeyInValues,
   ApiKeySchema,
   HttpSchema,
-  OpenIdConnectSchema,
-  OAuthFlowObjectSchema,
-  XUsePkceValues,
   MutualTlsSchema,
+  OAuth2FlowObjectSchema,
+  OpenIdConnectSchema,
+  SecuritySchemeObjectSchema,
+  XUsePkceValues,
 } from './security-scheme-object'
 export { ServerObjectSchema } from './server-object'
 export { ServerVariableObjectSchema } from './server-variable-object'
