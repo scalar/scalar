@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { OpenApiObjectSchema } from '../processed'
-// TODO: Should be the unprocessed schema
-import { SecurityRequirementObjectSchema } from '../processed/security-requirement-object'
+import { OpenApiObjectSchema } from '../unprocessed/openapi-object'
+import { SecurityRequirementObjectSchema } from '../unprocessed/security-requirement-object'
 
 describe('security-requirement-object', () => {
   describe('SecurityRequirementObjectSchema', () => {

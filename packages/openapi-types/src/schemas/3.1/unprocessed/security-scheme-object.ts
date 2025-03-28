@@ -1,4 +1,14 @@
-import { SecuritySchemeObjectSchema as OriginalSecuritySchemeObjectSchema } from '../processed/security-scheme-object'
+import {
+  ApiKeyInValues as OriginalApiKeyInValues,
+  ApiKeySchema as OriginalApiKeySchema,
+  HttpSchema as OriginalHttpSchema,
+  MutualTlsSchema as OriginalMutualTlsSchema,
+  OAuth2FlowObjectSchema as OriginalOAuth2FlowObjectSchema,
+  OAuthFlowObjectSchema as OriginalOAuthFlowObjectSchema,
+  OpenIdConnectSchema as OriginalOpenIdConnectSchema,
+  SecuritySchemeObjectSchema as OriginalSecuritySchemeObjectSchema,
+  XUsePkceValues as OriginalXUsePkceValues,
+} from '../processed/security-scheme-object'
 
 /**
  * Security Scheme Object
@@ -14,3 +24,11 @@ import { SecuritySchemeObjectSchema as OriginalSecuritySchemeObjectSchema } from
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#security-scheme-object
  */
 export const SecuritySchemeObjectSchema = OriginalSecuritySchemeObjectSchema
+export const ApiKeyInValues = OriginalApiKeyInValues
+export const ApiKeySchema = OriginalApiKeySchema
+export const HttpSchema = OriginalHttpSchema
+export const OpenIdConnectSchema = OriginalOpenIdConnectSchema
+export const OAuthFlowObjectSchema = OriginalOAuthFlowObjectSchema
+export const XUsePkceValues = OriginalXUsePkceValues
+export const OAuth2FlowObjectSchema = OriginalOAuth2FlowObjectSchema
+export const MutualTlsSchema = OriginalMutualTlsSchema

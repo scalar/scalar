@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-// TODO: use unprocessed schema
-import { SecuritySchemeObjectSchema } from '../processed/security-scheme-object'
+import { SecuritySchemeObjectSchema } from '../unprocessed/security-scheme-object'
 
 describe('security-scheme-object', () => {
   describe('SecuritySchemeObjectSchema', () => {
