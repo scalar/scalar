@@ -1,6 +1,6 @@
 import { fetchSpecFromUrl, isValidUrl, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
-import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
 import { createEmptySpecification } from '../helpers'
 import { parse } from '../helpers/parse'
@@ -65,7 +65,7 @@ export function useReactiveSpec({
   /** OAS spec as a string */
   const rawSpec = ref<string>('')
   /** Fully parsed and resolved OAS object */
-  const parsedSpec = reactive(createEmptySpecification())
+  const parsedSpec = ref(createEmptySpecification())
   /** Parser error messages when parsing fails */
   const specErrors = ref<string | null>(null)
 
@@ -76,19 +76,18 @@ export function useReactiveSpec({
    */
   function parseInput(value?: string) {
     if (!value) {
-      return Object.assign(parsedSpec, createEmptySpecification())
+      parsedSpec.value = createEmptySpecification()
+      return
     }
 
-    return parse(value, {
+    parse(value, {
       proxyUrl: proxyUrl ? toValue(proxyUrl) : undefined,
     })
       .then((validSpec) => {
         specErrors.value = null
 
         // Some specs don’t have servers, make sure they are defined
-        Object.assign(parsedSpec, {
-          ...validSpec,
-        })
+        parsedSpec.value = validSpec
       })
       .catch((error) => {
         // Save the parse error message to display

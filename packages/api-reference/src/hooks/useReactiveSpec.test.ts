@@ -208,7 +208,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(parsedSpec.info?.title).toBe('Example')
+    expect(parsedSpec.value.info?.title).toBe('Example')
   })
 
   it('works with refs', async () => {
@@ -223,7 +223,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info?.title).toBe('Example')
+    expect(parsedSpec.value.info?.title).toBe('Example')
   })
 
   it('watches the ref', async () => {
@@ -238,7 +238,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info?.title).toBe('Example')
+    expect(parsedSpec.value.info?.title).toBe('Example')
 
     rawSpecConfig.value = {
       content: JSON.stringify(basicSpecString.replace('Example', 'Foobar')),
@@ -247,7 +247,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 300ms to wait for the debouncer and the parser
     await new Promise((resolve) => setTimeout(resolve, 300))
 
-    expect(parsedSpec.info?.title).toBe('Foobar')
+    expect(parsedSpec.value.info?.title).toBe('Foobar')
   })
 
   it('deals with undefined input', async () => {
@@ -256,7 +256,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(parsedSpec.info?.title).toBe('')
+    expect(parsedSpec.value.info?.title).toBe('')
   })
 
   it('deals with empty input', async () => {
@@ -269,7 +269,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(parsedSpec.info?.title).toBe('')
+    expect(parsedSpec.value.info?.title).toBe('')
   })
 
   it('returns errors', async () => {
@@ -306,9 +306,9 @@ describe('useReactiveSpec', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(parsedSpec.info?.title).toBe('API #1')
-    expect(parsedSpec.components?.schemas).toBeDefined()
-    expect(Object.keys(parsedSpec.components?.schemas ?? {})).toStrictEqual(['Planet'])
+    expect(parsedSpec.value.info?.title).toBe('API #1')
+    expect(parsedSpec.value.components?.schemas).toBeDefined()
+    expect(Object.keys(parsedSpec.value.components?.schemas ?? {})).toStrictEqual(['Planet'])
 
     // Change the configuration …
     Object.assign(specConfig.value, {
@@ -322,7 +322,7 @@ describe('useReactiveSpec', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(parsedSpec.info?.title).toBe('API #2')
-    expect(Object.keys(parsedSpec.components?.schemas ?? {})).toStrictEqual([])
+    expect(parsedSpec.value.info?.title).toBe('API #2')
+    expect(Object.keys(parsedSpec.value.components?.schemas ?? {})).toStrictEqual([])
   })
 })
