@@ -1,7 +1,10 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { Operation } from '@scalar/oas-utils/entities/spec'
-import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
+import {
+  getObjectKeys,
+  normalizeMimeTypeObject,
+} from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
@@ -52,6 +55,9 @@ const currentJsonResponse = computed(() => {
     currentResponse.value?.content,
   )
 
+  /** All the keys of the normalized content */
+  const keys = getObjectKeys(normalizedContent ?? {})
+
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
@@ -59,6 +65,8 @@ const currentJsonResponse = computed(() => {
     normalizedContent?.['text/plain'] ??
     normalizedContent?.['text/html'] ??
     normalizedContent?.['*/*'] ??
+    // Take the first key - in the future we may want to use the selected content type
+    normalizedContent?.[keys[0]] ??
     // Swagger 2.0
     currentResponse.value
   )
