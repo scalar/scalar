@@ -72,23 +72,32 @@ export const useMultipleDocuments = ({
   hashPrefix,
 }: UseMultipleDocumentsProps) => {
   /**
-   * All available API definitions that can be selected
+   * All available documents that can be selected
    */
   const availableDocuments = computed((): SpecConfiguration[] => {
     if (!configuration.value) {
       return []
     }
 
-    // Handle array of configurations
+    // Make it an array, even if it’s a single configuration
     const configs = Array.isArray(configuration.value) ? configuration.value : [configuration.value]
 
     // Flatten all configurations and their sources into a single array
+
+    // Process each configuration to extract and normalize sources
     const sources = configs.flatMap((config) => {
+      // Check if this config has a 'sources' array property
       if (isConfigurationWithSources(config)) {
-        // Spread the config properties (except sources) into each source
+        // Destructure to separate sources array from other config properties
         const { sources: configSources, ...rest } = config
+
+        // For each source in the array:
+        // - Merge the source with the parent config properties
+        // - Handle undefined sources by returning empty array via ?? []
         return configSources?.map((source) => ({ ...rest, ...source })) ?? []
       }
+
+      // If config doesn’t have sources array, treat the config itself as a source
       return [config]
     })
 
