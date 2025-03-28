@@ -212,6 +212,7 @@
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",
     "shell-quote": "^1.8.1",
+    "type-fest": "catalog:",
     "vue": "catalog:",
     "vue-router": "^4.3.0",
     "whatwg-mimetype": "^4.0.0",
@@ -230,7 +231,6 @@
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "tailwindcss-color-mix": "^0.0.8",
-    "type-fest": "^4.20.0",
     "vite": "catalog:",
     "vite-svg-loader": "^5.1.0",
     "vitest": "catalog:"

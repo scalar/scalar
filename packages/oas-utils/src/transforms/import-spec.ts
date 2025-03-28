@@ -2,6 +2,7 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -174,11 +175,20 @@ export async function importSpecToWorkspace(
 
   const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
 
+  // Toss out a deprecated warning for the old authentication state
+  if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
+    console.warn(
+      `DEPRECATION WARNING: It looks like you're using legacy authentication config. Please migrate to use the updated config. See https://github.com/scalar/scalar/blob/main/documentation/configuration.md#authentication-partial This will be removed in a future version.`,
+    )
+  }
+
   const securitySchemes = (Object.entries(security) as Entries<Record<string, OpenAPIV3_1.SecuritySchemeObject>>)
     .map?.(([nameKey, _scheme]) => {
       // Apply any transforms we need before parsing
       const payload = {
         ..._scheme,
+        // Add the new auth config overrides, we keep the old code below for backwards compatibility
+        ...(authentication?.securitySchemes?.[nameKey] ?? {}),
         nameKey,
       } as SecuritySchemePayload
 
@@ -190,12 +200,18 @@ export async function importSpecToWorkspace(
           if (!payload.flows?.[key]) {
             return
           }
+          // This part handles setting of flows via the new auth config, the rest can be removed in a future version
+          payload.flows[key] = {
+            ...((_scheme as SecuritySchemeOauth2).flows?.[key] ?? {}),
+            ...(authentication?.securitySchemes?.[nameKey]?.flows?.[key] ?? {}),
+          } satisfies Oauth2FlowPayload
+
           const flow = payload.flows[key] as Oauth2FlowPayload
 
           // Set the type
           flow.type = key
 
-          // Prefill values from authorization config
+          // Prefill values from authorization config - old deprecated config
           if (authentication?.oAuth2) {
             if (authentication.oAuth2.accessToken) {
               flow.token = authentication.oAuth2.accessToken
@@ -226,7 +242,7 @@ export async function importSpecToWorkspace(
           }
         })
       }
-      // Otherwise we just prefill
+      // Otherwise we just prefill  - old deprecated config
       else if (authentication) {
         // ApiKey
         if (payload.type === 'apiKey' && authentication.apiKey?.token) {
@@ -239,14 +255,8 @@ export async function importSpecToWorkspace(
             payload.password = authentication.http.basic.password ?? ''
           }
           // Bearer
-          else if (payload.scheme === 'bearer') {
-            if (authentication.http?.bearer?.token) {
-              payload.token = authentication.http.bearer.token ?? ''
-            }
-            // Temp multiple bearer
-            if (authentication.http?.bearer?.multiple?.[nameKey]) {
-              payload.token = authentication.http.bearer.multiple[nameKey]
-            }
+          else if (payload.scheme === 'bearer' && authentication.http?.bearer?.token) {
+            payload.token = authentication.http.bearer.token ?? ''
           }
         }
       }

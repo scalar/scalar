@@ -98,6 +98,7 @@
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
     "nanoid": "catalog:",
+    "type-fest": "catalog:",
     "yaml": "catalog:",
     "zod": "catalog:"
   },
