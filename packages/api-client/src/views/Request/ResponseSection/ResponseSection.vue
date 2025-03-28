@@ -149,7 +149,7 @@ const shouldVirtualize = computed(() => {
     </template>
     <div
       :id="filterIds.All"
-      class="custom-scroll yooo response-section-content relative grid h-full justify-stretch"
+      class="custom-scroll response-section-content relative grid h-full justify-stretch"
       :class="{
         'content-start': response,
       }"

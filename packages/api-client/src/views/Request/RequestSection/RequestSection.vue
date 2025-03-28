@@ -274,7 +274,7 @@ const handleRequestNamePlaceholder = () => {
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
-          class="request-section-content-code-snippet"
+          class="request-section-content-code-example"
           :collection="collection"
           :example="example"
           :operation="operation"
