@@ -109,4 +109,8 @@ const models = computed(() => {
   margin-top: 32px;
   top: 0px;
 }
+/* increase z-index for hover of examples */
+.models-list-item:hover {
+  z-index: 10;
+}
 </style>

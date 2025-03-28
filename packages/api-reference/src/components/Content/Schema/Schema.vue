@@ -202,7 +202,6 @@ const handleClick = (e: MouseEvent) =>
   font-size: var(--scalar-font-size-4);
   color: var(--scalar-color-1);
 }
-
 .schema-card-title {
   height: var(--schema-title-height);
 
