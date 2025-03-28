@@ -48,7 +48,7 @@ const invalidParams = ref<Set<string>>(new Set())
  */
 const selectedSecuritySchemeUids = computed(
   () =>
-    (layout === 'modal'
+    (activeCollection.value?.useCollectionSecurity
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
@@ -168,7 +168,9 @@ watch(
 
       <!-- Content -->
       <div class="flex h-full flex-1 flex-col">
-        <RouterView :invalidParams="invalidParams" />
+        <RouterView
+          :invalidParams="invalidParams"
+          :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
       </div>
     </div>
   </div>

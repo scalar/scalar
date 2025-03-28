@@ -167,7 +167,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 
 const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   // Set as selected on the collection for the modal
-  if (clientLayout === 'modal' || layout === 'reference') {
+  if (collection.useCollectionSecurity) {
     collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
   }
   // Set as selected on request

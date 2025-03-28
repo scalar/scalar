@@ -96,7 +96,7 @@ export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['ui
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
   Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
-    setCollectionSecurity?: boolean
+    useCollectionSecurity?: boolean
     /** Call the load step from the parser */
     shouldLoad?: boolean
   }
@@ -121,7 +121,7 @@ export async function importSpecToWorkspace(
     baseServerURL,
     documentUrl,
     servers: configuredServers,
-    setCollectionSecurity = false,
+    useCollectionSecurity = false,
     slug,
     shouldLoad,
     watchMode = false,
@@ -326,7 +326,7 @@ export async function importSpecToWorkspace(
 
       // Set the initially selected security scheme
       const selectedSecuritySchemeUids =
-        securityRequirements.length && !setCollectionSecurity
+        securityRequirements.length && !useCollectionSecurity
           ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
           : []
 
@@ -456,7 +456,7 @@ export async function importSpecToWorkspace(
 
   // Set the initially selected security scheme
   const selectedSecuritySchemeUids =
-    (securityRequirements.length || preferredSecurityNames?.length) && setCollectionSecurity
+    (securityRequirements.length || preferredSecurityNames?.length) && useCollectionSecurity
       ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
       : []
 
@@ -468,6 +468,7 @@ export async function importSpecToWorkspace(
     ...schema,
     watchMode,
     documentUrl,
+    useCollectionSecurity,
     requests: requests.map((r) => r.uid),
     servers: servers.map((s) => s.uid),
     tags: tags.map((t) => t.uid),

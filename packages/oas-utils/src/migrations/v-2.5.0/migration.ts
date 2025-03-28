@@ -29,6 +29,7 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
         requests: collection.requests.map((uid) => uid as v_2_5_0['Request']['uid']),
         children: collection.children.map((uid) => uid as v_2_5_0['Request']['uid'] | v_2_5_0['Tag']['uid']),
         selectedServerUid: collection.selectedServerUid as v_2_5_0['Server']['uid'],
+        useCollectionSecurity: false,
       } satisfies v_2_5_0['Collection']
       return acc
     },
