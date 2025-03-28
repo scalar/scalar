@@ -11,8 +11,9 @@ import {
   OAuthFlowsObjectSchema as OriginalOAuthFlowsObjectSchema,
   OpenIdConnectSchema as OriginalOpenIdConnectSchema,
   PasswordFlowSchema as OriginalPasswordFlowSchema,
+  SecurityRequirementObjectSchema,
 } from '@scalar/openapi-types/schemas/3.1/processed'
-import { XusePkceSchema } from '@scalar/openapi-types/schemas/extensions'
+import { XUsePkceValues, XusePkceSchema } from '@scalar/openapi-types/schemas/extensions'
 
 // Extend all security scheme schemas with a uid and nameKey
 const SecuritySchemeSchemaExtension = z.object({
@@ -175,3 +176,5 @@ export const SecuritySchemeObjectSchema = z.union([
 
 export type SecurityScheme = z.infer<typeof SecuritySchemeObjectSchema>
 export type SecuritySchemePayload = z.input<typeof SecuritySchemeObjectSchema>
+
+export { XUsePkceValues, SecurityRequirementObjectSchema }
