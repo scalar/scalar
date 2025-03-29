@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.28.10
+
+### Patch Changes
+
+- e0517be: fix: missing body in references responses
+
 ## 1.28.9
 
 ### Patch Changes
