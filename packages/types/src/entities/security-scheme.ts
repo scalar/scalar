@@ -128,6 +128,8 @@ export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
 /** Oauth2 security scheme */
 const oasSecuritySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
+  /** The default scopes for the oauth flow */
+  'x-default-scopes': z.string().or(z.array(z.string())).optional(),
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flows: z
     .object({
@@ -211,12 +213,20 @@ export const oasSecuritySchemeSchema = z.union([
 ])
 
 /** Extended security schemes for workspace usage */
-export const securitySchemeSchema = z.union([
-  securityApiKeySchema,
-  securityHttpSchema,
-  securityOpenIdSchema,
-  securityOauthSchema,
-])
+export const securitySchemeSchema = z
+  .union([securityApiKeySchema, securityHttpSchema, securityOpenIdSchema, securityOauthSchema])
+  .transform((data) => {
+    // Set selected scopes from x-default-scopes
+    if (data.type === 'oauth2' && data['x-default-scopes']?.length) {
+      const keys = Object.keys(data.flows) as Array<keyof typeof data.flows>
+      keys.forEach((key) => {
+        if (data.flows[key]?.selectedScopes && data['x-default-scopes']) {
+          data.flows[key].selectedScopes = [data['x-default-scopes']].flat()
+        }
+      })
+    }
+    return data
+  })
 
 /**
  * Security Scheme Object
