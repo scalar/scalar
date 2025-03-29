@@ -1948,6 +1948,10 @@ importers:
         version: 2.8.0
 
   packages/openapi-types:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -39440,7 +39444,7 @@ snapshots:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      consola: 3.2.3
+      consola: 3.4.2
       figures: 3.2.0
       markdown-table: 2.0.0
       pretty-time: 1.1.0

@@ -28,6 +28,46 @@ const file: OpenAPI.Document = {
 }
 ```
 
+### Zod Schemas
+
+Experimental: This package exposes OpenAPI-compliant Zod schemas for all OpenAPI object types. You can use them to parse user input safely with Zod.
+
+```ts
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
+
+OpenApiObjectSchema.parse({
+  // This will be omitted:
+  invalidAttribute: 123,
+  // Those will pass:
+  openapi: '3.1.1',
+  info: {
+    title: 'Example API',
+    version: '1.0'
+  },
+  paths: {
+    '/example': {
+      get: {
+        description: 'My example operation',
+      }
+    }
+  },
+})
+```
+
+What’s “unprocessed”? It’s for the content of a “raw” OpenAPI document, that might still contain `$ref`s (references).
+
+We also provide Zod schemas for processed OpenAPI documents, where the `$ref`s are resolved already:
+
+```ts
+// Impport the Zod Schema without the $ref property:
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/processed'
+
+OpenApiObjectSchema.parse({
+  // …
+})
+```
+
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
