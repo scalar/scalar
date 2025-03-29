@@ -490,7 +490,7 @@ describe('importSpecToWorkspace', () => {
             },
           },
         },
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
       })
       if (res.error) {
         throw res.error
@@ -545,7 +545,7 @@ describe('importSpecToWorkspace', () => {
             password: 'test-password',
           },
         },
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
       })
       if (res.error) {
         throw res.error
@@ -632,7 +632,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithEmptySecurity, {
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
         authentication: {
           preferredSecurityScheme: 'basicAuth',
         },
@@ -711,7 +711,7 @@ describe('importSpecToWorkspace', () => {
 
     it('sets collection level security when specified', async () => {
       const res = await importSpecToWorkspace(galaxy, {
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
         authentication: {
           preferredSecurityScheme: 'basicAuth',
         },
@@ -766,7 +766,7 @@ describe('importSpecToWorkspace', () => {
     it('sets the correct selectedSecuritySchemeUids when theres no collection security requirement', async () => {
       const { security, ...noSecurity } = galaxy
       const res = await importSpecToWorkspace(noSecurity, {
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
       })
       if (res.error) {
         throw res.error
@@ -801,7 +801,7 @@ describe('importSpecToWorkspace', () => {
       expect(res.requests[0]!.selectedSecuritySchemeUids).toEqual(selectedSecuritySchemeUids)
     })
 
-    it('handles AND security requirements with setCollectionSecurity', async () => {
+    it('handles AND security requirements with useCollectionSecurity', async () => {
       const specWithAndSecurity = {
         ...galaxy,
         security: [{ apiKeyHeader: [], basicAuth: [] }, { bearerAuth: [] }],
@@ -815,7 +815,7 @@ describe('importSpecToWorkspace', () => {
       }
 
       const res = await importSpecToWorkspace(specWithAndSecurity, {
-        setCollectionSecurity: true,
+        useCollectionSecurity: true,
       })
       if (res.error) {
         throw res.error
