@@ -11,18 +11,18 @@ import { type Collection, type CollectionPayload, collectionSchema } from '@/ent
 import type { RequestParameterPayload } from '@/entities/spec/parameters.ts'
 import { type RequestExample, createExampleFromRequest } from '@/entities/spec/request-examples.ts'
 import { type Request, type RequestPayload, requestSchema } from '@/entities/spec/requests.ts'
-import {
-  type Oauth2FlowPayload,
-  type SecurityScheme,
-  type SecuritySchemePayload,
-  securitySchemeSchema,
-} from '@/entities/spec/security.ts'
 import { type Server, serverSchema } from '@/entities/spec/server.ts'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects.ts'
 import { isHttpMethod } from '@/helpers/http-methods.ts'
 import { isDefined } from '@/helpers/is-defined.ts'
 import { combineUrlAndPath } from '@/helpers/merge-urls.ts'
 import { schemaModel } from '@/helpers/schema-model.ts'
+import {
+  type Oauth2FlowPayload,
+  type SecurityScheme,
+  type SecuritySchemePayload,
+  securitySchemeSchema,
+} from '@scalar/types/entities'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
 export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = true } = {}) => {

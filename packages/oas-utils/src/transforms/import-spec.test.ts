@@ -1,7 +1,7 @@
 /** @vitest-environment jsdom */
 import { describe, expect, it, vi } from 'vitest'
 
-import type { SecurityScheme, SecuritySchemeOauth2 } from '@/entities/spec/security.ts'
+import type { SecurityScheme, SecuritySchemeOauth2 } from '@scalar/types/entities'
 import circular from '@test/fixtures/basic-circular-spec.json' assert { type: 'json' }
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json' assert { type: 'json' }
 import galaxy from '../../../galaxy/dist/latest.json' assert { type: 'json' }
