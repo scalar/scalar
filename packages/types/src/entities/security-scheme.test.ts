@@ -265,6 +265,18 @@ describe('Security Schemas', () => {
       expect(pkceOptions).toContain('plain')
       expect(pkceOptions).toContain('no')
     })
+
+    it('should apply x-default-scopes', () => {
+      const oauth2 = {
+        type: 'oauth2',
+        uid: 'oauth123',
+        'x-default-scopes': ['read:api', 'write:api'],
+      }
+
+      const result = securityOauthSchema.parse(oauth2)
+      expect(result['x-default-scopes']).toEqual(['read:api', 'write:api'])
+      expect(result.flows.implicit?.selectedScopes).toEqual(['read:api', 'write:api'])
+    })
   })
 
   describe('Security Requirement Schema', () => {
