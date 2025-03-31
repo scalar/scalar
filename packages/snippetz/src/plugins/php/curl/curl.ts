@@ -72,12 +72,12 @@ export const phpCurl: Plugin = {
     // Body
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        // Pretty print JSON data
+        // Convert JSON to PHP array syntax
         if (normalizedRequest.postData.text) {
           try {
             const jsonData = JSON.parse(normalizedRequest.postData.text)
-            const prettyJson = JSON.stringify(jsonData, null, 2)
-            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${prettyJson}');`)
+            const phpArray = convertToPHPArray(jsonData)
+            parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
           } catch {
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
           }
@@ -113,11 +113,11 @@ export const phpCurl: Plugin = {
         parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text || ''}');`)
       } else if (normalizedRequest.postData.text) {
-        // Try to parse and pretty print if it's JSON, otherwise use raw text
+        // Try to parse as JSON and convert to PHP array, otherwise use raw text
         try {
           const jsonData = JSON.parse(normalizedRequest.postData.text)
-          const prettyJson = JSON.stringify(jsonData, null, 2)
-          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${prettyJson}');`)
+          const phpArray = convertToPHPArray(jsonData)
+          parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
         } catch {
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
         }
@@ -130,4 +130,51 @@ export const phpCurl: Plugin = {
 
     return parts.join('\n')
   },
+}
+
+/**
+ * Helper function to create consistent indentation
+ */
+function indent(level: number): string {
+  return ' '.repeat(level * 2)
+}
+
+/**
+ * Converts a JavaScript object to a PHP array string representation
+ */
+function convertToPHPArray(data: unknown, indentLevel = 0): string {
+  if (data === null || data === undefined) {
+    return 'null'
+  }
+
+  if (typeof data === 'string') {
+    return `'${data.replace(/'/g, "\\'")}'`
+  }
+
+  if (typeof data === 'number' || typeof data === 'boolean') {
+    return String(data)
+  }
+
+  if (Array.isArray(data)) {
+    if (data.length === 0) {
+      return '[]'
+    }
+
+    const items = data.map((item) => convertToPHPArray(item, indentLevel + 1)).join(',\n' + indent(indentLevel + 1))
+    return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
+  }
+
+  if (typeof data === 'object') {
+    const entries = Object.entries(data)
+    if (entries.length === 0) {
+      return '[]'
+    }
+
+    const items = entries
+      .map(([key, value]) => `'${key}' => ${convertToPHPArray(value, indentLevel + 1)}`)
+      .join(',\n' + indent(indentLevel + 1))
+    return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
+  }
+
+  return 'null'
 }

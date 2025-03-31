@@ -53,7 +53,7 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('has JSON body', () => {
+  it('has JSON body with PHP array', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -74,9 +74,9 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, '{
-  "hello": "world"
-}');
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'hello' => 'world'
+]));
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -280,9 +280,9 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, '{
-  "foo": "bar"
-}');
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'foo' => 'bar'
+]));
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -448,7 +448,7 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('handles JSON body with special characters', () => {
+  it('handles JSON body with special characters using PHP array', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -472,16 +472,16 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, '{
-  "key": "\\"quotes\\" and \\\\backslashes\\\\",
-  "nested": {
-    "array": [
-      "item1",
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'key' => '"quotes" and \\backslashes\\',
+  'nested' => [
+    'array' => [
+      'item1',
       null,
       null
     ]
-  }
-}');
+  ]
+]));
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -503,7 +503,7 @@ curl_exec($ch);
 curl_close($ch);`)
   })
 
-  it('prettifies JSON body', () => {
+  it('prettifies JSON body using PHP array', () => {
     const result = phpCurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -528,19 +528,19 @@ curl_close($ch);`)
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-curl_setopt($ch, CURLOPT_POSTFIELDS, '{
-  "nested": {
-    "array": [
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+  'nested' => [
+    'array' => [
       1,
       2,
       3
     ],
-    "object": {
-      "foo": "bar"
-    }
-  },
-  "simple": "value"
-}');
+    'object' => [
+      'foo' => 'bar'
+    ]
+  ],
+  'simple' => 'value'
+]));
 curl_exec($ch);
 curl_close($ch);`)
   })
