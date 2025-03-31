@@ -11,24 +11,24 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
  *
  * @throws an error if the fetch fails
  */
-export async function fetchSpecFromUrl(url: string, proxyUrl?: string, prettyPrint = true): Promise<string> {
+export async function fetchDocument(url: string, proxyUrl?: string, prettyPrint = true): Promise<string> {
   // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
   if (proxyUrl === OLD_PROXY_URL) {
     // biome-ignore lint/style/noParameterAssign: It’s ok, let’s make an exception here.
     proxyUrl = NEW_PROXY_URL
   }
 
-  console.log('fetchSpecFromUrl', url, proxyUrl)
+  console.log('fetchDocument', url, proxyUrl)
 
   const response = await fetch(redirectToProxy(proxyUrl, url))
 
   // Looks like the request failed
   if (response.status !== 200) {
-    console.error(`[fetchSpecFromUrl] Failed to fetch the OpenAPI document from ${url} (Status: ${response.status})`)
+    console.error(`[fetchDocument] Failed to fetch the OpenAPI document from ${url} (Status: ${response.status})`)
 
     if (!proxyUrl) {
       console.warn(
-        `[fetchSpecFromUrl] Tried to fetch the OpenAPI document from ${url} without a proxy. Are the CORS headers configured to allow cross-domain requests? https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`,
+        `[fetchDocument] Tried to fetch the OpenAPI document from ${url} without a proxy. Are the CORS headers configured to allow cross-domain requests? https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`,
       )
     }
 

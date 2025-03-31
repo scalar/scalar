@@ -9,7 +9,7 @@ import {
   mutateServerDiff,
   mutateTagDiff,
 } from '@/views/Request/libs/watch-mode'
-import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useToasts } from '@scalar/use-toasts'
 import { useTimeoutPoll } from '@vueuse/core'
@@ -89,7 +89,7 @@ export const useOpenApiWatcher = () => {
 
     try {
       // Grab the new spec
-      const spec = await fetchSpecFromUrl(url, activeWorkspace.value?.proxyUrl, false)
+      const spec = await fetchDocument(url, activeWorkspace.value?.proxyUrl, false)
       const hash = createHash(spec)
 
       collectionMutators.edit(activeCollection.value.uid, 'watchModeStatus', 'WATCHING')

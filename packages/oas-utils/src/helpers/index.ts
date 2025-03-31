@@ -1,6 +1,6 @@
 export { createHash } from './create-hash.ts'
 export { ensureProtocol } from './ensure-protocol.ts'
-export { fetchSpecFromUrl } from './fetch-spec-from-url.ts'
+export { fetchDocument } from './fetch-document.ts'
 export { type FetchWithProxyFallbackOptions, fetchWithProxyFallback } from './fetch-with-proxy-fallback.ts'
 export { findVariables } from './find-variables.ts'
 export { canMethodHaveBody, getHttpMethodInfo, isHttpMethod, REQUEST_METHODS } from './http-methods.ts'

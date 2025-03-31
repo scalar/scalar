@@ -1,4 +1,4 @@
-import { fetchSpecFromUrl, prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
@@ -20,7 +20,7 @@ const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string
     const start = performance.now()
 
     try {
-      const result = await fetchSpecFromUrl(url, proxyUrl)
+      const result = await fetchDocument(url, proxyUrl)
 
       const end = performance.now()
       console.log(`fetch: ${Math.round(end - start)} ms (${url})`)

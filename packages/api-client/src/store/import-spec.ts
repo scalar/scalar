@@ -1,7 +1,7 @@
 import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import { createHash, fetchDocument } from '@scalar/oas-utils/helpers'
 import { type ImportSpecToWorkspaceArgs, importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
@@ -79,7 +79,7 @@ export function importSpecFileFactory({
     }: Omit<ImportSpecFileArgs, 'documentUrl'> & Pick<ApiReferenceConfiguration, 'proxyUrl'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
-      const spec = await fetchSpecFromUrl(url, proxyUrl)
+      const spec = await fetchDocument(url, proxyUrl)
 
       return [
         null,

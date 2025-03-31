@@ -7,7 +7,7 @@ import {
 
 import '@scalar/api-reference/style.css'
 
-import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import { fetchDocument } from '@scalar/oas-utils/helpers'
 import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
@@ -42,7 +42,7 @@ function setSpec({ url, content }: SpecConfiguration) {
   if (url) {
     // For URLs we just set the value to fetched string
     try {
-      fetchSpecFromUrl(url).then((val) => {
+      fetchDocument(url).then((val) => {
         editorContent.value = val
       })
     } catch (error) {
