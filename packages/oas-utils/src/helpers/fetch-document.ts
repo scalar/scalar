@@ -18,8 +18,6 @@ export async function fetchDocument(url: string, proxyUrl?: string, prettyPrint 
     proxyUrl = NEW_PROXY_URL
   }
 
-  console.log('fetchDocument', url, proxyUrl)
-
   const response = await fetch(redirectToProxy(proxyUrl, url))
 
   // Looks like the request failed
