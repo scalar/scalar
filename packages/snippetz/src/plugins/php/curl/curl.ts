@@ -76,7 +76,7 @@ export const phpCurl: Plugin = {
         if (normalizedRequest.postData.text) {
           try {
             const jsonData = JSON.parse(normalizedRequest.postData.text)
-            const phpArray = convertToPHPArray(jsonData)
+            const phpArray = convertToPhpArray(jsonData)
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
           } catch {
             parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
@@ -116,7 +116,7 @@ export const phpCurl: Plugin = {
         // Try to parse as JSON and convert to PHP array, otherwise use raw text
         try {
           const jsonData = JSON.parse(normalizedRequest.postData.text)
-          const phpArray = convertToPHPArray(jsonData)
+          const phpArray = convertToPhpArray(jsonData)
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(${phpArray}));`)
         } catch {
           parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text}');`)
@@ -142,7 +142,7 @@ function indent(level: number): string {
 /**
  * Converts a JavaScript object to a PHP array string representation
  */
-function convertToPHPArray(data: unknown, indentLevel = 0): string {
+function convertToPhpArray(data: unknown, indentLevel = 0): string {
   if (data === null || data === undefined) {
     return 'null'
   }
@@ -160,7 +160,7 @@ function convertToPHPArray(data: unknown, indentLevel = 0): string {
       return '[]'
     }
 
-    const items = data.map((item) => convertToPHPArray(item, indentLevel + 1)).join(',\n' + indent(indentLevel + 1))
+    const items = data.map((item) => convertToPhpArray(item, indentLevel + 1)).join(',\n' + indent(indentLevel + 1))
     return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
   }
 
@@ -171,7 +171,7 @@ function convertToPHPArray(data: unknown, indentLevel = 0): string {
     }
 
     const items = entries
-      .map(([key, value]) => `'${key}' => ${convertToPHPArray(value, indentLevel + 1)}`)
+      .map(([key, value]) => `'${key}' => ${convertToPhpArray(value, indentLevel + 1)}`)
       .join(',\n' + indent(indentLevel + 1))
     return `[\n${indent(indentLevel + 1)}${items}\n${indent(indentLevel)}]`
   }
