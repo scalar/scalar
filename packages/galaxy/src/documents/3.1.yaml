@@ -605,6 +605,8 @@ components:
           writeOnly: true
           examples:
             - i-love-scalar
+            - i-love-OSS
+            - i-love-code
     Token:
       description: A token to authenticate a user
       type: object

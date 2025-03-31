@@ -199,11 +199,9 @@ const handleClick = (e: MouseEvent) =>
 }
 .schema-card {
   z-index: 0;
-  position: relative;
   font-size: var(--scalar-font-size-4);
   color: var(--scalar-color-1);
 }
-
 .schema-card-title {
   height: var(--schema-title-height);
 

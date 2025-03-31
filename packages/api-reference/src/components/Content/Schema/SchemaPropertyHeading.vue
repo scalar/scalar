@@ -1,22 +1,39 @@
 <script lang="ts" setup>
+import { discriminators } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     value?: Record<string, any>
     enum?: boolean
     required?: boolean
     additional?: boolean
     pattern?: boolean
+    withExamples?: boolean
   }>(),
   {
     level: 0,
     required: false,
+    withExamples: true,
   },
 )
+
+const discriminatorType = discriminators.find((r) => {
+  if (!props.value || typeof props.value !== 'object') {
+    return false
+  }
+
+  return (
+    r in props.value ||
+    (props.value.items &&
+      typeof props.value.items === 'object' &&
+      r in props.value.items)
+  )
+})
 
 const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
@@ -147,6 +164,12 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       class="property-required">
       required
     </div>
+    <!-- examples -->
+    <SchemaPropertyExamples
+      v-if="withExamples"
+      :examples="value?.examples"
+      :example="value?.example || value?.items?.example"
+      :discriminator-type="discriminatorType" />
   </div>
 </template>
 <style scoped>
