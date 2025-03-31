@@ -1,4 +1,5 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+// @vitest-environment jsdom
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { fetchSpecFromUrl } from './fetch-spec-from-url.ts'
 
@@ -50,5 +51,33 @@ describe('fetchSpecFromUrl', () => {
 
     expect(typeof spec).toEqual('string')
     expect(spec.length).toBeGreaterThan(100)
+  })
+
+  it('fetches specifications from localhost without proxy', async () => {
+    const originalFetch = globalThis.fetch
+    // mock fetch
+    // @ts-expect-error TODO not properly typed
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve(''),
+      }),
+    )
+
+    const spec = await fetchSpecFromUrl(`http://127.0.0.1:${PROXY_PORT}/test`)
+
+    expect(typeof spec).toEqual('string')
+
+    // restore fetch
+    globalThis.fetch = originalFetch
+  })
+
+  it('throws error for invalid URLs', async () => {
+    await expect(fetchSpecFromUrl('not-a-valid-url')).rejects.toThrow()
+  })
+
+  it('throws error when fetch fails', async () => {
+    await expect(fetchSpecFromUrl('https://does-not-exist.scalar.com/spec.yaml')).rejects.toThrow('fetch failed')
   })
 })
