@@ -48,7 +48,7 @@ export const phpCurl: Plugin = {
     // Headers
     if (normalizedRequest.headers?.length) {
       const headerStrings = normalizedRequest.headers.map((header) => `'${header.name}: ${header.value}'`)
-      parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, array(${headerStrings.join(', ')}));`)
+      parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, [${headerStrings.join(', ')}]);`)
 
       // Add encoding option if Accept-Encoding header includes compression
       const acceptEncoding = normalizedRequest.headers.find((header) => header.name.toLowerCase() === 'accept-encoding')
@@ -93,8 +93,8 @@ export const phpCurl: Plugin = {
           return acc
         }, [] as string[])
 
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));`)
-        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, array(${formData.join(', ')}));`)
+        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);`)
+        parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, [${formData.join(', ')}]);`)
       } else if (
         normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
@@ -107,10 +107,10 @@ export const phpCurl: Plugin = {
             return `${encodedName}=${encodedValue}`
           })
           .join('&')
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));`)
+        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${formData}');`)
       } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
-        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/octet-stream'));`)
+        parts.push(`curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);`)
         parts.push(`curl_setopt($ch, CURLOPT_POSTFIELDS, '${normalizedRequest.postData.text || ''}');`)
       } else if (normalizedRequest.postData.text) {
         // Try to parse and pretty print if it's JSON, otherwise use raw text

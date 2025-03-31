@@ -37,7 +37,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -73,7 +73,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, '{
   "hello": "world"
 }');
@@ -253,8 +253,8 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => '@test.txt', 'field' => 'value'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
+curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@test.txt', 'field' => 'value']);
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -279,7 +279,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, '{
   "foo": "bar"
 }');
@@ -304,7 +304,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/x-www-form-urlencoded'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'special%20chars!%40%23=value');
 curl_exec($ch);
 curl_close($ch);`)
@@ -322,7 +322,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/octet-stream'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'binary content');
 curl_exec($ch);
 curl_close($ch);`)
@@ -340,7 +340,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept-Encoding: gzip, deflate'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept-Encoding: gzip, deflate']);
 curl_setopt($ch, CURLOPT_ENCODING, '');
 curl_exec($ch);
 curl_close($ch);`)
@@ -408,7 +408,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Custom: value1', 'X-Custom: value2'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Custom: value1', 'X-Custom: value2']);
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -420,7 +420,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('X-Empty: '));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Empty: ']);
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -442,8 +442,8 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: multipart/form-data'));
-curl_setopt($ch, CURLOPT_POSTFIELDS, array('file' => '@'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
+curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@']);
 curl_exec($ch);
 curl_close($ch);`)
   })
@@ -471,7 +471,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, '{
   "key": "\\"quotes\\" and \\\\backslashes\\\\",
   "nested": {
@@ -527,7 +527,7 @@ curl_close($ch);`)
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
 curl_setopt($ch, CURLOPT_POST, true);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, '{
   "nested": {
     "array": [
