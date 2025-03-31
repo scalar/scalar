@@ -34,6 +34,7 @@ export const phpCurl: Plugin = {
       : ''
     const url = `${normalizedRequest.url}${queryString}`
     parts.push(`$ch = curl_init("${url}");`)
+    parts.push('')
 
     // Method
     if (normalizedRequest.method === 'POST') {
@@ -125,10 +126,12 @@ export const phpCurl: Plugin = {
     }
 
     // Execute and close
+    parts.push('')
     parts.push('curl_exec($ch);')
+    parts.push('')
     parts.push('curl_close($ch);')
 
-    return parts.join('\n')
+    return parts.join('\n').replace(/\n\n\n/g, '\n\n')
   },
 }
 

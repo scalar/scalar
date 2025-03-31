@@ -9,7 +9,9 @@ describe('phpCurl', () => {
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -20,8 +22,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -37,8 +42,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -49,7 +57,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -72,12 +82,15 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   'hello' => 'world'
 ]));
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -97,7 +110,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com?foo=bar&bar=foo");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -117,8 +132,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_COOKIE, 'foo=bar; bar=foo');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -129,7 +147,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -147,8 +167,11 @@ curl_close($ch);`)
     )
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_USERPWD, 'user:pass');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -158,7 +181,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -176,7 +201,9 @@ curl_close($ch);`)
     )
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -194,7 +221,9 @@ curl_close($ch);`)
     )
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -212,8 +241,11 @@ curl_close($ch);`)
     )
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_USERPWD, 'user@example.com:pass:word!');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -228,7 +260,9 @@ curl_close($ch);`)
     )
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -252,10 +286,13 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@test.txt', 'field' => 'value']);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -278,12 +315,15 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   'foo' => 'bar'
 ]));
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -303,10 +343,13 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/x-www-form-urlencoded']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'special%20chars!%40%23=value');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -321,10 +364,13 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/octet-stream']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'binary content');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -340,9 +386,12 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Accept-Encoding: gzip, deflate']);
 curl_setopt($ch, CURLOPT_ENCODING, '');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -352,7 +401,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com/path with spaces/[brackets]");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -374,7 +425,9 @@ curl_close($ch);`)
     expect(
       result,
     ).toBe(`$ch = curl_init("https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -384,7 +437,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -394,7 +449,9 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com/${'a'.repeat(2000)}");
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -408,8 +465,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Custom: value1', 'X-Custom: value2']);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -420,8 +480,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Empty: ']);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -441,10 +504,13 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: multipart/form-data']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, ['file' => '@']);
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -470,6 +536,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
@@ -482,7 +549,9 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
     ]
   ]
 ]));
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -498,8 +567,11 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_COOKIE, 'special%3Bcookie=value%20with%20spaces');
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 
@@ -526,6 +598,7 @@ curl_close($ch);`)
     })
 
     expect(result).toBe(`$ch = curl_init("https://example.com");
+
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
@@ -541,7 +614,9 @@ curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
   ],
   'simple' => 'value'
 ]));
+
 curl_exec($ch);
+
 curl_close($ch);`)
   })
 })
