@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.28.10
+
+### Patch Changes
+
+- e0517be: fix: missing body in references responses
+- 560be28: feat(api-reference): add copy button to examples and redesign them
+- Updated dependencies [0de80ae]
+  - @scalar/api-client@2.3.10
+  - @scalar/oas-utils@0.2.124
+
 ## 1.28.9
 
 ### Patch Changes

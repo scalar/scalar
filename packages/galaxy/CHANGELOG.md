@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.3.1
+
+### Patch Changes
+
+- 560be28: feat(api-reference): add copy button to examples and redesign them
+
 ## 0.3.0
 
 ### Minor Changes

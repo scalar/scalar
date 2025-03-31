@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.124
+
+### Patch Changes
+
+- 0de80ae: feat: added auth to collection page
+
 ## 0.2.123
 
 ### Patch Changes

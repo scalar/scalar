@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.3.10
+
+### Patch Changes
+
+- 0de80ae: feat: added auth to collection page
+- Updated dependencies [0de80ae]
+  - @scalar/oas-utils@0.2.124
+  - @scalar/import@0.3.7
+  - @scalar/postman-to-openapi@0.1.47
+
 ## 2.3.9
 
 ### Patch Changes
