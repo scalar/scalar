@@ -1,5 +1,7 @@
 # @scalar/fastify-api-reference
 
+## 1.28.10
+
 ## 1.28.9
 
 ### Patch Changes
