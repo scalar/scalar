@@ -67,6 +67,42 @@ OpenApiObjectSchema.parse({
 })
 ```
 
+#### Extend the Zod schemas
+
+While you can absolutely use the Zod schemas directly, you can also extend and compose them.
+
+Here is a basic example to add an extension on the top level:
+
+```ts
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
+import { XScalarIconSchema } from '@scalar/openapi-types/schemas/extensions'
+
+const MyCustomSchema = OpenApiObjectSchema
+  // Add the `x-scalar-icon` OpenAPI extension
+  .merge(
+    XScalarIconSchema
+  )
+  // Add a custom property
+  .extend({
+    'x-customProperty': z.boolean().optional(),
+  })
+```
+
+This will get a little bit more complex when you want to add a property to something that’s deeply nested:
+
+```ts
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
+import { XScalarIconSchema } from '@scalar/openapi-types/schemas/extensions'
+
+const MyCustomSchema = OpenApiObjectSchema
+  .extend({
+    // Overwrite the Schema
+    'info': InfoObjectSchema.extend({
+      // Add a custom property
+      'x-customProperty': z.boolean().optional(),
+    }),
+  })
+```
 
 ## Community
 
