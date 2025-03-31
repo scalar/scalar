@@ -32,21 +32,21 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
       },
     },
   },
-  // {
-  //   displayName: 'Authentication',
-  //   // icon: 'Lock',
-  //   to: {
-  //     name: 'collection.authentication',
-  //     params: {
-  //       [PathId.Collection]: activeCollection.value?.uid,
-  //     },
-  //   },
-  // },
   {
     displayName: 'Servers',
     // icon: 'Server',
     to: {
       name: 'collection.servers',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
+  {
+    displayName: 'Authentication',
+    // icon: 'Lock',
+    to: {
+      name: 'collection.authentication',
       params: {
         [PathId.Collection]: activeCollection.value?.uid,
       },
