@@ -77,20 +77,20 @@ export function useSearchIndex({
   })
 
   watch(
-    specification.value,
-    async () => {
+    specification,
+    (newSpec) => {
       fuseDataArray.value = []
 
       // Likely an incomplete/invalid spec
       // TODO: Or just an OpenAPI document without tags and webhooks?
-      if (!specification.value?.tags?.length && !specification.value?.webhooks?.length) {
+      if (!newSpec?.tags?.length && !newSpec?.webhooks?.length) {
         fuse.setCollection([])
         return
       }
 
       // Headings from the description
       const headingsData: FuseData[] = []
-      const headings = getHeadingsFromMarkdown(specification.value?.info?.description ?? '')
+      const headings = getHeadingsFromMarkdown(newSpec?.info?.description ?? '')
 
       if (headings.length) {
         headings.forEach((heading) => {
@@ -108,7 +108,7 @@ export function useSearchIndex({
       }
 
       // Tags
-      specification.value?.tags?.forEach((tag) => {
+      newSpec?.tags?.forEach((tag) => {
         const tagData: FuseData = {
           title: tag['x-displayName'] ?? tag.name,
           href: `#${getTagId(tag)}`,
@@ -151,7 +151,7 @@ export function useSearchIndex({
       })
 
       // Adding webhooks
-      const webhooks = specification.value?.webhooks
+      const webhooks = newSpec?.webhooks
       const webhookData: FuseData[] = []
 
       if (webhooks) {
@@ -175,7 +175,7 @@ export function useSearchIndex({
       }
 
       // Adding models as well
-      const schemas = hideModels.value ? {} : getModels(specification.value)
+      const schemas = hideModels.value ? {} : getModels(newSpec)
       const modelData: FuseData[] = []
 
       if (schemas) {
