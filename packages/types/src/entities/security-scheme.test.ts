@@ -273,7 +273,10 @@ describe('Security Schemas', () => {
         'x-default-scopes': ['read:api', 'write:api'],
       }
 
-      const result = securityOauthSchema.parse(oauth2)
+      const result = securitySchemeSchema.parse(oauth2)
+      if (result.type !== 'oauth2') {
+        throw new Error('Expected oauth2 schema')
+      }
       expect(result['x-default-scopes']).toEqual(['read:api', 'write:api'])
       expect(result.flows.implicit?.selectedScopes).toEqual(['read:api', 'write:api'])
     })
