@@ -27,8 +27,6 @@ if (requestBody?.content) {
     selectedContentType.value = availableContentTypes.value[0] as ContentType
   }
 }
-
-console.log(requestBody?.content?.[selectedContentType.value])
 </script>
 <template>
   <div v-if="requestBody">
