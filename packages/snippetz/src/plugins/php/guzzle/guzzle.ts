@@ -100,7 +100,7 @@ export const phpGuzzle: Plugin = {
     }
 
     // Generate the PHP code
-    let code = '$client = new GuzzleHttp\\Client();\n'
+    let code = '$client = new GuzzleHttp\\Client();\n\n'
 
     if (Object.keys(options).length > 0) {
       // Format the options array with proper indentation
