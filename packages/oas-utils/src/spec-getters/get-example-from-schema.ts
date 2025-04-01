@@ -91,7 +91,6 @@ export const getExampleFromSchema = (
   level: number = 0,
   parentSchema?: Record<string, any>,
   name?: string,
-  currentPath: string = '',
 ): any => {
   // Check if the result is already cached
   if (resultCache.has(schema)) {
@@ -186,9 +185,8 @@ export const getExampleFromSchema = (
 
           const property = schema.properties[propertyName]
           const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
-          const newPath = currentPath ? `${currentPath}.${propertyName}` : propertyName
 
-          const value = getExampleFromSchema(property, options, level + 1, schema, propertyName, newPath)
+          const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
 
           if (typeof value !== 'undefined') {
             response[propertyXmlTagName ?? propertyName] = value
