@@ -400,7 +400,7 @@ describe('upgradeFromThreeToThreeOne', () => {
                 'image/png': {
                   schema: {
                     type: 'string',
-                    format: 'byte'
+                    format: 'byte',
                   },
                 },
               },
@@ -414,7 +414,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       schema: {
         type: 'string',
         contentMediaType: 'image/png',
-        contentEncoding: 'base64'
+        contentEncoding: 'base64',
       },
     })
   })
