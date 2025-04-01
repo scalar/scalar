@@ -1,4 +1,6 @@
+export { XAdditionalPropertiesNameSchema } from './x-additional-properties-name'
 export { XCodeSamplesSchema } from './x-code-samples'
+export { XEnumDescriptionsSchema } from './x-enum-descriptions'
 export { XInternalSchema } from './x-internal'
 export { XScalarIconSchema } from './x-scalar-icon'
 export { XScalarIgnoreSchema } from './x-scalar-ignore'
