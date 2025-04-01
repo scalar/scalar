@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
-  oasSecurityRequirementSchema,
-  pkceOptions,
-  securityApiKeySchema,
-  securityHttpSchema,
-  securityOauthSchema,
-  securityOpenIdSchema,
-  securitySchemeSchema,
+  ApiKeySchema,
+  HttpSchema,
+  OAuthFlowsObjectSchema,
+  OpenIdConnectSchema,
+  SecurityRequirementObjectSchema,
+  SecuritySchemeObjectSchema,
+  XUsePkceValues,
 } from './security-scheme.ts'
 
 describe('Security Schemas', () => {
@@ -22,7 +22,7 @@ describe('Security Schemas', () => {
         value: 'test-api-key',
       }
 
-      const result = securityApiKeySchema.safeParse(apiKey)
+      const result = ApiKeySchema.safeParse(apiKey)
       expect(result.success).toBe(true)
     })
 
@@ -32,7 +32,7 @@ describe('Security Schemas', () => {
         uid: 'apikey123',
       }
 
-      const result = securityApiKeySchema.parse(minimalApiKey)
+      const result = ApiKeySchema.parse(minimalApiKey)
       expect(result).toEqual({
         type: 'apiKey',
         uid: 'apikey123',
@@ -55,7 +55,7 @@ describe('Security Schemas', () => {
         password: 'pass',
       }
 
-      const result = securityHttpSchema.safeParse(httpBasic)
+      const result = HttpSchema.safeParse(httpBasic)
       expect(result.success).toBe(true)
     })
 
@@ -69,7 +69,7 @@ describe('Security Schemas', () => {
         token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
       }
 
-      const result = securityHttpSchema.safeParse(httpBearer)
+      const result = HttpSchema.safeParse(httpBearer)
       expect(result.success).toBe(true)
     })
 
@@ -79,7 +79,7 @@ describe('Security Schemas', () => {
         uid: 'http123',
       }
 
-      const result = securityHttpSchema.parse(minimalHttp)
+      const result = HttpSchema.parse(minimalHttp)
       expect(result).toEqual({
         type: 'http',
         uid: 'http123',
@@ -99,7 +99,7 @@ describe('Security Schemas', () => {
         uid: 'http123',
       }
 
-      const result = securityHttpSchema.safeParse(invalidHttp)
+      const result = HttpSchema.safeParse(invalidHttp)
       expect(result.success).toBe(false)
     })
   })
@@ -114,7 +114,7 @@ describe('Security Schemas', () => {
         nameKey: 'openid',
       }
 
-      const result = securityOpenIdSchema.safeParse(openId)
+      const result = OpenIdConnectSchema.safeParse(openId)
       expect(result.success).toBe(true)
     })
 
@@ -124,7 +124,7 @@ describe('Security Schemas', () => {
         uid: 'openid123',
       }
 
-      const result = securityOpenIdSchema.parse(minimalOpenId)
+      const result = OpenIdConnectSchema.parse(minimalOpenId)
       expect(result).toEqual({
         type: 'openIdConnect',
         uid: 'openid123',
@@ -154,7 +154,7 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Implicit)
+      const result = OAuthFlowsObjectSchema.safeParse(oauth2Implicit)
       expect(result.success).toBe(true)
     })
 
@@ -174,7 +174,7 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Implicit)
+      const result = OAuthFlowsObjectSchema.safeParse(oauth2Implicit)
       expect(result.success).toBe(true)
     })
 
@@ -199,7 +199,7 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2AuthCode)
+      const result = OAuthFlowsObjectSchema.safeParse(oauth2AuthCode)
       expect(result.success).toBe(true)
     })
 
@@ -219,7 +219,7 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2ClientCreds)
+      const result = OAuthFlowsObjectSchema.safeParse(oauth2ClientCreds)
       expect(result.success).toBe(true)
     })
 
@@ -241,7 +241,7 @@ describe('Security Schemas', () => {
         },
       }
 
-      const result = securityOauthSchema.safeParse(oauth2Password)
+      const result = OAuthFlowsObjectSchema.safeParse(oauth2Password)
       expect(result.success).toBe(true)
     })
 
@@ -251,7 +251,7 @@ describe('Security Schemas', () => {
         uid: 'oauth123',
       }
 
-      const result = securityOauthSchema.parse(minimalOauth2)
+      const result = OAuthFlowsObjectSchema.parse(minimalOauth2)
       expect(result.flows.implicit).toBeDefined()
       expect(result.flows.implicit?.authorizationUrl).toBe('http://localhost:8080')
       expect(result.flows.implicit?.scopes).toEqual({})
@@ -261,9 +261,9 @@ describe('Security Schemas', () => {
     })
 
     it('should validate PKCE options', () => {
-      expect(pkceOptions).toContain('SHA-256')
-      expect(pkceOptions).toContain('plain')
-      expect(pkceOptions).toContain('no')
+      expect(XUsePkceValues).toContain('SHA-256')
+      expect(XUsePkceValues).toContain('plain')
+      expect(XUsePkceValues).toContain('no')
     })
   })
 
@@ -274,7 +274,7 @@ describe('Security Schemas', () => {
         'oauth2': ['read:api', 'write:api'],
       }
 
-      const result = oasSecurityRequirementSchema.safeParse(securityRequirement)
+      const result = SecurityRequirementObjectSchema.safeParse(securityRequirement)
       expect(result.success).toBe(true)
     })
 
@@ -283,7 +283,7 @@ describe('Security Schemas', () => {
         'api_key': undefined,
       }
 
-      const result = oasSecurityRequirementSchema.parse(securityRequirement)
+      const result = SecurityRequirementObjectSchema.parse(securityRequirement)
       expect(result).toEqual({
         'api_key': [],
       })
@@ -326,10 +326,10 @@ describe('Security Schemas', () => {
         },
       }
 
-      expect(securitySchemeSchema.safeParse(apiKey).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(http).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(openId).success).toBe(true)
-      expect(securitySchemeSchema.safeParse(oauth2).success).toBe(true)
+      expect(SecuritySchemeObjectSchema.safeParse(apiKey).success).toBe(true)
+      expect(SecuritySchemeObjectSchema.safeParse(http).success).toBe(true)
+      expect(SecuritySchemeObjectSchema.safeParse(openId).success).toBe(true)
+      expect(SecuritySchemeObjectSchema.safeParse(oauth2).success).toBe(true)
     })
   })
 })
