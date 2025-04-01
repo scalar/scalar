@@ -124,7 +124,6 @@ export function upgradeFromThreeToThreeOne(originalSpecification: UnknownObject)
 
   specification = traverse(specification, (schema, path) => {
     if (schema.type === 'string' && schema.format === 'byte') {
-      // Check if this is a multipart request body schema
       const parentPath = path.slice(0, -1)
       const contentMediaType = parentPath.find((_, index) => path[index - 1] === 'content')
 
