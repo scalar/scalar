@@ -27,6 +27,8 @@ if (requestBody?.content) {
     selectedContentType.value = availableContentTypes.value[0] as ContentType
   }
 }
+
+console.log(requestBody?.content?.[selectedContentType.value])
 </script>
 <template>
   <div v-if="requestBody">
@@ -49,7 +51,10 @@ if (requestBody?.content) {
       class="request-body-schema">
       <Schema
         compact
-        noncollapsible
+        :noncollapsible="
+          Object.keys(requestBody.content?.[selectedContentType] ?? {}).length >
+          10
+        "
         :schemas="schemas"
         :value="requestBody.content?.[selectedContentType]?.schema" />
     </div>
