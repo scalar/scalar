@@ -15,7 +15,7 @@ type Store = {
   state: State
   plugins: StorePlugin[]
   actions: {
-    load: (collectionId: string, content: Record<string, unknown>) => void
+    load: (collectionId: string, content: Record<string, unknown> | (() => Promise<Record<string, unknown>>)) => void
     export: (collectionId: string) => Record<string, unknown>
   }
   getters: Record<string, () => unknown>
@@ -34,7 +34,13 @@ function createStore(options?: { plugins?: StorePlugin[] }): Store {
     }),
     plugins: options?.plugins ?? [],
     actions: {
-      load(collectionId: string, content: Record<string, unknown>) {
+      async load(
+        collectionId: string,
+        contentOrAsyncCallback: Record<string, unknown> | (() => Promise<Record<string, unknown>>),
+      ) {
+        const content =
+          typeof contentOrAsyncCallback === 'function' ? await contentOrAsyncCallback() : contentOrAsyncCallback
+
         // TODO: Validate content
 
         if (typeof store.state.collections[collectionId] === 'undefined') {
@@ -161,6 +167,35 @@ describe('createStore', () => {
           },
         },
       },
+    })
+  })
+
+  it('imports content asynchronously', async () => {
+    const store = createStore()
+
+    // Simulate fetching content from a remote server
+    store.actions.load('default', async () => {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      return {
+        openapi: '3.1.1',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        paths: {},
+      }
+    })
+
+    await new Promise((resolve) => setTimeout(resolve, 100))
+
+    expect(store.state.collections.default).toMatchObject({
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
     })
   })
 
