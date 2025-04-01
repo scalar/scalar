@@ -1,5 +1,5 @@
 import { z } from 'zod'
 
-export const XScalarRedirectUriSchema = {
+export const XScalarRedirectUriSchema = z.object({
   'x-scalar-redirect-uri': z.string().optional(),
-}
+})
