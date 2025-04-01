@@ -122,6 +122,21 @@ export function upgradeFromThreeToThreeOne(originalSpecification: UnknownObject)
     return schema
   })
 
+  specification = traverse(specification, (schema, path) => {
+    if (schema.type === 'string' && schema.format === 'byte') {
+      const parentPath = path.slice(0, -1)
+      const contentMediaType = parentPath.find((_, index) => path[index - 1] === 'content')
+
+      return {
+        type: 'string',
+        contentEncoding: 'base64',
+        contentMediaType,
+      }
+    }
+
+    return schema
+  })
+
   // Declaring $schema Dialects to protect against change
   // if (typeof specification.$schema === 'undefined') {
   //   specification.$schema = 'http://json-schema.org/draft-07/schema#'
