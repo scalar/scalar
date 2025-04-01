@@ -174,6 +174,7 @@ export const getExampleFromSchema = (
     const response: Record<string, any> = {}
     let propertyCount = 0
 
+    // Regular properties
     if (schema.properties !== undefined) {
       for (const propertyName in schema.properties) {
         if (Object.prototype.hasOwnProperty.call(schema.properties, propertyName)) {
