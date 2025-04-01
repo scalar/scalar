@@ -23,19 +23,11 @@ const responseHeaders = computed(() => {
   const headers = response?.headers
 
   return headers
-    ? Object.keys(headers)
-        .map((key) => ({
-          name: key,
-          value: headers[key] ?? '',
-          required: false,
-        }))
-        .filter(
-          (item) =>
-            ![
-              'rest-api-client-content-length',
-              'X-API-Client-Content-Length',
-            ].includes(item.name),
-        )
+    ? Object.keys(headers).map((key) => ({
+        name: key,
+        value: headers[key] ?? '',
+        required: false,
+      }))
     : []
 })
 
