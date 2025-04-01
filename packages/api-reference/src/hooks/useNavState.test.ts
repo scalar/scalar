@@ -1,6 +1,6 @@
 import { useConfig } from '@/hooks/useConfig'
 import type { Heading, Tag } from '@scalar/types/legacy'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { computed, inject, ref } from 'vue'
@@ -20,12 +20,23 @@ vi.mock('vue', () => {
   }
 })
 
+// Save original window.location
+const originalLocation = window.location
+
 describe('useNavState', () => {
   let navState: ReturnType<typeof useNavState>
 
   beforeEach(() => {
-    // Reset URL between tests
-    window.history.pushState({}, '', '/')
+    // Mock window.location
+    delete (window as any).location
+    window.location = {
+      ...originalLocation,
+      pathname: '/',
+      hash: '',
+      assign: vi.fn(),
+      replace: vi.fn(),
+      reload: vi.fn(),
+    }
 
     // Reset the mock state for each test
     vi.mocked(inject).mockReturnValue({
@@ -35,6 +46,11 @@ describe('useNavState', () => {
     })
 
     navState = useNavState()
+  })
+
+  afterEach(() => {
+    // Restore original window.location
+    window.location = originalLocation
   })
 
   describe('hash management', () => {
@@ -63,7 +79,7 @@ describe('useNavState', () => {
     it('should get reference hash without prefix', () => {
       navState.setHashPrefix('prefix-')
       window.location.hash = '#prefix-test-hash'
-      expect(navState.getReferenceHash()).toBe('test-hash')
+      expect(navState.getReferenceId()).toBe('test-hash')
     })
   })
 
@@ -159,6 +175,21 @@ describe('useNavState', () => {
       navState = useNavState()
 
       expect(navState.getPathRoutingId('/docs/test-path')).toBe('test-path')
+    })
+
+    it('should handle path routing ID extraction with getReferenceId', () => {
+      const mockConfig = computed(() => {
+        return apiReferenceConfigurationSchema.parse({
+          pathRouting: {
+            basePath: '/docs',
+          },
+        })
+      })
+      vi.mocked(useConfig).mockReturnValue(mockConfig)
+      navState = useNavState()
+      window.location.pathname = '/docs/test-path'
+
+      expect(navState.getReferenceId()).toBe('test-path')
     })
 
     it('should get section ID from hash', () => {

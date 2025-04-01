@@ -101,7 +101,7 @@ const {
 } = useSidebar()
 
 const {
-  getReferenceHash,
+  getReferenceId,
   getPathRoutingId,
   getSectionId,
   getTagId,
@@ -109,7 +109,7 @@ const {
   isIntersectionEnabled,
   updateHash,
   replaceUrlState,
-} = useNavState()
+} = useNavState(configuration)
 
 // Front-end redirect
 if (configuration.value.redirect && typeof window !== 'undefined') {
@@ -167,7 +167,7 @@ onMounted(() => {
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = () => {
-    scrollToSection(getReferenceHash())
+    scrollToSection(getReferenceId())
   }
   // Handle back for path routing
   window.onpopstate = () =>
