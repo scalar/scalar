@@ -1,12 +1,12 @@
 # OpenAPI Specification
 
-We’re expecting the passed specification to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
+We’re expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
 
 On top of that, we’ve added a few things for your convenience:
 
 ## x-scalar-environments
 
-you can specify predefined environment variables for the API Client/References to consume and use :)
+You can specify predefined environment variables for the API Client/References to consume and use:
 
 ```
 x-scalar-environments:
