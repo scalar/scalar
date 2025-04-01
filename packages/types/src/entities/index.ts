@@ -1,6 +1,3 @@
-// TODO: Use the new names everywhere, keep the name of the export.
-// ✅ SecurityRequirementObjectSchema
-// ❌ oasSecurityRequirementSchema
 export {
   type Oauth2Flow,
   type Oauth2FlowPayload,
@@ -11,12 +8,12 @@ export {
   type SecuritySchemeOauth2,
   type SecuritySchemeOauth2Payload,
   type SecuritySchemePayload,
-  SecurityRequirementObjectSchema as oasSecurityRequirementSchema,
-  SecuritySchemeObjectSchema as oasSecuritySchemeSchema,
-  XUsePkceValues as pkceOptions,
-  ApiKeySchema as securityApiKeySchema,
-  HttpSchema as securityHttpSchema,
-  OAuthFlowsObject as securityOauthSchema,
-  OpenIdConnectSchema as securityOpenIdSchema,
-  SecuritySchemeObjectSchema as securitySchemeSchema,
+  oasSecurityRequirementSchema,
+  oasSecuritySchemeSchema,
+  pkceOptions,
+  securityApiKeySchema,
+  securityHttpSchema,
+  securityOauthSchema,
+  securityOpenIdSchema,
+  securitySchemeSchema,
 } from './security-scheme.ts'
