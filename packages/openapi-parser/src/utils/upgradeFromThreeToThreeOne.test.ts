@@ -385,6 +385,40 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
+  it('migrates byte format', async () => {
+    const result = upgradeFromThreeToThreeOne({
+      openapi: '3.0.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/upload': {
+          post: {
+            requestBody: {
+              content: {
+                'image/png': {
+                  schema: {
+                    type: 'string',
+                    format: 'byte'
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/upload'].post.requestBody.content['image/png']).toEqual({
+      schema: {
+        type: 'string',
+        contentMediaType: 'image/png',
+        contentEncoding: 'base64'
+      },
+    })
+  })
+
   describe.skip('declaring $schema', () => {
     it('adds a $schema', async () => {
       const result = upgradeFromThreeToThreeOne({
