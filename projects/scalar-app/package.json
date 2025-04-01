@@ -55,7 +55,7 @@
     "@vitejs/plugin-vue": "catalog:",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^14.1.3",
-    "electron": "^34.2.0",
+    "electron": "^35.1.2",
     "electron-vite": "^2.3.0",
     "vite": "catalog:",
     "vue": "catalog:"
