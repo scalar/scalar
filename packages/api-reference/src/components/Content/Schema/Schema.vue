@@ -70,7 +70,9 @@ const handleClick = (e: MouseEvent) =>
           !compact
         "
         class="schema-card-description">
-        <ScalarMarkdown :value="value.description" />
+        <template v-if="!value.enum">
+          <ScalarMarkdown :value="value.description" />
+        </template>
       </div>
       <div
         class="schema-properties"
