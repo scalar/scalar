@@ -119,6 +119,17 @@ const shouldVirtualize = computed(() => {
 
   return isTextBased && (response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
+
+const requestHeaders = computed(
+  () =>
+    requestResult?.request.parameters.headers
+      .filter((h) => h.enabled)
+      .map((h) => ({
+        name: h.key,
+        value: h.value,
+        required: true,
+      })) ?? [],
+)
 </script>
 <template>
   <ViewLayoutSection aria-label="Response">
@@ -163,15 +174,7 @@ const shouldVirtualize = computed(() => {
           class="response-section-content-headers"
           v-if="activeFilter === 'All' || activeFilter === 'Headers'"
           :id="filterIds.Headers"
-          :headers="
-            requestResult?.request.parameters.headers
-              .filter((h) => h.enabled)
-              .map((h) => ({
-                name: h.key,
-                value: h.value,
-                required: true,
-              })) ?? []
-          "
+          :headers="requestHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <ResponseHeaders
           class="response-section-content-headers"
