@@ -85,7 +85,7 @@ function createStore(options?: { plugins?: StorePlugin[] }): Store {
 
 // Persistence plugin
 function localStoragePlugin(options?: { key?: string }): StorePlugin {
-  const DEFAULT_LOCAL_STORAGE_KEY = 'store'
+  const DEFAULT_LOCAL_STORAGE_KEY = 'state'
   const key = options?.key || DEFAULT_LOCAL_STORAGE_KEY
 
   return {
@@ -217,7 +217,7 @@ describe('createStore', () => {
     await nextTick()
 
     // Parse the localStorage value before comparing
-    const state = JSON.parse(localStorage.getItem('store') || '{}')
+    const state = JSON.parse(localStorage.getItem('state') || '{}')
 
     expect(state).toMatchObject({
       collections: {
@@ -235,7 +235,7 @@ describe('createStore', () => {
 
   it('restores the state from localStorage', async () => {
     localStorage.setItem(
-      'store',
+      'state',
       JSON.stringify({
         collections: {
           default: {
