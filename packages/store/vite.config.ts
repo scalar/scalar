@@ -1,0 +1,33 @@
+import { URL, fileURLToPath } from 'node:url'
+import { findEntryPoints } from '@scalar/build-tooling'
+import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite'
+import svgLoader from 'vite-svg-loader'
+
+import pkg from './package.json'
+
+export default defineConfig({
+  plugins: [vue(), svgLoader()],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+    dedupe: ['vue'],
+  },
+  build: {
+    ssr: true,
+    minify: false,
+    target: 'esnext',
+    lib: {
+      entry: await findEntryPoints({ allowCss: true }),
+      formats: ['es'],
+    },
+    rollupOptions: {
+      external: [...Object.keys((pkg as any).peerDependencies || {})],
+      output: {
+        // Create a separate file for the dependency bundle
+        manualChunks: (id) => (id.includes('node_modules') ? 'vendor' : undefined),
+      },
+    },
+  },
+})
