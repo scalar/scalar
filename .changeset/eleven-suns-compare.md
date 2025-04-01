@@ -1,5 +1,5 @@
 ---
-'@scalar/oas-utils': minor
+'@scalar/openapi-types': minor
 ---
 
 feat: OpenAPI-compliant Zod Schemas
