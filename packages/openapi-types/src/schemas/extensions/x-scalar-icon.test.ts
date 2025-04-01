@@ -10,7 +10,7 @@ describe('XScalarIconSchema', () => {
     expect(result).toEqual({ 'x-scalar-icon': 'foobar' })
   })
 
-  it('has a default value', () => {
-    expect(XScalarIconSchema.parse({})).toEqual({ 'x-scalar-icon': 'interface-content-folder' })
+  it('has no default value', () => {
+    expect(XScalarIconSchema.parse({})).toEqual({ 'x-scalar-icon': undefined })
   })
 })

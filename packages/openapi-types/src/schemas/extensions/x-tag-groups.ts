@@ -8,7 +8,7 @@ export const XTagGroupSchema = z.object({
   /**
    * List of tags to include in this group.
    */
-  tags: z.string().array(),
+  tags: z.coerce.string().array().catch([]),
 })
 
 /**
@@ -16,4 +16,4 @@ export const XTagGroupSchema = z.object({
  *
  * List of tags to include in this group.
  */
-export const XTagGroupsSchema = XTagGroupSchema.array()
+export const XTagGroupsSchema = XTagGroupSchema.array().catch([])

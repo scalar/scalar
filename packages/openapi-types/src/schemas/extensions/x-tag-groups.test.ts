@@ -30,25 +30,31 @@ describe('XTagGroupsSchema', () => {
     expect(result).toEqual([])
   })
 
-  it('validates tag group structure', () => {
-    expect(() =>
-      XTagGroupsSchema.parse([
-        {
-          // missing name
-          tags: ['users'],
-        },
-      ]),
-    ).toThrow()
+  it('removes groups without name', () => {
+    const result = XTagGroupsSchema.parse([
+      {
+        // missing name
+        tags: ['users'],
+      },
+    ])
+
+    expect(result).toEqual([])
   })
 
   it('ensures tags is an array of strings', () => {
-    expect(() =>
-      XTagGroupsSchema.parse([
-        {
-          name: 'Core',
-          tags: [123, 'users'], // invalid: number in tags array
-        },
-      ]),
-    ).toThrow()
+    const result = XTagGroupsSchema.parse([
+      {
+        name: 'Core',
+        // invalid: number in tags array
+        tags: [123, 'users'],
+      },
+    ])
+
+    expect(result).toEqual([
+      {
+        name: 'Core',
+        tags: ['123', 'users'],
+      },
+    ])
   })
 })
