@@ -169,7 +169,7 @@ const shouldVirtualize = computed(() => {
               .map((h) => ({
                 name: h.key,
                 value: h.value,
-                required: h.required,
+                required: true,
               })) ?? []
           "
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
