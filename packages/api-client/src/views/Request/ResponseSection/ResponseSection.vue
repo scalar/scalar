@@ -4,18 +4,21 @@ import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
-import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
-import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
-import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
+import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 
+import RequestHeaders from './RequestHeaders.vue'
+import ResponseBody from './ResponseBody.vue'
 import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
+import ResponseEmpty from './ResponseEmpty.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
+import ResponseLoadingOverlay from './ResponseLoadingOverlay.vue'
+import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
-const { numWorkspaceRequests, response } = defineProps<{
+const { numWorkspaceRequests, response, requestResult } = defineProps<{
   numWorkspaceRequests: number
   response: ResponseInstance | undefined
+  requestResult: SendRequestResult | null | undefined
 }>()
 
 // Headers
@@ -155,6 +158,20 @@ const shouldVirtualize = computed(() => {
           v-if="activeFilter === 'All' || activeFilter === 'Cookies'"
           :id="filterIds.Cookies"
           :cookies="responseCookies"
+          :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
+        <RequestHeaders
+          class="response-section-content-headers"
+          v-if="activeFilter === 'All' || activeFilter === 'Headers'"
+          :id="filterIds.Headers"
+          :headers="
+            requestResult?.request.parameters.headers
+              .filter((h) => h.enabled)
+              .map((h) => ({
+                name: h.key,
+                value: h.value,
+                required: h.required,
+              })) ?? []
+          "
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
         <ResponseHeaders
           class="response-section-content-headers"
