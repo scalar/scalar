@@ -36,21 +36,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./schemas/extensions": {
-      "import": "./dist/schemas/extensions/index.js",
-      "types": "./dist/schemas/extensions/index.d.ts",
-      "default": "./dist/schemas/extensions/index.js"
-    },
-    "./schemas/3.1/unprocessed": {
-      "import": "./dist/schemas/3.1/unprocessed/index.js",
-      "types": "./dist/schemas/3.1/unprocessed/index.d.ts",
-      "default": "./dist/schemas/3.1/unprocessed/index.js"
-    },
-    "./schemas/3.1/processed": {
-      "import": "./dist/schemas/3.1/processed/index.js",
-      "types": "./dist/schemas/3.1/processed/index.d.ts",
-      "default": "./dist/schemas/3.1/processed/index.js"
     }
   },
   "files": [
@@ -59,9 +44,6 @@
     "CHANGELOG.md"
   ],
   "sideEffects": false,
-  "dependencies": {
-    "zod": "catalog:"
-  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
   }
