@@ -261,7 +261,7 @@ watch(
     spec &&
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
-      documentUrl: configuration.value.spec?.url,
+      documentUrl: configuration.value.spec?.url ?? configuration.value.url,
       useCollectionSecurity: true,
       ...configuration.value,
     }),
