@@ -130,6 +130,6 @@ export const Scalar = <E extends Env>(givenConfiguration: Partial<ApiReferenceCo
 }
 
 /**
- * @deprecated Use `scalar` instead.
+ * @deprecated Use `Scalar` instead.
  */
-export const apiReference = scalar
+export const apiReference = Scalar
