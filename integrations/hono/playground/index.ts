@@ -164,8 +164,8 @@ app.openapi(
 )
 
 // Create an OpenAPI endpoint
-app.use('/openapi.json', cors())
-app.doc('/openapi.json', {
+app.use('/doc', cors())
+app.doc('/doc', {
   openapi: '3.1.0',
   info: {
     title: 'Example',
@@ -185,7 +185,7 @@ app.get(
     sources: [
       {
         title: 'Hono',
-        url: '/openapi.json',
+        url: '/doc',
       },
       {
         title: 'Scalar Galaxy',
