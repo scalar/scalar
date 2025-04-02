@@ -25,7 +25,7 @@ import { apiReference } from '@scalar/hono-api-reference'
 app.get(
   '/reference',
   apiReference({
-    url: '/openapi.json',
+    url: '/doc',
   }),
 )
 ```
@@ -43,7 +43,7 @@ app.get(
   '/reference',
   apiReference({
     theme: 'purple',
-    url: '/openapi.json',
+    url: '/doc',
   }),
 )
 ```
@@ -59,7 +59,7 @@ app.get(
   '/reference',
   apiReference({
     pageTitle: 'Hono API Reference',
-    url: '/openapi.json',
+    url: '/doc',
   }),
 )
 ```
@@ -79,7 +79,7 @@ app.use(
   '/reference',
   apiReference({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-    url: '/openapi.json',
+    url: '/doc',
   }),
 )
 ```
