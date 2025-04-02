@@ -1,7 +1,7 @@
 /** Hard limit for rendering circular references */
 const MAX_LEVELS_DEEP = 5
 /** Sets the max number of properties after the third level to prevent exponential horizontal growth */
-const MAX_PROPERTIES = 5
+const MAX_PROPERTIES = 10
 
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',

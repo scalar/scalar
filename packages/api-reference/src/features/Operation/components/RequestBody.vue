@@ -27,6 +27,38 @@ if (requestBody?.content) {
     selectedContentType.value = availableContentTypes.value[0] as ContentType
   }
 }
+
+/**
+ * Splits schema properties into visible and collapsed sections when there are more than 12 properties.
+ * Returns null for schemas with fewer properties or non-object schemas.
+ */
+const partitionedSchema = computed(() => {
+  const schema = requestBody?.content?.[selectedContentType.value]?.schema
+
+  // Early return if not an object schema
+  if (schema?.type !== 'object' || !schema.properties) {
+    return null
+  }
+
+  const propertyEntries = Object.entries(schema.properties)
+  if (propertyEntries.length < 13) {
+    return null
+  }
+
+  // Destructure everything except properties
+  const { properties, ...schemaMetadata } = schema
+
+  return {
+    visibleProperties: {
+      ...schemaMetadata,
+      properties: Object.fromEntries(propertyEntries.slice(0, 12)),
+    },
+    collapsedProperties: {
+      ...schemaMetadata,
+      properties: Object.fromEntries(propertyEntries.slice(12)),
+    },
+  }
+})
 </script>
 <template>
   <div v-if="requestBody">
@@ -44,15 +76,31 @@ if (requestBody?.content) {
         <ScalarMarkdown :value="requestBody.description" />
       </div>
     </div>
+
+    <!-- For over 10 properties we want to show 10 and collapse the rest -->
     <div
-      v-if="requestBody.content?.[selectedContentType]"
+      v-if="partitionedSchema"
       class="request-body-schema">
       <Schema
         compact
-        :noncollapsible="
-          Object.keys(requestBody.content?.[selectedContentType] ?? {}).length >
-          10
-        "
+        noncollapsible
+        :schemas="schemas"
+        :value="partitionedSchema.visibleProperties" />
+
+      <Schema
+        compact
+        additionalProperties
+        :schemas="schemas"
+        :value="partitionedSchema.collapsedProperties" />
+    </div>
+
+    <!-- Show em all 12 and under -->
+    <div
+      v-else-if="requestBody.content?.[selectedContentType]"
+      class="request-body-schema">
+      <Schema
+        compact
+        noncollapsible
         :schemas="schemas"
         :value="requestBody.content?.[selectedContentType]?.schema" />
     </div>

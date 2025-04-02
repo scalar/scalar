@@ -26,13 +26,15 @@ const props = withDefaults(
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
     hideHeading?: boolean
+    /** Show a special one way toggle for additional properties, also has a top border when open */
+    additionalProperties?: boolean
     schemas?:
       | OpenAPIV2.DefinitionsObject
       | Record<string, OpenAPIV3.SchemaObject>
       | Record<string, OpenAPIV3_1.SchemaObject>
       | unknown
   }>(),
-  { level: 0 },
+  { level: 0, showAdditionalProperties: false },
 )
 
 const shouldShowToggle = computed(() => {
@@ -56,6 +58,7 @@ const handleClick = (e: MouseEvent) =>
       :class="[
         `schema-card--level-${level}`,
         { 'schema-card--compact': compact, 'schema-card--open': open },
+        { 'border-t-1/2': additionalProperties && open },
       ]">
       <div
         v-if="
@@ -74,7 +77,25 @@ const handleClick = (e: MouseEvent) =>
         :class="{
           'schema-properties-open': open,
         }">
+        <!-- Special toggle to show additional properties -->
+        <div
+          v-if="additionalProperties"
+          class="schema-properties"
+          v-show="!open">
+          <DisclosureButton
+            as="button"
+            class="schema-card-title schema-card-title--compact"
+            @click.capture="handleClick">
+            <ScalarIcon
+              class="schema-card-title-icon"
+              icon="Add"
+              size="sm" />
+            Show additional properties
+          </DisclosureButton>
+        </div>
+
         <DisclosureButton
+          v-else
           v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
           class="schema-card-title"
