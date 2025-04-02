@@ -82,7 +82,7 @@ export function processItem(
         : (request.description?.content ?? '')
 
   const operationObject: OpenAPIV3_1.OperationObject = {
-    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
+    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : undefined,
     summary,
     description,
     responses: extractResponses(response || [], item),
