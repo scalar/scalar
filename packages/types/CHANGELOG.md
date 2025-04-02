@@ -1,5 +1,15 @@
 # @scalar/types
 
+## 0.1.5
+
+### Patch Changes
+
+- e09dab3: feat: multiple configurations with multiple sources
+- 04e27a1: feat: support x-default-scopes
+- Updated dependencies [e62e677]
+- Updated dependencies [82f16a5]
+  - @scalar/openapi-types@0.2.0
+
 ## 0.1.4
 
 ### Patch Changes

@@ -1,5 +1,32 @@
 # @scalar/api-client
 
+## 2.3.11
+
+### Patch Changes
+
+- adc6ee4: Adds support for JSON:API media type on responses
+- b0a5481: feat: show request headers
+- Updated dependencies [183cbba]
+- Updated dependencies [e62e677]
+- Updated dependencies [d5a687f]
+- Updated dependencies [e09dab3]
+- Updated dependencies [e62e677]
+- Updated dependencies [82f16a5]
+- Updated dependencies [04e27a1]
+- Updated dependencies [4df5387]
+- Updated dependencies [846d015]
+  - @scalar/snippetz@0.2.19
+  - @scalar/openapi-types@0.2.0
+  - @scalar/openapi-parser@0.10.13
+  - @scalar/types@0.1.5
+  - @scalar/oas-utils@0.2.125
+  - @scalar/postman-to-openapi@0.1.48
+  - @scalar/import@0.3.8
+  - @scalar/themes@0.9.83
+  - @scalar/components@0.13.42
+  - @scalar/use-codemirror@0.11.87
+  - @scalar/use-hooks@0.1.37
+
 ## 2.3.10
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.13
+
+### Patch Changes
+
+- d5a687f: fix: byte format is ignored when upgrading from OpenAPI 3.0 to OpenAPI 3.1
+
 ## 0.10.12
 
 ### Patch Changes
