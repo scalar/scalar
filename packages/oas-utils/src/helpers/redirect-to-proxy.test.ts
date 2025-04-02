@@ -15,6 +15,12 @@ describe('redirectToProxy', () => {
     )
   })
 
+  it('uses the proxy when the proxyUrl is relative', () => {
+    expect(redirectToProxy('/proxy', 'http://localhost:3000/api')).toBe(
+      '/proxy?scalar_url=http%3A%2F%2Flocalhost%3A3000%2Fapi',
+    )
+  })
+
   it('skips the proxy if no proxy url is passed', () => {
     expect(redirectToProxy('', 'https://example.com')).toBe('https://example.com')
   })
@@ -29,10 +35,6 @@ describe('redirectToProxy', () => {
 
   it('skips the proxy for relative URLs not starting with a slash, but containing a dot', () => {
     expect(redirectToProxy('https://proxy.scalar.com', 'openapi.json')).toBe('openapi.json')
-  })
-
-  it('skips the proxy when the proxyUrl is relative', () => {
-    expect(redirectToProxy('/proxy', 'https://example.com')).toBe('https://example.com')
   })
 })
 
