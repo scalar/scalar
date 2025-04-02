@@ -21,6 +21,38 @@ describe('convert', () => {
         '/': {
           'get': {
             'summary': 'Basic GET Request',
+            'x-post-response': `pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Body matches string", function () {
+    pm.expect(pm.response.text()).to.include("GET");
+});
+
+pm.test("Your test name", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.method).to.eql("GET");
+});
+
+pm.test("Body is correct", function () {
+    pm.response.to.have.body("foobar");
+});
+
+pm.test("Content-Type is present", function () {
+    pm.response.to.have.header("Content-Type");
+});
+
+pm.test("Response time is less than 200ms", function () {
+    pm.expect(pm.response.responseTime).to.be.below(200);
+});
+
+pm.test("Successful POST request", function () {
+    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);
+});
+
+pm.test("Status code name has string", function () {
+    pm.response.to.have.status("OK");
+});`,
           },
         },
         '/404': {
@@ -35,6 +67,7 @@ describe('convert', () => {
         },
       },
     })
-    console.log(JSON.stringify(result, null, 2))
+
+    // console.log(JSON.stringify(result, null, 2))
   })
 })
