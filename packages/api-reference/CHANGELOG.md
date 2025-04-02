@@ -1,5 +1,35 @@
 # @scalar/api-reference
 
+## 1.28.11
+
+### Patch Changes
+
+- b812e9f: fix: open in api client button
+- 6bb9f38: fix: empty search on references
+- d581ac0: fix: ensure pathRouting works on first load
+- e09dab3: feat: multiple configurations with multiple sources
+- Updated dependencies [183cbba]
+- Updated dependencies [e62e677]
+- Updated dependencies [d5a687f]
+- Updated dependencies [adc6ee4]
+- Updated dependencies [e09dab3]
+- Updated dependencies [b0a5481]
+- Updated dependencies [e62e677]
+- Updated dependencies [82f16a5]
+- Updated dependencies [04e27a1]
+- Updated dependencies [4df5387]
+- Updated dependencies [846d015]
+  - @scalar/snippetz@0.2.19
+  - @scalar/openapi-types@0.2.0
+  - @scalar/openapi-parser@0.10.13
+  - @scalar/api-client@2.3.11
+  - @scalar/types@0.1.5
+  - @scalar/oas-utils@0.2.125
+  - @scalar/themes@0.9.83
+  - @scalar/code-highlight@0.0.25
+  - @scalar/components@0.13.42
+  - @scalar/use-hooks@0.1.37
+
 ## 1.28.10
 
 ### Patch Changes

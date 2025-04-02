@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.2.125
+
+### Patch Changes
+
+- e62e677: feat: make zod remove undefined values recursively
+- 04e27a1: feat: support x-default-scopes
+- 846d015: fix: add cap on horizontal expententially expanding bodys
+- Updated dependencies [e62e677]
+- Updated dependencies [e09dab3]
+- Updated dependencies [82f16a5]
+- Updated dependencies [04e27a1]
+  - @scalar/openapi-types@0.2.0
+  - @scalar/types@0.1.5
+  - @scalar/themes@0.9.83
+
 ## 0.2.124
 
 ### Patch Changes
