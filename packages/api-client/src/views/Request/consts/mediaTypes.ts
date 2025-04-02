@@ -23,6 +23,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     raw: true,
     language: 'json',
   },
+  'application/vnd.api+json': { extension: '.json', raw: true, language: 'json' },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
