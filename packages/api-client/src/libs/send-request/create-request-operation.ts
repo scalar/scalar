@@ -30,6 +30,8 @@ type SendRequestResponse = Promise<
   }>
 >
 
+export type SendRequestResult = Awaited<SendRequestResponse>[1]
+
 /** Execute the request */
 export const createRequestOperation = ({
   environment,

@@ -8,6 +8,7 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
 import { importCurlCommand } from '@/libs/importers/curl'
+import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -17,6 +18,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 const { invalidParams, selectedSecuritySchemeUids } = defineProps<{
   invalidParams: Set<string>
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
+  requestResult?: SendRequestResult | null
 }>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 
@@ -91,6 +93,7 @@ function handleCurlImport(curl: string) {
               :server="activeServer"
               :workspace="activeWorkspace" />
             <ResponseSection
+              :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
               :response="activeHistoryEntry?.response" />
           </ViewLayoutContent>

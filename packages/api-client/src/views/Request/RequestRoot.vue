@@ -10,6 +10,7 @@ import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
+import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { validateParameters } from '@/libs/validate-parameters'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -37,6 +38,7 @@ const element = ref<HTMLDivElement>()
 
 const requestAbortController = ref<AbortController>()
 const invalidParams = ref<Set<string>>(new Set())
+const requestResult = ref<SendRequestResult | null>(null)
 
 /**
  * Selected scheme UIDs
@@ -105,6 +107,9 @@ const executeRequest = async () => {
   requestAbortController.value = requestOperation.controller
   const [sendRequestError, result] = await requestOperation.sendRequest()
 
+  // Store the result to share it with child components
+  requestResult.value = result
+
   // Send error toast
   if (sendRequestError) {
     toast(sendRequestError.message, 'error')
@@ -170,7 +175,8 @@ watch(
       <div class="flex h-full flex-1 flex-col">
         <RouterView
           :invalidParams="invalidParams"
-          :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+          :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
+          :requestResult="requestResult" />
       </div>
     </div>
   </div>

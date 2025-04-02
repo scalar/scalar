@@ -23,7 +23,7 @@ const findHeaderInfo = (name: string) => {
     class="overflow-auto"
     :defaultOpen="false"
     :itemCount="headers.length">
-    <template #title>Response Headers</template>
+    <template #title>Request Headers</template>
     <div
       v-if="headers.length"
       class="max-h-[calc(100%-32px)] overflow-y-auto border-t">
