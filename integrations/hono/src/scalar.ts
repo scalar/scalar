@@ -118,9 +118,7 @@ export const customTheme = `
 /**
  * The Hono middleware for the Scalar API Reference.
  */
-export const apiReference = <E extends Env>(
-  givenConfiguration: Partial<ApiReferenceConfiguration>,
-): MiddlewareHandler<E> => {
+export const scalar = <E extends Env>(givenConfiguration: Partial<ApiReferenceConfiguration>): MiddlewareHandler<E> => {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,
@@ -130,3 +128,8 @@ export const apiReference = <E extends Env>(
   // Respond with the HTML document
   return async (c) => c.html(/* html */ `${getHtmlDocument(configuration, customTheme)}`)
 }
+
+/**
+ * @deprecated Use `scalar` instead.
+ */
+export const apiReference = scalar

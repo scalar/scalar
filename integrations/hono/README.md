@@ -17,46 +17,33 @@ npm install @scalar/hono-api-reference
 
 ## Usage
 
-Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `apiReference` middleware:
+Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `scalar` middleware:
 
 ```ts
-import { apiReference } from '@scalar/hono-api-reference'
+import { scalar } from '@scalar/hono-api-reference'
 
 app.get(
-  '/reference',
-  apiReference({
-    url: '/doc',
+  '/scalar',
+  scalar({
+    url: '/openapi.json',
   }),
 )
 ```
 
 The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) in the core package README.
 
-### CORS middleware
-
-We recommend to allow requests from other domains to your API definition. That makes it easier to use your API with [our free web client](https://client.scalar.com/) for example.
-
-You just need to add the official Hono CORS middleware to the route of your OpenAPI document:
-
-```ts
-import { cors } from 'hono/cors'
-
-// Recommended: Allows cross-origin requests (from other domains) to your OpenAPI document
-app.use('/doc', cors())
-```
-
 ### Themes
 
 The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
 ```ts
-import { apiReference } from '@scalar/hono-api-reference'
+import { scalar } from '@scalar/hono-api-reference'
 
 app.get(
-  '/reference',
-  apiReference({
+  '/scalar',
+  scalar({
     theme: 'purple',
-    url: '/doc',
+    url: '/openapi.json',
   }),
 )
 ```
@@ -66,13 +53,13 @@ app.get(
 There’s one additional option to set the page title:
 
 ```ts
-import { apiReference } from '@scalar/hono-api-reference'
+import { scalar } from '@scalar/hono-api-reference'
 
 app.get(
-  '/reference',
-  apiReference({
+  '/scalar',
+  scalar({
     pageTitle: 'Hono API Reference',
-    url: '/doc',
+    url: '/openapi.json',
   }),
 )
 ```
@@ -86,13 +73,13 @@ You can also pin the CDN to a specific version by specifying it in the CDN strin
 You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
 
 ```ts
-import { apiReference } from '@scalar/hono-api-reference'
+import { scalar } from '@scalar/hono-api-reference'
 
 app.use(
-  '/reference',
-  apiReference({
+  '/scalar',
+  scalar({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-    url: '/doc',
+    url: '/openapi.json',
   }),
 )
 ```
