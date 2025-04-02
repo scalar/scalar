@@ -1,5 +1,7 @@
 /** Hard limit for rendering circular references */
 const MAX_LEVELS_DEEP = 5
+/** Sets the max number of properties after the third level to prevent exponential horizontal growth */
+const MAX_PROPERTIES = 10
 
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',
@@ -170,24 +172,26 @@ export const getExampleFromSchema = (
   // Object
   if (schema.type === 'object' || schema.properties !== undefined) {
     const response: Record<string, any> = {}
+    let propertyCount = 0
 
     // Regular properties
     if (schema.properties !== undefined) {
       for (const propertyName in schema.properties) {
         if (Object.prototype.hasOwnProperty.call(schema.properties, propertyName)) {
+          // Only apply property limit for nested levels (level > 0)
+          if (level > 3 && propertyCount >= MAX_PROPERTIES) {
+            response['...'] = '[Additional Properties Truncated]'
+            break
+          }
+
           const property = schema.properties[propertyName]
           const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
 
-          response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
-            property,
-            options,
-            level + 1,
-            schema,
-            propertyName,
-          )
+          const value = getExampleFromSchema(property, options, level + 1, schema, propertyName)
 
-          if (typeof response[propertyXmlTagName ?? propertyName] === 'undefined') {
-            delete response[propertyXmlTagName ?? propertyName]
+          if (typeof value !== 'undefined') {
+            response[propertyXmlTagName ?? propertyName] = value
+            propertyCount++
           }
         }
       }

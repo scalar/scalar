@@ -1009,33 +1009,6 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('deals with circular references', () => {
-    const schema = {
-      type: 'object',
-      properties: {
-        foobar: {},
-      },
-    }
-
-    // Create a circular reference
-    schema.properties.foobar = schema
-
-    // 10 levels deep, that’s enough. It should return null then.
-    expect(getExampleFromSchema(schema)).toStrictEqual({
-      foobar: {
-        foobar: {
-          foobar: {
-            foobar: {
-              foobar: {
-                foobar: '[Circular Reference]',
-              },
-            },
-          },
-        },
-      },
-    })
-  })
-
   it('handles patternProperties', () => {
     expect(
       getExampleFromSchema({
@@ -1069,6 +1042,101 @@ describe('getExampleFromSchema', () => {
         dataId: '',
         link: 'https://example.com',
       },
+    })
+  })
+
+  describe('circular references', () => {
+    it('deals with circular references', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          foobar: {},
+        },
+      }
+
+      // Create a circular reference
+      schema.properties.foobar = schema
+
+      // 10 levels deep, that’s enough. It should return null then.
+      expect(getExampleFromSchema(schema)).toStrictEqual({
+        foobar: {
+          foobar: {
+            foobar: {
+              foobar: {
+                foobar: {
+                  foobar: '[Circular Reference]',
+                },
+              },
+            },
+          },
+        },
+      })
+    })
+
+    it('deals with circular references that expand horizontally', () => {
+      const schema = {
+        type: 'object',
+        properties: {
+          a: {},
+          b: {},
+          c: {},
+          d: {},
+          e: {},
+          f: {},
+          g: {},
+          h: {},
+          i: {},
+          j: {},
+          k: {},
+          l: {},
+          m: {},
+          n: {},
+          o: {},
+          p: {},
+          q: {},
+          r: {},
+          s: {},
+          t: {},
+          u: {},
+          v: {},
+          w: {},
+          x: {},
+          y: {},
+          z: {},
+        },
+      }
+
+      // Create a circular reference for each property
+      schema.properties.a = schema
+      schema.properties.b = schema
+      schema.properties.c = schema
+      schema.properties.d = schema
+      schema.properties.e = schema
+      schema.properties.f = schema
+      schema.properties.g = schema
+      schema.properties.h = schema
+      schema.properties.i = schema
+      schema.properties.j = schema
+      schema.properties.k = schema
+      schema.properties.l = schema
+      schema.properties.m = schema
+      schema.properties.n = schema
+      schema.properties.o = schema
+      schema.properties.p = schema
+      schema.properties.q = schema
+      schema.properties.r = schema
+      schema.properties.s = schema
+      schema.properties.t = schema
+      schema.properties.u = schema
+      schema.properties.v = schema
+      schema.properties.w = schema
+      schema.properties.x = schema
+      schema.properties.y = schema
+      schema.properties.z = schema
+
+      const example = getExampleFromSchema(schema)
+      expect(example).toBeInstanceOf(Object)
+      expect(Object.keys(example).length).toBe(26)
     })
   })
 })
