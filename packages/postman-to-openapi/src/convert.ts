@@ -111,21 +111,6 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
         // Convert colon-style params to curly brace style
         const normalizedPathKey = normalizePath(pathKey)
 
-        /**
-         * this is a bit of a hack to skip empty paths only if they have no parameters
-         * because there is a test where if I remove the empty path it breaks the test
-         * but there is another test where if I leave the empty path it breaks the test
-         * so I added this check to only remove the empty path if all the methods on it have no parameters
-         */
-        if (normalizedPathKey === '/') {
-          const allMethodsHaveEmptyParams = Object.values(pathItem || {}).every(
-            (method) => !method.parameters || method.parameters.length === 0,
-          )
-          if (allMethodsHaveEmptyParams) {
-            continue
-          }
-        }
-
         if (!openapi.paths[normalizedPathKey]) {
           openapi.paths[normalizedPathKey] = pathItem
         } else {
