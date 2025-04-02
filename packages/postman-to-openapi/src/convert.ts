@@ -119,19 +119,6 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
             ...pathItem,
           }
         }
-
-        // Handle the /raw endpoint specifically
-        if (normalizedPathKey === '/raw' && pathItem?.post) {
-          if (pathItem.post.requestBody?.content['text/plain']) {
-            pathItem.post.requestBody.content['application/json'] = {
-              schema: {
-                type: 'object',
-                examples: [],
-              },
-            }
-            delete pathItem.post.requestBody.content['text/plain']
-          }
-        }
       }
 
       // Merge security schemes from the current item
