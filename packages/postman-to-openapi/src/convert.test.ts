@@ -6,7 +6,7 @@ import type { PostmanCollection } from './types'
 const bucketName = 'scalar-test-fixtures'
 const BASE_URL = `https://storage.googleapis.com/${bucketName}`
 
-describe.skip('convert', () => {
+describe('convert', () => {
   // Define all file content variables
   const collections: Record<string, string> = {}
   const expected: Record<string, string> = {}

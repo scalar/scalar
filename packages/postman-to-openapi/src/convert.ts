@@ -5,7 +5,6 @@ import { processExternalDocs } from './helpers/externalDocsHelper'
 import { processItem } from './helpers/itemHelpers'
 import { processLicenseAndContact } from './helpers/licenseContactHelper'
 import { processLogo } from './helpers/logoHelper'
-import { processPostResponseScripts } from './helpers/postResponseScripts'
 import { parseServers } from './helpers/serverHelpers'
 import { normalizePath } from './helpers/urlHelpers'
 import type { PostmanCollection } from './types'
@@ -112,6 +111,10 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
         // Convert colon-style params to curly brace style
         const normalizedPathKey = normalizePath(pathKey)
 
+        if (!pathItem) {
+          continue
+        }
+
         if (!openapi.paths[normalizedPathKey]) {
           openapi.paths[normalizedPathKey] = pathItem
         } else {
@@ -195,16 +198,4 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   }
 
   return removeUndefined(openapi)
-}
-
-function processItem(item: any): { paths: any; components?: any } {
-  // ... existing code ...
-
-  // Add post-response scripts if present
-  const postResponseScript = processPostResponseScripts(item.event)
-  if (postResponseScript) {
-    method['x-post-response'] = postResponseScript
-  }
-
-  // ... rest of the function ...
 }
