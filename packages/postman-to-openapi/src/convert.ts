@@ -176,5 +176,22 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     delete openapi.components
   }
 
-  return openapi
+  // Remove undefined properties recursively
+  const removeUndefined = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(removeUndefined).filter((item) => item !== undefined)
+    }
+
+    if (obj && typeof obj === 'object') {
+      return Object.fromEntries(
+        Object.entries(obj)
+          .map(([key, value]) => [key, removeUndefined(value)])
+          .filter(([_, value]) => value !== undefined),
+      )
+    }
+
+    return obj
+  }
+
+  return removeUndefined(openapi)
 }
