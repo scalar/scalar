@@ -20,14 +20,15 @@ npm install @scalar/hono-api-reference
 Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `scalar` middleware:
 
 ```ts
-import { scalar } from '@scalar/hono-api-reference'
+import { Hono } from 'hono'
+import { Scalar } from '@scalar/hono-api-reference'
 
-app.get(
-  '/scalar',
-  scalar({
-    url: '/openapi.json',
-  }),
-)
+const app = new Hono()
+
+// Use the middleware to serve the Scalar API Reference at /scalar
+app.get('/scalar', Scalar({ url: '/doc' }))
+
+export default app
 ```
 
 The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) in the core package README.
@@ -39,13 +40,11 @@ The middleware comes with a custom theme for Hono. You can use one of [the other
 ```ts
 import { scalar } from '@scalar/hono-api-reference'
 
-app.get(
-  '/scalar',
-  scalar({
-    theme: 'purple',
-    url: '/openapi.json',
-  }),
-)
+// Switch the theme (or pass other options)
+app.get('/scalar', Scalar({
+  url: '/doc',
+  theme: 'purple',
+}))
 ```
 
 ### Custom page title
@@ -55,13 +54,11 @@ There’s one additional option to set the page title:
 ```ts
 import { scalar } from '@scalar/hono-api-reference'
 
-app.get(
-  '/scalar',
-  scalar({
-    pageTitle: 'Hono API Reference',
-    url: '/openapi.json',
-  }),
-)
+// Set a page title
+app.get('/scalar', Scalar({
+  url: '/doc',
+  pageTitle: 'Awesome API',
+}))
 ```
 
 ### Custom CDN
@@ -75,13 +72,12 @@ You can find all available CDN versions [here](https://www.jsdelivr.com/package/
 ```ts
 import { scalar } from '@scalar/hono-api-reference'
 
-app.use(
-  '/scalar',
-  scalar({
-    cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
-    url: '/openapi.json',
-  }),
-)
+app.get('/scalar', Scalar({ url: '/doc', pageTitle: 'Awesome API' }))
+
+app.get('/scalar', Scalar({
+  url: '/doc',
+  cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
+}))
 ```
 
 ## Community

@@ -1,4 +1,4 @@
-import { apiReference, scalar } from '@/scalar.ts'
+import { Scalar, apiReference } from '@/scalar.ts'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
@@ -10,7 +10,7 @@ describe('apiReference', () => {
       content: { info: { title: 'Test API' } },
     }
 
-    app.get('/', scalar(config))
+    app.get('/', Scalar(config))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -26,7 +26,7 @@ describe('apiReference', () => {
     const app = new Hono()
     app.get(
       '/',
-      scalar({
+      Scalar({
         content: { info: { title: 'Test API' } },
         theme: 'kepler',
         cdn: 'https://cdn.example.com',
@@ -49,7 +49,7 @@ describe('apiReference', () => {
     const options = {
       cdn: 'https://cdn.example.com',
     }
-    app.get('/', scalar(options))
+    app.get('/', Scalar(options))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -66,7 +66,7 @@ describe('apiReference', () => {
     const options = {
       content: { info: { title: 'Test API' } },
     }
-    app.get('/', scalar(options))
+    app.get('/', Scalar(options))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -78,7 +78,7 @@ describe('apiReference', () => {
 
   it('includes content only once', async () => {
     const app = new Hono()
-    app.get('/', scalar({ content: { info: { title: 'Test API' } } }))
+    app.get('/', Scalar({ content: { info: { title: 'Test API' } } }))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -96,7 +96,7 @@ describe('apiReference', () => {
     const app = new Hono()
     app.get(
       '/',
-      scalar({
+      Scalar({
         url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }),
     )
@@ -110,7 +110,7 @@ describe('apiReference', () => {
 
   it('applies custom theme CSS without theme specified', async () => {
     const app = new Hono()
-    app.get('/', scalar({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -120,7 +120,7 @@ describe('apiReference', () => {
 
   it('excludes custom theme CSS when theme is specified', async () => {
     const app = new Hono()
-    app.get('/', scalar({ theme: 'none' }))
+    app.get('/', Scalar({ theme: 'none' }))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -129,7 +129,7 @@ describe('apiReference', () => {
 
   it('includes hono integration in configuration', async () => {
     const app = new Hono()
-    app.get('/', scalar({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -139,7 +139,7 @@ describe('apiReference', () => {
   it('handles content as function', async () => {
     const app = new Hono()
     const contentFn = () => ({ info: { title: 'Function API' } })
-    app.get('/', scalar({ content: contentFn }))
+    app.get('/', Scalar({ content: contentFn }))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -150,7 +150,7 @@ describe('apiReference', () => {
     const app = new Hono()
     app.get(
       '/',
-      scalar({
+      Scalar({
         url: 'https://example.com/api.json',
         content: { info: { title: 'Test API' } },
       }),
@@ -164,7 +164,7 @@ describe('apiReference', () => {
 
   it('sets HTML content type and 200 status', async () => {
     const app = new Hono()
-    app.get('/', scalar({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)

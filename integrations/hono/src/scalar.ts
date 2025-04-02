@@ -118,7 +118,7 @@ export const customTheme = `
 /**
  * The Hono middleware for the Scalar API Reference.
  */
-export const scalar = <E extends Env>(givenConfiguration: Partial<ApiReferenceConfiguration>): MiddlewareHandler<E> => {
+export const Scalar = <E extends Env>(givenConfiguration: Partial<ApiReferenceConfiguration>): MiddlewareHandler<E> => {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,
