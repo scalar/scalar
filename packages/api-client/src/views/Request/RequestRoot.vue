@@ -113,10 +113,9 @@ const executeRequest = async () => {
   // Send error toast
   if (sendRequestError) {
     toast(sendRequestError.message, 'error')
-  }
-  // we need to deep clone the result because it's a ref and updates will break the history
-  else {
-    requestHistory.push(JSON.parse(JSON.stringify(result)))
+  } else {
+    // We need to deep clone the result because it's a ref and updates will break the history
+    requestHistory.push(cloneRequestResult(result))
   }
 }
 
@@ -146,6 +145,33 @@ watch(
   },
   { deep: true },
 )
+
+const cloneRequestResult = (result: any) => {
+  // Create a structured clone that can handle Blobs, ArrayBuffers, etc.
+  try {
+    return structuredClone(result)
+  } catch (error) {
+    // Fallback to a custom cloning approach if structuredClone fails
+    // or isn't available in the environment
+    const clone = { ...result }
+
+    // Handle response data specifically
+    if (result.response?.data) {
+      // If it's a Blob/File/ArrayBuffer, store a reference
+      if (
+        result.response.data instanceof Blob ||
+        result.response.data instanceof ArrayBuffer
+      ) {
+        clone.response.data = result.response.data
+      } else {
+        // For regular objects, do a deep clone
+        clone.response.data = JSON.parse(JSON.stringify(result.response.data))
+      }
+    }
+
+    return clone
+  }
+}
 </script>
 
 <template>

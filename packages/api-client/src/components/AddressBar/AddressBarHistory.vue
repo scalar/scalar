@@ -8,10 +8,8 @@ import {
 import type { Operation, RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 
 import { formatMs } from '@/libs/formatters'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
@@ -23,9 +21,7 @@ const { operation, target } = defineProps<{
   target: string
 }>()
 
-const { requestHistory, requestExampleMutators } = useWorkspace()
-
-const router = useRouter()
+const { requestHistory } = useWorkspace()
 
 /** Use a local copy to prevent mutation of the reactive object */
 const history = computed(() =>
@@ -35,40 +31,13 @@ const history = computed(() =>
     .reverse(),
 )
 
-// To be added back in later according to url management
-
-// /** Generate a user readable URL */
-// function getPrettyResponseUrl(rawUrl: string) {
-//   const url = new URL(rawUrl)
-//   const params = new URLSearchParams(url.search)
-
-//   const scalarUrl = params.get('scalar_url')
-//   if (!scalarUrl) return url.href
-
-//   const scalarUrlParsed = new URL(scalarUrl)
-
-//   return scalarUrlParsed.href
-// }
-
-function handleHistoryClick(historicalRequest: RequestEvent) {
-  const workspaceId = router.currentRoute.value.params.workspace
-
-  // see if we need to update the topnav
-  // todo potentially search and find a previous open request id of this maybe
-  // or we can open it in a draft state if the request is already open :)
-  if (operation.uid !== historicalRequest.request.requestUid) {
-    // TODO: This is not working. We don't want to just redirect to the same request, but restore the state.
-
-    router.push({
-      name: 'request',
-      params: {
-        [PathId.Workspace]: workspaceId,
-        [PathId.Request]: historicalRequest.request.requestUid,
-      },
-    })
-  }
-
-  requestExampleMutators.set({ ...historicalRequest.request })
+function handleHistoryClick(requestHistoryItem: RequestEvent) {
+  console.warn(
+    'Restoring from the request history doesn’t work yet. Request History Item:',
+    requestHistoryItem,
+  )
+  // TODO: Restore the request data with the history item
+  // TODO: Restore the response data with the history item
 }
 </script>
 <template>
