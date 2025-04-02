@@ -32,6 +32,19 @@ app.get(
 
 The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) in the core package README.
 
+### CORS middleware
+
+We recommend to allow requests from other domains to your API definition. That makes it easier to use your API with [our free web client](https://client.scalar.com/) for example.
+
+You just need to add the official Hono CORS middleware to the route of your OpenAPI document:
+
+```ts
+import { cors } from 'hono/cors'
+
+// Recommended: Allows cross-origin requests (from other domains) to your OpenAPI document
+app.use('/doc', cors())
+```
+
 ### Themes
 
 The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
