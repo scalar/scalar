@@ -244,6 +244,17 @@ const { filesystem } = await load(
 )
 ```
 
+#### Bundle external references
+
+By default, `dereference` tries to resolve both internal and external references. You can disable resolving internal references by setting `resolveInternalRefs` to `false`:
+
+```ts
+const result = await dereference(filesystem, {
+  // Skips internal references like `$ref: '#/components/schemas/foobar'`
+  resolveInternalRefs: false,
+})
+```
+
 #### Intercept HTTP requests
 
 If you’re using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
