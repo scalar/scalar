@@ -1,0 +1,16 @@
+openapi: 3.1.0
+info:
+  title: Example with References
+  version: 1.0.0
+paths:
+  /internal:
+    $ref: '#/components/pathItems/internal'
+  /external:
+    $ref: 'http://localhost:5173/examples/openapi-3.1/pathItems.yaml#/components/pathItems/external'
+components:
+  pathItems:
+    internal:
+      get:
+        responses:
+          '200':
+            description: A successful response
