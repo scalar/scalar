@@ -40,7 +40,13 @@ export const parse = (
       const { filesystem } = await load(specification, {
         plugins: [
           fetchUrls({
-            fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
+            fetch: async (url) => {
+              const response = await fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url)
+
+              console.log(`fetch($ref): ${url} (${Math.round((await response.clone().text()).length / 1024)} kB)`)
+
+              return response
+            },
           }),
         ],
       })
