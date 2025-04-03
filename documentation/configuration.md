@@ -4,7 +4,7 @@ You can pass a — what we call — universal configuration object to fine-tune 
 
 ## Universal Configuration
 
-It is universal, because it works in all environments. You can pass it to the JS API directly, our you can use it in one
+It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one
 of our integrations.
 
 Let’s say you are working with just an HTML file, that’s how you pass the configuration:
@@ -32,7 +32,7 @@ app.get(
 
 There is just one thing that is really required to render at least something: The content.
 
-There a bunch of way to pass your OpenAPI document:
+There are a bunch of ways to pass your OpenAPI document:
 
 ### URL
 
@@ -46,7 +46,7 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It’s the recommded way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
+It’s the recommended way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
 and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just
@@ -78,7 +78,7 @@ Scalar.createApiReference('#app', {
 ### Multiple Documents
 
 Add multiple OpenAPI documents to render all of them. We will need a slug and title to distinguish them in the UI and in
-the URL. You can just omit those attributes and we try our best to still distinguish them, though.
+the URL. You can just omit those attributes, and we will try our best to still distinguish them, though.
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -92,7 +92,7 @@ Scalar.createApiReference('#app', {
     // API #2
     {
       url: 'https://example.com/openapi.json',
-    }
+    },
     // API #3
     {
       content: '{ "openapi": "3.1.1", … }',
@@ -123,7 +123,7 @@ Scalar.createApiReference('#app', {
 
 ### Multiple Configurations
 
-Sometimes, you want to modify the configuration for your OpenAPI documents. And good news is: You can.
+Sometimes, you want to modify the configuration for your OpenAPI documents. And the good news is: You can.
 
 Pass an array of configurations to render multiple documents with specific configurations:
 
@@ -140,7 +140,7 @@ Scalar.createApiReference('#app', [
   {
     url: 'https://example.com/openapi.json',
     customCss: `body { background-color: #c0ffee}`
-  }
+  },
   // Configuration #3
   {
     content: '{ "openapi": "3.1.1", … }',
@@ -149,7 +149,7 @@ Scalar.createApiReference('#app', [
 ])
 ```
 
-By default, the first one will be the default configuration. You can explicitly set one with `default: true`:
+By default, the first one in the list will be the default configuration. You can explicitly set one with `default: true`:
 
 ```ts
 Scalar.createApiReference('#app', [
@@ -158,7 +158,7 @@ Scalar.createApiReference('#app', [
   },
   {
     url: 'https://example.com/openapi.json',
-  }
+  },
   {
     // Make this the default configuration:
     default: true,
