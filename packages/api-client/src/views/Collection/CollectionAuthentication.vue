@@ -66,7 +66,7 @@ const handleToggleCollectionSecurity = () => {
 
 <style scoped>
 .scalar-collection-auth {
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
   overflow: hidden;
 }
