@@ -508,7 +508,7 @@ describe('upgradeFromTwoToThree', () => {
       schema: {
         type: 'string',
         format: 'date-time',
-      }
+      },
     })
     expect(result.paths['/planets'].get.parameters[1]).toStrictEqual({
       in: 'query',
@@ -519,7 +519,7 @@ describe('upgradeFromTwoToThree', () => {
         multipleOf: 2,
         minimum: 1,
         maximum: 100,
-      }
+      },
     })
   })
 
