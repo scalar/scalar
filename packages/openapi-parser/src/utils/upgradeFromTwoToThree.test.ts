@@ -536,6 +536,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
+    // @ts-expect-error it’s fine
     expect(result.components.securitySchemes.basic_auth).toStrictEqual({
       type: 'http',
       scheme: 'basic',

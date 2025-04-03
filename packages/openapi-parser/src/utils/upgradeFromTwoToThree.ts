@@ -265,7 +265,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   return specification as OpenAPIV3.Document
 }
 
-function transformItemsObject<T extends OpenAPIV2.ItemsObject>(obj: T): OpenAPIV3.SchemaObject {
+function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): OpenAPIV3.SchemaObject {
   const schemaProperties = [
     'type',
     'format',
