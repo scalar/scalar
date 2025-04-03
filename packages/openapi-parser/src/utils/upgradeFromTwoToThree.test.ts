@@ -465,4 +465,169 @@ describe('upgradeFromTwoToThree', () => {
       },
     ])
   })
+
+  it('transforms parameter schemas', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json', 'application/xml'],
+      paths: {
+        '/planets': {
+          get: {
+            description: 'Returns all planets from the system that the user has access to',
+            consumes: ['application/json', 'application/xml'],
+            parameters: [
+              {
+                in: 'header',
+                name: 'x-custom-header',
+                required: true,
+                type: 'string',
+                format: 'date-time',
+                allowEmptyValue: true,
+              },
+              {
+                in: 'query',
+                name: 'size',
+                required: false,
+                type: 'integer',
+                multipleOf: 2,
+                minimum: 1,
+                maximum: 100,
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.parameters).toHaveLength(2)
+
+    expect(result.paths['/planets'].get.parameters[0].type).toBeUndefined()
+    expect(result.paths['/planets'].get.parameters[0].format).toBeUndefined()
+    expect(result.paths['/planets'].get.parameters[0].required).toBeTruthy()
+    expect(result.paths['/planets'].get.parameters[0].schema).toStrictEqual({
+      type: 'string',
+      format: 'date-time',
+    })
+
+    expect(result.paths['/planets'].get.parameters[1].type).toBeUndefined()
+    expect(result.paths['/planets'].get.parameters[1].format).toBeUndefined()
+    expect(result.paths['/planets'].get.parameters[1].required).toBeFalsy()
+    expect(result.paths['/planets'].get.parameters[1].schema).toStrictEqual({
+      type: 'integer',
+      multipleOf: 2,
+      minimum: 1,
+      maximum: 100,
+    })
+  })
+
+  it('transforms basic security scheme', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {},
+      securityDefinitions: {
+        basic_auth: {
+          type: 'basic',
+          name: 'basic_auth',
+          in: 'header',
+        },
+      },
+    })
+
+    expect(result.components.securitySchemes.basic_auth).toStrictEqual({
+      type: 'http',
+      scheme: 'basic',
+    })
+  })
+
+  it('transforms file type', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['image/png'],
+      paths: {
+        '/planets': {
+          post: {
+            description: 'Creates planet.',
+            consumes: ['image/png'],
+            parameters: [
+              {
+                in: 'body',
+                required: true,
+                schema: {
+                  type: 'file',
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].post.requestBody).toStrictEqual({
+      required: true,
+      content: {
+        'image/png': {
+          schema: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    })
+  })
+
+  it('transform response headers', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/planets': {
+          get: {
+            description: 'Get all planets from the system that the user has access to.',
+            consumes: ['application/json'],
+            responses: {
+              '200': {
+                description: 'A list of planets.',
+                headers: {
+                  next: {
+                    description: 'link to next page',
+                    type: 'string',
+                    maxLength: 100,
+                  },
+                },
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/planet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.responses['200']).toStrictEqual({
+      description: 'A list of planets.',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'array',
+            items: {
+              $ref: '#/definitions/planet',
+            },
+          },
+        },
+      },
+      headers: {
+        next: {
+          description: 'link to next page',
+          schema: {
+            type: 'string',
+            maxLength: 100,
+          },
+        },
+      },
+    })
+  })
 })
