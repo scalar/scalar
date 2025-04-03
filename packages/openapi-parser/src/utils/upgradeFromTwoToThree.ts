@@ -55,6 +55,15 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     })
   }
 
+  specification = traverse(specification, (schema) => {
+    if (schema.type === 'file') {
+      schema.type = 'string'
+      schema.format = 'binary'
+    }
+
+    return schema
+  })
+
   // Paths
   if (typeof specification.paths === 'object') {
     for (const path in specification.paths) {
@@ -148,6 +157,10 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                   (parameter: OpenAPIV2.ParameterObject) => parameter.in !== 'formData',
                 )
               }
+
+              operationItem.parameters = operationItem.parameters.map((parameter) =>
+                transformParameterObject(parameter),
+              )
             }
 
             // Responses
@@ -156,6 +169,14 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
                 if (Object.hasOwn(operationItem.responses, response)) {
                   const responseItem = operationItem.responses[response]
 
+                  if (responseItem.headers) {
+                    responseItem.headers = Object.entries(responseItem.headers).reduce((acc, [name, header]) => {
+                      return {
+                        [name]: transformParameterObject(header),
+                        ...acc,
+                      }
+                    }, {})
+                  }
                   if (responseItem.schema) {
                     const produces = specification.produces ?? operationItem.produces ?? ['application/json']
 
@@ -223,6 +244,13 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
               },
             },
           })
+        } else if ('type' in securityScheme && securityScheme.type === 'basic') {
+          Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
+            [key]: {
+              type: 'http',
+              scheme: 'basic',
+            },
+          })
         } else {
           Object.assign((specification.components as OpenAPIV3.ComponentsObject).securitySchemes, {
             [key]: securityScheme,
@@ -235,4 +263,43 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   return specification as OpenAPIV3.Document
+}
+
+function transformItemsObject<T extends OpenAPIV2.ItemsObject>(obj: T): OpenAPIV3.SchemaObject {
+  const schemaProperties = [
+    'type',
+    'format',
+    'items',
+    'maximum',
+    'exclusiveMaximum',
+    'minimum',
+    'exclusiveMinimum',
+    'maxLength',
+    'minLength',
+    'pattern',
+    'maxItems',
+    'minItems',
+    'uniqueItems',
+    'enum',
+    'multipleOf',
+  ]
+
+  return schemaProperties.reduce((acc, property) => {
+    if (Object.hasOwn(obj, property)) {
+      acc[property] = obj[property]
+      delete obj[property]
+    }
+
+    return acc
+  }, {} as OpenAPIV3.SchemaObject)
+}
+
+function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
+  delete parameter.collectionFormat
+  delete parameter.default
+
+  return {
+    schema: transformItemsObject(parameter),
+    ...parameter,
+  }
 }
