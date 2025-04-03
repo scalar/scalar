@@ -8,6 +8,8 @@ import type { LoadPlugin } from '../../utils/load/load.ts'
 
 export const readFiles: () => LoadPlugin = () => {
   return {
+    // Make it run before fetchUrls
+    priority: 100,
     check(value?: any) {
       // Not a string
       if (typeof value !== 'string') {

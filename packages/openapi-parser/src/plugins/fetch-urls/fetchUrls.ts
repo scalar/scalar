@@ -24,6 +24,8 @@ export const fetchUrls: (customConfiguration?: {
   }
 
   return {
+    // Make it run after readFiles
+    priority: 0,
     check(value?: unknown): value is string {
       // Not a string
       if (typeof value !== 'string') {

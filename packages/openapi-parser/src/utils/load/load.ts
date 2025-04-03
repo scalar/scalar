@@ -13,6 +13,7 @@ import { makeFilesystem } from '../makeFilesystem.ts'
 import { normalize } from '../normalize.ts'
 
 export type LoadPlugin = {
+  priority?: number
   check: (value?: any) => boolean
   get: (value: any, source?: string) => any
   resolvePath?: (value: any, reference: string) => string
@@ -49,7 +50,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }
 
   // Check whether the value is an URL or file path
-  const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
+  const plugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(value))
 
   let content: AnyObject
 
@@ -117,7 +118,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Load other external references
   for (const reference of listOfReferences) {
     // Find a matching plugin
-    const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(reference))
+    const otherPlugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(reference))
 
     // Skip if no plugin is found (internal references don’t need a plugin for example)
     if (!otherPlugin) {
@@ -158,4 +159,8 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     filesystem,
     errors,
   }
+}
+
+function sortPlugins(plugins: LoadPlugin[] = []) {
+  return plugins?.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
 }
