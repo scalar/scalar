@@ -96,7 +96,7 @@ export const useOpenApiWatcher = () => {
 
       // If we have no previous copy then store this one
       if (!old?.hash) {
-        const { schema } = await parseSchema(spec)
+        const { schema } = await parseSchema(spec, { proxyUrl: activeWorkspace.value?.proxyUrl })
 
         if (schema) {
           specDictionary[url] = {
@@ -105,9 +105,9 @@ export const useOpenApiWatcher = () => {
           }
         }
       }
-      // If the hashes do not match, start diffin
+      // If the hashes do not match, start diffing
       else if (old.hash && old.hash !== hash) {
-        const { schema } = await parseSchema(spec)
+        const { schema } = await parseSchema(spec, { proxyUrl: activeWorkspace.value?.proxyUrl })
         const diff = microdiff(old.schema, schema)
 
         // Combines add/remove diffs into single rename diffs
