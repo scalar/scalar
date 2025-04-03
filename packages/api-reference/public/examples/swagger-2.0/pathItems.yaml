@@ -1,0 +1,6 @@
+definitions:
+  external:
+    post:
+      responses:
+        '201':
+          description: A successful response

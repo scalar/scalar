@@ -1,0 +1,15 @@
+swagger: '2.0'
+info:
+  title: Example with References
+  version: 1.0.0
+paths:
+  /internal:
+    $ref: '#/definitions/internal'
+  /external:
+    $ref: 'http://localhost:5173/examples/swagger-2.0/pathItems.yaml#/definitions/external'
+definitions:
+  internal:
+    get:
+      responses:
+        '200':
+          description: A successful response

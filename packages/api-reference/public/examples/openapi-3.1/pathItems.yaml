@@ -1,0 +1,7 @@
+components:
+  pathItems:
+    external:
+      get:
+        responses:
+          '200':
+            description: A successful response
