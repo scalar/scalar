@@ -173,7 +173,7 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[]; collection: undefined }
 > {
-  const { schema, errors } = await parseSchema(spec, { proxyUrl })
+  const { schema, errors } = await parseSchema(spec, { proxyUrl, source: documentUrl })
 
   const importWarnings: string[] = [...(errors ?? []).map((e) => e.message)]
 
