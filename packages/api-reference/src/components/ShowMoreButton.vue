@@ -1,20 +1,28 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 
+import { useConfig } from '@/hooks/useConfig'
+
 import { useSidebar } from '../hooks'
 
-defineProps<{
+const { id } = defineProps<{
   id: string
 }>()
 
 const { setCollapsedSidebarItem } = useSidebar()
+const config = useConfig()
+
+const handleClick = () => {
+  setCollapsedSidebarItem(id, true)
+  config.value.onShowMore?.(id)
+}
 </script>
 
 <template>
   <button
     class="show-more"
     type="button"
-    @click="setCollapsedSidebarItem(id, true)">
+    @click="handleClick">
     Show More
     <ScalarIcon
       class="show-more-icon"

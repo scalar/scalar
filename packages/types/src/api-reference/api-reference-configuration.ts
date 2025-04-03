@@ -300,6 +300,18 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     onServerChange: z.function().args(z.string()).returns(z.void()).optional(),
     /** onDocumentSelect is fired when the config is selected */
     onDocumentSelect: z.function().returns(z.void().or(z.void().promise())).optional(),
+    /** Callback fired when the reference is fully loaded */
+    onLoaded: z.function().returns(z.void().or(z.void().promise())).optional(),
+    /**
+     * onShowMore is fired when the user clicks the "Show more" button on the references
+     * @param tagId - The ID of the tag that was clicked
+     */
+    onShowMore: z.function().args(z.string()).returns(z.void().or(z.void().promise())).optional(),
+    /**
+     * onSidebarClick is fired when the user clicks on a sidebar item
+     * @param href - The href of the sidebar item that was clicked
+     */
+    onSidebarClick: z.function().args(z.string()).returns(z.void().or(z.void().promise())).optional(),
     /**
      * Route using paths instead of hashes, your server MUST support this
      * @example '/standalone-api-reference/:custom(.*)?'
@@ -374,8 +386,6 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
       )
       .returns(z.string())
       .optional(),
-    /** Callback fired when the reference is fully loaded */
-    onLoaded: z.function().returns(z.void()).optional(),
     /**
      * To handle redirects, pass a function that will recieve:
      * - The current path with hash if pathRouting is enabled
@@ -478,7 +488,7 @@ export const apiReferenceConfigurationSchema = _apiReferenceConfigurationSchema.
 
 /** Configuration after parsing, this is the main type */
 export type ApiReferenceConfiguration = Omit<
-  z.infer<typeof apiReferenceConfigurationSchema>,
+  z.infer<typeof _apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
   'proxy' | 'spec'
 > & {
