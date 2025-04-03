@@ -245,9 +245,20 @@ function updateHttpClient(value: string) {
     }, 300)
   }
 
+  // Update to the local example
   if (data.targetKey === 'customExamples') {
     localHttpClient.value = data
-  } else {
+  }
+  // Here we need to handle a special case when we have custom selected and the global doesn't change
+  else if (
+    localHttpClient.value.targetKey === 'customExamples' &&
+    data.targetKey === httpClient.targetKey &&
+    data.clientKey === httpClient.clientKey
+  ) {
+    localHttpClient.value = data
+  }
+  // Update the global example
+  else {
     setHttpClient(data)
   }
 }
