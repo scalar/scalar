@@ -426,7 +426,6 @@ const displayPropertyHeading = (
   display: flex;
   align-items: stretch;
   position: relative;
-  font-family: var(--scalar-font-code);
 }
 .property-enum-value-label {
   display: flex;
