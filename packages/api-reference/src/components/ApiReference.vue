@@ -24,7 +24,7 @@ const {
   hashPrefix,
 } = useMultipleDocuments({
   configuration: toRef(props, 'configuration'),
-  isIntersectionEnabled: ref(true),
+  isIntersectionEnabled: ref(false),
   hash: ref(''),
   hashPrefix: ref(''),
 })
