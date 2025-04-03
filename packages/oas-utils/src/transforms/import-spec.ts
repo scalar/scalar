@@ -31,7 +31,7 @@ import {
  **/
 export const parseSchema = async (
   content: string | UnknownObject,
-  { proxyUrl }: { proxyUrl?: string | undefined } = {},
+  { proxyUrl, source }: { proxyUrl?: string | undefined; source?: string | undefined } = {},
 ) => {
   // Handle empty documents
   const isEmpty = content === null || (typeof content === 'string' && content.trim() === '')
@@ -47,6 +47,7 @@ export const parseSchema = async (
 
   // Fetch document (including external references)
   const { filesystem, errors: errorsOnLoad } = await load(content, {
+    source,
     plugins: [
       fetchUrls({
         fetch: (url) => fetch(redirectToProxy(proxyUrl, url)),

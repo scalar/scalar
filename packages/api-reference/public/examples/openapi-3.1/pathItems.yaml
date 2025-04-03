@@ -5,3 +5,8 @@ components:
         responses:
           '200':
             description: A successful response
+    relative:
+      get:
+        responses:
+          '200':
+            description: A successful response

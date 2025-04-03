@@ -43,7 +43,11 @@ export const parse = (
             fetch: async (url) => {
               const response = await fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url)
 
-              console.log(`fetch($ref): ${url} (${Math.round((await response.clone().text()).length / 1024)} kB)`)
+              if (response.ok) {
+                console.info(`fetch($ref): ${url} (${Math.round((await response.clone().text()).length / 1024)} kB)`)
+              } else {
+                console.error(`fetch($ref): ${url} (${response.status} ${response.statusText})`)
+              }
 
               return response
             },
@@ -54,7 +58,7 @@ export const parse = (
       const { schema, errors } = await dereference(filesystem)
 
       const end = performance.now()
-      console.log(`dereference: ${Math.round(end - start)} ms`)
+      console.info(`dereference: ${Math.round(end - start)} ms`)
 
       if (errors?.length) {
         console.warn(
