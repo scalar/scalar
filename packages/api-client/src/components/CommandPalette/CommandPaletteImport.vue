@@ -82,12 +82,18 @@ const { open: openSpecFileDialog } = useFileDialog({
             const workspace = await importSpecFile(
               await convertPostmanToOpenApi(text),
               activeWorkspace.value?.uid ?? '',
+              {
+                proxyUrl: activeWorkspace.value?.proxyUrl,
+              },
             )
             navigateToCollectionPage(workspace?.collection)
           } else {
             const workspace = await importSpecFile(
               text,
               activeWorkspace.value?.uid ?? '',
+              {
+                proxyUrl: activeWorkspace.value?.proxyUrl,
+              },
             )
             navigateToCollectionPage(workspace?.collection)
           }
@@ -153,6 +159,9 @@ async function importCollection() {
         const workspace = await importSpecFile(
           await convertPostmanToOpenApi(inputContent.value),
           activeWorkspace.value?.uid ?? '',
+          {
+            proxyUrl: activeWorkspace.value?.proxyUrl,
+          },
         )
         navigateToCollectionPage(workspace?.collection)
         toast('Successfully converted Postman collection', 'info')
@@ -160,6 +169,9 @@ async function importCollection() {
         const workspace = await importSpecFile(
           inputContent.value,
           activeWorkspace.value?.uid ?? '',
+          {
+            proxyUrl: activeWorkspace.value?.proxyUrl,
+          },
         )
         navigateToCollectionPage(workspace?.collection)
       }
