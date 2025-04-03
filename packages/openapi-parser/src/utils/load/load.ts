@@ -14,7 +14,7 @@ import { normalize } from '../normalize.ts'
 
 export type LoadPlugin = {
   check: (value?: any) => boolean
-  get: (value: any) => any
+  get: (value: any, source?: string) => any
   resolvePath?: (value: any, reference: string) => string
   getDir?: (value: any) => string
   getFilename?: (value: any) => string
@@ -23,6 +23,7 @@ export type LoadPlugin = {
 export type LoadOptions = {
   plugins?: LoadPlugin[]
   filename?: string
+  source?: string | undefined
   filesystem?: Filesystem
 } & ThrowOnErrorOption
 
@@ -54,7 +55,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
   if (plugin) {
     try {
-      content = normalize(await plugin.get(value))
+      content = normalize(await plugin.get(value, options?.source))
     } catch (_error) {
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
@@ -136,6 +137,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       // Make the filename the exact same value as the $ref
       // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
       filename: reference,
+      source: options?.source ?? (typeof value === 'string' ? value : undefined),
     })
 
     errors.push(...newErrors)

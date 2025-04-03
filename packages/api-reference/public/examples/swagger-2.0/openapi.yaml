@@ -7,6 +7,8 @@ paths:
     $ref: '#/definitions/internal'
   /external:
     $ref: 'http://localhost:5173/examples/swagger-2.0/pathItems.yaml#/definitions/external'
+  /relative:
+    $ref: 'pathItems.yaml#/definitions/external'
 definitions:
   internal:
     get:

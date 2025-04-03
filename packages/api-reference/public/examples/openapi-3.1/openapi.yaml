@@ -7,6 +7,8 @@ paths:
     $ref: '#/components/pathItems/internal'
   /external:
     $ref: 'http://localhost:5173/examples/openapi-3.1/pathItems.yaml#/components/pathItems/external'
+  /relative:
+    $ref: 'pathItems.yaml#/components/pathItems/relative'
 components:
   pathItems:
     internal:

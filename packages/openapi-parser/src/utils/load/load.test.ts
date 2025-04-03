@@ -157,6 +157,115 @@ describe('load', async () => {
     })
   })
 
+  it('resolves relative URLs to absolute ones', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      // empty document for all other URLs
+      if (url !== 'https://example.com/docs/openapi.yaml') {
+        return {
+          text: async () => '{}',
+        }
+      }
+
+      // base document
+      return {
+        text: async () =>
+          stringify({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/users': {
+                $ref: './components/pathItem-1.yaml',
+              },
+              '/users/{id}': {
+                $ref: 'components/pathItem-2.yaml',
+              },
+              '/users/{id}/posts': {
+                $ref: '../docs/components/pathItem-3.yaml',
+              },
+              '/users/{id}/posts/{postId}': {
+                $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+              },
+            },
+          }),
+      }
+    })
+
+    await load('https://example.com/docs/openapi.yaml', {
+      plugins: [
+        fetchUrls({
+          // fetch: (url) => {
+          //   console.log('fetch:', url)
+          //
+          //   return fetch(url)
+          // },
+        }),
+      ],
+    })
+
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/openapi.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+  })
+
+  it('resolves relative URLs when we directly pass a document (not a URL)', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async () => {
+      // empty document for all URLs
+      return {
+        text: async () => '{}',
+      }
+    })
+
+    await load(
+      {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            $ref: './components/pathItem-1.yaml',
+          },
+          '/users/{id}': {
+            $ref: 'components/pathItem-2.yaml',
+          },
+          '/users/{id}/posts': {
+            $ref: '../docs/components/pathItem-3.yaml',
+          },
+          '/users/{id}/posts/{postId}': {
+            $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+          },
+        },
+      },
+      {
+        source: 'https://example.com/docs/openapi.yaml',
+        plugins: [
+          fetchUrls({
+            // fetch: (url) => {
+            //   console.log('fetch:', url)
+            //
+            //   return fetch(url)
+            // },
+          }),
+        ],
+      },
+    )
+
+    // Not called, because we directly pass a document (not a URL)
+    // expect(fetch).toHaveBeenCalledWith('https://example.com/docs/openapi.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+  })
+
   it('handles failed requests', async () => {
     // Failed request
     // @ts-expect-error
