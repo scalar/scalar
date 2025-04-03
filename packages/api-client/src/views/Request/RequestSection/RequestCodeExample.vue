@@ -120,7 +120,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
   <div class="w-full">
     <ViewLayoutCollapse
       class="group/preview w-full border-b-0"
-      :defaultOpen="false">
+      :defaultOpen="true">
       <template #title>Code Snippet</template>
       <template #actions>
         <div class="-mx-1 flex flex-1">
