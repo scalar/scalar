@@ -500,23 +500,26 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.paths['/planets'].get.parameters).toHaveLength(2)
-
-    expect(result.paths['/planets'].get.parameters[0].type).toBeUndefined()
-    expect(result.paths['/planets'].get.parameters[0].format).toBeUndefined()
-    expect(result.paths['/planets'].get.parameters[0].required).toBeTruthy()
-    expect(result.paths['/planets'].get.parameters[0].schema).toStrictEqual({
-      type: 'string',
-      format: 'date-time',
+    expect(result.paths['/planets'].get.parameters[0]).toStrictEqual({
+      in: 'header',
+      name: 'x-custom-header',
+      required: true,
+      allowEmptyValue: true,
+      schema: {
+        type: 'string',
+        format: 'date-time',
+      }
     })
-
-    expect(result.paths['/planets'].get.parameters[1].type).toBeUndefined()
-    expect(result.paths['/planets'].get.parameters[1].format).toBeUndefined()
-    expect(result.paths['/planets'].get.parameters[1].required).toBeFalsy()
-    expect(result.paths['/planets'].get.parameters[1].schema).toStrictEqual({
-      type: 'integer',
-      multipleOf: 2,
-      minimum: 1,
-      maximum: 100,
+    expect(result.paths['/planets'].get.parameters[1]).toStrictEqual({
+      in: 'query',
+      name: 'size',
+      required: false,
+      schema: {
+        type: 'integer',
+        multipleOf: 2,
+        minimum: 1,
+        maximum: 100,
+      }
     })
   })
 
