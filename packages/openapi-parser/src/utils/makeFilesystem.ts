@@ -9,7 +9,7 @@ export function makeFilesystem(
 ): Filesystem {
   // Keep as is
   if (isFilesystem(value)) {
-    return value as Filesystem
+    return value
   }
 
   // Make an object
