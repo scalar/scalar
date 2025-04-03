@@ -7,6 +7,7 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
+import type { TestResult } from '@/libs/execute-scripts'
 import { importCurlCommand } from '@/libs/importers/curl'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { useWorkspace } from '@/store'
@@ -15,10 +16,16 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { invalidParams, selectedSecuritySchemeUids } = defineProps<{
+const {
+  invalidParams,
+  selectedSecuritySchemeUids,
+  requestResult,
+  testResults,
+} = defineProps<{
   invalidParams: Set<string>
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   requestResult?: SendRequestResult | null
+  testResults?: TestResult[]
 }>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 
@@ -95,7 +102,8 @@ function handleCurlImport(curl: string) {
             <ResponseSection
               :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
-              :response="activeHistoryEntry?.response" />
+              :response="activeHistoryEntry?.response"
+              :testResults="testResults" />
           </ViewLayoutContent>
         </ViewLayout>
       </div>

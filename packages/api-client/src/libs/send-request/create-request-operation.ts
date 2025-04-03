@@ -7,6 +7,7 @@ import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-p
 import { decodeBuffer } from '@/libs/send-request/decode-buffer'
 import { getCookieHeader, setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
+import type { PluginManager } from '@/plugins/plugin-manager'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,
@@ -15,8 +16,7 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
-
+import { httpStatusCodes, isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -43,6 +43,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids = [],
   server,
   status,
+  pluginManager,
 }: {
   environment: object | undefined
   example: RequestExample
@@ -53,6 +54,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
   server?: Server | undefined
   status?: EventBus<RequestStatus>
+  pluginManager?: PluginManager
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -172,6 +174,10 @@ export const createRequestOperation = ({
     > => {
       status?.emit('start')
 
+      if (pluginManager) {
+        pluginManager.executeHook('onBeforeRequest')
+      }
+
       // Start timer to get response duration
       const startTime = Date.now()
 
@@ -180,19 +186,40 @@ export const createRequestOperation = ({
           signal: controller.signal,
         })
 
+        const duration = Date.now() - startTime
+
         status?.emit('stop')
+
+        // Clone the response before reading it
+        const responseToRead = response.clone()
 
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
-        const arrayBuffer = await response.arrayBuffer()
+        const arrayBuffer = await responseToRead.arrayBuffer()
         const responseData = decodeBuffer(arrayBuffer, responseType)
+
+        // Create a new response with the statusText
+        const clonedResponse = response.clone()
+
+        // This is missing in HTTP/2 requests. But we need it for the post-clonedResponse scripts.
+        const statusText = clonedResponse.statusText || httpStatusCodes[clonedResponse.status]?.name || ''
+
+        const normalizedResponse = new Response(clonedResponse.body, {
+          status: clonedResponse.status,
+          statusText,
+          headers: clonedResponse.headers,
+        })
+
+        if (pluginManager) {
+          pluginManager.executeHook('onResponseReceived', { response: normalizedResponse, operation: request })
+        }
 
         // Safely check for cookie headers
         // TODO: polyfill
         const cookieHeaderKeys =
-          'getSetCookie' in response.headers && typeof response.headers.getSetCookie === 'function'
-            ? response.headers.getSetCookie()
+          'getSetCookie' in normalizedResponse.headers && typeof normalizedResponse.headers.getSetCookie === 'function'
+            ? normalizedResponse.headers.getSetCookie()
             : []
 
         return [
@@ -201,14 +228,13 @@ export const createRequestOperation = ({
             timestamp: Date.now(),
             request: example,
             response: {
-              ...response,
+              ...normalizedResponse,
               headers: responseHeaders,
               cookieHeaderKeys,
               data: responseData,
               size: arrayBuffer.byteLength,
-              duration: Date.now() - startTime,
+              duration,
               method: request.method,
-              status: response.status,
               path: pathString,
             },
           },

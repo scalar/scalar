@@ -2,6 +2,7 @@ import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
 import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
 import { loadAllResources } from '@/libs/local-storage'
+import { type ApiClientPlugin, PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins/plugin-manager'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
@@ -54,6 +55,11 @@ export type CreateApiClientParams = {
    * @see {@link ClientLayout}
    */
   layout?: ClientLayout
+  /**
+   * The API Client plugins to use
+   * @see {@link ApiClientPlugin}
+   */
+  plugins?: ApiClientPlugin[]
 }
 
 /**
@@ -87,6 +93,7 @@ export const createApiClient = ({
   mountOnInitialize = true,
   layout = 'desktop',
   router,
+  plugins = [],
 }: CreateApiClientParams) => {
   // Parse the config
   const configuration = apiClientConfigurationSchema.parse(_configuration)
@@ -108,6 +115,9 @@ export const createApiClient = ({
 
   // Create the sidebar state
   const sidebarState = createSidebarState({ layout })
+
+  // Create the plugin manager
+  const pluginManager = createPluginManager({ plugins })
 
   // Safely check for localStorage availability
   const hasLocalStorage = () => {
@@ -179,6 +189,8 @@ export const createApiClient = ({
   app.provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
   // Provide the sidebar state
   app.provide(SIDEBAR_SYMBOL, sidebarState)
+  // Provide the plugin manager
+  app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
 
   const {
     collectionMutators,

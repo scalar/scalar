@@ -93,6 +93,21 @@
       "types": "./dist/store/index.d.ts",
       "default": "./dist/store/index.js"
     },
+    "./plugins/post-response-scripts": {
+      "import": "./dist/plugins/post-response-scripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/index.js"
+    },
+    "./plugins/post-response-scripts/components/TestResults": {
+      "import": "./dist/plugins/post-response-scripts/components/TestResults/index.js",
+      "types": "./dist/plugins/post-response-scripts/components/TestResults/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/components/TestResults/index.js"
+    },
+    "./plugins/post-response-scripts/components/PostResponseScripts": {
+      "import": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js"
+    },
     "./libs": {
       "import": "./dist/libs/index.js",
       "types": "./dist/libs/index.d.ts",
@@ -107,6 +122,16 @@
       "import": "./dist/libs/importers/index.js",
       "types": "./dist/libs/importers/index.d.ts",
       "default": "./dist/libs/importers/index.js"
+    },
+    "./libs/execute-scripts": {
+      "import": "./dist/libs/execute-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/index.js"
+    },
+    "./libs/execute-scripts/context/postman-scripts": {
+      "import": "./dist/libs/execute-scripts/context/postman-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/context/postman-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/context/postman-scripts/index.js"
     },
     "./layouts/Web": {
       "import": "./dist/layouts/Web/index.js",
@@ -185,6 +210,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.1.1",
     "@headlessui/tailwindcss": "^0.2.0",
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
