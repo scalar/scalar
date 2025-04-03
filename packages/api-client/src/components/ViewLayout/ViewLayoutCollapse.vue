@@ -19,7 +19,8 @@ const id = useId()
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="group/collapse focus-within:text-c-1 text-c-2 request-item"
+    class="group/collapse focus-within:text-c-1 text-c-2 border-b"
+    :class="{ 'first-of-type:last-of-type:border-b-0': layout === 'reference' }"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference' ? true : undefined">
     <section
@@ -30,7 +31,6 @@ const id = useId()
           :class="[
             'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',
             { '!pl-3': layout === 'reference' },
-            { 'group-last/collapse:border-b': layout === 'client' },
           ]"
           :disabled="layout === 'reference'">
           <ScalarIcon

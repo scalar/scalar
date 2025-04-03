@@ -48,7 +48,8 @@ const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
     <div
       v-if="data"
       class="bg-b-1 flex max-h-[calc(100%-32px)] flex-col overflow-hidden">
-      <div class="flex items-center justify-between border-b px-3 py-1.5">
+      <div
+        class="flex min-h-8 items-center justify-between border-y px-3 py-1.5">
         <span class="text-xxs font-code leading-3">
           {{ mimeType.essence }}
         </span>
