@@ -23,11 +23,11 @@ const props = defineProps<{
 const selectedOneOfIndex = ref(0)
 
 const buttonVariants = cva({
-  base: 'py-0.75 h-fit rounded-full border px-2 text-sm font-medium transition-colors',
+  base: 'schema-tab',
   variants: {
     selected: {
-      true: 'bg-b-accent text-c-accent hover:text-c-accent',
-      false: 'bg-transparent text-c-2 hover:text-c-1',
+      true: 'schema-tab-selected',
+      false: 'text-c-3',
     },
   },
 })
@@ -118,9 +118,9 @@ const humanizeType = (type: string) => {
       <!-- Tabs -->
       <TabGroup>
         <TabList
-          class="discriminator-tab-list py-1.25 flex items-center gap-2 rounded-t-lg border border-b-0 px-2 pr-3">
-          <span>{{ humanizeType(discriminator) }}</span>
-          <div class="flex items-center gap-1.5 overflow-x-auto">
+          class="discriminator-tab-list py-1.25 flex flex-col gap-1 rounded-t-lg border border-b-0 px-2 pr-3">
+          <span class="text-c-3">{{ humanizeType(discriminator) }}</span>
+          <div class="flex items-center gap-1.5">
             <Tab
               v-for="(schema, index) in value[discriminator]"
               :key="index"
@@ -129,7 +129,9 @@ const humanizeType = (type: string) => {
                 cx(buttonVariants({ selected: selectedOneOfIndex === index }))
               "
               @click="selectedOneOfIndex = index">
-              {{ getModelNameFromSchema(schema) || 'Schema' }}
+              <span class="schema-tab-label z-1 relative">
+                {{ getModelNameFromSchema(schema) || 'Schema' }}
+              </span>
             </Tab>
           </div>
         </TabList>
@@ -172,5 +174,41 @@ const humanizeType = (type: string) => {
 }
 .discriminator-panel :deep(.property--compact.property--level-0) {
   padding: 0;
+}
+.schema-tab {
+  background: none;
+  border: none;
+  font-size: var(--scalar-mini);
+  font-family: var(--scalar-font);
+  color: var(--scalar-color-2);
+  font-weight: var(--scalar-semibold);
+  line-height: calc(var(--scalar-mini) + 2px);
+  white-space: nowrap;
+  cursor: pointer;
+  padding: 0;
+  text-transform: uppercase;
+  position: relative;
+  line-height: 1.35;
+  position: relative;
+}
+.schema-tab:before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: -4px;
+  top: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: var(--scalar-radius);
+  background: var(--scalar-background-2);
+  opacity: 0;
+}
+.schema-tab:hover:before {
+  opacity: 1;
+}
+.schema-tab-selected {
+  color: var(--scalar-color-1);
+  text-decoration: underline;
+  text-underline-offset: 8px;
 }
 </style>
