@@ -43,6 +43,9 @@ async function importCollection() {
         const entities = await importSpecFile(
           props.source,
           activeWorkspace.value?.uid ?? '',
+          {
+            proxyUrl: activeWorkspace.value?.proxyUrl,
+          },
         )
         redirectToFirstRequestInCollection(entities?.collection)
       }

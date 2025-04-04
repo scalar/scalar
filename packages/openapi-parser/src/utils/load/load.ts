@@ -13,8 +13,9 @@ import { makeFilesystem } from '../makeFilesystem.ts'
 import { normalize } from '../normalize.ts'
 
 export type LoadPlugin = {
+  priority?: number
   check: (value?: any) => boolean
-  get: (value: any) => any
+  get: (value: any, source?: string) => any
   resolvePath?: (value: any, reference: string) => string
   getDir?: (value: any) => string
   getFilename?: (value: any) => string
@@ -23,6 +24,7 @@ export type LoadPlugin = {
 export type LoadOptions = {
   plugins?: LoadPlugin[]
   filename?: string
+  source?: string | undefined
   filesystem?: Filesystem
 } & ThrowOnErrorOption
 
@@ -48,13 +50,13 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }
 
   // Check whether the value is an URL or file path
-  const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
+  const plugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(value))
 
   let content: AnyObject
 
   if (plugin) {
     try {
-      content = normalize(await plugin.get(value))
+      content = normalize(await plugin.get(value, options?.source))
     } catch (_error) {
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
@@ -116,7 +118,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Load other external references
   for (const reference of listOfReferences) {
     // Find a matching plugin
-    const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(reference))
+    const otherPlugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(reference))
 
     // Skip if no plugin is found (internal references don’t need a plugin for example)
     if (!otherPlugin) {
@@ -136,6 +138,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       // Make the filename the exact same value as the $ref
       // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
       filename: reference,
+      source: options?.source ?? (typeof value === 'string' ? value : undefined),
     })
 
     errors.push(...newErrors)
@@ -156,4 +159,8 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     filesystem,
     errors,
   }
+}
+
+function sortPlugins(plugins: LoadPlugin[] = []) {
+  return plugins?.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0))
 }

@@ -29,6 +29,12 @@ export type ResolveReferencesOptions = ThrowOnErrorOption & {
    * Note that for object schemas, its properties may not be dereferenced when the hook is called.
    */
   onDereference?: (data: { schema: AnyObject; ref: string }) => void
+  /**
+   * Whether to resolve internal references.
+   *
+   * @default true
+   */
+  resolveInternalRefs?: boolean
 }
 
 /**
@@ -92,8 +98,18 @@ function dereference(
 
   function resolveExternal(externalFile: FilesystemEntry) {
     dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
-
     return externalFile
+  }
+
+  // Skip internal reference resolution if resolveInternalRefs is false
+  const skipReference =
+    // Only if the option is set …
+    options?.resolveInternalRefs === false &&
+    // and it’s obviously internal
+    schema.$ref?.startsWith('#')
+
+  if (skipReference) {
+    return
   }
 
   while (schema.$ref !== undefined) {
@@ -198,7 +214,7 @@ function resolveUri(
   // Pointers
   const segments = getSegmentsFromPath(path)
 
-  // Try to find the URI
+  // Internal references
   try {
     return segments.reduce((acc, key) => {
       return acc[key]

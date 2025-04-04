@@ -269,6 +269,113 @@ describe('dereference', async () => {
     })
   })
 
+  it('only resolves external references when resolveInternalRefs is false', async () => {
+    const filesystem = [
+      {
+        isEntrypoint: true,
+        specification: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/test': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Success',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          // Internal reference
+                          $ref: '#/components/schemas/InternalSchema',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            schemas: {
+              InternalSchema: {
+                type: 'object',
+                properties: {
+                  internalProp: {
+                    type: 'string',
+                  },
+                },
+              },
+              MainSchema: {
+                type: 'object',
+                properties: {
+                  external: {
+                    // External reference
+                    $ref: 'http://example.com/external.yaml#/components/schemas/ExternalSchema',
+                  },
+                  internal: {
+                    // Internal reference
+                    $ref: '#/components/schemas/InternalSchema',
+                  },
+                },
+              },
+            },
+          },
+        },
+        filename: 'main.yaml',
+        dir: './',
+        references: [],
+      },
+      {
+        specification: {
+          components: {
+            schemas: {
+              ExternalSchema: {
+                type: 'object',
+                properties: {
+                  externalProp: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        },
+        filename: 'http://example.com/external.yaml',
+        dir: './',
+        references: [],
+      },
+    ]
+
+    const result = await dereference(filesystem, {
+      resolveInternalRefs: false,
+    })
+
+    expect(result.errors).toStrictEqual([])
+
+    // External reference should be resolved
+    expect(result.schema.components.schemas.MainSchema.properties.external).toEqual({
+      type: 'object',
+      properties: {
+        externalProp: {
+          type: 'string',
+        },
+      },
+    })
+
+    // Internal reference should remain as a $ref
+    expect(result.schema.components.schemas.MainSchema.properties.internal).toEqual({
+      $ref: '#/components/schemas/InternalSchema',
+    })
+
+    // The internal reference in paths should also remain as a $ref
+    expect(result.schema.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      $ref: '#/components/schemas/InternalSchema',
+    })
+  })
+
   it('calls onDereference when resolving references', async () => {
     const openapi = {
       openapi: '3.1.0',
