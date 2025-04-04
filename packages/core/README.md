@@ -17,7 +17,7 @@ npm install @scalar/core
 ## Usage
 
 ```ts
-import { getHtmlDocument } from '@scalar/core/lib/html-rendering'
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 
 const html = getHtmlDocument({
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
