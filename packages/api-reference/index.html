@@ -21,6 +21,29 @@
       Scalar.createApiReference('#app', {
         sources: [
           {
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'Custom OpenAPI Extension',
+                version: '1.0.0',
+              },
+              paths: {},
+              components: {
+                schemas: {
+                  Foobar: {
+                    type: 'object',
+                    properties: {
+                      foobar: {
+                        'type': 'string',
+                        'x-custom-extension': 'insane',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
             url: 'https://petstore.swagger.io/v2/swagger.json',
           },
           {
