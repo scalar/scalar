@@ -84,6 +84,11 @@ export function shouldUseProxy(proxyUrl?: string, url?: string): url is string {
       return true
     }
 
+    // ✅ Proxy URL is local
+    if (isLocalUrl(proxyUrl)) {
+      return true
+    }
+
     // ❌ Requests to localhost
     // We won’t reach them from a (likely remote) proxy.
     if (isLocalUrl(url)) {
