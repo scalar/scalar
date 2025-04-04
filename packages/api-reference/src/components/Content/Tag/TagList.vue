@@ -3,10 +3,11 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { computed, onMounted, ref, type ComponentPublicInstance } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
+import { freezeElement } from '@/helpers/freeze-element'
 import { useNavState, useSidebar } from '@/hooks'
 
 import TagAccordion from './TagAccordion.vue'
@@ -32,26 +33,58 @@ const tagLayout = computed(() =>
   layout === 'classic' ? TagAccordion : TagSection,
 )
 
-/**
- * All tags on the list UNTIL the one afterfirst open tag should not be lazy loaded. However their operations should be.
- * This so so we can get to the first open tag + operation as quick as possible and avoid any jumps
- */
-const lazyIndex = computed(
-  () => tags.findIndex((tag) => !collapsedSidebarItems[getTagId(tag)]) + 1,
-)
-
 /** If the first load is models, we do not lazy load tags/operations */
-const isLazy = (index: number) =>
+const isLazyTag = (tag: TagType) =>
   layout !== 'classic' &&
   !hash.value.startsWith('model') &&
-  index > lazyIndex.value
+  !collapsedSidebarItems[getTagId(tag)]
+
+/** Grabs the index of the current operation */
+const currentOperationIndex = (tag: TagType) => {
+  const operationIndex = tag.operations.findIndex(
+    (o) => hash.value === getOperationId(o, tag),
+  )
+  return Math.max(0, operationIndex)
+}
+
+/** Handles freezing the right operation */
+const handleOperationRef = (
+  el: Element | ComponentPublicInstance | null,
+  operationIndex: number,
+  tag: TagType,
+) => {
+  // We check for the correct operation and ensure we grab the component
+  if (
+    operationIndex === currentOperationIndex(tag) &&
+    el &&
+    el instanceof Object &&
+    '$el' in el
+  ) {
+    // Then from the component we want the section
+    const section = el.$el.nextElementSibling
+
+    if (section) {
+      console.log('we are freezing', section)
+      document.body.style.overflow = 'hidden'
+      const unfreeze = freezeElement(section)
+
+      setTimeout(() => {
+        // unfreeze()
+      }, 300)
+    }
+  }
+}
+
+onMounted(() => {
+  console.log('did I mounted')
+})
 </script>
 <template>
   <Lazy
     v-for="(tag, index) in tags"
     :id="getTagId(tag)"
     :key="getTagId(tag)"
-    :isLazy="isLazy(index)">
+    :isLazy="isLazyTag(tag)">
     <Component
       :is="tagLayout"
       :id="getTagId(tag)"
@@ -63,11 +96,12 @@ const isLazy = (index: number) =>
         :id="getOperationId(operation, tag)"
         :key="`${operation.httpVerb}-${operation.operationId}`"
         :isLazy="
-          isLazy(index) ||
-          (collapsedSidebarItems[getTagId(tag)] && operationIndex > 0)
+          operationIndex < currentOperationIndex(tag) ||
+          operationIndex > currentOperationIndex(tag) + 3
         ">
         <ScalarErrorBoundary>
           <Operation
+            :ref="(el) => handleOperationRef(el, operationIndex, tag)"
             :id="getOperationId(operation, tag)"
             :collection="collection"
             :layout="layout"

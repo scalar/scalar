@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
-import { computed, nextTick, ref, useId } from 'vue'
+import { computed, nextTick, onMounted, ref, useId } from 'vue'
+
+import { Lazy } from '@/components/Content/Lazy'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { SectionContainer } from '../../Section'
@@ -21,7 +23,7 @@ const contentsRef = ref<HTMLElement>()
 const headerId = useId()
 
 const { collapsedSidebarItems } = useSidebar()
-const { getTagId } = useNavState()
+const { getTagId, hash } = useNavState()
 
 const moreThanOneTag = computed(
   () => props.spec.tags?.length && props.spec.tags?.length > 1,
@@ -46,13 +48,15 @@ async function focusContents() {
     :aria-labelledby="headerId"
     class="tag-section-container"
     role="region">
-    <Tag
-      v-if="moreThanOneDefaultTag"
-      :id="id"
-      :collection="collection"
-      :headerId="headerId"
-      :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
-      :tag="tag" />
+    <Lazy :isLazy="getTagId(tag) !== hash">
+      <Tag
+        v-if="moreThanOneDefaultTag"
+        :id="id"
+        :collection="collection"
+        :headerId="headerId"
+        :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
+        :tag="tag" />
+    </Lazy>
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && moreThanOneTag"
       :id="id ?? ''"

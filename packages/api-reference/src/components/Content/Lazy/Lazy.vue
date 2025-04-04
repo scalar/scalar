@@ -45,6 +45,7 @@ if (props.isLazy) {
     }
   })
 } else if (props.id) {
+  console.log('emitting', props.id)
   nextTick(() => lazyBus.emit({ id: props.id! }))
 }
 </script>
