@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchUrls } from './fetchUrls.ts'
+import { fetchUrls, getAbsoluteUrl } from './fetchUrls.ts'
 
 global.fetch = vi.fn()
 
@@ -62,5 +62,50 @@ describe('fetchUrls', async () => {
         fetch: (url) => fetch(url.replace('foobar', 'example')),
       }).get('http://foobar.com/examples/openapi.yaml'),
     ).toBe('OK')
+  })
+})
+
+describe('getAbsoluteUrl', () => {
+  it('returns the URL if already absolute', () => {
+    expect(getAbsoluteUrl('https://example.com/foobar.json')).toBe('https://example.com/foobar.json')
+    expect(getAbsoluteUrl('http://example.com/foobar.json')).toBe('http://example.com/foobar.json')
+  })
+
+  it('returns the value as-is if no source provided', () => {
+    expect(getAbsoluteUrl('foobar.json')).toBe('foobar.json')
+    expect(getAbsoluteUrl('./foobar.json')).toBe('./foobar.json')
+  })
+
+  it('combines relative URL with absolute HTTP source', () => {
+    expect(getAbsoluteUrl('./foobar.json', 'https://example.com/docs/openapi.yaml')).toBe(
+      'https://example.com/docs/foobar.json',
+    )
+    expect(getAbsoluteUrl('../foobar.json', 'https://example.com/docs/openapi.yaml')).toBe(
+      'https://example.com/foobar.json',
+    )
+  })
+
+  it('handles complex relative paths correctly', () => {
+    expect(getAbsoluteUrl('../../foobar.json', '/a/b/c/d/openapi.yaml')).toBe('/a/b/foobar.json')
+    expect(getAbsoluteUrl('./foo/../bar/foobar.json', '/docs/openapi.yaml')).toBe('/docs/bar/foobar.json')
+    expect(getAbsoluteUrl('../../../foobar.json', '/a/b/openapi.yaml')).toBe('/foobar.json')
+  })
+
+  it('preserves query parameters and fragments in URLs', () => {
+    expect(getAbsoluteUrl('foobar.json?version=1', 'https://example.com/docs/openapi.yaml')).toBe(
+      'https://example.com/docs/foobar.json?version=1',
+    )
+    expect(getAbsoluteUrl('foobar.json#components', 'https://example.com/docs/openapi.yaml')).toBe(
+      'https://example.com/docs/foobar.json#components',
+    )
+  })
+  it('combines two relative paths', () => {
+    expect(getAbsoluteUrl('./components/pathItem.yaml', '/docs/openapi.yaml')).toBe('/docs/components/pathItem.yaml')
+  })
+
+  it('goes one level up with two relative paths', () => {
+    expect(getAbsoluteUrl('../docs/components/pathItem.yaml', '/docs/openapi.yaml')).toBe(
+      '/docs/components/pathItem.yaml',
+    )
   })
 })

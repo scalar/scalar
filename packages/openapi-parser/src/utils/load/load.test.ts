@@ -266,8 +266,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
-  // TODO: Make this pass
-  it.todo('combines relative URLs and relative references', async () => {
+  it('combines relative URLs and relative references', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async () => {
       // empty document for all URLs
@@ -287,15 +286,15 @@ describe('load', async () => {
           '/users': {
             $ref: './components/pathItem-1.yaml',
           },
-          // '/users/{id}': {
-          //   $ref: 'components/pathItem-2.yaml',
-          // },
-          // '/users/{id}/posts': {
-          //   $ref: '../docs/components/pathItem-3.yaml',
-          // },
-          // '/users/{id}/posts/{postId}': {
-          //   $ref: 'https://example.com/docs/components/pathItem-4.yaml',
-          // },
+          '/users/{id}': {
+            $ref: 'components/pathItem-2.yaml',
+          },
+          '/users/{id}/posts': {
+            $ref: '../docs/components/pathItem-3.yaml',
+          },
+          '/users/{id}/posts/{postId}': {
+            $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+          },
         },
       },
       {
@@ -315,9 +314,9 @@ describe('load', async () => {
     // Not called, because we directly pass a document (not a URL)
     // expect(fetch).toHaveBeenCalledWith('/docs/openapi.yaml')
     expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-1.yaml')
-    // expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-2.yaml')
-    // expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-3.yaml')
-    // expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-4.yaml')
+    expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
   it('handles failed requests', async () => {
