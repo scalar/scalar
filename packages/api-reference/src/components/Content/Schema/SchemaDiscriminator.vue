@@ -186,7 +186,6 @@ const humanizeType = (type: string) => {
   white-space: nowrap;
   cursor: pointer;
   padding: 0;
-  text-transform: uppercase;
   position: relative;
   line-height: 1.35;
   position: relative;
