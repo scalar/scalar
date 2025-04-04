@@ -16,7 +16,7 @@ import { createRequestOperation } from './create-request-operation'
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
-const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
+export const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
 type RequestExamplePayload = z.input<typeof requestExampleSchema>
 
