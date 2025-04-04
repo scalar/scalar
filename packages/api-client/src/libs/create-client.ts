@@ -264,14 +264,16 @@ export const createApiClient = ({
         store.tagMutators.reset()
         workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
 
+        /** Add any extra properties to the config */
+        const config = {
+          ...newConfig,
+          useCollectionSecurity: isReadOnly,
+        }
+
         if (newConfig.url) {
-          await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', {
-            ...newConfig,
-          })
+          await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', config)
         } else if (newConfig.content) {
-          await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', {
-            ...newConfig,
-          })
+          await importSpecFile(newConfig.content, activeWorkspace.value?.uid ?? 'default', config)
         } else {
           console.error(
             '[@scalar/api-client-modal] Could not create the API client.',
