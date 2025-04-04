@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.3.12
+
+### Patch Changes
+
+- 73be3c0: fix(api-client): fix missing borders + default to code snippet open
+- 75667fe: fix: updating the client store with isReadOnly
+- a571d36: refactor: use central helper fetchDocument to fetch OpenAPI documents
+- a097ea1: fix: download doesn’t appear anymore
+- Updated dependencies [a571d36]
+- Updated dependencies [cf5bf65]
+- Updated dependencies [3783345]
+  - @scalar/oas-utils@0.2.126
+  - @scalar/openapi-parser@0.10.14
+  - @scalar/types@0.1.6
+  - @scalar/import@0.3.9
+  - @scalar/postman-to-openapi@0.1.49
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.9.84
+  - @scalar/components@0.13.43
+  - @scalar/use-codemirror@0.11.88
+  - @scalar/use-hooks@0.1.38
+
 ## 2.3.11
 
 ### Patch Changes

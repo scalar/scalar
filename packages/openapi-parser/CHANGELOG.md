@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.14
+
+### Patch Changes
+
+- cf5bf65: fix: migrate file type, basic auth, parameters and responses headers correctly
+
 ## 0.10.13
 
 ### Patch Changes

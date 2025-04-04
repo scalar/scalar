@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.126
+
+### Patch Changes
+
+- a571d36: refactor: use central helper fetchDocument to fetch OpenAPI documents
+- Updated dependencies [3783345]
+  - @scalar/types@0.1.6
+  - @scalar/themes@0.9.84
+
 ## 0.2.125
 
 ### Patch Changes
