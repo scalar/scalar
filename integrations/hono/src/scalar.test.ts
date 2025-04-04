@@ -1,16 +1,16 @@
+import { Scalar, apiReference } from '@/scalar.ts'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
-import { apiReference } from './honoApiReference.ts'
 
 describe('apiReference', () => {
-  it('should return HTML with default theme CSS when no theme is provided', async () => {
+  it('returns HTML with default theme CSS when theme is not provided', async () => {
     const app = new Hono()
     const config = {
       cdn: 'https://cdn.example.com',
       content: { info: { title: 'Test API' } },
     }
 
-    app.get('/', apiReference(config))
+    app.get('/', Scalar(config))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -22,11 +22,11 @@ describe('apiReference', () => {
     expect(text).toContain('--scalar-color-1: #2a2f45;')
   })
 
-  it('should not include default theme CSS when a theme is provided', async () => {
+  it('excludes default theme CSS when theme is provided', async () => {
     const app = new Hono()
     app.get(
       '/',
-      apiReference({
+      Scalar({
         content: { info: { title: 'Test API' } },
         theme: 'kepler',
         cdn: 'https://cdn.example.com',
@@ -44,12 +44,12 @@ describe('apiReference', () => {
     expect(text).not.toContain('--scalar-color-1')
   })
 
-  it('should handle missing spec content gracefully', async () => {
+  it('handles missing spec content gracefully', async () => {
     const app = new Hono()
     const options = {
       cdn: 'https://cdn.example.com',
     }
-    app.get('/', apiReference(options))
+    app.get('/', Scalar(options))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -61,12 +61,12 @@ describe('apiReference', () => {
     expect(text).not.toContain('undefined')
   })
 
-  it('should use default CDN when no CDN is provided', async () => {
+  it('uses default CDN when CDN is not provided', async () => {
     const app = new Hono()
     const options = {
       content: { info: { title: 'Test API' } },
     }
-    app.get('/', apiReference(options))
+    app.get('/', Scalar(options))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -76,9 +76,9 @@ describe('apiReference', () => {
     expect(text).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
   })
 
-  it("doesn't have the content twice", async () => {
+  it('includes content only once', async () => {
     const app = new Hono()
-    app.get('/', apiReference({ content: { info: { title: 'Test API' } } }))
+    app.get('/', Scalar({ content: { info: { title: 'Test API' } } }))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
@@ -92,11 +92,11 @@ describe('apiReference', () => {
     expect(titleCount).toBe(1)
   })
 
-  it('keeps the URL in the configuration', async () => {
+  it('preserves URL in configuration', async () => {
     const app = new Hono()
     app.get(
       '/',
-      apiReference({
+      Scalar({
         url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
       }),
     )
@@ -108,9 +108,9 @@ describe('apiReference', () => {
     expect(text).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
   })
 
-  it('applies custom theme CSS when no theme is provided', async () => {
+  it('applies custom theme CSS without theme specified', async () => {
     const app = new Hono()
-    app.get('/', apiReference({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -118,18 +118,18 @@ describe('apiReference', () => {
     expect(text).toContain('--scalar-color-accent: #0099ff')
   })
 
-  it('does not include custom theme CSS when theme is provided', async () => {
+  it('excludes custom theme CSS when theme is specified', async () => {
     const app = new Hono()
-    app.get('/', apiReference({ theme: 'none' }))
+    app.get('/', Scalar({ theme: 'none' }))
 
     const response = await app.request('/')
     const text = await response.text()
     expect(text).not.toContain('--scalar-color-1: #2a2f45;')
   })
 
-  it('includes _integration: "hono" in configuration', async () => {
+  it('includes hono integration in configuration', async () => {
     const app = new Hono()
-    app.get('/', apiReference({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     const text = await response.text()
@@ -139,18 +139,18 @@ describe('apiReference', () => {
   it('handles content as function', async () => {
     const app = new Hono()
     const contentFn = () => ({ info: { title: 'Function API' } })
-    app.get('/', apiReference({ content: contentFn }))
+    app.get('/', Scalar({ content: contentFn }))
 
     const response = await app.request('/')
     const text = await response.text()
     expect(text).toContain('Function API')
   })
 
-  it('removes spec.content when spec.url is provided', async () => {
+  it('removes content when URL is provided', async () => {
     const app = new Hono()
     app.get(
       '/',
-      apiReference({
+      Scalar({
         url: 'https://example.com/api.json',
         content: { info: { title: 'Test API' } },
       }),
@@ -162,12 +162,31 @@ describe('apiReference', () => {
     expect(text).not.toContain('Test API')
   })
 
-  it('sets correct content type and status', async () => {
+  it('sets HTML content type and 200 status', async () => {
     const app = new Hono()
-    app.get('/', apiReference({}))
+    app.get('/', Scalar({}))
 
     const response = await app.request('/')
     expect(response.status).toBe(200)
     expect(response.headers.get('content-type')).toContain('text/html')
+  })
+
+  it('works with the deprecated export', async () => {
+    const app = new Hono()
+    const config = {
+      cdn: 'https://cdn.example.com',
+      content: { info: { title: 'Test API' } },
+    }
+
+    app.get('/', apiReference(config))
+
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    const text = await response.text()
+    expect(text).toContain('<title>Scalar API Reference</title>')
+    expect(text).toContain('https://cdn.example.com')
+    expect(text).toContain('Test API')
+    expect(text).toContain('--scalar-color-1: #2a2f45;')
   })
 })

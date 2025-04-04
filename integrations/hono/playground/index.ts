@@ -1,8 +1,7 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { cors } from 'hono/cors'
-
-import { apiReference } from '../src/index.ts'
+import { Scalar } from '../src/index.ts'
 
 const PORT = Number(process.env.PORT) || 5054
 const HOST = process.env.HOST || '0.0.0.0'
@@ -178,7 +177,7 @@ app.doc('/doc', {
 // Load the middleware
 app.get(
   '/',
-  apiReference({
+  Scalar({
     onLoaded: () => {
       console.log('ready')
     },
