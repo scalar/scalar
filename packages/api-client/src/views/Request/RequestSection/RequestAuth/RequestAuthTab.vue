@@ -100,7 +100,7 @@ const dataTableInputProps = {
         'request-example-references-header': layout === 'reference',
       }">
       <DataTableCell
-        class="auth-bg-description text-c-2 flex items-center pl-3"
+        class="text-c-2 flex items-center pl-3"
         :class="layout === 'reference' && 'border-b'">
         {{ generateLabel(scheme!) }}
       </DataTableCell>
@@ -109,7 +109,7 @@ const dataTableInputProps = {
     <!-- Description -->
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        class="auth-bg-description text-c-2 flex items-center overflow-auto whitespace-nowrap pl-3">
+        class="text-c-2 flex items-center overflow-auto whitespace-nowrap pl-3">
         {{ scheme.description }}
       </DataTableCell>
     </DataTableRow>
@@ -243,9 +243,5 @@ const dataTableInputProps = {
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-}
-
-.auth-bg-description {
-  background: color-mix(in srgb, var(--scalar-background-2), transparent 50%);
 }
 </style>

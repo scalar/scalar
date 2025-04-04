@@ -174,7 +174,7 @@ const handleRequestNamePlaceholder = () => {
       class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
-        class="request-section-content-auth"
+        class="request-section-content-auth border-b-0"
         v-if="
           collection &&
           workspace &&
