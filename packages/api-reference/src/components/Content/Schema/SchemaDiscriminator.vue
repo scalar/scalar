@@ -84,6 +84,10 @@ const getModelNameFromSchema = (schema: any): string | null => {
     return null
   }
 
+  if (schema.name) {
+    return schema.name
+  }
+
   // returns a matching schema name based on the schema object
   if (props.schemas && typeof props.schemas === 'object') {
     for (const [schemaName, schemaValue] of Object.entries(props.schemas)) {
@@ -91,6 +95,7 @@ const getModelNameFromSchema = (schema: any): string | null => {
         return schemaName
       }
     }
+
     return Object.keys(schema)[0]
   }
 
