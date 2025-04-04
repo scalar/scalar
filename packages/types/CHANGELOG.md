@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.6
+
+### Patch Changes
+
+- 3783345: feat: add some callbacks to sidebar items
+
 ## 0.1.5
 
 ### Patch Changes

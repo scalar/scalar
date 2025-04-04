@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.28.12
+
+### Patch Changes
+
+- Updated dependencies [cf5bf65]
+- Updated dependencies [3783345]
+  - @scalar/openapi-parser@0.10.14
+  - @scalar/types@0.1.6
+  - @scalar/core@0.2.6
+
 ## 1.28.11
 
 ### Patch Changes

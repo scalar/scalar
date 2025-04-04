@@ -1,5 +1,12 @@
 # @scalar/core
 
+## 0.2.6
+
+### Patch Changes
+
+- Updated dependencies [3783345]
+  - @scalar/types@0.1.6
+
 ## 0.2.5
 
 ### Patch Changes

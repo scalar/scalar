@@ -1,5 +1,16 @@
 # @scalar/hono-api-reference
 
+## 0.8.0
+
+### Minor Changes
+
+- 81dddd3: feat: rename apiReference to scalar (please update your import)
+
+### Patch Changes
+
+- 81dddd3: chore: deprecated apiReference export
+  - @scalar/core@0.2.6
+
 ## 0.7.5
 
 ### Patch Changes
