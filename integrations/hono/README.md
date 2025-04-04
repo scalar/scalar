@@ -17,7 +17,7 @@ npm install @scalar/hono-api-reference
 
 ## Usage
 
-Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `scalar` middleware:
+Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `Scalar` middleware:
 
 ```ts
 import { Hono } from 'hono'
@@ -38,7 +38,7 @@ The Hono middleware takes our universal configuration object, [read more about c
 The middleware comes with a custom theme for Hono. You can use one of [the other predefined themes](https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts#L15) (`alternate`, `default`, `moon`, `purple`, `solarized`) or overwrite it with `none`. All themes come with a light and dark color scheme.
 
 ```ts
-import { scalar } from '@scalar/hono-api-reference'
+import { Scalar } from '@scalar/hono-api-reference'
 
 // Switch the theme (or pass other options)
 app.get('/scalar', Scalar({
@@ -52,7 +52,7 @@ app.get('/scalar', Scalar({
 There’s one additional option to set the page title:
 
 ```ts
-import { scalar } from '@scalar/hono-api-reference'
+import { Scalar } from '@scalar/hono-api-reference'
 
 // Set a page title
 app.get('/scalar', Scalar({
@@ -70,7 +70,7 @@ You can also pin the CDN to a specific version by specifying it in the CDN strin
 You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
 
 ```ts
-import { scalar } from '@scalar/hono-api-reference'
+import { Scalar } from '@scalar/hono-api-reference'
 
 app.get('/scalar', Scalar({ url: '/doc', pageTitle: 'Awesome API' }))
 
