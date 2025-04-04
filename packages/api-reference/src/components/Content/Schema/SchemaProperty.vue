@@ -236,7 +236,9 @@ const displayPropertyHeading = (
             v-for="enumValue in visibleEnumValues"
             :key="enumValue"
             class="property-enum-value">
-            {{ enumValue }}
+            <span class="property-enum-value-label">
+              {{ enumValue }}
+            </span>
           </li>
           <Disclosure
             v-if="hasLongEnumList"
@@ -246,7 +248,9 @@ const displayPropertyHeading = (
                 v-for="enumValue in remainingEnumValues"
                 :key="enumValue"
                 class="property-enum-value">
-                {{ enumValue }}
+                <span class="property-enum-value-label">
+                  {{ enumValue }}
+                </span>
               </li>
             </DisclosurePanel>
             <DisclosureButton class="enum-toggle-button">
@@ -343,7 +347,10 @@ const displayPropertyHeading = (
 .property--compact.property--level-1 {
   padding: 12px 0;
 }
-
+/*  if a property doesn't have a heading, remove the top padding */
+.property:has(> .property-rule:nth-of-type(1)) {
+  padding-top: 0;
+}
 .property--deprecated {
   background: repeating-linear-gradient(
     -45deg,
@@ -378,6 +385,9 @@ const displayPropertyHeading = (
 .property:not(:last-of-type) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+.property-description + .children {
+  margin-top: 9px;
+}
 .children {
   display: flex;
   flex-direction: column;
@@ -410,15 +420,39 @@ const displayPropertyHeading = (
   border-top-right-radius: var(--scalar-radius-lg);
 }
 .property-enum-value {
-  padding: 3px 0;
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-3);
   line-height: 1.5;
   word-break: break-word;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+}
+.property-enum-value-label {
+  display: flex;
+  padding: 3px 0;
 }
 .property-enum-value::before {
-  content: '⊢';
-  margin-right: 6px;
+  content: '';
+  margin-right: 12px;
+  width: var(--scalar-border-width);
+  display: block;
+  background: currentColor;
   color: var(--scalar-color-3);
+}
+.property-enum-value:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 8px;
+  height: var(--scalar-border-width);
+  background: currentColor;
+}
+.property-enum-value:last-of-type::after {
+  bottom: 0;
+  height: 50%;
+  background: var(--scalar-background-1);
+  border-top: var(--scalar-border-width) solid currentColor;
 }
 .property-enum-values {
   margin-top: 8px;
