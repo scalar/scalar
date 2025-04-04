@@ -68,6 +68,8 @@ const generateLink = () => {
 
 // For path routing we want to handle the clicks
 const onAnchorClick = async (ev: Event) => {
+  config.value.onSidebarClick?.(props.item.id)
+
   if (config.value.pathRouting) {
     ev.preventDefault()
 
