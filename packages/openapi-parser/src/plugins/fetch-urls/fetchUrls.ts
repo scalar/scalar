@@ -68,7 +68,7 @@ export const fetchUrls: (customConfiguration?: {
   }
 }
 
-function getAbsoluteUrl(value: string, source?: string | undefined) {
+export function getAbsoluteUrl(value: string, source?: string | undefined) {
   // Already an absolute URL
   if (value.startsWith('http')) {
     return value
@@ -76,6 +76,26 @@ function getAbsoluteUrl(value: string, source?: string | undefined) {
 
   // Make it an absolute URL
   if (source) {
+    // Handle file paths by joining them
+    if (source.startsWith('/') || !source.startsWith('http')) {
+      const sourceParts = source.split('/').filter(Boolean).slice(0, -1)
+      const valueParts = value.split('/').filter(Boolean)
+      const isAbsolute = source.startsWith('/')
+
+      // Process each part of the path
+      const resultParts = [...sourceParts]
+      for (const part of valueParts) {
+        if (part === '..') {
+          resultParts.pop()
+        } else if (part !== '.') {
+          resultParts.push(part)
+        }
+      }
+
+      // Preserve the leading slash for absolute paths, but avoid double slashes
+      return isAbsolute ? '/' + resultParts.join('/') : resultParts.join('/')
+    }
+
     return new URL(value, source).toString()
   }
 
