@@ -4,6 +4,7 @@ import type { Item, ItemGroup } from '../types'
 import { processAuth } from './authHelpers'
 import { parseMdTable } from './md-utils'
 import { extractParameters } from './parameterHelpers'
+import { processPostResponseScripts } from './postResponseScripts'
 import { extractRequestBody } from './requestBodyHelpers'
 import { extractResponses } from './responseHelpers'
 import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urlHelpers'
@@ -82,11 +83,17 @@ export function processItem(
         : (request.description?.content ?? '')
 
   const operationObject: OpenAPIV3_1.OperationObject = {
-    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
+    tags: parentTags.length > 0 ? [parentTags.join(' > ')] : undefined,
     summary,
     description,
     responses: extractResponses(response || [], item),
     parameters: [],
+  }
+
+  // Add post-response scripts if present
+  const postResponseScript = processPostResponseScripts(item.event)
+  if (postResponseScript) {
+    operationObject['x-post-response'] = postResponseScript
   }
 
   // Only add operationId if it was explicitly provided
