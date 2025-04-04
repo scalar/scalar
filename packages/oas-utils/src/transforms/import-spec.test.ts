@@ -934,6 +934,27 @@ describe('importSpecToWorkspace', () => {
       // Restore the original window.location
       vi.stubGlobal('location', originalLocation)
     })
+
+    it('returns both collection and operation servers when present', async () => {
+      const result = await importSpecToWorkspace({
+        servers: [{ url: 'https://collection-server.com' }],
+        paths: {
+          '/test': {
+            get: {
+              servers: [{ url: 'https://operation-server.com' }],
+            },
+          },
+        },
+      })
+
+      if (result.error) {
+        throw result.error
+      }
+
+      expect(result.servers).toHaveLength(2)
+      expect(result.servers.map((s) => s.url)).toContain('https://collection-server.com')
+      expect(result.servers.map((s) => s.url)).toContain('https://operation-server.com')
+    })
   })
 })
 
