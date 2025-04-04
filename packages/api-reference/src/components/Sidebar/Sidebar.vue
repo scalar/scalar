@@ -93,9 +93,9 @@ onMounted(() => {
   const observer = observeSidebarElement(hash.value)
 
   // Enable scrolling after some time
-  setTimeout(() => {
-    disableScroll.value = false
-  }, 300)
+  if (!hash.value) {
+    setTimeout(() => (disableScroll.value = false), 300)
+  }
 
   // Cleanup the observer when component is unmounted
   onUnmounted(() => {
