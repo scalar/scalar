@@ -10,8 +10,8 @@ import {
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
-import { createRequestOperation } from './create-request-operation'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
+import { createRequestOperation } from './create-request-operation'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -703,7 +703,6 @@ describe('create-request-operation', () => {
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({
         serverPayload: { url: VOID_URL },
-        proxyUrl: PROXY_URL,
         requestExamplePayload: {
           parameters: {
             cookies: [

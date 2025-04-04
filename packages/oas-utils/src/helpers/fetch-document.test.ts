@@ -1,6 +1,7 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+// @vitest-environment jsdom
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { fetchSpecFromUrl } from './fetch-spec-from-url.ts'
+import { fetchDocument } from './fetch-document.ts'
 
 const PROXY_PORT = 5051
 
@@ -24,16 +25,16 @@ $ pnpm dev:proxy-server
   }
 })
 
-describe('fetchSpecFromUrl', () => {
+describe('fetchDocument', () => {
   it('fetches specifications (without a proxy)', async () => {
-    const spec = await fetchSpecFromUrl('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
+    const spec = await fetchDocument('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
 
     expect(typeof spec).toEqual('string')
     expect(spec.length).toBeGreaterThan(100)
   })
 
   it('fetches specifications (through proxy.scalar.com)', async () => {
-    const spec = await fetchSpecFromUrl(
+    const spec = await fetchDocument(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
       'https://proxy.scalar.com',
     )
@@ -43,12 +44,40 @@ describe('fetchSpecFromUrl', () => {
   })
 
   it(`fetches specifications (through 127.0.0.1:${PROXY_PORT})`, async () => {
-    const spec = await fetchSpecFromUrl(
+    const spec = await fetchDocument(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
       `http://127.0.0.1:${PROXY_PORT}`,
     )
 
     expect(typeof spec).toEqual('string')
     expect(spec.length).toBeGreaterThan(100)
+  })
+
+  it('fetches specifications from localhost without proxy', async () => {
+    const originalFetch = globalThis.fetch
+    // mock fetch
+    // @ts-expect-error TODO not properly typed
+    globalThis.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        status: 200,
+        text: () => Promise.resolve(''),
+      }),
+    )
+
+    const spec = await fetchDocument(`http://127.0.0.1:${PROXY_PORT}/test`)
+
+    expect(typeof spec).toEqual('string')
+
+    // restore fetch
+    globalThis.fetch = originalFetch
+  })
+
+  it('throws error for invalid URLs', async () => {
+    await expect(fetchDocument('not-a-valid-url')).rejects.toThrow()
+  })
+
+  it('throws error when fetch fails', async () => {
+    await expect(fetchDocument('https://does-not-exist.scalar.com/spec.yaml')).rejects.toThrow('fetch failed')
   })
 })

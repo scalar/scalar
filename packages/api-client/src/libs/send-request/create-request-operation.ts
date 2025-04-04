@@ -15,7 +15,7 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 import { buildRequestSecurity } from './build-request-security'
 
@@ -154,8 +154,7 @@ export const createRequestOperation = ({
       }
     }
 
-    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-    const proxiedUrl = shouldUseProxy(proxyUrl, url) ? `${proxyUrl}?${proxyPath.toString()}` : url
+    const proxiedUrl = redirectToProxy(proxyUrl, url)
 
     const proxiedRequest = new Request(proxiedUrl, {
       method: request.method.toUpperCase(),

@@ -1,7 +1,7 @@
 import { redirectToProxy, shouldUseProxy } from './redirect-to-proxy.ts'
 
 export type FetchWithProxyFallbackOptions = {
-  proxy: string | undefined
+  proxyUrl: string | undefined
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
    */
@@ -9,17 +9,17 @@ export type FetchWithProxyFallbackOptions = {
 }
 
 /**
- * Fetches an OpenAPI document with a proxy fallback mechanism.
+ * Fetches an OpenAPI document with a proxyUrl fallback mechanism.
  *
  * If a proxy is provided and the URL requires it, it will first attempt to fetch using the proxy.
  * If the proxy fetch fails or is not used, it will fall back to a direct fetch.
  */
-export async function fetchWithProxyFallback(url: string, { proxy, cache }: FetchWithProxyFallbackOptions) {
+export async function fetchWithProxyFallback(url: string, { proxyUrl, cache }: FetchWithProxyFallbackOptions) {
   const fetchOptions = {
     cache: cache || 'default',
   }
-  const shouldTryProxy = shouldUseProxy(proxy, url)
-  const initialUrl = shouldTryProxy ? redirectToProxy(proxy, url) : url
+  const shouldTryProxy = shouldUseProxy(proxyUrl, url)
+  const initialUrl = shouldTryProxy ? redirectToProxy(proxyUrl, url) : url
 
   try {
     const result = await fetch(initialUrl, fetchOptions)
@@ -28,11 +28,11 @@ export async function fetchWithProxyFallback(url: string, { proxy, cache }: Fetc
       return result
     }
 
-    // Retry without proxy if the initial request failed
+    // Retry without proxyUrl if the initial request failed
     return await fetch(url, fetchOptions)
   } catch (error) {
     if (shouldTryProxy) {
-      // If proxy failed, try without it
+      // If proxyUrl failed, try without it
       return await fetch(url, fetchOptions)
     }
     throw error
