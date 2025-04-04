@@ -4,7 +4,9 @@ import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
 
+import { Lazy } from '@/components/Content/Lazy'
 import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
@@ -25,6 +27,8 @@ const props = defineProps<{
   >
   parsedSpec: Spec
 }>()
+
+const { hash } = useNavState()
 
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
@@ -59,37 +63,39 @@ const config = useConfig()
 onMounted(() => config.value.onLoaded?.())
 </script>
 <template>
-  <SectionContainer>
-    <!-- If the #after slot is used, we need to add a gap to the section. -->
-    <Section class="introduction-section gap-12">
-      <SectionContent
-        :loading="config.isLoading ?? (!info?.description && !info?.title)">
-        <div class="flex gap-1">
-          <Badge v-if="version">{{ version }}</Badge>
-          <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
-        </div>
-        <SectionHeader
-          :loading="!info.title"
-          tight>
-          <SectionHeaderTag :level="1">
-            {{ info.title }}
-          </SectionHeaderTag>
-        </SectionHeader>
-        <DownloadLink :specTitle="filenameFromTitle" />
-        <SectionColumns>
-          <SectionColumn>
-            <Description :value="info.description" />
-          </SectionColumn>
-          <SectionColumn v-if="$slots.aside">
-            <div class="sticky-cards">
-              <slot name="aside" />
-            </div>
-          </SectionColumn>
-        </SectionColumns>
-      </SectionContent>
-      <slot name="after" />
-    </Section>
-  </SectionContainer>
+  <Lazy :isLazy="Boolean(hash)">
+    <SectionContainer>
+      <!-- If the #after slot is used, we need to add a gap to the section. -->
+      <Section class="introduction-section gap-12">
+        <SectionContent
+          :loading="config.isLoading ?? (!info?.description && !info?.title)">
+          <div class="flex gap-1">
+            <Badge v-if="version">{{ version }}</Badge>
+            <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
+          </div>
+          <SectionHeader
+            :loading="!info.title"
+            tight>
+            <SectionHeaderTag :level="1">
+              {{ info.title }}
+            </SectionHeaderTag>
+          </SectionHeader>
+          <DownloadLink :specTitle="filenameFromTitle" />
+          <SectionColumns>
+            <SectionColumn>
+              <Description :value="info.description" />
+            </SectionColumn>
+            <SectionColumn v-if="$slots.aside">
+              <div class="sticky-cards">
+                <slot name="aside" />
+              </div>
+            </SectionColumn>
+          </SectionColumns>
+        </SectionContent>
+        <slot name="after" />
+      </Section>
+    </SectionContainer>
+  </Lazy>
 </template>
 <style scoped>
 .sticky-cards {
