@@ -3,6 +3,7 @@ import { useWorkspace } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
@@ -48,6 +49,23 @@ const { operation } = useBlockProps({
     transformedOperation.httpVerb.toLowerCase(),
   ]),
 })
+
+/** Return operation server if available or fallback to the collection server */
+const operationServer = computed(() => {
+  if (!operation.value) {
+    return server
+  }
+
+  if (operation.value?.selectedServerUid) {
+    const operationServer = store.servers[operation.value.selectedServerUid]
+    if (operationServer) {
+      return operationServer
+    }
+  }
+
+  // Fallback to the provided server
+  return server
+})
 </script>
 
 <template>
@@ -58,7 +76,7 @@ const { operation } = useBlockProps({
         :collection="collection"
         :operation="operation"
         :schemas="schemas"
-        :server="server"
+        :server="operationServer"
         :transformedOperation="transformedOperation" />
     </template>
     <template v-else>
@@ -67,7 +85,7 @@ const { operation } = useBlockProps({
         :collection="collection"
         :operation="operation"
         :schemas="schemas"
-        :server="server"
+        :server="operationServer"
         :transformedOperation="transformedOperation" />
     </template>
   </template>
