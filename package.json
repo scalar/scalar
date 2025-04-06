@@ -48,7 +48,7 @@
     "build:docker-base": "docker build -t scalar-base -f ./tooling/base-docker-builder/Dockerfile .",
     "build:packages": "turbo --filter './packages/**' build",
     "build:integrations": "turbo --filter './integrations/**' build",
-    "build:api-reference": "turbo --filter './packages/api-reference' build",
+    "build:api-reference": "turbo --filter ./packages/api-reference build",
     "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt; pnpm clean:next",
     "clean:install": "pnpm clean ; pnpm i",
