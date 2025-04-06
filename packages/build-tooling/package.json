@@ -16,14 +16,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "bash scripts/build-rollup.sh",
+    "build": "vite-node scripts/build-rollup.ts",
     "dev": "vite",
-    "format": "bash scripts/format.sh",
-    "lint:check": "bash scripts/lint-check.sh",
-    "lint:fix": "bash scripts/lint-fix.sh",
+    "format": "vite-node scripts/format.ts",
+    "lint:check": "vite-node scripts/lint-check.ts",
+    "lint:fix": "vite-node scripts/lint-fix.ts",
     "preview": "dotenv -o -- vite preview",
-    "types:build": "bash scripts/types-build.sh",
-    "types:check": "bash scripts/types-check.sh"
+    "types:build": "vite-node scripts/types-build.ts",
+    "types:check": "vite-node scripts/types-check.ts"
   },
   "type": "module",
   "main": "dist/index.js",
