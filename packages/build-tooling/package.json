@@ -35,16 +35,16 @@
     }
   },
   "bin": {
-    "scalar-build-rollup": "scripts/build-rollup.sh",
-    "scalar-build-vite": "scripts/build-vite.sh",
-    "scalar-format-check": "scripts/format-check.sh",
-    "scalar-format": "scripts/format.sh",
-    "scalar-lint-check": "scripts/lint-check.sh",
-    "scalar-lint-fix": "scripts/lint-fix.sh",
-    "scalar-types-build-vue": "scripts/types-build-vue.sh",
-    "scalar-types-build": "scripts/types-build.sh",
-    "scalar-types-check-vue": "scripts/types-check-vue.sh",
-    "scalar-types-check": "scripts/types-check.sh"
+    "scalar-build-rollup": "scripts/build-rollup.ts",
+    "scalar-build-vite": "scripts/build-vite.ts",
+    "scalar-format-check": "scripts/format-check.ts",
+    "scalar-format": "scripts/format.ts",
+    "scalar-lint-check": "scripts/lint-check.ts",
+    "scalar-lint-fix": "scripts/lint-fix.ts",
+    "scalar-types-build-vue": "scripts/types-build-vue.ts",
+    "scalar-types-build": "scripts/types-build.ts",
+    "scalar-types-check-vue": "scripts/types-check-vue.ts",
+    "scalar-types-check": "scripts/types-check.ts"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^5.1.0",
