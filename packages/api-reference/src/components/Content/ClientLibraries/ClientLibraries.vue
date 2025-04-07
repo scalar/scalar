@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { useWorkspace } from '@scalar/api-client/store'
-import { ScalarCodeBlock } from '@scalar/components'
+import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import { computed, ref, toRaw, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '../../../stores'
@@ -50,26 +50,34 @@ function handleChange(i: number) {
 }
 
 const installationInstructions = computed(() => {
-  const instructions = Object.values(store.collections)[0].info[
-    'x-scalar-sdk-installation'
-  ]
-  console.log(instructions)
+  // Get the current collection from the store
+  const firstCollection = Object.values(store.collections)[0]
 
-  if (!instructions?.length) {
-    return ''
+  // Get instructions (if we have any)
+  const XScalarSdkInstallation =
+    firstCollection?.info?.['x-scalar-sdk-installation']
+
+  // Check whether we have instructions at all
+  if (
+    !Array.isArray(XScalarSdkInstallation) ||
+    !XScalarSdkInstallation?.length
+  ) {
+    return undefined
   }
 
-  // Find instructions for current language
-  const instruction = instructions.find(
+  // Find the instructions for the current language
+  const instruction = XScalarSdkInstallation.find(
     (instruction) =>
       instruction.lang.toLowerCase() === httpClient?.targetKey?.toLowerCase(),
   )
 
+  // Nothing found?
   if (!instruction) {
-    return ''
+    return undefined
   }
 
-  return instruction.source
+  // Got it!
+  return instruction
 })
 </script>
 <template>
@@ -91,16 +99,28 @@ const installationInstructions = computed(() => {
           :morePanel="morePanel" />
       </TabList>
       <TabPanels>
-        <template v-if="installationInstructions">
+        <template
+          v-if="
+            installationInstructions?.source ||
+            installationInstructions?.description
+          ">
           <div
+            v-if="installationInstructions.description"
             class="selected-client card-footer -outline-offset-2"
             role="tabpanel"
             tabindex="0">
+            <ScalarMarkdown :value="installationInstructions.description" />
+          </div>
+          <div
+            v-if="installationInstructions.source"
+            class="selected-client card-footer -outline-offset-2"
+            role="tabpanel"
+            tabindex="1">
             <ScalarCodeBlock
               lang="shell"
-              :content="installationInstructions"
+              :content="installationInstructions.source"
               :copy="false"
-              class="min-h-8" />
+              class="min-h-6 p-1" />
           </div>
         </template>
         <template v-else-if="httpClient && isFeatured(httpClient)">
