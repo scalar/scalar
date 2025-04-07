@@ -384,6 +384,9 @@ importers:
       postcss-nesting:
         specifier: ^12.1.5
         version: 12.1.5(postcss@8.4.47)
+      rimraf:
+        specifier: ^6.0.1
+        version: 6.0.1
 
   integrations/docusaurus/playground:
     dependencies:
@@ -836,6 +839,9 @@ importers:
       changelogen:
         specifier: ^0.5.5
         version: 0.5.5(magicast@0.3.5)
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       nuxt:
         specifier: ^3.12.4
         version: 3.14.159(@biomejs/biome@1.9.4)(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@9.20.1(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.31.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue-tsc@2.1.10(typescript@5.6.2))

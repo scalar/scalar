@@ -25,7 +25,7 @@
   },
   "scripts": {
     "dev": "cd ./playground && pnpm dev",
-    "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
+    "build": "pnpm rimraf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
     "format:check": "scalar-format-check",
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",
@@ -48,7 +48,8 @@
     "path": "^0.12.7",
     "postcss": "catalog:",
     "postcss-cli": "^11.0.0",
-    "postcss-nesting": "^12.1.5"
+    "postcss-nesting": "^12.1.5",
+    "rimraf": "^6.0.1"
   },
   "peerDependencies": {
     "react": "^18.0.0"
