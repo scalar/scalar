@@ -103,8 +103,8 @@ const title = computed(() => operation.summary || operation.path)
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="transformedOperation.information?.deprecated"
-                    :path="transformedOperation.path" />
+                    :deprecated="operation.deprecated"
+                    :path="operation.path" />
                 </template>
                 <template #footer>
                   <TestRequestButton :operation="operation" />
