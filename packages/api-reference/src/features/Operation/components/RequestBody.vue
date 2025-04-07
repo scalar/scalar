@@ -1,39 +1,37 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ContentType, RequestBody } from '@scalar/types/legacy'
-import { computed, ref } from 'vue'
+import type { Operation } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { RequestBody } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
 import { Schema } from '@/components/Content/Schema'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 
-const { requestBody, schemas } = defineProps<{
-  requestBody?: RequestBody
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+const { requestBody, schemas, selectedContentType } = defineProps<{
+  requestBody?: Operation['requestBody']
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  selectedContentType?: string
 }>()
-const availableContentTypes = computed(() =>
-  Object.keys(requestBody?.content ?? {}),
-)
 
-const selectedContentType = ref<ContentType>('application/json')
-
-if (requestBody?.content) {
-  if (availableContentTypes.value.length > 0) {
-    selectedContentType.value = availableContentTypes.value[0] as ContentType
-  }
-}
+const emit = defineEmits<{
+  (e: 'update:selectedContentType', value: string): void
+}>()
 
 /**
  * Splits schema properties into visible and collapsed sections when there are more than 12 properties.
  * Returns null for schemas with fewer properties or non-object schemas.
  */
 const partitionedSchema = computed(() => {
-  const schema = requestBody?.content?.[selectedContentType.value]?.schema
+  if (!selectedContentType) {
+    return null
+  }
+
+  const schema =
+    requestBody?.content?.[
+      selectedContentType as keyof typeof requestBody.content
+    ]?.schema
 
   // Early return if not an object schema
   if (schema?.type !== 'object' || !schema.properties) {
@@ -65,11 +63,9 @@ const partitionedSchema = computed(() => {
     <div class="request-body-title">
       <slot name="title" />
       <ContentTypeSelect
-        :defaultValue="selectedContentType"
         :requestBody="requestBody"
-        @selectContentType="
-          ({ contentType }) => (selectedContentType = contentType)
-        " />
+        :modelValue="selectedContentType"
+        @update:modelValue="$emit('update:selectedContentType', $event)" />
       <div
         v-if="requestBody.description"
         class="request-body-description">

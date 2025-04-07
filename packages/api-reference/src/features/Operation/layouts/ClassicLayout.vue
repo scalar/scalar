@@ -51,6 +51,8 @@ const config = useConfig()
 
 /** The title of the operation (summary or path) */
 const title = computed(() => operation.summary || operation.path)
+
+// TODO: Add content type select
 </script>
 <template>
   <SectionAccordion

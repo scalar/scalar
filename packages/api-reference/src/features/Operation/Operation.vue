@@ -7,6 +7,7 @@ import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
+import { useRequestBodyContent } from '@/features/Operation/hooks/useRequestBodyContent'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'

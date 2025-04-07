@@ -4,7 +4,9 @@ import { type ComputedRef, computed, ref, unref } from 'vue'
 /**
  * Composable for handling request body content types in OpenAPI operations
  */
-export function useRequestBodyContent(operation: Operation | ComputedRef<Operation | undefined> | undefined) {
+export function useRequestBodyContent(
+  requestBody: Operation['requestBody'] | ComputedRef<Operation['requestBody'] | undefined> | undefined,
+) {
   // Track the currently selected content type
   const selectedContentType = ref<string>('')
 
@@ -13,19 +15,19 @@ export function useRequestBodyContent(operation: Operation | ComputedRef<Operati
    * Preserves the order from the OpenAPI document
    */
   const availableContentTypes = computed(() => {
-    const unwrappedOperation = unref(operation)
-    if (!unwrappedOperation?.requestBody?.content) {
+    const unwrappedRequestBody = unref(requestBody)
+    if (!unwrappedRequestBody?.content) {
       return []
     }
-    return Object.keys(unwrappedOperation.requestBody.content)
+    return Object.keys(unwrappedRequestBody.content)
   })
 
   /**
    * Get the default content type - uses the first content type from the document
    */
   const defaultContentType = computed(() => {
-    const unwrappedOperation = unref(operation)
-    if (!unwrappedOperation?.requestBody?.content || availableContentTypes.value.length === 0) {
+    const unwrappedRequestBody = unref(requestBody)
+    if (!unwrappedRequestBody?.content || availableContentTypes.value.length === 0) {
       return ''
     }
 

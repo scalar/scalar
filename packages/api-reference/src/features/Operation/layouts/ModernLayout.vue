@@ -22,6 +22,7 @@ import {
 } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import { useRequestBodyContent } from '@/features/Operation/hooks/useRequestBodyContent'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -52,6 +53,14 @@ const config = useConfig()
 
 /** The title of the operation (summary or path) */
 const title = computed(() => operation.summary || operation.path)
+
+const { selectedContentType, setContentType } = useRequestBodyContent(
+  operation.requestBody,
+)
+
+const updateSelectedContentType = (contentType: string) => {
+  setContentType(contentType)
+}
 </script>
 
 <template>
@@ -85,6 +94,8 @@ const title = computed(() => operation.summary || operation.path)
               withImages />
             <OperationParameters
               :operation="operation"
+              :selected-content-type="selectedContentType"
+              @update:selectedContentType="updateSelectedContentType"
               :schemas="schemas" />
             <OperationResponses
               :operation="transformedOperation"
@@ -96,6 +107,7 @@ const title = computed(() => operation.summary || operation.path)
             <ScalarErrorBoundary>
               <ExampleRequest
                 :collection="collection"
+                :selectedContentType="selectedContentType"
                 fallback
                 :operation="operation"
                 :server="server"

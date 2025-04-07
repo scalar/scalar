@@ -8,21 +8,17 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { json2xml } from '@scalar/oas-utils/helpers'
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useExampleStore } from '#legacy'
-import {
-  computed,
-  ref,
-  useId,
-  VueElement,
-  watch,
-  type ComponentPublicInstance,
-} from 'vue'
+import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { useRequestBodyContent } from '@/features/Operation/hooks/useRequestBodyContent'
 import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
 import { useHttpClientStore, type HttpClientState } from '@/stores'
@@ -30,7 +26,13 @@ import { useHttpClientStore, type HttpClientState } from '@/stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { transformedOperation, operation, collection, server } = defineProps<{
+const {
+  transformedOperation,
+  operation,
+  collection,
+  server,
+  selectedContentType,
+} = defineProps<{
   operation: Operation
   server: Server | undefined
   collection: Collection
@@ -38,6 +40,7 @@ const { transformedOperation, operation, collection, server } = defineProps<{
   fallback?: boolean
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
+  selectedContentType?: string
 }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
@@ -51,6 +54,8 @@ const {
   httpTargetTitle,
   httpClientTitle,
 } = useHttpClientStore()
+
+const { availableContentTypes } = useRequestBodyContent(operation.requestBody)
 
 const id = useId()
 
@@ -97,13 +102,33 @@ watch(httpClient, () => {
 })
 
 const hasMultipleExamples = computed<boolean>(
-  () =>
-    Object.keys(
-      transformedOperation.information?.requestBody?.content?.[
-        'application/json'
-      ]?.examples ?? {},
-    ).length > 1,
+  () => availableContentTypes.value.length > 1,
 )
+
+const examples = computed(() => {
+  const selectedRequestBody =
+    operation.requestBody?.content?.[
+      selectedContentType as keyof typeof operation.requestBody.content
+    ]
+
+  const shouldBeXml = selectedContentType?.includes('xml')
+
+  const examples = selectedRequestBody?.examples ?? []
+  const example = selectedRequestBody?.example ?? []
+  const generatedExample = selectedRequestBody?.schema
+    ? [
+        getExampleFromSchema(selectedRequestBody.schema, { xml: shouldBeXml }),
+      ].map((example) => {
+        if (shouldBeXml) {
+          return json2xml(example)
+        }
+
+        return example
+      })
+    : []
+
+  return [...examples, ...example, ...generatedExample]
+})
 
 const generateSnippet = () => {
   // Use the selected custom example
@@ -264,6 +289,7 @@ function updateHttpClient(value: string) {
 }
 </script>
 <template>
+  <pre><code>{{ examples }}</code></pre>
   <Card
     v-if="availableTargets.length || customRequestExamples.length"
     :aria-labelledby="`${id}-header`"
@@ -330,11 +356,7 @@ function updateHttpClient(value: string) {
         class="request-card-footer-addon">
         <ExamplePicker
           class="request-example-selector"
-          :examples="
-            transformedOperation.information?.requestBody?.content?.[
-              'application/json'
-            ]?.examples ?? []
-          "
+          :examples="examples"
           @update:modelValue="
             (value) => (
               (selectedExampleKey = value),
