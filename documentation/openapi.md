@@ -220,3 +220,18 @@ components:
 +        unused: Unused
 +        other: Other
 ```
+
+## x-scalar-sdk-installation
+
+We generate custom code examples for all languages, but you might have a custom SDK for your API. Provide installation instructions in the header like this:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
++  x-scalar-sdk-installation:
++    - lang: Node
++      source: |-
++        npm install @your-awesome-company/sdk
+```
