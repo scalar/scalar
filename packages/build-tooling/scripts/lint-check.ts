@@ -8,5 +8,5 @@ executeCommand('biome lint --diagnostic-level=error', 'Error during linting chec
 // Check if Vue files exist and run ESLint on them if they do
 const vueFiles = globSync('**/*.vue', { ignore: 'node_modules/**' })
 if (vueFiles.length > 0) {
-  executeCommand('pnpm eslint \'**/*.vue\'', 'Error during Vue files linting')
+  executeCommand("pnpm eslint '**/*.vue'", 'Error during Vue files linting')
 }
