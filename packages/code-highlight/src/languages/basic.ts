@@ -16,9 +16,9 @@ import yaml from 'highlight.js/lib/languages/yaml'
 const basicLanguages: Record<string, LanguageFn> = {
   bash,
   css,
+  html: xml,
   javascript,
   json,
-  html: xml,
   less,
   markdown,
   plaintext,
@@ -26,8 +26,8 @@ const basicLanguages: Record<string, LanguageFn> = {
   scss,
   shell,
   typescript,
-  yaml,
   xml,
+  yaml,
 }
 
 export { basicLanguages }
