@@ -2,6 +2,7 @@ import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility.ts'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { type ZodSchema, z } from 'zod'
 
+import { XCodeSamplesSchema } from '@scalar/openapi-types/schemas/extensions'
 import { XScalarStability } from '@scalar/types'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { oasParameterSchema } from './parameters.ts'
@@ -137,6 +138,7 @@ const extendedRequestSchema = z.object({
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
   .omit({ 'x-scalar-examples': true })
+  .merge(XCodeSamplesSchema)
   .merge(ScalarStabilitySchema)
   .merge(extendedRequestSchema)
 
