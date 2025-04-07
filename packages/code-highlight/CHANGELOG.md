@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.26
+
+### Patch Changes
+
+- 0e888bc: feat: add dart to standard languages
+
 ## 0.0.25
 
 ### Patch Changes
