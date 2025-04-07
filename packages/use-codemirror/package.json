@@ -40,15 +40,15 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./themes": {
-      "import": "./dist/themes/index.js",
-      "types": "./dist/themes/index.d.ts",
-      "default": "./dist/themes/index.js"
-    },
     "./hooks": {
       "import": "./dist/hooks/index.js",
       "types": "./dist/hooks/index.d.ts",
       "default": "./dist/hooks/index.js"
+    },
+    "./themes": {
+      "import": "./dist/themes/index.js",
+      "types": "./dist/themes/index.d.ts",
+      "default": "./dist/themes/index.js"
     }
   },
   "files": [
