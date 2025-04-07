@@ -150,17 +150,20 @@ export async function importSpecToWorkspace(
   const start = performance.now()
   const requests: Request[] = []
 
-  // Add the base server url to any relative servers
-  const servers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
+  // Add the base server url to collection servers
+  const collectionServers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
     baseServerURL,
   })
 
+  // Store operation servers
+  const operationServers: Server[] = []
+
   // Fallback to the current window.location.origin if no servers are provided
-  if (!servers.length) {
+  if (!collectionServers.length) {
     const fallbackUrl = getFallbackUrl()
 
     if (fallbackUrl) {
-      servers.push(serverSchema.parse({ url: fallbackUrl }))
+      collectionServers.push(serverSchema.parse({ url: fallbackUrl }))
     }
   }
 
@@ -287,16 +290,20 @@ export async function importSpecToWorkspace(
     }
     // Path level servers must be saved
     const pathServers = serverSchema.array().parse(path.servers ?? [])
-    servers.push(...pathServers)
+    for (const server of pathServers) {
+      collectionServers.push(server)
+    }
 
     // Creates a sorted array of methods based on the path object.
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
       const operation: OpenAPIV3_1.OperationObject = path[method]
-      const operationServers = serverSchema.array().parse(operation.servers ?? [])
+      const operationLevelServers = serverSchema.array().parse(operation.servers ?? [])
 
-      servers.push(...operationServers)
+      for (const server of operationLevelServers) {
+        operationServers.push(server)
+      }
 
       // We will save a list of all tags to ensure they exists at the top level
       // TODO: make sure we add any loose requests with no tags to the collection children
@@ -335,10 +342,11 @@ export async function importSpecToWorkspace(
         method,
         path: pathString,
         security: operationSecurity,
+        selectedServerUid: operationLevelServers?.[0]?.uid,
         selectedSecuritySchemeUids,
         // Merge path and operation level parameters
         parameters: [...(path?.parameters ?? []), ...(operation.parameters ?? [])] as RequestParameterPayload[],
-        servers: [...pathServers, ...operationServers].map((s) => s.uid),
+        servers: [...pathServers, ...operationLevelServers].map((s) => s.uid),
       }
 
       // Remove any examples from the request payload as they conflict with our examples property and are not valid
@@ -470,11 +478,11 @@ export async function importSpecToWorkspace(
     documentUrl,
     useCollectionSecurity,
     requests: requests.map((r) => r.uid),
-    servers: servers.map((s) => s.uid),
+    servers: collectionServers.map((s) => s.uid),
     tags: tags.map((t) => t.uid),
     children: [...collectionChildren],
     security: schema.security ?? [{}],
-    selectedServerUid: servers?.[0]?.uid,
+    selectedServerUid: collectionServers?.[0]?.uid,
     selectedSecuritySchemeUids,
     components: {
       ...schema.components,
@@ -491,7 +499,7 @@ export async function importSpecToWorkspace(
    */
   return {
     error: false,
-    servers,
+    servers: [...collectionServers, ...operationServers],
     schema,
     requests,
     examples,
