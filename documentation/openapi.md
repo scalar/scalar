@@ -231,7 +231,7 @@ info:
   title: Example
   version: 1.0
 +  x-scalar-sdk-installation:
-+    - lang: Node
-+      source: |-
-+        npm install @your-awesome-company/sdk
++  - lang: Node
++    source: |-
++      npm install @your-awesome-company/sdk
 ```
