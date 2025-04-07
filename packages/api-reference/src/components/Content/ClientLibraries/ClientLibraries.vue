@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
-import { ref, useId, watch } from 'vue'
+import { useWorkspace } from '@scalar/api-client/store'
+import { ScalarCodeBlock } from '@scalar/components'
+import { computed, ref, toRaw, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '../../../stores'
 import ClientSelector from './ClientSelector.vue'
@@ -16,6 +18,8 @@ const {
   setHttpClient,
 } = useHttpClientStore()
 const { featuredClients, isFeatured } = useFeaturedHttpClients()
+
+const store = useWorkspace()
 
 const index = ref(0)
 const headingId = useId()
@@ -44,6 +48,29 @@ function handleChange(i: number) {
   }
   setHttpClient(tab)
 }
+
+const installationInstructions = computed(() => {
+  const instructions = Object.values(store.collections)[0].info[
+    'x-scalar-sdk-installation'
+  ]
+  console.log(instructions)
+
+  if (!instructions?.length) {
+    return ''
+  }
+
+  // Find instructions for current language
+  const instruction = instructions.find(
+    (instruction) =>
+      instruction.lang.toLowerCase() === httpClient?.targetKey?.toLowerCase(),
+  )
+
+  if (!instruction) {
+    return ''
+  }
+
+  return instruction.source
+})
 </script>
 <template>
   <div v-if="availableTargets.length">
@@ -64,7 +91,19 @@ function handleChange(i: number) {
           :morePanel="morePanel" />
       </TabList>
       <TabPanels>
-        <template v-if="httpClient && isFeatured(httpClient)">
+        <template v-if="installationInstructions">
+          <div
+            class="selected-client card-footer -outline-offset-2"
+            role="tabpanel"
+            tabindex="0">
+            <ScalarCodeBlock
+              lang="shell"
+              :content="installationInstructions"
+              :copy="false"
+              class="min-h-8" />
+          </div>
+        </template>
+        <template v-else-if="httpClient && isFeatured(httpClient)">
           <TabPanel
             v-for="(client, i) in featuredClients"
             :key="i"

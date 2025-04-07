@@ -1,4 +1,5 @@
 import { omitUndefinedValues } from '@/helpers/omit-undefined-values.ts'
+import { XScalarSdkInstallationSchema } from '@scalar/openapi-types/schemas/extensions'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
@@ -68,6 +69,7 @@ export const oasInfoSchema = z
      */
     version: z.string().catch('1.0'),
   })
+  .merge(XScalarSdkInstallationSchema)
   .transform(omitUndefinedValues)
 
 /**
