@@ -9,7 +9,7 @@ import { extractStatusCodesFromTests } from './statusCodeHelpers'
  * Processes response status codes, descriptions, headers, and body content,
  * inferring schemas from example responses when possible.
  */
-export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_1.ResponsesObject {
+export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_1.ResponsesObject | undefined {
   // Extract status codes from tests
   const statusCodes = item ? extractStatusCodesFromTests(item) : []
 
@@ -44,14 +44,8 @@ export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_
     }
   })
 
-  // If no responses and no status codes, return default 200
   if (Object.keys(responseMap).length === 0) {
-    responseMap['200'] = {
-      description: 'Successful response',
-      content: {
-        'application/json': {},
-      },
-    }
+    return undefined
   }
 
   return responseMap

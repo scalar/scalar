@@ -111,19 +111,8 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
         // Convert colon-style params to curly brace style
         const normalizedPathKey = normalizePath(pathKey)
 
-        /**
-         * this is a bit of a hack to skip empty paths only if they have no parameters
-         * because there is a test where if I remove the empty path it breaks the test
-         * but there is another test where if I leave the empty path it breaks the test
-         * so I added this check to only remove the empty path if all the methods on it have no parameters
-         */
-        if (normalizedPathKey === '/') {
-          const allMethodsHaveEmptyParams = Object.values(pathItem || {}).every(
-            (method) => !method.parameters || method.parameters.length === 0,
-          )
-          if (allMethodsHaveEmptyParams) {
-            continue
-          }
+        if (!pathItem) {
+          continue
         }
 
         if (!openapi.paths[normalizedPathKey]) {
@@ -132,19 +121,6 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
           openapi.paths[normalizedPathKey] = {
             ...openapi.paths[normalizedPathKey],
             ...pathItem,
-          }
-        }
-
-        // Handle the /raw endpoint specifically
-        if (normalizedPathKey === '/raw' && pathItem?.post) {
-          if (pathItem.post.requestBody?.content['text/plain']) {
-            pathItem.post.requestBody.content['application/json'] = {
-              schema: {
-                type: 'object',
-                examples: [],
-              },
-            }
-            delete pathItem.post.requestBody.content['text/plain']
           }
         }
       }
@@ -204,5 +180,22 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
     delete openapi.components
   }
 
-  return openapi
+  // Remove undefined properties recursively
+  const removeUndefined = (obj: any): any => {
+    if (Array.isArray(obj)) {
+      return obj.map(removeUndefined).filter((item) => item !== undefined)
+    }
+
+    if (obj && typeof obj === 'object') {
+      return Object.fromEntries(
+        Object.entries(obj)
+          .map(([key, value]) => [key, removeUndefined(value)])
+          .filter(([_, value]) => value !== undefined),
+      )
+    }
+
+    return obj
+  }
+
+  return removeUndefined(openapi)
 }
