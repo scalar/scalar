@@ -1,6 +1,4 @@
-// @ts-expect-error
-
-import type { ApiReferencePlugin } from '@scalar/api-reference/plugins'
+import type { ApiReferencePlugin } from '@/plugins'
 import XCustomExtensionComponent from './components/XCustomExtensionComponent.vue'
 
 export const XCustomExtensionPlugin: ApiReferencePlugin = () => {
