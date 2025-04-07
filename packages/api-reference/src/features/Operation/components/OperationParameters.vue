@@ -7,11 +7,16 @@ import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{
   operation?: Pick<RequestEntity, 'parameters' | 'requestBody'>
+  selectedContentType?: string
   schemas?:
     | OpenAPIV2.DefinitionsObject
     | Record<string, OpenAPIV3.SchemaObject>
     | Record<string, OpenAPIV3_1.SchemaObject>
     | unknown
+}>()
+
+defineEmits<{
+  (e: 'update:selectedContentType', value: string): void
 }>()
 
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
@@ -51,7 +56,9 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   <RequestBody
     v-if="operation?.requestBody"
     :requestBody="operation.requestBody"
-    :schemas="schemas">
+    :schemas="schemas"
+    :selected-content-type="selectedContentType"
+    @update:selectedContentType="$emit('update:selectedContentType', $event)">
     <template #title>Body</template>
   </RequestBody>
 </template>

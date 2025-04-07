@@ -50,7 +50,7 @@ function getLabel(key: string | null) {
 
   const example = props.examples[key]
 
-  return example?.summary ?? key
+  return example?.summary ?? `Example #${Number.parseInt(key, 10) + 1}`
 }
 </script>
 <template>

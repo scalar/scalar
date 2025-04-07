@@ -21,6 +21,97 @@
       Scalar.createApiReference('#app', {
         sources: [
           {
+            content: `openapi: 3.0.3
+info:
+  title: API
+  version: 1.0.0
+paths:
+  /record:
+
+    post:
+      summary: Create a new record
+      // x-codeSamples:
+      // - label: Foobar
+      //   lang: cURL
+      //   source: curl -X POST https://api.example.com/record
+      requestBody:
+        content:
+          application/vnd.github+json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 1
+          application/json:
+            examples:
+              example1:
+                value:
+                  id: 1
+                  title: We're using 'examples' here (#1)
+              example2:
+                value:
+                  id: 2
+                  title: We're using 'examples' here (#2)
+          text/plain:
+            example: 'foobar'
+          application/xml:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                  example: 1
+                title:
+                  type: string
+                  example: The record title
+              xml:
+                name: record
+        required: true
+      responses:
+        '201':
+          description: Record Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  title:
+                    type: string
+                    example: The record title
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+        '404':
+          description: Record Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: 'Record not found'
+      security:
+        - bearerAuth: []
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT`,
+          },
+          {
             url: 'https://petstore.swagger.io/v2/swagger.json',
           },
           {
