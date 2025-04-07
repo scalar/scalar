@@ -64,7 +64,6 @@ export async function addPackageFileExports({
   const paths = Array.isArray(entries) ? entries : [entries]
 
   paths.forEach((entry) => {
-    console.log(entry)
     // Get the nested path that will be transpiled to dist with preserved modules
     // Always use forward slashes for paths in package.json regardless of OS
     const normalizedEntry = entry.split(path.sep).join('/')
