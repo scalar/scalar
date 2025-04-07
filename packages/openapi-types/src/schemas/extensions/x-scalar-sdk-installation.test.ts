@@ -7,6 +7,7 @@ describe('XScalarSdkInstallationSchema', () => {
       'x-scalar-sdk-installation': [
         {
           lang: 'Node',
+          description: 'Install our custom SDK for Node.js from npm',
           source: 'npm install @your-awesome-company/sdk',
         },
       ],
@@ -16,6 +17,7 @@ describe('XScalarSdkInstallationSchema', () => {
       'x-scalar-sdk-installation': [
         {
           lang: 'Node',
+          description: 'Install our custom SDK for Node.js from npm',
           source: 'npm install @your-awesome-company/sdk',
         },
       ],
