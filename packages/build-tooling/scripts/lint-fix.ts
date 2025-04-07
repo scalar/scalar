@@ -2,7 +2,7 @@
 import { executeCommand } from './utils/utils'
 import { globSync } from 'glob'
 
-// Run Biome lint 
+// Run Biome lint
 executeCommand('biome lint --fix', 'Error during linting check')
 
 // Check if Vue files exist and run ESLint on them if they do
