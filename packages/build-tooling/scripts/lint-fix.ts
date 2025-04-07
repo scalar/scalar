@@ -1,3 +1,4 @@
+#!/usr/bin/env vite-node
 import { executeCommand } from './utils/utils'
 
 // Run linting with auto-fix

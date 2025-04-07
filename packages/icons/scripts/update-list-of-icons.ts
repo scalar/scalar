@@ -1,8 +1,11 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 // Get all SVG files from the icons directory
-const iconsDir = path.join(new URL(import.meta.url).pathname, '../../src/icons')
+const filename = fileURLToPath(import.meta.url)
+const scriptDirectory = path.dirname(filename)
+const iconsDir = path.join(scriptDirectory, '../src/icons')
 
 const svgFiles = fs
   .readdirSync(iconsDir)
@@ -25,7 +28,7 @@ const table = `${tableHeader}\n${tableRows}`
 console.log(table)
 
 // Update the README.md
-const readmePath = path.join(new URL(import.meta.url).pathname, '../../README.md')
+const readmePath = path.join(scriptDirectory, '../README.md')
 const readme = fs.readFileSync(readmePath, 'utf8')
 
 const startMarker = '<!-- list-of-available-icons -->'
