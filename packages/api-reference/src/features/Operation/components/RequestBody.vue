@@ -92,13 +92,21 @@ const partitionedSchema = computed(() => {
 
     <!-- Show em all 12 and under -->
     <div
-      v-else-if="requestBody.content?.[selectedContentType]"
+      v-else-if="
+        requestBody.content?.[
+          selectedContentType as keyof typeof requestBody.content
+        ]
+      "
       class="request-body-schema">
       <Schema
         compact
         noncollapsible
         :schemas="schemas"
-        :value="requestBody.content?.[selectedContentType]?.schema" />
+        :value="
+          requestBody.content?.[
+            selectedContentType as keyof typeof requestBody.content
+          ]?.schema
+        " />
     </div>
   </div>
 </template>

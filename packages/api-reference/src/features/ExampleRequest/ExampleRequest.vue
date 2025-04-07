@@ -8,7 +8,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { json2xml } from '@scalar/oas-utils/helpers'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
@@ -18,7 +18,6 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useRequestBodyContent } from '@/features/Operation/hooks/useRequestBodyContent'
 import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
 import { useHttpClientStore, type HttpClientState } from '@/stores'
@@ -43,6 +42,7 @@ const {
   selectedContentType?: string
 }>()
 
+// TODO: Reset selectedExampleKey when the content type changes
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
 const config = useConfig()
@@ -55,8 +55,6 @@ const {
   httpClientTitle,
 } = useHttpClientStore()
 
-const { availableContentTypes } = useRequestBodyContent(operation.requestBody)
-
 const id = useId()
 
 const customRequestExamples = computed(() => {
@@ -64,8 +62,7 @@ const customRequestExamples = computed(() => {
 
   for (const key of keys) {
     if (transformedOperation.information?.[key]) {
-      const examples = [...transformedOperation.information[key]]
-      return examples
+      return [...transformedOperation.information[key]]
     }
   }
 
@@ -101,11 +98,9 @@ watch(httpClient, () => {
   }
 })
 
-const hasMultipleExamples = computed<boolean>(
-  () => availableContentTypes.value.length > 1,
-)
-
+// TODO: Should we move this to the useRequestBodyContent?
 const examples = computed(() => {
+  // TODO: Not typed?
   const selectedRequestBody =
     operation.requestBody?.content?.[
       selectedContentType as keyof typeof operation.requestBody.content
@@ -113,22 +108,21 @@ const examples = computed(() => {
 
   const shouldBeXml = selectedContentType?.includes('xml')
 
-  const examples = selectedRequestBody?.examples ?? []
+  // TODO: We lose the keys here
+  const examples =
+    Object.values(selectedRequestBody?.examples ?? {})
+      // @ts-expect-error No types 🥲
+      .map((example) => example?.value)
+      .filter(isDefined) || []
   const example = selectedRequestBody?.example ?? []
   const generatedExample = selectedRequestBody?.schema
-    ? [
-        getExampleFromSchema(selectedRequestBody.schema, { xml: shouldBeXml }),
-      ].map((example) => {
-        if (shouldBeXml) {
-          return json2xml(example)
-        }
-
-        return example
-      })
+    ? [getExampleFromSchema(selectedRequestBody.schema, { xml: shouldBeXml })]
     : []
 
   return [...examples, ...example, ...generatedExample]
 })
+
+const hasMultipleExamples = computed<boolean>(() => examples.value.length > 1)
 
 const generateSnippet = () => {
   // Use the selected custom example
@@ -141,8 +135,12 @@ const generateSnippet = () => {
   const clientKey = httpClient.clientKey as ClientId<TargetId>
   const targetKey = httpClient.targetKey
 
+  // TODO: This one needs to be updated
   // TODO: Currently we just grab the first one but we should sync up the store with the example picker
   const example = requestExamples[operation.examples[0]]
+
+  console.log('example', example)
+
   if (!example) {
     return ''
   }
@@ -189,6 +187,7 @@ const language = computed(() => {
   if (key === 'shell' && generatedCode.value.includes('curl')) {
     return 'curl'
   }
+
   if (key === 'Objective-C') {
     return 'objc'
   }
@@ -289,7 +288,9 @@ function updateHttpClient(value: string) {
 }
 </script>
 <template>
-  <pre><code>{{ examples }}</code></pre>
+  examples: {{ examples }}<br />
+  selectedExampleKey: {{ selectedExampleKey }}<br />
+  <pre><code>{{ examples[(selectedExampleKey as keyof typeof examples) ?? 0] }} </code></pre>
   <Card
     v-if="availableTargets.length || customRequestExamples.length"
     :aria-labelledby="`${id}-header`"
