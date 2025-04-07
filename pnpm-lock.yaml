@@ -532,6 +532,9 @@ importers:
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vite-node:
+        specifier: ^2.1.1
+        version: 2.1.5(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-static-copy:
         specifier: ^1.0.2
         version: 1.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
