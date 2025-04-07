@@ -5,6 +5,7 @@ import clojure from 'highlight.js/lib/languages/clojure'
 import cpp from 'highlight.js/lib/languages/cpp'
 import csharp from 'highlight.js/lib/languages/csharp'
 import css from 'highlight.js/lib/languages/css'
+import dart from 'highlight.js/lib/languages/dart'
 import elixir from 'highlight.js/lib/languages/elixir'
 import go from 'highlight.js/lib/languages/go'
 import graphql from 'highlight.js/lib/languages/graphql'
@@ -41,9 +42,10 @@ const standardLanguages: Record<string, LanguageFn> = {
   c,
   clojure,
   cpp,
+  csharp,
   css,
   curl,
-  csharp,
+  dart,
   elixir,
   go,
   graphql,
