@@ -351,6 +351,11 @@ const displayPropertyHeading = (
 .property:has(> .property-rule:nth-of-type(1)) {
   padding-top: 0;
 }
+/*  if a property doesn't have a heading but has a panel || list */
+.property:has(> .property-rule:nth-of-type(1) .discriminator-tab-list),
+.property:has(> .property-rule:nth-of-type(1) .discriminator-panel) {
+  padding: 8px;
+}
 .property--deprecated {
   background: repeating-linear-gradient(
     -45deg,
@@ -430,6 +435,10 @@ const displayPropertyHeading = (
 .property-enum-value-label {
   display: flex;
   padding: 3px 0;
+  font-family: var(--scalar-font-code);
+}
+.property-enum-value:last-of-type .property-enum-value-label {
+  padding-bottom: 0;
 }
 .property-enum-value::before {
   content: '';
