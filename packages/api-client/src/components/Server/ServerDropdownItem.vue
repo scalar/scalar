@@ -74,7 +74,11 @@ const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
 /** Set server checkbox in the dropdown */
 const isSelectedServer = computed(() => {
   if (props.type === 'collection') {
-    return props.collection.selectedServerUid === props.serverOption.id
+    // Check selected collection unless operation level server is selected
+    return (
+      props.collection.selectedServerUid === props.serverOption.id &&
+      !props.operation?.selectedServerUid
+    )
   }
 
   if (props.type === 'request' && props.operation) {
