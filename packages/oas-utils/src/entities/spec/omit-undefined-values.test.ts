@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { omitUndefinedValues } from './spec-objects'
+import { omitUndefinedValues } from './spec-objects.ts'
 
 describe('omitUndefinedValues', () => {
   it('removes undefined values from flat objects', () => {
