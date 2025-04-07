@@ -7,6 +7,7 @@
 .scalar-card {
   all: unset;
   font-family: var(--scalar-font);
+  font-size: var(--scalar-font-size-3);
   border-radius: var(--scalar-radius-lg);
   overflow: hidden;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
