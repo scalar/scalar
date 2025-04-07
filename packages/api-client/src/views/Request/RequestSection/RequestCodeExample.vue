@@ -55,11 +55,25 @@ const localSelectedClient = computed(() => {
   }
 })
 
+const codeSamples = computed(
+  () =>
+    operation['x-codeSamples'] ||
+    operation['x-code-samples'] ||
+    operation['x-custom-examples'],
+)
+
 // Store the actual selected state
-const localSelectedClientState = ref({
-  targetKey: workspace.selectedHttpClient?.targetKey ?? 'js',
-  clientKey: workspace.selectedHttpClient?.clientKey ?? 'fetch',
-})
+const localSelectedClientState = ref(
+  codeSamples.value?.length
+    ? {
+        targetKey: 'custom',
+        clientKey: codeSamples.value[0]?.lang,
+      }
+    : {
+        targetKey: workspace.selectedHttpClient?.targetKey ?? 'js',
+        clientKey: workspace.selectedHttpClient?.clientKey ?? 'fetch',
+      },
+)
 
 /**
  * Just the relevant security schemes for the selected request
@@ -184,14 +198,6 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
     })
   }
 }
-
-const codeSamples = computed(() => {
-  return (
-    operation['x-codeSamples'] ||
-    operation['x-code-samples'] ||
-    operation['x-custom-examples']
-  )
-})
 
 /** Get the code sample content for a custom example */
 const customCodeContent = computed(() => {
