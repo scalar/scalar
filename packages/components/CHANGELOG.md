@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.13.44
+
+### Patch Changes
+
+- Updated dependencies [0e888bc]
+  - @scalar/code-highlight@0.0.26
+
 ## 0.13.43
 
 ### Patch Changes

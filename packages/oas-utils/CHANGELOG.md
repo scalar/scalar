@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.127
+
+### Patch Changes
+
+- bf961b1: feat: show custom code examples in the API client
+- a176b7e: feat: distinguishes collection and operation servers in import spec
+
 ## 0.2.126
 
 ### Patch Changes

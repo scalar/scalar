@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.3.13
+
+### Patch Changes
+
+- bf961b1: feat: show custom code examples in the API client
+- a176b7e: fix: updates server dropdown item selected server logic
+- Updated dependencies [018e8b2]
+- Updated dependencies [bf961b1]
+- Updated dependencies [018e8b2]
+- Updated dependencies [018e8b2]
+- Updated dependencies [a176b7e]
+  - @scalar/postman-to-openapi@0.2.0
+  - @scalar/oas-utils@0.2.127
+  - @scalar/import@0.3.10
+  - @scalar/components@0.13.44
+  - @scalar/use-codemirror@0.11.89
+
 ## 2.3.12
 
 ### Patch Changes

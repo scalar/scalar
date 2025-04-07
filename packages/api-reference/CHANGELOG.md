@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.28.13
+
+### Patch Changes
+
+- bf961b1: feat: show custom code examples in the API client
+- c8169e9: fix: disable intersection observer on config update
+- af650e3: fix(api-reference): style anyof + padding fix
+- a176b7e: fix: returns operation server at the operation level
+- Updated dependencies [bf961b1]
+- Updated dependencies [0e888bc]
+- Updated dependencies [a176b7e]
+- Updated dependencies [a176b7e]
+  - @scalar/api-client@2.3.13
+  - @scalar/oas-utils@0.2.127
+  - @scalar/code-highlight@0.0.26
+  - @scalar/components@0.13.44
+
 ## 1.28.12
 
 ### Patch Changes
