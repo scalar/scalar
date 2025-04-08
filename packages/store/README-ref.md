@@ -2,6 +2,14 @@
 
 A powerful data store for OpenAPI documents that handles `$ref` pointers with Vue reactivity support.
 
+## Features
+
+- Seamless reference resolution
+- Vue reactivity support
+- Circular reference handling
+- Original document structure preservation
+- Caching for resolved references
+
 ## Installation
 
 ```bash
@@ -131,10 +139,3 @@ const store = createStore({
 const raw = store.export()
 ```
 
-## Features
-
-- Seamless reference resolution
-- Vue reactivity support
-- Circular reference handling
-- Original document structure preservation
-- Caching for resolved references
