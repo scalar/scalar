@@ -1,3 +1,7 @@
+import type { OpenAPI } from '@scalar/openapi-types'
+
+type SchemaObject = OpenAPI.SchemaObject
+
 /**
  * Merges multiple OpenAPI schema objects into a single schema object.
  * Handles nested allOf compositions and merges properties recursively.
@@ -36,9 +40,7 @@ export function mergeAllOfSchemas(schemas: Record<string, any>[]): Record<string
     }
 
     // Merge other schema attributes
-    mergeSchemaAttributes(mergedResult, schema)
-
-    return mergedResult
+    return mergeSchemaAttributes(mergedResult, schema)
   }, {})
 }
 
@@ -130,19 +132,23 @@ function mergeArrayItems(existing: Record<string, any>, incoming: Record<string,
 /**
  * Merges non-property schema attributes
  */
-function mergeSchemaAttributes(target: Record<string, any>, source: Record<string, any>): void {
+const mergeSchemaAttributes = (target: SchemaObject, source: SchemaObject): SchemaObject => {
+  const merged = typeof target === 'object' ? { ...target } : {}
+
   // Merge required fields
   if (source.required && Array.isArray(source.required)) {
-    target.required = [...(target.required || []), ...source.required]
+    merged.required = [...(target.required || []), ...source.required]
   }
 
   // Copy type if not already set
   if (source.type && !target.type) {
-    target.type = source.type
+    merged.type = source.type
   }
 
   // Copy description if not already set
   if (source.description && !target.description) {
-    target.description = source.description
+    merged.description = source.description
   }
+
+  return merged
 }
