@@ -24,7 +24,7 @@
   "scripts": {
     "build": "scalar-build-rollup && pnpm copy:standalone",
     "build:playground": "cd playground && pnpm build",
-    "copy:standalone": "vite-node scripts/copy-standalone.ts",
+    "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
     "dev": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
@@ -53,26 +53,27 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/core": "workspace:*",
-    "@scalar/types": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
+    "@scalar/types": "workspace:*",
     "fastify-plugin": "^4.5.1",
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {
-    "@scalar/api-reference": "workspace:*",
     "@fastify/basic-auth": "^5.1.1",
     "@fastify/http-proxy": "^9.0.0",
     "@fastify/swagger": "^8.10.1",
+    "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
     "rollup-plugin-node-externals": "^7.1.2",
+    "shx": "^0.4.0",
     "terser": "^5.30.0",
     "vite": "catalog:",
+    "vite-node": "^2.1.1",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "catalog:",
-    "yaml": "catalog:",
-    "vite-node": "^2.1.1"
+    "yaml": "catalog:"
   }
 }
