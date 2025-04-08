@@ -319,6 +319,53 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
+  it('handles nested relative references', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      if (url === 'http://example.com/components/pathItem-1.yaml') {
+        return {
+          text: async () => `
+            get:
+              $ref: operation-1.yaml
+          `,
+        }
+      }
+
+      if (url === 'http://example.com/components/operation-1.yaml') {
+        return {
+          text: async () => `
+            summary: Get users
+            responses:
+              200:
+                description: Success
+          `,
+        }
+      }
+
+      return {
+        text: async () => '{}',
+      }
+    })
+
+    await load(
+      {
+        openapi: '3.1.0',
+        paths: {
+          '/users': {
+            $ref: '/components/pathItem-1.yaml',
+          },
+        },
+      },
+      {
+        source: 'http://example.com/docs/openapi.yaml',
+        plugins: [fetchUrls()],
+      },
+    )
+
+    expect(fetch).toHaveBeenCalledWith('http://example.com/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('http://example.com/components/operation-1.yaml')
+  })
+
   it('handles failed requests', async () => {
     // Failed request
     // @ts-expect-error
@@ -562,6 +609,37 @@ describe('load', async () => {
         message: 'Can’t resolve external reference: INVALID',
       },
     ])
+  })
+
+  it('maintains original source URL when resolving nested references', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      if (url === 'https://example.com/docs/components/schema.json') {
+        return {
+          text: async () => JSON.stringify({ type: 'string' }),
+        }
+      }
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    const doc = {
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Test: {
+            $ref: './components/schema.json',
+          },
+        },
+      },
+    }
+
+    const { filesystem } = await load(doc, {
+      source: 'https://example.com/docs/openapi.json',
+      plugins: [fetchUrls()],
+    })
+
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/schema.json')
+    expect(filesystem).toHaveLength(2)
   })
 
   it('throws an error', async () => {

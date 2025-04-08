@@ -4,6 +4,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
+
 /**
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
@@ -23,8 +24,10 @@ export const parse = (
   specification: UnknownObject | string | undefined,
   {
     proxyUrl,
+    source,
   }: {
     proxyUrl?: string
+    source?: string
   } = {},
 ): Promise<Spec> => {
   // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
@@ -38,6 +41,7 @@ export const parse = (
       const start = performance.now()
 
       const { filesystem } = await load(specification, {
+        source,
         plugins: [
           fetchUrls({
             fetch: async (url) => {
