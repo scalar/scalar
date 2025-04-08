@@ -35,7 +35,7 @@ export function useSearchIndex({
 
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])
-  const selectedSearchResult = ref<number>(0)
+  const selectedSearchIndex = ref<number>()
   const searchText = ref<string>('')
 
   const fuse = new Fuse(fuseDataArray.value, {
@@ -43,7 +43,7 @@ export function useSearchIndex({
   })
 
   const fuseSearch = (): void => {
-    selectedSearchResult.value = 0
+    selectedSearchIndex.value = 0
     searchResults.value = fuse.search(searchText.value)
   }
 
@@ -57,7 +57,7 @@ export function useSearchIndex({
 
   function resetSearch(): void {
     searchText.value = ''
-    selectedSearchResult.value = 0
+    selectedSearchIndex.value = undefined
     searchResults.value = []
   }
 
@@ -75,6 +75,12 @@ export function useSearchIndex({
 
     return searchResults.value.slice(0, LIMIT)
   })
+
+  const selectedSearchResult = computed<FuseResult<FuseData> | undefined>(() =>
+    typeof selectedSearchIndex.value === 'number'
+      ? searchResultsWithPlaceholderResults.value[selectedSearchIndex.value]
+      : undefined,
+  )
 
   watch(
     specification,
@@ -201,6 +207,7 @@ export function useSearchIndex({
   return {
     resetSearch,
     fuseSearch,
+    selectedSearchIndex,
     selectedSearchResult,
     searchResultsWithPlaceholderResults,
     searchText,
