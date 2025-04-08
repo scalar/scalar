@@ -108,4 +108,32 @@ describe('getAbsoluteUrl', () => {
       '/docs/components/pathItem.yaml',
     )
   })
+
+  it('handles absolute paths with HTTP source URLs correctly', () => {
+    expect(
+      getAbsoluteUrl('/api/v31/components/schemas/category', 'https://petstore31.swagger.io/api/v31/openapi.json'),
+    ).toBe('https://petstore31.swagger.io/api/v31/components/schemas/category')
+    expect(
+      getAbsoluteUrl('/api/v31/components/schemas/tag', 'https://petstore31.swagger.io/api/v31/components/schemas/pet'),
+    ).toBe('https://petstore31.swagger.io/api/v31/components/schemas/tag')
+  })
+
+  it('handles nested references in HTTP URLs correctly', () => {
+    // Test nested reference resolution
+    expect(getAbsoluteUrl('./schemas/pet', 'https://petstore31.swagger.io/api/v31/components/index.json')).toBe(
+      'https://petstore31.swagger.io/api/v31/components/schemas/pet',
+    )
+    expect(getAbsoluteUrl('../schemas/pet', 'https://petstore31.swagger.io/api/v31/components/nested/index.json')).toBe(
+      'https://petstore31.swagger.io/api/v31/components/schemas/pet',
+    )
+  })
+
+  it('preserves URL origin when resolving absolute paths', () => {
+    expect(getAbsoluteUrl('/v2/pet', 'https://petstore31.swagger.io/api/v31/openapi.json')).toBe(
+      'https://petstore31.swagger.io/v2/pet',
+    )
+    expect(
+      getAbsoluteUrl('/api/v31/components/schemas/pet', 'https://petstore31.swagger.io/different/path/openapi.json'),
+    ).toBe('https://petstore31.swagger.io/api/v31/components/schemas/pet')
+  })
 })

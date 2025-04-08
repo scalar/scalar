@@ -133,12 +133,21 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       continue
     }
 
+    // Get the source URL for resolving references
+    const source =
+      options?.source && typeof options.source === 'string' && !options.source.startsWith('{')
+        ? options.source
+        : typeof value === 'string' && value.startsWith('http')
+          ? value
+          : undefined
+
     const { filesystem: referencedFiles, errors: newErrors } = await load(target, {
       ...options,
-      // Make the filename the exact same value as the $ref
-      // TODO: This leads to problems, if there are multiple references with the same file name but in different folders
+      // Use the absolute path as filename for proper deduplication
       filename: reference,
-      source: options?.source ?? (typeof value === 'string' ? value : undefined),
+      // Preserve the original source URL for resolving nested references
+      source,
+      filesystem: options?.filesystem,
     })
 
     errors.push(...newErrors)
