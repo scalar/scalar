@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.27
+
+### Patch Changes
+
+- 799845f: feat(components): allow ScalarCodeblock to support different font sizes
+
 ## 0.0.26
 
 ### Patch Changes

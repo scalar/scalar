@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.13.45
+
+### Patch Changes
+
+- 799845f: feat(components): allow ScalarCodeblock to support different font sizes
+- 73f5553: fix(api-reference): references search a11y improvements
+- Updated dependencies [799845f]
+  - @scalar/code-highlight@0.0.27
+
 ## 0.13.44
 
 ### Patch Changes

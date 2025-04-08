@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.3.14
+
+### Patch Changes
+
+- abff210: fix: updates sidenav active state logic
+- Updated dependencies [18b1be9]
+- Updated dependencies [799845f]
+- Updated dependencies [73f5553]
+  - @scalar/oas-utils@0.2.128
+  - @scalar/components@0.13.45
+  - @scalar/import@0.3.11
+  - @scalar/postman-to-openapi@0.2.1
+  - @scalar/use-codemirror@0.11.90
+
 ## 2.3.13
 
 ### Patch Changes
