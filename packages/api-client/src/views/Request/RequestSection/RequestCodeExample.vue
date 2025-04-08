@@ -236,7 +236,9 @@ const customCodeContent = computed(() => {
           </ScalarCombobox>
         </div>
       </template>
-      <DataTable :columns="['']">
+      <DataTable
+        :columns="['']"
+        presentational>
         <DataTableRow>
           <div
             class="bg-b-1 flex items-center justify-center overflow-hidden border-t">
