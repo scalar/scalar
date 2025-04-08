@@ -4,6 +4,8 @@ import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
+import ScreenReader from '@/components/ScreenReader.vue'
+
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -82,8 +84,8 @@ const handleClick = (e: MouseEvent) =>
         <!-- Special toggle to show additional properties -->
         <div
           v-if="additionalProperties"
-          class="schema-properties"
-          v-show="!open">
+          v-show="!open"
+          class="schema-properties">
           <DisclosureButton
             as="button"
             class="schema-card-title schema-card-title--compact"
@@ -93,6 +95,7 @@ const handleClick = (e: MouseEvent) =>
               icon="Add"
               size="sm" />
             Show additional properties
+            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </DisclosureButton>
         </div>
 
@@ -119,6 +122,7 @@ const handleClick = (e: MouseEvent) =>
             <template v-else>
               Show {{ value?.title ?? 'Child Attributes' }}
             </template>
+            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </template>
           <template v-else>
             <ScalarIcon

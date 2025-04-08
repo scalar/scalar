@@ -275,6 +275,7 @@ const displayPropertyHeading = (
       <Schema
         :compact="compact"
         :level="level + 1"
+        :name="name"
         :value="optimizedValue" />
     </div>
     <!-- Array of objects -->
@@ -291,6 +292,7 @@ const displayPropertyHeading = (
         <Schema
           :compact="compact"
           :level="level + 1"
+          :name="name"
           :value="optimizedValue.items" />
       </div>
     </template>
@@ -305,6 +307,7 @@ const displayPropertyHeading = (
         :discriminator="discriminator"
         :hideHeading="hideHeading"
         :level="level"
+        :name="name"
         :schemas="schemas"
         :value="optimizedValue" />
 
@@ -322,6 +325,7 @@ const displayPropertyHeading = (
         :discriminator="discriminator"
         :hideHeading="hideHeading"
         :level="level"
+        :name="name"
         :schemas="schemas"
         :value="optimizedValue.items" />
     </template>
