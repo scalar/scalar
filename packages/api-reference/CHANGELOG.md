@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.28.14
+
+### Patch Changes
+
+- 799845f: feat(components): allow ScalarCodeblock to support different font sizes
+- 66a5ad5: fix: only lazyload once
+- 73f5553: fix(api-reference): references search a11y improvements
+- Updated dependencies [18b1be9]
+- Updated dependencies [abff210]
+- Updated dependencies [799845f]
+- Updated dependencies [73f5553]
+  - @scalar/oas-utils@0.2.128
+  - @scalar/api-client@2.3.14
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.45
+
 ## 1.28.13
 
 ### Patch Changes

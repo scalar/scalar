@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.128
+
+### Patch Changes
+
+- 18b1be9: fix: omitUndefinedValues (Zod helper) doesn’t handle Arrays
+
 ## 0.2.127
 
 ### Patch Changes
