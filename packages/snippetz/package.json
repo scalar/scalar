@@ -33,185 +33,185 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./plugins/c/libcurl": {
-      "import": "./dist/plugins/c/libcurl/index.js",
-      "types": "./dist/plugins/c/libcurl/index.d.ts",
-      "default": "./dist/plugins/c/libcurl/index.js"
-    },
-    "./plugins/clojure/clj_http": {
-      "import": "./dist/plugins/clojure/clj_http/index.js",
-      "types": "./dist/plugins/clojure/clj_http/index.d.ts",
-      "default": "./dist/plugins/clojure/clj_http/index.js"
-    },
-    "./plugins/csharp/httpclient": {
-      "import": "./dist/plugins/csharp/httpclient/index.js",
-      "types": "./dist/plugins/csharp/httpclient/index.d.ts",
-      "default": "./dist/plugins/csharp/httpclient/index.js"
-    },
-    "./plugins/csharp/restsharp": {
-      "import": "./dist/plugins/csharp/restsharp/index.js",
-      "types": "./dist/plugins/csharp/restsharp/index.d.ts",
-      "default": "./dist/plugins/csharp/restsharp/index.js"
-    },
-    "./plugins/dart/http": {
-      "import": "./dist/plugins/dart/http/index.js",
-      "types": "./dist/plugins/dart/http/index.d.ts",
-      "default": "./dist/plugins/dart/http/index.js"
-    },
-    "./plugins/go/native": {
-      "import": "./dist/plugins/go/native/index.js",
-      "types": "./dist/plugins/go/native/index.d.ts",
-      "default": "./dist/plugins/go/native/index.js"
-    },
-    "./plugins/http/http11": {
-      "import": "./dist/plugins/http/http11/index.js",
-      "types": "./dist/plugins/http/http11/index.d.ts",
-      "default": "./dist/plugins/http/http11/index.js"
-    },
-    "./plugins/java/asynchttp": {
-      "import": "./dist/plugins/java/asynchttp/index.js",
-      "types": "./dist/plugins/java/asynchttp/index.d.ts",
-      "default": "./dist/plugins/java/asynchttp/index.js"
-    },
-    "./plugins/java/nethttp": {
-      "import": "./dist/plugins/java/nethttp/index.js",
-      "types": "./dist/plugins/java/nethttp/index.d.ts",
-      "default": "./dist/plugins/java/nethttp/index.js"
-    },
-    "./plugins/java/okhttp": {
-      "import": "./dist/plugins/java/okhttp/index.js",
-      "types": "./dist/plugins/java/okhttp/index.d.ts",
-      "default": "./dist/plugins/java/okhttp/index.js"
-    },
-    "./plugins/java/unirest": {
-      "import": "./dist/plugins/java/unirest/index.js",
-      "types": "./dist/plugins/java/unirest/index.d.ts",
-      "default": "./dist/plugins/java/unirest/index.js"
-    },
-    "./plugins/js/axios": {
-      "import": "./dist/plugins/js/axios/index.js",
-      "types": "./dist/plugins/js/axios/index.d.ts",
-      "default": "./dist/plugins/js/axios/index.js"
-    },
-    "./plugins/js/fetch": {
-      "import": "./dist/plugins/js/fetch/index.js",
-      "types": "./dist/plugins/js/fetch/index.d.ts",
-      "default": "./dist/plugins/js/fetch/index.js"
-    },
-    "./plugins/js/jquery": {
-      "import": "./dist/plugins/js/jquery/index.js",
-      "types": "./dist/plugins/js/jquery/index.d.ts",
-      "default": "./dist/plugins/js/jquery/index.js"
-    },
-    "./plugins/js/ofetch": {
-      "import": "./dist/plugins/js/ofetch/index.js",
-      "types": "./dist/plugins/js/ofetch/index.d.ts",
-      "default": "./dist/plugins/js/ofetch/index.js"
-    },
-    "./plugins/js/xhr": {
-      "import": "./dist/plugins/js/xhr/index.js",
-      "types": "./dist/plugins/js/xhr/index.d.ts",
-      "default": "./dist/plugins/js/xhr/index.js"
-    },
-    "./plugins/kotlin/okhttp": {
-      "import": "./dist/plugins/kotlin/okhttp/index.js",
-      "types": "./dist/plugins/kotlin/okhttp/index.d.ts",
-      "default": "./dist/plugins/kotlin/okhttp/index.js"
-    },
-    "./plugins/node/axios": {
-      "import": "./dist/plugins/node/axios/index.js",
-      "types": "./dist/plugins/node/axios/index.d.ts",
-      "default": "./dist/plugins/node/axios/index.js"
-    },
-    "./plugins/node/fetch": {
-      "import": "./dist/plugins/node/fetch/index.js",
-      "types": "./dist/plugins/node/fetch/index.d.ts",
-      "default": "./dist/plugins/node/fetch/index.js"
-    },
-    "./plugins/node/ofetch": {
-      "import": "./dist/plugins/node/ofetch/index.js",
-      "types": "./dist/plugins/node/ofetch/index.d.ts",
-      "default": "./dist/plugins/node/ofetch/index.js"
-    },
-    "./plugins/node/undici": {
-      "import": "./dist/plugins/node/undici/index.js",
-      "types": "./dist/plugins/node/undici/index.d.ts",
-      "default": "./dist/plugins/node/undici/index.js"
-    },
-    "./plugins/objc/nsurlsession": {
-      "import": "./dist/plugins/objc/nsurlsession/index.js",
-      "types": "./dist/plugins/objc/nsurlsession/index.d.ts",
-      "default": "./dist/plugins/objc/nsurlsession/index.js"
-    },
-    "./plugins/ocaml/cohttp": {
-      "import": "./dist/plugins/ocaml/cohttp/index.js",
-      "types": "./dist/plugins/ocaml/cohttp/index.d.ts",
-      "default": "./dist/plugins/ocaml/cohttp/index.js"
-    },
-    "./plugins/php/curl": {
-      "import": "./dist/plugins/php/curl/index.js",
-      "types": "./dist/plugins/php/curl/index.d.ts",
-      "default": "./dist/plugins/php/curl/index.js"
-    },
-    "./plugins/php/guzzle": {
-      "import": "./dist/plugins/php/guzzle/index.js",
-      "types": "./dist/plugins/php/guzzle/index.d.ts",
-      "default": "./dist/plugins/php/guzzle/index.js"
-    },
-    "./plugins/powershell/restmethod": {
-      "import": "./dist/plugins/powershell/restmethod/index.js",
-      "types": "./dist/plugins/powershell/restmethod/index.d.ts",
-      "default": "./dist/plugins/powershell/restmethod/index.js"
-    },
-    "./plugins/powershell/webrequest": {
-      "import": "./dist/plugins/powershell/webrequest/index.js",
-      "types": "./dist/plugins/powershell/webrequest/index.d.ts",
-      "default": "./dist/plugins/powershell/webrequest/index.js"
-    },
-    "./plugins/python/python3": {
-      "import": "./dist/plugins/python/python3/index.js",
-      "types": "./dist/plugins/python/python3/index.d.ts",
-      "default": "./dist/plugins/python/python3/index.js"
-    },
-    "./plugins/python/requests": {
-      "import": "./dist/plugins/python/requests/index.js",
-      "types": "./dist/plugins/python/requests/index.d.ts",
-      "default": "./dist/plugins/python/requests/index.js"
-    },
-    "./plugins/r/httr": {
-      "import": "./dist/plugins/r/httr/index.js",
-      "types": "./dist/plugins/r/httr/index.d.ts",
-      "default": "./dist/plugins/r/httr/index.js"
-    },
-    "./plugins/ruby/native": {
-      "import": "./dist/plugins/ruby/native/index.js",
-      "types": "./dist/plugins/ruby/native/index.d.ts",
-      "default": "./dist/plugins/ruby/native/index.js"
-    },
-    "./plugins/shell/curl": {
-      "import": "./dist/plugins/shell/curl/index.js",
-      "types": "./dist/plugins/shell/curl/index.d.ts",
-      "default": "./dist/plugins/shell/curl/index.js"
-    },
-    "./plugins/shell/httpie": {
-      "import": "./dist/plugins/shell/httpie/index.js",
-      "types": "./dist/plugins/shell/httpie/index.d.ts",
-      "default": "./dist/plugins/shell/httpie/index.js"
-    },
-    "./plugins/shell/wget": {
-      "import": "./dist/plugins/shell/wget/index.js",
-      "types": "./dist/plugins/shell/wget/index.d.ts",
-      "default": "./dist/plugins/shell/wget/index.js"
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     },
     "./plugins/swift/nsurlsession": {
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
       "default": "./dist/plugins/swift/nsurlsession/index.js"
     },
-    "./utils": {
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
+    "./plugins/shell/wget": {
+      "import": "./dist/plugins/shell/wget/index.js",
+      "types": "./dist/plugins/shell/wget/index.d.ts",
+      "default": "./dist/plugins/shell/wget/index.js"
+    },
+    "./plugins/shell/httpie": {
+      "import": "./dist/plugins/shell/httpie/index.js",
+      "types": "./dist/plugins/shell/httpie/index.d.ts",
+      "default": "./dist/plugins/shell/httpie/index.js"
+    },
+    "./plugins/shell/curl": {
+      "import": "./dist/plugins/shell/curl/index.js",
+      "types": "./dist/plugins/shell/curl/index.d.ts",
+      "default": "./dist/plugins/shell/curl/index.js"
+    },
+    "./plugins/ruby/native": {
+      "import": "./dist/plugins/ruby/native/index.js",
+      "types": "./dist/plugins/ruby/native/index.d.ts",
+      "default": "./dist/plugins/ruby/native/index.js"
+    },
+    "./plugins/r/httr": {
+      "import": "./dist/plugins/r/httr/index.js",
+      "types": "./dist/plugins/r/httr/index.d.ts",
+      "default": "./dist/plugins/r/httr/index.js"
+    },
+    "./plugins/python/requests": {
+      "import": "./dist/plugins/python/requests/index.js",
+      "types": "./dist/plugins/python/requests/index.d.ts",
+      "default": "./dist/plugins/python/requests/index.js"
+    },
+    "./plugins/python/python3": {
+      "import": "./dist/plugins/python/python3/index.js",
+      "types": "./dist/plugins/python/python3/index.d.ts",
+      "default": "./dist/plugins/python/python3/index.js"
+    },
+    "./plugins/powershell/webrequest": {
+      "import": "./dist/plugins/powershell/webrequest/index.js",
+      "types": "./dist/plugins/powershell/webrequest/index.d.ts",
+      "default": "./dist/plugins/powershell/webrequest/index.js"
+    },
+    "./plugins/powershell/restmethod": {
+      "import": "./dist/plugins/powershell/restmethod/index.js",
+      "types": "./dist/plugins/powershell/restmethod/index.d.ts",
+      "default": "./dist/plugins/powershell/restmethod/index.js"
+    },
+    "./plugins/php/guzzle": {
+      "import": "./dist/plugins/php/guzzle/index.js",
+      "types": "./dist/plugins/php/guzzle/index.d.ts",
+      "default": "./dist/plugins/php/guzzle/index.js"
+    },
+    "./plugins/php/curl": {
+      "import": "./dist/plugins/php/curl/index.js",
+      "types": "./dist/plugins/php/curl/index.d.ts",
+      "default": "./dist/plugins/php/curl/index.js"
+    },
+    "./plugins/ocaml/cohttp": {
+      "import": "./dist/plugins/ocaml/cohttp/index.js",
+      "types": "./dist/plugins/ocaml/cohttp/index.d.ts",
+      "default": "./dist/plugins/ocaml/cohttp/index.js"
+    },
+    "./plugins/objc/nsurlsession": {
+      "import": "./dist/plugins/objc/nsurlsession/index.js",
+      "types": "./dist/plugins/objc/nsurlsession/index.d.ts",
+      "default": "./dist/plugins/objc/nsurlsession/index.js"
+    },
+    "./plugins/node/undici": {
+      "import": "./dist/plugins/node/undici/index.js",
+      "types": "./dist/plugins/node/undici/index.d.ts",
+      "default": "./dist/plugins/node/undici/index.js"
+    },
+    "./plugins/node/ofetch": {
+      "import": "./dist/plugins/node/ofetch/index.js",
+      "types": "./dist/plugins/node/ofetch/index.d.ts",
+      "default": "./dist/plugins/node/ofetch/index.js"
+    },
+    "./plugins/node/fetch": {
+      "import": "./dist/plugins/node/fetch/index.js",
+      "types": "./dist/plugins/node/fetch/index.d.ts",
+      "default": "./dist/plugins/node/fetch/index.js"
+    },
+    "./plugins/node/axios": {
+      "import": "./dist/plugins/node/axios/index.js",
+      "types": "./dist/plugins/node/axios/index.d.ts",
+      "default": "./dist/plugins/node/axios/index.js"
+    },
+    "./plugins/kotlin/okhttp": {
+      "import": "./dist/plugins/kotlin/okhttp/index.js",
+      "types": "./dist/plugins/kotlin/okhttp/index.d.ts",
+      "default": "./dist/plugins/kotlin/okhttp/index.js"
+    },
+    "./plugins/js/xhr": {
+      "import": "./dist/plugins/js/xhr/index.js",
+      "types": "./dist/plugins/js/xhr/index.d.ts",
+      "default": "./dist/plugins/js/xhr/index.js"
+    },
+    "./plugins/js/ofetch": {
+      "import": "./dist/plugins/js/ofetch/index.js",
+      "types": "./dist/plugins/js/ofetch/index.d.ts",
+      "default": "./dist/plugins/js/ofetch/index.js"
+    },
+    "./plugins/js/jquery": {
+      "import": "./dist/plugins/js/jquery/index.js",
+      "types": "./dist/plugins/js/jquery/index.d.ts",
+      "default": "./dist/plugins/js/jquery/index.js"
+    },
+    "./plugins/js/fetch": {
+      "import": "./dist/plugins/js/fetch/index.js",
+      "types": "./dist/plugins/js/fetch/index.d.ts",
+      "default": "./dist/plugins/js/fetch/index.js"
+    },
+    "./plugins/js/axios": {
+      "import": "./dist/plugins/js/axios/index.js",
+      "types": "./dist/plugins/js/axios/index.d.ts",
+      "default": "./dist/plugins/js/axios/index.js"
+    },
+    "./plugins/java/unirest": {
+      "import": "./dist/plugins/java/unirest/index.js",
+      "types": "./dist/plugins/java/unirest/index.d.ts",
+      "default": "./dist/plugins/java/unirest/index.js"
+    },
+    "./plugins/java/okhttp": {
+      "import": "./dist/plugins/java/okhttp/index.js",
+      "types": "./dist/plugins/java/okhttp/index.d.ts",
+      "default": "./dist/plugins/java/okhttp/index.js"
+    },
+    "./plugins/java/nethttp": {
+      "import": "./dist/plugins/java/nethttp/index.js",
+      "types": "./dist/plugins/java/nethttp/index.d.ts",
+      "default": "./dist/plugins/java/nethttp/index.js"
+    },
+    "./plugins/java/asynchttp": {
+      "import": "./dist/plugins/java/asynchttp/index.js",
+      "types": "./dist/plugins/java/asynchttp/index.d.ts",
+      "default": "./dist/plugins/java/asynchttp/index.js"
+    },
+    "./plugins/http/http11": {
+      "import": "./dist/plugins/http/http11/index.js",
+      "types": "./dist/plugins/http/http11/index.d.ts",
+      "default": "./dist/plugins/http/http11/index.js"
+    },
+    "./plugins/go/native": {
+      "import": "./dist/plugins/go/native/index.js",
+      "types": "./dist/plugins/go/native/index.d.ts",
+      "default": "./dist/plugins/go/native/index.js"
+    },
+    "./plugins/dart/http": {
+      "import": "./dist/plugins/dart/http/index.js",
+      "types": "./dist/plugins/dart/http/index.d.ts",
+      "default": "./dist/plugins/dart/http/index.js"
+    },
+    "./plugins/csharp/restsharp": {
+      "import": "./dist/plugins/csharp/restsharp/index.js",
+      "types": "./dist/plugins/csharp/restsharp/index.d.ts",
+      "default": "./dist/plugins/csharp/restsharp/index.js"
+    },
+    "./plugins/csharp/httpclient": {
+      "import": "./dist/plugins/csharp/httpclient/index.js",
+      "types": "./dist/plugins/csharp/httpclient/index.d.ts",
+      "default": "./dist/plugins/csharp/httpclient/index.js"
+    },
+    "./plugins/clojure/clj_http": {
+      "import": "./dist/plugins/clojure/clj_http/index.js",
+      "types": "./dist/plugins/clojure/clj_http/index.d.ts",
+      "default": "./dist/plugins/clojure/clj_http/index.js"
+    },
+    "./plugins/c/libcurl": {
+      "import": "./dist/plugins/c/libcurl/index.js",
+      "types": "./dist/plugins/c/libcurl/index.d.ts",
+      "default": "./dist/plugins/c/libcurl/index.js"
     }
   },
   "files": [

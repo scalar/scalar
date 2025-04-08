@@ -28,20 +28,20 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    "./useBreakpoints": {
-      "import": "./dist/useBreakpoints/index.js",
-      "types": "./dist/useBreakpoints/index.d.ts",
-      "default": "./dist/useBreakpoints/index.js"
+    "./useColorMode": {
+      "import": "./dist/useColorMode/index.js",
+      "types": "./dist/useColorMode/index.d.ts",
+      "default": "./dist/useColorMode/index.js"
     },
     "./useClipboard": {
       "import": "./dist/useClipboard/index.js",
       "types": "./dist/useClipboard/index.d.ts",
       "default": "./dist/useClipboard/index.js"
     },
-    "./useColorMode": {
-      "import": "./dist/useColorMode/index.js",
-      "types": "./dist/useColorMode/index.d.ts",
-      "default": "./dist/useColorMode/index.js"
+    "./useBreakpoints": {
+      "import": "./dist/useBreakpoints/index.js",
+      "types": "./dist/useBreakpoints/index.d.ts",
+      "default": "./dist/useBreakpoints/index.js"
     }
   },
   "files": [

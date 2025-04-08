@@ -38,10 +38,25 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
+    "./rehype-highlight": {
+      "import": "./dist/rehype-highlight/index.js",
+      "types": "./dist/rehype-highlight/index.d.ts",
+      "default": "./dist/rehype-highlight/index.js"
+    },
+    "./rehype-alert": {
+      "import": "./dist/rehype-alert/index.js",
+      "types": "./dist/rehype-alert/index.d.ts",
+      "default": "./dist/rehype-alert/index.js"
+    },
+    "./markdown": {
+      "import": "./dist/markdown/index.js",
+      "types": "./dist/markdown/index.d.ts",
+      "default": "./dist/markdown/index.js"
+    },
+    "./languages": {
+      "import": "./dist/languages/index.js",
+      "types": "./dist/languages/index.d.ts",
+      "default": "./dist/languages/index.js"
     },
     "./code": {
       "import": "./dist/code/index.js",
@@ -53,25 +68,10 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
-    "./languages": {
-      "import": "./dist/languages/index.js",
-      "types": "./dist/languages/index.d.ts",
-      "default": "./dist/languages/index.js"
-    },
-    "./markdown": {
-      "import": "./dist/markdown/index.js",
-      "types": "./dist/markdown/index.d.ts",
-      "default": "./dist/markdown/index.js"
-    },
-    "./rehype-alert": {
-      "import": "./dist/rehype-alert/index.js",
-      "types": "./dist/rehype-alert/index.d.ts",
-      "default": "./dist/rehype-alert/index.js"
-    },
-    "./rehype-highlight": {
-      "import": "./dist/rehype-highlight/index.js",
-      "types": "./dist/rehype-highlight/index.d.ts",
-      "default": "./dist/rehype-highlight/index.js"
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
     }
   },
   "files": [
