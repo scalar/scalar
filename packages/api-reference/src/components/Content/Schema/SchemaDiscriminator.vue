@@ -14,6 +14,7 @@ const props = defineProps<{
     | Record<string, OpenAPIV3.SchemaObject>
     | Record<string, OpenAPIV3_1.SchemaObject>
     | unknown
+  name?: string
   value: Record<string, any>
   level: number
   compact?: boolean
@@ -142,6 +143,7 @@ const humanizeType = (type: string) => {
           <Schema
             :compact="compact"
             :hideHeading="hideHeading"
+            :name="name"
             :noncollapsible="true"
             :schemas="schemas"
             :value="schema" />
@@ -152,6 +154,7 @@ const humanizeType = (type: string) => {
       <Schema
         :compact="compact"
         :level="level"
+        :name="name"
         :noncollapsible="level != 0 ? false : true"
         :schemas="schemas"
         :value="mergeAllOfSchemas(value[discriminator])" />

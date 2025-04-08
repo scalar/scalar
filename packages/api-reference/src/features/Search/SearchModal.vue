@@ -10,7 +10,7 @@ import {
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
-import { computed, ref, toRef, watch } from 'vue'
+import { ref, toRef, watch } from 'vue'
 
 import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
@@ -37,6 +37,7 @@ const getOptionId = (href: string) => `${id}${href}`
 const {
   resetSearch,
   fuseSearch,
+  selectedSearchIndex,
   selectedSearchResult,
   searchResultsWithPlaceholderResults,
   searchText,
@@ -105,7 +106,11 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
 }
 
 // Scroll to the currently selected result
-watch(selectedSearchResult, (index) => {
+watch(selectedSearchIndex, (index) => {
+  if (typeof index !== 'number') {
+    return
+  }
+
   const newResult = searchResultsWithPlaceholderResults.value[index]
   const optionId = getOptionId(newResult?.item.href)
 
@@ -115,39 +120,19 @@ watch(selectedSearchResult, (index) => {
   })
 })
 
-/** Screen reader label for the search input */
-const srLabel = computed<string>(() => {
-  const results = searchResultsWithPlaceholderResults.value
-  if (!results.length) {
-    return 'No results found'
-  }
-
-  const result = results[selectedSearchResult.value].item
-
-  const resultsFoundLabel = searchText.value.length
-    ? `${results.length} result${results.length === 1 ? '' : 's'} found, `
-    : ''
-
-  const selectedResultDescription =
-    result.type === 'tag'
-      ? ''
-      : result.type === 'req'
-        ? `, HTTP Method ${result.httpVerb}, Path ${result.path}`
-        : `, ${result.description}`
-
-  const selectedResultLabel = `${ENTRY_LABELS[result.type]} ${result.title} ${selectedResultDescription}`
-
-  return `${resultsFoundLabel}Selected: ${selectedResultLabel}`
-})
-
 /** Keyboard navigation */
 const navigateSearchResults = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = searchResultsWithPlaceholderResults.value.length
 
-  // Ensures we loop around the array by using the remainder
-  const newIndex = (selectedSearchResult.value + offset + length) % length
-  selectedSearchResult.value = newIndex
+  if (typeof selectedSearchIndex.value === 'number') {
+    // Ensures we loop around the array by using the remainder
+    const newIndex = (selectedSearchIndex.value + offset + length) % length
+    selectedSearchIndex.value = newIndex
+  } else {
+    // If no index is selected, we select the first or last item depending on the direction
+    selectedSearchIndex.value = offset === -1 ? length - 1 : 0
+  }
 }
 
 /**
@@ -164,24 +149,35 @@ function getFullUrlFromHash(href: string) {
 }
 
 function onSearchResultEnter() {
+  if (!selectedSearchIndex.value) {
+    return
+  }
+
   const results = searchResultsWithPlaceholderResults.value
-  onSearchResultClick(results[selectedSearchResult.value])
+  onSearchResultClick(results[selectedSearchIndex.value])
 }
 </script>
 <template>
   <ScalarModal
+    aria-label="Reference Search"
     :state="modalState"
     variant="search">
     <div
       ref="searchModalRef"
-      aria-label="Reference Search"
       class="ref-search-container"
       role="search">
       <ScalarSearchInput
         v-model="searchText"
+        :aria-activedescendant="
+          selectedSearchResult
+            ? getOptionId(selectedSearchResult.item.href)
+            : undefined
+        "
+        aria-autocomplete="list"
         :aria-controls="listboxId"
         :aria-describedby="instructionsId"
-        :label="srLabel"
+        role="combobox"
+        @blur="selectedSearchIndex = undefined"
         @input="fuseSearch"
         @keydown.down.stop.prevent="navigateSearchResults('down')"
         @keydown.enter.stop.prevent="onSearchResultEnter"
@@ -196,11 +192,11 @@ function onSearchResultEnter() {
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="getOptionId(entry.item.href)"
         :key="entry.refIndex"
-        :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
         :icon="ENTRY_ICONS[entry.item.type]"
+        :selected="selectedSearchIndex === index"
         @click="onSearchResultClick(entry)"
-        @focus="selectedSearchResult = index">
+        @focus="selectedSearchIndex = index">
         <span
           :class="{
             deprecated: entry.item.operation?.information?.deprecated,

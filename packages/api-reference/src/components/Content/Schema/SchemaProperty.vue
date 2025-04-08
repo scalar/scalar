@@ -2,7 +2,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 
 import {
   discriminators,
@@ -22,6 +22,7 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 const props = withDefaults(
   defineProps<{
+    is?: string | Component
     value?: Record<string, any>
     level?: number
     name?: string
@@ -158,7 +159,8 @@ const displayPropertyHeading = (
 }
 </script>
 <template>
-  <li
+  <component
+    :is="is ?? 'li'"
     class="property"
     :class="[
       !displayDescription(description, optimizedValue) ? '' : '',
@@ -275,6 +277,7 @@ const displayPropertyHeading = (
       <Schema
         :compact="compact"
         :level="level + 1"
+        :name="name"
         :value="optimizedValue" />
     </div>
     <!-- Array of objects -->
@@ -291,6 +294,7 @@ const displayPropertyHeading = (
         <Schema
           :compact="compact"
           :level="level + 1"
+          :name="name"
           :value="optimizedValue.items" />
       </div>
     </template>
@@ -305,6 +309,7 @@ const displayPropertyHeading = (
         :discriminator="discriminator"
         :hideHeading="hideHeading"
         :level="level"
+        :name="name"
         :schemas="schemas"
         :value="optimizedValue" />
 
@@ -322,10 +327,11 @@ const displayPropertyHeading = (
         :discriminator="discriminator"
         :hideHeading="hideHeading"
         :level="level"
+        :name="name"
         :schemas="schemas"
         :value="optimizedValue.items" />
     </template>
-  </li>
+  </component>
 </template>
 
 <style scoped>
