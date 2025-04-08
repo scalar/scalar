@@ -30,9 +30,8 @@ export function mergeAllOfSchemas(schemas: Record<string, any>[]): Record<string
       mergedResult.properties = mergeProperties(mergedResult.properties || {}, schema.properties)
     }
 
-    // Handle array items
-    if (schema.type === 'array' && schema.items) {
-      mergedResult.type = 'array'
+    // Handle items property
+    if (schema.items) {
       mergedResult.items = mergeArrayItems(mergedResult.items || {}, schema.items)
     }
 

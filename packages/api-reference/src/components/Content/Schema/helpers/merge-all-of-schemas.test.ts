@@ -164,6 +164,47 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
+  it('merges allOf schemas within array objects', () => {
+    const schemas = [
+      {
+        type: 'object',
+        items: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                age: { type: 'number' },
+                email: { type: 'string' },
+              },
+              required: ['email'],
+            },
+          ],
+        },
+      },
+    ]
+
+    expect(mergeAllOfSchemas(schemas)).toEqual({
+      type: 'object',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: { type: 'string' },
+          age: { type: 'number' },
+          email: { type: 'string' },
+        },
+        required: ['email'],
+      },
+    })
+  })
+
   it('merges allOf schemas within array items', () => {
     const schemas = [
       {
@@ -294,7 +335,7 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it.only('merges allOf schemas within a large complex schema', () => {
+  it('merges allOf schemas within a large complex schema', () => {
     const schema = {
       'description': 'The big long nested list',
       'allOf': [
@@ -444,25 +485,18 @@ describe('mergeAllOfSchemas', () => {
                 'description':
                   'A list of recording files. The API only returns this response when the **Record a separate audio file of each participant** setting is enabled.',
                 'items': {
-                  'allOf': [
-                    {
-                      'type': 'object',
-                      'properties': {
-                        'id': {
-                          'type': 'string',
-                          'description':
-                            "The recording file's unique ID. This is included in the general query response.",
-                          'example': '24698bd1-589e-4c33-9ba3-bc788b2a0ac2',
-                        },
-                      },
-                      'description': 'The recording file object.',
+                  'properties': {
+                    'id': {
+                      'type': 'string',
+                      'description': "The recording file's unique ID. This is included in the general query response.",
+                      'example': '24698bd1-589e-4c33-9ba3-bc788b2a0ac2',
                     },
-                  ],
+                  },
+                  'type': 'object',
+                  'description': 'The recording file object.',
                 },
               },
             },
-            'type': 'object',
-            'description': 'Return a list of recording files about individual video for each participant.',
           },
         },
       },
