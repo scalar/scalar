@@ -1,130 +1,151 @@
 import { isReactive, reactive, toRaw } from 'vue'
 
+/**
+ * Creates a store with JSON reference resolution capabilities.
+ * This store allows working with JSON documents that contain $ref pointers,
+ * automatically resolving them when accessed.
+ */
 export function createStore(definition: Record<string, unknown>) {
-  // Make the original document reactive so Vue can track it
-  const originalDoc = reactive(definition)
+  // Make the source document reactive for Vue change tracking
+  const sourceDocument = reactive(definition)
 
-  // Cache to store proxies for already wrapped objects (to handle reuse and circular refs)
-  const proxyCache = new WeakMap()
+  // Cache for storing resolved reference proxies to handle circular references
+  const resolvedProxyCache = new WeakMap()
 
-  // Helper: parse a JSON Pointer string (after "#/") into an array of keys
-  function parseRef(refString: string) {
-    // Remove leading "#/"
-    const path = refString.replace(/^#\//, '').split('/')
-    // Decode any JSON Pointer escape sequences
-    return path.map((p) => p.replace(/~1/g, '/').replace(/~0/g, '~'))
+  /**
+   * Parses a JSON Pointer string into an array of path segments
+   */
+  function parseJsonPointer(referenceString: string): string[] {
+    const pathSegments = referenceString.replace(/^#\//, '').split('/')
+    return pathSegments.map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
   }
 
-  // Helper: get a nested value from the original document by an array path
-  function getByPath(obj: Record<string, unknown>, pathArray: string[]): Record<string, unknown> | undefined {
-    return pathArray.reduce<unknown>(
-      (o: unknown, key) => (o && typeof o === 'object' && key in o ? (o as Record<string, unknown>)[key] : undefined),
-      obj,
+  /**
+   * Retrieves a nested value from the source document using a path array
+   */
+  function getValueByPath(
+    document: Record<string, unknown>,
+    pathSegments: string[],
+  ): Record<string, unknown> | undefined {
+    return pathSegments.reduce<unknown>(
+      (currentValue: unknown, pathSegment) =>
+        currentValue && typeof currentValue === 'object' && pathSegment in currentValue
+          ? (currentValue as Record<string, unknown>)[pathSegment]
+          : undefined,
+      document,
     ) as Record<string, unknown> | undefined
   }
 
-  // Recursive function to create a Proxy for a given object or array
-  function createDeepProxy(obj: Record<string, unknown>) {
-    if (obj === null || typeof obj !== 'object') {
-      return obj // Primitive, no proxy needed
+  /**
+   * Creates a proxy that automatically resolves JSON references
+   * @param targetObject - The object to create a proxy for
+   */
+  function createReferenceProxy(targetObject: Record<string, unknown>) {
+    if (targetObject === null || typeof targetObject !== 'object') {
+      return targetObject // Return primitives as-is
     }
 
-    // Get the raw object if it's reactive
-    const targetObj = isReactive(obj) ? toRaw(obj) : obj
-    if (proxyCache.has(targetObj)) {
-      return proxyCache.get(targetObj) // 🔥 return cached Proxy early!
+    const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
+
+    // Return cached proxy if it exists
+    if (resolvedProxyCache.has(rawTarget)) {
+      return resolvedProxyCache.get(rawTarget)
     }
 
-    const handler = {
-      get(target: Record<string, unknown>, prop: string, receiver: Record<string, unknown>) {
-        if (prop === '__isProxy') {
+    const proxyHandler = {
+      get(target: Record<string, unknown>, property: string, receiver: Record<string, unknown>) {
+        if (property === '__isProxy') {
           return true
         }
 
-        const value = Reflect.get(target, prop, receiver)
+        const value = Reflect.get(target, property, receiver)
 
         if (value && typeof value === 'object') {
           if ('$ref' in value) {
-            const refPath = parseRef(value.$ref as string)
-            const resolved = getByPath(originalDoc, refPath)
+            const referencePath = parseJsonPointer(value.$ref as string)
+            const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-            if (resolved) {
-              // recursive, safe because of cache
-              return createDeepProxy(resolved)
+            if (resolvedValue) {
+              return createReferenceProxy(resolvedValue)
             }
           }
 
-          // recursive, safe because of cache
-          return createDeepProxy(value)
+          // @ts-expect-error TODO: fix this
+          return createReferenceProxy(value)
         }
 
         return value
       },
-      set(target: Record<string, unknown>, prop: string, newVal: unknown, receiver: Record<string, unknown>) {
-        // Get raw target if it's reactive
+
+      set(target: Record<string, unknown>, property: string, newValue: unknown, receiver: Record<string, unknown>) {
         const rawTarget = isReactive(target) ? toRaw(target) : target
+        const currentValue = rawTarget[property]
 
-        const current = rawTarget[prop]
-        if (current && typeof current === 'object' && '$ref' in current && typeof current.$ref === 'string') {
-          const refPath = parseRef(current.$ref)
-          const targetObj = getByPath(originalDoc, refPath.slice(0, -1))
-          const lastKey = refPath[refPath.length - 1]
+        if (
+          currentValue &&
+          typeof currentValue === 'object' &&
+          '$ref' in currentValue &&
+          typeof currentValue.$ref === 'string'
+        ) {
+          const referencePath = parseJsonPointer(currentValue.$ref)
+          const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
+          const lastPathSegment = referencePath[referencePath.length - 1]
 
-          if (targetObj && lastKey) {
-            targetObj[lastKey] = newVal
+          if (targetObject && lastPathSegment) {
+            targetObject[lastPathSegment] = newValue
           }
         } else {
-          // Set on the raw target
-          Reflect.set(rawTarget, prop, newVal, receiver)
+          Reflect.set(rawTarget, property, newValue, receiver)
         }
         return true
       },
+
       has(target: Record<string, unknown>, key: string) {
         if (typeof key === 'string' && key !== '$ref' && typeof target.$ref === 'string') {
-          const refPath = parseRef(target['$ref'])
-          const resolved = getByPath(originalDoc, refPath)
-          return resolved ? key in resolved : false
+          const referencePath = parseJsonPointer(target['$ref'])
+          const resolvedValue = getValueByPath(sourceDocument, referencePath)
+          return resolvedValue ? key in resolvedValue : false
         }
 
         return key in target
       },
+
       ownKeys(target: Record<string, unknown>) {
         if ('$ref' in target && typeof target.$ref === 'string') {
-          const refPath = parseRef(target['$ref'])
-          const resolved = getByPath(originalDoc, refPath)
-          return resolved ? Reflect.ownKeys(resolved) : []
+          const referencePath = parseJsonPointer(target['$ref'])
+          const resolvedValue = getValueByPath(sourceDocument, referencePath)
+          return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
         }
         return Reflect.ownKeys(target)
       },
+
       getOwnPropertyDescriptor(target: Record<string, unknown>, key: string) {
         if ('$ref' in target && key !== '$ref' && typeof target.$ref === 'string') {
-          const refPath = parseRef(target['$ref'])
-          const resolved = getByPath(originalDoc, refPath)
-          if (resolved) {
-            return Object.getOwnPropertyDescriptor(resolved, key)
+          const referencePath = parseJsonPointer(target['$ref'])
+          const resolvedValue = getValueByPath(sourceDocument, referencePath)
+          if (resolvedValue) {
+            return Object.getOwnPropertyDescriptor(resolvedValue, key)
           }
         }
         return Object.getOwnPropertyDescriptor(target, key)
       },
     }
 
-    const proxy = new Proxy(obj, handler)
-
-    // cache Proxy immediately after creating it
-    proxyCache.set(targetObj, proxy)
-
+    const proxy = new Proxy(targetObject, proxyHandler)
+    resolvedProxyCache.set(rawTarget, proxy)
     return proxy
   }
 
-  // Create the top-level proxy for the entire document
-  const documentProxy = createDeepProxy(originalDoc)
+  // Create the root proxy for the entire document
+  const documentProxy = createReferenceProxy(sourceDocument)
 
   return {
     document: documentProxy,
-    // Export function to get the raw document with $refs intact
+    /**
+     * Exports the raw document with references intact
+     */
     export() {
-      // toRaw removes Vue's reactivity proxies, giving us the original plain object
-      return toRaw(originalDoc)
+      return toRaw(sourceDocument)
     },
   }
 }
