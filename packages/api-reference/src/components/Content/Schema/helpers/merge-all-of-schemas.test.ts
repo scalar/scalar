@@ -293,4 +293,180 @@ describe('mergeAllOfSchemas', () => {
       },
     })
   })
+
+  it.only('merges allOf schemas within a large complex schema', () => {
+    const schema = {
+      'description': 'The big long nested list',
+      'allOf': [
+        {
+          'type': 'object',
+          'properties': {
+            'next_page_token': {
+              'type': 'string',
+              'description': 'The next page token to paginate through large result sets.',
+              'example': 'Usse957pzxvmYwlmCZ50a6CNXFrhztxuj82',
+            },
+          },
+        },
+        {
+          'type': 'object',
+          'properties': {
+            'sessions': {
+              'title': 'Recording session list',
+              'type': 'array',
+              'description': 'List of recording sessions',
+              'items': {
+                'allOf': [
+                  {
+                    'type': 'object',
+                    'properties': {
+                      'session_id': {
+                        'type': 'string',
+                        'description':
+                          'Unique session identifier. Each instance of the session will have its own `session_id`.',
+                        'example': 'JZiFOknTQ4yH/tJgaUTlkg==',
+                      },
+                    },
+                  },
+                  {
+                    'type': 'object',
+                    'description': 'List of recording files.',
+                    'allOf': [
+                      {
+                        'type': 'object',
+                        'properties': {
+                          'recording_files': {
+                            'title': 'Recording file list',
+                            'type': 'array',
+                            'description': 'List of recording files.',
+                            'items': {
+                              'allOf': [
+                                {
+                                  'type': 'object',
+                                  'properties': {
+                                    'id': {
+                                      'type': 'string',
+                                      'description':
+                                        'The recording file ID. This is included in the general query response.',
+                                      'example': '35497738-9fef-4f8a-97db-0ec34caef065',
+                                    },
+                                  },
+                                  'description': 'Recording file object.',
+                                },
+                              ],
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                  {
+                    'type': 'object',
+                    'description': 'Return a list of recording files about individual video for each participant.',
+                    'items': {
+                      'allOf': [
+                        {
+                          'type': 'object',
+                          'properties': {
+                            'participant_video_files': {
+                              'title': 'The list of recording files for each participant.',
+                              'type': 'array',
+                              'description':
+                                'A list of recording files. The API only returns this response when the **Record a separate audio file of each participant** setting is enabled.',
+                              'items': {
+                                'allOf': [
+                                  {
+                                    'type': 'object',
+                                    'properties': {
+                                      'id': {
+                                        'type': 'string',
+                                        'description':
+                                          "The recording file's unique ID. This is included in the general query response.",
+                                        'example': '24698bd1-589e-4c33-9ba3-bc788b2a0ac2',
+                                      },
+                                    },
+                                    'description': 'The recording file object.',
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+    }
+
+    expect(mergeAllOfSchemas([schema])).toEqual({
+      'properties': {
+        'next_page_token': {
+          'type': 'string',
+          'description': 'The next page token to paginate through large result sets.',
+          'example': 'Usse957pzxvmYwlmCZ50a6CNXFrhztxuj82',
+        },
+        'sessions': {
+          'title': 'Recording session list',
+          'type': 'array',
+          'description': 'List of recording sessions',
+          'items': {
+            'properties': {
+              'session_id': {
+                'type': 'string',
+                'description':
+                  'Unique session identifier. Each instance of the session will have its own `session_id`.',
+                'example': 'JZiFOknTQ4yH/tJgaUTlkg==',
+              },
+              'recording_files': {
+                'title': 'Recording file list',
+                'type': 'array',
+                'description': 'List of recording files.',
+                'items': {
+                  'properties': {
+                    'id': {
+                      'type': 'string',
+                      'description': 'The recording file ID. This is included in the general query response.',
+                      'example': '35497738-9fef-4f8a-97db-0ec34caef065',
+                    },
+                  },
+                  'type': 'object',
+                  'description': 'Recording file object.',
+                },
+              },
+              'participant_video_files': {
+                'title': 'The list of recording files for each participant.',
+                'type': 'array',
+                'description':
+                  'A list of recording files. The API only returns this response when the **Record a separate audio file of each participant** setting is enabled.',
+                'items': {
+                  'allOf': [
+                    {
+                      'type': 'object',
+                      'properties': {
+                        'id': {
+                          'type': 'string',
+                          'description':
+                            "The recording file's unique ID. This is included in the general query response.",
+                          'example': '24698bd1-589e-4c33-9ba3-bc788b2a0ac2',
+                        },
+                      },
+                      'description': 'The recording file object.',
+                    },
+                  ],
+                },
+              },
+            },
+            'type': 'object',
+            'description': 'Return a list of recording files about individual video for each participant.',
+          },
+        },
+      },
+      'type': 'object',
+    })
+  })
 })
