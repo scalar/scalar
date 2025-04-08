@@ -49,7 +49,6 @@ const isSelectedClient = (language: HttpClientState) => {
     <Tab
       v-for="client in featuredClients"
       :key="client.clientKey"
-      aria-hidden="true"
       class="client-libraries rendered-code-sdks"
       :class="{
         'client-libraries__active': isSelectedClient(client),
