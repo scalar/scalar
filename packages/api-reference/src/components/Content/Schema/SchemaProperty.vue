@@ -303,18 +303,19 @@ const displayPropertyHeading = (
       v-for="discriminator in discriminators"
       :key="discriminator">
       <!-- Property discriminator -->
-      <SchemaDiscriminator
-        v-if="optimizedValue?.[discriminator]"
-        :compact="compact"
-        :discriminator="discriminator"
-        :hideHeading="hideHeading"
-        :level="level"
-        :name="name"
-        :schemas="schemas"
-        :value="optimizedValue" />
+      <template v-if="optimizedValue?.[discriminator]">
+        <SchemaDiscriminator
+          :compact="compact"
+          :discriminator="discriminator"
+          :hideHeading="hideHeading"
+          :level="level"
+          :name="name"
+          :schemas="schemas"
+          :value="optimizedValue" />
+      </template>
 
       <!-- Array item discriminator -->
-      <SchemaDiscriminator
+      <template
         v-else-if="
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
@@ -322,14 +323,16 @@ const displayPropertyHeading = (
           discriminator in optimizedValue.items &&
           Array.isArray(optimizedValue.items[discriminator]) &&
           level < 3
-        "
-        :compact="compact"
-        :discriminator="discriminator"
-        :hideHeading="hideHeading"
-        :level="level"
-        :name="name"
-        :schemas="schemas"
-        :value="optimizedValue.items" />
+        ">
+        <SchemaDiscriminator
+          :compact="compact"
+          :discriminator="discriminator"
+          :hideHeading="hideHeading"
+          :level="level"
+          :name="name"
+          :schemas="schemas"
+          :value="optimizedValue.items" />
+      </template>
     </template>
   </component>
 </template>
