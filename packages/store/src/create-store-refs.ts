@@ -38,7 +38,6 @@ export function createStore(definition: Record<string, unknown>) {
 
   /**
    * Creates a proxy that automatically resolves JSON references
-   * @param targetObject - The object to create a proxy for
    */
   function createReferenceProxy(targetObject: Record<string, unknown>) {
     if (targetObject === null || typeof targetObject !== 'object') {
