@@ -53,6 +53,8 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/api-client": "workspace:*",
+    "@scalar/openapi-parser": "workspace:*",
     "vue": "catalog:"
   },
   "devDependencies": {
