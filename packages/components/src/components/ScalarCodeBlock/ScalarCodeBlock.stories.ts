@@ -59,6 +59,9 @@ const contentJson = JSON.stringify([
  */
 const meta = {
   component: ScalarCodeBlock,
+  argTypes: {
+    class: { control: 'text' },
+  },
   tags: ['autodocs'],
   render: (args) => ({
     components: { ScalarCodeBlock },

@@ -47,7 +47,7 @@ describe('syntaxHighlight', () => {
     }
 
     const result = syntaxHighlight(codeWithCredentials, options)
-    expect(result).toContain('<span class="credentials">secret</span>')
+    expect(result).toContain('<span class="credential"><span class="credential-value">secret</span></span>')
   })
 
   it('should handle line numbers if option is enabled', () => {
@@ -70,6 +70,6 @@ describe('syntaxHighlight', () => {
     }
 
     const result = syntaxHighlight(codeExampleWithSpecialChar, options)
-    expect(result).toContain('<span class="credentials">(secret</span>')
+    expect(result).toContain('<span class="credential"><span class="credential-value">(secret</span></span>')
   })
 })
