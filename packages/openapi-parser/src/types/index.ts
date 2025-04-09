@@ -76,7 +76,7 @@ export type FilesystemEntry = {
    * @example https://example.com/path/to/file.yaml
    * @example /Users/username/project/path/to/file.yaml
    */
-  dir: string
+  uri: string | null
   /**
    * Whether this is the base document, everything else is just referenced by it.
    */
@@ -86,15 +86,9 @@ export type FilesystemEntry = {
    */
   references: string[]
   /**
-   * The name that’s used in the reference.
-   *
-   * @example pathItems.yaml
+   * The actual content of the document
    */
-  filename: string
-  /**
-   * The actual file content
-   */
-  specification: AnyObject
+  definition: AnyObject
 }
 
 /**

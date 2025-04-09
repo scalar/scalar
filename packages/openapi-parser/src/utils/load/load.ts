@@ -41,9 +41,10 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   const errors: ErrorObject[] = []
 
   // Don’t load a reference twice, check the filesystem before fetching something
-  if (options?.filesystem?.find((entry) => entry.filename === value)) {
+  // TODO: Both need to be absolute locations
+  if (options?.filesystem?.find((entry) => entry.uri === value)) {
     return {
-      specification: getEntrypoint(options.filesystem)?.specification,
+      specification: getEntrypoint(options.filesystem)?.definition,
       filesystem: options.filesystem,
       errors,
     }
@@ -96,12 +97,13 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }
 
   let filesystem = makeFilesystem(content, {
-    filename: options?.filename ?? null,
+    uri: options?.filename ?? null,
   })
 
   // Get references from file system entry, or from the content
+  // TODO: Both need to be absolute locations
   const newEntry = options?.filename
-    ? filesystem.find((entry) => entry.filename === options?.filename)
+    ? filesystem.find((entry) => entry.uri === options?.filename)
     : getEntrypoint(filesystem)
 
   const listOfReferences = newEntry.references ?? getListOfReferences(content)
@@ -109,7 +111,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // No other references
   if (listOfReferences.length === 0) {
     return {
-      specification: getEntrypoint(filesystem)?.specification,
+      specification: getEntrypoint(filesystem)?.definition,
       filesystem,
       errors,
     }
@@ -129,7 +131,8 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
 
     // Don’t load a reference twice, check the filesystem before fetching something
-    if (filesystem.find((entry) => entry.filename === reference)) {
+    // TODO: Both need to be absolute locations
+    if (filesystem.find((entry) => entry.uri === reference)) {
       continue
     }
 
@@ -164,7 +167,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }
 
   return {
-    specification: getEntrypoint(filesystem)?.specification,
+    specification: getEntrypoint(filesystem)?.definition,
     filesystem,
     errors,
   }

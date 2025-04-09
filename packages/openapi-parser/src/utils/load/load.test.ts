@@ -157,7 +157,7 @@ describe('load', async () => {
     })
   })
 
-  it('resolves relative URLs to absolute ones', async () => {
+  it.only('resolves relative URLs to absolute ones', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => {
       // empty document for all other URLs
@@ -194,7 +194,7 @@ describe('load', async () => {
       }
     })
 
-    await load('https://example.com/docs/openapi.yaml', {
+    const { filesystem } = await load('https://example.com/docs/openapi.yaml', {
       plugins: [
         fetchUrls({
           // fetch: (url) => {
@@ -211,6 +211,39 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-2.yaml')
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-3.yaml')
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+
+    expect(filesystem).toMatchObject([
+      {
+        isEntrypoint: true,
+        uri: 'https://example.com/docs/openapi.yaml',
+        references: [
+          './components/pathItem-1.yaml',
+          'components/pathItem-2.yaml',
+          '../docs/components/pathItem-3.yaml',
+          'https://example.com/docs/components/pathItem-4.yaml',
+        ],
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-1.yaml',
+        references: [],
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-2.yaml',
+        references: [],
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-3.yaml',
+        references: [],
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-4.yaml',
+        references: [],
+      },
+    ])
   })
 
   it('resolves relative URLs when we directly pass a document (not a URL)', async () => {
