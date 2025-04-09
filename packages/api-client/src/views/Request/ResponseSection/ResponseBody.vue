@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
@@ -26,16 +26,6 @@ const showToggle = computed(
 
 const showPreview = computed(() => toggle.value || !showToggle.value)
 const showRaw = computed(() => !toggle.value || !showToggle.value)
-
-watch(
-  () => props.data,
-  (newValue) => {
-    console.log('props.data changed:', newValue)
-  },
-  { deep: true },
-)
-
-console.log(props, props.data)
 
 const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
   data: toRef(props, 'data'),
