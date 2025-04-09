@@ -9,7 +9,7 @@ import type {
 } from '../../types/index.ts'
 import { getEntrypoint } from '../getEntrypoint.ts'
 import { getListOfReferences } from '../getListOfReferences.ts'
-import { makeFilesystem, makeFilesystemEntry } from '../makeFilesystem.ts'
+import { makeFilesystemEntry } from '../makeFilesystem.ts'
 import { normalize } from '../normalize.ts'
 
 export type LoadPlugin = {
@@ -71,7 +71,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   if (plugin) {
     try {
       // Fetch/read the content
-      content = normalize(await plugin.get(value, options?.source))
+      content = normalize(await plugin.get(value))
       // Store the absolute URI/path
       uri = plugin.getUri(value, options?.source)
     } catch (_error) {
@@ -115,7 +115,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
-  const entryExistsAlready = options?.filesystem?.find((entry) => entry.uri === uri)
+  const entryExistsAlready = options?.filesystem?.find((entry) => uri && entry.uri === uri)
 
   if (entryExistsAlready) {
     return {
@@ -132,7 +132,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   const mapOfReferences = listOfReferences.reduce((acc, reference) => {
     const plugin = sortPlugins(options?.plugins)?.find((p) => p.check(reference))
 
-    const source = (options?.source ?? typeof value === 'string') ? (value as string) : ''
+    const source = options?.source //(options?.source ?? typeof value === 'string') ? (value as string) : ''
 
     const absoluteUri = plugin?.getUri(reference, source)
 
@@ -140,15 +140,23 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }, {})
 
   const entry = makeFilesystemEntry(content, {
+    isEntrypoint: false,
     uri,
     references: mapOfReferences,
   })
+
+  if (!filesystem.find((entry) => entry.uri === uri)) {
+    filesystem.push({
+      ...entry,
+      isEntrypoint: filesystem.length === 0,
+    })
+  }
 
   // No other references
   if (listOfReferences.length === 0) {
     return {
       specification: entry.definition,
-      filesystem: makeFilesystem(entry),
+      filesystem,
       errors,
     }
   }
@@ -174,12 +182,14 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     const { filesystem: referencedFiles, errors: newErrors } = await load(absoluteUri, {
       ...options,
       // TODO: Check what this is doing exactly. Pretty sure this is wrong.
-      source: entry.uri ?? options?.source,
-      filesystem: options?.filesystem,
+      source: absoluteUri,
+      filesystem,
     })
 
     errors.push(...newErrors)
-    referencedFiles.forEach((file) => filesystem.push(file))
+    referencedFiles
+      .filter((file) => !filesystem.find((entry) => entry.uri === file.uri))
+      .forEach((file) => filesystem.push(file))
   }
 
   return {

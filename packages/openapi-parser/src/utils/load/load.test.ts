@@ -15,7 +15,7 @@ describe('load', async () => {
     global.fetch.mockReset()
   })
 
-  it.skip('loads JS object', async () => {
+  it.only('loads JS object', async () => {
     const { filesystem } = await load(
       {
         openapi: '3.1.0',
@@ -65,7 +65,7 @@ describe('load', async () => {
     })
   })
 
-  it.skip('loads YAML string', async () => {
+  it.only('loads YAML string', async () => {
     const { filesystem } = await load(
       stringify({
         openapi: '3.1.0',
@@ -90,7 +90,7 @@ describe('load', async () => {
     })
   })
 
-  it.skip('loads file', async () => {
+  it.only('loads file', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
@@ -134,7 +134,7 @@ describe('load', async () => {
     expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
   })
 
-  it('loads url', async () => {
+  it.only('loads url', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
@@ -162,7 +162,7 @@ describe('load', async () => {
     })
   })
 
-  it.skip('resolves relative URLs to absolute ones', async () => {
+  it.only('resolves relative URLs to absolute ones', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => {
       // empty document for all other URLs
@@ -295,8 +295,6 @@ describe('load', async () => {
         ],
       },
     )
-
-    console.log(JSON.stringify(filesystem, null, 2))
 
     expect(filesystem).toMatchObject([
       {
