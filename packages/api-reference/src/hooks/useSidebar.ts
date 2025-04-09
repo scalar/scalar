@@ -26,6 +26,8 @@ export type SidebarEntry = {
   isGroup?: boolean
 }
 
+export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
+
 /**
  * This is a temp hack to get the navState outside of a setup function.
  * Sidebar will eventually be replaced by the client one so we can remove this whole hook then.
@@ -400,7 +402,20 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
           return (headings.value = [])
         }
 
-        return (headings.value = updateHeadings(description))
+        const newHeadings = updateHeadings(description)
+
+        // Add "Introduction" as the first heading
+        if (parsedSpec.value?.info?.description?.trim()) {
+          const introductionHeading = {
+            depth: newHeadings[0]?.depth ?? 1,
+            value: 'Introduction',
+            slug: DEFAULT_INTRODUCTION_SLUG,
+          }
+
+          newHeadings.unshift(introductionHeading)
+        }
+
+        return (headings.value = newHeadings)
       },
       {
         immediate: true,
