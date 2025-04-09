@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { ApiReference } from '@scalar/nextjs-api-reference'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { sync } from 'fast-glob'
 import type { NextRequest } from 'next/server'
 import type { OpenAPIV3_1 } from 'openapi-types'
@@ -24,7 +24,7 @@ export type OpenAPIConfig = {
    * @default 'app/api'
    */
   apiDirectory?: string
-} & ReferenceConfiguration
+} & Partial<ApiReferenceConfiguration>
 
 // TODO switch to watcher
 // @see https://github.com/microsoft/TypeScript-wiki/blob/main/Using-the-Compiler-API.md#writing-an-incremental-program-watcher

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ModernLayout, parse } from '@scalar/api-reference'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useHead, useRequestURL, useSeoMeta } from '#imports'
 import type { Configuration } from '~/src/types'
 import { reactive, ref, toRaw } from 'vue'
@@ -48,7 +48,7 @@ useHead({
 // Add baseServerURL and _integration
 const { origin } = useRequestURL()
 
-const config: Partial<ReferenceConfiguration> = {
+const config: Partial<ApiReferenceConfiguration> = {
   baseServerURL: origin,
   _integration: 'nuxt',
   ...props.configuration,
