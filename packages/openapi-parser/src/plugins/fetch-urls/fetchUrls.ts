@@ -65,13 +65,17 @@ export const fetchUrls: (customConfiguration?: {
         return undefined
       }
     },
-    getUri(value: string, source?: string) {
+    getUri(value: string, source?: unknown) {
       return getAbsoluteUrl(value, source)
     },
   }
 }
 
-export function getAbsoluteUrl(value: string, source?: string | undefined) {
+export function getAbsoluteUrl(value: string, source?: unknown) {
+  if (typeof source !== 'string') {
+    return value
+  }
+
   // Already an absolute URL
   if (value.startsWith('http')) {
     return value
@@ -103,7 +107,7 @@ export function getAbsoluteUrl(value: string, source?: string | undefined) {
         }
 
         // Otherwise treat it as relative to the source URL's directory
-        return new URL(value, source).toString()
+        return new URL(value, sourceUrl.href).toString()
       }
 
       // Handle file system paths

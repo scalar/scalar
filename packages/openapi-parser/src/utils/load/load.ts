@@ -9,7 +9,7 @@ import type {
 } from '../../types/index.ts'
 import { getEntrypoint } from '../getEntrypoint.ts'
 import { getListOfReferences } from '../getListOfReferences.ts'
-import { makeFilesystem } from '../makeFilesystem.ts'
+import { makeFilesystem, makeFilesystemEntry } from '../makeFilesystem.ts'
 import { normalize } from '../normalize.ts'
 
 export type LoadPlugin = {
@@ -27,7 +27,6 @@ export type LoadPlugin = {
 
 export type LoadOptions = {
   plugins?: LoadPlugin[]
-  filename?: string
   source?: string | undefined
   filesystem?: Filesystem
 } & ThrowOnErrorOption
@@ -44,44 +43,39 @@ export type LoadOptions = {
 export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
-  // Don’t load a reference twice, check the filesystem before fetching something
-  // TODO: Both need to be absolute locations
-  if (options?.filesystem?.find((entry) => entry.uri === value)) {
+  const filesystem: Filesystem = [...(options?.filesystem ?? [])]
+
+  // TODO: I think sometimes source is where the content comes from,
+  // And sometimes it’s where the reference was 🤔
+
+  // Don't load a reference twice, check the filesystem before fetching something
+  if (filesystem.find((entry) => entry.uri === options?.source)) {
     return {
-      specification: getEntrypoint(options.filesystem)?.definition,
-      filesystem: options.filesystem,
+      specification: getEntrypoint(filesystem)?.definition,
+      filesystem,
       errors,
     }
   }
 
-  // Check whether the value is an URL or file path
-  const plugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(value))
-
   let content: AnyObject
   let uri: string
+
+  // Check whether the value is an file or URL
+  const plugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(value))
 
   if (options?.source) {
     uri = options.source
   }
 
+  // Seems to be a file or URL
   if (plugin) {
     try {
+      // Fetch/read the content
       content = normalize(await plugin.get(value, options?.source))
-
-      // console.log('CONTENT', content)
-      // console.log('value', value)
-      // console.log('source', options?.source)
-      // console.log('URI', plugin.getUri(value, options?.source))
-
-      // console.log('')
-      // console.log('value', value)
-      // console.log('source', options?.source)
-      // console.log('getUri', plugin.getUri(value, options?.source))
-      // console.log('')
-
+      // Store the absolute URI/path
       uri = plugin.getUri(value, options?.source)
     } catch (_error) {
-      console.log('ERROR', _error)
+      // Couldn’t fetch/read the content
 
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
@@ -99,10 +93,11 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       }
     }
   } else {
+    // No plugin found, so it’s just the content, I guess.
     content = normalize(value)
   }
 
-  // No content
+  // Oops, no content
   if (content === undefined) {
     if (options?.throwOnError) {
       throw new Error('No content to load')
@@ -120,21 +115,9 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
-  // console.log({
-  //   uri,
-  // })
+  const entryExistsAlready = options?.filesystem?.find((entry) => entry.uri === uri)
 
-  let filesystem = makeFilesystem(content, {
-    uri,
-  })
-
-  // Get references from file system entry, or from the content
-  const newEntry = filesystem.find((entry) => entry.uri === uri) || getEntrypoint(filesystem)
-
-  const listOfReferences = newEntry.references ?? getListOfReferences(content)
-
-  // No other references
-  if (listOfReferences.length === 0) {
+  if (entryExistsAlready) {
     return {
       specification: getEntrypoint(filesystem)?.definition,
       filesystem,
@@ -142,57 +125,65 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
+  // Get all external references from the content
+  const listOfReferences = getListOfReferences(content)
+
+  // Map the references to their absolute URIs
+  const mapOfReferences = listOfReferences.reduce((acc, reference) => {
+    const plugin = sortPlugins(options?.plugins)?.find((p) => p.check(reference))
+
+    const source = (options?.source ?? typeof value === 'string') ? (value as string) : ''
+
+    const absoluteUri = plugin?.getUri(reference, source)
+
+    return { ...acc, [reference]: absoluteUri }
+  }, {})
+
+  const entry = makeFilesystemEntry(content, {
+    uri,
+    references: mapOfReferences,
+  })
+
+  // No other references
+  if (listOfReferences.length === 0) {
+    return {
+      specification: entry.definition,
+      filesystem: makeFilesystem(entry),
+      errors,
+    }
+  }
+
   // Load other external references
   for (const reference of listOfReferences) {
-    // Find a matching plugin
-    const otherPlugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(reference))
+    // Work with the absolute URI
+    const absoluteUri = mapOfReferences[reference]
 
-    // Skip if no plugin is found (internal references don’t need a plugin for example)
+    // Find a matching plugin
+    const otherPlugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(absoluteUri))
+
+    // Skip if no plugin is found (internal references don't need a plugin for example)
     if (!otherPlugin) {
       continue
     }
 
-    // Make the reference absolute
-    const targetUri = otherPlugin.getUri(reference, options?.source)
-
-    // Don’t load a reference twice, check the filesystem before fetching something
-    if (filesystem.find((entry) => entry.uri === targetUri)) {
+    // Don't load a reference twice, check the filesystem before fetching something
+    if (options?.filesystem?.find((entry) => entry.uri === absoluteUri)) {
       continue
     }
 
-    // Get the source URL for resolving references
-    // const source =
-    //   options?.source && typeof options.source === 'string' && !options.source.startsWith('{')
-    //     ? options.source
-    //     : typeof value === 'string' && value.startsWith('http')
-    //       ? value
-    //       : undefined
-
-    const source = targetUri
-
-    const { filesystem: referencedFiles, errors: newErrors } = await load(targetUri, {
+    const { filesystem: referencedFiles, errors: newErrors } = await load(absoluteUri, {
       ...options,
-      // Use the absolute path as filename for proper deduplication
-      filename: reference,
-      source,
+      // TODO: Check what this is doing exactly. Pretty sure this is wrong.
+      source: entry.uri ?? options?.source,
       filesystem: options?.filesystem,
     })
 
     errors.push(...newErrors)
-
-    filesystem = [
-      ...filesystem,
-      ...referencedFiles.map((file) => {
-        return {
-          ...file,
-          isEntrypoint: false,
-        }
-      }),
-    ]
+    referencedFiles.forEach((file) => filesystem.push(file))
   }
 
   return {
-    specification: getEntrypoint(filesystem)?.definition,
+    specification: entry.definition,
     filesystem,
     errors,
   }
