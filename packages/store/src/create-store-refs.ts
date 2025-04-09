@@ -153,9 +153,7 @@ export function createStore(input: Record<string, unknown>) {
       const raw = toRaw(sourceDocument)
 
       removeProperties(raw, {
-        shouldRemoveKey(key) {
-          return key.startsWith('_')
-        },
+        test: (key) => key.startsWith('_'),
       })
 
       return raw
@@ -166,7 +164,7 @@ export function createStore(input: Record<string, unknown>) {
 /**
  * Recursively removes properties from an object based on a condition
  */
-function removeProperties(obj: Record<string, unknown>, options: { shouldRemoveKey: (key: string) => boolean }) {
+function removeProperties(obj: Record<string, unknown>, options: { test: (key: string) => boolean }) {
   if (Array.isArray(obj)) {
     obj.forEach((item) => {
       if (item !== null && typeof item === 'object') {
@@ -175,7 +173,7 @@ function removeProperties(obj: Record<string, unknown>, options: { shouldRemoveK
     })
   } else {
     for (const key in obj) {
-      if (options.shouldRemoveKey(key)) {
+      if (options.test(key)) {
         delete obj[key]
       } else if (obj[key] !== null && typeof obj[key] === 'object') {
         removeProperties(obj[key] as Record<string, unknown>, options)
