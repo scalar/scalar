@@ -5,6 +5,8 @@ defineProps<{
   columns: (string | undefined)[]
   /** Scroll horizontally */
   scroll?: boolean
+  /** Presentational table */
+  presentational?: boolean
 }>()
 const { cx } = useBindCx()
 </script>
@@ -19,6 +21,7 @@ const { cx } = useBindCx()
     <table
       class="mb-0 grid min-h-8 auto-rows-auto"
       :class="{ 'w-max min-w-full': scroll }"
+      :role="presentational ? 'presentation' : 'table'"
       :style="{
         gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
       }">

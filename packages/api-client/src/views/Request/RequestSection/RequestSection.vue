@@ -174,7 +174,6 @@ const handleRequestNamePlaceholder = () => {
       class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
-        class="request-section-content-auth border-b-0"
         v-if="
           collection &&
           workspace &&
@@ -185,6 +184,7 @@ const handleRequestNamePlaceholder = () => {
           (selectedFilter === 'All' || selectedFilter === 'Auth')
         "
         :id="filterIds.Auth"
+        class="request-section-content-auth border-b-0"
         :collection="collection"
         :envVariables="envVariables"
         :environment="environment"
@@ -196,12 +196,12 @@ const handleRequestNamePlaceholder = () => {
         title="Authentication"
         :workspace="workspace" />
       <RequestPathParams
-        class="request-section-content-path-params"
         v-show="
           (selectedFilter === 'All' || selectedFilter === 'Variables') &&
           example.parameters.path.length
         "
         :id="filterIds.Variables"
+        class="request-section-content-path-params"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
@@ -212,13 +212,14 @@ const handleRequestNamePlaceholder = () => {
         title="Variables"
         :workspace="workspace" />
       <RequestParams
-        class="request-section-content-cookies"
         v-show="selectedFilter === 'All' || selectedFilter === 'Cookies'"
         :id="filterIds.Cookies"
+        class="request-section-content-cookies"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :invalidParams="invalidParams"
+        label="Cookie"
         :operation="operation"
         paramKey="cookies"
         :readOnlyEntries="activeWorkspaceCookies"
@@ -227,39 +228,41 @@ const handleRequestNamePlaceholder = () => {
         :workspace="workspace"
         workspaceParamKey="cookies" />
       <RequestParams
-        class="request-section-content-headers"
         v-show="selectedFilter === 'All' || selectedFilter === 'Headers'"
         :id="filterIds.Headers"
+        class="request-section-content-headers"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :invalidParams="invalidParams"
+        label="Header"
         :operation="operation"
         paramKey="headers"
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Headers"
         :workspace="workspace" />
       <RequestParams
-        class="request-section-content-query"
         v-show="selectedFilter === 'All' || selectedFilter === 'Query'"
         :id="filterIds.Query"
+        class="request-section-content-query"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"
         :invalidParams="invalidParams"
+        label="Parameter"
         :operation="operation"
         paramKey="query"
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Query Parameters"
         :workspace="workspace" />
       <RequestBody
-        class="request-section-content-body"
         v-show="
           operation.method &&
           (selectedFilter === 'All' || selectedFilter === 'Body') &&
           canMethodHaveBody(operation.method)
         "
         :id="filterIds.Body"
+        class="request-section-content-body"
         :envVariables="envVariables"
         :environment="environment"
         :example="example"

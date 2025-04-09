@@ -28,6 +28,7 @@ const {
   envVariables: EnvVariable[]
   workspace: Workspace
   title: string
+  label: string
   paramKey: keyof RequestExample['parameters']
   readOnlyEntries?: {
     key: string
@@ -211,6 +212,7 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         isGlobal
         isReadOnly
         :items="readOnlyEntries"
+        :label
         :workspace="workspace" />
       <!-- Dynamic entries -->
       <RequestTable
@@ -220,6 +222,7 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         :environment="environment"
         :invalidParams="invalidParams"
         :items="params"
+        :label
         :workspace="workspace"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { DataTableHeader } from '@/components/DataTable'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
@@ -30,6 +31,10 @@ const findHeaderInfo = (name: string) => {
       <DataTable
         :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
         scroll>
+        <DataTableRow class="sr-only !block">
+          <DataTableHeader>Header Key</DataTableHeader>
+          <DataTableHeader>Header Value</DataTableHeader>
+        </DataTableRow>
         <DataTableRow
           v-for="item in headers"
           :key="item.name"

@@ -492,7 +492,9 @@ const selectedExample = computed({
 <template>
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
-    <DataTable :columns="['']">
+    <DataTable
+      :columns="['']"
+      presentational>
       <DataTableRow>
         <DataTableHeader
           class="relative col-span-full flex h-8 cursor-pointer items-center justify-between !p-0">

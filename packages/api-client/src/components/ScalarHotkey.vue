@@ -4,19 +4,45 @@ import type { HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
 import { isMacOS } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 
-const props = defineProps<{
+const { modifier = ['Meta'], hotkey } = defineProps<{
   hotkey: string
   modifier?: HotKeyModifiers
 }>()
 
+const HotKeyLabels: Record<string, string> = {
+  '⌘': 'Command',
+  '^': 'Control',
+  '⌥': 'Option',
+  '⇧': 'Shift',
+  '⇪': 'Caps Lock',
+  '↵': 'Enter',
+  '←': 'Left Arrow',
+  '→': 'Right Arrow',
+  '↑': 'Up Arrow',
+  '↓': 'Down Arrow',
+} as const
+
+const ModifierKeySymbols: Record<HotKeyModifiers[number], string> = {
+  Meta: isMacOS() ? '⌘' : '^',
+  default: isMacOS() ? '⌘' : '^',
+  Shift: '⇧',
+  Alt: '⌥',
+  Control: '^',
+} as const
+
 const { cx } = useBindCx()
 
-const modifier = computed(() => props.modifier || 'meta')
-
 const displayHotkey = computed(() => {
-  const modifierKey =
-    modifier.value === 'meta' ? (isMacOS() ? '⌘' : '^') : modifier.value
-  return `${modifierKey} ${props.hotkey}`
+  const modifierKeys = modifier.map((mod) => ModifierKeySymbols[mod]).join('+')
+  return `${modifierKeys} ${hotkey}`
+})
+
+const srLabel = computed(() => {
+  const modLabels = modifier
+    .map((key) => (key === 'Meta' ? (isMacOS() ? 'Command' : 'Control') : key))
+    .join('+')
+  const hotkeyLabel = HotKeyLabels[hotkey] ?? hotkey
+  return `${modLabels} ${hotkeyLabel}`
 })
 </script>
 <template>
@@ -26,6 +52,7 @@ const displayHotkey = computed(() => {
         'border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase',
       )
     ">
-    {{ displayHotkey }}
+    <span aria-hidden="true">{{ displayHotkey }}</span>
+    <span class="sr-only">{{ srLabel }}</span>
   </div>
 </template>
