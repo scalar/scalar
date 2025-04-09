@@ -44,15 +44,12 @@ export const fetchUrls: (customConfiguration?: {
 
       return true
     },
-    async get(value?: string, source?: string) {
+    async get(url?: string) {
       // Limit ht enumber of requests
       if (configuration?.limit !== false && numberOfRequests >= configuration?.limit) {
         console.warn(`[fetchUrls] Maximum number of requests reeached (${configuration?.limit}), skipping request`)
         return undefined
       }
-
-      // Make relative URLs absolute
-      const url = getAbsoluteUrl(value, source)
 
       try {
         numberOfRequests++
