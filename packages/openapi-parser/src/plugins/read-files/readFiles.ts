@@ -10,7 +10,7 @@ export const readFiles: () => LoadPlugin = () => {
   return {
     // Make it run before fetchUrls
     priority: 100,
-    check(value?: any) {
+    check(value?: unknown) {
       // Not a string
       if (typeof value !== 'string') {
         return false
@@ -38,7 +38,11 @@ export const readFiles: () => LoadPlugin = () => {
 
       return true
     },
-    async get(value?: any) {
+    async get(value?: unknown) {
+      if (typeof value !== 'string') {
+        return false
+      }
+
       if (!fs.existsSync(value)) {
         throw new Error(ERRORS.FILE_DOES_NOT_EXIST.replace('%s', value))
       }
@@ -59,9 +63,14 @@ export const readFiles: () => LoadPlugin = () => {
         return value
       }
 
-      const dir = dirname(value)
+      // Already absolute
+      if (value.startsWith('/')) {
+        return value
+      }
 
-      return join(dir, source)
+      const dir = dirname(source)
+
+      return join(dir, value)
     },
     getDir(value: any) {
       return dirname(value)
