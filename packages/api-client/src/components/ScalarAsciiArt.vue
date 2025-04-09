@@ -20,7 +20,8 @@ const getLineAnimation = (chars: number, row: number): StyleValue => ({
     aria-hidden="true"
     class="ascii-art font-code flex flex-col items-start text-[6px] leading-[7px]"
     :class="{ 'ascii-art-animate': animate }"
-    role="presentation">
+    role="presentation"
+    inert>
     <span
       v-for="(line, i) in lines"
       :key="i"
