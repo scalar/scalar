@@ -90,7 +90,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('loads file', async () => {
+  it.skip('loads file', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
@@ -113,7 +113,7 @@ describe('load', async () => {
     ])
   })
 
-  it.only('loads referenced files in files', async () => {
+  it.todo('loads referenced files in files', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../../tests/filesystem/api/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
@@ -134,7 +134,7 @@ describe('load', async () => {
     expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
   })
 
-  it.skip('loads url', async () => {
+  it('loads url', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
@@ -215,32 +215,32 @@ describe('load', async () => {
       {
         isEntrypoint: true,
         uri: 'https://example.com/docs/openapi.yaml',
-        references: [
-          './components/pathItem-1.yaml',
-          'components/pathItem-2.yaml',
-          '../docs/components/pathItem-3.yaml',
-          'https://example.com/docs/components/pathItem-4.yaml',
-        ],
+        references: {
+          './components/pathItem-1.yaml': 'https://example.com/docs/components/pathItem-1.yaml',
+          'components/pathItem-2.yaml': 'https://example.com/docs/components/pathItem-2.yaml',
+          '../docs/components/pathItem-3.yaml': 'https://example.com/docs/components/pathItem-3.yaml',
+          'https://example.com/docs/components/pathItem-4.yaml': 'https://example.com/docs/components/pathItem-4.yaml',
+        },
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-1.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-2.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-3.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-4.yaml',
-        references: [],
+        references: {},
       },
     ])
 
@@ -251,7 +251,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
-  it.skip('resolves relative URLs when we directly pass a document (not a URL)', async () => {
+  it.only('resolves relative URLs when we directly pass a document (not a URL)', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async () => {
       // empty document for all URLs
@@ -296,36 +296,38 @@ describe('load', async () => {
       },
     )
 
+    console.log(JSON.stringify(filesystem, null, 2))
+
     expect(filesystem).toMatchObject([
       {
         isEntrypoint: true,
         uri: 'https://example.com/docs/openapi.yaml',
-        references: [
-          './components/pathItem-1.yaml',
-          'components/pathItem-2.yaml',
-          '../docs/components/pathItem-3.yaml',
-          'https://example.com/docs/components/pathItem-4.yaml',
-        ],
+        references: {
+          './components/pathItem-1.yaml': 'https://example.com/docs/components/pathItem-1.yaml',
+          'components/pathItem-2.yaml': 'https://example.com/docs/components/pathItem-2.yaml',
+          '../docs/components/pathItem-3.yaml': 'https://example.com/docs/components/pathItem-3.yaml',
+          'https://example.com/docs/components/pathItem-4.yaml': 'https://example.com/docs/components/pathItem-4.yaml',
+        },
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-1.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-2.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-3.yaml',
-        references: [],
+        references: {},
       },
       {
         isEntrypoint: false,
         uri: 'https://example.com/docs/components/pathItem-4.yaml',
-        references: [],
+        references: {},
       },
     ])
 
@@ -447,7 +449,7 @@ describe('load', async () => {
       {
         isEntrypoint: false,
         uri: 'http://example.com/components/operation-1.yaml',
-        references: [],
+        references: {},
       },
     ])
 

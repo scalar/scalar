@@ -82,9 +82,14 @@ export type FilesystemEntry = {
    */
   isEntrypoint: boolean
   /**
-   * A list of the reference to other files.
+   * A map of the references to other files.
+   *
+   * @example {
+   *   'file.yaml': 'https://example.com/folder/file.yaml',
+   *   '../file2.yaml': 'https://example.com/file2.yaml',
+   * }
    */
-  references: string[]
+  references: Record<string, string>
   /**
    * The actual content of the document
    */
