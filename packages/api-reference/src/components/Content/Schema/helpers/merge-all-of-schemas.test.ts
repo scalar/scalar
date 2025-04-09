@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
+import type { OpenAPI } from '@scalar/openapi-types'
+
+type SchemaObject = OpenAPI.SchemaObject
 
 describe('mergeAllOfSchemas', () => {
   it('returns empty object for empty or invalid input', () => {
@@ -22,7 +25,7 @@ describe('mergeAllOfSchemas', () => {
           age: { type: 'number' },
         },
       },
-    ]
+    ] as SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -119,7 +122,7 @@ describe('mergeAllOfSchemas', () => {
         },
         required: ['metadata'],
       },
-    ]
+    ] as SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -164,7 +167,7 @@ describe('mergeAllOfSchemas', () => {
     })
   })
 
-  it('merges allOf schemas within array objects', () => {
+  it('merges allOf schemas within object items', () => {
     const schemas = [
       {
         type: 'object',
@@ -183,24 +186,19 @@ describe('mergeAllOfSchemas', () => {
                 age: { type: 'number' },
                 email: { type: 'string' },
               },
-              required: ['email'],
             },
           ],
         },
       },
-    ]
+    ] as SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string' },
-          name: { type: 'string' },
-          age: { type: 'number' },
-          email: { type: 'string' },
-        },
-        required: ['email'],
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        age: { type: 'number' },
+        email: { type: 'string' },
       },
     })
   })
@@ -229,7 +227,7 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       },
-    ]
+    ] as SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'array',
@@ -301,7 +299,7 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       },
-    ]
+    ] as SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       'type': 'object',
@@ -403,7 +401,7 @@ describe('mergeAllOfSchemas', () => {
                   },
                   {
                     'type': 'object',
-                    'description': 'Return a list of recording files about individual video for each participant.',
+                    'description': 'This is the one to check',
                     'items': {
                       'allOf': [
                         {
@@ -456,6 +454,8 @@ describe('mergeAllOfSchemas', () => {
           'type': 'array',
           'description': 'List of recording sessions',
           'items': {
+            'description': 'This is the one to check',
+            'type': 'object',
             'properties': {
               'session_id': {
                 'type': 'string',

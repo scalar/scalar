@@ -9,25 +9,25 @@ type SchemaObject = OpenAPI.SchemaObject
  * @param schemas - Array of OpenAPI schema objects to merge
  * @returns Merged schema object
  */
-export function mergeAllOfSchemas(schemas: Record<string, any>[]): Record<string, any> {
+export function mergeAllOfSchemas(schemas: SchemaObject[]): SchemaObject {
   // Handle empty or invalid input
   if (!Array.isArray(schemas) || schemas.length === 0) {
     return {}
   }
 
   // Merge all schemas into a single object
-  return schemas.reduce((result: Record<string, any>, schema) => {
+  return schemas.reduce((result: SchemaObject, schema) => {
     if (!schema || typeof schema !== 'object') {
       return result
     }
 
     // Handle nested allOf case first
     if (schema.allOf) {
-      const mergedNestedSchema: Record<string, any> = mergeAllOfSchemas(schema.allOf)
+      const mergedNestedSchema = mergeAllOfSchemas(schema.allOf as SchemaObject[])
       return mergeAllOfSchemas([result, mergedNestedSchema])
     }
 
-    const mergedResult = { ...result }
+    const mergedResult = typeof result === 'object' ? { ...result } : {}
 
     // Merge properties if they exist
     if (schema.properties) {
@@ -36,7 +36,14 @@ export function mergeAllOfSchemas(schemas: Record<string, any>[]): Record<string
 
     // Handle items property
     if (schema.items) {
-      mergedResult.items = mergeArrayItems(mergedResult.items || {}, schema.items)
+      if (schema.type === 'array') {
+        mergedResult.items = mergeArrayItems(mergedResult.items || {}, schema.items)
+      }
+      // Special case for objects with items.allOf
+      else if (schema.type === 'object' && schema.items.allOf) {
+        const mergedItems = mergeAllOfSchemas(schema.items.allOf)
+        mergedResult.properties = mergeProperties(mergedResult.properties || {}, mergedItems.properties || {})
+      }
     }
 
     // Merge other schema attributes
@@ -47,8 +54,8 @@ export function mergeAllOfSchemas(schemas: Record<string, any>[]): Record<string
 /**
  * Merges two sets of schema properties recursively
  */
-function mergeProperties(existingProps: Record<string, any>, newProps: Record<string, any>): Record<string, any> {
-  const merged = { ...existingProps }
+function mergeProperties(existingProps: SchemaObject, newProps: SchemaObject): SchemaObject {
+  const merged = typeof existingProps === 'object' ? { ...existingProps } : {}
 
   Object.entries(newProps).forEach(([key, value]) => {
     if (!value || typeof value !== 'object') {
