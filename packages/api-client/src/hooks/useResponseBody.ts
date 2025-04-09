@@ -30,7 +30,6 @@ export function useResponseBody(props: {
   })
 
   const dataUrl = computed<string>(() => {
-    console.log('new one!!')
     if (isBlob(dataRef.value)) {
       return URL.createObjectURL(dataRef.value)
     }
