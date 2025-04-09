@@ -396,7 +396,7 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
     watch(
       () => parsedSpec.value?.info?.description,
       () => {
-        const description = parsedSpec.value?.info?.description
+        const description = parsedSpec.value?.info?.description?.trim()
 
         if (!description) {
           return (headings.value = [])
@@ -405,7 +405,7 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
         const newHeadings = updateHeadings(description)
 
         // Add "Introduction" as the first heading
-        if (parsedSpec.value?.info?.description?.trim()) {
+        if (description && !description.startsWith('#')) {
           const introductionHeading = {
             depth: newHeadings[0]?.depth ?? 1,
             value: 'Introduction',
