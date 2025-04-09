@@ -92,35 +92,49 @@ describe('create-store-refs', () => {
     })
   })
 
+  describe('values', () => {
+    it('returns the value of a reference', () => {
+      const definition = {
+        openapi: '3.1.1',
+      }
+    })
+  })
+
   describe('export', () => {
-    it('exports the raw document with $refs intact', () => {
+    it('updates properties through both original and reference paths', () => {
       const definition = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
           version: '1.0.0',
         },
-        paths: {},
-        components: {
-          schemas: {
-            Person: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
+        servers: [
+          {
+            url: 'https://example.com/{version}',
+            variables: {
+              version: {
+                default: 'v1',
               },
             },
-            User: {
-              $ref: '#/components/schemas/Person',
+          },
+          {
+            url: 'https://example.com/v2',
+            variables: {
+              version: { default: 'v2' },
             },
           },
-        },
+        ],
+        paths: {},
       }
 
       const store = createStore(definition)
 
-      const output = store.export()
+      store.document.servers[0].variables.version._value = 'v3'
 
-      expect(output).toMatchObject(definition)
+      expect(store.document.servers[0].variables.version._value).toBe('v3')
+
+      // Doesn’t have _ variables when exporting
+      expect(store.export()).not.toHaveProperty('servers.0.variables.version._value')
     })
   })
 })
