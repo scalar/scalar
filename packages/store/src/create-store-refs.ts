@@ -1,3 +1,4 @@
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { isReactive, reactive, toRaw } from 'vue'
 
 /**
@@ -5,9 +6,14 @@ import { isReactive, reactive, toRaw } from 'vue'
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createStore(definition: Record<string, unknown>) {
+export function createStore(input: Record<string, unknown>) {
+  // TODO: Normalize
+  // TODO: Embed external references
+  // TODO: Upgrade
+  const content = OpenApiObjectSchema.parse(input)
+
   // Make the source document reactive for Vue change tracking
-  const sourceDocument = reactive(definition)
+  const sourceDocument = reactive(content)
 
   // Cache for storing resolved reference proxies to handle circular references
   const resolvedProxyCache = new WeakMap()

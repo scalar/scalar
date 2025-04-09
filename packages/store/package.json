@@ -55,6 +55,7 @@
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "vue": "catalog:"
   },
   "devDependencies": {
