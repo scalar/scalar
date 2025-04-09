@@ -68,6 +68,11 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     try {
       content = normalize(await plugin.get(value, options?.source))
 
+      // console.log('CONTENT', content)
+      // console.log('value', value)
+      // console.log('source', options?.source)
+      // console.log('URI', plugin.getUri(value, options?.source))
+
       // console.log('')
       // console.log('value', value)
       // console.log('source', options?.source)
@@ -76,6 +81,8 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
       uri = plugin.getUri(value, options?.source)
     } catch (_error) {
+      console.log('ERROR', _error)
+
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
       }

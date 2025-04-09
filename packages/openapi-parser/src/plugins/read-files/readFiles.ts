@@ -50,9 +50,18 @@ export const readFiles: () => LoadPlugin = () => {
         return false
       }
     },
-    resolvePath(value: any, reference: string) {
+    getUri(value: unknown, source: string) {
+      if (typeof value !== 'string') {
+        return undefined
+      }
+
+      if (typeof source !== 'string') {
+        return value
+      }
+
       const dir = dirname(value)
-      return join(dir, reference)
+
+      return join(dir, source)
     },
     getDir(value: any) {
       return dirname(value)
