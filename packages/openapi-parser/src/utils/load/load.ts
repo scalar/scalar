@@ -132,7 +132,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   const mapOfReferences = listOfReferences.reduce((acc, reference) => {
     const plugin = sortPlugins(options?.plugins)?.find((p) => p.check(reference))
 
-    const source = options?.source //(options?.source ?? typeof value === 'string') ? (value as string) : ''
+    const source = options?.source ?? value //(options?.source ?? typeof value === 'string') ? (value as string) : ''
 
     const absoluteUri = plugin?.getUri(reference, source)
 
