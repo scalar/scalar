@@ -130,8 +130,9 @@ ul {
   font-family: monospace;
   color: #666;
   background-color: #eee;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
   display: inline-block;
+  border-radius: 0.25rem 0.25rem 0 0;
 }
 </style>
