@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  Operation,
+  ResponseInstance,
+} from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
@@ -16,6 +21,9 @@ import ResponseLoadingOverlay from './ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
 const { numWorkspaceRequests, response, requestResult } = defineProps<{
+  collection: Collection
+  operation: Operation
+  workspace: Workspace
   numWorkspaceRequests: number
   response: ResponseInstance | undefined
   requestResult: SendRequestResult | null | undefined
@@ -161,7 +169,11 @@ const requestHeaders = computed(
       }"
       :role="activeFilter === 'All' && response ? 'tabpanel' : 'none'">
       <template v-if="!response">
-        <ResponseEmpty :numWorkspaceRequests="numWorkspaceRequests" />
+        <ResponseEmpty
+          :collection="collection"
+          :operation="operation"
+          :workspace="workspace"
+          :numWorkspaceRequests="numWorkspaceRequests" />
       </template>
       <template v-else>
         <ResponseCookies
