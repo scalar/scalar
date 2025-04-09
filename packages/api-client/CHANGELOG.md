@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.3.15
+
+### Patch Changes
+
+- ce91adc: fix(api-client): don't set html background from client
+- 61e094b: fix(api-client): improve request table header a11y
+- e7fb3eb: feat: skip the import modal when the workspace is empty
+
 ## 2.3.14
 
 ### Patch Changes
