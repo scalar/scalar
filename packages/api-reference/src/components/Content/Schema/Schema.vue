@@ -36,13 +36,14 @@ const props = withDefaults(
       | Record<string, OpenAPIV3_1.SchemaObject>
       | unknown
   }>(),
-  { level: 0, showAdditionalProperties: false },
+  { level: 0, showAdditionalProperties: false, noncollapsible: false },
 )
 
 const shouldShowToggle = computed(() => {
   if (props.noncollapsible || props.level === 0) {
     return false
   }
+
   return true
 })
 
@@ -100,7 +101,7 @@ const handleClick = (e: MouseEvent) =>
         </div>
 
         <DisclosureButton
-          v-else
+          v-else-if="shouldShowToggle"
           v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
           class="schema-card-title"
@@ -111,7 +112,6 @@ const handleClick = (e: MouseEvent) =>
           @click.capture="handleClick">
           <template v-if="compact">
             <ScalarIcon
-              v-if="shouldShowToggle"
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
@@ -126,7 +126,6 @@ const handleClick = (e: MouseEvent) =>
           </template>
           <template v-else>
             <ScalarIcon
-              v-if="shouldShowToggle"
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
@@ -138,7 +137,7 @@ const handleClick = (e: MouseEvent) =>
         </DisclosureButton>
         <DisclosurePanel
           as="ul"
-          :static="noncollapsible">
+          :static="!shouldShowToggle">
           <template
             v-if="
               value.properties ||
