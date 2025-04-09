@@ -24,6 +24,7 @@ const props = withDefaults(
   defineProps<{
     is?: string | Component
     value?: Record<string, any>
+    noncollapsible?: boolean
     level?: number
     name?: string
     required?: boolean
@@ -278,6 +279,7 @@ const displayPropertyHeading = (
         :compact="compact"
         :level="level + 1"
         :name="name"
+        :noncollapsible="noncollapsible"
         :value="optimizedValue" />
     </div>
     <!-- Array of objects -->
@@ -295,6 +297,7 @@ const displayPropertyHeading = (
           :compact="compact"
           :level="level + 1"
           :name="name"
+          :noncollapsible="noncollapsible"
           :value="optimizedValue.items" />
       </div>
     </template>
@@ -310,6 +313,7 @@ const displayPropertyHeading = (
           :hideHeading="hideHeading"
           :level="level"
           :name="name"
+          :noncollapsible="noncollapsible"
           :schemas="schemas"
           :value="optimizedValue" />
       </template>
@@ -330,6 +334,7 @@ const displayPropertyHeading = (
           :hideHeading="hideHeading"
           :level="level"
           :name="name"
+          :noncollapsible="noncollapsible"
           :schemas="schemas"
           :value="optimizedValue.items" />
       </template>
