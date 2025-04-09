@@ -1,5 +1,12 @@
 # @scalar/nextjs-openapi
 
+## 0.1.8
+
+### Patch Changes
+
+- e3e2cd8: chore: use ApiReferenceConfiguration instead of ReferenceConfiguration
+  - @scalar/nextjs-api-reference@0.7.7
+
 ## 0.1.7
 
 ### Patch Changes

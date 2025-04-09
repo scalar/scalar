@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.28.15
+
+### Patch Changes
+
+- 07a5d79: feat: directly show responses in the list
+- de78601: feat: add Introduction heading to the sidebar
+- 91cc99c: fix: schema doesn’t show deeply nested allOf schemas
+- Updated dependencies [ce91adc]
+- Updated dependencies [61e094b]
+- Updated dependencies [e7fb3eb]
+  - @scalar/api-client@2.3.15
+
 ## 1.28.14
 
 ### Patch Changes
