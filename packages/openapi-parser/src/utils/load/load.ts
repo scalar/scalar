@@ -16,7 +16,11 @@ export type LoadPlugin = {
   priority?: number
   check: (value?: any) => boolean
   get: (value: any, source?: string) => any
+  /**
+   * @deprecated Use `getUri` instead
+   */
   resolvePath?: (value: any, reference: string) => string
+  getUri?: (value: any, source?: string) => string
   getDir?: (value: any) => string
   getFilename?: (value: any) => string
 }
@@ -54,10 +58,23 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   const plugin = sortPlugins(options?.plugins)?.find((thisPlugin) => thisPlugin.check(value))
 
   let content: AnyObject
+  let uri: string
+
+  if (options?.source) {
+    uri = options.source
+  }
 
   if (plugin) {
     try {
       content = normalize(await plugin.get(value, options?.source))
+
+      // console.log('')
+      // console.log('value', value)
+      // console.log('source', options?.source)
+      // console.log('getUri', plugin.getUri(value, options?.source))
+      // console.log('')
+
+      uri = plugin.getUri(value, options?.source)
     } catch (_error) {
       if (options?.throwOnError) {
         throw new Error(ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string))
@@ -96,15 +113,16 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     }
   }
 
+  // console.log({
+  //   uri,
+  // })
+
   let filesystem = makeFilesystem(content, {
-    uri: options?.filename ?? null,
+    uri,
   })
 
   // Get references from file system entry, or from the content
-  // TODO: Both need to be absolute locations
-  const newEntry = options?.filename
-    ? filesystem.find((entry) => entry.uri === options?.filename)
-    : getEntrypoint(filesystem)
+  const newEntry = filesystem.find((entry) => entry.uri === uri) || getEntrypoint(filesystem)
 
   const listOfReferences = newEntry.references ?? getListOfReferences(content)
 
@@ -127,28 +145,28 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
       continue
     }
 
-    const target =
-      otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
+    // Make the reference absolute
+    const targetUri = otherPlugin.getUri(reference, options?.source)
 
     // Don’t load a reference twice, check the filesystem before fetching something
-    // TODO: Both need to be absolute locations
-    if (filesystem.find((entry) => entry.uri === reference)) {
+    if (filesystem.find((entry) => entry.uri === targetUri)) {
       continue
     }
 
     // Get the source URL for resolving references
-    const source =
-      options?.source && typeof options.source === 'string' && !options.source.startsWith('{')
-        ? options.source
-        : typeof value === 'string' && value.startsWith('http')
-          ? value
-          : undefined
+    // const source =
+    //   options?.source && typeof options.source === 'string' && !options.source.startsWith('{')
+    //     ? options.source
+    //     : typeof value === 'string' && value.startsWith('http')
+    //       ? value
+    //       : undefined
 
-    const { filesystem: referencedFiles, errors: newErrors } = await load(target, {
+    const source = targetUri
+
+    const { filesystem: referencedFiles, errors: newErrors } = await load(targetUri, {
       ...options,
       // Use the absolute path as filename for proper deduplication
       filename: reference,
-      // Preserve the original source URL for resolving nested references
       source,
       filesystem: options?.filesystem,
     })

@@ -65,8 +65,8 @@ export const fetchUrls: (customConfiguration?: {
         return undefined
       }
     },
-    resolvePath(value: string, reference: string) {
-      return getAbsoluteUrl(reference, typeof value === 'string' ? value : undefined)
+    getUri(value: string, source?: string) {
+      return getAbsoluteUrl(value, source)
     },
   }
 }
