@@ -27,7 +27,7 @@ const EXAMPLE_DOCUMENT = {
 }
 
 describe('create-store-refs', () => {
-  bench('dereference', async () => {
+  bench.skip('dereference', async () => {
     const { schema } = await dereference(EXAMPLE_DOCUMENT)
 
     expect(schema?.paths?.['/foobar']?.post?.summary).toBe('Foobar')

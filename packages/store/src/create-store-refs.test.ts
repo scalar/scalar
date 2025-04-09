@@ -6,6 +6,10 @@ describe('create-store-refs', () => {
     it('creates a store and resolves references on access', () => {
       const definition = {
         openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
         paths: {},
         components: {
           schemas: {
@@ -46,6 +50,10 @@ describe('create-store-refs', () => {
     it('updates properties through both original and reference paths', () => {
       const definition = {
         openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
         paths: {},
         components: {
           schemas: {
@@ -88,6 +96,10 @@ describe('create-store-refs', () => {
     it('exports the raw document with $refs intact', () => {
       const definition = {
         openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
         paths: {},
         components: {
           schemas: {
