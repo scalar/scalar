@@ -1,21 +1,7 @@
+import type { OpenApiExtension, ApiReferencePlugin as OriginalApiReferencePlugin } from '@scalar/types/api-reference'
 import { type InjectionKey, inject } from 'vue'
-import type { Component } from 'vue'
 
-export type OpenApiExtension = {
-  /**
-   * The name of the OpenAPI extension
-   */
-  name: `x-${string}`
-  /**
-   * The component to render the OpenAPI extension
-   */
-  component: Component
-}
-
-export type ApiReferencePlugin = () => {
-  name: string
-  extensions: OpenApiExtension[]
-}
+export type ApiReferencePlugin = OriginalApiReferencePlugin
 
 type CreatePluginManagerParams = {
   plugins?: ApiReferencePlugin[]

@@ -16,3 +16,8 @@ export {
 } from './html-rendering-configuration.ts'
 
 export { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
+
+export type {
+  OpenApiExtension,
+  ApiReferencePlugin,
+} from './api-reference-plugin.ts'

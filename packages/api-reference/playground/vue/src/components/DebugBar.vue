@@ -54,6 +54,30 @@ const sources = [
     title: 'Vercel',
     url: 'https://openapi.vercel.sh/',
   },
+  {
+    title: 'Custom OpenAPI Extension',
+    content: {
+      openapi: '3.1.0',
+      info: {
+        title: 'Custom OpenAPI Extension',
+        version: '1.0.0',
+      },
+      paths: {},
+      components: {
+        schemas: {
+          Foobar: {
+            type: 'object',
+            properties: {
+              foobar: {
+                'type': 'string',
+                'x-custom-extension': 'insane',
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 ]
 
 const booleanAttributes = [
@@ -139,25 +163,46 @@ const themes = [
         <div class="flex flex-col gap-2 rounded-md border border-stone-700 p-2">
           <h3 class="font-bold">Sources</h3>
           <label
-            v-for="source in sources"
-            :key="source.url"
+            v-for="(source, index) in sources"
+            :key="index"
             class="flex items-center gap-2">
             <input
-              :checked="modelValue.sources?.some((s) => s.url === source.url)"
+              :checked="
+                modelValue.sources?.some(
+                  (s) =>
+                    (s.url && s.url === source.url) ||
+                    (s.content && s.content === source.content),
+                )
+              "
               class="rounded border-stone-700 bg-stone-800"
               type="checkbox"
               @change="
                 $emit('update:modelValue', {
                   ...modelValue,
 
-                  sources: modelValue.sources?.some((s) => s.url === source.url)
-                    ? modelValue.sources.filter((s) => s.url !== source.url)
-                        .length > 0
-                      ? modelValue.sources.filter((s) => s.url !== source.url)
+                  sources: modelValue.sources?.some(
+                    (s) =>
+                      (s.url && s.url === source.url) ||
+                      (s.content && s.content === source.content),
+                  )
+                    ? modelValue.sources.filter(
+                        (s) =>
+                          (s.url && s.url !== source.url) ||
+                          (s.content && s.content !== source.content),
+                      ).length > 0
+                      ? modelValue.sources.filter(
+                          (s) =>
+                            (s.url && s.url !== source.url) ||
+                            (s.content && s.content !== source.content),
+                        )
                       : []
                     : [
                         ...(modelValue.sources || []),
-                        { title: source.title, url: source.url },
+                        {
+                          title: source.title,
+                          url: source.url,
+                          content: source.content,
+                        },
                       ],
                 })
               " />

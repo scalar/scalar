@@ -1,8 +1,7 @@
 export {
-  type OpenApiExtension,
-  type ApiReferencePlugin,
   createPluginManager,
-  type PluginManager,
   PLUGIN_MANAGER_SYMBOL,
+  type ApiReferencePlugin,
+  type PluginManager,
   usePluginManager,
 } from './plugin-manager'

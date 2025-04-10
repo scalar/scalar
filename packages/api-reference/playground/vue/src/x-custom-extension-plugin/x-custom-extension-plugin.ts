@@ -1,4 +1,4 @@
-import type { ApiReferencePlugin } from '../../../../src/plugins'
+import type { ApiReferencePlugin } from '@scalar/types/api-reference'
 import XCustomExtensionComponent from './components/XCustomExtensionComponent.vue'
 
 export const XCustomExtensionPlugin: ApiReferencePlugin = () => {
