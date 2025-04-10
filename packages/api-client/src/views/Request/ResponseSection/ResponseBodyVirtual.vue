@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarVirtualText } from '@scalar/components'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
@@ -17,8 +17,8 @@ const props = defineProps<{
 const textContent = computed(() => formatJsonOrYamlString(props.content))
 
 const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
-  data: props.data,
-  headers: props.headers,
+  data: toRef(props, 'data'),
+  headers: toRef(props, 'headers'),
 })
 </script>
 
