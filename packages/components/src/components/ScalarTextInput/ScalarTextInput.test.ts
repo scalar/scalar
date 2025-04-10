@@ -37,6 +37,19 @@ describe('ScalarTextInput', () => {
     expect(input.attributes('type')).toBe('email')
   })
 
+  it('emits events from the input element', async () => {
+    const onBlur = vi.fn()
+    const wrapper = mount(ScalarTextInput, {
+      attrs: {
+        onBlur,
+      },
+    })
+
+    const input = wrapper.find('input')
+    await input.trigger('blur')
+    expect(onBlur).toHaveBeenCalled()
+  })
+
   it('focuses input when container is clicked', async () => {
     const wrapper = mount(ScalarTextInput)
     const container = wrapper.find('div')
