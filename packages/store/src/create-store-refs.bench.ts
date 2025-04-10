@@ -55,6 +55,7 @@ describe('create-store-refs', () => {
       checkRequests()
     })
 
+    // @ts-expect-error whatever
     expect(Object.values(workspaceStore.requests)[1]?.summary ?? '').toBe('Foobar')
   })
 

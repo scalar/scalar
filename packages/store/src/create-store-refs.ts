@@ -1,4 +1,3 @@
-import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { isReactive, reactive, toRaw } from 'vue'
 
 /**
@@ -10,7 +9,10 @@ export function createStore(input: Record<string, unknown>) {
   // TODO: Normalize
   // TODO: Embed external references
   // TODO: Upgrade
-  const content = OpenApiObjectSchema.parse(input)
+
+  // TODO: OpenApiObjectSchema.parse is too strict
+  // const content = OpenApiObjectSchema.parse(input)
+  const content = input
 
   // Make the source document reactive for Vue change tracking
   const sourceDocument = reactive(content)
@@ -152,9 +154,10 @@ export function createStore(input: Record<string, unknown>) {
     export() {
       const raw = toRaw(sourceDocument)
 
-      removeProperties(raw, {
-        test: (key) => key.startsWith('_'),
-      })
+      // TODO: Doesn’t work with circular references it seems
+      // removeProperties(raw, {
+      //   test: (key) => key.startsWith('_'),
+      // })
 
       return raw
     },
@@ -164,6 +167,7 @@ export function createStore(input: Record<string, unknown>) {
 /**
  * Recursively removes properties from an object based on a condition
  */
+// @ts-expect-error We’ll need this
 function removeProperties(obj: Record<string, unknown>, options: { test: (key: string) => boolean }) {
   if (Array.isArray(obj)) {
     obj.forEach((item) => {
