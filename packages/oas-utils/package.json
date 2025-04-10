@@ -33,55 +33,55 @@
   "type": "module",
   "main": "dist/index.js",
   "exports": {
-    "./transforms": {
-      "import": "./dist/transforms/index.js",
-      "types": "./dist/transforms/index.d.ts",
-      "default": "./dist/transforms/index.js"
-    },
-    "./spec-getters": {
-      "import": "./dist/spec-getters/index.js",
-      "types": "./dist/spec-getters/index.d.ts",
-      "default": "./dist/spec-getters/index.js"
-    },
-    "./migrations": {
-      "import": "./dist/migrations/index.js",
-      "types": "./dist/migrations/index.d.ts",
-      "default": "./dist/migrations/index.js"
-    },
-    "./helpers": {
-      "import": "./dist/helpers/index.js",
-      "types": "./dist/helpers/index.d.ts",
-      "default": "./dist/helpers/index.js"
-    },
-    "./entities/workspace": {
-      "import": "./dist/entities/workspace/index.js",
-      "types": "./dist/entities/workspace/index.d.ts",
-      "default": "./dist/entities/workspace/index.js"
-    },
-    "./entities/spec": {
-      "import": "./dist/entities/spec/index.js",
-      "types": "./dist/entities/spec/index.d.ts",
-      "default": "./dist/entities/spec/index.js"
-    },
-    "./entities/shared": {
-      "import": "./dist/entities/shared/index.js",
-      "types": "./dist/entities/shared/index.d.ts",
-      "default": "./dist/entities/shared/index.js"
-    },
-    "./entities/hotkeys": {
-      "import": "./dist/entities/hotkeys/index.js",
-      "types": "./dist/entities/hotkeys/index.d.ts",
-      "default": "./dist/entities/hotkeys/index.js"
+    "./entities/cookie": {
+      "import": "./dist/entities/cookie/index.js",
+      "types": "./dist/entities/cookie/index.d.ts",
+      "default": "./dist/entities/cookie/index.js"
     },
     "./entities/environment": {
       "import": "./dist/entities/environment/index.js",
       "types": "./dist/entities/environment/index.d.ts",
       "default": "./dist/entities/environment/index.js"
     },
-    "./entities/cookie": {
-      "import": "./dist/entities/cookie/index.js",
-      "types": "./dist/entities/cookie/index.d.ts",
-      "default": "./dist/entities/cookie/index.js"
+    "./entities/hotkeys": {
+      "import": "./dist/entities/hotkeys/index.js",
+      "types": "./dist/entities/hotkeys/index.d.ts",
+      "default": "./dist/entities/hotkeys/index.js"
+    },
+    "./entities/shared": {
+      "import": "./dist/entities/shared/index.js",
+      "types": "./dist/entities/shared/index.d.ts",
+      "default": "./dist/entities/shared/index.js"
+    },
+    "./entities/spec": {
+      "import": "./dist/entities/spec/index.js",
+      "types": "./dist/entities/spec/index.d.ts",
+      "default": "./dist/entities/spec/index.js"
+    },
+    "./entities/workspace": {
+      "import": "./dist/entities/workspace/index.js",
+      "types": "./dist/entities/workspace/index.d.ts",
+      "default": "./dist/entities/workspace/index.js"
+    },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
+    },
+    "./migrations": {
+      "import": "./dist/migrations/index.js",
+      "types": "./dist/migrations/index.d.ts",
+      "default": "./dist/migrations/index.js"
+    },
+    "./spec-getters": {
+      "import": "./dist/spec-getters/index.js",
+      "types": "./dist/spec-getters/index.d.ts",
+      "default": "./dist/spec-getters/index.js"
+    },
+    "./transforms": {
+      "import": "./dist/transforms/index.js",
+      "types": "./dist/transforms/index.d.ts",
+      "default": "./dist/transforms/index.js"
     }
   },
   "files": [
