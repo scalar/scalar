@@ -34,35 +34,31 @@ onMounted(() => {
       )
     "
     @click="input?.focus()">
-    <div class="flex flex-1 flex-col gap-0.75">
-      <div class="relative flex">
+    <div class="flex flex-1 relative">
+      <span
+        v-if="$slots.prefix"
+        class="select-none whitespace-nowrap text-sm text-transparent">
+        <slot name="prefix" />
+      </span>
+      <input
+        ref="input"
+        v-model="model"
+        class="z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none"
+        v-bind="otherAttrs" />
+      <div
+        v-if="$slots.prefix || $slots.suffix"
+        class="absolute inset-0 select-none overflow-hidden whitespace-nowrap text-sm">
         <span
           v-if="$slots.prefix"
-          class="select-none whitespace-nowrap text-sm text-transparent">
+          class="text-c-2">
           <slot name="prefix" />
         </span>
-        <input
-          ref="input"
-          v-model="model"
-          class="z-1 min-w-0 flex-1 border-none bg-transparent text-sm placeholder:font-[inherit] focus-within:outline-none"
-          v-bind="otherAttrs" />
-        <div
-          v-if="$slots.prefix || $slots.suffix"
-          class="absolute inset-0 select-none overflow-hidden whitespace-nowrap text-sm">
-          <span
-            v-if="$slots.prefix"
-            class="text-c-2">
-            <slot name="prefix" />
-          </span>
-          <span class="text-transparent">{{
-            model || $attrs.placeholder
-          }}</span>
-          <span
-            v-if="$slots.suffix"
-            class="text-c-2">
-            <slot name="suffix" />
-          </span>
-        </div>
+        <span class="text-transparent">{{ model || $attrs.placeholder }}</span>
+        <span
+          v-if="$slots.suffix"
+          class="text-c-2">
+          <slot name="suffix" />
+        </span>
       </div>
     </div>
     <slot name="aside" />
