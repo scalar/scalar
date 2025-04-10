@@ -56,12 +56,12 @@ const sources = [
   },
   {
     title: 'Specification Extensions',
-    // An example with a custom OpenAPI extension where the specification allows it.
     content: JSON.stringify({
       openapi: '3.1.0',
       info: {
         'title': 'Specification Extensions',
-        'description': 'This is a custom OpenAPI extension',
+        'description':
+          'An OpenAPI document with specification extensions where the specification allows them.',
         'version': '1.0.0',
         'x-custom-extension': 'info.x-custom-extension',
         'contact': {
