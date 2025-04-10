@@ -37,40 +37,40 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./transforms": {
-      "import": "./dist/transforms/index.js",
-      "types": "./dist/transforms/index.d.ts",
-      "default": "./dist/transforms/index.js"
-    },
-    "./parse": {
-      "import": "./dist/parse/index.js",
-      "types": "./dist/parse/index.d.ts",
-      "default": "./dist/parse/index.js"
-    },
-    "./nested": {
-      "import": "./dist/nested/index.js",
-      "types": "./dist/nested/index.d.ts",
-      "default": "./dist/nested/index.js"
-    },
-    "./mutator-record": {
-      "import": "./dist/mutator-record/index.js",
-      "types": "./dist/mutator-record/index.d.ts",
-      "default": "./dist/mutator-record/index.js"
-    },
-    "./merge": {
-      "import": "./dist/merge/index.js",
-      "types": "./dist/merge/index.d.ts",
-      "default": "./dist/merge/index.js"
+    "./arrays": {
+      "import": "./dist/arrays/index.js",
+      "types": "./dist/arrays/index.d.ts",
+      "default": "./dist/arrays/index.js"
     },
     "./clone": {
       "import": "./dist/clone/index.js",
       "types": "./dist/clone/index.d.ts",
       "default": "./dist/clone/index.js"
     },
-    "./arrays": {
-      "import": "./dist/arrays/index.js",
-      "types": "./dist/arrays/index.d.ts",
-      "default": "./dist/arrays/index.js"
+    "./merge": {
+      "import": "./dist/merge/index.js",
+      "types": "./dist/merge/index.d.ts",
+      "default": "./dist/merge/index.js"
+    },
+    "./mutator-record": {
+      "import": "./dist/mutator-record/index.js",
+      "types": "./dist/mutator-record/index.d.ts",
+      "default": "./dist/mutator-record/index.js"
+    },
+    "./nested": {
+      "import": "./dist/nested/index.js",
+      "types": "./dist/nested/index.d.ts",
+      "default": "./dist/nested/index.js"
+    },
+    "./parse": {
+      "import": "./dist/parse/index.js",
+      "types": "./dist/parse/index.d.ts",
+      "default": "./dist/parse/index.js"
+    },
+    "./transforms": {
+      "import": "./dist/transforms/index.js",
+      "types": "./dist/transforms/index.d.ts",
+      "default": "./dist/transforms/index.js"
     }
   },
   "files": [
