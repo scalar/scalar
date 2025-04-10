@@ -3,27 +3,50 @@ import { ScalarErrorBoundary } from '@scalar/components'
 
 import { usePluginManager } from '@/plugins'
 
-defineProps<{
+const { value } = defineProps<{
+  /**
+   * Any value that can contain OpenAPI specification extensions.
+   */
   value: Record<string, unknown> | undefined
 }>()
 
 const { getOpenApiExtensions } = usePluginManager()
 
-function getCustomOpenApiExtensionComponents(
+/**
+ * Extract registered OpenAPI extension names
+ */
+function getCustomExtensionNames(
   value: Record<string, any> | undefined,
-) {
-  const customExtensionNames = Object.keys(value ?? {}).filter((item) =>
+): `x-${string}`[] {
+  return Object.keys(value ?? {}).filter((item) =>
     item.startsWith('x-'),
   ) as `x-${string}`[]
+}
 
-  return customExtensionNames
+/**
+ * Get the components for the specification extensions
+ */
+function getCustomOpenApiExtensionComponents(extensionNames: `x-${string}`[]) {
+  return extensionNames
     .flatMap((name) => getOpenApiExtensions(name))
     .filter((extension) => extension.component)
 }
+
+/**
+ * Get the names of custom extensions from the provided value.
+ */
+const customExtensionNames = getCustomExtensionNames(value)
+
+/**
+ * Get the components for the custom extensions.
+ */
+const customExtensions =
+  getCustomOpenApiExtensionComponents(customExtensionNames)
 </script>
+
 <template>
   <template v-if="typeof value === 'object'">
-    <template v-for="extension in getCustomOpenApiExtensionComponents(value)">
+    <template v-for="extension in customExtensions">
       <ScalarErrorBoundary>
         <div class="text-base">
           <component
