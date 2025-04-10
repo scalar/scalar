@@ -288,6 +288,14 @@ You can build your own plugins, though. There is an example for rendering custom
 
 https://github.com/scalar/scalar/tree/main/packages/api-reference/playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin.ts
 
+You can add specification extensions (starting with `x-`) to the following objects:
+
+* Info Object
+* Tag Object
+* Schema Object
+
+You need them in another place? [Create an issue to let us know.](https://github.com/scalar/scalar/issues/new/choose)
+
 ### showSidebar?: boolean
 
 Whether the sidebar should be shown.

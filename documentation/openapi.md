@@ -4,6 +4,10 @@ We’re expecting the passed OpenAPI document to adhere to [the Swagger 2.0, Ope
 
 On top of that, we’ve added a few things for your convenience:
 
+## Custom Specification Extensions
+
+You an add custom specification extensions (starting with a `x-`) through [our plugin API](configuration.md).
+
 ## x-scalar-environments
 
 You can specify predefined environment variables for the API Client/References to consume and use:
