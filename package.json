@@ -121,10 +121,5 @@
         }
       ]
     ]
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }
