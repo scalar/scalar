@@ -1,10 +1,6 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import {
-  ScalarErrorBoundary,
-  ScalarIcon,
-  ScalarMarkdown,
-} from '@scalar/components'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, type Component } from 'vue'
 
@@ -12,6 +8,7 @@ import {
   discriminators,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { usePluginManager } from '@/plugins'
 
 import Schema from './Schema.vue'
@@ -148,26 +145,6 @@ const displayPropertyHeading = (
     value?.readOnly ||
     required
   )
-}
-
-const { getOpenApiExtensions } = usePluginManager()
-
-function getOpenApiExtensionNames(value: Record<string, any> | undefined) {
-  return Object.keys(value ?? {}).filter((item) =>
-    item.startsWith('x-'),
-  ) as `x-${string}`[]
-}
-
-function getCustomOpenApiExtensionComponents(
-  value: Record<string, any> | undefined,
-) {
-  const customExtensionNames = Object.keys(value ?? {}).filter((item) =>
-    item.startsWith('x-'),
-  ) as `x-${string}`[]
-
-  return customExtensionNames
-    .flatMap((name) => getOpenApiExtensions(name))
-    .filter((extension) => extension.component)
 }
 </script>
 <template>
@@ -350,15 +327,7 @@ function getCustomOpenApiExtensionComponents(
           :value="optimizedValue.items" />
       </template>
     </template>
-    <!-- Custom OpenAPI extensions -->
-    <template
-      v-for="extension in getCustomOpenApiExtensionComponents(optimizedValue)">
-      <ScalarErrorBoundary>
-        <component
-          :is="extension.component"
-          v-bind="{ [extension.name]: optimizedValue?.[extension.name] }" />
-      </ScalarErrorBoundary>
-    </template>
+    <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
 

@@ -14,6 +14,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
+import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -62,5 +63,6 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
+    <SpecificationExtension :value="tag" />
   </Section>
 </template>

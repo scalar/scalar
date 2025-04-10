@@ -57,10 +57,11 @@ const sources = [
   {
     title: 'Custom OpenAPI Extension',
     // An example with a custom OpenAPI extension where the specification allows it.
-    content: {
+    content: JSON.stringify({
       openapi: '3.1.0',
       info: {
         'title': 'Custom OpenAPI Extension',
+        'description': 'This is a custom OpenAPI extension',
         'version': '1.0.0',
         'x-custom-extension': 'info.x-custom-extension',
         'contact': {
@@ -102,16 +103,19 @@ const sources = [
         '/': {
           'x-custom-extension': 'paths./.x-custom-extension',
           'post': {
+            'tags': ['Foobar'],
+            'operationId': 'foobar',
             'summary': 'Get a list of all foobars',
             'x-custom-extension': 'paths./.get.x-custom-extension',
-            'parameters': {
-              limit: {
+            'parameters': [
+              {
+                'name': 'limit',
                 'type': 'integer',
                 'in': 'query',
                 'x-custom-extension':
                   'paths./.get.parameters.limit.x-custom-extension',
               },
-            },
+            ],
             'requestBody': {
               'x-custom-extension':
                 'paths./.get.requestBody.x-custom-extension',
@@ -280,7 +284,7 @@ const sources = [
         },
         'x-custom-extension': 'components.x-custom-extension',
       },
-    },
+    }),
   },
 ]
 
