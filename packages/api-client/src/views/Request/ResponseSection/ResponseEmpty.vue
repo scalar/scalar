@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Collection, Operation } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { nextTick, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -9,9 +11,11 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 
-const { numWorkspaceRequests } = defineProps<{
+const { numWorkspaceRequests, collection, operation, workspace } = defineProps<{
+  collection: Collection
+  operation: Operation
+  workspace: Workspace
   numWorkspaceRequests: number
 }>()
 
@@ -19,28 +23,20 @@ const { events, requestMutators } = useWorkspace()
 const route = useRoute()
 const router = useRouter()
 const { layout } = useLayout()
-const { activeWorkspace, activeCollection, activeRequest } = useActiveEntities()
 
 const addRequest = () => {
-  if (!activeCollection.value?.uid) {
-    return
-  }
-
   // If the request has tags, add the first tag to the new request
-  const requestData = activeRequest.value?.tags?.length
-    ? { tags: activeRequest.value.tags[0] ? [activeRequest.value.tags[0]] : [] }
+  const requestData = operation.tags?.length
+    ? { tags: operation.tags[0] ? [operation.tags[0]] : [] }
     : {}
 
-  const newRequest = requestMutators.add(
-    requestData,
-    activeCollection.value?.uid,
-  )
+  const newRequest = requestMutators.add(requestData, collection.uid)
 
   if (newRequest) {
     router.push({
       name: 'request',
       params: {
-        workspace: activeWorkspace.value?.uid,
+        workspace: workspace.uid,
         request: newRequest.uid,
       },
     })
