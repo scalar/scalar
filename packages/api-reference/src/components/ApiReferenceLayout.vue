@@ -52,8 +52,6 @@ import type {
   ReferenceSlotProps,
 } from '@/types'
 
-import { XCustomExtensionPlugin } from '../../playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin'
-
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
 defineEmits<{
@@ -283,12 +281,11 @@ provide(LAYOUT_SYMBOL, 'modal')
 // Provide the configuration
 provide(CONFIGURATION_SYMBOL, configuration)
 
-// Provide the plugin manager
 provide(
   PLUGIN_MANAGER_SYMBOL,
   createPluginManager({
     // TODO: Get plugins from the configuration
-    plugins: [XCustomExtensionPlugin],
+    plugins: configuration.value.plugins,
   }),
 )
 

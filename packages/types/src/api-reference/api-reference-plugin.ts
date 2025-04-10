@@ -1,19 +1,31 @@
-// TODO: Oh, do we want to make this a dependency?
+// TODO: Oh, do we really want to make this a dependency?
 // import type { Component } from 'vue'
 
-export type OpenApiExtension = {
-  /**
-   * The name of the OpenAPI extension
-   */
-  name: `x-${string}`
-  /**
-   * The component to render the OpenAPI extension
-   */
-  component: any
-  // component: Component
-}
+import { z } from 'zod'
 
-export type ApiReferencePlugin = () => {
-  name: string
-  extensions: OpenApiExtension[]
-}
+export const OpenApiExtensionSchema = z.object({
+  /**
+   * Name of custom OpenAPI extension property. Has to start with `x-`.
+   *
+   * @example
+   * ```yaml
+   * x-custom-extension: foobar
+   * ```
+   */
+  name: z.string().regex(/^x-/),
+  /**
+   * Vue component to render the OpenAPI extension
+   */
+  component: z.unknown(),
+})
+
+export const ApiReferencePluginSchema = z.function().returns(
+  z.object({
+    name: z.string(),
+    extensions: z.array(OpenApiExtensionSchema),
+  }),
+)
+
+// Infer the types from the schemas
+export type OpenApiExtension = z.infer<typeof OpenApiExtensionSchema>
+export type ApiReferencePlugin = z.infer<typeof ApiReferencePluginSchema>

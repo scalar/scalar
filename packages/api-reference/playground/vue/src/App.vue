@@ -22,6 +22,7 @@ const configuration = reactive({
   ],
   showSidebar: true,
   withDefaultFonts: true,
+  plugins: [XCustomExtensionPlugin],
 })
 
 let app: ReturnType<typeof createApiReference> | null = null

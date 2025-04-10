@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import type { AuthenticationConfiguration } from '@/api-reference/authentication-configuration.ts'
-import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
+import { ApiReferencePluginSchema } from '@/api-reference/api-reference-plugin.ts'
 import type { TargetId } from '@/snippetz/index.ts'
-
+import type { AuthenticationConfiguration } from './authentication-configuration.ts'
+import { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
   'alternate',
@@ -133,7 +133,7 @@ export const specConfigurationSchema = z.object({
    *
    * If none is passed, the title will be used.
    *
-   * If no title is used, it’ll just use the index.
+   * If no title is used, it'll just use the index.
    *
    * @example 'scalar-galaxy'
    *
@@ -159,7 +159,7 @@ export const apiClientConfigurationSchema = z.object({
    * Directly embed the OpenAPI document.
    * Can be a string, object, function returning an object, or null.
    *
-   * @remarks It’s recommended to pass a URL instead of content.
+   * @remarks It's recommended to pass a URL instead of content.
    **/
   content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
   /**
@@ -173,7 +173,7 @@ export const apiClientConfigurationSchema = z.object({
    *
    * If none is passed, the title will be used.
    *
-   * If no title is used, it’ll just use the index.
+   * If no title is used, it'll just use the index.
    *
    * @example 'scalar-galaxy'
    */
@@ -228,6 +228,10 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @deprecated Use proxyUrl instead
      */
     proxy: z.string().optional(),
+    /**
+     * Plugins for the API reference
+     */
+    plugins: z.array(ApiReferencePluginSchema).optional(),
     /**
      * Whether the spec input should show
      * @default false
@@ -327,7 +331,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     generateHeadingSlug: z
       .function()
-      .args(z.object({ slug: z.string().default('headingSlug') }))
+      .args(
+        z.object({
+          slug: z.string().default('headingSlug'),
+        }),
+      )
       .returns(z.string())
       .optional(),
     /**
@@ -338,7 +346,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     generateModelSlug: z
       .function()
-      .args(z.object({ name: z.string().default('modelName') }))
+      .args(
+        z.object({
+          name: z.string().default('modelName'),
+        }),
+      )
       .returns(z.string())
       .optional(),
     /**
@@ -349,7 +361,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     generateTagSlug: z
       .function()
-      .args(z.object({ name: z.string().default('tagName') }))
+      .args(
+        z.object({
+          name: z.string().default('tagName'),
+        }),
+      )
       .returns(z.string())
       .optional(),
     /**
@@ -436,7 +452,7 @@ const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfiguratio
   // Remove the spec prefix
   if (configuration.spec?.url) {
     console.warn(
-      `[DEPRECATED] You’re using the deprecated 'spec.url' attribute. Remove the spec prefix and move the 'url' attribute to the top level.`,
+      `[DEPRECATED] You're using the deprecated 'spec.url' attribute. Remove the spec prefix and move the 'url' attribute to the top level.`,
     )
 
     configuration.url = configuration.spec.url
@@ -445,7 +461,7 @@ const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfiguratio
 
   if (configuration.spec?.content) {
     console.warn(
-      `[DEPRECATED] You’re using the deprecated 'spec.content' attribute. Remove the spec prefix and move the 'content' attribute to the top level.`,
+      `[DEPRECATED] You're using the deprecated 'spec.content' attribute. Remove the spec prefix and move the 'content' attribute to the top level.`,
     )
 
     configuration.content = configuration.spec.content
@@ -460,7 +476,7 @@ const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfiguratio
   // Migrate proxy URL
   if (configuration.proxy) {
     console.warn(
-      `[DEPRECATED] You’re using the deprecated 'proxy' attribute, rename it to 'proxyUrl' or update the package.`,
+      `[DEPRECATED] You're using the deprecated 'proxy' attribute, rename it to 'proxyUrl' or update the package.`,
     )
 
     if (!configuration.proxyUrl) {
