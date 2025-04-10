@@ -13,9 +13,12 @@
 export default {}
 </script>
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 import { useBindCx } from '../../hooks/useBindCx'
 
-defineProps<{
+const { is = 'label', error } = defineProps<{
+  is?: string | Component
   error?: boolean
 }>()
 
@@ -23,7 +26,8 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <label
+  <component
+    :is="is"
     v-bind="
       cx('flex flex-col gap-1.5 rounded', {
         'outline outline-c-danger outline-offset-2': error,
@@ -37,5 +41,5 @@ const { cx } = useBindCx()
       </span>
     </div>
     <slot />
-  </label>
+  </component>
 </template>
