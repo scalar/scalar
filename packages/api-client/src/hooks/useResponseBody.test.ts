@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 
 import { useResponseBody } from './useResponseBody'
 
@@ -9,8 +10,8 @@ describe('useResponseBody', () => {
 
   it('extracts the correct MimeType from headers', () => {
     const props = {
-      data: null,
-      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+      data: ref(null),
+      headers: ref([{ name: 'Content-Type', value: 'application/json', required: true }]),
     }
     const { mimeType } = useResponseBody(props)
     expect(mimeType.value.essence).toBe('application/json')
@@ -18,14 +19,14 @@ describe('useResponseBody', () => {
 
   it('extracts the correct attachment filename from headers', () => {
     const props = {
-      data: null,
-      headers: [
+      data: ref(null),
+      headers: ref([
         {
           name: 'Content-Disposition',
           value: 'attachment; filename="test.txt"',
           required: true,
         },
-      ],
+      ]),
     }
     const { attachmentFilename } = useResponseBody(props)
     expect(attachmentFilename.value).toBe('test.txt')
@@ -34,8 +35,8 @@ describe('useResponseBody', () => {
   it('generates a data URL for a Blob', () => {
     const blob = new Blob(['test'], { type: 'text/plain' })
     const props = {
-      data: blob,
-      headers: [{ name: 'Content-Type', value: 'text/plain', required: true }],
+      data: ref(blob),
+      headers: ref([{ name: 'Content-Type', value: 'text/plain', required: true }]),
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('mockedBlobURL')
@@ -43,8 +44,8 @@ describe('useResponseBody', () => {
 
   it('generates a data URL for a string', () => {
     const props = {
-      data: 'test string',
-      headers: [{ name: 'Content-Type', value: 'text/plain', required: true }],
+      data: ref('test string'),
+      headers: ref([{ name: 'Content-Type', value: 'text/plain', required: true }]),
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('mockedBlobURL')
@@ -52,8 +53,8 @@ describe('useResponseBody', () => {
 
   it('generates a data URL for an object', () => {
     const props = {
-      data: { key: 'value' },
-      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+      data: ref({ key: 'value' }),
+      headers: ref([{ name: 'Content-Type', value: 'application/json', required: true }]),
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('mockedBlobURL')
@@ -61,8 +62,8 @@ describe('useResponseBody', () => {
 
   it('returns an empty string for unsupported data types', () => {
     const props = {
-      data: null,
-      headers: [{ name: 'Content-Type', value: 'application/json', required: true }],
+      data: ref(null),
+      headers: ref([{ name: 'Content-Type', value: 'application/json', required: true }]),
     }
     const { dataUrl } = useResponseBody(props)
     expect(dataUrl.value).toBe('')

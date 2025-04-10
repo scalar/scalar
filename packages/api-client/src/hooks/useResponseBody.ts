@@ -8,10 +8,8 @@ import type { Ref } from 'vue'
  * Extracts MIME type, attachment filename, and generates a data URL.
  */
 export function useResponseBody(props: {
-  data: Ref<unknown> | unknown
-  headers:
-    | Ref<{ name: string; value: string; required: boolean }[]>
-    | { name: string; value: string; required: boolean }[]
+  data: Ref<unknown>
+  headers: Ref<{ name: string; value: string; required: boolean }[]>
 }) {
   const isBlob = (b: any): b is Blob => b instanceof Blob
 
