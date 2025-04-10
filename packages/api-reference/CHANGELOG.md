@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.28.16
+
+### Patch Changes
+
+- 2707c69: feat: show schema title in heading when available
+- Updated dependencies [27f1c16]
+- Updated dependencies [27f1c16]
+- Updated dependencies [d970ff5]
+  - @scalar/api-client@2.3.16
+
 ## 1.28.15
 
 ### Patch Changes
