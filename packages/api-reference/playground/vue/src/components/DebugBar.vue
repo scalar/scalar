@@ -55,12 +55,12 @@ const sources = [
     url: 'https://openapi.vercel.sh/',
   },
   {
-    title: 'Custom OpenAPI Extension',
+    title: 'Specification Extensions',
     // An example with a custom OpenAPI extension where the specification allows it.
     content: JSON.stringify({
       openapi: '3.1.0',
       info: {
-        'title': 'Custom OpenAPI Extension',
+        'title': 'Specification Extensions',
         'description': 'This is a custom OpenAPI extension',
         'version': '1.0.0',
         'x-custom-extension': 'info.x-custom-extension',

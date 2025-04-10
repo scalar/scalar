@@ -284,7 +284,7 @@ If you like to run your own, check out our [example proxy written in Go](https:/
 
 Pass an array of custom plugins that you want. As of now, we don’t provide any official plugins (yet).
 
-You can build your own plugins, though. There is an example for rendering custom OpenAPI extensions in your schemas:
+You can build your own plugins, though. There is an example how to render custom specification extensions:
 
 https://github.com/scalar/scalar/tree/main/packages/api-reference/playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin.ts
 

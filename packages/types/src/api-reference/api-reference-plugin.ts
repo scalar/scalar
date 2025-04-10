@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 export const OpenApiExtensionSchema = z.object({
   /**
-   * Name of custom OpenAPI extension property. Has to start with `x-`.
+   * Name of specification extension property. Has to start with `x-`.
    *
    * @example
    * ```yaml
