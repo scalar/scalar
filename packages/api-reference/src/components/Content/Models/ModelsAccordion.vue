@@ -52,7 +52,7 @@ const { getModelId } = useNavState()
           <SectionHeaderTag :level="3">
             <SchemaHeading
               class="reference-models-label"
-              :name="name"
+              :name="schema.title ?? name"
               :value="schema" />
           </SectionHeaderTag>
         </Anchor>

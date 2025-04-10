@@ -77,7 +77,7 @@ const models = computed(() => {
             <template #heading>
               <SectionHeaderTag :level="3">
                 <SchemaHeading
-                  :name="name"
+                  :name="(schemas as any)[name].title ?? name"
                   :value="(schemas as any)[name]" />
               </SectionHeaderTag>
             </template>
