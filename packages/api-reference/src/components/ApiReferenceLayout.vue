@@ -45,13 +45,14 @@ import { downloadSpecBus, downloadSpecFile, sleep } from '@/helpers'
 import { useNavState, useSidebar } from '@/hooks'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
-import { XCustomExtensionPlugin } from '@/plugins/x-custom-extension-plugin'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '@/types'
+
+import { XCustomExtensionPlugin } from '../../playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 

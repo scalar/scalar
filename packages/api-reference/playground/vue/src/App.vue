@@ -7,6 +7,7 @@ import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-ref
 import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
+import { XCustomExtensionPlugin } from './x-custom-extension-plugin/x-custom-extension-plugin'
 
 const containerRef = ref<HTMLDivElement>()
 
@@ -33,7 +34,10 @@ const updateConfiguration = (
   newConfiguration: Partial<ApiReferenceConfigurationWithSources>,
 ) => {
   Object.assign(configuration, newConfiguration)
-  app?.updateConfiguration(newConfiguration)
+  app?.updateConfiguration({
+    ...newConfiguration,
+    plugins: [XCustomExtensionPlugin],
+  })
 }
 </script>
 
