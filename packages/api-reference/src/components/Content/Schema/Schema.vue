@@ -4,6 +4,8 @@ import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
+import ScreenReader from '@/components/ScreenReader.vue'
+
 import SchemaHeading from './SchemaHeading.vue'
 import SchemaProperty from './SchemaProperty.vue'
 
@@ -34,13 +36,14 @@ const props = withDefaults(
       | Record<string, OpenAPIV3_1.SchemaObject>
       | unknown
   }>(),
-  { level: 0, showAdditionalProperties: false },
+  { level: 0, showAdditionalProperties: false, noncollapsible: false },
 )
 
 const shouldShowToggle = computed(() => {
   if (props.noncollapsible || props.level === 0) {
     return false
   }
+
   return true
 })
 
@@ -82,8 +85,8 @@ const handleClick = (e: MouseEvent) =>
         <!-- Special toggle to show additional properties -->
         <div
           v-if="additionalProperties"
-          class="schema-properties"
-          v-show="!open">
+          v-show="!open"
+          class="schema-properties">
           <DisclosureButton
             as="button"
             class="schema-card-title schema-card-title--compact"
@@ -93,11 +96,12 @@ const handleClick = (e: MouseEvent) =>
               icon="Add"
               size="sm" />
             Show additional properties
+            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </DisclosureButton>
         </div>
 
         <DisclosureButton
-          v-else
+          v-else-if="shouldShowToggle"
           v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
           class="schema-card-title"
@@ -108,7 +112,6 @@ const handleClick = (e: MouseEvent) =>
           @click.capture="handleClick">
           <template v-if="compact">
             <ScalarIcon
-              v-if="shouldShowToggle"
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
@@ -119,10 +122,10 @@ const handleClick = (e: MouseEvent) =>
             <template v-else>
               Show {{ value?.title ?? 'Child Attributes' }}
             </template>
+            <ScreenReader v-if="name">for {{ name }}</ScreenReader>
           </template>
           <template v-else>
             <ScalarIcon
-              v-if="shouldShowToggle"
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
@@ -134,7 +137,7 @@ const handleClick = (e: MouseEvent) =>
         </DisclosureButton>
         <DisclosurePanel
           as="ul"
-          :static="noncollapsible">
+          :static="!shouldShowToggle">
           <template
             v-if="
               value.properties ||

@@ -1,5 +1,26 @@
 # @scalar/postman-to-openapi
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [18b1be9]
+  - @scalar/oas-utils@0.2.128
+
+## 0.2.0
+
+### Minor Changes
+
+- 018e8b2: feat: import Postman post-response scripts
+
+### Patch Changes
+
+- 018e8b2: feat: cleaner Postman import (no 'default' tag, no made up responses)
+- 018e8b2: fix: /raw and / paths are handled specifically
+- Updated dependencies [bf961b1]
+- Updated dependencies [a176b7e]
+  - @scalar/oas-utils@0.2.127
+
 ## 0.1.49
 
 ### Patch Changes

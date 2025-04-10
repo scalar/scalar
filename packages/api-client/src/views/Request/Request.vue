@@ -93,6 +93,9 @@ function handleCurlImport(curl: string) {
               :server="activeServer"
               :workspace="activeWorkspace" />
             <ResponseSection
+              :collection="activeCollection"
+              :operation="activeRequest"
+              :workspace="activeWorkspace"
               :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
               :response="activeHistoryEntry?.response" />

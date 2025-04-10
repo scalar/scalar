@@ -5,6 +5,8 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { ref } from 'vue'
 
+import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
+
 import Schema from './Schema.vue'
 
 const props = defineProps<{
@@ -14,6 +16,7 @@ const props = defineProps<{
     | Record<string, OpenAPIV3.SchemaObject>
     | Record<string, OpenAPIV3_1.SchemaObject>
     | unknown
+  name?: string
   value: Record<string, any>
   level: number
   compact?: boolean
@@ -31,52 +34,6 @@ const buttonVariants = cva({
     },
   },
 })
-
-// Function to merge allOf schemas
-const mergeAllOfSchemas = (schemas: any[]) => {
-  if (!Array.isArray(schemas) || schemas.length === 0) {
-    return {}
-  }
-
-  // Handle case where we have an array of objects with allOf properties
-  if (schemas.length > 0 && schemas[0].allOf) {
-    const allSchemas = schemas.flatMap((schema) => schema.allOf || [])
-    return mergeAllOfSchemas(allSchemas)
-  }
-
-  // Regular case - just merge the schemas directly
-  return schemas.reduce((result, schema) => {
-    if (!schema || typeof schema !== 'object') {
-      return result
-    }
-
-    const mergedResult = { ...result }
-
-    if (schema.properties) {
-      mergedResult.properties = {
-        ...mergedResult.properties,
-        ...schema.properties,
-      }
-    }
-
-    if (schema.required && Array.isArray(schema.required)) {
-      mergedResult.required = [
-        ...(mergedResult.required || []),
-        ...schema.required,
-      ]
-    }
-
-    if (schema.type && !mergedResult.type) {
-      mergedResult.type = schema.type
-    }
-
-    if (schema.description && !mergedResult.description) {
-      mergedResult.description = schema.description
-    }
-
-    return mergedResult
-  }, {})
-}
 
 // Get model name from schema
 const getModelNameFromSchema = (schema: any): string | null => {
@@ -142,6 +99,7 @@ const humanizeType = (type: string) => {
           <Schema
             :compact="compact"
             :hideHeading="hideHeading"
+            :name="name"
             :noncollapsible="true"
             :schemas="schemas"
             :value="schema" />
@@ -152,6 +110,7 @@ const humanizeType = (type: string) => {
       <Schema
         :compact="compact"
         :level="level"
+        :name="name"
         :noncollapsible="level != 0 ? false : true"
         :schemas="schemas"
         :value="mergeAllOfSchemas(value[discriminator])" />

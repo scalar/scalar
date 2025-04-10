@@ -92,10 +92,11 @@ const shouldShowParameter = computed(() => {
           v-if="parameter.headers"
           :headers="parameter.headers" />
         <SchemaProperty
+          is="div"
           compact
           :description="shouldCollapse ? '' : parameter.description"
           :name="shouldCollapse ? '' : parameter.name"
-          :noncollapsible="showChildren"
+          :noncollapsible="true"
           :required="parameter.required"
           :schemas="schemas"
           :value="{

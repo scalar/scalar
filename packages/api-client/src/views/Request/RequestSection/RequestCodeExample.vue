@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   ScalarButton,
+  ScalarCodeBlock,
   ScalarCombobox,
   ScalarIcon,
   type ScalarComboboxOption,
@@ -13,7 +14,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { snippetz, type ClientId, type TargetId } from '@scalar/snippetz'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
@@ -33,6 +34,47 @@ const { collection, example, operation, server, workspace } = defineProps<{
 
 const { securitySchemes, workspaceMutators } = useWorkspace()
 
+const localSelectedClient = computed(() => {
+  // If the current selection is a custom example
+  if (localSelectedClientState.value.targetKey === 'custom') {
+    // Check if this custom example still exists in the new operation
+    const customExampleExists = codeSamples.value?.some(
+      (sample) => sample.lang === localSelectedClientState.value.clientKey,
+    )
+
+    // If it exists, keep using it
+    if (customExampleExists) {
+      return localSelectedClientState.value
+    }
+  }
+
+  // Otherwise fall back to workspace selection
+  return {
+    targetKey: workspace.selectedHttpClient?.targetKey ?? 'js',
+    clientKey: workspace.selectedHttpClient?.clientKey ?? 'fetch',
+  }
+})
+
+const codeSamples = computed(
+  () =>
+    operation['x-codeSamples'] ||
+    operation['x-code-samples'] ||
+    operation['x-custom-examples'],
+)
+
+// Store the actual selected state
+const localSelectedClientState = ref(
+  codeSamples.value?.length
+    ? {
+        targetKey: 'custom',
+        clientKey: codeSamples.value[0]?.lang,
+      }
+    : {
+        targetKey: workspace.selectedHttpClient?.targetKey ?? 'js',
+        clientKey: workspace.selectedHttpClient?.clientKey ?? 'fetch',
+      },
+)
+
 /**
  * Just the relevant security schemes for the selected request
  */
@@ -45,24 +87,57 @@ const selectedSecuritySchemes = computed(() =>
   ),
 )
 
-/** Group plugins by target/language to show in a dropdown, also build a dictionary in the same loop */
+/**
+ * Group plugins by target/language to show in a dropdown, also build a dictionary in the same loop
+ **/
 const snippets = computed(() => {
   const dict: Record<string, string> = {}
 
-  const options = snippetz()
+  // Get the built-in snippets
+  const builtInOptions = snippetz()
     .clients()
     .map((group) => ({
       label: group.title,
       options: group.clients.map((plugin) => {
-        // Add to the dictionary
         dict[`${group.key},${plugin.client}`] = plugin.title
-
         return {
           id: `${group.key},${plugin.client}`,
           label: plugin.title,
         }
       }),
     }))
+
+  // Get any custom code samples from x-codeSamples
+  const customExamples = (
+    operation['x-codeSamples'] ||
+    operation['x-code-samples'] ||
+    operation['x-custom-examples'] ||
+    []
+  ).map((sample) => ({
+    id: `custom,${sample.lang}`,
+    label: sample.label || sample.lang,
+  }))
+
+  // If we have custom samples, add them as a new group
+  const options =
+    customExamples.length > 0
+      ? [
+          {
+            id: 'customExamples',
+            label: 'Code Examples',
+            options: customExamples.map((customExample) => ({
+              id: customExample.id,
+              label: customExample.label ?? customExample.id,
+            })),
+          },
+          ...builtInOptions,
+        ]
+      : builtInOptions
+
+  // Add custom samples to the dictionary
+  customExamples.forEach((sample) => {
+    dict[sample.id] = sample.label ?? sample.id
+  })
 
   return {
     options,
@@ -72,48 +147,68 @@ const snippets = computed(() => {
 
 /** The currently selected plugin */
 const selectedPlugin = computed(() => {
-  const selectedClient = workspace.selectedHttpClient
+  const client = localSelectedClient.value
 
-  // Backups on backups
-  if (!selectedClient) {
-    return (
-      snippets.value.options[0]?.options[0] ?? {
-        id: 'js,fetch',
-        label: 'Fetch',
-      }
-    )
+  // Handle custom examples
+  if (client.targetKey === 'custom') {
+    const id = `custom,${client.clientKey}`
+    return {
+      id,
+      label: snippets.value.dict[id] ?? 'Unknown',
+    }
   }
 
-  const id = `${selectedClient.targetKey},${selectedClient.clientKey}`
+  // Handle regular snippetz plugins
+  const id = `${client.targetKey},${client.clientKey}`
   return {
     id,
     label: snippets.value.dict[id] ?? 'Unknown',
   }
 })
 
-/** The currently selected target, unsafely typecast until we can extract validation fron snippetz */
+/** The currently selected target */
 const selectedTarget = computed(
-  () => (workspace.selectedHttpClient?.targetKey ?? 'js') as TargetId,
+  () => localSelectedClient.value.targetKey as TargetId,
 )
 
-/** The currently selected client, unsafely typecast until we can extract validation fron snippetz */
+/** The currently selected client */
 const selectedClient = computed(
-  () =>
-    (workspace.selectedHttpClient?.clientKey ?? 'fetch') as ClientId<TargetId>,
+  () => localSelectedClient.value.clientKey as ClientId<TargetId>,
 )
 
-/** Update the store with the newly selected client */
+/** Update the selection when a new client is picked */
 const selectClient = ({ id }: ScalarComboboxOption) => {
   const [target, client] = id.split(',')
+
   if (!target || !client) {
     return
   }
 
-  workspaceMutators.edit(workspace.uid, 'selectedHttpClient', {
+  // Update the state ref
+  localSelectedClientState.value = {
     targetKey: target,
     clientKey: client,
-  })
+  }
+
+  // Only update workspace for non-custom selections
+  if (target !== 'custom') {
+    workspaceMutators.edit(workspace.uid, 'selectedHttpClient', {
+      targetKey: target,
+      clientKey: client,
+    })
+  }
 }
+
+/** Get the code sample content for a custom example */
+const customCodeContent = computed(() => {
+  if (!selectedPlugin.value.id.startsWith('custom,')) {
+    return undefined
+  }
+
+  const lang = selectedPlugin.value.id.split(',')[1]
+  const sample = codeSamples.value?.find((s) => s.lang === lang)
+  return sample?.source
+})
 </script>
 
 <template>
@@ -141,18 +236,30 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
           </ScalarCombobox>
         </div>
       </template>
-      <DataTable :columns="['']">
+      <DataTable
+        :columns="['']"
+        presentational>
         <DataTableRow>
           <div
             class="bg-b-1 flex items-center justify-center overflow-hidden border-t">
-            <CodeSnippet
-              class="px-3 py-1.5"
-              :client="selectedClient"
-              :example="example"
-              :operation="operation"
-              :securitySchemes="selectedSecuritySchemes"
-              :server="server"
-              :target="selectedTarget" />
+            <!-- Use the given code example -->
+            <template v-if="customCodeContent">
+              <ScalarCodeBlock
+                class="px-3 py-1.5"
+                :content="customCodeContent"
+                :lang="selectedPlugin.id.split(',')[1] ?? 'plaintext'" />
+            </template>
+            <!-- Generate a code snippet -->
+            <template v-else>
+              <CodeSnippet
+                class="px-3 py-1.5"
+                :client="selectedClient"
+                :example="example"
+                :operation="operation"
+                :securitySchemes="selectedSecuritySchemes"
+                :server="server"
+                :target="selectedTarget" />
+            </template>
           </div>
         </DataTableRow>
       </DataTable>

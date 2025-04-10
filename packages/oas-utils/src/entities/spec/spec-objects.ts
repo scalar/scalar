@@ -1,23 +1,6 @@
+import { omitUndefinedValues } from '@/helpers/omit-undefined-values.ts'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
-
-/**
- * Removes undefined values from an object.
- *
- * Can be used as a transform function for any Zod schema.
- */
-export const omitUndefinedValues = <T extends object>(data: T): T => {
-  return Object.fromEntries(
-    Object.entries(data)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key, value]) => {
-        if (typeof value === 'object' && value !== null) {
-          return [key, omitUndefinedValues(value)]
-        }
-        return [key, value]
-      }),
-  ) as T
-}
 
 /**
  * License Object

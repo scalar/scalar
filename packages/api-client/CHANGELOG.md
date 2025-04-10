@@ -1,5 +1,52 @@
 # @scalar/api-client
 
+## 2.3.16
+
+### Patch Changes
+
+- 27f1c16: fix: displays request sidebar ascii art if getting started only
+- 27f1c16: fix: adds inert attribute to ascii art
+- d970ff5: fix: remove useActiveEntity useage in response
+
+## 2.3.15
+
+### Patch Changes
+
+- ce91adc: fix(api-client): don't set html background from client
+- 61e094b: fix(api-client): improve request table header a11y
+- e7fb3eb: feat: skip the import modal when the workspace is empty
+
+## 2.3.14
+
+### Patch Changes
+
+- abff210: fix: updates sidenav active state logic
+- Updated dependencies [18b1be9]
+- Updated dependencies [799845f]
+- Updated dependencies [73f5553]
+  - @scalar/oas-utils@0.2.128
+  - @scalar/components@0.13.45
+  - @scalar/import@0.3.11
+  - @scalar/postman-to-openapi@0.2.1
+  - @scalar/use-codemirror@0.11.90
+
+## 2.3.13
+
+### Patch Changes
+
+- bf961b1: feat: show custom code examples in the API client
+- a176b7e: fix: updates server dropdown item selected server logic
+- Updated dependencies [018e8b2]
+- Updated dependencies [bf961b1]
+- Updated dependencies [018e8b2]
+- Updated dependencies [018e8b2]
+- Updated dependencies [a176b7e]
+  - @scalar/postman-to-openapi@0.2.0
+  - @scalar/oas-utils@0.2.127
+  - @scalar/import@0.3.10
+  - @scalar/components@0.13.44
+  - @scalar/use-codemirror@0.11.89
+
 ## 2.3.12
 
 ### Patch Changes

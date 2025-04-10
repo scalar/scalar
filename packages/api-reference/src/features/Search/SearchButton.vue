@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { isMacOs } from '../../helpers'
 import { useApiClient } from '../ApiClientModal'
@@ -17,6 +17,7 @@ const props = withDefaults(
   },
 )
 
+const button = ref<HTMLButtonElement>()
 const modalState = useModal()
 const { client } = useApiClient()
 
@@ -32,19 +33,36 @@ const handleHotKey = (e: KeyboardEvent) => {
   }
 }
 
+watch(
+  () => modalState.open,
+  (next, prev) => {
+    // Return focus to the button when the modal is closed
+    if (!next && prev) {
+      nextTick(() => {
+        button.value?.focus()
+      })
+    }
+  },
+)
+
 // Handle keyboard shortcuts
 // TODO: we can move this to the hotkey event bus but we would need to set up a custom key from the searchHotKey config
 // and make sure it works correctly inside the references first
 onMounted(() => window.addEventListener('keydown', handleHotKey))
 onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
+
+function handleClick() {
+  modalState.show()
+}
 </script>
 <template>
   <button
+    ref="button"
     class="sidebar-search"
     :class="$attrs.class"
     role="search"
     type="button"
-    @click="modalState.show">
+    @click="handleClick">
     <ScalarIcon
       class="scalar-search-icon"
       icon="Search"

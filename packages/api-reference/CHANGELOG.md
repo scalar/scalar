@@ -1,5 +1,60 @@
 # @scalar/api-reference
 
+## 1.28.16
+
+### Patch Changes
+
+- 2707c69: feat: show schema title in heading when available
+- Updated dependencies [27f1c16]
+- Updated dependencies [27f1c16]
+- Updated dependencies [d970ff5]
+  - @scalar/api-client@2.3.16
+
+## 1.28.15
+
+### Patch Changes
+
+- 07a5d79: feat: directly show responses in the list
+- de78601: feat: add Introduction heading to the sidebar
+- 91cc99c: fix: schema doesn’t show deeply nested allOf schemas
+- Updated dependencies [ce91adc]
+- Updated dependencies [61e094b]
+- Updated dependencies [e7fb3eb]
+  - @scalar/api-client@2.3.15
+
+## 1.28.14
+
+### Patch Changes
+
+- 799845f: feat(components): allow ScalarCodeblock to support different font sizes
+- 66a5ad5: fix: only lazyload once
+- 73f5553: fix(api-reference): references search a11y improvements
+- Updated dependencies [18b1be9]
+- Updated dependencies [abff210]
+- Updated dependencies [799845f]
+- Updated dependencies [73f5553]
+  - @scalar/oas-utils@0.2.128
+  - @scalar/api-client@2.3.14
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.45
+
+## 1.28.13
+
+### Patch Changes
+
+- bf961b1: feat: show custom code examples in the API client
+- c8169e9: fix: disable intersection observer on config update
+- af650e3: fix(api-reference): style anyof + padding fix
+- a176b7e: fix: returns operation server at the operation level
+- Updated dependencies [bf961b1]
+- Updated dependencies [0e888bc]
+- Updated dependencies [a176b7e]
+- Updated dependencies [a176b7e]
+  - @scalar/api-client@2.3.13
+  - @scalar/oas-utils@0.2.127
+  - @scalar/code-highlight@0.0.26
+  - @scalar/components@0.13.44
+
 ## 1.28.12
 
 ### Patch Changes

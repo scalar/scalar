@@ -83,13 +83,15 @@ const partitionedSchema = computed(() => {
       class="request-body-schema">
       <Schema
         compact
+        name="Request Body"
         noncollapsible
         :schemas="schemas"
         :value="partitionedSchema.visibleProperties" />
 
       <Schema
-        compact
         additionalProperties
+        compact
+        name="Request Body"
         :schemas="schemas"
         :value="partitionedSchema.collapsedProperties" />
     </div>
@@ -100,6 +102,7 @@ const partitionedSchema = computed(() => {
       class="request-body-schema">
       <Schema
         compact
+        name="Request Body"
         noncollapsible
         :schemas="schemas"
         :value="requestBody.content?.[selectedContentType]?.schema" />

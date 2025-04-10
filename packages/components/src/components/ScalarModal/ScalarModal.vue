@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  Dialog,
-  DialogDescription,
-  DialogPanel,
-  DialogTitle,
-} from '@headlessui/vue'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import type { VariantProps } from 'cva'
 import { reactive } from 'vue'
 
@@ -105,11 +100,11 @@ export function useModal() {
           :class="bodyClass">
           <slot />
         </div>
-        <DialogDescription
+        <div
           v-else
           :class="cx(body({ size, variant }), bodyClass)">
           <slot />
-        </DialogDescription>
+        </div>
       </DialogPanel>
       <div
         v-if="size === 'full'"

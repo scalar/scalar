@@ -1,3 +1,7 @@
+<script lang="ts">
+/** We use this global var to ensure that we only show loading once on config change */
+const hasLoaded = ref(false)
+</script>
 <script lang="ts" setup>
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
@@ -55,7 +59,9 @@ const models = ref<string[]>([])
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
 
-const isLoading = ref(props.layout !== 'classic' && hash.value)
+const isLoading = ref(
+  !hasLoaded.value && props.layout !== 'classic' && hash.value,
+)
 
 // Ensure we have a spec loaded
 watch(
@@ -154,14 +160,22 @@ const unsubscribe = lazyBus.on(({ id }) => {
       scrollToId(hashStr)
     }
     isLoading.value = false
-    setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+    hasLoaded.value = true
+
+    setTimeout(() => {
+      isIntersectionEnabled.value = true
+    }, 1000)
   }, 300)
 })
 
 // Enable intersection observer withb timeout when not deep linking
 onMounted(() => {
   if (!hash.value) {
-    setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+    hasLoaded.value = true
+
+    setTimeout(() => {
+      isIntersectionEnabled.value = true
+    }, 1000)
   }
 })
 </script>

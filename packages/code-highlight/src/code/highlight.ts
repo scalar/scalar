@@ -60,7 +60,10 @@ export function syntaxHighlight(
   // Replace any credentials with a wrapper element
   return credentials.length
     ? credentials.reduce(
-        (acc, credential) => acc.split(credential).join(`<span class="credentials">${credential}</span>`),
+        (acc, credential) =>
+          acc
+            .split(credential)
+            .join(`<span class="credential"><span class="credential-value">${credential}</span></span>`),
         htmlString,
       )
     : htmlString

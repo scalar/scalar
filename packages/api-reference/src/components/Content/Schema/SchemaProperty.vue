@@ -2,7 +2,7 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 
 import {
   discriminators,
@@ -22,7 +22,9 @@ import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 const props = withDefaults(
   defineProps<{
+    is?: string | Component
     value?: Record<string, any>
+    noncollapsible?: boolean
     level?: number
     name?: string
     required?: boolean
@@ -158,7 +160,8 @@ const displayPropertyHeading = (
 }
 </script>
 <template>
-  <li
+  <component
+    :is="is ?? 'li'"
     class="property"
     :class="[
       !displayDescription(description, optimizedValue) ? '' : '',
@@ -275,6 +278,8 @@ const displayPropertyHeading = (
       <Schema
         :compact="compact"
         :level="level + 1"
+        :name="name"
+        :noncollapsible="noncollapsible"
         :value="optimizedValue" />
     </div>
     <!-- Array of objects -->
@@ -291,6 +296,8 @@ const displayPropertyHeading = (
         <Schema
           :compact="compact"
           :level="level + 1"
+          :name="name"
+          :noncollapsible="noncollapsible"
           :value="optimizedValue.items" />
       </div>
     </template>
@@ -299,17 +306,20 @@ const displayPropertyHeading = (
       v-for="discriminator in discriminators"
       :key="discriminator">
       <!-- Property discriminator -->
-      <SchemaDiscriminator
-        v-if="optimizedValue?.[discriminator]"
-        :compact="compact"
-        :discriminator="discriminator"
-        :hideHeading="hideHeading"
-        :level="level"
-        :schemas="schemas"
-        :value="optimizedValue" />
+      <template v-if="optimizedValue?.[discriminator]">
+        <SchemaDiscriminator
+          :compact="compact"
+          :discriminator="discriminator"
+          :hideHeading="hideHeading"
+          :level="level"
+          :name="name"
+          :noncollapsible="noncollapsible"
+          :schemas="schemas"
+          :value="optimizedValue" />
+      </template>
 
       <!-- Array item discriminator -->
-      <SchemaDiscriminator
+      <template
         v-else-if="
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
@@ -317,15 +327,19 @@ const displayPropertyHeading = (
           discriminator in optimizedValue.items &&
           Array.isArray(optimizedValue.items[discriminator]) &&
           level < 3
-        "
-        :compact="compact"
-        :discriminator="discriminator"
-        :hideHeading="hideHeading"
-        :level="level"
-        :schemas="schemas"
-        :value="optimizedValue.items" />
+        ">
+        <SchemaDiscriminator
+          :compact="compact"
+          :discriminator="discriminator"
+          :hideHeading="hideHeading"
+          :level="level"
+          :name="name"
+          :noncollapsible="noncollapsible"
+          :schemas="schemas"
+          :value="optimizedValue.items" />
+      </template>
     </template>
-  </li>
+  </component>
 </template>
 
 <style scoped>

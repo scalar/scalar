@@ -28,6 +28,7 @@ const props = withDefaults(
     envVariables: EnvVariable[]
     workspace: Workspace
     invalidParams?: Set<string>
+    label?: string
   }>(),
   {
     hasCheckboxDisabled: false,
@@ -73,9 +74,9 @@ const flattenValue = (item: RequestExampleParameter) => {
     class="group/table flex-1"
     :columns="columns">
     <DataTableRow class="sr-only !block">
-      <DataTableHeader><span class="sr-only">Enabled</span></DataTableHeader>
-      <DataTableHeader>Key</DataTableHeader>
-      <DataTableHeader>Value</DataTableHeader>
+      <DataTableHeader>{{ label }} Enabled</DataTableHeader>
+      <DataTableHeader>{{ label }} Key</DataTableHeader>
+      <DataTableHeader>{{ label }} Value</DataTableHeader>
     </DataTableRow>
     <DataTableRow
       v-for="(item, idx) in items"
@@ -85,45 +86,40 @@ const flattenValue = (item: RequestExampleParameter) => {
         alert: parameterIsInvalid(item).value,
         error: invalidParams && invalidParams.has(item.key),
       }">
-      <label class="contents">
-        <template v-if="isGlobal">
-          <RouterLink
-            class="!border-r-1/2 border-t-1/2 text-c-2 flex items-center justify-center"
-            :to="item.route ?? {}">
-            <span class="sr-only">Global</span>
-            <ScalarTooltip
-              as="div"
-              side="top">
-              <template #trigger>
-                <ScalarIcon
-                  class="text-c-1"
-                  icon="Globe"
-                  size="xs" />
-              </template>
-              <template #content>
-                <div
-                  class="w-content bg-b-1 text-xxs text-c-1 z-100 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
-                  <div class="text-c-1 flex items-center">
-                    <span class="text-pretty">
-                      Global cookies are shared across the whole workspace.
-                    </span>
-                  </div>
+      <template v-if="isGlobal">
+        <RouterLink
+          class="!border-r-1/2 border-t-1/2 text-c-2 flex items-center justify-center"
+          :to="item.route ?? {}">
+          <span class="sr-only">Global</span>
+          <ScalarTooltip
+            as="div"
+            side="top">
+            <template #trigger>
+              <ScalarIcon
+                class="text-c-1"
+                icon="Globe"
+                size="xs" />
+            </template>
+            <template #content>
+              <div
+                class="w-content bg-b-1 text-xxs text-c-1 z-100 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
+                <div class="text-c-1 flex items-center">
+                  <span class="text-pretty">
+                    Global cookies are shared across the whole workspace.
+                  </span>
                 </div>
-              </template>
-            </ScalarTooltip>
-          </RouterLink>
-        </template>
-        <template v-else>
-          <span class="sr-only">
-            Row {{ item.enabled ? 'Enabled' : 'Disabled' }}
-          </span>
-          <DataTableCheckbox
-            class="!border-r-1/2"
-            :disabled="props.hasCheckboxDisabled"
-            :modelValue="item.enabled"
-            @update:modelValue="(v) => emit('toggleRow', idx, v)" />
-        </template>
-      </label>
+              </div>
+            </template>
+          </ScalarTooltip>
+        </RouterLink>
+      </template>
+      <template v-else>
+        <DataTableCheckbox
+          class="!border-r-1/2"
+          :disabled="props.hasCheckboxDisabled"
+          :modelValue="item.enabled"
+          @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+      </template>
       <DataTableCell>
         <CodeInput
           disableCloseBrackets

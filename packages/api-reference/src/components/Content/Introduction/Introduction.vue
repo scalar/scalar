@@ -4,7 +4,9 @@ import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
 
+import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks'
 import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
@@ -25,6 +27,8 @@ const props = defineProps<{
   >
   parsedSpec: Spec
 }>()
+
+const { getHeadingId } = useNavState()
 
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
@@ -61,7 +65,15 @@ onMounted(() => config.value.onLoaded?.())
 <template>
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
-    <Section class="introduction-section gap-12">
+    <Section
+      class="introduction-section gap-12"
+      :id="
+        getHeadingId({
+          slug: DEFAULT_INTRODUCTION_SLUG,
+          depth: 1,
+          value: 'Introduction',
+        })
+      ">
       <SectionContent
         :loading="config.isLoading ?? (!info?.description && !info?.title)">
         <div class="flex gap-1">

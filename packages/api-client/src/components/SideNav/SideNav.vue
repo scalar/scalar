@@ -44,11 +44,7 @@ const { activeWorkspace } = useActiveEntities()
         )"
         :key="i">
         <SideNavRouterLink
-          :active="
-            Boolean(
-              (currentRoute.name as string | undefined)?.startsWith(to.name),
-            )
-          "
+          :active="Boolean(currentRoute.name === displayName.toLowerCase())"
           :icon="icon"
           :to="{
             ...to,
@@ -64,7 +60,7 @@ const { activeWorkspace } = useActiveEntities()
     <SideNavGroup class="app-no-drag-region">
       <li class="flex items-center">
         <SideNavRouterLink
-          :active="currentRoute.name === 'settings.default'"
+          :active="currentRoute.name === 'settings'"
           icon="Settings"
           :to="{
             name: `settings.default`,

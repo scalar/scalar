@@ -90,7 +90,8 @@ watch(
       v-if="activeScheme.length"
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
-      :columns="['']">
+      :columns="['']"
+      presentational>
       <RequestAuthTab
         :collection="collection"
         :envVariables="envVariables"
