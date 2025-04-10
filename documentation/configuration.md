@@ -280,6 +280,14 @@ You can use our hosted proxy:
 
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
+### plugins?: ApiReferencePlugin[]
+
+Pass an array of custom plugins that you want. As of now, we don’t provide any official plugins (yet).
+
+You can build your own plugins, though. There is an example for rendering custom OpenAPI extensions in your schemas:
+
+https://github.com/scalar/scalar/tree/main/packages/api-reference/playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin.ts
+
 ### showSidebar?: boolean
 
 Whether the sidebar should be shown.
