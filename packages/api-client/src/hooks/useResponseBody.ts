@@ -1,5 +1,5 @@
 import { extractFilename } from '@/libs/extractAttachmentFilename'
-import { computed, isRef, ref } from 'vue'
+import { computed, isRef } from 'vue'
 import MimeType from 'whatwg-mimetype'
 import type { Ref } from 'vue'
 
