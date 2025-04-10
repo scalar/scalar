@@ -407,7 +407,9 @@ const collections = computed(() => {
         :class="{
           'empty-sidebar-item': showGettingStarted,
         }">
-        <div class="empty-sidebar-item-content px-2.5 py-2.5">
+        <div
+          v-if="showGettingStarted"
+          class="empty-sidebar-item-content px-2.5 py-2.5">
           <div class="rabbit-ascii relative m-auto mt-2 h-[68px] w-[60px]">
             <ScalarAsciiArt
               :art="Rabbit"
