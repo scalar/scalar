@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.3.16
+
+### Patch Changes
+
+- 27f1c16: fix: displays request sidebar ascii art if getting started only
+- 27f1c16: fix: adds inert attribute to ascii art
+- d970ff5: fix: remove useActiveEntity useage in response
+
 ## 2.3.15
 
 ### Patch Changes
