@@ -71,6 +71,7 @@ vi.mock('vue', () => ({
     provide: vi.fn(),
     mount: vi.fn(),
   })),
+  ref: vi.fn((value) => ({ value })),
   watch: vi.fn((getter, callback) => {
     // Store the callback for testing
     watchCallbacks.push({ getter, callback })
