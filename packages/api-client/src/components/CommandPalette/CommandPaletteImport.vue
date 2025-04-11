@@ -235,7 +235,7 @@ const handleInput = (value: string) => {
           JSON, or YAML File
           <ScalarIcon
             class="text-c-3"
-            icon="UploadSimple"
+            icon="Upload"
             size="md" />
         </ScalarButton>
 
