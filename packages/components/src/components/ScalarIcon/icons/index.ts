@@ -73,7 +73,6 @@ export const ICONS = [
   'Unlock',
   'Unwatch',
   'Upload',
-  'UploadSimple',
   'User',
   'UserSwitch',
   'Users',

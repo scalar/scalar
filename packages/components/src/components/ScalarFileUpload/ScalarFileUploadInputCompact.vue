@@ -37,7 +37,7 @@ const { cx } = useBindCx()
     <div class="flex items-center gap-1 whitespace-nowrap text-c-2">
       <slot>
         <ScalarIcon
-          icon="UploadSimple"
+          icon="Upload"
           size="sm" />
         <span> Upload {{ multiple ? 'files' : 'file' }} </span>
       </slot>
