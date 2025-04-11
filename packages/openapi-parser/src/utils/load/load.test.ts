@@ -133,8 +133,7 @@ describe('load', async () => {
       },
       {
         references: {
-          './components/coordinates.yaml':
-            '/Users/hanspagel/Documents/Projects/scalar/packages/openapi-parser/tests/filesystem/api/schemas/components/coordinates.yaml',
+          './components/coordinates.yaml': expect.stringContaining('/schemas/components/coordinates.yaml'),
         },
       },
       {
