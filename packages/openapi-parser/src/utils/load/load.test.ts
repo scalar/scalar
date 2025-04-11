@@ -30,7 +30,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).definition).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -55,7 +55,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).definition).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -80,7 +80,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).definition).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -101,7 +101,7 @@ describe('load', async () => {
       {
         isEntrypoint: true,
         uri: EXAMPLE_FILE,
-        definition: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -143,7 +143,7 @@ describe('load', async () => {
     ])
 
     // content
-    expect(filesystem[0].definition).toBeTypeOf('object')
+    expect(filesystem[0].content).toBeTypeOf('object')
 
     // only one entrypoint
     expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
@@ -167,7 +167,7 @@ describe('load', async () => {
       plugins: [readFiles(), fetchUrls()],
     })
 
-    expect(getEntrypoint(filesystem).definition).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -510,7 +510,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).definition).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -609,7 +609,7 @@ describe('load', async () => {
       plugins: [readFiles(), fetchUrls()],
     })
 
-    expect(filesystem[0].definition).toMatchObject({
+    expect(filesystem[0].content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -626,7 +626,7 @@ describe('load', async () => {
       },
     })
 
-    expect(filesystem[1].definition).toMatchObject({
+    expect(filesystem[1].content).toMatchObject({
       content: {
         'application/json': {
           schema: {
@@ -678,7 +678,7 @@ describe('load', async () => {
 
     expect(filesystem.map((entry) => entry.uri)).toStrictEqual([undefined, 'https://example.com/foobar.json'])
 
-    expect(filesystem[0].definition).toMatchObject({
+    expect(filesystem[0].content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -695,7 +695,7 @@ describe('load', async () => {
       },
     })
 
-    expect(filesystem[1].definition).toMatchObject({
+    expect(filesystem[1].content).toMatchObject({
       content: {
         'application/json': {
           schema: {

@@ -1,1 +1,5 @@
-export * from './fetchUrls.ts'
+export {
+  fetchUrlsDefaultConfiguration,
+  fetchUrls,
+  getAbsoluteUrl,
+} from './fetchUrls.ts'

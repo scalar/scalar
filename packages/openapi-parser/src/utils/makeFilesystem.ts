@@ -20,21 +20,21 @@ export function makeFilesystem(
   // Just create it from an existing entry
   if (isFilesystemEntry(value)) {
     return [
-      makeFilesystemEntry(value.definition, {
+      makeFilesystemEntry(value.content, {
         isEntrypoint: true,
       }),
     ]
   }
 
   // Make an object
-  const definition = normalize(value)
+  const content = normalize(value)
 
   // Create fake filesystem
   return [
     {
       isEntrypoint: true,
-      definition,
-      uri: null,
+      content,
+      uri: undefined,
       references: {},
       ...(overwrites ?? {}),
     },
@@ -60,11 +60,11 @@ export function makeFilesystemEntry(
   }
 
   // Make an object
-  const definition = normalize(value)
+  const content = normalize(value)
 
   return {
     isEntrypoint: true,
-    definition,
+    content,
     uri: null,
     references: {},
     ...(overwrites ?? {}),

@@ -187,7 +187,7 @@ describe('dereference', async () => {
     const filesystem = [
       {
         isEntrypoint: true,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'File Reference',
@@ -202,13 +202,14 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'file-reference.yaml',
-        dir: './',
-        references: ['valid.yaml'],
+        uri: 'https://example.com/file-reference.yaml',
+        references: {
+          'valid.yaml': 'https://example.com/valid.yaml',
+        },
       },
       {
         isEntrypoint: false,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -238,9 +239,8 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'valid.yaml',
-        dir: './',
-        references: [],
+        uri: 'https://example.com/valid.yaml',
+        references: {},
       },
     ]
 
@@ -273,7 +273,7 @@ describe('dereference', async () => {
     const filesystem = [
       {
         isEntrypoint: true,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'Test API',
@@ -324,12 +324,11 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'main.yaml',
-        dir: './',
-        references: [],
+        uri: 'main.yaml',
+        references: {},
       },
       {
-        specification: {
+        content: {
           components: {
             schemas: {
               ExternalSchema: {
@@ -343,9 +342,8 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'http://example.com/external.yaml',
-        dir: './',
-        references: [],
+        uri: 'http://example.com/external.yaml',
+        references: {},
       },
     ]
 

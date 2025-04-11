@@ -40,11 +40,10 @@ describe('workThroughQueue', () => {
       },
       filesystem: [
         {
-          dir: './',
-          filename: null,
+          uri: undefined,
           isEntrypoint: true,
-          references: [],
-          specification: {
+          references: {},
+          content: {
             info: {
               title: 'Hello World',
               version: '1.0.0',
@@ -91,11 +90,10 @@ describe('workThroughQueue', () => {
       version: '3.1',
       filesystem: [
         {
-          dir: './',
-          filename: null,
+          uri: undefined,
           isEntrypoint: true,
-          references: [],
-          specification: {
+          references: {},
+          content: {
             info: {
               title: 'Hello World',
               version: '1.0.0',
@@ -159,11 +157,10 @@ describe('workThroughQueue', () => {
       version: '3.1',
       filesystem: [
         {
-          dir: './',
-          filename: null,
+          uri: undefined,
           isEntrypoint: true,
-          references: [],
-          specification: {
+          references: {},
+          content: {
             info: {
               title: 'Hello World',
               version: '1.0.0',
@@ -233,11 +230,10 @@ describe('workThroughQueue', () => {
       },
       filesystem: [
         {
-          dir: './',
-          filename: null,
+          uri: undefined,
           isEntrypoint: true,
-          references: [],
-          specification: {
+          references: {},
+          content: {
             info: {
               title: 'Hello World',
               version: '1.0.0',

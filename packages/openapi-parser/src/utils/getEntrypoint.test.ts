@@ -12,10 +12,10 @@ describe('getEntrypoint', () => {
     const entrypoint = getEntrypoint(result)
 
     // Modify the entrypoint
-    entrypoint.specification.foo = 'baz'
+    entrypoint.content.foo = 'baz'
 
     // Check whether the original was modified
-    expect(result[0].specification.foo).toBe('baz')
+    expect(result[0].content.foo).toBe('baz')
   })
 
   it('returns undefined for an empty filesystem', () => {
