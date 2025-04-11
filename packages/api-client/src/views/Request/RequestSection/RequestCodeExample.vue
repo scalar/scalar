@@ -215,7 +215,7 @@ const customCodeContent = computed(() => {
   <div class="w-full">
     <ViewLayoutCollapse
       class="group/preview w-full border-b-0"
-      :defaultOpen="true">
+      :defaultOpen="false">
       <template #title>Code Snippet</template>
       <template #actions>
         <div class="-mx-1 flex flex-1">
