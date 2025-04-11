@@ -179,13 +179,14 @@ export const createRequestOperation = ({
           signal: controller.signal,
         })
 
+        // Check if response is potentially streaming
+        const contentLength = response.headers.get('content-length')
+        const isChunkedOrStreaming = !contentLength && response.body !== null && !response.bodyUsed
+
         status?.emit('stop')
 
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-        const arrayBuffer = await response.arrayBuffer()
-        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         // Safely check for cookie headers
         // TODO: polyfill
@@ -193,6 +194,30 @@ export const createRequestOperation = ({
           'getSetCookie' in response.headers && typeof response.headers.getSetCookie === 'function'
             ? response.headers.getSetCookie()
             : []
+
+        // We want to return the response so that it can be streamed
+        if (isChunkedOrStreaming) {
+          return [
+            null,
+            {
+              timestamp: Date.now(),
+              request: example,
+              response: {
+                ...response,
+                headers: responseHeaders,
+                cookieHeaderKeys,
+                reader: response.body?.getReader(),
+                duration: Date.now() - startTime,
+                method: request.method,
+                status: response.status,
+                path: pathString,
+              },
+            },
+          ]
+        }
+
+        const arrayBuffer = await response.arrayBuffer()
+        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         return [
           null,
