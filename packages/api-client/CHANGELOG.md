@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.3.19
+
+### Patch Changes
+
+- 44413b1: fix: make code snippet default closed
+
 ## 2.3.18
 
 ### Patch Changes
