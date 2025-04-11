@@ -64,7 +64,7 @@ watch(
   <form @submit.prevent>
     <div
       v-if="selectedSchemeOptions.length > 1"
-      class="flex flex-wrap gap-x-2.5 overflow-hidden border-t px-3">
+      class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border-t px-3">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"
@@ -78,8 +78,6 @@ watch(
             option.label
           }}</span>
         </button>
-        <div
-          class="bg-border absolute -inset-x-96 bottom-0 z-0 h-[var(--scalar-border-width)]" />
         <div
           v-if="activeAuthIndex === index"
           class="z-1 absolute inset-x-1 bottom-[var(--scalar-border-width)] left-1/2 h-px w-full -translate-x-1/2 bg-current" />
@@ -104,7 +102,7 @@ watch(
 
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm">
+      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
       No authentication selected
     </div>
 
