@@ -11,9 +11,8 @@ describe('normalize', () => {
     const filesystem = [
       {
         isEntrypoint: true,
-        specification: {},
+        content: {},
         uri: undefined,
-
         references: {},
       },
     ]
