@@ -1051,4 +1051,61 @@ describe('create-request-operation', () => {
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')
     })
   })
+
+  describe('response streaming', () => {
+    it('streams the response body', async () => {
+      // Create a TextEncoder to convert strings to Uint8Arrays
+      const encoder = new TextEncoder()
+
+      // Mock fetch to return a ReadableStream response
+      const mockStream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode('chunk 1'))
+          controller.enqueue(encoder.encode('chunk 2'))
+          controller.close()
+        },
+      })
+
+      const mockResponse = new Response(mockStream, {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'text/plain',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+      })
+
+      if (error) {
+        throw error
+      }
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      if (!result || !('reader' in result.response)) {
+        throw new Error('No reader')
+      }
+      expect(result?.response.reader).toBeInstanceOf(ReadableStreamDefaultReader)
+
+      // Read and verify the stream contents
+      const chunks = []
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await result.response.reader.read()
+        if (done) {
+          break
+        }
+        chunks.push(decoder.decode(value, { stream: true }))
+      }
+
+      expect(chunks).toEqual(['chunk 1', 'chunk 2'])
+    })
+  })
 })
