@@ -71,10 +71,10 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Seems to be a file or URL
   if (plugin) {
     try {
-      // Fetch/read the content
-      content = normalize(await plugin.get(value))
-      // Store the absolute URI/path
+      // Get the absolute URI/path
       uri = plugin.getUri(value, options?.source)
+      // Fetch/read the content
+      content = normalize(await plugin.get(uri))
     } catch (_error) {
       // Couldn’t fetch/read the content
 
@@ -89,7 +89,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
       return {
         specification: null,
-        filesystem: [],
+        filesystem,
         errors,
       }
     }
@@ -111,7 +111,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
     return {
       specification: null,
-      filesystem: [],
+      filesystem,
       errors,
     }
   }
@@ -129,18 +129,18 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // Get all external references from the content
   const listOfReferences = getListOfReferences(content)
 
+  const source =
+    // A given URL/path
+    options?.source ??
+    // The reference that we come from
+    (typeof value === 'string'
+      ? value
+      : // Nothing
+        undefined)
+
   // Map the references to their absolute URIs
   const mapOfReferences = listOfReferences.reduce((acc, reference) => {
     const plugin = sortPlugins(options?.plugins)?.find((p) => p.check(reference))
-
-    const source =
-      // A given URL/path
-      options?.source ??
-      // The reference that we come from
-      (typeof value === 'string'
-        ? value
-        : // Nothing
-          undefined)
 
     const absoluteUri = plugin?.getUri(reference, source)
 
