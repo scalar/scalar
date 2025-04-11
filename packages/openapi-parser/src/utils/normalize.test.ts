@@ -12,9 +12,9 @@ describe('normalize', () => {
       {
         isEntrypoint: true,
         specification: {},
-        filename: null,
-        dir: './',
-        references: [],
+        uri: undefined,
+
+        references: {},
       },
     ]
     expect(normalize(filesystem)).toBe(filesystem)

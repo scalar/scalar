@@ -93,7 +93,7 @@ export type FilesystemEntry = {
   /**
    * The actual content of the document
    */
-  definition: AnyObject
+  content: AnyObject
 }
 
 /**

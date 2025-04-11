@@ -1,4 +1,4 @@
-import { ERRORS } from '../../configuration/index.ts'
+import { ERRORS } from '@/configuration/index.ts'
 import type {
   AnyApiDefinitionFormat,
   AnyObject,
@@ -6,11 +6,11 @@ import type {
   Filesystem,
   LoadResult,
   ThrowOnErrorOption,
-} from '../../types/index.ts'
-import { getEntrypoint } from '../getEntrypoint.ts'
-import { getListOfReferences } from '../getListOfReferences.ts'
-import { makeFilesystemEntry } from '../makeFilesystem.ts'
-import { normalize } from '../normalize.ts'
+} from '@/types/index.ts'
+import { getEntrypoint } from '@/utils/getEntrypoint.ts'
+import { getListOfReferences } from '@/utils/getListOfReferences.ts'
+import { makeFilesystemEntry } from '@/utils/makeFilesystem.ts'
+import { normalize } from '@/utils/normalize.ts'
 
 export type LoadPlugin = {
   priority?: number
@@ -39,19 +39,20 @@ export type LoadOptions = {
  *
  * It builds a filesystem representation of all loaded content and collects any errors
  * encountered during the process.
+ *
+ * Known limitation:
+ * - TODO: Internal references inside external reference might not work
+ * - TODO: Protocol-relative URLs don’t work yet
  */
 export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
   const filesystem: Filesystem = [...(options?.filesystem ?? [])]
 
-  // TODO: I think sometimes source is where the content comes from,
-  // And sometimes it’s where the reference was 🤔
-
   // Don't load a reference twice, check the filesystem before fetching something
   if (filesystem.find((entry) => entry.uri === options?.source)) {
     return {
-      specification: getEntrypoint(filesystem)?.definition,
+      specification: getEntrypoint(filesystem)?.content,
       filesystem,
       errors,
     }
@@ -119,7 +120,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
   if (entryExistsAlready) {
     return {
-      specification: getEntrypoint(filesystem)?.definition,
+      specification: getEntrypoint(filesystem)?.content,
       filesystem,
       errors,
     }
@@ -132,7 +133,14 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   const mapOfReferences = listOfReferences.reduce((acc, reference) => {
     const plugin = sortPlugins(options?.plugins)?.find((p) => p.check(reference))
 
-    const source = options?.source ?? value //(options?.source ?? typeof value === 'string') ? (value as string) : ''
+    const source =
+      // A given URL/path
+      options?.source ??
+      // The reference that we come from
+      (typeof value === 'string'
+        ? value
+        : // Nothing
+          undefined)
 
     const absoluteUri = plugin?.getUri(reference, source)
 
@@ -155,7 +163,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   // No other references
   if (listOfReferences.length === 0) {
     return {
-      specification: entry.definition,
+      specification: entry.content,
       filesystem,
       errors,
     }
@@ -181,7 +189,6 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
 
     const { filesystem: referencedFiles, errors: newErrors } = await load(absoluteUri, {
       ...options,
-      // TODO: Check what this is doing exactly. Pretty sure this is wrong.
       source: absoluteUri,
       filesystem,
     })
@@ -193,7 +200,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
   }
 
   return {
-    specification: entry.definition,
+    specification: entry.content,
     filesystem,
     errors,
   }

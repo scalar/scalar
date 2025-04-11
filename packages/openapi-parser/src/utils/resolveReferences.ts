@@ -59,7 +59,7 @@ export function resolveReferences(
   // Get the main file
   const entrypoint = getEntrypoint(filesystem)
 
-  const finalInput = file?.specification ?? entrypoint.specification
+  const finalInput = file?.content ?? entrypoint.content
 
   // Recursively resolve all references
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
@@ -97,7 +97,7 @@ function dereference(
   resolvedSchemas.add(schema)
 
   function resolveExternal(externalFile: FilesystemEntry) {
-    dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
+    dereference(externalFile.content, filesystem, externalFile, resolvedSchemas, errors, options)
     return externalFile
   }
 
@@ -153,14 +153,12 @@ function resolveUri(
   // 'foobar.json#/foo/bar'
   uri: string,
   options: ResolveReferencesOptions,
-  // { filename: './foobar.json '}
+  // { uri: './foobar.json '}
   file: FilesystemEntry,
-  // [ { filename: './foobar.json '} ]
+  // [ { uri: './foobar.json '} ]
   filesystem: Filesystem,
-
   // a function to resolve references in external file
   resolve: (file: FilesystemEntry) => FilesystemEntry,
-
   errors: ErrorObject[],
 ): AnyObject | undefined {
   // Ignore invalid URIs
@@ -181,12 +179,14 @@ function resolveUri(
   const [prefix, path] = uri.split('#', 2)
 
   /** Check whether the file is pointing to itself */
-  const isDifferentFile = prefix !== file.filename
+  const isDifferentFile = prefix !== file.uri
 
   // External references
   if (prefix && isDifferentFile) {
+    const absoluteUri = file.references[prefix] ?? prefix
+
     const externalReference = filesystem.find((entry) => {
-      return entry.filename === prefix
+      return entry.uri && entry.uri === absoluteUri
     })
 
     if (!externalReference) {
@@ -203,7 +203,7 @@ function resolveUri(
     }
     // $ref: 'other-file.yaml'
     if (path === undefined) {
-      return externalReference.specification
+      return externalReference.content
     }
 
     // $ref: 'other-file.yaml#/foo/bar'
@@ -218,7 +218,7 @@ function resolveUri(
   try {
     return segments.reduce((acc, key) => {
       return acc[key]
-    }, file.specification)
+    }, file.content)
   } catch (_error) {
     if (options?.throwOnError) {
       throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))

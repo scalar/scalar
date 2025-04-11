@@ -105,7 +105,7 @@ export function InitCommand() {
     // New configuration object
     const configuration: ScalarConfigurationFile = {
       subdomain: '',
-      references: [],
+      references: {},
       guides: [],
     }
 
