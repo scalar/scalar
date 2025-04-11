@@ -15,7 +15,7 @@ describe('load', async () => {
     global.fetch.mockReset()
   })
 
-  it.only('loads JS object', async () => {
+  it('loads JS object', async () => {
     const { filesystem } = await load(
       {
         openapi: '3.1.0',
@@ -40,7 +40,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('loads JSON string', async () => {
+  it('loads JSON string', async () => {
     const { filesystem } = await load(
       JSON.stringify({
         openapi: '3.1.0',
@@ -65,7 +65,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('loads YAML string', async () => {
+  it('loads YAML string', async () => {
     const { filesystem } = await load(
       stringify({
         openapi: '3.1.0',
@@ -90,7 +90,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('loads file', async () => {
+  it('loads file', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
@@ -113,7 +113,7 @@ describe('load', async () => {
     ])
   })
 
-  it.only('loads referenced files in files', async () => {
+  it('loads referenced files in files', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../../../tests/filesystem/api/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
@@ -149,7 +149,7 @@ describe('load', async () => {
     expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
   })
 
-  it.only('loads url', async () => {
+  it('loads url', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
@@ -177,8 +177,7 @@ describe('load', async () => {
     })
   })
 
-  // TODO: FOOO
-  it.only('resolves relative URLs to absolute ones', async () => {
+  it('resolves relative URLs to absolute ones', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => {
       // empty document for all other URLs
@@ -267,7 +266,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
-  it.only('resolves relative URLs when we directly pass a document (not a URL)', async () => {
+  it('resolves relative URLs when we directly pass a document (not a URL)', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async () => {
       // empty document for all URLs
@@ -353,7 +352,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
-  it.only('combines relative URLs and relative references', async () => {
+  it('combines relative URLs and relative references', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async () => {
       // empty document for all URLs
@@ -406,7 +405,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
   })
 
-  it.only('handles nested relative references', async () => {
+  it('handles nested relative references', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => {
       if (url === 'http://example.com/components/pathItem-1.yaml') {
@@ -475,7 +474,7 @@ describe('load', async () => {
     expect(fetch).toHaveBeenCalledWith('http://example.com/components/operation-1.yaml')
   })
 
-  it.only('handles failed requests', async () => {
+  it('handles failed requests', async () => {
     // Failed request
     // @ts-expect-error
     fetch.mockImplementation(() => {
@@ -520,7 +519,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('limits the number of requests', async () => {
+  it('limits the number of requests', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () => 'FOOBAR',
@@ -561,7 +560,7 @@ describe('load', async () => {
     expect(filesystem.length).toBe(1)
   })
 
-  it.only('loads referenced urls', async () => {
+  it('loads referenced urls', async () => {
     // @ts-expect-error
     fetch.mockImplementation((url: string) => {
       if (url === 'https://example.com/openapi.yaml') {
@@ -638,7 +637,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('loads string with url reference', async () => {
+  it('loads string with url reference', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
@@ -707,7 +706,7 @@ describe('load', async () => {
     })
   })
 
-  it.only('returns an error', async () => {
+  it('returns an error', async () => {
     const { errors } = await load('INVALID', {
       plugins: [readFiles(), fetchUrls()],
     })
@@ -720,7 +719,7 @@ describe('load', async () => {
     ])
   })
 
-  it.only('maintains original source URL when resolving nested references', async () => {
+  it('maintains original source URL when resolving nested references', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => {
       if (url === 'https://example.com/docs/components/schema.json') {
@@ -751,7 +750,7 @@ describe('load', async () => {
     expect(filesystem).toHaveLength(2)
   })
 
-  it.only('throws an error', async () => {
+  it('throws an error', async () => {
     expect(async () => {
       await load('INVALID', {
         plugins: [readFiles(), fetchUrls()],
