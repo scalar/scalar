@@ -16,6 +16,7 @@ import { createRequestOperation } from './create-request-operation'
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
+// biome-ignore lint/suspicious/noExportsInTest: yolo
 export const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
 type RequestExamplePayload = z.input<typeof requestExampleSchema>
@@ -130,6 +131,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/api/example',
@@ -151,6 +155,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/me',
@@ -172,6 +179,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/',
@@ -192,6 +202,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(result?.response.data).not.toContain('ECONNREFUSED')
     expect(requestError).toBe(null)
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
@@ -215,6 +228,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/',
@@ -254,6 +270,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/example',
@@ -284,6 +303,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       query: {
         foo: 'bar',
@@ -324,6 +346,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
     })
@@ -364,6 +389,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query).toMatchObject({
       foo: ['foo', 'bar'],
     })
@@ -399,6 +427,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
         example: 'parameter',
         foo: 'bar',
@@ -435,6 +466,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
         example: 'parameter',
         foo: 'bar',
@@ -457,6 +491,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
   })
 
@@ -486,6 +523,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
   })
 
@@ -515,6 +555,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
       foo: '',
     })
@@ -533,6 +576,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(result?.response.data).toBe('')
   })
 
@@ -549,6 +595,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/v1',
@@ -568,6 +617,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/v1/',
@@ -603,6 +655,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
       path: '/',
@@ -660,6 +715,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
       path: '/',
@@ -692,6 +750,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/me',
@@ -743,6 +804,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string)?.cookies).toStrictEqual({
       'cookie': 'custom-value',
       'auth-cookie': 'super-secret-token',
@@ -775,6 +839,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
         'x-api-key': 'test-key',
       })
@@ -804,6 +871,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).query).toMatchObject({
         api_key: 'test-key',
       })
@@ -835,6 +905,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
         authorization: `Basic ${btoa('user:pass')}`,
       })
@@ -864,6 +937,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
         authorization: 'Bearer xxxx',
       })
@@ -903,6 +979,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       const parsed = JSON.parse(result?.response.data as string)
       expect(parsed.headers.authorization).toEqual('Bearer xxxx')
       expect(parsed.query.api_key).toEqual('xxxx')
@@ -941,6 +1020,9 @@ describe('create-request-operation', () => {
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
       expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
         authorization: 'Bearer oauth-token',
       })

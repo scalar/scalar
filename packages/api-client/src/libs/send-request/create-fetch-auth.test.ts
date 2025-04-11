@@ -30,6 +30,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
       'x-api-key': 'test-key',
     })
@@ -59,6 +62,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query).toMatchObject({
       api_key: 'test-key',
     })
@@ -88,6 +94,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).query.api_key).toEqual('test-key')
   })
 
@@ -117,6 +126,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
       authorization: 'Basic dXNlcjpwYXNz', // base64 of "user:pass"
     })
@@ -148,6 +160,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
       authorization: 'Bearer xxxx',
     })
@@ -187,6 +202,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     const parsed = JSON.parse(result?.response.data as string)
     expect(parsed.headers.authorization).toEqual('Bearer xxxx')
     expect(parsed.query.api_key).toEqual('xxxx')
@@ -225,6 +243,9 @@ describe('authentication', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
     expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
       authorization: 'Bearer oauth-token',
     })

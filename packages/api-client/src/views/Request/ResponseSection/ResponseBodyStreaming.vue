@@ -4,7 +4,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 const { reader } = defineProps<{
-  reader: ReadableStreamDefaultReader<Uint8Array<ArrayBufferLike>>
+  reader: ReadableStreamDefaultReader<Uint8Array>
 }>()
 
 const textContent = ref('')
@@ -51,7 +51,8 @@ onBeforeUnmount(() => {
     <template #title>
       Body ({{ isReading ? 'streaming...' : 'stream complete' }})
     </template>
-    <div class="text-xxs font-code leading-2 whitespace-pre-wrap p-2">
+    <div
+      class="text-xxs font-code leading-2 h-full overflow-auto whitespace-pre-wrap p-2">
       {{ textContent }}
     </div>
   </ViewLayoutCollapse>

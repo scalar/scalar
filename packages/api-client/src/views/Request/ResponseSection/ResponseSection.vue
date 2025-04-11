@@ -200,6 +200,7 @@ const requestHeaders = computed(
           <!-- Streaming response body -->
           <ResponseBodyStreaming
             v-if="'reader' in response"
+            class="response-section-content-body"
             :id="filterIds.Body"
             :reader="response.reader" />
 
