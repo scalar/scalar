@@ -280,6 +280,29 @@ You can use our hosted proxy:
 
 If you like to run your own, check out our [example proxy written in Go](https://github.com/scalar/scalar/tree/main/projects/proxy-scalar-com).
 
+### plugins?: ApiReferencePlugin[]
+
+Pass an array of custom plugins that you want. As of now, we don’t provide any official plugins (yet).
+
+You can build your own plugins, though. There is an example how to render custom specification extensions:
+
+https://github.com/scalar/scalar/tree/main/packages/api-reference/playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin.ts
+
+You can add specification extensions (starting with `x-`) to the following objects:
+
+* Info Object
+* Tag Object
+* Schema Object
+
+You need them in another place? [Create an issue to let us know.](https://github.com/scalar/scalar/issues/new/choose)
+
+```js
+{
+  plugins: [
+    XCustomExtensionPlugin(),
+  ],
+}
+
 ### showSidebar?: boolean
 
 Whether the sidebar should be shown.

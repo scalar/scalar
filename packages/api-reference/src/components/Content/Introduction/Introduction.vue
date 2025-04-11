@@ -4,6 +4,7 @@ import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
 
+import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -98,6 +99,7 @@ onMounted(() => config.value.onLoaded?.())
             </div>
           </SectionColumn>
         </SectionColumns>
+        <SpecificationExtension :value="info" />
       </SectionContent>
       <slot name="after" />
     </Section>
