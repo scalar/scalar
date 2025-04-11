@@ -28,7 +28,7 @@ import SideNavLink from './SideNavLink.vue'
         <ScalarDropdownItem class="flex w-full items-center gap-1.5">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              icon="DiscordLine"
+              icon="Discord"
               size="xs"
               thickness="1.75" />
           </div>

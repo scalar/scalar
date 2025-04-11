@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-    <path fill="currentColor" fill-rule="evenodd"
-        d="M8.75 0a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0V.75A.75.75 0 0 1 8.75 0Zm4.03 2.28a.75.75 0 0 0-1.06-1.06l-1 1a.75.75 0 0 0 1.06 1.06l1-1ZM9.707 5.707a1 1 0 0 0-1.414-1.414l-8 8a1 1 0 1 0 1.414 1.414l8-8ZM11.75 4.5a.75.75 0 0 0 0 1.5h1.5a.75.75 0 0 0 0-1.5h-1.5Zm-1.53 2.22a.75.75 0 0 1 1.06 0l1 1a.75.75 0 0 1-1.06 1.06l-1-1a.75.75 0 0 1 0-1.06Zm-3.94-5a.75.75 0 0 0-1.06 1.06l1 1a.75.75 0 0 0 1.06-1.06l-1-1Z"
-        clip-rule="evenodd" />
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path
+        d="M.75 23.25l15-15M10.5 8.25H8.25M23.25 8.25H21M21 3l-1.591 1.591M15.75 3V.75M15.75 15.75V13.5M12.091 4.591L10.5 3M21 13.5l-1.591-1.591"
+        fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" />
 </svg>
