@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.3.18
+
+### Patch Changes
+
+- 5b19c90: refactor(components): cleanup old icons in Scalar components
+- Updated dependencies [5b19c90]
+- Updated dependencies [9def02e]
+- Updated dependencies [f705230]
+- Updated dependencies [3745d77]
+  - @scalar/components@0.13.47
+  - @scalar/types@0.1.7
+  - @scalar/use-codemirror@0.11.92
+  - @scalar/oas-utils@0.2.130
+  - @scalar/openapi-parser@0.10.14
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.9.86
+  - @scalar/import@0.3.13
+  - @scalar/postman-to-openapi@0.2.3
+  - @scalar/use-hooks@0.1.40
+
 ## 2.3.17
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.47
+
+### Patch Changes
+
+- 5b19c90: refactor(components): cleanup old icons in Scalar components
+- f705230: feat(components): scalar form text field improvements
+  - @scalar/themes@0.9.86
+  - @scalar/code-highlight@0.0.27
+  - @scalar/use-hooks@0.1.40
+
 ## 0.13.46
 
 ### Patch Changes

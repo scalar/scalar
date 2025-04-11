@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.1.7
+
+### Patch Changes
+
+- 9def02e: feat: added new callback for execution request
+- 3745d77: feat: new plugin system
+
 ## 0.1.6
 
 ### Patch Changes
