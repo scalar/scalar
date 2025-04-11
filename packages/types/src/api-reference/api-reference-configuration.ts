@@ -208,6 +208,8 @@ export const apiClientConfigurationSchema = z.object({
   theme: themeIdEnum.optional().default('default').catch('default'),
   /** Integration type identifier */
   _integration: integrationEnum.optional(),
+  /** onRequestSent is fired when a request is sent */
+  onRequestSent: z.function().args(z.string()).returns(z.void()).optional(),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
