@@ -13,29 +13,31 @@
 export default {}
 </script>
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 import { useBindCx } from '../../hooks/useBindCx'
 
-defineProps<{
-  error?: boolean
+const { is = 'label' } = defineProps<{
+  is?: string | Component
 }>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <label
-    v-bind="
-      cx('flex flex-col gap-1.5 rounded', {
-        'outline outline-c-danger outline-offset-2': error,
-      })
-    ">
+  <component
+    :is="is"
+    v-bind="cx('flex flex-col gap-1.5 rounded')">
     <div
       v-if="$slots.label"
-      class="flex items-start justify-between gap-2 text-sm leading-none text-c-1">
-      <span class="whitespace-nowrap font-medium">
-        <slot name="label" />
-      </span>
+      class="flex items-start justify-between gap-2 text-sm leading-none text-c-1 whitespace-nowrap font-medium">
+      <slot name="label" />
     </div>
     <slot />
-  </label>
+    <span
+      v-if="$slots.below"
+      :class="cx('-mt-1.5 text-sm')">
+      <slot name="below" />
+    </span>
+  </component>
 </template>

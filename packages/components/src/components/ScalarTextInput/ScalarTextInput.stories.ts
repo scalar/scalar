@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
+import ScalarIconButton from '../ScalarIconButton/ScalarIconButton.vue'
 import ScalarTextInput from './ScalarTextInput.vue'
 
 const meta: Meta = {
@@ -44,16 +45,21 @@ export const WithSuffix: Story = {
   },
 }
 
-export const WithError: Story = {
+export const WithAside: Story = {
   render: (args) => ({
-    components: { ScalarTextInput },
+    components: { ScalarTextInput, ScalarIconButton },
     setup() {
-      const model = ref('Bad input')
-      return { args, model }
+      const model = ref('password')
+      const mask = ref(true)
+      return { args, model, mask }
     },
-    template: `<ScalarTextInput v-model="model" v-bind="args">
+    template: `<ScalarTextInput v-model="model" :type="mask ? 'password' : 'text'" v-bind="args">
       <template #aside>
-        <span class="text-c-danger">Error</span>
+        <ScalarIconButton
+          class="-m-1.5"
+          :icon="mask ? 'Show' : 'Hide'"
+          size="sm"
+          @click="mask = !mask" />
       </template>
     </ScalarTextInput>`,
   }),

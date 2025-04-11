@@ -71,6 +71,9 @@ export const WithFields: Story = {
           <ScalarFormField>
             <template #label>Single Line Input</template>
             <ScalarTextInput />
+            <template #below>
+              <span class="text-c-danger">This is an error message</span>
+            </template>
         </ScalarFormField>
         <ScalarFormField>
           <template #label>Multi-Line Input</template>
