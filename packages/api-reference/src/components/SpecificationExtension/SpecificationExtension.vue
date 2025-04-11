@@ -10,7 +10,7 @@ const { value } = defineProps<{
   value: Record<string, unknown> | undefined
 }>()
 
-const { getOpenApiExtensions } = usePluginManager()
+const { getSpecificationExtensions } = usePluginManager()
 
 /**
  * Extract registered OpenAPI extension names
@@ -28,7 +28,7 @@ function getCustomExtensionNames(
  */
 function getCustomOpenApiExtensionComponents(extensionNames: `x-${string}`[]) {
   return extensionNames
-    .flatMap((name) => getOpenApiExtensions(name))
+    .flatMap((name) => getSpecificationExtensions(name))
     .filter((extension) => extension.component)
 }
 

@@ -1,4 +1,7 @@
-import type { OpenApiExtension, ApiReferencePlugin as OriginalApiReferencePlugin } from '@scalar/types/api-reference'
+import type {
+  ApiReferencePlugin as OriginalApiReferencePlugin,
+  SpecificationExtension,
+} from '@scalar/types/api-reference'
 
 export type ApiReferencePlugin = OriginalApiReferencePlugin
 
@@ -24,10 +27,18 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all extensions with the given name from registered plugins
      */
-    getOpenApiExtensions: (name: `x-${string}`): OpenApiExtension[] => {
-      return Array.from(registeredPlugins.values())
-        .flatMap((plugin) => plugin.extensions)
-        .filter((extension) => extension.name === name)
+    getSpecificationExtensions: (name: `x-${string}`): SpecificationExtension[] => {
+      const extensions: SpecificationExtension[] = []
+
+      for (const plugin of registeredPlugins.values()) {
+        for (const extension of plugin.extensions) {
+          if (extension.name === name) {
+            extensions.push(extension)
+          }
+        }
+      }
+
+      return extensions
     },
   }
 }

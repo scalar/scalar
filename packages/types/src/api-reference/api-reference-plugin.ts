@@ -27,5 +27,5 @@ export const ApiReferencePluginSchema = z.function().returns(
 )
 
 // Infer the types from the schemas
-export type OpenApiExtension = z.infer<typeof OpenApiExtensionSchema>
+export type SpecificationExtension = z.infer<typeof OpenApiExtensionSchema>
 export type ApiReferencePlugin = z.infer<typeof ApiReferencePluginSchema>

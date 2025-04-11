@@ -18,6 +18,6 @@ export {
 export { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
 
 export type {
-  OpenApiExtension,
+  SpecificationExtension,
   ApiReferencePlugin,
 } from './api-reference-plugin.ts'
