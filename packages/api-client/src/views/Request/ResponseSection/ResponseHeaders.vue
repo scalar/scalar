@@ -27,7 +27,7 @@ const findHeaderInfo = (name: string) => {
     <template #title>Response Headers</template>
     <div
       v-if="headers.length"
-      class="max-h-[calc(100%-32px)] overflow-y-auto border-t">
+      class="max-h-[calc(100%-32px)] overflow-y-auto">
       <DataTable
         :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
         scroll>
