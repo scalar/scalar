@@ -24,7 +24,6 @@ export const ICONS = [
   'DarkMode',
   'Delete',
   'Discord',
-  'DiscordLine',
   'DocsPage',
   'Download',
   'Duplicate',
