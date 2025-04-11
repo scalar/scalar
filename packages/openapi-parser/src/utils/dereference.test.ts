@@ -187,7 +187,7 @@ describe('dereference', async () => {
     const filesystem = [
       {
         isEntrypoint: true,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'File Reference',
@@ -202,13 +202,14 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'file-reference.yaml',
-        dir: './',
-        references: ['valid.yaml'],
+        uri: 'https://example.com/file-reference.yaml',
+        references: {
+          'valid.yaml': 'https://example.com/valid.yaml',
+        },
       },
       {
         isEntrypoint: false,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -238,9 +239,8 @@ describe('dereference', async () => {
             },
           },
         },
-        filename: 'valid.yaml',
-        dir: './',
-        references: [],
+        uri: 'https://example.com/valid.yaml',
+        references: {},
       },
     ]
 
@@ -266,6 +266,111 @@ describe('dereference', async () => {
         },
       },
       required: ['id', 'name'],
+    })
+  })
+
+  it('only resolves external references when resolveInternalRefs is false', async () => {
+    const filesystem = [
+      {
+        isEntrypoint: true,
+        content: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Test API',
+            version: '1.0.0',
+          },
+          paths: {
+            '/test': {
+              get: {
+                responses: {
+                  '200': {
+                    description: 'Success',
+                    content: {
+                      'application/json': {
+                        schema: {
+                          // Internal reference
+                          $ref: '#/components/schemas/InternalSchema',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          components: {
+            schemas: {
+              InternalSchema: {
+                type: 'object',
+                properties: {
+                  internalProp: {
+                    type: 'string',
+                  },
+                },
+              },
+              MainSchema: {
+                type: 'object',
+                properties: {
+                  external: {
+                    // External reference
+                    $ref: 'http://example.com/external.yaml#/components/schemas/ExternalSchema',
+                  },
+                  internal: {
+                    // Internal reference
+                    $ref: '#/components/schemas/InternalSchema',
+                  },
+                },
+              },
+            },
+          },
+        },
+        uri: 'main.yaml',
+        references: {},
+      },
+      {
+        content: {
+          components: {
+            schemas: {
+              ExternalSchema: {
+                type: 'object',
+                properties: {
+                  externalProp: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          },
+        },
+        uri: 'http://example.com/external.yaml',
+        references: {},
+      },
+    ]
+
+    const result = await dereference(filesystem, {
+      resolveInternalRefs: false,
+    })
+
+    expect(result.errors).toStrictEqual([])
+
+    // External reference should be resolved
+    expect(result.schema.components.schemas.MainSchema.properties.external).toEqual({
+      type: 'object',
+      properties: {
+        externalProp: {
+          type: 'string',
+        },
+      },
+    })
+
+    // Internal reference should remain as a $ref
+    expect(result.schema.components.schemas.MainSchema.properties.internal).toEqual({
+      $ref: '#/components/schemas/InternalSchema',
+    })
+
+    // The internal reference in paths should also remain as a $ref
+    expect(result.schema.paths['/test'].get.responses['200'].content['application/json'].schema).toEqual({
+      $ref: '#/components/schemas/InternalSchema',
     })
   })
 

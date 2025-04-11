@@ -8,7 +8,9 @@ import type { LoadPlugin } from '../../utils/load/load.ts'
 
 export const readFiles: () => LoadPlugin = () => {
   return {
-    check(value?: any) {
+    // Make it run before fetchUrls
+    priority: 100,
+    check(value?: unknown) {
       // Not a string
       if (typeof value !== 'string') {
         return false
@@ -36,7 +38,11 @@ export const readFiles: () => LoadPlugin = () => {
 
       return true
     },
-    async get(value?: any) {
+    async get(value?: unknown) {
+      if (typeof value !== 'string') {
+        return false
+      }
+
       if (!fs.existsSync(value)) {
         throw new Error(ERRORS.FILE_DOES_NOT_EXIST.replace('%s', value))
       }
@@ -48,9 +54,23 @@ export const readFiles: () => LoadPlugin = () => {
         return false
       }
     },
-    resolvePath(value: any, reference: string) {
-      const dir = dirname(value)
-      return join(dir, reference)
+    getUri(value: unknown, source: string) {
+      if (typeof value !== 'string') {
+        return undefined
+      }
+
+      if (typeof source !== 'string') {
+        return value
+      }
+
+      // Already absolute
+      if (value.startsWith('/')) {
+        return value
+      }
+
+      const dir = dirname(source)
+
+      return join(dir, value)
     },
     getDir(value: any) {
       return dirname(value)

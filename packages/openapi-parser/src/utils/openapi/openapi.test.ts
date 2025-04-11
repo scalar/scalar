@@ -60,7 +60,7 @@ describe('pipeline', () => {
     expect(filesystem).toMatchObject([
       {
         isEntrypoint: true,
-        specification: {
+        content: {
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -68,8 +68,8 @@ describe('pipeline', () => {
           },
           paths: {},
         },
-        filename: null,
-        references: [],
+        uri: expect.stringMatching(/openapi\.yaml$/),
+        references: {},
       },
     ])
   })

@@ -78,6 +78,7 @@ export function useReactiveSpec({
 
     parse(value, {
       proxyUrl: proxyUrl ? toValue(proxyUrl) : undefined,
+      source: toValue(specConfig)?.url,
     })
       .then((validSpec) => {
         specErrors.value = null

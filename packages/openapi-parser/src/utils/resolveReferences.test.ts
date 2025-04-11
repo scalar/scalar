@@ -1,9 +1,9 @@
+import path from 'node:path'
 /**
  * This file has some simple tests to cover the basics of the resolveReferences function.
  * Doesn’t cover all edge cases, doesn’t have big files, but if this works you’re almost there.
  */
 import SwaggerParser from '@apidevtools/swagger-parser'
-import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { readFiles } from '../plugins/read-files/readFiles.ts'
@@ -457,9 +457,11 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar',
         isEntrypoint: true,
-        references: ['other/folder/foobar.json'],
-        filename: 'openapi.json',
-        specification: {
+        references: {
+          'other/folder/foobar.json': '/Users/johnedoe/other/folder/foobar.json',
+        },
+        uri: '/Users/johnedoe/openapi.json',
+        content: {
           openapi: '3.1.0',
           info: {},
           paths: {
@@ -476,9 +478,9 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar/other/folder',
         isEntrypoint: false,
-        references: [],
-        filename: 'other/folder/foobar.json',
-        specification: {
+        references: {},
+        uri: '/Users/johnedoe/other/folder/foobar.json',
+        content: {
           content: {
             'application/json': {
               schema: {
@@ -491,7 +493,9 @@ describe('resolveReferences', () => {
       },
     ]
 
-    const { schema } = resolveReferences(filesystem)
+    const { schema } = resolveReferences(filesystem, {
+      throwOnError: true,
+    })
 
     expect(schema.paths['/foobar'].post.requestBody.content['application/json'].schema.example).toBe('foobar')
   })
@@ -501,9 +505,11 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar',
         isEntrypoint: true,
-        references: ['other/folder/foobar.json'],
-        filename: 'openapi.json',
-        specification: {
+        references: {
+          'other/folder/foobar.json': '/Users/johnedoe/other/folder/foobar.json',
+        },
+        uri: '/Users/johnedoe/openapi.json',
+        content: {
           openapi: '3.1.0',
           info: {},
           paths: {
@@ -520,9 +526,9 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar/other/folder',
         isEntrypoint: false,
-        references: [],
-        filename: 'other/folder/foobar.json',
-        specification: {
+        references: {},
+        uri: '/Users/johnedoe/other/folder/foobar.json',
+        content: {
           components: {
             requestBodies: {
               Foobar: {
@@ -550,9 +556,11 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar',
         isEntrypoint: true,
-        references: ['other/folder/foobar.json'],
-        filename: 'openapi.json',
-        specification: {
+        references: {
+          'other/folder/foobar.json': '/Users/johnedoe/other/folder/foobar.json',
+        },
+        uri: '/Users/johnedoe/openapi.json',
+        content: {
           openapi: '3.1.0',
           info: {},
           paths: {
@@ -569,9 +577,11 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar/other/folder',
         isEntrypoint: false,
-        references: ['barfoo.json'],
-        filename: 'other/folder/foobar.json',
-        specification: {
+        references: {
+          'barfoo.json': '/Users/johnedoe/barfoo.json',
+        },
+        uri: '/Users/johnedoe/other/folder/foobar.json',
+        content: {
           components: {
             requestBodies: {
               Foobar: {
@@ -584,9 +594,9 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar/other/folder',
         isEntrypoint: false,
-        references: [],
-        filename: 'barfoo.json',
-        specification: {
+        references: {},
+        uri: '/Users/johnedoe/barfoo.json',
+        content: {
           content: {
             'application/json': {
               schema: {
@@ -619,9 +629,9 @@ describe('resolveReferences', () => {
       {
         dir: '/Foobar',
         isEntrypoint: true,
-        references: [],
-        filename: 'openapi.json',
-        specification: {
+        references: {},
+        uri: 'openapi.json',
+        content: {
           openapi: '3.1.0',
           info: {},
           paths: {
