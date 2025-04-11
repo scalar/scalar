@@ -22,7 +22,7 @@ const configuration = reactive({
   ],
   showSidebar: true,
   withDefaultFonts: true,
-  plugins: [XCustomExtensionPlugin],
+  plugins: [XCustomExtensionPlugin()],
 })
 
 let app: ReturnType<typeof createApiReference> | null = null
@@ -37,7 +37,7 @@ const updateConfiguration = (
   Object.assign(configuration, newConfiguration)
   app?.updateConfiguration({
     ...newConfiguration,
-    plugins: [XCustomExtensionPlugin],
+    plugins: [XCustomExtensionPlugin()],
   })
 }
 </script>

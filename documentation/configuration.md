@@ -296,6 +296,13 @@ You can add specification extensions (starting with `x-`) to the following objec
 
 You need them in another place? [Create an issue to let us know.](https://github.com/scalar/scalar/issues/new/choose)
 
+```js
+{
+  plugins: [
+    XCustomExtensionPlugin(),
+  ],
+}
+
 ### showSidebar?: boolean
 
 Whether the sidebar should be shown.
