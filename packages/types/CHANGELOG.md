@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.7
+
+### Patch Changes
+
+- 3745d77: feat: new plugin system
+
 ## 0.1.6
 
 ### Patch Changes
