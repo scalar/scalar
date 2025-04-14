@@ -7,6 +7,7 @@ import { RouterView } from 'vue-router'
 
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
+import { useClientConfig } from '@/hooks/useClientConfig'
 import { useSidebar } from '@/hooks/useSidebar'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
@@ -22,6 +23,9 @@ defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
 const { layout } = useLayout()
+const config = useClientConfig()
+const { isSidebarOpen } = useSidebar()
+
 const {
   activeCollection,
   activeExample,
@@ -32,7 +36,6 @@ const {
 } = useActiveEntities()
 const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
-const { isSidebarOpen } = useSidebar()
 
 const element = ref<HTMLDivElement>()
 
@@ -97,6 +100,9 @@ const executeRequest = async () => {
     securitySchemes: securitySchemes,
     server,
   })
+
+  // Call the onRequestSent callback if it exists
+  config.value?.onRequestSent?.(activeRequest.value.path ?? '')
 
   // Error from createRequestOperation
   if (error) {

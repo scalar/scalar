@@ -1,5 +1,19 @@
 # @scalar/themes
 
+## 0.9.86
+
+### Patch Changes
+
+- Updated dependencies [9def02e]
+- Updated dependencies [3745d77]
+  - @scalar/types@0.1.7
+
+## 0.9.85
+
+### Patch Changes
+
+- 8720ae7: fix(themes): update font size 1 to be 21px
+
 ## 0.9.84
 
 ### Patch Changes

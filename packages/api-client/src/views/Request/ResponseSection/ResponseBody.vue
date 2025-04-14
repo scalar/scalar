@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
@@ -28,8 +28,8 @@ const showPreview = computed(() => toggle.value || !showToggle.value)
 const showRaw = computed(() => !toggle.value || !showToggle.value)
 
 const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
-  data: props.data,
-  headers: props.headers,
+  data: toRef(props, 'data'),
+  headers: toRef(props, 'headers'),
 })
 
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])

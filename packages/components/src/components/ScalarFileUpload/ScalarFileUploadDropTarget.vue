@@ -28,7 +28,7 @@ const { cx } = useBindCx()
       class="pointer-events-none flex size-full items-center justify-center gap-1 rounded-md p-1 text-c-2">
       <ScalarIcon
         class="size-4"
-        icon="UploadSimple" />
+        icon="Upload" />
       <span class="font-medium"><slot>Drop to upload</slot></span>
     </div>
   </div>

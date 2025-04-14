@@ -16,7 +16,7 @@
     "scalar",
     "references"
   ],
-  "version": "0.1.6",
+  "version": "0.1.7",
   "engines": {
     "node": ">=18"
   },
@@ -38,30 +38,30 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./utils": {
-      "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts",
-      "default": "./dist/utils/index.js"
-    },
-    "./snippetz": {
-      "import": "./dist/snippetz/index.js",
-      "types": "./dist/snippetz/index.d.ts",
-      "default": "./dist/snippetz/index.js"
-    },
-    "./legacy": {
-      "import": "./dist/legacy/index.js",
-      "types": "./dist/legacy/index.d.ts",
-      "default": "./dist/legacy/index.js"
+    "./api-reference": {
+      "import": "./dist/api-reference/index.js",
+      "types": "./dist/api-reference/index.d.ts",
+      "default": "./dist/api-reference/index.js"
     },
     "./entities": {
       "import": "./dist/entities/index.js",
       "types": "./dist/entities/index.d.ts",
       "default": "./dist/entities/index.js"
     },
-    "./api-reference": {
-      "import": "./dist/api-reference/index.js",
-      "types": "./dist/api-reference/index.d.ts",
-      "default": "./dist/api-reference/index.js"
+    "./legacy": {
+      "import": "./dist/legacy/index.js",
+      "types": "./dist/legacy/index.d.ts",
+      "default": "./dist/legacy/index.js"
+    },
+    "./snippetz": {
+      "import": "./dist/snippetz/index.js",
+      "types": "./dist/snippetz/index.d.ts",
+      "default": "./dist/snippetz/index.js"
+    },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
   "files": [

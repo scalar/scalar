@@ -1,3 +1,4 @@
+import { CLIENT_CONFIGURATION_SYMBOL } from '@/hooks/useClientConfig'
 import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
 import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
@@ -11,7 +12,7 @@ import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import type { OpenAPI } from '@scalar/types/legacy'
-import { type Component, createApp, watch } from 'vue'
+import { type Component, createApp, ref, watch } from 'vue'
 import type { Router } from 'vue-router'
 
 export type OpenClientPayload = (
@@ -89,17 +90,17 @@ export const createApiClient = ({
   router,
 }: CreateApiClientParams) => {
   // Parse the config
-  const configuration = apiClientConfigurationSchema.parse(_configuration)
+  const configuration = ref(apiClientConfigurationSchema.parse(_configuration))
 
   // Create the store if it wasn't passed in
   const store =
     _store ||
     createWorkspaceStore({
-      proxyUrl: configuration.proxyUrl,
-      theme: configuration.theme,
-      showSidebar: configuration.showSidebar ?? true,
-      hideClientButton: configuration.hideClientButton ?? false,
-      _integration: configuration._integration,
+      proxyUrl: configuration.value.proxyUrl,
+      theme: configuration.value.theme,
+      showSidebar: configuration.value.showSidebar ?? true,
+      hideClientButton: configuration.value.hideClientButton ?? false,
+      _integration: configuration.value._integration,
       useLocalStorage: persistData,
     })
 
@@ -143,12 +144,12 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || (!configuration.url && !configuration.content)) {
+  else if (!isReadOnly || (!configuration.value.url && !configuration.value.content)) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],
       name: 'Workspace',
-      proxyUrl: configuration.proxyUrl,
+      proxyUrl: configuration.value.proxyUrl,
     })
 
     if (hasLocalStorage()) {
@@ -164,7 +165,7 @@ export const createApiClient = ({
     const workspace = workspaceSchema.parse({
       uid: 'default',
       name: 'Workspace',
-      proxyUrl: configuration.proxyUrl,
+      proxyUrl: configuration.value.proxyUrl,
     })
     store.workspaceMutators.rawAdd(workspace)
   }
@@ -179,6 +180,8 @@ export const createApiClient = ({
   app.provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
   // Provide the sidebar state
   app.provide(SIDEBAR_SYMBOL, sidebarState)
+  // Provide the client config
+  app.provide(CLIENT_CONFIGURATION_SYMBOL, configuration)
 
   const {
     collectionMutators,
@@ -269,6 +272,9 @@ export const createApiClient = ({
           ...newConfig,
           useCollectionSecurity: isReadOnly,
         }
+
+        // Update the config ref
+        configuration.value = config
 
         if (newConfig.url) {
           await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', config)

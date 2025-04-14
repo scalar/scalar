@@ -562,7 +562,7 @@ const selectedExample = computed({
                 <span>Upload File</span>
                 <ScalarIcon
                   class="ml-1"
-                  icon="UploadSimple"
+                  icon="Upload"
                   size="xs"
                   thickness="2.5" />
               </ScalarButton>

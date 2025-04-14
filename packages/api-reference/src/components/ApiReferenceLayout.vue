@@ -44,6 +44,7 @@ import { ApiClientModal } from '@/features/ApiClientModal'
 import { downloadSpecBus, downloadSpecFile, sleep } from '@/helpers'
 import { useNavState, useSidebar } from '@/hooks'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
+import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
   ReferenceLayoutProps,
@@ -279,6 +280,14 @@ provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
 provide(CONFIGURATION_SYMBOL, configuration)
+
+provide(
+  PLUGIN_MANAGER_SYMBOL,
+  createPluginManager({
+    // TODO: Get plugins from the configuration
+    plugins: configuration.value.plugins,
+  }),
+)
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE

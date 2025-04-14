@@ -9,7 +9,9 @@ function generateTypes(folder: string, name: 'LOGOS' | 'ICONS') {
   const indexFile = join(folder, 'index.ts')
 
   const svgRegex = /\.svg$/
-  const fileNames = readdirSync(folder).filter((fileName) => svgRegex.test(fileName))
+  const fileNames = readdirSync(folder)
+    .filter((fileName) => svgRegex.test(fileName))
+    .sort() // Sort filenames to ensure consistent order across OS
 
   // Write icons to a typescript file for exporting
   let writeStr = `export const ${name} = [\n`

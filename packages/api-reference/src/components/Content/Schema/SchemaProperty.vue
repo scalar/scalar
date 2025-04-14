@@ -8,6 +8,8 @@ import {
   discriminators,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { usePluginManager } from '@/plugins'
 
 import Schema from './Schema.vue'
 import SchemaDiscriminator from './SchemaDiscriminator.vue'
@@ -121,20 +123,6 @@ const remainingEnumValues = computed(() =>
 
 /** Simplified discriminators with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
-
-/** Find the type of discriminator. */
-const discriminatorType = discriminators.find((r) => {
-  if (!optimizedValue.value || typeof optimizedValue.value !== 'object') {
-    return false
-  }
-
-  return (
-    r in optimizedValue.value ||
-    (optimizedValue.value.items &&
-      typeof optimizedValue.value.items === 'object' &&
-      r in optimizedValue.value.items)
-  )
-})
 
 // Display the property heading if any of the following are true
 const displayPropertyHeading = (
@@ -339,6 +327,7 @@ const displayPropertyHeading = (
           :value="optimizedValue.items" />
       </template>
     </template>
+    <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
 

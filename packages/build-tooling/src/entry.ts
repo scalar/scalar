@@ -90,10 +90,12 @@ export async function addPackageFileExports({
 
   // Update the package file with the new exports
   const packageFile = JSON.parse(await fs.readFile('./package.json', 'utf-8'))
-  packageFile.exports = {
-    ...packageExports,
-    ...(allowCss ? cssExports : {}),
-  }
+  packageFile.exports = allowCss ? { ...packageExports, ...cssExports } : { ...packageExports }
+
+  // Sort the keys in the exports object to ensure consistent order across OS
+  packageFile.exports = Object.fromEntries(
+    Object.entries(packageFile.exports).sort(([keyA], [keyB]) => keyA.localeCompare(keyB)),
+  )
 
   // Green text
   console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
