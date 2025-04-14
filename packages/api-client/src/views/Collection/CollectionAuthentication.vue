@@ -57,7 +57,7 @@ const handleToggleCollectionSecurity = () => {
         :collection="activeCollection"
         :envVariables="activeEnvVariables"
         :environment="activeEnvironment"
-        layout="reference"
+        layout="client"
         :selectedSecuritySchemeUids="
           activeCollection?.selectedSecuritySchemeUids ?? []
         "
