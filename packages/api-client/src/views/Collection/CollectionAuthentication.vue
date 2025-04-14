@@ -49,7 +49,11 @@ const handleToggleCollectionSecurity = () => {
 
       <RequestAuth
         class="scalar-collection-auth"
-        v-if="activeCollection?.useCollectionSecurity && activeWorkspace"
+        :class="
+          !activeCollection?.useCollectionSecurity &&
+          'pointer-events-none opacity-50 mix-blend-luminosity'
+        "
+        v-if="activeCollection && activeWorkspace"
         :collection="activeCollection"
         :envVariables="activeEnvVariables"
         :environment="activeEnvironment"
