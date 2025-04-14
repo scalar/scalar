@@ -469,13 +469,14 @@ const shouldShowItem = computed(() => {
       </RouterLink>
 
       <!-- Collection -->
-      <div
+      <RouterLink
         v-else-if="
           (layout !== 'modal' || parentUids.length) &&
-          item.entity.type === 'collection'
+          item.entity.type === 'collection' &&
+          item.to
         "
         :aria-expanded="Boolean(collapsedSidebarFolders[item.entity.uid])"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 no-underline focus-visible:z-10"
         :class="[
           highlightClasses,
           {
@@ -486,10 +487,11 @@ const shouldShowItem = computed(() => {
                 item.entity.uid,
             'text-c-2': item.title === 'Untitled Collection',
           },
-        ]">
+        ]"
+        :to="item.to">
         <span
           class="flex h-5 max-w-[14px] cursor-pointer items-center justify-center"
-          @click="toggleSidebarFolder(item.entity.uid)">
+          @click.stop.prevent="toggleSidebarFolder(item.entity.uid)">
           <slot name="leftIcon">
             <ScalarSidebarGroupToggle
               class="text-c-3 shrink-0"
@@ -498,18 +500,9 @@ const shouldShowItem = computed(() => {
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between font-medium">
-          <RouterLink
-            v-if="item.to"
-            class="w-full no-underline"
-            :to="item.to"
-            @click.stop.prevent>
-            <span class="line-clamp-1 w-full break-all text-left">
-              {{ item.title }}
-            </span>
-          </RouterLink>
-          <template v-else>
+          <span class="line-clamp-1 w-full break-all text-left">
             {{ item.title }}
-          </template>
+          </span>
           <div class="relative flex h-fit justify-end">
             <div
               class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
@@ -578,7 +571,7 @@ const shouldShowItem = computed(() => {
             <span>&hairsp;</span>
           </div>
         </div>
-      </div>
+      </RouterLink>
 
       <!-- Tag -->
       <button
