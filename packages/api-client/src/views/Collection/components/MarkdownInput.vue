@@ -49,13 +49,13 @@ watch(mode, (newMode) => {
     </div>
     <div
       class="has-[:focus-visible]:bg-b-1 z-1 group relative flex flex-col rounded-lg">
-      <div class="h-full min-h-[calc(1rem*4)]">
+      <div class="flex h-full min-h-[calc(1rem*4)] flex-col">
         <!-- Preview -->
         <template v-if="mode === 'preview'">
-          <template v-if="modelValue">
+          <template v-if="modelValue && modelValue.trim().length">
             <ScalarMarkdown
               v-if="modelValue"
-              class="hover:border-b-3 h-full rounded border border-transparent p-1.5"
+              class="hover:border-b-3 h-full flex-1 rounded border border-transparent p-1.5"
               :value="modelValue"
               withImages
               @dblclick="mode = 'edit'" />
@@ -83,7 +83,7 @@ watch(mode, (newMode) => {
         <template v-if="mode === 'edit'">
           <CodeInput
             ref="codeInputRef"
-            class="h-full border px-0.5 py-0"
+            class="h-full flex-1 border px-0.5 py-0"
             :envVariables="envVariables"
             :environment="environment"
             :modelValue="modelValue"
