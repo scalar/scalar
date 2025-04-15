@@ -175,6 +175,7 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+          type="password"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
           Value
         </RequestAuthDataTableInput>
