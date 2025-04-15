@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarLoading, useLoadingState } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
@@ -13,6 +13,22 @@ const loader = useLoadingState()
 const textContent = ref('')
 const errorRef = ref<Error | null>(null)
 const decoder = new TextDecoder()
+const contentContainer = ref<HTMLElement | null>(null)
+
+/**
+ * Scrolls the content container to the bottom
+ */
+const scrollToBottom = () => {
+  if (contentContainer.value) {
+    contentContainer.value.scrollTop = contentContainer.value.scrollHeight
+  }
+}
+
+// Watch for changes in textContent and scroll to bottom
+watch(textContent, () => {
+  // Use nextTick to ensure the DOM has updated
+  nextTick(scrollToBottom)
+})
 
 /**
  * Reads the stream and appends the content
@@ -71,9 +87,10 @@ onBeforeUnmount(() => {
     </template>
 
     <div
+      ref="contentContainer"
       class="text-xxs font-code leading-2 h-full overflow-auto whitespace-pre-wrap">
       <template v-if="errorRef">
-        <div class="text-red border-b p-2">
+        <div class="text-red bg-b-danger sticky top-0 border-b p-2">
           {{ errorRef.message }}
         </div>
       </template>
