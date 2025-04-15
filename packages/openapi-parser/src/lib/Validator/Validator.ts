@@ -42,7 +42,7 @@ export class Validator {
    */
   async validate(filesystem: Filesystem, options?: ThrowOnErrorOption): Promise<ValidateResult> {
     const entrypoint = filesystem.find((file) => file.isEntrypoint)
-    const specification = entrypoint?.specification
+    const specification = entrypoint?.content
 
     // TODO: How does this work with a filesystem?
     this.specification = specification

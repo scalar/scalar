@@ -34,7 +34,10 @@ export async function importCollection({
         return
       }
 
-      const entities = await store.importSpecFile(source, workspace.uid)
+      const entities = await store.importSpecFile(source, workspace.uid, {
+        proxyUrl: workspace.proxyUrl,
+        documentUrl: source,
+      })
 
       onSuccess(entities?.collection)
     }

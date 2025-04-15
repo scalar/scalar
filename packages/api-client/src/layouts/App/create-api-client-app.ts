@@ -38,7 +38,9 @@ export const createApiClientApp = async (
       proxyUrl: configuration.proxyUrl,
     })
   } else if (configuration.content) {
-    await importSpecFile(configuration.content, 'default')
+    await importSpecFile(configuration.content, 'default', {
+      proxyUrl: configuration.proxyUrl,
+    })
   }
 
   return client

@@ -88,12 +88,17 @@ describe('ApiReferenceLayout', () => {
 
         const definition = await fetch(url).then((res) => res.text())
 
-        const result = await parse(definition)
+        const result = await parse(definition, {
+          source: url,
+        })
 
         const app = createSSRApp({
           render: () =>
             h(ApiReferenceLayout, {
-              configuration: {},
+              configuration: {
+                // Necessary to resolve relative references on the server-side
+                url,
+              },
               parsedSpec: result,
               rawSpec: definition,
             }),

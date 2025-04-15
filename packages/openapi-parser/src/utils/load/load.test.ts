@@ -30,7 +30,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -55,7 +55,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -80,7 +80,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -94,17 +94,23 @@ describe('load', async () => {
     const EXAMPLE_FILE = path.join(new URL(import.meta.url).pathname, '../../examples/openapi.yaml')
 
     const { filesystem } = await load(EXAMPLE_FILE, {
-      plugins: [readFiles(), fetchUrls()],
+      plugins: [fetchUrls(), readFiles()],
     })
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
-      openapi: '3.1.0',
-      info: {
-        title: 'Hello World',
-        version: '1.0.0',
+    expect(filesystem).toMatchObject([
+      {
+        isEntrypoint: true,
+        uri: EXAMPLE_FILE,
+        content: {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {},
+        },
       },
-      paths: {},
-    })
+    ])
   })
 
   it('loads referenced files in files', async () => {
@@ -114,16 +120,29 @@ describe('load', async () => {
       plugins: [readFiles()],
     })
 
-    // filenames
-    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([
-      null,
-      'schemas/problem.yaml',
-      'schemas/upload.yaml',
-      './components/coordinates.yaml',
+    expect(filesystem).toMatchObject([
+      {
+        uri: expect.stringContaining('/tests/filesystem/api/openapi.yaml'),
+        references: expect.objectContaining({
+          'schemas/problem.yaml': expect.any(String),
+          'schemas/upload.yaml': expect.any(String),
+        }),
+      },
+      {
+        references: {},
+      },
+      {
+        references: {
+          './components/coordinates.yaml': expect.stringContaining('/schemas/components/coordinates.yaml'),
+        },
+      },
+      {
+        references: {},
+      },
     ])
 
-    // specification
-    expect(filesystem[0].specification).toBeTypeOf('object')
+    // content
+    expect(filesystem[0].content).toBeTypeOf('object')
 
     // only one entrypoint
     expect(filesystem.filter((entry) => entry.isEntrypoint).length).toBe(1)
@@ -147,7 +166,7 @@ describe('load', async () => {
       plugins: [readFiles(), fetchUrls()],
     })
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -155,6 +174,303 @@ describe('load', async () => {
       },
       paths: {},
     })
+  })
+
+  it('resolves relative URLs to absolute ones', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      // empty document for all other URLs
+      if (url !== 'https://example.com/docs/openapi.yaml') {
+        return {
+          text: async () => '{}',
+        }
+      }
+
+      // base document
+      return {
+        text: async () =>
+          stringify({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/users': {
+                $ref: './components/pathItem-1.yaml',
+              },
+              '/users/{id}': {
+                $ref: 'components/pathItem-2.yaml',
+              },
+              '/users/{id}/posts': {
+                $ref: '../docs/components/pathItem-3.yaml',
+              },
+              '/users/{id}/posts/{postId}': {
+                $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+              },
+            },
+          }),
+      }
+    })
+
+    const { filesystem } = await load('https://example.com/docs/openapi.yaml', {
+      plugins: [
+        fetchUrls({
+          // fetch: (url) => {
+          //   console.log('fetch:', url)
+          //
+          //   return fetch(url)
+          // },
+        }),
+      ],
+    })
+
+    expect(filesystem).toMatchObject([
+      {
+        isEntrypoint: true,
+        uri: 'https://example.com/docs/openapi.yaml',
+        references: {
+          './components/pathItem-1.yaml': 'https://example.com/docs/components/pathItem-1.yaml',
+          'components/pathItem-2.yaml': 'https://example.com/docs/components/pathItem-2.yaml',
+          '../docs/components/pathItem-3.yaml': 'https://example.com/docs/components/pathItem-3.yaml',
+          'https://example.com/docs/components/pathItem-4.yaml': 'https://example.com/docs/components/pathItem-4.yaml',
+        },
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-1.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-2.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-3.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-4.yaml',
+        references: {},
+      },
+    ])
+
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/openapi.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+  })
+
+  it('resolves relative URLs when we directly pass a document (not a URL)', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async () => {
+      // empty document for all URLs
+      return {
+        text: async () => '{}',
+      }
+    })
+
+    const { filesystem } = await load(
+      {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            $ref: './components/pathItem-1.yaml',
+          },
+          '/users/{id}': {
+            $ref: 'components/pathItem-2.yaml',
+          },
+          '/users/{id}/posts': {
+            $ref: '../docs/components/pathItem-3.yaml',
+          },
+          '/users/{id}/posts/{postId}': {
+            $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+          },
+        },
+      },
+      {
+        source: 'https://example.com/docs/openapi.yaml',
+        plugins: [
+          fetchUrls({
+            // fetch: (url) => {
+            //   console.log('fetch:', url)
+            //
+            //   return fetch(url)
+            // },
+          }),
+        ],
+      },
+    )
+
+    expect(filesystem).toMatchObject([
+      {
+        isEntrypoint: true,
+        uri: 'https://example.com/docs/openapi.yaml',
+        references: {
+          './components/pathItem-1.yaml': 'https://example.com/docs/components/pathItem-1.yaml',
+          'components/pathItem-2.yaml': 'https://example.com/docs/components/pathItem-2.yaml',
+          '../docs/components/pathItem-3.yaml': 'https://example.com/docs/components/pathItem-3.yaml',
+          'https://example.com/docs/components/pathItem-4.yaml': 'https://example.com/docs/components/pathItem-4.yaml',
+        },
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-1.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-2.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-3.yaml',
+        references: {},
+      },
+      {
+        isEntrypoint: false,
+        uri: 'https://example.com/docs/components/pathItem-4.yaml',
+        references: {},
+      },
+    ])
+
+    // Not called, because we directly pass a document (not a URL)
+    // expect(fetch).toHaveBeenCalledWith('https://example.com/docs/openapi.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+  })
+
+  it('combines relative URLs and relative references', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async () => {
+      // empty document for all URLs
+      return {
+        text: async () => '{}',
+      }
+    })
+
+    await load(
+      {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/users': {
+            $ref: './components/pathItem-1.yaml',
+          },
+          '/users/{id}': {
+            $ref: 'components/pathItem-2.yaml',
+          },
+          '/users/{id}/posts': {
+            $ref: '../docs/components/pathItem-3.yaml',
+          },
+          '/users/{id}/posts/{postId}': {
+            $ref: 'https://example.com/docs/components/pathItem-4.yaml',
+          },
+        },
+      },
+      {
+        source: '/docs/openapi.yaml',
+        plugins: [
+          fetchUrls({
+            // fetch: (url) => {
+            //   console.log('fetch:', url)
+            //
+            //   return fetch(url)
+            // },
+          }),
+        ],
+      },
+    )
+
+    // Not called, because we directly pass a document (not a URL)
+    // expect(fetch).toHaveBeenCalledWith('/docs/openapi.yaml')
+    expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-2.yaml')
+    expect(fetch).toHaveBeenCalledWith('/docs/components/pathItem-3.yaml')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/pathItem-4.yaml')
+  })
+
+  it('handles nested relative references', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      if (url === 'http://example.com/components/pathItem-1.yaml') {
+        return {
+          text: async () => `
+            get:
+              $ref: operation-1.yaml
+          `,
+        }
+      }
+
+      if (url === 'http://example.com/components/operation-1.yaml') {
+        return {
+          text: async () => `
+            summary: Get users
+            responses:
+              200:
+                description: Success
+          `,
+        }
+      }
+
+      return {
+        text: async () => '{}',
+      }
+    })
+
+    const { filesystem } = await load(
+      {
+        openapi: '3.1.0',
+        paths: {
+          '/users': {
+            $ref: '/components/pathItem-1.yaml',
+          },
+        },
+      },
+      {
+        source: 'http://example.com/docs/openapi.yaml',
+        plugins: [fetchUrls()],
+      },
+    )
+
+    expect(filesystem).toMatchObject([
+      {
+        isEntrypoint: true,
+        uri: 'http://example.com/docs/openapi.yaml',
+        references: {
+          '/components/pathItem-1.yaml': 'http://example.com/components/pathItem-1.yaml',
+        },
+      },
+      {
+        isEntrypoint: false,
+        uri: 'http://example.com/components/pathItem-1.yaml',
+        references: {
+          'operation-1.yaml': 'http://example.com/components/operation-1.yaml',
+        },
+      },
+      {
+        isEntrypoint: false,
+        uri: 'http://example.com/components/operation-1.yaml',
+        references: {},
+      },
+    ])
+
+    expect(fetch).toHaveBeenCalledWith('http://example.com/components/pathItem-1.yaml')
+    expect(fetch).toHaveBeenCalledWith('http://example.com/components/operation-1.yaml')
   })
 
   it('handles failed requests', async () => {
@@ -192,7 +508,7 @@ describe('load', async () => {
       },
     )
 
-    expect(getEntrypoint(filesystem).specification).toMatchObject({
+    expect(getEntrypoint(filesystem).content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -291,7 +607,7 @@ describe('load', async () => {
       plugins: [readFiles(), fetchUrls()],
     })
 
-    expect(filesystem[0].specification).toMatchObject({
+    expect(filesystem[0].content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -308,7 +624,7 @@ describe('load', async () => {
       },
     })
 
-    expect(filesystem[1].specification).toMatchObject({
+    expect(filesystem[1].content).toMatchObject({
       content: {
         'application/json': {
           schema: {
@@ -358,9 +674,9 @@ describe('load', async () => {
       },
     )
 
-    expect(filesystem.map((entry) => entry.filename)).toStrictEqual([null, 'https://example.com/foobar.json'])
+    expect(filesystem.map((entry) => entry.uri)).toStrictEqual([undefined, 'https://example.com/foobar.json'])
 
-    expect(filesystem[0].specification).toMatchObject({
+    expect(filesystem[0].content).toMatchObject({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -377,7 +693,7 @@ describe('load', async () => {
       },
     })
 
-    expect(filesystem[1].specification).toMatchObject({
+    expect(filesystem[1].content).toMatchObject({
       content: {
         'application/json': {
           schema: {
@@ -400,6 +716,37 @@ describe('load', async () => {
         message: 'Can’t resolve external reference: INVALID',
       },
     ])
+  })
+
+  it('maintains original source URL when resolving nested references', async () => {
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => {
+      if (url === 'https://example.com/docs/components/schema.json') {
+        return {
+          text: async () => JSON.stringify({ type: 'string' }),
+        }
+      }
+      throw new Error(`Unexpected URL: ${url}`)
+    })
+
+    const doc = {
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Test: {
+            $ref: './components/schema.json',
+          },
+        },
+      },
+    }
+
+    const { filesystem } = await load(doc, {
+      source: 'https://example.com/docs/openapi.json',
+      plugins: [fetchUrls()],
+    })
+
+    expect(fetch).toHaveBeenCalledWith('https://example.com/docs/components/schema.json')
+    expect(filesystem).toHaveLength(2)
   })
 
   it('throws an error', async () => {

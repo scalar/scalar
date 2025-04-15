@@ -19,9 +19,9 @@ export async function dereference(
   const result = resolveReferences(filesystem, options)
 
   return {
-    specification: entrypoint.specification,
+    specification: entrypoint.content,
     errors: result.errors,
     schema: result.schema,
-    ...details(entrypoint.specification),
+    ...details(entrypoint.content),
   }
 }
