@@ -231,4 +231,38 @@ describe('RequestBody.vue', () => {
 
     wrapper.unmount()
   })
+
+  it('uses vendor-specific JSON content type when available', async () => {
+    mockOperation.requestBody = {
+      content: {
+        'application/vnd.api+json': {},
+      },
+    }
+
+    mockActiveExample.body = {
+      activeBody: 'formData',
+      formData: {
+        encoding: 'form-data',
+        value: [],
+      },
+    }
+
+    mockActiveExample.parameters = {
+      headers: [{ key: 'Content-Type', value: 'multipart/form-data', enabled: true }],
+      path: [],
+      cookies: [],
+      query: [],
+    }
+
+    const wrapper = mount(RequestBody, props)
+
+    const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+    await listbox.vm.$emit('update:modelValue', { id: 'json', label: 'JSON' })
+
+    expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'parameters.headers', [
+      { key: 'Content-Type', value: 'application/vnd.api+json', enabled: true },
+    ])
+
+    wrapper.unmount()
+  })
 })

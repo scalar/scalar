@@ -11,14 +11,7 @@ import type {
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useExampleStore } from '#legacy'
-import {
-  computed,
-  ref,
-  useId,
-  VueElement,
-  watch,
-  type ComponentPublicInstance,
-} from 'vue'
+import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
@@ -41,7 +34,8 @@ const { transformedOperation, operation, collection, server } = defineProps<{
 }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
-const { requestExamples, securitySchemes } = useWorkspace()
+const { requestExamples, securitySchemes, requestExampleMutators } =
+  useWorkspace()
 const config = useConfig()
 
 const {
@@ -96,14 +90,10 @@ watch(httpClient, () => {
   }
 })
 
-const hasMultipleExamples = computed<boolean>(
-  () =>
-    Object.keys(
-      transformedOperation.information?.requestBody?.content?.[
-        'application/json'
-      ]?.examples ?? {},
-    ).length > 1,
-)
+const hasMultipleExamples = computed(() => {
+  const examples = getExamplesFromOperation.value
+  return Object.keys(examples).length > 1
+})
 
 const generateSnippet = () => {
   // Use the selected custom example
@@ -148,6 +138,16 @@ const generatedCode = computed<string>(() => {
     console.error('[generateSnippet]', error)
     return ''
   }
+})
+
+/** Get all examples from the operation for any content type */
+const getExamplesFromOperation = computed(() => {
+  const content = transformedOperation.information?.requestBody?.content ?? {}
+
+  // Return first content type examples by default
+  const firstContentType = Object.values(content)[0]
+
+  return firstContentType?.examples ?? {}
 })
 
 /** Code language of the snippet */
@@ -262,6 +262,28 @@ function updateHttpClient(value: string) {
     setHttpClient(data)
   }
 }
+
+/** Update the selected example and the operation ID */
+function handleExampleUpdate(value: string) {
+  selectedExampleKey.value = value
+  operationId.value = operation.operationId
+
+  const example = requestExamples[operation.examples[0]]
+  const selectedExample = getExamplesFromOperation.value[value]
+
+  // Update the example body
+  if (example && selectedExample?.value) {
+    try {
+      requestExampleMutators.edit(
+        example.uid,
+        'body.raw.value',
+        JSON.stringify(selectedExample.value, null, 2),
+      )
+    } catch (error) {
+      console.error('[handleExampleUpdate]', error)
+    }
+  }
+}
 </script>
 <template>
   <Card
@@ -330,17 +352,9 @@ function updateHttpClient(value: string) {
         class="request-card-footer-addon">
         <ExamplePicker
           class="request-example-selector"
-          :examples="
-            transformedOperation.information?.requestBody?.content?.[
-              'application/json'
-            ]?.examples ?? []
-          "
-          @update:modelValue="
-            (value) => (
-              (selectedExampleKey = value),
-              (operationId = operation.operationId)
-            )
-          " />
+          :examples="getExamplesFromOperation"
+          :modelValue="selectedExampleKey"
+          @update:modelValue="handleExampleUpdate" />
       </div>
       <slot name="footer" />
     </CardFooter>
