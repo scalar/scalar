@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ScalarLoading, useLoadingState } from '@scalar/components'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
@@ -7,18 +8,22 @@ const { reader } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
 }>()
 
+const loader = useLoadingState()
+
 const textContent = ref('')
-const isReading = ref(true)
+const errorRef = ref<Error | null>(null)
 const decoder = new TextDecoder()
 
-// Function to read the stream
+/**
+ * Reads the stream and appends the content
+ */
 async function readStream() {
   try {
-    while (isReading.value) {
+    while (loader.isLoading) {
       const { done, value } = await reader.read()
 
       if (done) {
-        isReading.value = false
+        loader.stopLoading()
         break
       }
 
@@ -29,7 +34,8 @@ async function readStream() {
     }
   } catch (error) {
     console.error('Error reading stream:', error)
-    isReading.value = false
+    loader.stopLoading()
+    errorRef.value = error as Error
   } finally {
     // Make sure to decode any remaining bytes
     textContent.value += decoder.decode()
@@ -37,23 +43,45 @@ async function readStream() {
 }
 
 onMounted(() => {
+  loader.startLoading()
   readStream()
+  errorRef.value = null
 })
 
 onBeforeUnmount(() => {
-  isReading.value = false
   reader.cancel()
+  loader.stopLoading()
 })
 </script>
 
 <template>
   <ViewLayoutCollapse class="max-h-content overflow-y-hidden">
     <template #title>
-      Body ({{ isReading ? 'streaming...' : 'stream complete' }})
+      <div class="flex w-full items-center justify-between">
+        <div>Body</div>
+        <div
+          v-if="loader.isLoading"
+          class="mr-2 flex items-center gap-2">
+          <ScalarLoading
+            :loadingState="loader"
+            size="xs" />
+          <span class="text-c-2"> Listening… </span>
+        </div>
+      </div>
     </template>
+
     <div
-      class="text-xxs font-code leading-2 h-full overflow-auto whitespace-pre-wrap p-2">
-      {{ textContent }}
+      class="text-xxs font-code leading-2 h-full overflow-auto whitespace-pre-wrap">
+      <template v-if="errorRef">
+        <div class="text-red border-b p-2">
+          {{ errorRef.message }}
+        </div>
+      </template>
+      <template v-if="textContent">
+        <div class="p-2">
+          {{ textContent }}
+        </div>
+      </template>
     </div>
   </ViewLayoutCollapse>
 </template>
