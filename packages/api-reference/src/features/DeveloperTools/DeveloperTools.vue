@@ -17,7 +17,7 @@ const tabs = [
   <template v-if="!isOpen">
     <div class="z-1 fixed bottom-6 right-6 z-10">
       <ScalarButton
-        class="max-h-8 gap-1.5 rounded-lg border-2 p-2 text-xs"
+        class="max-h-8 gap-2 rounded-lg border-2 p-2 text-xs"
         type="button"
         @click="isOpen = !isOpen">
         <ScalarIcon
@@ -48,7 +48,7 @@ const tabs = [
                 v-slot="{ selected }"
                 as="template">
                 <ScalarButton
-                  class="text-c-1 hover:bg-b-3 gap-2 rounded-none border-b-2 p-2 py-2 text-xs"
+                  class="text-c-1 hover:bg-b-3 gap-1.5 rounded-none border-b-2 p-2 py-2 text-xs"
                   :class="{
                     'border-c-2': selected,
                   }"
@@ -65,6 +65,16 @@ const tabs = [
 
             <!-- Controls -->
             <div class="flex items-center gap-2">
+              <!-- Publish on Scalar -->
+              <ScalarButton
+                class="h-6 gap-1.5 px-3"
+                type="button">
+                <ScalarIcon
+                  class="text-c-2"
+                  icon="Globe"
+                  size="md" />
+                Publish on Scalar
+              </ScalarButton>
               <!-- Close Button -->
               <ScalarButton
                 class="h-8 w-8 !p-0"
