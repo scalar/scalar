@@ -50,6 +50,7 @@ const getThemeColors = (
     kepler: { light: '#f6f6f6', dark: '#0d0f1e', accent: '#7070ff' },
     mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
     deepSpace: { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
+    laserwave: { light: '#f4f2f7', dark: '#27212e', accent: '#ed78c2' },
     none: { light: '#ffffff', dark: '#000000', accent: '#3b82f6' },
   }
   return (

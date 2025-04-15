@@ -60,6 +60,7 @@ export type ThemeId =
   | 'elysiajs'
   | 'fastify'
   | 'mars'
+  | 'laserwave'
   | 'none'
 
 /**
