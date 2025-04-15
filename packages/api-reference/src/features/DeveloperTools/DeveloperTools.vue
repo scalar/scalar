@@ -1,9 +1,15 @@
 <script setup lang="ts">
-// import { ScalarIcon } from '@scalar/components'
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { ref } from 'vue'
 
 const isOpen = ref(true)
+
+/** Tabs configuration for the developer tools panel */
+const tabs = [
+  { id: 'console', label: 'Console', icon: 'Terminal' },
+  { id: 'configuration', label: 'Configuration', icon: 'Settings' },
+] as const
 </script>
 
 <template>
@@ -11,7 +17,7 @@ const isOpen = ref(true)
   <template v-if="!isOpen">
     <div class="z-1 fixed bottom-6 right-6 z-10">
       <ScalarButton
-        class="relative max-h-8 gap-1.5 p-2 text-xs"
+        class="max-h-8 gap-1.5 rounded-lg border-2 p-2 text-xs"
         type="button"
         @click="isOpen = !isOpen">
         <ScalarIcon
@@ -23,24 +29,69 @@ const isOpen = ref(true)
     </div>
   </template>
 
-  <!-- Bottom Drawer -->
+  <!-- Developer Tools Drawer -->
   <template v-if="isOpen">
-    <div class="bg-b-2 z-1 right- 0 fixed bottom-0 left-0 z-10 w-full p-4">
-      <!-- Header -->
+    <div
+      class="z-1 bg-b-2 fixed bottom-0 left-0 right-0 flex flex-col border-t">
+      <!-- Header with Tabs and Controls -->
       <div class="flex items-center justify-between">
-        <!-- Tabs (left) -->
-        <h2 class="text-lg font-bold">Configuration</h2>
-        <!-- Actions (right) -->
+        <TabGroup
+          as="div"
+          class="flex flex-1 flex-col">
+          <div
+            class="border-c-4 flex items-center justify-between border-b px-2">
+            <!-- Tabs -->
+            <TabList class="flex h-full gap-1">
+              <Tab
+                v-for="tab in tabs"
+                :key="tab.id"
+                v-slot="{ selected }"
+                as="template">
+                <ScalarButton
+                  class="text-c-1 hover:bg-b-3 gap-2 rounded-none border-b-2 p-2 py-2 text-xs"
+                  :class="{
+                    'border-c-2': selected,
+                  }"
+                  size="sm"
+                  variant="ghost">
+                  <ScalarIcon
+                    class="text-c-3"
+                    :icon="tab.icon"
+                    size="md" />
+                  {{ tab.label }}
+                </ScalarButton>
+              </Tab>
+            </TabList>
 
-        <ScalarButton
-          type="button"
-          variant="ghost"
-          @click="isOpen = false">
-          <ScalarIcon
-            class="text-c-3"
-            icon="Close"
-            size="md" />
-        </ScalarButton>
+            <!-- Controls -->
+            <div class="flex items-center gap-2">
+              <!-- Close Button -->
+              <ScalarButton
+                class="h-8 w-8 !p-0"
+                type="button"
+                variant="ghost"
+                @click="isOpen = false">
+                <ScalarIcon
+                  class="text-c-2"
+                  icon="Close"
+                  size="md" />
+              </ScalarButton>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <TabPanels class="flex-1 overflow-auto">
+            <TabPanel
+              v-for="tab in tabs"
+              :key="tab.id">
+              <div class="h-80 overflow-auto">
+                <div class="h-full p-4 text-center">
+                  {{ tab.label }}
+                </div>
+              </div>
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
       </div>
     </div>
   </template>
