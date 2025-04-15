@@ -39,14 +39,13 @@ Action<ScalarOptions> configureOptions = options =>
     options
         .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
         .WithFavicon("/favicon.png")
-        .WithPreferredScheme(AuthConstants.ApiKey)
-        .WithApiKeyAuthentication(x => x.Token = "my-api-key")
+        .WithPreferredScheme(AuthConstants.ApiKeyScheme)
+        .AddApiKeyAuthentication(AuthConstants.ApiKeyScheme, scheme => scheme.Value = "my-api-key")
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 
-app.MapScalarApiReference((options, context) =>
+app.MapScalarApiReference(options =>
 {
     configureOptions.Invoke(options);
-    options.Title = context.Request.Path;
     options.WithTheme(ScalarTheme.Mars);
 });
 

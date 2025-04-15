@@ -194,82 +194,175 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 
 ### Authentication
 
-Scalar supports various authentication schemes, including API Key, OAuth, HTTP Basic and Bearer, by allowing you to pre-fill certain authentication details.
+Scalar supports various authentication schemes, including API Key, OAuth2 (with multiple flows), and HTTP Basic/Bearer, by allowing you to pre-fill certain authentication details.
 
 These details can only be prefilled if the security schemes are defined in the OpenAPI document. Make sure your OpenAPI document includes the necessary security schemes for authentication to work correctly. The scheme is added by the OpenAPI generator, and the implementation may vary depending on the generator used (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). For more information, please refer to the documentation of the respective generator.
 
 > [!WARNING]
 > Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
 
-#### API Key
+#### API Key Authentication
 
-To simplify API key usage, you can provide a token:
+To configure API key authentication:
 
 ```csharp
-app.MapScalarApiReference(options =>
-{
-    // Fluent API
-    options
-        .WithPreferredScheme("ApiKey") // Optional. Security scheme name from the OpenAPI document
-        .WithApiKeyAuthentication(apiKey =>
-        {
-            apiKey.Token = "your-api-key";
-        });
-
-    // Object initializer
-    options.Authentication = new ScalarAuthenticationOptions
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("ApiKey") // Optional: Sets the default security scheme
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
-        PreferredSecurityScheme = "ApiKey", // Optional. Security scheme name from the OpenAPI document
-        ApiKey = new ApiKeyOptions
-        {
-            Token = "your-api-key"
-        }
-    }
-});
+        apiKey.Value = "your-api-key";
+    })
+);
 ```
 
-#### OAuth
+#### OAuth2 Authentication
 
-Similarly, you can pre-fill OAuth fields like the client ID and scopes:
+Scalar supports all OAuth2 flows: Authorization Code, Implicit, Password, and Client Credentials. You can configure one or multiple flows for each security scheme.
+
+##### Authorization Code Flow
 
 ```csharp
-app.MapScalarApiReference(options =>
-{
-    options
-        .WithOAuth2Authentication(oauth =>
-        {
-            oauth.ClientId = "your-client-id";
-            oauth.Scopes = ["profile"];
-        });
-});
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+        flow.Pkce = Pkce.Sha256;
+        flow.SelectedScopes = ["profile", "email"];
+    });
+);
 ```
 
-#### HTTP Basic/Bearer
-
-HTTP Basic or Bearer authentication fields can also be pre-filled easily:
+##### Client Credentials Flow
 
 ```csharp
-app.MapScalarApiReference(options =>
-{
-    // Basic
-    options
-        .WithHttpBasicAuthentication(basic =>
-        {
-            basic.Username = "your-username";
-            basic.Password = "your-password";
-        });
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddClientCredentialsFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+    });
+);
+```
 
-    // Bearer
-    options
-        .WithHttpBearerAuthentication(bearer =>
+##### Implicit Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddImplicitFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    });
+);
+```
+
+##### Password Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddPasswordFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.Username = "default-username"; // Pre-filled username
+        flow.Password = "default-password"; // Pre-filled password
+    });
+);
+```
+
+##### Multiple OAuth2 Flows
+
+You can configure multiple OAuth2 flows for a single security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddOAuth2Authentication("OAuth2", flows =>
+    {
+        // Authorization Code flow
+        flows.AuthorizationCode = new AuthorizationCodeFlow
         {
-            bearer.Token = "your-bearer-token";
-        });
-});
+            ClientId = "your-client-id",
+            AuthorizationUrl = "https://auth.example.com/oauth2/authorize",
+            TokenUrl = "https://auth.example.com/oauth2/token",
+            RedirectUri = "https://your-app.com/callback"
+        };
+        
+        // Client Credentials flow
+        flows.ClientCredentials = new ClientCredentialsFlow
+        {
+            ClientId = "your-client-id",
+            ClientSecret = "your-client-secret",
+            TokenUrl = "https://auth.example.com/oauth2/token"
+        };
+    })
+    // All OAuth flows will have preselected scopes
+    .AddDefaultScopes("OAuth2", ["profile", "email"])
+);
+```
+
+#### HTTP Authentication
+
+##### Bearer Authentication
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BearerAuth")
+    .AddHttpAuthentication("BearerAuth", auth =>
+    {
+        auth.Token = "ey...";
+    });
+);
+```
+
+##### Basic Authentication
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BasicAuth")
+    .AddHttpAuthentication("BasicAuth", auth =>
+    {
+        auth.Username = "your-username";
+        auth.Password = "your-password";
+    })
+);
+```
+
+#### Multiple Security Schemes
+
+You can configure multiple security schemes at once:
+
+```csharp
+app.MapScalarApiReference(options => options
+    // Set the preferred (default) scheme
+    .WithPreferredScheme("OAuth2")
+    
+    // Configure OAuth2
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    })
+    
+    // Configure API Key
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
+    {
+        apiKey.Value = "your-api-key";
+    })
+    
+    // Configure HTTP Basic
+    .AddHttpAuthentication("BasicAuth", auth =>
+    {
+        auth.Username = "your-username";
+        auth.Password = "your-password";
+    });
+);
 ```
 
 > [!NOTE]
-> The `PreferredSecurityScheme` property is optional and only useful if the OpenAPI document contains multiple security schemes.
+> For more detailed information about authentication, including how to configure security schemes in your OpenAPI document, refer to the [authentication documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/authentication.md).
 
 ### Custom HTTP Client
 
