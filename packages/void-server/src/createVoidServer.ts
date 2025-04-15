@@ -58,6 +58,10 @@ export async function createVoidServer() {
     return createJsonResponse(c, requestData)
   })
 
+  app.get('/stream', async (c: Context) => {
+    return createStreamResponse(c)
+  })
+
   // All other requests just respond with a JSON containing all the request data
   app.all('/*', async (c: Context) => {
     const requestData = await getRequestData(c)
