@@ -29,6 +29,7 @@ const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   'kepler',
   // 'mars',
   // 'deepSpace',
+  // 'laserwave',
 ]
 
 const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']

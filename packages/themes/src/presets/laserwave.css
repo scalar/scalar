@@ -1,5 +1,6 @@
 /* basic theme */
 .light-mode {
+  color-scheme: light;
   --scalar-color-1: #322b3b;
   --scalar-color-2: #645676;
   --scalar-color-3: #9789a9;
@@ -13,6 +14,7 @@
   --scalar-border-color: #e4e0eb;
 }
 .dark-mode {
+  color-scheme: dark;
   --scalar-color-1: #fff;
   --scalar-color-2: #b8b6ba;
   --scalar-color-3: #706c74;
