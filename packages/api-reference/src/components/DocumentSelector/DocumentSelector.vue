@@ -54,7 +54,7 @@ const selectedOption = computed({
             {{ selectedOption?.label || 'Select API' }}
           </span>
           <ScalarIcon
-            class="group-hover/dropdown-label:text-c-1 ml-auto"
+            class="group-hover/dropdown-label:text-c-1 ml-auto mr-2"
             icon="ChevronDown"
             size="sm"
             thickness="2" />
