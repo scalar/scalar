@@ -4,6 +4,7 @@ import { provide, ref, toRef } from 'vue'
 
 import { DocumentSelector } from '@/components/DocumentSelector'
 import SingleApiReference from '@/components/SingleApiReference.vue'
+import { DeveloperTools } from '@/features/DeveloperTools'
 import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 
@@ -34,11 +35,14 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 </script>
 
 <template>
-  <SingleApiReference :configuration="selectedConfiguration">
-    <template #document-selector>
-      <DocumentSelector
-        v-model="selectedDocumentIndex"
-        :options="availableDocuments" />
-    </template>
-  </SingleApiReference>
+  <div class="scalar-app scalar-api-reference">
+    <DeveloperTools />
+    <SingleApiReference :configuration="selectedConfiguration">
+      <template #document-selector>
+        <DocumentSelector
+          v-model="selectedDocumentIndex"
+          :options="availableDocuments" />
+      </template>
+    </SingleApiReference>
+  </div>
 </template>
