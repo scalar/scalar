@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.16
+
+### Patch Changes
+
+- c5047ee: fix: hotfix to revert the external reference commit
+
 ## 0.10.15
 
 ### Patch Changes
