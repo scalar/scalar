@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.10.15
+
+### Patch Changes
+
+- 4abe4f8: feat: add resolveInternalRefs to bundle documents
+- 4abe4f8: feat: external $ref’s (absolute and relative URLs)
+
 ## 0.10.14
 
 ### Patch Changes

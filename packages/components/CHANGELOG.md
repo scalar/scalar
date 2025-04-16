@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.13.48
+
+### Patch Changes
+
+- Updated dependencies [feaa314]
+  - @scalar/themes@0.10.0
+  - @scalar/code-highlight@0.0.27
+  - @scalar/use-hooks@0.1.41
+
 ## 0.13.47
 
 ### Patch Changes
