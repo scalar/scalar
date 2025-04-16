@@ -1,5 +1,5 @@
 /**
- * The custom theme for Next.js
+ * The custom theme for SvelteKit
  */
 export const customTheme = `
 /* basic theme */
