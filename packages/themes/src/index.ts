@@ -10,6 +10,7 @@ import fastifyTheme from './presets/fastify.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
 import marsTheme from './presets/mars.css?inline'
 import moonTheme from './presets/moon.css?inline'
+import laserwaveTheme from './presets/laserwave.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
@@ -30,6 +31,7 @@ export const themeIds = [
   'elysiajs',
   'fastify',
   'mars',
+  'laserwave',
   'none',
 ] as const
 
@@ -56,6 +58,7 @@ export const themeLabels: Record<ThemeId, string> = {
   kepler: 'Kepler-11e',
   mars: 'Mars',
   deepSpace: 'Deep Space',
+  laserwave: 'Laserwave',
   none: '',
 }
 
@@ -75,6 +78,7 @@ export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
   saturn: saturnTheme,
   kepler: keplerTheme,
   mars: marsTheme,
+  laserwave: laserwaveTheme,
 }
 
 /**
@@ -148,3 +152,4 @@ export { moonTheme }
 export { purpleTheme }
 export { saturnTheme }
 export { solarizedTheme }
+export { laserwaveTheme }
