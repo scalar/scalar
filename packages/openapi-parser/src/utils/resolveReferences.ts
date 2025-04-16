@@ -29,12 +29,6 @@ export type ResolveReferencesOptions = ThrowOnErrorOption & {
    * Note that for object schemas, its properties may not be dereferenced when the hook is called.
    */
   onDereference?: (data: { schema: AnyObject; ref: string }) => void
-  /**
-   * Whether to resolve internal references.
-   *
-   * @default true
-   */
-  resolveInternalRefs?: boolean
 }
 
 /**
@@ -59,7 +53,7 @@ export function resolveReferences(
   // Get the main file
   const entrypoint = getEntrypoint(filesystem)
 
-  const finalInput = file?.content ?? entrypoint.content
+  const finalInput = file?.specification ?? entrypoint.specification
 
   // Recursively resolve all references
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)
@@ -97,19 +91,9 @@ function dereference(
   resolvedSchemas.add(schema)
 
   function resolveExternal(externalFile: FilesystemEntry) {
-    dereference(externalFile.content, filesystem, externalFile, resolvedSchemas, errors, options)
+    dereference(externalFile.specification, filesystem, externalFile, resolvedSchemas, errors, options)
+
     return externalFile
-  }
-
-  // Skip internal reference resolution if resolveInternalRefs is false
-  const skipReference =
-    // Only if the option is set …
-    options?.resolveInternalRefs === false &&
-    // and it’s obviously internal
-    schema.$ref?.startsWith('#')
-
-  if (skipReference) {
-    return
   }
 
   while (schema.$ref !== undefined) {
@@ -153,12 +137,14 @@ function resolveUri(
   // 'foobar.json#/foo/bar'
   uri: string,
   options: ResolveReferencesOptions,
-  // { uri: './foobar.json '}
+  // { filename: './foobar.json '}
   file: FilesystemEntry,
-  // [ { uri: './foobar.json '} ]
+  // [ { filename: './foobar.json '} ]
   filesystem: Filesystem,
+
   // a function to resolve references in external file
   resolve: (file: FilesystemEntry) => FilesystemEntry,
+
   errors: ErrorObject[],
 ): AnyObject | undefined {
   // Ignore invalid URIs
@@ -179,14 +165,12 @@ function resolveUri(
   const [prefix, path] = uri.split('#', 2)
 
   /** Check whether the file is pointing to itself */
-  const isDifferentFile = prefix !== file.uri
+  const isDifferentFile = prefix !== file.filename
 
   // External references
   if (prefix && isDifferentFile) {
-    const absoluteUri = file.references[prefix] ?? prefix
-
     const externalReference = filesystem.find((entry) => {
-      return entry.uri && entry.uri === absoluteUri
+      return entry.filename === prefix
     })
 
     if (!externalReference) {
@@ -203,7 +187,7 @@ function resolveUri(
     }
     // $ref: 'other-file.yaml'
     if (path === undefined) {
-      return externalReference.content
+      return externalReference.specification
     }
 
     // $ref: 'other-file.yaml#/foo/bar'
@@ -214,11 +198,11 @@ function resolveUri(
   // Pointers
   const segments = getSegmentsFromPath(path)
 
-  // Internal references
+  // Try to find the URI
   try {
     return segments.reduce((acc, key) => {
       return acc[key]
-    }, file.content)
+    }, file.specification)
   } catch (_error) {
     if (options?.throwOnError) {
       throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))

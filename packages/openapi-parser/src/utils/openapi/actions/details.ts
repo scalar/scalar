@@ -9,5 +9,5 @@ import { workThroughQueue } from '../utils/workThroughQueue.ts'
 export async function details<T extends Task[]>(queue: Queue<T>): Promise<ReturnType<typeof detailsUtility>> {
   const { filesystem } = await workThroughQueue(queue)
 
-  return detailsUtility(getEntrypoint(filesystem).content)
+  return detailsUtility(getEntrypoint(filesystem).specification)
 }

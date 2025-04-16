@@ -1,10 +1,6 @@
 {
   "extends": "../../tsconfig.node.json",
   "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
-    },
     /** We need to remove these :) */
     "strictNullChecks": false,
     "noImplicitAny": false,

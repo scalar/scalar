@@ -21,7 +21,7 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
   // TODO: Run upgrade over the whole filesystem
   const result = upgraders.reduce(
     (currentSpecification, upgrader) => upgrader(currentSpecification),
-    getEntrypoint(makeFilesystem(value)).content,
+    getEntrypoint(makeFilesystem(value)).specification,
   ) as OpenAPIV3_1.Document
 
   return {

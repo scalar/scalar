@@ -1,9 +1,7 @@
-import type { Filesystem } from '../types/index.ts'
-
 /**
  * Check if the value is a filesystem
  */
-export function isFilesystem(value: any): value is Filesystem {
+export function isFilesystem(value: any) {
   return (
     typeof value !== 'undefined' &&
     Array.isArray(value) &&

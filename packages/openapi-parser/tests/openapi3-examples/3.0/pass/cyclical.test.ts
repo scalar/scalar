@@ -98,15 +98,15 @@ describe('cyclical', () => {
       {
         isEntrypoint: true,
         specification: baseFile,
-        uri: 'openapi.json',
-        
+        filename: 'openapi.json',
+        dir: './',
         references: getListOfReferences(baseFile),
       },
       {
         isEntrypoint: false,
         specification: referencedFile,
-        uri: '../partial/cycledef.yaml',
-        
+        filename: '../partial/cycledef.yaml',
+        dir: './',
         references: getListOfReferences(baseFile),
       },
     ])
