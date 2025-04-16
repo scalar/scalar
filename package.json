@@ -71,6 +71,7 @@
     "dev:nuxt": "turbo dev --filter @scalar/nuxt",
     "dev:proxy-server": "pnpm --filter proxy-scalar-com dev",
     "dev:reference": "turbo dev --filter @scalar/api-reference",
+    "dev:react": "turbo playground --filter @scalar/api-reference-react",
     "dev:void-server": "pnpm --filter @scalar/void-server dev",
     "dev:web": "turbo dev --filter @scalar-examples/web",
     "@scalar/cli": "pnpm --filter @scalar/cli run @scalar/cli",

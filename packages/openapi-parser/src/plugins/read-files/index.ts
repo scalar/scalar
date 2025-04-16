@@ -1,1 +1,1 @@
-export { readFiles } from './readFiles.ts'
+export * from './readFiles.ts'

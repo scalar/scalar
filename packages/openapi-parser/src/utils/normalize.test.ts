@@ -11,9 +11,10 @@ describe('normalize', () => {
     const filesystem = [
       {
         isEntrypoint: true,
-        content: {},
-        uri: undefined,
-        references: {},
+        specification: {},
+        filename: null,
+        dir: './',
+        references: [],
       },
     ]
     expect(normalize(filesystem)).toBe(filesystem)

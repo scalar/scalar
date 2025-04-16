@@ -241,7 +241,7 @@ describe('useReactiveSpec', () => {
     expect(parsedSpec.value.info?.title).toBe('Example')
 
     rawSpecConfig.value = {
-      content: basicSpecString.replace('Example', 'Foobar'),
+      content: JSON.stringify(basicSpecString.replace('Example', 'Foobar')),
     }
 
     // Sleep for 300ms to wait for the debouncer and the parser

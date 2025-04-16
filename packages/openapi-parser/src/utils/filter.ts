@@ -12,7 +12,7 @@ export function filter(specification: AnyApiDefinitionFormat, callback: FilterCa
   const filesystem = makeFilesystem(specification)
 
   return {
-    specification: traverse(getEntrypoint(filesystem).content, (schema) => {
+    specification: traverse(getEntrypoint(filesystem).specification, (schema) => {
       return callback(schema) ? schema : undefined
     }),
   }

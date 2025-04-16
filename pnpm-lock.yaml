@@ -1946,9 +1946,6 @@ importers:
       tinybench:
         specifier: ^2.8.0
         version: 2.8.0
-      vite:
-        specifier: 'catalog:'
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/openapi-types:
     dependencies:

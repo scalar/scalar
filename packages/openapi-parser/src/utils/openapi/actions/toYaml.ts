@@ -9,5 +9,5 @@ import { workThroughQueue } from '../utils/workThroughQueue.ts'
 export async function toYaml<T extends Task[]>(queue: Queue<T>): Promise<string> {
   const { filesystem } = await workThroughQueue(queue)
 
-  return toYamlUtility(getEntrypoint(filesystem).content)
+  return toYamlUtility(getEntrypoint(filesystem).specification)
 }

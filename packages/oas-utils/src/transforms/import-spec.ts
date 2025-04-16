@@ -1,6 +1,5 @@
 import { keysOf } from '@scalar/object-utils/arrays'
-import { dereference, load, upgrade } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
@@ -17,7 +16,6 @@ import { type Tag, tagSchema } from '@/entities/spec/spec-objects.ts'
 import { isHttpMethod } from '@/helpers/http-methods.ts'
 import { isDefined } from '@/helpers/is-defined.ts'
 import { combineUrlAndPath } from '@/helpers/merge-urls.ts'
-import { redirectToProxy } from '@/helpers/redirect-to-proxy.ts'
 import { schemaModel } from '@/helpers/schema-model.ts'
 import {
   type Oauth2FlowPayload,
@@ -26,17 +24,9 @@ import {
   securitySchemeSchema,
 } from '@scalar/types/entities'
 
-/**
- * Takes a string or object, loads external references and resolves all references.
- **/
-export const parseSchema = async (
-  content: string | UnknownObject,
-  { proxyUrl, source }: { proxyUrl?: string | undefined; source?: string | undefined } = {},
-) => {
-  // Handle empty documents
-  const isEmpty = content === null || (typeof content === 'string' && content.trim() === '')
-
-  if (isEmpty) {
+/** Takes a string or object and parses it into an openapi spec compliant schema */
+export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = true } = {}) => {
+  if (spec === null || (typeof spec === 'string' && spec.trim() === '')) {
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
     return {
@@ -45,64 +35,38 @@ export const parseSchema = async (
     }
   }
 
-  // Fetch document (including external references)
-  const { filesystem, errors: errorsOnLoad } = await load(content, {
-    source,
-    plugins: [
-      fetchUrls({
-        fetch: (url) => fetch(redirectToProxy(proxyUrl, url)),
-      }),
-    ],
-  }).catch((e) => ({
-    errors: [
-      {
-        code: e.code,
-        message: e.message,
-      },
-    ],
-    filesystem: [],
-  }))
+  let filesystem: LoadResult['filesystem'] | string | UnknownObject = spec
+  let loadErrors: LoadResult['errors'] = []
 
-  // Integrates all internal references
-  const { schema: bundledDocument, errors: errorsOnDereference } = await dereference(filesystem, {
-    resolveInternalRefs: false,
-  })
-
-  if (!bundledDocument) {
-    console.warn(
-      '[@scalar/oas-utils] Couldn’t resolve all external references in the provided OpenAPI document.',
-      errorsOnDereference,
-    )
-
-    return {
-      schema: {} as OpenAPIV3_1.Document,
-      errors: errorsOnDereference,
-    }
+  if (shouldLoad) {
+    // TODO: Plugins for URLs and files with the proxy is missing here.
+    // @see packages/api-reference/src/helpers/parse.ts
+    const resp = await load(spec).catch((e) => ({
+      errors: [
+        {
+          code: e.code,
+          message: e.message,
+        },
+      ],
+      filesystem: [],
+    }))
+    filesystem = resp.filesystem
+    loadErrors = resp.errors ?? []
   }
 
-  // Upgrade the OpenAPI document
-  const { specification: upgradedDocument } = upgrade(bundledDocument)
-
-  // Type-cast, because we just upgraded the document
-  const { schema } = (await dereference(upgradedDocument)) as { schema: OpenAPIV3_1.Document }
+  const { specification } = upgrade(filesystem)
+  const { schema, errors: derefErrors = [] } = await dereference(specification)
 
   if (!schema) {
     console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')
   }
-
   return {
     /**
      * Temporary fix for the parser returning an empty array
      * TODO: remove this once the parser is fixed
-     * TODO: Wait … when is the parser returning an empty array again?
      */
-    schema: Array.isArray(schema) ? {} : schema,
-    errors: [
-      // load()
-      ...(errorsOnLoad ?? []),
-      // dereference()
-      ...(errorsOnDereference ?? []),
-    ],
+    schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
+    errors: [...loadErrors, ...derefErrors],
   }
 }
 
@@ -130,9 +94,11 @@ export const getSelectedSecuritySchemeUids = (
 export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['uid']
 
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
-  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug' | 'proxyUrl'> & {
+  Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     useCollectionSecurity?: boolean
+    /** Call the load step from the parser */
+    shouldLoad?: boolean
   }
 
 /**
@@ -157,8 +123,8 @@ export async function importSpecToWorkspace(
     servers: configuredServers,
     useCollectionSecurity = false,
     slug,
+    shouldLoad,
     watchMode = false,
-    proxyUrl,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
@@ -173,9 +139,8 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[]; collection: undefined }
 > {
-  const { schema, errors } = await parseSchema(spec, { proxyUrl, source: documentUrl })
-
-  const importWarnings: string[] = [...(errors ?? []).map((e) => e.message)]
+  const { schema, errors } = await parseSchema(spec, { shouldLoad })
+  const importWarnings: string[] = [...errors.map((e) => e.message)]
 
   if (!schema) {
     return { importWarnings, error: true, collection: undefined }

@@ -239,31 +239,9 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 const { filesystem } = await load(
   'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   {
-    // Optional: If you directly pass an OpenAPI (not an URL), let it know where the content came from
-    // That’s the only way we can resolve external references, if they are relative.
-    source: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml'
     plugins: [fetchUrls()],
   },
 )
-```
-
-#### Bundle external references
-
-By default, `dereference` tries to resolve both internal and external references. You can disable resolving internal references by setting `resolveInternalRefs` to `false`:
-
-```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-
-// Load a file and all referenced files
-const { filesystem } = await load('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml', {
-  plugins: [fetchUrls()],
-})
-
-const result = await dereference(filesystem, {
-  // Skips internal references like `$ref: '#/components/schemas/foobar'`
-  resolveInternalRefs: false,
-})
 ```
 
 #### Intercept HTTP requests

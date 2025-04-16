@@ -70,30 +70,11 @@ export type Filesystem = FilesystemEntry[]
  * Holds all information about a single file (doesn’t have to be a literal file, see Filesystem).
  */
 export type FilesystemEntry = {
-  /**
-   * The absolute path or URL to the file.
-   *
-   * @example https://example.com/path/to/file.yaml
-   * @example /Users/username/project/path/to/file.yaml
-   */
-  uri: string | null
-  /**
-   * Whether this is the base document, everything else is just referenced by it.
-   */
+  dir: string
   isEntrypoint: boolean
-  /**
-   * A map of the references to other files.
-   *
-   * @example {
-   *   'file.yaml': 'https://example.com/folder/file.yaml',
-   *   '../file2.yaml': 'https://example.com/file2.yaml',
-   * }
-   */
-  references: Record<string, string>
-  /**
-   * The actual content of the document
-   */
-  content: AnyObject
+  references: string[]
+  filename: string
+  specification: AnyObject
 }
 
 /**

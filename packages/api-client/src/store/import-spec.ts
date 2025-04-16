@@ -10,7 +10,7 @@ import { toRaw } from 'vue'
 /** Maps the specs by URL */
 export const specDictionary: Record<string, { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }> = {}
 
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ApiReferenceConfiguration, 'servers' | 'proxyUrl'>
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ApiReferenceConfiguration, 'servers'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -86,7 +86,6 @@ export function importSpecFileFactory({
         await importSpecFile(spec, workspaceUid, {
           documentUrl: url,
           ...options,
-          proxyUrl,
         }),
       ]
     } catch (error) {
