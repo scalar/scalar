@@ -14,9 +14,6 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
  * SvelteKit adapter for an API Reference
  *
  * {@link https://github.com/scalar/scalar/tree/main/documentation/configuration.md Configuration}
- *
- * @params config - the API Reference config object
- * @params options - reserved for future use to add customization to the response
  */
 export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>) => {
   // Merge the defaults

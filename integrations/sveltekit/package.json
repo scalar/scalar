@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/sveltekit-api-reference",
+  "name": "@scalar/sveltekit",
   "version": "0.0.1",
   "description": "A SvelteKit server handler to render API references from an OpenAPI file",
   "license": "MIT",
