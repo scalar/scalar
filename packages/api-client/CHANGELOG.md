@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.3.21
+
+### Patch Changes
+
+- c5047ee: fix: hotfix to revert the external reference commit
+- Updated dependencies [c5047ee]
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/oas-utils@0.2.132
+  - @scalar/import@0.3.15
+  - @scalar/postman-to-openapi@0.2.5
+
 ## 2.3.20
 
 ### Patch Changes

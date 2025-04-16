@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.132
+
+### Patch Changes
+
+- c5047ee: fix: hotfix to revert the external reference commit
+
 ## 0.2.131
 
 ### Patch Changes
