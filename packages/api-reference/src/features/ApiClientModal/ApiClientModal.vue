@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@scalar/api-client/store'
+import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import { useExampleStore } from '#legacy'
@@ -37,11 +38,19 @@ onMounted(() => {
 // We temporarily just debounce this but we should switch to the diff from watch mode for updates
 watchDebounced(
   () => configuration,
-  (_config) => {
-    if (_config) {
+  (newConfig, oldConfig) => {
+    /** Hacky way to ensure something actually changed in this watcher. This won't cover everything so we default to true */
+    let hasChanged = true
+    try {
+      hasChanged = JSON.stringify(newConfig) !== JSON.stringify(oldConfig)
+    } catch (error) {
+      // If we can't compare the configs, we default to true
+    }
+
+    if (newConfig && hasChanged) {
       // Disable intersection observer in case there's some jumpiness
       isIntersectionEnabled.value = false
-      client.value?.updateConfig(_config)
+      client.value?.updateConfig(newConfig)
 
       setTimeout(() => {
         isIntersectionEnabled.value = true
