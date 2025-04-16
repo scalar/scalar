@@ -21,17 +21,24 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   cookieHeaderKeys: string[]
   /** Time in ms the request took */
   duration: number
-  /** The response data */
-  data: string | Blob
-  /** The response size in bytes */
-  size: number
   /** The response status */
   status: number
   /** The response method */
   method: RequestMethod
   /** The request path */
   path: string
-}
+} & (
+    | {
+        /** The response data */
+        data: string | Blob
+        /** The response size in bytes */
+        size: number
+      }
+    | {
+        /** A stream reader for a streamable response body */
+        reader: ReadableStreamDefaultReader<Uint8Array>
+      }
+  )
 
 /** A single request/response set to save to the history stack */
 export type RequestEvent = {
