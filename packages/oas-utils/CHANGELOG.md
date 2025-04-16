@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.133
+
+### Patch Changes
+
+- e489824: feat: added support for streaming text response
+
 ## 0.2.132
 
 ### Patch Changes

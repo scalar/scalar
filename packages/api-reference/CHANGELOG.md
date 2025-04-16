@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.28.22
+
+### Patch Changes
+
+- 42ca70e: fix: some jumpiness when switching specs or any config changing
+- Updated dependencies [e489824]
+- Updated dependencies [cdaafe4]
+  - @scalar/api-client@2.3.22
+  - @scalar/oas-utils@0.2.133
+  - @scalar/components@0.13.49
+
 ## 1.28.21
 
 ### Patch Changes
