@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.3.22
+
+### Patch Changes
+
+- e489824: feat: added support for streaming text response
+- Updated dependencies [e489824]
+- Updated dependencies [cdaafe4]
+  - @scalar/oas-utils@0.2.133
+  - @scalar/components@0.13.49
+  - @scalar/import@0.3.16
+  - @scalar/postman-to-openapi@0.2.6
+  - @scalar/use-codemirror@0.11.94
+
 ## 2.3.21
 
 ### Patch Changes

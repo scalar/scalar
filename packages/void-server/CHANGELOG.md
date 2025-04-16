@@ -1,5 +1,15 @@
 # @scalar/void-server
 
+## 2.1.0
+
+### Minor Changes
+
+- e489824: feat: use hono logger
+
+### Patch Changes
+
+- e489824: feat: add /stream for server side events
+
 ## 2.0.17
 
 ### Patch Changes

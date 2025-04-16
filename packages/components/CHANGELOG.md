@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.49
+
+### Patch Changes
+
+- cdaafe4: fix(components): alert when no results found in search
+
 ## 0.13.48
 
 ### Patch Changes
