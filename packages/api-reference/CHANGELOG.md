@@ -1,5 +1,36 @@
 # @scalar/api-reference
 
+## 1.28.20
+
+### Patch Changes
+
+- 03198df: fix: updates example handling in example request for any content type
+- d678f21: fix(api-reference): align document selector chevron
+- a5e286a: fix(api-reference): collapse response if it has headers
+- 0cb87a7: fix(api-reference): show sidebar if not set
+- d246d70: chore: delete unsed spinner component
+- 4abe4f8: feat: external $ref’s (absolute and relative URLs)
+- Updated dependencies [4abe4f8]
+- Updated dependencies [e3ed7a2]
+- Updated dependencies [71d06d8]
+- Updated dependencies [e30339c]
+- Updated dependencies [feaa314]
+- Updated dependencies [feaa314]
+- Updated dependencies [03198df]
+- Updated dependencies [ba8e37e]
+- Updated dependencies [f4e1402]
+- Updated dependencies [e30339c]
+- Updated dependencies [4abe4f8]
+  - @scalar/openapi-parser@0.10.15
+  - @scalar/api-client@2.3.20
+  - @scalar/themes@0.10.0
+  - @scalar/types@0.1.8
+  - @scalar/oas-utils@0.2.131
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.48
+  - @scalar/use-hooks@0.1.41
+  - @scalar/snippetz@0.2.19
+
 ## 1.28.19
 
 ### Patch Changes

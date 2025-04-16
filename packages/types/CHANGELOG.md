@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.8
+
+### Patch Changes
+
+- feaa314: feat(themes): add laserwave theme
+
 ## 0.1.7
 
 ### Patch Changes

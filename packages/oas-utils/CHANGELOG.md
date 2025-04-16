@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.131
+
+### Patch Changes
+
+- 4abe4f8: feat: external $ref’s (absolute and relative URLs)
+- Updated dependencies [feaa314]
+- Updated dependencies [feaa314]
+  - @scalar/themes@0.10.0
+  - @scalar/types@0.1.8
+
 ## 0.2.130
 
 ### Patch Changes
