@@ -215,7 +215,7 @@ export const createApiReference: CreateApiReference = (
     'scalar:reload-references',
     () => {
       console.warn(
-        'scalar:reload-references event has been deprecated, please use the window.Scalar.[default | name].app.mount method instead',
+        "scalar:reload-references event has been deprecated, please use the window.Scalar.apps['default'].app.mount method instead",
       )
       if (!props.configuration) {
         return
@@ -259,7 +259,7 @@ export const createApiReference: CreateApiReference = (
     'scalar:destroy-references',
     () => {
       console.warn(
-        'scalar:destroy-references event has been deprecated, please use window.Scalar.[default | name].destroy instead',
+        "scalar:destroy-references event has been deprecated, please use window.Scalar.apps['default'].destroy instead",
       )
       destroy()
     },
@@ -274,7 +274,7 @@ export const createApiReference: CreateApiReference = (
     'scalar:update-references-config',
     (ev) => {
       console.warn(
-        'scalar:update-references-config event has been deprecated, please use window.Scalar.[default | name].updateConfiguration instead',
+        "scalar:update-references-config event has been deprecated, please use window.Scalar.apps['default'].updateConfiguration instead",
       )
       if ('detail' in ev) {
         Object.assign(props, ev.detail)
