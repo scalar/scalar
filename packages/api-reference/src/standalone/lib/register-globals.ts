@@ -1,13 +1,11 @@
-import { createApiReference, type ApiReferenceInstance, type CreateApiReference } from '@/standalone/lib/html-api'
+import type { ScalarGlobal } from '@scalar/types/api-reference'
+
+import { createApiReference } from '@/standalone/lib/html-api'
 
 // Register the createApiReference function in the global Scalar object (new)
 declare global {
   interface Window {
-    Scalar: {
-      createApiReference: CreateApiReference
-      /** Globally registered API Reference instances */
-      apps: Record<string, ApiReferenceInstance>
-    }
+    Scalar: ScalarGlobal
   }
 }
 
