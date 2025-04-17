@@ -74,7 +74,7 @@ const integrationEnum = z
     'platformatic',
     'react',
     'rust',
-    'sveltekit',
+    'svelte',
     'vue',
   ])
   .nullable()
