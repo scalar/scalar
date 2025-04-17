@@ -1,128 +1,47 @@
-// Workaround to handle commonjs failing with older react version
 import type { ReferenceProps } from '@scalar/api-reference-react'
-
 import BrowserOnly from '@docusaurus/BrowserOnly'
+import '@scalar/api-reference-react/style.css'
 import Layout from '@theme/Layout'
-import React, { Component } from 'react'
-
+import React from 'react'
 import './theme.css'
 
 type Props = {
-  route: ReferenceProps
+  route: ReferenceProps & {
+    /** Not sure what the route type is for docusaurus, TODO: replace with that */
+    id: string
+  }
 }
 
-class ScalarDocusaurusCommonJS extends Component<Props> {
-  observer: any = null
+export const ScalarDocusaurus = ({ route }: Props) => {
+  return (
+    <Layout>
+      <BrowserOnly>
+        {() => {
+          console.log(route)
+          console.log('scalar', window.Scalar.creat)
 
-  constructor(props: Props) {
-    super(props)
-    this.mutationCallback = this.mutationCallback.bind(this)
-    if (typeof window !== 'undefined') {
-      this.observer = new MutationObserver(this.mutationCallback)
-    }
-  }
-
-  componentWillUnmount() {
-    // Clean up app
-    document.dispatchEvent(new Event('scalar:destroy-references'))
-    this.observer?.disconnect()
-  }
-
-  mutationCallback(mutations: MutationRecord[]) {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList') {
-        const container = document.getElementById('api-reference-container')
-
-        if (container && this.props.route.configuration && !document.getElementById('api-reference')) {
-          console.log('Loading Scalar script...')
-          // Deep copy the configuration
-          const config = JSON.parse(JSON.stringify(this.props.route.configuration))
-
-          // Create and append a script element to mount the Scalar app
-          const apiReferenceScript = document.createElement('script')
-          apiReferenceScript.id = 'api-reference'
-          apiReferenceScript.type = 'application/json'
-
-          container.appendChild(apiReferenceScript)
-
-          // Check if we've already loaded the Scalar script
-          const loaded = document.body.getAttribute('data-scalar-loaded')
-
-          if (loaded) {
-            console.log('Scalar script already loaded, reloading app')
-            document.dispatchEvent(new Event('scalar:reload-references'))
-            document.dispatchEvent(
-              new CustomEvent('scalar:update-references-config', {
-                detail: { configuration: config },
-              }),
-            )
+          if (window.Scalar) {
+            window.Scalar.createApiReference({
+              configuration: route.configuration,
+            })
           } else {
-            // Execute content function if it exists
-            if (typeof config?.content === 'function') {
-              config.content = config.content()
-            }
-
-            // Convert the document to a string
-            const documentString = config?.content
-              ? typeof config?.content === 'string'
-                ? config.content
-                : JSON.stringify(config.content)
-              : ''
-
-            // Delete content from configuration
-            if (config?.content) {
-              delete config.content
-            }
-
-            // Convert the configuration to a string
-            const configString = JSON.stringify(config ?? {})
-              .split('"')
-              .join('&quot;')
-            apiReferenceScript.dataset.configuration = configString
-            apiReferenceScript.innerHTML = documentString
-
-            // Creating and appending the script element
-            const script = document.createElement('script')
-            script.src = 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
-            script.async = true
-            script.onload = () => {
-              console.log('Scalar script loaded successfully')
-              document.body.setAttribute('data-scalar-loaded', 'true')
-            }
-            script.onerror = (error) => {
-              console.error('Error loading Scalar script:', error)
-            }
-            container.appendChild(script)
+            console.error('window.Scalar is not defined')
           }
 
-          // Stop observing once the container is found and script is added
-          this.observer?.disconnect()
-        }
-      }
-    })
-  }
+          return <div id={`scalar-api-reference-${route.id}`}>Hello</div>
+          // const ApiReference = React.lazy(() => import('@scalar/api-reference-react').then(module => ({
+          //   default: module.ApiReferenceReact
+          // })))
 
-  setupAPIReference = () => {
-    if (typeof window !== 'undefined') {
-      this.observer = new MutationObserver(this.mutationCallback)
-      this.observer.observe(document.body, { childList: true, subtree: true })
-    }
-  }
-
-  render() {
-    return (
-      <Layout>
-        <BrowserOnly>
-          {() => {
-            if (typeof window !== 'undefined') {
-              this.setupAPIReference()
-            }
-            return <div id="api-reference-container"></div>
-          }}
-        </BrowserOnly>
-      </Layout>
-    )
-  }
+          // return (
+          //   <React.Suspense fallback={<div>Loading...</div>}>
+          //     <ApiReference configuration={route.configuration} />
+          //   </React.Suspense>
+          // )
+        }}
+      </BrowserOnly>
+    </Layout>
+  )
 }
 
-export default ScalarDocusaurusCommonJS
+export default ScalarDocusaurus

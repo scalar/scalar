@@ -22,6 +22,17 @@ const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
 })
 
 /**
+ * Detect if we're in a CommonJS environment
+ */
+const isCommonJS = () => {
+  try {
+    return typeof require === 'function'
+  } catch {
+    return false
+  }
+}
+
+/**
  * Scalar's Docusaurus plugin for Api References
  */
 const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<ReferenceProps> => {
@@ -29,6 +40,23 @@ const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<
 
   return {
     name: '@scalar/docusaurus',
+
+    /**
+     * Load the Standalone API Reference script
+     * This is loaded into the dom once for every plugin thats loaded BUT it only downloads the script once
+     */
+    injectHtmlTags() {
+      return {
+        preBodyTags: [
+          {
+            tagName: 'script',
+            attributes: {
+              src: 'http://localhost:3000/browser/standalone.js',
+            },
+          },
+        ],
+      }
+    },
 
     async loadContent() {
       return defaultOptions
@@ -50,23 +78,13 @@ const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<
         })
       }
 
-      if (typeof require === 'function') {
-        addRoute({
-          path: defaultOptions.route,
-          component: path.resolve(__dirname, './ScalarDocusaurusCommonJS'),
-          // Provide the path to the loaded spec as a prop to your component
-          exact: true,
-          ...content,
-        })
-      } else {
-        addRoute({
-          path: defaultOptions.route,
-          component: path.resolve(__dirname, './ScalarDocusaurus'),
-          // Provide the path to the loaded spec as a prop to your component
-          exact: true,
-          ...content,
-        })
-      }
+      // Add the appropriate route based on the module system
+      addRoute({
+        path: defaultOptions.route,
+        component: path.resolve(__dirname, isCommonJS() ? './ScalarDocusaurusCommonJS' : './ScalarDocusaurus'),
+        exact: true,
+        ...content,
+      })
     },
   }
 }
