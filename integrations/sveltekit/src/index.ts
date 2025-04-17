@@ -1,1 +1,1 @@
-export { ApiReference } from './api-reference.js'
+export { ScalarApiReference } from './scalar-api-reference.js'

@@ -15,7 +15,7 @@ const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
  *
  * {@link https://github.com/scalar/scalar/tree/main/documentation/configuration.md Configuration}
  */
-export const ApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>) => {
+export const ScalarApiReference = (givenConfiguration: Partial<ApiReferenceConfiguration>) => {
   // Merge the defaults
   const configuration = {
     ...DEFAULT_CONFIGURATION,
