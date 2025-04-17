@@ -18,5 +18,6 @@ export const LOGOS = [
   'Platformatic',
   'React',
   'Rust',
+  'SvelteKit',
   'Vue',
 ] as const
