@@ -1,7 +1,7 @@
 'use client'
 
-import { type ApiReferenceInstance, createApiReference } from '@scalar/api-reference'
-import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { createApiReference } from '@scalar/api-reference'
+import type { AnyApiReferenceConfiguration, ApiReferenceInstance } from '@scalar/types/api-reference'
 import { useEffect, useRef, useState } from 'react'
 
 import './style.css'

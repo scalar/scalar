@@ -3,9 +3,10 @@ import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
   apiReferenceConfigurationSchema,
+  type CreateApiReference,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
-import { type App, createApp, h, reactive } from 'vue'
+import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
 
@@ -165,28 +166,6 @@ export const createContainer = (doc: Document, element?: Element | null) => {
   }
 
   return _container
-}
-
-// Add a type for our enhanced app
-export type ApiReferenceInstance = {
-  /** The vue app instance */
-  app: App<Element>
-  /** Destroy the current API Reference instance */
-  destroy: () => void
-  /** Get the current configuration[s] */
-  getConfiguration: () => AnyApiReferenceConfiguration
-  /** Update all configuration[s] */
-  updateConfiguration: (newConfig: AnyApiReferenceConfiguration) => void
-}
-
-/** Function overload for createApiReference to allow multiple different signatures */
-export type CreateApiReference = {
-  /** Pass in the configuration only */
-  (configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
-  /** Pass in the element or selector and configuration */
-  (elementOrSelector: Element | string, configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
-  /** Pass in the element or selector, configuration and name for global registration, name is required when you have more than one page with a reference */
-  (elementOrSelector: Element | string, configuration: AnyApiReferenceConfiguration, name: string): ApiReferenceInstance
 }
 
 /**
