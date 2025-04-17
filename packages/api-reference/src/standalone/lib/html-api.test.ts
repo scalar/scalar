@@ -63,7 +63,7 @@ describe('html-api', () => {
 
       expect(consoleWarnSpy).toHaveBeenCalledOnce()
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'scalar:reload-references event has been deprecated, please use the window.Scalar.app.mount method instead',
+        "scalar:reload-references event has been deprecated, please use the window.Scalar.apps['default'].app.mount method instead",
       )
     })
 
@@ -75,7 +75,7 @@ describe('html-api', () => {
 
       document.dispatchEvent(new Event('scalar:destroy-references'))
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'scalar:destroy-references event has been deprecated, please use window.Scalar.destroy instead',
+        "scalar:destroy-references event has been deprecated, please use window.Scalar.apps['default'].destroy instead",
       )
     })
 
@@ -91,7 +91,7 @@ describe('html-api', () => {
       document.dispatchEvent(updateEvent)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'scalar:update-references-config event has been deprecated, please use window.Scalar.updateConfiguration instead',
+        "scalar:destroy-references event has been deprecated, please use window.Scalar.apps['default'].destroy instead",
       )
     })
 
