@@ -56,9 +56,10 @@ const config: Config = {
     [
       '@scalar/docusaurus',
       {
-        id: 'json-url',
-        label: 'json-url',
-        route: '/json-url',
+        id: 'json-url-cdn',
+        label: 'json-url-cdn',
+        route: '/json-url-cdn',
+        cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11',
         configuration: {
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },

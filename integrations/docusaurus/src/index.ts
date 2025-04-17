@@ -1,12 +1,18 @@
 import path from 'node:path'
 import type { LoadContext, Plugin } from '@docusaurus/types'
-import type { ReferenceProps } from '@scalar/api-reference-react'
+import type { AnyApiReferenceConfiguration } from '@scalar/types'
 
 export type ScalarOptions = {
   label: string
   route: string
+  /**
+   * If you wish to pin a specific CDN version instead of the latest (default)
+   * @example https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.11
+   */
+  cdn?: string
   showNavLink?: boolean
-} & ReferenceProps
+  configuration?: AnyApiReferenceConfiguration
+}
 
 /**
  * Used to set default options from the user-provided options
@@ -22,20 +28,12 @@ const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
 })
 
 /**
- * Detect if we're in a CommonJS environment
- */
-const isCommonJS = () => {
-  try {
-    return typeof require === 'function'
-  } catch {
-    return false
-  }
-}
-
-/**
  * Scalar's Docusaurus plugin for Api References
  */
-const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<ReferenceProps> => {
+const ScalarDocusaurus = (
+  context: LoadContext,
+  options: ScalarOptions,
+): Plugin<{ configuration?: AnyApiReferenceConfiguration }> => {
   const defaultOptions = createDefaultScalarOptions(options)
 
   return {
@@ -51,7 +49,7 @@ const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<
           {
             tagName: 'script',
             attributes: {
-              src: 'http://localhost:3000/browser/standalone.js',
+              src: options.cdn ?? 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
             },
           },
         ],
@@ -81,7 +79,7 @@ const ScalarDocusaurus = (context: LoadContext, options: ScalarOptions): Plugin<
       // Add the appropriate route based on the module system
       addRoute({
         path: defaultOptions.route,
-        component: path.resolve(__dirname, isCommonJS() ? './ScalarDocusaurusCommonJS' : './ScalarDocusaurus'),
+        component: path.resolve(__dirname, './ScalarDocusaurus'),
         exact: true,
         ...content,
       })
