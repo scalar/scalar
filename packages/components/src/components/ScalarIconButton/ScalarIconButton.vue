@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
 
-import { cva } from '../../cva'
-import { useBindCx } from '../../hooks/useBindCx'
 import { styles } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 

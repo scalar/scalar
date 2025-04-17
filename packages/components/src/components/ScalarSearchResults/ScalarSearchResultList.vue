@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 defineProps<{
   noResults?: boolean

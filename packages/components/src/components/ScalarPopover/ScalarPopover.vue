@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import {
   ScalarFloating,
   ScalarFloatingBackdrop,

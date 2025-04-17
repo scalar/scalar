@@ -49,6 +49,7 @@
     "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/code-highlight": "workspace:*",
+    "@scalar/icons": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
@@ -57,7 +58,6 @@
     "nanoid": "catalog:",
     "pretty-bytes": "^6.1.1",
     "radix-vue": "^1.9.3",
-    "tailwind-merge": "^2.5.5",
     "vue": "catalog:"
   },
   "devDependencies": {

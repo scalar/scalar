@@ -13,9 +13,9 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { ref } from 'vue'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import type { LoadingState } from '../ScalarLoading'
 import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
 import ScalarFileUploadError from './ScalarFileUploadError.vue'

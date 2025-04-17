@@ -1,3 +1,6 @@
-export * from './icons'
-export * from './types'
-export { default as LibraryIcon } from './LibraryIcon.vue'
+/* GENERATED FILE */
+/* eslint-disable import/prefer-default-export */
+
+import ScalarIconMagnifyingGlass from './components/ScalarIconMagnifyingGlass.vue'
+
+export { ScalarIconMagnifyingGlass }

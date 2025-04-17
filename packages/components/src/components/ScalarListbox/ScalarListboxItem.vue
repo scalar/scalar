@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ListboxOption } from '@headlessui/vue'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
-import { cva, cx } from '../../cva'
 import ScalarListboxCheckbox from './ScalarListboxCheckbox.vue'
 import type { Option, OptionStyle } from './types'
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cva, cx } from '../../cva'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
 const props = defineProps<{
   modelValue?: boolean

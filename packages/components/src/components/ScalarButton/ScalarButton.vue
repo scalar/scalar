@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 import { type Variants, variants } from './variants'
 

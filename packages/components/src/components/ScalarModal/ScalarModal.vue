@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
 import { reactive } from 'vue'
 
-import { cva, cx } from '../../cva'
 import { ScalarIconButton } from '../ScalarIconButton'
 
 type ModalVariants = VariantProps<typeof modal>

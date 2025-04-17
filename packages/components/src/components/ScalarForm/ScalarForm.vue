@@ -14,7 +14,7 @@
 export default {}
 </script>
 <script lang="ts" setup>
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 defineEmits<{
   /** Emitted when the form is submitted */

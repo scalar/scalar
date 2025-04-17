@@ -2,7 +2,7 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
 
-import { cva } from '../cva'
+import { cva } from './cva'
 import { useBindCx } from './useBindCx'
 
 describe('useBindCx', () => {

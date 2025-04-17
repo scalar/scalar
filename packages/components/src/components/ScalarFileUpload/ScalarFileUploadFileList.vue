@@ -10,9 +10,9 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import prettyBytes from 'pretty-bytes'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarButton } from '../ScalarButton'
 
 defineEmits<{
