@@ -4,7 +4,9 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { ref } from 'vue'
 
-const isOpen = ref(true)
+import FloatingButton from '@/features/DeveloperTools/components/FloatingButton.vue'
+
+const isOpen = ref(false)
 
 /** Tabs configuration for the developer tools panel */
 const tabs = [
@@ -20,24 +22,10 @@ const shouldShow =
 
 <template>
   <template v-if="shouldShow">
-    <!-- Floating Button -->
-    <template v-if="!isOpen">
-      <div class="z-1 fixed bottom-6 right-6 z-10">
-        <ScalarButton
-          class="max-h-8 gap-2 rounded-lg border-2 p-2 text-xs"
-          type="button"
-          @click="isOpen = !isOpen">
-          <ScalarIcon
-            class="text-c-3"
-            icon="Brackets"
-            size="md" />
-          Developer Tools
-        </ScalarButton>
-      </div>
-    </template>
+    <FloatingButton v-model="isOpen" />
 
     <!-- Developer Tools Drawer -->
-    <template v-if="isOpen">
+    <template v-if="false">
       <div
         class="z-1 bg-b-2 fixed bottom-0 left-0 right-0 flex flex-col border-t">
         <!-- Header with Tabs and Controls -->
