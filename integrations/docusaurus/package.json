@@ -38,7 +38,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/api-reference-react": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
