@@ -1,6 +1,6 @@
 {
   "name": "@scalar/icons",
-  "description": "Scalar’s icon library",
+  "description": "Scalar Icons",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -22,6 +22,7 @@
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
+    "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },
@@ -52,8 +53,11 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:",
+    "@vue/test-utils": "^2.4.1",
+    "jsdom": "^22.1.0",
     "svglint": "^2.7.1",
     "vite": "catalog:",
-    "vite-svg-loader": "^5.1.0"
+    "vite-svg-loader": "^5.1.0",
+    "vitest": "catalog:"
   }
 }
