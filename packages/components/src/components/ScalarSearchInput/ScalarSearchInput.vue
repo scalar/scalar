@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import { computed, ref, useAttrs } from 'vue'
 
-import { cva, cx } from '../../cva'
 import { ScalarIcon } from '../ScalarIcon'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'

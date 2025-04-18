@@ -17,9 +17,8 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
-
-import { cva, cx } from '../../cva'
 
 const { is = 'button' } = defineProps<{
   is?: string | Component

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 

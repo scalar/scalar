@@ -1055,6 +1055,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/icons':
+        specifier: workspace:*
+        version: link:../icons
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1496,6 +1499,9 @@ importers:
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight
+      '@scalar/icons':
+        specifier: workspace:*
+        version: link:../icons
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1520,9 +1526,6 @@ importers:
       radix-vue:
         specifier: ^1.9.3
         version: 1.9.3(vue@3.5.12(typescript@5.6.2))
-      tailwind-merge:
-        specifier: ^2.5.5
-        version: 2.5.5
       vue:
         specifier: 'catalog:'
         version: 3.5.12(typescript@5.6.2)
@@ -1708,6 +1711,18 @@ importers:
 
   packages/icons:
     dependencies:
+      '@phosphor-icons/core':
+        specifier: ^2.1.1
+        version: 2.1.1
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.17.10
+      chalk:
+        specifier: ^5.4.1
+        version: 5.4.1
       vue:
         specifier: 'catalog:'
         version: 3.5.12(typescript@5.6.2)
@@ -2228,6 +2243,12 @@ importers:
       '@vueuse/core':
         specifier: 'catalog:'
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
+      cva:
+        specifier: 1.0.0-beta.2
+        version: 1.0.0-beta.2(typescript@5.6.2)
+      tailwind-merge:
+        specifier: ^2.5.5
+        version: 2.5.5
       vue:
         specifier: 'catalog:'
         version: 3.5.12(typescript@5.6.2)
@@ -2241,6 +2262,9 @@ importers:
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      '@vue/test-utils':
+        specifier: ^2.4.1
+        version: 2.4.6
       vite:
         specifier: 'catalog:'
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -6681,6 +6705,9 @@ packages:
     resolution: {integrity: sha512-HNjmfLQEVRZmHRET336f20H/8kOozUGwk7yajvsonjNxbj2wBTK1WsQuHkD5yYh9RxFGL2EyDHryOihOwUoKDA==}
     engines: {node: '>= 10.0.0'}
 
+  '@phosphor-icons/core@2.1.1':
+    resolution: {integrity: sha512-v4ARvrip4qBCImOE5rmPUylOEK4iiED9ZyKjcvzuezqMaiRASCHKcRIuvvxL/twvLpkfnEODCOJp5dM4eZilxQ==}
+
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
@@ -9395,6 +9422,10 @@ packages:
 
   chalk@5.3.0:
     resolution: {integrity: sha512-dLitG79d+GV1Nb/VYcCDFivJeK1hiukt9QjRNVOsUtTy1rR1YJsmpGGTZ3qJos+uw7WmWF4wUwBd9jxjocFC2w==}
+    engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
+
+  chalk@5.4.1:
+    resolution: {integrity: sha512-zgVZuo2WcZgfUEmsn6eO3kINexW8RAE4maiQ8QNs8CtpPCSyMiYsULR3HQYkm3w8FIA3SberyMJMSldGsW+U3w==}
     engines: {node: ^12.17.0 || ^14.13 || >=16.0.0}
 
   change-case@5.4.4:
@@ -18797,7 +18828,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.24.7
       '@babel/helper-validator-option': 7.24.7
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -20693,7 +20724,7 @@ snapshots:
 
   '@clack/core@0.3.4':
     dependencies:
-      picocolors: 1.1.0
+      picocolors: 1.1.1
       sisteransi: 1.0.5
 
   '@clack/core@0.4.1':
@@ -20710,7 +20741,7 @@ snapshots:
   '@clack/prompts@0.9.1':
     dependencies:
       '@clack/core': 0.4.1
-      picocolors: 1.1.0
+      picocolors: 1.1.1
       sisteransi: 1.0.5
 
   '@cloudflare/kv-asset-handler@0.3.4':
@@ -20905,7 +20936,7 @@ snapshots:
       '@docusaurus/logger': 3.6.1
       '@docusaurus/types': 3.6.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@docusaurus/utils': 3.6.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.2)
-      autoprefixer: 10.4.19(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.4.47)
       babel-loader: 9.2.1(@babel/core@7.26.0)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
       clean-css: 5.3.3
       copy-webpack-plugin: 11.0.0(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
@@ -22498,7 +22529,7 @@ snapshots:
   '@floating-ui/dom@1.6.5':
     dependencies:
       '@floating-ui/core': 1.6.2
-      '@floating-ui/utils': 0.2.2
+      '@floating-ui/utils': 0.2.7
 
   '@floating-ui/utils@0.2.2': {}
 
@@ -24497,6 +24528,8 @@ snapshots:
       '@parcel/watcher-win32-arm64': 2.4.1
       '@parcel/watcher-win32-ia32': 2.4.1
       '@parcel/watcher-win32-x64': 2.4.1
+
+  '@phosphor-icons/core@2.1.1': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
@@ -27962,7 +27995,7 @@ snapshots:
     dependencies:
       ansi-align: 3.0.1
       camelcase: 7.0.1
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-boxes: 3.0.0
       string-width: 5.1.2
       type-fest: 2.19.0
@@ -28220,7 +28253,7 @@ snapshots:
 
   chalk-template@1.1.0:
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
 
   chalk@2.4.2:
     dependencies:
@@ -28239,6 +28272,8 @@ snapshots:
       supports-color: 7.2.0
 
   chalk@5.3.0: {}
+
+  chalk@5.4.1: {}
 
   change-case@5.4.4: {}
 
@@ -28878,7 +28913,7 @@ snapshots:
 
   cssnano-preset-advanced@6.1.2(postcss@8.4.47):
     dependencies:
-      autoprefixer: 10.4.19(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.4.47)
       browserslist: 4.24.2
       cssnano-preset-default: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -31754,7 +31789,7 @@ snapshots:
     dependencies:
       '@ljharb/through': 2.3.13
       ansi-escapes: 4.3.2
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-cursor: 3.1.0
       cli-width: 4.1.0
       external-editor: 3.1.0
@@ -32819,7 +32854,7 @@ snapshots:
 
   launch-editor@2.8.0:
     dependencies:
-      picocolors: 1.1.0
+      picocolors: 1.1.1
       shell-quote: 1.8.1
 
   launch-editor@2.9.1:
@@ -33025,7 +33060,7 @@ snapshots:
 
   log-symbols@6.0.0:
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
       is-unicode-supported: 1.3.0
 
   log-update@5.0.1:
@@ -33854,7 +33889,7 @@ snapshots:
 
   mkdist@1.5.3(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2)):
     dependencies:
-      autoprefixer: 10.4.19(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.4.47)
       citty: 0.1.6
       cssnano: 7.0.4(postcss@8.4.47)
       defu: 6.1.4
@@ -34638,7 +34673,7 @@ snapshots:
 
   ora@8.0.1:
     dependencies:
-      chalk: 5.3.0
+      chalk: 5.4.1
       cli-cursor: 4.0.0
       cli-spinners: 2.9.2
       is-interactive: 2.0.0
@@ -35588,7 +35623,7 @@ snapshots:
   postcss@8.4.47:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.1.0
+      picocolors: 1.1.1
       source-map-js: 1.2.1
 
   postgres-array@2.0.0: {}
@@ -37583,7 +37618,7 @@ snapshots:
   svglint@2.7.1:
     dependencies:
       ansi-regex: 5.0.1
-      chalk: 5.3.0
+      chalk: 5.4.1
       cheerio: 1.0.0-rc.12
       fast-xml-parser: 4.4.0
       glob: 7.2.3
@@ -37600,7 +37635,7 @@ snapshots:
       css-tree: 2.3.1
       css-what: 6.1.0
       csso: 5.0.5
-      picocolors: 1.1.0
+      picocolors: 1.1.1
 
   swagger-jsdoc@6.2.8(openapi-types@12.1.3):
     dependencies:
@@ -38233,7 +38268,7 @@ snapshots:
       '@rollup/plugin-node-resolve': 15.2.3(rollup@3.29.4)
       '@rollup/plugin-replace': 5.0.7(rollup@3.29.4)
       '@rollup/pluginutils': 5.1.3(rollup@3.29.4)
-      chalk: 5.3.0
+      chalk: 5.4.1
       citty: 0.1.6
       consola: 3.2.3
       defu: 6.1.4
@@ -38329,7 +38364,7 @@ snapshots:
   unified-args@11.0.1:
     dependencies:
       '@types/text-table': 0.2.5
-      chalk: 5.3.0
+      chalk: 5.4.1
       chokidar: 3.6.0
       comma-separated-tokens: 2.0.3
       json5: 2.2.3
@@ -38638,7 +38673,7 @@ snapshots:
   update-notifier@6.0.2:
     dependencies:
       boxen: 7.1.1
-      chalk: 5.3.0
+      chalk: 5.4.1
       configstore: 6.0.0
       has-yarn: 3.0.0
       import-lazy: 4.0.0
@@ -38897,7 +38932,7 @@ snapshots:
       fs-extra: 11.2.0
       open: 10.1.0
       perfect-debounce: 1.0.0
-      picocolors: 1.1.0
+      picocolors: 1.1.1
       sirv: 2.0.4
       vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
     optionalDependencies:

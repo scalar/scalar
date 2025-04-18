@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
 import { computed } from 'vue'
 
-import { cva } from '../../cva'
-import { useBindCx } from '../../hooks/useBindCx'
 import { type Icon, type Logo, getIcon, getLogo } from './utils'
 
 /**

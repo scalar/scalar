@@ -15,9 +15,8 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
-
-import { useBindCx } from '../../hooks/useBindCx'
 
 const { is = 'ul' } = defineProps<{
   is?: Component | string

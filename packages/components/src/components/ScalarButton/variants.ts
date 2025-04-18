@@ -1,6 +1,6 @@
 import type { VariantProps } from 'cva'
 
-import { cva } from '../../cva'
+import { cva } from '@scalar/use-hooks/useBindCx'
 
 export const styles: Record<string, Record<string, any>> = {
   solid: [

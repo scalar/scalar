@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTextInput } from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 import { ref } from 'vue'
 
 import IconSelector from '@/components/IconSelector.vue'

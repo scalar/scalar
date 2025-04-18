@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+
 import ScalarMenuProduct from './ScalarMenuProduct.vue'
 
 type Product = 'dashboard' | 'docs' | 'client'

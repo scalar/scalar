@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { computed, defineComponent, ref, watch } from 'vue'
 
-import { cva } from '../cva'
-import { useBindCx } from './useBindCx'
+import { useBindCx, cva } from '@scalar/use-hooks/useBindCx'
 
 const attrsToList = (attrs?: Record<string, any>) =>
   Object.entries(attrs || {})

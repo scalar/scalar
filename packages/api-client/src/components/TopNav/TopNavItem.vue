@@ -9,7 +9,7 @@ import {
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 

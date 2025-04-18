@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { cva } from '@scalar/use-hooks/useBindCx'
 import { nanoid } from 'nanoid'
 
-import { cva } from '../../cva'
 import { ScalarIcon } from '../ScalarIcon'
 
 withDefaults(
