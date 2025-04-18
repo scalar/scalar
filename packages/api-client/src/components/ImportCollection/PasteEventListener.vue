@@ -21,11 +21,17 @@ async function handlePaste(event: ClipboardEvent) {
   // Ignore paste events in input, textarea, or contenteditable elements
   const target = event.target as HTMLElement
 
+  // Check if we're inside a CodeMirror instance
+  const isCodeMirror = Boolean(
+    document.activeElement?.classList.contains('cm-content'),
+  )
+
   if (
     target &&
     (target.tagName === 'INPUT' ||
       target.tagName === 'TEXTAREA' ||
-      target.isContentEditable)
+      target.isContentEditable ||
+      isCodeMirror)
   ) {
     return
   }
