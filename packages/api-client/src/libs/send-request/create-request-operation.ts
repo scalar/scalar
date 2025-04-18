@@ -179,9 +179,12 @@ export const createRequestOperation = ({
           signal: controller.signal,
         })
 
-        // Check if response is potentially streaming
-        const contentLength = response.headers.get('content-length')
-        const isChunkedOrStreaming = !contentLength && response.body !== null && !response.bodyUsed
+        /**
+         * Checks if the response is streaming
+         * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
+         * content-type === 'text/plain' and transfer-encoding === 'chunked'
+         */
+        const isStreaming = response.headers.get('content-type')?.includes('stream')
 
         status?.emit('stop')
 
@@ -196,7 +199,7 @@ export const createRequestOperation = ({
             : []
 
         // We want to return the response so that it can be streamed
-        if (isChunkedOrStreaming) {
+        if (isStreaming && response.body) {
           return [
             null,
             {

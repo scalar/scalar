@@ -1072,7 +1072,7 @@ describe('create-request-operation', () => {
         const mockResponse = new Response(mockStream, {
           status: 200,
           headers: new Headers({
-            'content-type': 'text/plain',
+            'content-type': 'text/stream',
           }),
         })
 
