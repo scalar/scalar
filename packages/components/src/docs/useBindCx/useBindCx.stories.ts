@@ -11,9 +11,33 @@ const meta = {
   title: 'Playgrounds / useBindCx',
   tags: ['!dev'],
   argTypes: {
-    active: { control: 'boolean', description: 'Applies the active variant' },
-    class: { control: 'text', description: 'Additional classes to apply' },
-    attrs: { control: 'object', description: 'Additional attributes to apply' },
+    active: {
+      control: 'boolean',
+      description: 'Applies the active variant and the "bg-b-2" class',
+      table: {
+        subcategory: 'Props',
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
+    class: {
+      control: 'text',
+      description: 'Classes to apply to the component',
+      table: {
+        subcategory: 'Attributes',
+        type: { summary: 'string' },
+        defaultValue: { summary: '' },
+      },
+    },
+    attrs: {
+      control: 'object',
+      description: 'Additional attributes to apply to the component',
+      table: {
+        subcategory: 'Attributes',
+        type: { summary: 'object' },
+        defaultValue: { summary: 'None' },
+      },
+    },
   },
   render: (args) => ({
     components: { MockComponent },

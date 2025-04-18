@@ -6,19 +6,38 @@ const meta = {
   title: 'Playgrounds / Scalar Icons',
   tags: ['!dev'],
   args: {
-    icon: 'ScalarIconMagnifyingGlass',
+    icon: Object.keys(icons)[0],
   },
   argTypes: {
     icon: {
       control: 'select',
       options: Object.keys(icons),
+      description: 'The icon to display',
+      table: {
+        subcategory: 'Options',
+        type: { summary: 'string' },
+        defaultValue: { summary: 'N/A' },
+      },
     },
     weight: {
       control: 'select',
       options: ['thin', 'light', 'regular', 'bold', 'fill', 'duotone'],
+      description: 'The weight of the icon',
+      table: {
+        subcategory: 'Attributes',
+        type: { summary: 'string' },
+        defaultValue: { summary: 'regular' },
+      },
     },
-    class: { control: 'text' },
-    style: { control: 'text' },
+    class: {
+      control: 'text',
+      description: 'Classes to apply to the icon',
+      table: {
+        subcategory: 'Attributes',
+        type: { summary: 'string' },
+        defaultValue: { summary: '' },
+      },
+    },
   },
   render: (args) => ({
     components: icons,
