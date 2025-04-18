@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.3.23
+
+### Patch Changes
+
+- 363276e: feat(icons): add Phosphor icons to @scalar/icons
+- 85163e7: fix: accidental collection creation on paste in codemirror
+- 301cf13: fix: prevents paste event from code mirrro instance
+- 85163e7: fix: incorrect stream reader
+- Updated dependencies [363276e]
+- Updated dependencies [a9f232a]
+  - @scalar/icons@0.2.0
+  - @scalar/components@0.13.50
+  - @scalar/use-hooks@0.1.42
+  - @scalar/use-codemirror@0.11.95
+
 ## 2.3.22
 
 ### Patch Changes

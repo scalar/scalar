@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.1.42
+
+### Patch Changes
+
+- 363276e: feat(icons): add Phosphor icons to @scalar/icons
+
 ## 0.1.41
 
 ### Patch Changes
