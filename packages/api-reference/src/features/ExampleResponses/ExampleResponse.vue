@@ -21,7 +21,7 @@ defineProps<{
     class="bg-b-2 -outline-offset-2"
     :content="
       getExampleFromSchema(response?.schema, {
-        emptyString: '…',
+        emptyString: 'string',
         mode: 'read',
       })
     "
