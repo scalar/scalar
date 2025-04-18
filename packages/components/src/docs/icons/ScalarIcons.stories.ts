@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import * as icons from '@scalar/icons'
 
 const meta = {
-  title: 'Scalar Icons',
+  title: 'Playgrounds / Scalar Icons',
   args: {
     icon: 'ScalarIconMagnifyingGlass',
   },

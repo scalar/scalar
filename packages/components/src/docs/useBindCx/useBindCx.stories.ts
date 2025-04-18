@@ -1,64 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import { computed, defineComponent, ref, watch } from 'vue'
-
-import { useBindCx, cva } from '@scalar/use-hooks/useBindCx'
+import { computed, ref, watch } from 'vue'
+import { MockComponent } from './MockComponent'
 
 const attrsToList = (attrs?: Record<string, any>) =>
   Object.entries(attrs || {})
     .map(([key, value]) => (typeof value === 'string' ? `${key}="${value}"` : `:${key}="${value}"`))
     .join(' ')
 
-const variants = cva({
-  base: 'border rounded p-2 bg-b-1',
-  variants: { active: { true: 'bg-b-2' } },
-})
-
-const MockComponent = defineComponent({
-  props: {
-    active: { type: Boolean, default: false },
-  },
-  inheritAttrs: false,
-  setup() {
-    const { cx } = useBindCx()
-    return { cx, variants }
-  },
-  template: `<div v-bind="cx(variants({ active }))">MockComponent</div>`,
-})
-
-/**
- * Provides a wrapper around the `cx` function that merges the
- * component's class attribute with the provided classes.
- *
- * This allows you to override tailwind classes from the parent component and `cx`
- * will intelligently merge them while passing through other attributes.
- *
- * ### Example
- *
- * Scroll down for a working playground which mounts `MockComponent`.
- *
- * ```html
- * <script setup>
- * import { useBindCx, cva } from '@scalar/components'
- *
- * defineProps<{ active?: boolean }>()
- *
- * // Important: disable inheritance of attributes
- * defineOptions({ inheritAttrs: false })
- *
- * const { cx } = useBindCx()
- *
- * const variants = cva({
- *   base: 'border rounded p-2 bg-b-1',
- *   variants: { active: { true: 'bg-b-2' } },
- * })
- * </script>
- * <template>
- *   <div v-bind="cx(variants({ active }))">MockComponent</div>
- * </template>
- * ```
- */
 const meta = {
-  tags: ['autodocs'],
+  title: 'Playgrounds / useBindCx',
+  tags: ['!dev'],
   argTypes: {
     active: { control: 'boolean', description: 'Applies the active variant' },
     class: { control: 'text', description: 'Additional classes to apply' },
@@ -113,4 +64,4 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Base: Story = {}
+export const Playground: Story = {}

@@ -1,0 +1,42 @@
+import { Meta, Canvas, Controls, Story } from '@storybook/blocks'
+import * as Stories from './useBindCx.stories';
+
+<Meta title="Playgrounds / useBindCx" of={Stories} />
+
+# Scalar useBindCx Hook
+
+Provides a wrapper around the `cx` function that merges the component's class attribute with the provided classes.
+
+This allows you to override tailwind classes from the parent component and `cx` will intelligently merge them while passing through other attributes.
+
+## Example
+
+This mock component uses the `useBindCx` hook to merge the component's class attribute with a set of variants created with the `cva` function.
+
+```html
+<script setup>
+import { useBindCx, cva } from '@scalar/components'
+
+defineProps<{ active?: boolean }>()
+
+// Important: disable inheritance of attributes
+defineOptions({ inheritAttrs: false })
+
+const { cx } = useBindCx()
+
+const variants = cva({
+  base: 'border rounded p-2 bg-b-1',
+  variants: { active: { true: 'bg-b-2' } },
+})
+</script>
+<template>
+  <div v-bind="cx(variants({ active }))">MockComponent</div>
+</template>
+```
+
+Adjust the class and attributes below to see how the `cx` function merges the component's class attribute with the provided classes.
+
+<Controls />
+<Canvas of={Stories.Playground} />
+
+
