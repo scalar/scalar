@@ -1,13 +1,6 @@
 import { computed } from 'vue'
-
+import type { ScalarIconProps, ScalarIconWeight } from '@/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-
-export type ScalarIconWeight = 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone'
-
-export type ScalarIconProps = {
-  label?: string
-  weight?: ScalarIconWeight
-}
 
 const defaultWeight: ScalarIconWeight = 'regular' as const
 

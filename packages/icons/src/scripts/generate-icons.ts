@@ -27,7 +27,10 @@ const mappings = readFiles()
 
 // Temporary restriction to only generate the magnifying glass icon
 // TODO: remove this once we want to generate all icons
-const mapping = { 'magnifying-glass': mappings['magnifying-glass'] }
+const mapping = {
+  'airplane': mappings['airplane'],
+  'magnifying-glass': mappings['magnifying-glass'],
+}
 
 generateComponents(mapping)
 generateExports(mapping)
@@ -113,8 +116,8 @@ export default {
 }
 </script>
 <script lang="ts" setup>
-import { computed } from 'vue'
-import { type ScalarIconProps, useScalarIcon } from '../useScalarIcon'
+import { useScalarIcon } from '@/hooks'
+import type { ScalarIconProps } from '@/types'
 
 const props = defineProps<ScalarIconProps>()
 
