@@ -6,6 +6,11 @@
 }
 .scalar-api-reference {
   --refs-header-height: var(--ifm-navbar-height);
+  /* Reset font size on h2 */
+  h2 {
+    font-size: unset;
+    margin: unset;
+  }
 }
 .scalar-api-reference.references-sidebar {
   --refs-sidebar-width: 300px;
