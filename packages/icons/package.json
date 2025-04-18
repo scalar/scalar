@@ -18,7 +18,7 @@
     "build": "scalar-build-vite",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
-    "generate:icons": "vite-node ./src/scripts/generate-icons.ts",
+    "generate:icons": "vite-node ./src/scripts/generate-icons.ts && pnpm format",
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
