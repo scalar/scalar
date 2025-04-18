@@ -86,11 +86,14 @@ const themeStyleTag = computed(
 @import '@scalar/themes/style.css';
 @import '@/tailwind/tailwind.css';
 
-/** Add background for iOS and Safari scroll overflow */
 html,
 body {
-  background-color: var(--scalar-background-1);
   overscroll-behavior: none;
+}
+
+/** Add background for iOS and Safari scroll overflow */
+body {
+  background-color: var(--scalar-background-1);
 }
 
 #scalar-client {
