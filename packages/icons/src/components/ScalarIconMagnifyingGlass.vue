@@ -7,7 +7,7 @@ export default {
 <script lang="ts" setup>
 import { computed } from 'vue'
 
-import { useScalarIcon, type ScalarIconProps } from '../useScalarIcon'
+import { useScalarIcon, type ScalarIconProps } from '../hooks/useScalarIcon'
 
 const props = defineProps<ScalarIconProps>()
 
