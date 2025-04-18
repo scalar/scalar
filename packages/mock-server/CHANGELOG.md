@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.3.17
+
+### Patch Changes
+
+- abad2e9: feat: use `"string"` as the fallback for string examples (not `"…"`)
+
 ## 0.3.16
 
 ### Patch Changes

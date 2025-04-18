@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.28.23
+
+### Patch Changes
+
+- 363276e: feat(icons): add Phosphor icons to @scalar/icons
+- 28f9909: fix: overflow scrolling on any of discriminator
+- abad2e9: feat: use `"string"` as the fallback for string examples (not `"…"`)
+- Updated dependencies [363276e]
+- Updated dependencies [85163e7]
+- Updated dependencies [301cf13]
+- Updated dependencies [85163e7]
+- Updated dependencies [a9f232a]
+  - @scalar/icons@0.2.0
+  - @scalar/api-client@2.3.23
+  - @scalar/components@0.13.50
+  - @scalar/use-hooks@0.1.42
+
 ## 1.28.22
 
 ### Patch Changes
