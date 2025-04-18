@@ -4,6 +4,7 @@ import * as icons from '@scalar/icons'
 
 const meta = {
   title: 'Playgrounds / Scalar Icons',
+  tags: ['!dev'],
   args: {
     icon: 'ScalarIconMagnifyingGlass',
   },
@@ -24,13 +25,13 @@ const meta = {
     setup() {
       return { args }
     },
-    template: `<component :is="args.icon" size="lg" v-bind="args"/>`,
+    template: `<component :is="args.icon" v-bind="args"/>`,
   }),
 } satisfies Meta
 
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Base: Story = {
+export const Playground: Story = {
   args: {},
 }
