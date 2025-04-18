@@ -27,6 +27,7 @@ const availableIntegrationIcons: Exclude<
   'nitro',
   'nuxt',
   'platformatic',
+  'svelte',
   'react',
   'rust',
 ]
