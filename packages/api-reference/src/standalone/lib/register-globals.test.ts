@@ -11,4 +11,28 @@ describe('registerGlobals', () => {
     expect(window.Scalar.createApiReference).toStrictEqual(createApiReference)
     expect(window.Scalar.createApiReference('#something', {})).toBeDefined()
   })
+
+  it('registers a default app instance globally', () => {
+    registerGlobals()
+
+    expect(window.Scalar.createApiReference('#something', {})).toBeDefined()
+    expect(window.Scalar.apps['default']).toMatchObject({
+      app: expect.any(Object),
+      destroy: expect.any(Function),
+      getConfiguration: expect.any(Function),
+      updateConfiguration: expect.any(Function),
+    })
+  })
+
+  it('registers a named app instance globally', () => {
+    registerGlobals()
+
+    expect(window.Scalar.createApiReference('#something', {}, 'my-app')).toBeDefined()
+    expect(window.Scalar.apps['my-app']).toMatchObject({
+      app: expect.any(Object),
+      destroy: expect.any(Function),
+      getConfiguration: expect.any(Function),
+      updateConfiguration: expect.any(Function),
+    })
+  })
 })

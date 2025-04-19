@@ -6,7 +6,7 @@ export { SearchButton, SearchModal } from '@/features/Search'
 export { default as GettingStarted } from '@/components/GettingStarted.vue'
 
 export { useReactiveSpec } from '@/hooks/useReactiveSpec'
-export { type ApiReferenceInstance, createApiReference } from '@/standalone/lib/html-api'
+export { createApiReference } from '@/standalone/lib/html-api'
 
 export { Sidebar } from '@/components/Sidebar'
 export { Card, CardHeader, CardContent, CardFooter, CardTabHeader, CardTab } from '@/components/Card'
