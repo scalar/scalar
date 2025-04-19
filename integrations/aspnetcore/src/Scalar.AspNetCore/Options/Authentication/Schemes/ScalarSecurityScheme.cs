@@ -6,6 +6,6 @@ namespace Scalar.AspNetCore;
 /// Represents the base class for security schemes in Scalar.
 /// </summary>
 [JsonDerivedType(typeof(ScalarHttpSecurityScheme))]
-[JsonDerivedType(typeof(ScalarHeaderSecurityScheme))]
+[JsonDerivedType(typeof(ScalarApiKeySecurityScheme))]
 [JsonDerivedType(typeof(ScalarOAuth2SecurityScheme))]
 public abstract class ScalarSecurityScheme;

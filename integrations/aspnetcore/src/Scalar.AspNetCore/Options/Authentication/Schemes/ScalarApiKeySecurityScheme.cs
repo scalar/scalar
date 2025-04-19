@@ -7,7 +7,7 @@ namespace Scalar.AspNetCore;
 /// This scheme is used to prefill or overwrite HTTP header values for authentication purposes
 /// when making API requests. It allows specifying a custom header name and value pair.
 /// </remarks>
-public sealed class ScalarHeaderSecurityScheme : ScalarSecurityScheme
+public sealed class ScalarApiKeySecurityScheme : ScalarSecurityScheme
 {
     /// <summary>
     /// Gets or sets the name of the HTTP header to be used for authentication.

@@ -586,18 +586,18 @@ public static class ScalarOptionsExtensions
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
     /// <param name="configureAuth">An action to configure the API key authentication.</param>
-    public static ScalarOptions AddApiKeyAuthentication(this ScalarOptions options, string securitySchemeName, Action<ScalarHeaderSecurityScheme> configureAuth)
+    public static ScalarOptions AddApiKeyAuthentication(this ScalarOptions options, string securitySchemeName, Action<ScalarApiKeySecurityScheme> configureAuth)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
         options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
 
-        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) && existingScheme is ScalarHeaderSecurityScheme existingHttpScheme)
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) && existingScheme is ScalarApiKeySecurityScheme existingHttpScheme)
         {
             configureAuth(existingHttpScheme);
             return options;
         }
         
-        var headerScheme = new ScalarHeaderSecurityScheme();
+        var headerScheme = new ScalarApiKeySecurityScheme();
         configureAuth(headerScheme);
 
         options.Authentication.SecuritySchemes[securitySchemeName] = headerScheme;

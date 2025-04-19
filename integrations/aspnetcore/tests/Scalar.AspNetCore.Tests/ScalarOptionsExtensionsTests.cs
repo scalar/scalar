@@ -317,8 +317,8 @@ public class ScalarOptionsExtensionsTests
         options.Authentication.Should().NotBeNull();
         options.Authentication!.SecuritySchemes.Should().ContainKey("apiKeyScheme");
         var scheme = options.Authentication!.SecuritySchemes["apiKeyScheme"];
-        scheme.Should().BeOfType<ScalarHeaderSecurityScheme>();
-        var apiKeyScheme = scheme as ScalarHeaderSecurityScheme;
+        scheme.Should().BeOfType<ScalarApiKeySecurityScheme>();
+        var apiKeyScheme = scheme as ScalarApiKeySecurityScheme;
         apiKeyScheme!.Name.Should().Be("X-API-KEY");
         apiKeyScheme.Value.Should().Be("my-api-key");
     }
@@ -390,7 +390,7 @@ public class ScalarOptionsExtensionsTests
 
         // Assert
         options.Authentication!.SecuritySchemes.Should().ContainKeys("apiKey", "basicAuth", "oauth2");
-        options.Authentication!.SecuritySchemes["apiKey"].Should().BeOfType<ScalarHeaderSecurityScheme>();
+        options.Authentication!.SecuritySchemes["apiKey"].Should().BeOfType<ScalarApiKeySecurityScheme>();
         options.Authentication!.SecuritySchemes["basicAuth"].Should().BeOfType<ScalarHttpSecurityScheme>();
         options.Authentication!.SecuritySchemes["oauth2"].Should().BeOfType<ScalarOAuth2SecurityScheme>();
 
