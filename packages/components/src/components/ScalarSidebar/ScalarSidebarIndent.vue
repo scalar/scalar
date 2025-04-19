@@ -8,9 +8,9 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed } from 'vue'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import type { SidebarGroupLevel } from './useSidebarGroups'
 
 const { indent = 0, selected = false } = defineProps<{

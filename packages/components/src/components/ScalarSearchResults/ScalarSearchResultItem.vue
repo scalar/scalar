@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
 defineProps<{
@@ -36,7 +37,7 @@ const { cx } = useBindCx()
     <div class="flex min-w-0 flex-1 flex-col gap-0.75">
       <div class="flex items-center gap-1">
         <div
-          class="flex-1 truncate zoomed:!whitespace-normal text-sm font-medium">
+          class="flex-1 truncate zoomed:!whitespace-normal break-words text-sm font-medium">
           <slot />
         </div>
         <div
@@ -47,7 +48,7 @@ const { cx } = useBindCx()
       </div>
       <div
         v-if="$slots.description"
-        class="truncate zoomed:!whitespace-normal text-sm text-c-2">
+        class="truncate zoomed:!whitespace-normal break-words text-sm text-c-2">
         <slot name="description" />
       </div>
     </div>

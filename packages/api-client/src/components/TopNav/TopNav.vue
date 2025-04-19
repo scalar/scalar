@@ -7,7 +7,7 @@ import {
   ScalarIcon,
   type Icon,
 } from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
+import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'

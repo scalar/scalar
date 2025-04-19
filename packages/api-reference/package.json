@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.28.19",
+  "version": "1.28.23",
   "engines": {
     "node": ">=18"
   },
@@ -34,10 +34,10 @@
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
+    "playground:components": "vite ./playground/components -c ./playground/components/vite.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "playground:ssr": "cd ./playground/ssr && pnpm dev",
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
-    "playground:components": "vite ./playground/components -c ./playground/components/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
@@ -70,6 +70,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",

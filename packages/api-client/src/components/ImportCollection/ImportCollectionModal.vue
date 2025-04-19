@@ -351,7 +351,7 @@ function handleImportFinished() {
     overflow-x: hidden;
     contain: paint;
   }
-  .has-no-import-url {
+  .has-no-import-url .scalar-client > main {
     opacity: 1;
     background: var(--scalar-background-1);
     animation: transform-restore-layout ease-in-out 0.3s forwards;

@@ -1,4 +1,4 @@
-import type { IconDefinition } from '@/types'
+import type { LibraryIconDefinition } from './types'
 import type { Component } from 'vue'
 
 const iconsImported: Record<string, Component> = import.meta.glob('./icons/*.svg', {
@@ -10,7 +10,7 @@ function mapLocalIcons(imported: Record<string, Component>) {
     // Create a name from the import path
     const name = filename.replace('./icons/', '').replace('.svg', '')
 
-    const icon: IconDefinition = {
+    const icon: LibraryIconDefinition = {
       // Prefix the src with the group so that the final flat icon map has unique keys
       src: name,
       title: name.replaceAll('-', ' '),
@@ -34,7 +34,7 @@ function mapLocalIcons(imported: Record<string, Component>) {
 const icons = mapLocalIcons(iconsImported)
 
 /** Icon list for icon selector */
-export const libraryIcons: IconDefinition[] = icons.iconDefinitionList
+export const libraryIcons: LibraryIconDefinition[] = icons.iconDefinitionList
 
 /** Raw SVG strings */
 const iconData: Record<string, Component> = icons.iconDataMap

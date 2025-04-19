@@ -780,7 +780,7 @@ Or specify a custom function to sort the operations.
 
 You don't like the color scheme? We've prepared some themes for you:
 
-Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **none**
+Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, **bluePlanet**, **saturn**, **kepler**, **mars**, **deepSpace**, **laserwave**, **none**
 
 ```js
 {

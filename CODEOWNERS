@@ -18,6 +18,7 @@
 /packages/api-client @amritk @hanspagel
 /packages/api-reference-editor @geoffgscott
 /packages/components @hwkr
+/packages/icons @hwkr
 /packages/galaxy @hanspagel
 /packages/oas-utils @amritk @hanspagel
 /packages/themes @hwkr @cameronrohani
@@ -34,7 +35,7 @@
 # /packages/use-modal
 /packages/build-watch @geoffgscott
 /integrations/nestjs @marclave
-/integrations/aspnetcore @marclave @hanspagel
+/integrations/aspnetcore @marclave @hanspagel @xC0dex
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk

@@ -175,6 +175,7 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+          type="password"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
           Value
         </RequestAuthDataTableInput>
@@ -224,7 +225,7 @@ const dataTableInputProps = {
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm">
+        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
         Coming soon
       </div>
     </template>

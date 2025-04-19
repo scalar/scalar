@@ -1,6 +1,6 @@
 {
   "name": "@scalar/icons",
-  "description": "Scalar’s icon library",
+  "description": "Scalar Icons",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -10,20 +10,21 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.1.3",
+  "version": "0.2.0",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm update:icons && pnpm prettier --write README.md && scalar-build-vite",
+    "build": "scalar-build-vite",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
+    "generate:icons": "vite-node ./src/scripts/generate-icons.ts && pnpm format",
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
-    "lint:icons": "svglint src/icons/*.svg --config .svglintrc.js",
+    "lint:icons": "svglint src/library/icons/*.svg --config src/library/.svglintrc.js",
+    "test": "vitest",
     "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue",
-    "update:icons": "vite-node ./scripts/update-list-of-icons.ts"
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "./dist/index.cjs",
@@ -32,6 +33,10 @@
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./library": {
+      "import": "./dist/library/index.js",
+      "require": "./dist/library/index.cjs"
     }
   },
   "files": [
@@ -39,13 +44,20 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "@phosphor-icons/core": "^2.1.1",
+    "@scalar/use-hooks": "workspace:*",
+    "@types/node": "catalog:",
+    "chalk": "^5.4.1",
     "vue": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:",
+    "@vue/test-utils": "^2.4.1",
+    "jsdom": "^22.1.0",
     "svglint": "^2.7.1",
     "vite": "catalog:",
-    "vite-svg-loader": "^5.1.0"
+    "vite-svg-loader": "^5.1.0",
+    "vitest": "catalog:"
   }
 }

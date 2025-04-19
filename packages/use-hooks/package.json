@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.1.40",
+  "version": "0.1.42",
   "engines": {
     "node": ">=18"
   },
@@ -28,6 +28,11 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
+    "./useBindCx": {
+      "import": "./dist/useBindCx/index.js",
+      "types": "./dist/useBindCx/index.d.ts",
+      "default": "./dist/useBindCx/index.js"
+    },
     "./useBreakpoints": {
       "import": "./dist/useBreakpoints/index.js",
       "types": "./dist/useBreakpoints/index.d.ts",
@@ -52,12 +57,15 @@
     "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "catalog:",
+    "cva": "1.0.0-beta.2",
+    "tailwind-merge": "^2.5.5",
     "vue": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:",
+    "@vue/test-utils": "^2.4.1",
     "vite": "catalog:",
     "zod-to-ts": "^1.2.0"
   }

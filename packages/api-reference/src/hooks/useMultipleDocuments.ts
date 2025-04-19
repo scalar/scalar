@@ -197,6 +197,11 @@ export const useMultipleDocuments = ({
       const url = new URL(window.location.href)
       const selectedDefinition = availableDocuments.value[value]
 
+      // Clear path if pathRouting is enabled
+      if (selectedConfiguration.value.pathRouting) {
+        url.pathname = selectedConfiguration.value.pathRouting?.basePath ?? ''
+      }
+
       // Use slug if available, then fallback to index
       const parameterValue = selectedDefinition?.slug ?? value.toString()
 

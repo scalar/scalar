@@ -18,8 +18,8 @@ export default {}
 </script>
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarDropdownMenu from './ScalarDropdownMenu.vue'
 

@@ -1,5 +1,72 @@
 # @scalar/api-client
 
+## 2.3.23
+
+### Patch Changes
+
+- 363276e: feat(icons): add Phosphor icons to @scalar/icons
+- 85163e7: fix: accidental collection creation on paste in codemirror
+- 301cf13: fix: prevents paste event from code mirrro instance
+- 85163e7: fix: incorrect stream reader
+- Updated dependencies [363276e]
+- Updated dependencies [a9f232a]
+  - @scalar/icons@0.2.0
+  - @scalar/components@0.13.50
+  - @scalar/use-hooks@0.1.42
+  - @scalar/use-codemirror@0.11.95
+
+## 2.3.22
+
+### Patch Changes
+
+- e489824: feat: added support for streaming text response
+- Updated dependencies [e489824]
+- Updated dependencies [cdaafe4]
+  - @scalar/oas-utils@0.2.133
+  - @scalar/components@0.13.49
+  - @scalar/import@0.3.16
+  - @scalar/postman-to-openapi@0.2.6
+  - @scalar/use-codemirror@0.11.94
+
+## 2.3.21
+
+### Patch Changes
+
+- c5047ee: fix: hotfix to revert the external reference commit
+- Updated dependencies [c5047ee]
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/oas-utils@0.2.132
+  - @scalar/import@0.3.15
+  - @scalar/postman-to-openapi@0.2.5
+
+## 2.3.20
+
+### Patch Changes
+
+- e3ed7a2: fix: updates duplicated border and alignment style"
+- 71d06d8: feat: mask api key value in authentication section
+- e30339c: fix: updates collection style
+- feaa314: feat(themes): add laserwave theme
+- 03198df: fix: updates request body vendor specific json type support
+- ba8e37e: fix: updates arrow key handler function
+- f4e1402: fix: increases request sidebar collection click area
+- e30339c: fix: updates request auth layout in request auth to display options in collection level
+- 4abe4f8: feat: external $ref’s (absolute and relative URLs)
+- Updated dependencies [4abe4f8]
+- Updated dependencies [feaa314]
+- Updated dependencies [feaa314]
+- Updated dependencies [4abe4f8]
+  - @scalar/openapi-parser@0.10.15
+  - @scalar/themes@0.10.0
+  - @scalar/types@0.1.8
+  - @scalar/oas-utils@0.2.131
+  - @scalar/import@0.3.14
+  - @scalar/components@0.13.48
+  - @scalar/use-codemirror@0.11.93
+  - @scalar/use-hooks@0.1.41
+  - @scalar/snippetz@0.2.19
+  - @scalar/postman-to-openapi@0.2.4
+
 ## 2.3.19
 
 ### Patch Changes

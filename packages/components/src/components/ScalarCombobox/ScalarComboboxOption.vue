@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { cva, cx } from '../../cva'
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
+
 import { ScalarIcon } from '../ScalarIcon'
 import {
   ScalarListboxCheckbox,

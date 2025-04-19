@@ -12,7 +12,7 @@
 export default {}
 </script>
 <script lang="ts" setup>
-import { useBindCx } from '../../hooks/useBindCx'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()

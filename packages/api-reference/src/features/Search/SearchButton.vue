@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon, useModal } from '@scalar/components'
+import { useModal } from '@scalar/components'
+import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -63,11 +64,9 @@ function handleClick() {
     role="search"
     type="button"
     @click="handleClick">
-    <ScalarIcon
+    <ScalarIconMagnifyingGlass
       class="scalar-search-icon"
-      icon="Search"
-      size="sm"
-      thickness="2.5" />
+      weight="bold" />
     <div class="sidebar-search-input">
       <span class="sr-only">Open Search</span>
       <span
@@ -142,6 +141,8 @@ function handleClick() {
 .scalar-search-icon {
   padding: 0;
   margin-right: 6px;
+  flex-shrink: 0;
   width: 12px;
+  height: 12px;
 }
 </style>

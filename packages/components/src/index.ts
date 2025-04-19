@@ -28,6 +28,5 @@ export * from './components/ScalarToggle'
 export * from './components/ScalarTooltip'
 export * from './components/ScalarVirtualText'
 
-export * from './hooks/useBindCx'
-export * from './cva'
+export { useBindCx, cva, cx, compose, tw } from '@scalar/use-hooks/useBindCx'
 export * from './helpers'

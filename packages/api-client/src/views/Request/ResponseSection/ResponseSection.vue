@@ -13,6 +13,7 @@ import type { SendRequestResult } from '@/libs/send-request/create-request-opera
 
 import RequestHeaders from './RequestHeaders.vue'
 import ResponseBody from './ResponseBody.vue'
+import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
 import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseEmpty from './ResponseEmpty.vue'
@@ -74,7 +75,7 @@ const filterIds = computed(
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
 const shouldVirtualize = computed(() => {
-  if (!response) {
+  if (!response || !('size' in response)) {
     return false
   }
 
@@ -196,15 +197,23 @@ const requestHeaders = computed(
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
         <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
+          <!-- Streaming response body -->
+          <ResponseBodyStreaming
+            v-if="'reader' in response"
+            class="response-section-content-body"
+            :id="filterIds.Body"
+            :reader="response.reader" />
+
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
-            v-if="shouldVirtualize && typeof response?.data === 'string'"
+            v-else-if="shouldVirtualize && typeof response?.data === 'string'"
             :id="filterIds.Body"
             :content="response!.data"
             :data="response?.data"
             :headers="responseHeaders"
             :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
 
+          <!-- Regular response body -->
           <ResponseBody
             class="response-section-content-body"
             v-else

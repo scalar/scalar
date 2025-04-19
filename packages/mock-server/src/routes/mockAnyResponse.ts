@@ -61,7 +61,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
     ? acceptedResponse.example
     : acceptedResponse?.schema
       ? getExampleFromSchema(acceptedResponse.schema, {
-          emptyString: '…',
+          emptyString: 'string',
           variables: c.req.param(),
           mode: 'read',
         })

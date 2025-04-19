@@ -78,7 +78,7 @@ However, sometimes you need to override the default styles. Most components (soo
   class="size-24" />
 ```
 
-This will apply the `size-24` class to the icon and remove the `size-full` class that would normally be applied by default. For more information see the [useBindCx](https://github.com/scalar/scalar/blob/main/packages/components/src/hooks/useBindCx.ts) function.
+This will apply the `size-24` class to the icon and remove the `size-full` class that would normally be applied by default. For more information see the [useBindCx](https://github.com/scalar/scalar/blob/main/packages/use-hooks/src/useBindCx/useBindCx.ts) function.
 
 ## Floating Components
 

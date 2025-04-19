@@ -77,7 +77,8 @@ const humanizeType = (type: string) => {
         <TabList
           class="discriminator-tab-list py-1.25 flex flex-col gap-1 rounded-t-lg border border-b-0 px-2 pr-3">
           <span class="text-c-3">{{ humanizeType(discriminator) }}</span>
-          <div class="flex items-center gap-1.5">
+          <div
+            class="custom-scroll flex items-center gap-1.5 !overflow-y-hidden">
             <Tab
               v-for="(schema, index) in value[discriminator]"
               :key="index"

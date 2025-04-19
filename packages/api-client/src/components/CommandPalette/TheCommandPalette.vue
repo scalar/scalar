@@ -235,9 +235,41 @@ const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
   selectedSearchResult.value =
     (selectedSearchResult.value + offset + length) % length
 
-  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'nearest',
+  nextTick(() => {
+    const container = commandInputRef.value?.closest('.custom-scroll')
+    if (!container) return
+
+    // Scroll to the top if the first command is selected
+    if (selectedSearchResult.value === 0) {
+      container.scrollTop = 0
+      return
+    }
+
+    // Scroll to the selected command
+    const commandElement = commandRefs.value[selectedSearchResult.value]
+    if (!commandElement) return
+
+    // Set the height of the sticky header and the bottom margin
+    const stickyHeaderHeight =
+      (container.querySelector('.sticky')?.clientHeight || 0) + 16
+    const bottomMargin = 6
+
+    // Get the top and bottom of the command element
+    const elementTop = commandElement.offsetTop
+    const elementBottom = elementTop + commandElement.clientHeight
+
+    // Get the top and bottom of the viewport
+    const viewportTop = container.scrollTop + stickyHeaderHeight
+    const viewportBottom =
+      container.scrollTop + container.clientHeight - bottomMargin
+
+    // Scroll to the command if it's not in the viewport
+    if (elementTop < viewportTop) {
+      container.scrollTop = elementTop - stickyHeaderHeight
+    } else if (elementBottom > viewportBottom) {
+      container.scrollTop =
+        elementBottom - container.clientHeight + bottomMargin
+    }
   })
 }
 
@@ -330,13 +362,18 @@ onBeforeUnmount(() => {
             {{ group.label }}
           </div>
           <div
-            v-for="(command, index) in group.commands.filter((command) =>
+            v-for="command in group.commands.filter((command) =>
               command.name.toLowerCase().includes(commandQuery.toLowerCase()),
             )"
             :key="command.name"
             :ref="
               (el) => {
-                if (el) commandRefs[index] = el as HTMLElement
+                if (el) {
+                  const index = searchResultsWithPlaceholderResults.findIndex(
+                    (c) => c.name === command.name,
+                  )
+                  if (index !== -1) commandRefs[index] = el as HTMLElement
+                }
               }
             "
             class="commandmenu-item hover:bg-b-2 flex cursor-pointer items-center rounded px-2 py-1.5 text-sm"

@@ -1,5 +1,30 @@
 # @scalar/components
 
+## 0.13.50
+
+### Patch Changes
+
+- 363276e: feat(icons): add Phosphor icons to @scalar/icons
+- a9f232a: fix(components): break words when wrapping search results
+- Updated dependencies [363276e]
+  - @scalar/icons@0.2.0
+  - @scalar/use-hooks@0.1.42
+
+## 0.13.49
+
+### Patch Changes
+
+- cdaafe4: fix(components): alert when no results found in search
+
+## 0.13.48
+
+### Patch Changes
+
+- Updated dependencies [feaa314]
+  - @scalar/themes@0.10.0
+  - @scalar/code-highlight@0.0.27
+  - @scalar/use-hooks@0.1.41
+
 ## 0.13.47
 
 ### Patch Changes

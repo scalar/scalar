@@ -1,7 +1,7 @@
 import type { CXOptions } from 'cva'
 import { computed, useAttrs } from 'vue'
 
-import { cx } from '../cva'
+import { cx } from './cva'
 
 /**
  * Provides a wrapper around the `cx` function that merges the

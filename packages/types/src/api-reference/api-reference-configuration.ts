@@ -18,6 +18,7 @@ const themeIdEnum = z.enum([
   'elysiajs',
   'fastify',
   'mars',
+  'laserwave',
   'none',
 ])
 

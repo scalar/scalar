@@ -179,13 +179,17 @@ export const createRequestOperation = ({
           signal: controller.signal,
         })
 
+        /**
+         * Checks if the response is streaming
+         * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
+         * content-type === 'text/plain' and transfer-encoding === 'chunked'
+         */
+        const isStreaming = response.headers.get('content-type')?.includes('stream')
+
         status?.emit('stop')
 
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-        const arrayBuffer = await response.arrayBuffer()
-        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         // Safely check for cookie headers
         // TODO: polyfill
@@ -193,6 +197,30 @@ export const createRequestOperation = ({
           'getSetCookie' in response.headers && typeof response.headers.getSetCookie === 'function'
             ? response.headers.getSetCookie()
             : []
+
+        // We want to return the response so that it can be streamed
+        if (isStreaming && response.body) {
+          return [
+            null,
+            {
+              timestamp: Date.now(),
+              request: example,
+              response: {
+                ...response,
+                headers: responseHeaders,
+                cookieHeaderKeys,
+                reader: response.body?.getReader(),
+                duration: Date.now() - startTime,
+                method: request.method,
+                status: response.status,
+                path: pathString,
+              },
+            },
+          ]
+        }
+
+        const arrayBuffer = await response.arrayBuffer()
+        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         return [
           null,

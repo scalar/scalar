@@ -249,13 +249,18 @@ const getBodyType = (type: Content) => {
       header: 'application/octet-stream',
     } as const
   }
-  if (type === 'json' || type.endsWith('+json')) {
+  if (type === 'json') {
+    const contentTypes = Object.keys(operation.requestBody?.content ?? {})
+
+    // Gets json content types including vendor specific ones
+    const jsonContentType =
+      contentTypes.find((t) => t.includes('json') || t.endsWith('+json')) ||
+      'application/json'
+
     return {
       activeBody: 'raw',
       encoding: 'json',
-      header: type.endsWith('+json')
-        ? `application/${type}`
-        : 'application/json',
+      header: jsonContentType,
     } as const
   }
   if (type === 'xml') {

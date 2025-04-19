@@ -4,7 +4,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 
 ```vue
 /* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' |
-'bluePlanet' | 'saturn' | 'kepler' | 'mars' | 'deepSpace' | 'none' */
+'bluePlanet' | 'saturn' | 'kepler' | 'mars' | 'deepSpace' | laserwave | 'none' */
 <ApiReference :configuration="{ theme: 'moon' }" />
 ```
 

@@ -10,10 +10,10 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { cva } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
-import { cva } from '../../cva'
-import { useBindCx } from '../../hooks/useBindCx'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
 const {
