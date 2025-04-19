@@ -3,6 +3,7 @@ namespace Scalar.AspNetCore;
 /// <summary>
 /// Represents the options for HTTP bearer authentication.
 /// </summary>
+[Obsolete("This class is obsolete and will be removed in a future release. Use AddHttpBasicAuthentication with ScalarHttpSecurityScheme instead.")]
 public sealed class HttpBearerOptions
 {
     /// <summary>

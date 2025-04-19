@@ -327,6 +327,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="apiKeyOptions">The API key options to set.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddApiKeyAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddApiKeyAuthentication instead.")]
     public static ScalarOptions WithApiKeyAuthentication(this ScalarOptions options, ApiKeyOptions apiKeyOptions)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
@@ -339,6 +343,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureApiKeyOptions">The action to configure the API key options.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddApiKeyAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddApiKeyAuthentication instead.")]
     public static ScalarOptions WithApiKeyAuthentication(this ScalarOptions options, Action<ApiKeyOptions> configureApiKeyOptions)
     {
         var apiKeyOptions = new ApiKeyOptions();
@@ -351,6 +359,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="oauth2Options">The OAuth2 options to set.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddClientCredentialsFlow" /> or <see cref="AddAuthorizationCodeFlow" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsAuthentication or AddAuthorizationCodeAuthentication instead.")]
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, OAuth2Options oauth2Options)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
@@ -363,6 +375,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureOAuth2Options">The action to configure the OAuth2 options.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddClientCredentialsFlow" /> or <see cref="AddAuthorizationCodeFlow" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsAuthentication or AddAuthorizationCodeAuthentication instead.")]
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, Action<OAuth2Options> configureOAuth2Options)
     {
         var oauth2Options = new OAuth2Options();
@@ -375,6 +391,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="httpBasicOptions">The HTTP basic options to set.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddHttpAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddHttpBasicAuthentication instead.")]
     public static ScalarOptions WithHttpBasicAuthentication(this ScalarOptions options, HttpBasicOptions httpBasicOptions)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
@@ -388,6 +408,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureHttpBasicOptions">The action to configure the HTTP basic options.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddHttpAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddHttpBasicAuthentication instead.")]
     public static ScalarOptions WithHttpBasicAuthentication(this ScalarOptions options, Action<HttpBasicOptions> configureHttpBasicOptions)
     {
         var httpBasicOptions = new HttpBasicOptions();
@@ -400,6 +424,10 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="httpBearerOptions">The HTTP bearer options to set.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddHttpAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddHttpAuthentication instead.")]
     public static ScalarOptions WithHttpBearerAuthentication(this ScalarOptions options, HttpBearerOptions httpBearerOptions)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
@@ -413,11 +441,194 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureHttpBearerOptions">The action to configure the HTTP bearer options.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Use <see cref="AddHttpAuthentication" /> instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddHttpAuthentication instead.")]
     public static ScalarOptions WithHttpBearerAuthentication(this ScalarOptions options, Action<HttpBearerOptions> configureHttpBearerOptions)
     {
         var httpBearerOptions = new HttpBearerOptions();
         configureHttpBearerOptions(httpBearerOptions);
         return options.WithHttpBearerAuthentication(httpBearerOptions);
+    }
+
+    /// <summary>
+    /// Sets default scopes to be requested for a specific OAuth2 security scheme during authentication.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="scopes">A collection of scopes to request by default.</param>
+    /// <remarks>
+    /// Default scopes are pre-selected in the UI when the user initiates an OAuth2 authentication flow.
+    /// If the specified security scheme does not exist, a new one will be created.
+    /// </remarks>
+    public static ScalarOptions AddDefaultScopes(this ScalarOptions options, string securitySchemeName, params IEnumerable<string> scopes)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
+
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) && existingScheme is ScalarOAuth2SecurityScheme existingOAuth2Scheme)
+        {
+            existingOAuth2Scheme.DefaultScopes = scopes;
+            return options;
+        }
+
+        options.Authentication.SecuritySchemes[securitySchemeName] = new ScalarOAuth2SecurityScheme
+        {
+            DefaultScopes = scopes
+        };
+
+        return options;
+    }
+
+    /// <summary>
+    /// Adds OAuth2 authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlows">An action to configure the OAuth2 flows.</param>
+    /// <remarks>
+    /// This method allows you to configure different OAuth2 flows for the specified security scheme.
+    /// If the security scheme already exists and is an OAuth2 scheme, the existing configuration will be updated.
+    /// </remarks>
+    public static ScalarOptions AddOAuth2Authentication(this ScalarOptions options, string securitySchemeName, Action<ScalarFlows> configureFlows)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
+
+
+        // Check if the security scheme already exists
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) &&
+            existingScheme is ScalarOAuth2SecurityScheme existingOAuth2Scheme)
+        {
+            // If it exists and is an OAuth2 scheme, configure the existing flows
+            existingOAuth2Scheme.Flows ??= new ScalarFlows();
+            configureFlows(existingOAuth2Scheme.Flows);
+            return options;
+        }
+
+        // If it doesn't exist or is not an OAuth2 scheme, create a new one
+        var flows = new ScalarFlows();
+        configureFlows(flows);
+
+        options.Authentication.SecuritySchemes[securitySchemeName] = new ScalarOAuth2SecurityScheme
+        {
+            Flows = flows
+        };
+
+        return options;
+    }
+
+    /// <summary>
+    /// Adds OAuth2 client credentials authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the flow.</param>
+    public static ScalarOptions AddClientCredentialsFlow(this ScalarOptions options, string securitySchemeName, Action<ClientCredentialsFlow> configureFlow)
+    {
+        return options.AddOAuth2Authentication(securitySchemeName, flows =>
+        {
+            flows.ClientCredentials ??= new ClientCredentialsFlow();
+            configureFlow(flows.ClientCredentials);
+        });
+    }
+
+
+    /// <summary>
+    /// Adds OAuth2 authorization code authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the flow.</param>
+    public static ScalarOptions AddAuthorizationCodeFlow(this ScalarOptions options, string securitySchemeName, Action<AuthorizationCodeFlow> configureFlow)
+    {
+        return options.AddOAuth2Authentication(securitySchemeName, flows =>
+        {
+            flows.AuthorizationCode ??= new AuthorizationCodeFlow();
+            configureFlow(flows.AuthorizationCode);
+        });
+    }
+
+    /// <summary>
+    /// Adds OAuth2 implicit flow authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the implicit flow.</param>
+    public static ScalarOptions AddImplicitFlow(this ScalarOptions options, string securitySchemeName, Action<ImplicitFlow> configureFlow)
+    {
+        return options.AddOAuth2Authentication(securitySchemeName, flows =>
+        {
+            flows.Implicit ??= new ImplicitFlow();
+            configureFlow(flows.Implicit);
+        });
+    }
+
+    /// <summary>
+    /// Adds OAuth2 password flow authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureFlow">An action to configure the password flow.</param>
+    public static ScalarOptions AddPasswordFlow(this ScalarOptions options, string securitySchemeName, Action<PasswordFlow> configureFlow)
+    {
+        return options.AddOAuth2Authentication(securitySchemeName, flows =>
+        {
+            flows.Password ??= new PasswordFlow();
+            configureFlow(flows.Password);
+        });
+    }
+
+    /// <summary>
+    /// Adds API key authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureAuth">An action to configure the API key authentication.</param>
+    public static ScalarOptions AddApiKeyAuthentication(this ScalarOptions options, string securitySchemeName, Action<ScalarApiKeySecurityScheme> configureAuth)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
+
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) && existingScheme is ScalarApiKeySecurityScheme existingHttpScheme)
+        {
+            configureAuth(existingHttpScheme);
+            return options;
+        }
+        
+        var headerScheme = new ScalarApiKeySecurityScheme();
+        configureAuth(headerScheme);
+
+        options.Authentication.SecuritySchemes[securitySchemeName] = headerScheme;
+
+        return options;
+    }
+
+    /// <summary>
+    /// Adds HTTP basic authentication configuration for a specific security scheme.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="securitySchemeName">The name of the security scheme as defined in the OpenAPI document.</param>
+    /// <param name="configureAuth">An action to configure the HTTP authentication.</param>
+    public static ScalarOptions AddHttpAuthentication(this ScalarOptions options, string securitySchemeName, Action<ScalarHttpSecurityScheme> configureAuth)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.SecuritySchemes ??= new Dictionary<string, ScalarSecurityScheme>();
+
+
+        if (options.Authentication.SecuritySchemes.TryGetValue(securitySchemeName, out var existingScheme) && existingScheme is ScalarHttpSecurityScheme existingHttpScheme)
+        {
+            configureAuth(existingHttpScheme);
+            return options;
+        }
+
+        var httpScheme = new ScalarHttpSecurityScheme();
+        configureAuth(httpScheme);
+
+        options.Authentication.SecuritySchemes[securitySchemeName] = httpScheme;
+
+        return options;
     }
 
     /// <summary>

@@ -3,6 +3,7 @@ namespace Scalar.AspNetCore;
 /// <summary>
 /// Represents the options for API key authentication.
 /// </summary>
+[Obsolete("This class is obsolete and will be removed in a future release. Use AddApiKeyAuthentication with ScalarApiKeySecurityScheme instead.")]
 public sealed class ApiKeyOptions
 {
     /// <summary>

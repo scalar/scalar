@@ -157,11 +157,6 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
       authorizationCode: flowsCommon.extend({
         'type': z.literal('authorizationCode').default('authorizationCode'),
         authorizationUrl,
-        /**
-         * Whether to use PKCE for the authorization code flow.
-         *
-         * TODO: add docs
-         */
         'x-usePkce': z.enum(pkceOptions).optional().default('no'),
         'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
         tokenUrl,

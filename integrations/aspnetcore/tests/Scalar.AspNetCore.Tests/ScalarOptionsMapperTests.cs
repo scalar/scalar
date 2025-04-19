@@ -62,10 +62,12 @@ public class ScalarOptionsMapperTests
             Authentication = new ScalarAuthenticationOptions
             {
                 PreferredSecurityScheme = "my-scheme",
+#pragma warning disable CS0618 // Type or member is obsolete
                 ApiKey = new ApiKeyOptions
                 {
                     Token = "my-token"
                 }
+#pragma warning restore CS0618 // Type or member is obsolete
             },
             DefaultFonts = false,
             DefaultOpenAllTags = true,
@@ -97,8 +99,10 @@ public class ScalarOptionsMapperTests
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
         configuration.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
+#pragma warning disable CS0618 // Type or member is obsolete
         configuration.Authentication.ApiKey.Should().NotBeNull();
         configuration.Authentication.ApiKey!.Token.Should().Be("my-token");
+#pragma warning restore CS0618 // Type or member is obsolete
         configuration.WithDefaultFonts.Should().BeFalse();
         configuration.DefaultOpenAllTags.Should().BeTrue();
         configuration.TagsSorter.Should().Be("alpha");

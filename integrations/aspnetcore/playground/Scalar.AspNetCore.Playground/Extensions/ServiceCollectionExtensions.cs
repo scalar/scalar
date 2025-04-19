@@ -30,11 +30,16 @@ internal static class ServiceCollectionExtensions
             services.AddOpenApi(version, options =>
             {
                 // Adds api key security scheme to the api
-                options.AddSecurityScheme(AuthConstants.ApiKey, scheme =>
+                options.AddSecurityScheme("o-auth", scheme =>
                 {
-                    scheme.Type = SecuritySchemeType.ApiKey;
-                    scheme.In = ParameterLocation.Header;
-                    scheme.Name = "X-Api-Key";
+                    scheme.Type = SecuritySchemeType.OAuth2;
+                    scheme.Flows = new OpenApiOAuthFlows
+                    {
+                        ClientCredentials = new OpenApiOAuthFlow
+                        {
+                            TokenUrl = new Uri("/connect/token", UriKind.Relative),
+                        }
+                    };
                 });
 
                 // Adds 401 and 403 responses to operations
