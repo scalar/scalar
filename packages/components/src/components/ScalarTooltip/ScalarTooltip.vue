@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cva, cx } from '@scalar/use-hooks/useBindCx'
 import {
   TooltipContent,
   TooltipProvider,
@@ -7,6 +8,17 @@ import {
 } from 'radix-vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
+
+const variants = cva({
+  base: 'scalar-app z-overlay',
+  variants: {
+    textSize: {
+      xs: 'text-xs',
+      sm: 'text-sm',
+      base: 'text-base',
+    },
+  },
+})
 
 const props = withDefaults(
   defineProps<{
@@ -21,12 +33,14 @@ const props = withDefaults(
     resize?: boolean
     as?: string
     disabled?: boolean
+    textSize?: 'xs' | 'sm' | 'base'
   }>(),
   {
     skipDelay: 1000,
     side: 'top',
     align: 'center',
     disabled: false,
+    textSize: 'xs',
   },
 )
 
@@ -51,8 +65,7 @@ defineEmits<{
         <TooltipContent
           v-if="!props.disabled"
           :align="props.align"
-          class="scalar-app z-context"
-          :class="props.class"
+          :class="cx(variants({ textSize: props.textSize }), props.class)"
           :side="props.side"
           :sideOffset="props.sideOffset">
           <slot name="content" />
