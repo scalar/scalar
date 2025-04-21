@@ -174,12 +174,10 @@ export const createContainer = (doc: Document, element?: Element | null) => {
  * @example createApiReference({ url: '/scalar.json' }).mount('#app')
  * @example createApiReference('#app', { url: '/scalar.json' })
  * @example createApiReference(document.getElementById('app'), { url: '/scalar.json' })
- * @example createApiReference(document.getElementById('app'), { url: '/scalar.json' }, 'my-api-reference')
  */
 export const createApiReference: CreateApiReference = (
   elementOrSelectorOrConfig,
   optionalConfiguration?: AnyApiReferenceConfiguration,
-  name?: string,
 ) => {
   const props = reactive<ReferenceProps>({
     // Either the configuration will be the second arugment or it MUST be the first (configuration only)
@@ -215,7 +213,7 @@ export const createApiReference: CreateApiReference = (
     'scalar:reload-references',
     () => {
       console.warn(
-        "scalar:reload-references event has been deprecated, please use the window.Scalar.apps['default'].app.mount method instead",
+        'scalar:reload-references event has been deprecated, please use the scalarInstance.app.mount method instead.',
       )
       if (!props.configuration) {
         return
@@ -258,9 +256,7 @@ export const createApiReference: CreateApiReference = (
   document.addEventListener(
     'scalar:destroy-references',
     () => {
-      console.warn(
-        "scalar:destroy-references event has been deprecated, please use window.Scalar.apps['default'].destroy instead",
-      )
+      console.warn('scalar:destroy-references event has been deprecated, please use scalarInstance.destroy instead.')
       destroy()
     },
     false,
@@ -274,7 +270,7 @@ export const createApiReference: CreateApiReference = (
     'scalar:update-references-config',
     (ev) => {
       console.warn(
-        "scalar:update-references-config event has been deprecated, please use window.Scalar.apps['default'].updateConfiguration instead",
+        'scalar:update-references-config event has been deprecated, please use scalarInstance.updateConfiguration instead.',
       )
       if ('detail' in ev) {
         Object.assign(props, ev.detail)
@@ -290,11 +286,6 @@ export const createApiReference: CreateApiReference = (
       props.configuration = newConfig
     },
     destroy,
-  }
-
-  // Register the instance globally
-  if (typeof window !== 'undefined' && window.Scalar) {
-    window.Scalar.apps[name ?? 'default'] = instance
   }
 
   return instance

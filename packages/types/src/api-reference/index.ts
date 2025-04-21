@@ -22,4 +22,4 @@ export type {
   ApiReferencePlugin,
 } from './api-reference-plugin.ts'
 
-export type { ApiReferenceInstance, CreateApiReference, ScalarGlobal } from './html-api.ts'
+export type { ApiReferenceInstance, CreateApiReference } from './html-api.ts'

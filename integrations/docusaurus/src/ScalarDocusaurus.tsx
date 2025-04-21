@@ -1,4 +1,4 @@
-import type { AnyApiReferenceConfiguration, ScalarGlobal } from '@scalar/types'
+import type { AnyApiReferenceConfiguration, CreateApiReference } from '@scalar/types'
 import React, { useEffect, useRef } from 'react'
 
 import Layout from '@theme/Layout'
@@ -15,7 +15,9 @@ type Props = {
 // Register the createApiReference function in the global Scalar object (new)
 declare global {
   interface Window {
-    Scalar: ScalarGlobal
+    Scalar: {
+      createApiReference: CreateApiReference
+    }
   }
 }
 

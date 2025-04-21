@@ -28,14 +28,4 @@ export type CreateApiReference = {
   (configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
   /** Pass in the element or selector and configuration */
   (elementOrSelector: Element | string, configuration: AnyApiReferenceConfiguration): ApiReferenceInstance
-  /** Pass in the element or selector, configuration and name for global registration, name is required when you have more than one page with a reference */
-  (elementOrSelector: Element | string, configuration: AnyApiReferenceConfiguration, name: string): ApiReferenceInstance
-}
-
-/** Scalar global object which lives at window.Scalar */
-export type ScalarGlobal = {
-  /** Create a new API Reference instance */
-  createApiReference: CreateApiReference
-  /** Globally registered API Reference instances */
-  apps: Record<string, ApiReferenceInstance>
 }
