@@ -86,6 +86,21 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
+For `FastEndpoints`:
+
+```csharp
+builder.Services.SwaggerDocument();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerGen(options =>
+    {
+        options.Path = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
 That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API Reference for a specific document. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details.
 
 ## Configuration
