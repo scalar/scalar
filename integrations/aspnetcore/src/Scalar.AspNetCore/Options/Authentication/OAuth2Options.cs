@@ -11,10 +11,11 @@ namespace Scalar.AspNetCore;
 /// <item><description><see cref="ScalarOptionsExtensions.AddAuthorizationCodeFlow"/></description></item>
 /// <item><description><see cref="ScalarOptionsExtensions.AddImplicitFlow"/></description></item>
 /// <item><description><see cref="ScalarOptionsExtensions.AddPasswordFlow"/></description></item>
+/// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Flows"/></description></item>
 /// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Authentication"/></description></item>
 /// </list>
 /// </remarks>
-[Obsolete("This class is obsolete and will be removed in a future release. Use AddClientCredentialsFlow, AddAuthorizationCodeFlow, AddImplicitFlow, AddPasswordFlow or AddOAuth2Authentication instead.")]
+[Obsolete("This class is obsolete and will be removed in a future release. Use AddClientCredentialsFlow, AddAuthorizationCodeFlow, AddImplicitFlow, AddPasswordFlow, AddOAuth2Flows or AddOAuth2Authentication instead.")]
 public sealed class OAuth2Options
 {
     /// <summary>

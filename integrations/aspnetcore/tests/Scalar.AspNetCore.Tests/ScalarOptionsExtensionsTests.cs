@@ -147,13 +147,13 @@ public class ScalarOptionsExtensionsTests
     }
 
     [Fact]
-    public void AddOAuth2Authentication_ShouldConfigureFlows()
+    public void AddOAuth2Flows_ShouldConfigureFlows()
     {
         // Arrange
         var options = new ScalarOptions();
 
         // Act
-        options.AddOAuth2Authentication("oauth2Scheme", flows =>
+        options.AddOAuth2Flows("oauth2Scheme", flows =>
         {
             flows.AuthorizationCode = new AuthorizationCodeFlow
             {
@@ -397,5 +397,66 @@ public class ScalarOptionsExtensionsTests
         var oauth2Scheme = options.Authentication!.SecuritySchemes["oauth2"] as ScalarOAuth2SecurityScheme;
         oauth2Scheme!.DefaultScopes.Should().BeEquivalentTo("read", "write");
         oauth2Scheme.Flows!.ClientCredentials!.TokenUrl.Should().Be("https://example.com/token");
+    }
+
+    [Fact]
+    public void AddOAuth2Authentication_ShouldConfigureOAuth2Authentication()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        options.AddOAuth2Authentication("oauth2Scheme", scheme =>
+        {
+            scheme.DefaultScopes = ["scope1", "scope2"];
+            scheme.Flows = new ScalarFlows
+            {
+                AuthorizationCode = new AuthorizationCodeFlow
+                {
+                    AuthorizationUrl = "https://example.com/authorize"
+                }
+            };
+        });
+
+        // Assert
+        options.Authentication.Should().NotBeNull();
+        options.Authentication!.SecuritySchemes.Should().ContainKey("oauth2Scheme");
+        var scheme = options.Authentication!.SecuritySchemes["oauth2Scheme"];
+        scheme.Should().BeOfType<ScalarOAuth2SecurityScheme>();
+        var oauth2Scheme = scheme as ScalarOAuth2SecurityScheme;
+        oauth2Scheme!.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
+        oauth2Scheme.Flows!.AuthorizationCode!.AuthorizationUrl.Should().Be("https://example.com/authorize");
+    }
+
+    [Fact]
+    public void AddOAuth2Authentication_ShouldUpdateExistingScheme()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+        
+        // Act
+        options.AddOAuth2Flows("oauth2Scheme", flows =>
+        {
+            flows.AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "clientId",
+            };
+        });
+        options.AddAuthorizationCodeFlow("oauth2Scheme", flow =>
+        {
+            flow.AuthorizationUrl = "https://example.com/authorize";
+        });
+
+        options.AddOAuth2Authentication("oauth2Scheme", scheme =>
+        {
+            scheme.DefaultScopes = ["scope1", "scope2"];
+        });
+
+        // Assert
+        var oauth2Scheme = options.Authentication!.SecuritySchemes!["oauth2Scheme"] as ScalarOAuth2SecurityScheme;
+        var authorizationCodeFlow = oauth2Scheme!.Flows!.AuthorizationCode;
+        authorizationCodeFlow!.ClientId.Should().Be("clientId");
+        authorizationCodeFlow.AuthorizationUrl.Should().Be("https://example.com/authorize");
+        oauth2Scheme.DefaultScopes.Should().BeEquivalentTo("scope1", "scope2");
     }
 }
