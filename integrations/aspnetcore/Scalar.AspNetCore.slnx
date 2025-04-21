@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/playground/">
+    <Project Path="playground/Scalar.AspNetCore.Playground/Scalar.AspNetCore.Playground.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Scalar.AspNetCore/Scalar.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <File Path="tests/.editorconfig" />
+    <Project Path="tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tests/apis/">
+    <Project Path="tests/apis/Scalar.AspNetCore.Tests.Api/Scalar.AspNetCore.Tests.Api.csproj" />
+  </Folder>
+</Solution>
