@@ -40,10 +40,17 @@ const {
 }>()
 
 const { requestExampleMutators } = useWorkspace()
+const isTooltipReady = ref(false)
 
 const params = computed(() => example.parameters[paramKey] ?? [])
 
-onMounted(() => defaultRow())
+onMounted(() => {
+  nextTick(() => {
+    // TODO: currently waiting for the tooltip to be ready otherwise error is thrown on mount
+    isTooltipReady.value = true
+    defaultRow()
+  })
+})
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
@@ -164,7 +171,9 @@ const itemCount = computed(
   () => params.value.filter((param) => param.key || param.value).length,
 )
 
-const showTooltip = computed(() => params.value.length > 1)
+const showTooltip = computed(
+  () => isTooltipReady.value && params.value.length > 1,
+)
 
 watch(
   () => example,
