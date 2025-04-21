@@ -22,6 +22,7 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useSidebar } from '@/hooks/useSidebar'
 import type { HotKeyEvent } from '@/libs'
+import type { EnvConfig } from '@/libs/env-helpers'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -360,19 +361,31 @@ function handleRename(newName: string) {
       if (
         collection['x-scalar-environments']?.[selectedEnvironmentId.value ?? '']
       ) {
-        const env =
-          collection['x-scalar-environments'][selectedEnvironmentId.value ?? '']
-        if (env) {
-          delete collection['x-scalar-environments'][
-            selectedEnvironmentId.value ?? ''
-          ]
-          collection['x-scalar-environments'][newName] = env
-          collectionMutators.edit(
-            collection.uid,
-            'x-scalar-environments',
-            collection['x-scalar-environments'],
-          )
-        }
+        const environments = collection['x-scalar-environments']
+        // Maintains order of environments in the sidebar as we use uid as the name
+        const orderedEnvs: Record<string, EnvConfig> = {}
+
+        // Preserve order by rebuilding the environments object
+        Object.keys(environments).forEach((key) => {
+          const environment = environments[key]
+
+          if (!environment) {
+            return
+          }
+
+          if (key === selectedEnvironmentId.value) {
+            orderedEnvs[newName] = environment
+          } else {
+            orderedEnvs[key] = environment
+          }
+        })
+
+        collection['x-scalar-environments'] = orderedEnvs
+        collectionMutators.edit(
+          collection.uid,
+          'x-scalar-environments',
+          collection['x-scalar-environments'],
+        )
       }
     })
   }
