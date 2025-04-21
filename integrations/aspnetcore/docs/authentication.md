@@ -152,6 +152,40 @@ options.AddDocumentTransformer((document, _, _) =>
 });
 ```
 
+### Using the Core OAuth2 Configuration Method
+
+For direct control over OAuth2 security schemes, you can use the core `AddOAuth2Authentication` method. This is the foundation that all other OAuth2 configuration methods build on:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddOAuth2Authentication("OAuth", scheme =>
+    {
+        // Configure flows manually
+        scheme.Flows = new ScalarFlows
+        {
+            AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "your-client-id"
+            },
+            ClientCredentials = new ClientCredentialsFlow
+            {
+                ClientId = "your-client-id",
+                ClientSecret = "your-client-secret"
+            }
+        };
+        
+        // Set default scopes
+        scheme.DefaultScopes = ["profile", "email"];
+    });
+);
+```
+
+> [!NOTE]
+> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
+> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core method 
+> that make it easier to configure specific flows.
+
 ### Prefilling Client Credentials Flow
 
 To make authentication easier for users, you can prefill the OAuth2 client credentials flow using the new authentication approach:
@@ -167,8 +201,6 @@ app.MapScalarApiReference(options => options
     });
 );
 ```
-
-This configuration preselects the `OAuth` authentication scheme in the API Reference, pre-fills the client ID and secret, and sets the default scopes.
 
 ### Authorization Code Flow
 
@@ -223,7 +255,7 @@ You can configure multiple OAuth flows for the same security scheme:
 ```csharp
 app.MapScalarApiReference(options => options
     .WithPreferredScheme("OAuth")
-    .AddOAuth2Authentication("OAuth", flows =>
+    .AddOAuth2Flows("OAuth", flows =>
     {
         // Configure Authorization Code flow
         flows.AuthorizationCode = new AuthorizationCodeFlow
@@ -252,7 +284,7 @@ For example, you can override the TokenUrl, AuthorizationUrl, or other endpoints
 ```csharp
 app.MapScalarApiReference(options => options
     .WithPreferredScheme("OAuth")
-    .AddOAuth2Authentication("OAuth", flows =>
+    .AddOAuth2Flows("OAuth", flows =>
     {
         flows.AuthorizationCode = new AuthorizationCodeFlow
         {
@@ -289,7 +321,7 @@ You can configure multiple security schemes in the same application:
 ```csharp
 app.MapScalarApiReference(options => options
     .WithPreferredScheme("OAuth") // Set the preferred default scheme
-    .AddOAuth2Authentication("OAuth", flows =>
+    .AddOAuth2Flows("OAuth", flows =>
     {
         flows.AuthorizationCode = new AuthorizationCodeFlow
         {

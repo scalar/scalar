@@ -217,7 +217,39 @@ app.MapScalarApiReference(options => options
 
 #### OAuth2 Authentication
 
-Scalar supports all OAuth2 flows: Authorization Code, Implicit, Password, and Client Credentials. You can configure one or multiple flows for each security scheme.
+Scalar supports various OAuth2 flows through specific helper methods, but all of these methods are built on top of a core configuration method called `AddOAuth2Authentication`. This method gives you direct control over the OAuth2 security scheme configuration:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddOAuth2Authentication("OAuth2", scheme => 
+    {
+        // Configure flows manually
+        scheme.Flows = new ScalarFlows
+        {
+            AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "your-client-id",
+                RedirectUri = "https://your-app.com/callback"
+            },
+            ClientCredentials = new ClientCredentialsFlow
+            {
+                ClientId = "your-client-id",
+                ClientSecret = "your-client-secret"
+            }
+        };
+        
+        // Set default scopes
+        scheme.DefaultScopes = ["profile", "email"];
+    })
+);
+```
+
+> [!NOTE]
+> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
+> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core 
+> `AddOAuth2Authentication` method. These convenience methods make it easier to configure specific 
+> flows without having to set up the entire structure manually.
 
 ##### Authorization Code Flow
 
@@ -280,7 +312,7 @@ You can configure multiple OAuth2 flows for a single security scheme:
 ```csharp
 app.MapScalarApiReference(options => options
     .WithPreferredScheme("OAuth2")
-    .AddOAuth2Authentication("OAuth2", flows =>
+    .AddOAuth2Flows("OAuth2", flows =>
     {
         // Authorization Code flow
         flows.AuthorizationCode = new AuthorizationCodeFlow
