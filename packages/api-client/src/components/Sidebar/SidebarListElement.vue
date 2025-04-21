@@ -53,7 +53,7 @@ const handleRename = (id: string) => {
     <router-link
       class="text-c-2 hover:bg-b-2 group relative flex h-8 items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-1.5']"
-      exactActiveClass="bg-b-2 text-c-1"
+      exactActiveClass="bg-b-2 !text-c-1"
       role="button"
       :to="to"
       @click.prevent="handleNavigation($event)">
