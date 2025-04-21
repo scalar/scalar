@@ -8,7 +8,7 @@ import {
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
@@ -73,12 +73,19 @@ function environmentNameToast(
   }
 }
 
+// Returns non-draft collections only
+const nonDraftWorkspaceCollections = computed(() => {
+  return activeWorkspaceCollections.value.filter(
+    (collection) => collection.info?.title !== 'Drafts',
+  )
+})
+
 function addEnvironment(environment: {
   name: string
   color: string
   collectionId: Collection['uid'] | undefined
 }) {
-  const environmentNameUsed = activeWorkspaceCollections.value.some(
+  const environmentNameUsed = nonDraftWorkspaceCollections.value.some(
     (collection) => {
       const enviromentName = Object.keys(
         collection['x-scalar-environments'] || {},
@@ -115,34 +122,34 @@ function addEnvironment(environment: {
 }
 
 function handleEnvironmentUpdate(raw: string) {
-  if (activeEnvironment) {
-    const updatedValue = parseEnvironmentValue(raw)
+  if (!activeEnvironment) {
+    return
+  }
 
-    if (currentEnvironmentId.value === 'default') {
-      workspaceMutators.edit(
-        activeWorkspace.value?.uid,
-        'environments',
-        updatedValue,
-      )
-    } else {
-      const collection = activeWorkspaceCollections.value.find(
-        (c) => c['x-scalar-environments']?.[currentEnvironmentId.value ?? ''],
-      )
-      if (
-        collection?.['x-scalar-environments']?.[
-          currentEnvironmentId.value ?? ''
-        ]
-      ) {
-        const environment =
-          collection['x-scalar-environments'][currentEnvironmentId.value ?? '']
-        if (environment) {
-          environment.variables = updatedValue
-          collectionMutators.edit(
-            collection.uid,
-            'x-scalar-environments',
-            collection['x-scalar-environments'],
-          )
-        }
+  const updatedValue = parseEnvironmentValue(raw)
+
+  if (currentEnvironmentId.value === 'default') {
+    workspaceMutators.edit(
+      activeWorkspace.value?.uid,
+      'environments',
+      updatedValue,
+    )
+  } else {
+    const collection = activeWorkspaceCollections.value.find(
+      (c) => c['x-scalar-environments']?.[currentEnvironmentId.value ?? ''],
+    )
+    if (
+      collection?.['x-scalar-environments']?.[currentEnvironmentId.value ?? '']
+    ) {
+      const environment =
+        collection['x-scalar-environments'][currentEnvironmentId.value ?? '']
+      if (environment) {
+        environment.variables = updatedValue
+        collectionMutators.edit(
+          collection.uid,
+          'x-scalar-environments',
+          collection['x-scalar-environments'],
+        )
       }
     }
   }
@@ -192,13 +199,13 @@ const submitColorChange = (color: string) => {
 }
 
 function removeCollectionEnvironment(environmentName: string) {
-  activeWorkspaceCollections.value.forEach((collection) => {
+  nonDraftWorkspaceCollections.value.forEach((collection) => {
     collectionMutators.removeEnvironment(environmentName, collection.uid)
   })
 
   // Redirect to last available environment
   const remainingCollectionEnvironments =
-    activeWorkspaceCollections.value.flatMap((collection) =>
+    nonDraftWorkspaceCollections.value.flatMap((collection) =>
       Object.keys(collection['x-scalar-environments'] || {}),
     )
 
@@ -222,8 +229,8 @@ function removeCollectionEnvironment(environmentName: string) {
     router.push({
       name: 'environment.collection',
       params: {
-        collectionId: currentCollection?.uid,
-        environmentId: lastCollectionEnvironment,
+        [PathId.Collection]: currentCollection?.uid,
+        [PathId.Environment]: lastCollectionEnvironment,
       },
     })
     if (currentCollection && !collapsedSidebarFolders[currentCollection.uid]) {
@@ -232,8 +239,10 @@ function removeCollectionEnvironment(environmentName: string) {
   } else {
     currentEnvironmentId.value = 'default'
     router.push({
-      name: 'environment',
-      params: { environment: 'default' },
+      name: 'environment.default',
+      params: {
+        [PathId.Workspace]: activeWorkspace.value?.uid,
+      },
     })
   }
 }
@@ -330,7 +339,7 @@ function handleCancelRename() {
 }
 
 function handleRename(newName: string) {
-  const environmentNameUsed = activeWorkspaceCollections.value.some(
+  const environmentNameUsed = nonDraftWorkspaceCollections.value.some(
     (collection) => {
       const enviromentName = Object.keys(
         collection['x-scalar-environments'] || {},
@@ -389,7 +398,7 @@ function handleRename(newName: string) {
               class="text-xs"
               :isCopyable="false"
               :to="{
-                name: 'environment.default',
+                name: 'environment',
                 params: {
                   [PathId.Environment]: 'default',
                 },
@@ -402,7 +411,7 @@ function handleRename(newName: string) {
                 isDefault: true,
               }" />
             <li
-              v-for="collection in activeWorkspaceCollections"
+              v-for="collection in nonDraftWorkspaceCollections"
               :key="collection.uid"
               class="gap-1/2 flex flex-col">
               <button
@@ -445,7 +454,7 @@ function handleRename(newName: string) {
                   :isDeletable="true"
                   :isRenameable="true"
                   :to="{
-                    name: 'collection.environment',
+                    name: 'environment.collection',
                     params: {
                       [PathId.Collection]: collection.uid,
                       [PathId.Environment]: environmentName,
@@ -455,7 +464,7 @@ function handleRename(newName: string) {
                   :variable="{
                     name: environmentName,
                     uid: environmentName,
-                    color: environment.color ?? '#8E8E8E',
+                    color: environment.color ?? '#FFFFFF',
                     isDefault: false,
                   }"
                   :warningMessage="`Are you sure you want to delete this environment?`"
@@ -520,7 +529,7 @@ function handleRename(newName: string) {
       @cancel="colorModal.hide()"
       @submit="submitColorChange" />
     <EnvironmentModal
-      :activeWorkspaceCollections="activeWorkspaceCollections"
+      :activeWorkspaceCollections="nonDraftWorkspaceCollections"
       :collectionId="selectedCollectionId"
       :state="environmentModal"
       @cancel="environmentModal.hide()"
