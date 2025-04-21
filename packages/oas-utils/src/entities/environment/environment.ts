@@ -1,11 +1,11 @@
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
+import type { ENTITY_BRANDS } from '@scalar/types/utils'
 
 export const environmentSchema = z.object({
-  uid: nanoidSchema.brand<ENTITY_BRANDS['ENVIRONMENT']>(),
+  uid: z.string().brand<ENTITY_BRANDS['ENVIRONMENT']>(),
   name: z.string().optional().default('Default Environment'),
-  color: z.string().optional().default('#0082D0'),
+  color: z.string().optional().default('#FFFFFF'),
   value: z.string().default(''),
   isDefault: z.boolean().optional(),
 })
