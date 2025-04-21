@@ -257,7 +257,7 @@ const labelRequestNameId = useId()
         title="Query Parameters"
         :workspace="workspace" />
       <RequestBody
-        v-show="
+        v-if="
           operation.method &&
           (selectedFilter === 'All' || selectedFilter === 'Body') &&
           canMethodHaveBody(operation.method)
