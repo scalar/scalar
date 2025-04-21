@@ -137,16 +137,16 @@ onClickOutside(
             class="font-code text-xxs hover:bg-b-2 flex h-8 cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
             :class="{ 'bg-b-2': index === selectedVariableIndex }"
             @click="selectVariable(item.key)">
-            <div class="flex items-center gap-1.5 whitespace-nowrap">
+            <div class="flex items-center gap-2 whitespace-nowrap">
               <span
                 v-if="item.source === 'collection'"
-                class="h-2.5 w-2.5 min-w-2.5 rounded-full"
+                class="h-2.25 w-2.25 min-w-2.25 rounded-full"
                 :style="{
                   backgroundColor: getEnvColor(environment),
                 }"></span>
               <ScalarIcon
                 v-else
-                class="w-2.5"
+                class="-ml-1/2 h-2.5 w-2.5"
                 icon="Globe" />
               {{ item.key }}
             </div>
