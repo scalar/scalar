@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.3.24
+
+### Patch Changes
+
+- 3cb857d: fix: updates import collection modal transition style
+- 3cb857d: fix: updates web layout background style target
+- Updated dependencies [17e7d02]
+- Updated dependencies [2b61d8e]
+- Updated dependencies [49f1297]
+- Updated dependencies [ab4cf5a]
+  - @scalar/types@0.1.9
+  - @scalar/components@0.13.51
+  - @scalar/use-hooks@0.1.43
+  - @scalar/icons@0.3.0
+  - @scalar/oas-utils@0.2.134
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.1
+  - @scalar/use-codemirror@0.11.96
+  - @scalar/import@0.3.17
+  - @scalar/postman-to-openapi@0.2.7
+
 ## 2.3.23
 
 ### Patch Changes
