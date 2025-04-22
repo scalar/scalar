@@ -6,6 +6,9 @@ pre-commit:
     biome-format:
       glob: '*'
       run: 'pnpm biome format --write && git add {staged_files}'
+    ls-lint:
+      glob: '*'
+      run: 'pnpm lint:files'
     prettier:
       glob: '*.{js,ts,jsx,tsx,vue,md,json,css,scss,html,yml,yaml}'
       run: 'pnpm prettier --write {staged_files} && git add {staged_files}'
