@@ -596,11 +596,11 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-reference
       '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
+        specifier: 'catalog:'
+        version: 5.0.1
       express:
-        specifier: ^4.21.2
-        version: 4.21.2
+        specifier: 'catalog:'
+        version: 5.1.0
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
@@ -26358,7 +26358,7 @@ snapshots:
 
   '@types/compression@1.7.5':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.1
 
   '@types/concat-stream@2.0.3':
     dependencies:
@@ -26647,7 +26647,7 @@ snapshots:
 
   '@types/serve-index@1.9.4':
     dependencies:
-      '@types/express': 4.17.21
+      '@types/express': 5.0.1
 
   '@types/serve-static@1.15.7':
     dependencies:
@@ -30491,7 +30491,7 @@ snapshots:
 
   ext-list@2.2.2:
     dependencies:
-      mime-db: 1.52.0
+      mime-db: 1.54.0
 
   ext-name@5.0.0:
     dependencies:
