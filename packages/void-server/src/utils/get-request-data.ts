@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
-import { getBody } from './getBody.ts'
+import { getBody } from '@/utils/get-body.ts'
 
 /**
  * Collect all the data from a request

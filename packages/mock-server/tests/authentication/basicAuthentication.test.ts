@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from '../../src/createMockServer'
-import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
+import { createMockServer } from '@/create-mock-server.ts'
+import { createOpenApiDefinition } from '@/utils/create-open-api-definition.ts'
 
 describe('HTTP Basic Authentication', () => {
   it('succeeds with valid basic auth credentials', async () => {

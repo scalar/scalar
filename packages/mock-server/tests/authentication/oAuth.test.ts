@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from '../../src/createMockServer'
-import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
+import { createMockServer } from '@/create-mock-server.ts'
+import { createOpenApiDefinition } from '@/utils/create-open-api-definition.ts'
 
 describe('OAuth 2.0 Authentication', () => {
   describe('Authorization Code Flow', () => {

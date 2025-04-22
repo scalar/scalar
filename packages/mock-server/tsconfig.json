@@ -6,5 +6,5 @@
       "@test/*": ["./test/*"]
     }
   },
-  "include": ["src/**/*.ts", "rollup.config.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "rollup.config.ts"]
 }

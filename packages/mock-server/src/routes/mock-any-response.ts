@@ -7,7 +7,7 @@ import type { StatusCode } from 'hono/utils/http-status'
 import objectToXML from 'object-to-xml'
 
 import type { MockServerOptions } from '@/types.ts'
-import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey.ts'
+import { findPreferredResponseKey } from '@/utils/find-preferred-response-key.ts'
 
 /**
  * Mock any response

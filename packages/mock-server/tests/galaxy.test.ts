@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
+import { createMockServer } from '@/create-mock-server.ts'
 // @ts-expect-error TODO
 import galaxy from '../../galaxy/src/documents/3.1.yaml?raw'
-import { createMockServer } from '../src/createMockServer'
 
 describe('createMockServer', () => {
   it('GET /planets -> example JSON', async () => {

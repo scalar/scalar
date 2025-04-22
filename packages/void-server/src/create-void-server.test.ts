@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createVoidServer } from '@/createVoidServer.ts'
+import { createVoidServer } from '@/create-void-server.ts'
 
 describe('createVoidServer', () => {
   it('GET /foobar', async () => {

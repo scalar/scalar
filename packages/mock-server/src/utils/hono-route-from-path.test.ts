@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { honoRouteFromPath } from './honoRouteFromPath.ts'
+import { honoRouteFromPath } from './hono-route-from-path.ts'
 
 describe('honoRouteFromPath', () => {
   it('returns correct route for a simple path', () => {

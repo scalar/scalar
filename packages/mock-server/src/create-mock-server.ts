@@ -4,15 +4,15 @@ import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 
 import type { HttpMethod, MockServerOptions } from '@/types.ts'
-import { getOperations } from '@/utils/getOperations.ts'
-import { handleAuthentication } from '@/utils/handleAuthentication.ts'
-import { honoRouteFromPath } from '@/utils/honoRouteFromPath.ts'
-import { isAuthenticationRequired } from '@/utils/isAuthenticationRequired.ts'
-import { logAuthenticationInstructions } from '@/utils/logAuthenticationInstructions.ts'
-import { setupAuthenticationRoutes } from '@/utils/setupAuthenticationRoutes.ts'
+import { getOperations } from '@/utils/get-operations.ts'
+import { handleAuthentication } from '@/utils/handle-authentication.ts'
+import { honoRouteFromPath } from '@/utils/hono-route-from-path.ts'
+import { isAuthenticationRequired } from '@/utils/is-authentication-required.ts'
+import { logAuthenticationInstructions } from '@/utils/log-authentication-instructions.ts'
+import { setupAuthenticationRoutes } from '@/utils/setup-authentication-routes.ts'
 
-import { mockAnyResponse } from './routes/mockAnyResponse.ts'
-import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument.ts'
+import { mockAnyResponse } from './routes/mock-any-response.ts'
+import { respondWithOpenApiDocument } from './routes/respond-with-open-api-document.ts'
 
 /**
  * Create a mock server instance

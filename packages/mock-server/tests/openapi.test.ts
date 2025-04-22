@@ -1,7 +1,7 @@
 import { normalize, toYaml } from '@scalar/openapi-parser'
 import { describe, expect, it } from 'vitest'
 
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '@/create-mock-server.ts'
 
 describe('openapi.{json|yaml}', () => {
   it('GET /openapi.json (from object)', async () => {

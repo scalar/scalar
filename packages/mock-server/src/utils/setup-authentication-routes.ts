@@ -1,10 +1,10 @@
 import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Hono } from 'hono'
 
-import { respondWithAuthorizePage } from '@/routes/respondWithAuthorizePage.ts'
-import { respondWithToken } from '@/routes/respondWithToken.ts'
+import { respondWithAuthorizePage } from '@/routes/respond-with-authorize-page.ts'
+import { respondWithToken } from '@/routes/respond-with-token.ts'
 
-import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls.ts'
+import { getOpenAuthTokenUrls, getPathFromUrl } from './get-open-auth-token-urls.ts'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
