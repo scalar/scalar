@@ -20,7 +20,7 @@ internal static class BookEndpoints
             .RequireAuthorization();
 
         books
-            .MapGet("/", ([FromServices] BookStore bookStore) => bookStore.GetAll())
+            .MapGet("/", [Stability(Stability.Stable)] ([FromServices] BookStore bookStore) => bookStore.GetAll())
             .Produces<IEnumerable<Book>>();
 
         books
@@ -29,6 +29,7 @@ internal static class BookEndpoints
                 var book = bookStore.GetById(bookId);
                 return book is null ? Results.NotFound() : Results.Ok(book);
             })
+            .Experimental()
             .Produces<Book>()
             .Produces(StatusCodes.Status404NotFound);
 

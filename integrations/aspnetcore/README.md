@@ -17,6 +17,8 @@ Made possible by the wonderful work of [@captainsafia](https://github.com/captai
 
 ![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/integrations/aspnetcore/dotnet.jpg)
 
+These packages enable advanced features like stability indicators and API reference exclusions. See the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#scalar-openapi-extensions) for details.
+
 ## Migration Guide
 
 If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
@@ -109,6 +111,13 @@ That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By def
 For detailed configuration options, refer to the [integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md). This documentation focuses on the features provided by the package.
 
 For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/README.md). This documentation is also useful if you need more context on what `Scalar.AspNetCore` is for.
+
+## Additional Packages
+
+Scalar provides additional packages to enhance OpenAPI document generation:
+
+- **Scalar.AspNetCore.Microsoft**: Implements transformers for `Microsoft.AspNetCore.OpenApi`
+- **Scalar.AspNetCore.Swashbuckle**: Implements filters for `Swashbuckle.AspNetCore`
 
 ## Development
 

@@ -193,10 +193,10 @@ public class ScalarOptionsMapperTests
         options
             .AddDocument("default")
             .AddDocument("custom", routePattern: "/external/{documentName}.json");
-        
+
         // Act 
         var configuration = options.ToScalarConfiguration();
-        
+
         // Assert
         configuration.Sources.Should()
             .SatisfyRespectively(
