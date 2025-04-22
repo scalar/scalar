@@ -28,6 +28,7 @@ app.get(
   Scalar({
     // Served by createMockServer
     url: '/openapi.yaml',
+    theme: 'default',
     pageTitle: 'Scalar Galaxy',
   }),
 )
