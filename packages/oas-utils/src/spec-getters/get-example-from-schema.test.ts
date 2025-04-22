@@ -1139,4 +1139,25 @@ describe('getExampleFromSchema', () => {
       expect(Object.keys(example).length).toBe(26)
     })
   })
+
+  it('omits deprecated properties', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        properties: {
+          name: {
+            type: 'string',
+            example: 'test',
+          },
+          oldField: {
+            type: 'string',
+            example: 'should not appear',
+            deprecated: true,
+          },
+        },
+      }),
+    ).toStrictEqual({
+      name: 'test',
+    })
+  })
 })
