@@ -2,9 +2,14 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useLocalStorage } from '@vueuse/core'
 
 import FloatingButton from '@/features/DeveloperTools/components/FloatingButton.vue'
+
+defineProps<{
+  configuration?: Partial<AnyApiReferenceConfiguration>
+}>()
 
 const isOpen = useLocalStorage('devtools.is-open', false)
 
@@ -22,9 +27,15 @@ const shouldShow =
 
 <template>
   <template v-if="shouldShow">
+    <!-- New Draft (Cam) -->
     <FloatingButton v-model="isOpen" />
 
-    <!-- Developer Tools Drawer -->
+    <!-- Configuration-->
+    <div>
+      <pre>{{ configuration }}</pre>
+    </div>
+
+    <!-- Old Draft (Hans): Developer Tools Drawer (deprecated) -->
     <template v-if="false">
       <div
         class="z-1 bg-b-2 fixed bottom-0 left-0 right-0 flex flex-col border-t">

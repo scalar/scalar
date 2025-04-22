@@ -36,7 +36,7 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 <template>
   <div class="scalar-app scalar-api-reference">
-    <DeveloperTools />
+    <DeveloperTools :configuration="configuration" />
     <SingleApiReference :configuration="selectedConfiguration">
       <template #document-selector>
         <DocumentSelector
