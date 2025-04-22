@@ -29,6 +29,7 @@ import { useActiveEntities } from '@/store/active-entities'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
 import EnvironmentModal from './EnvironmentModal.vue'
+import { environmentDragHandlerFactory } from './handle-drag'
 
 const router = useRouter()
 const route = useRoute()
@@ -399,6 +400,12 @@ function handleRename(newName: string) {
   tempEnvironmentName.value = undefined
   editModal.hide()
 }
+
+// Replace handleEnvironmentDragEnd with the factory
+const { handleDragEnd, isDroppable } = environmentDragHandlerFactory(
+  activeWorkspaceCollections,
+  collectionMutators,
+)
 </script>
 <template>
   <ViewLayout>
@@ -461,11 +468,13 @@ function handleRename(newName: string) {
                     'x-scalar-environments'
                   ]"
                   :key="environmentName"
-                  class="text-xs [&>a]:pl-5"
+                  class="text-xs"
                   :collectionId="collection.uid"
                   :isCopyable="false"
                   :isDeletable="true"
                   :isRenameable="true"
+                  :isDraggable="true"
+                  :isDroppable="isDroppable"
                   :to="{
                     name: 'environment.collection',
                     params: {
@@ -486,7 +495,8 @@ function handleRename(newName: string) {
                   "
                   @colorModal="handleOpenColorModal(environmentName)"
                   @delete="removeCollectionEnvironment(environmentName)"
-                  @rename="openRenameModal(environmentName, collection.uid)" />
+                  @rename="openRenameModal(environmentName, collection.uid)"
+                  @onDragEnd="handleDragEnd" />
                 <ScalarButton
                   v-if="
                     Object.keys(collection['x-scalar-environments'] || {})
