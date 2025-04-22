@@ -350,9 +350,6 @@ importers:
 
   integrations/docusaurus:
     dependencies:
-      '@scalar/api-reference-react':
-        specifier: workspace:*
-        version: link:../../packages/api-reference-react
       '@scalar/types':
         specifier: workspace:*
         version: link:../../packages/types

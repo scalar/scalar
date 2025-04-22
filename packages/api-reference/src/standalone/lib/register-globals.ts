@@ -1,4 +1,5 @@
-import { createApiReference, type CreateApiReference } from '@/standalone/lib/html-api'
+import { createApiReference } from '@/standalone/lib/html-api'
+import type { CreateApiReference } from '@scalar/types/api-reference'
 
 // Register the createApiReference function in the global Scalar object (new)
 declare global {
@@ -15,10 +16,8 @@ export const registerGlobals = () => {
     return
   }
 
-  const globalWindow = window
-
   // Initialize the global Scalar object
-  globalWindow.Scalar = {
+  window.Scalar = {
     createApiReference,
   }
 }

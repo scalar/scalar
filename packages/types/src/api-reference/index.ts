@@ -21,3 +21,5 @@ export type {
   SpecificationExtension,
   ApiReferencePlugin,
 } from './api-reference-plugin.ts'
+
+export type { ApiReferenceInstance, CreateApiReference } from './html-api.ts'
