@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 
-import { createVoidServer } from '../src/createVoidServer.ts'
+import { createVoidServer } from '@/create-void-server.ts'
 
 const host = process.env.HOST || '0.0.0.0'
 const port = process.env.PORT || 5052

@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { apiReference } from '@scalar/hono-api-reference'
 
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '@/create-mock-server.ts'
 
 const port = process.env.PORT || 5052
 
