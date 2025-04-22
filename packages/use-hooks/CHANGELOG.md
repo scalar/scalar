@@ -1,5 +1,12 @@
 # @scalar/use-hooks
 
+## 0.1.43
+
+### Patch Changes
+
+- 2b61d8e: docs(icons): update docs and storybook
+  - @scalar/themes@0.10.1
+
 ## 0.1.42
 
 ### Patch Changes

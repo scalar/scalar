@@ -1,5 +1,16 @@
 # @scalar/docusaurus
 
+## 0.6.0
+
+### Minor Changes
+
+- 17e7d02: fix: moved docusaurus to pull from CDN + html api
+
+### Patch Changes
+
+- Updated dependencies [17e7d02]
+  - @scalar/types@0.1.9
+
 ## 0.5.23
 
 ### Patch Changes

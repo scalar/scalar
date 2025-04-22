@@ -1,5 +1,18 @@
 # @scalar/components
 
+## 0.13.51
+
+### Patch Changes
+
+- 2b61d8e: docs(icons): update docs and storybook
+- ab4cf5a: fix: adds text size variants to scalar tooltip
+- Updated dependencies [2b61d8e]
+- Updated dependencies [49f1297]
+  - @scalar/use-hooks@0.1.43
+  - @scalar/icons@0.3.0
+  - @scalar/themes@0.10.1
+  - @scalar/code-highlight@0.0.27
+
 ## 0.13.50
 
 ### Patch Changes

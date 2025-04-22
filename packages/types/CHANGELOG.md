@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.9
+
+### Patch Changes
+
+- 17e7d02: chore: export more types from the base types package for commonjs apps
+
 ## 0.1.8
 
 ### Patch Changes
