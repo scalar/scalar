@@ -25,17 +25,10 @@ if (!fs.existsSync(ASSETS_PATH)) {
 
 const mappings = readFiles()
 
-// Temporary restriction to only generate the magnifying glass icon
-// TODO: remove this once we want to generate all icons
-const mapping = {
-  'airplane': mappings['airplane'],
-  'magnifying-glass': mappings['magnifying-glass'],
-}
+generateComponents(mappings)
+generateExports(mappings)
 
-generateComponents(mapping)
-generateExports(mapping)
-
-console.log(chalk.green(`Compiled ${Object.keys(mapping).length} icons`))
+console.log(chalk.green(`Compiled ${Object.keys(mappings).length} icons`))
 
 function readFiles(): Record<string, Record<string, string>> {
   const mappings: Record<string, Record<string, string>> = {}
