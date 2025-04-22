@@ -2,11 +2,11 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
-import { ref } from 'vue'
+import { useLocalStorage } from '@vueuse/core'
 
 import FloatingButton from '@/features/DeveloperTools/components/FloatingButton.vue'
 
-const isOpen = ref(false)
+const isOpen = useLocalStorage('devtools.is-open', false)
 
 /** Tabs configuration for the developer tools panel */
 const tabs = [
