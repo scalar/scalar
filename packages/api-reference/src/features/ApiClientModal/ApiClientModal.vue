@@ -14,7 +14,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks'
 
-import { useApiClient } from './useApiClient'
+import { useApiClient } from './hooks/useApiClient'
 
 const { configuration } = defineProps<{
   configuration: Partial<ApiClientConfiguration>
