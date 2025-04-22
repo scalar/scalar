@@ -65,6 +65,9 @@ importers:
       '@ianvs/prettier-plugin-sort-imports':
         specifier: ^4.4.0
         version: 4.4.1(@vue/compiler-sfc@3.5.12)(prettier@3.4.2)
+      '@ls-lint/ls-lint':
+        specifier: v2.3.0
+        version: 2.3.0
       '@nuxt/eslint-config':
         specifier: ^0.7.3
         version: 0.7.6(@vue/compiler-sfc@3.5.12)(eslint@9.20.1(jiti@2.4.0))(typescript@5.6.2)
@@ -95,6 +98,9 @@ importers:
       eslint-plugin-vue:
         specifier: ^9.31.0
         version: 9.32.0(eslint@9.20.1(jiti@2.4.0))
+      glob:
+        specifier: ^10.3.10
+        version: 10.4.5
       lefthook:
         specifier: ^1.9.2
         version: 1.9.2
@@ -158,6 +164,9 @@ importers:
       vue-tsc:
         specifier: ^2.1.10
         version: 2.1.10(typescript@5.6.2)
+      yaml:
+        specifier: 'catalog:'
+        version: 2.6.0
 
   examples/cdn-api-reference:
     dependencies:
@@ -5964,6 +5973,12 @@ packages:
   '@ljharb/through@2.3.13':
     resolution: {integrity: sha512-/gKJun8NNiWGZJkGzI/Ragc53cOdcLNdzjLaIa+GEjguQs0ulsurx8WN0jijdK9yPqDvziX995sMRLyLt1uZMQ==}
     engines: {node: '>= 0.4'}
+
+  '@ls-lint/ls-lint@2.3.0':
+    resolution: {integrity: sha512-lsT5/7SxtImOIjpefC9wcoXt2lkikKhCjd6U+Q9Z6X5h2HBU/71ggt+XStdodZ0HkJGO333zDUeec7JROMCPFw==}
+    cpu: [x64, arm64, s390x, ppc64le]
+    os: [darwin, linux, win32]
+    hasBin: true
 
   '@lukeed/csprng@1.1.0':
     resolution: {integrity: sha512-Z7C/xXCiGWsg0KuKsHTKJxbWhpI3Vs5GwLfOean7MGyVFGqdRgBbAjOCh6u4bbjPc/8MJ2pZmK/0DLdCbivLDA==}
@@ -22469,7 +22484,7 @@ snapshots:
       content-disposition: 0.5.4
       fastify-plugin: 4.5.1
       fastq: 1.17.1
-      glob: 10.4.1
+      glob: 10.4.5
 
   '@fastify/swagger@8.14.0':
     dependencies:
@@ -23252,6 +23267,8 @@ snapshots:
   '@ljharb/through@2.3.13':
     dependencies:
       call-bind: 1.0.7
+
+  '@ls-lint/ls-lint@2.3.0': {}
 
   '@lukeed/csprng@1.1.0': {}
 

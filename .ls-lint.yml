@@ -1,0 +1,20 @@
+ls:
+  packages/{void-server,mock-server,core}:
+    .dir: kebab-case
+  packages/{void-server,mock-server,core}/src:
+    .ts: kebab-case
+    .d.ts: kebab-case
+    .test.ts: kebab-case
+    .vue: PascalCase
+  packages/{void-server,mock-server,core}/{hooks,composables}:
+    .ts: PascalCase
+  packages/{void-server,mock-server,core}/libs:
+    .ts: kebab-case
+
+ignore:
+  - .DS_Store
+  - .git
+  - .turbo
+  - .vscode
+  - dist
+  - node_modules

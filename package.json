@@ -11,6 +11,7 @@
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.10",
     "@ianvs/prettier-plugin-sort-imports": "^4.4.0",
+    "@ls-lint/ls-lint": "v2.3.0",
     "@nuxt/eslint-config": "^0.7.3",
     "@playwright/test": "^1.49.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
@@ -21,6 +22,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vue": "^9.31.0",
+    "glob": "^10.3.10",
     "lefthook": "^1.9.2",
     "nodemon": "^3.1.9",
     "pkg-pr-new": "^0.0.39",
@@ -41,7 +43,8 @@
     "vite-node": "^2.1.1",
     "vitest": "catalog:",
     "vue-eslint-parser": "^9.4.3",
-    "vue-tsc": "^2.1.10"
+    "vue-tsc": "^2.1.10",
+    "yaml": "catalog:"
   },
   "scripts": {
     "build": "turbo build",
@@ -78,6 +81,8 @@
     "format:packages": "pnpm syncpack fix-mismatches --types 'prod,dev' || true && pnpm syncpack set-semver-ranges && vite-node scripts/format-package.ts && pnpm install -r",
     "format:check": "pnpm prettier --check . && biome format",
     "format": "prettier --write . && biome format --write",
+    "lint:files": "ls-lint",
+    "lint:files:fix": "vite-node scripts/ls-lint-fix.ts",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
     "lint:fix": "biome lint --write && pnpm eslint '**/*.vue' --fix",
