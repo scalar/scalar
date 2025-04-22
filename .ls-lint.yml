@@ -1,6 +1,4 @@
 ls:
-  packages/{void-server,mock-server,core}:
-    .dir: kebab-case
   packages/{void-server,mock-server,core}/src:
     .ts: kebab-case
     .d.ts: kebab-case
