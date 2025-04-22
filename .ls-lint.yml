@@ -4,7 +4,7 @@ ls:
     .d.ts: kebab-case
     .test.ts: kebab-case
     .vue: PascalCase
-  packages/{void-server,mock-server,core}/{hooks,composables}:
+  packages/{void-server,mock-server,core}/hooks:
     .ts: PascalCase
   packages/{void-server,mock-server,core}/libs:
     .ts: kebab-case
