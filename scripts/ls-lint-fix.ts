@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, renameSync } from 'node:fs'
 import { basename, dirname, join, resolve } from 'node:path'
 import { globSync } from 'glob'
 import { parse } from 'yaml'
@@ -48,7 +48,7 @@ function safeRename(oldPath: string, newPath: string) {
   try {
     if (oldPath !== newPath) {
       console.log(`${basename(oldPath)} -> ${basename(newPath)}`)
-      // renameSync(oldPath, newPath)
+      renameSync(oldPath, newPath)
     }
   } catch (error) {
     console.error(`Error renaming ${oldPath}: ${error}`)
