@@ -8,6 +8,7 @@ import {
   type Tag,
   collectionSchema,
   operationSchema,
+  securityHttpSchema,
   securitySchemeSchema,
   serverSchema,
   tagSchema,
@@ -1346,6 +1347,11 @@ describe('narrowUnionSchema', () => {
     const result = narrowUnionSchema(discriminatedUnion, 'type', 'two')
     expect(result).equal(schema2)
   })
+
+  it('returns the correct schema from auth discriminated by type', () => {
+    const result = narrowUnionSchema(securitySchemeSchema, 'type', 'http')
+    expect(result).equal(securityHttpSchema)
+  })
 })
 
 describe('traverseZodSchema', () => {
@@ -1540,5 +1546,16 @@ describe('parseDiff', () => {
     }
     const result = parseDiff(testSchema, diff)
     expect(result).toBeNull()
+  })
+
+  it('handles a CHANGE diff on an http security scheme with an empty string value', () => {
+    const diff: Difference = {
+      oldValue: 'oldVal',
+      type: 'CHANGE',
+      path: ['token'],
+      value: '',
+    }
+    const result = parseDiff(securityHttpSchema, diff)
+    expect(result).not.toBeNull()
   })
 })
