@@ -48,9 +48,9 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/express": "^4.17.21",
+    "@types/express": "catalog:",
     "@types/supertest": "^2.0.12",
-    "express": "^4.21.2",
+    "express": "catalog:",
     "supertest": "^6.3.3",
     "vite": "catalog:",
     "vitest": "catalog:"

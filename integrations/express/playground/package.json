@@ -26,12 +26,12 @@
   "type": "module",
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
-    "express": "^4.21.2",
+    "express": "catalog:",
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/express": "^4.17.21",
+    "@types/express": "catalog:",
     "@types/swagger-jsdoc": "^6.0.3",
     "vite": "catalog:"
   },
