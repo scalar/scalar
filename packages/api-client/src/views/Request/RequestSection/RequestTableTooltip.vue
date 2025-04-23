@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarTooltip } from '@scalar/components'
+import { ScalarTooltip } from '@scalar/components'
+import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
@@ -15,21 +16,18 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
     class="w-full pr-px"
     :delay="0"
     side="left"
-    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 group-[.alert]:before:to-b-alert group-[.error]:before:to-b-danger before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
+    triggerClass="py-1">
     <template #trigger>
       <div
         :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
-        class="bg-b-1 mr-1 pl-1 pr-1.5 group-[.alert]:bg-transparent group-[.error]:bg-transparent"
+        class="bg-b-1 px-1 group-[.alert]:bg-transparent group-[.error]:bg-transparent"
         :role="isInvalid ? 'alert' : 'none'">
-        <ScalarIcon
-          :class="
-            isInvalid
-              ? 'text-orange brightness-[.9]'
-              : 'text-c-3 group-hover/info:text-c-1'
-          "
-          :icon="isInvalid ? 'Alert' : 'Info'"
-          size="sm"
-          thickness="1.5" />
+        <ScalarIconWarning
+          v-if="isInvalid"
+          class="text-orange size-3.5 brightness-[.9]" />
+        <ScalarIconInfo
+          v-else
+          class="text-c-2 hover:text-c-1 size-3.5" />
       </div>
     </template>
     <template #content>

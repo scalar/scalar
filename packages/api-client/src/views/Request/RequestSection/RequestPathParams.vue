@@ -76,6 +76,20 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   )
 }
 
+const deleteRow = (rowIdx: number) => {
+  const currentParams = params.value
+  if (currentParams.length > rowIdx) {
+    const updatedParams = [...currentParams]
+    updatedParams.splice(rowIdx, 1)
+
+    requestExampleMutators.edit(
+      example.uid,
+      `parameters.${paramKey}`,
+      updatedParams,
+    )
+  }
+}
+
 const setPathVariable = (url: string) => {
   const pathVariables = url.match(REGEX.PATH)?.map((v) => v.slice(1, -1)) || []
   const parameters = example.parameters[paramKey]
@@ -126,6 +140,7 @@ watch(
       :invalidParams="invalidParams"
       :items="params"
       :workspace="workspace"
-      @updateRow="updateRow" />
+      @updateRow="updateRow"
+      @deleteRow="deleteRow" />
   </ViewLayoutCollapse>
 </template>

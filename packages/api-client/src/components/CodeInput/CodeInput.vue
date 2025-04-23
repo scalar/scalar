@@ -49,6 +49,7 @@ const props = withDefaults(
     environment: Environment
     envVariables: EnvVariable[]
     workspace: Workspace
+    lineWrapping?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -60,6 +61,7 @@ const props = withDefaults(
     withVariables: true,
     isCopyable: false,
     disabled: false,
+    lineWrapping: false,
   },
 )
 const emit = defineEmits<{
@@ -282,6 +284,8 @@ export default {
       ref="codeMirrorRef"
       class="group/input group-[.alert]:outline-orange group-[.error]:outline-red font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
       :class="{
+        'line-wrapping has-[:focus-visible]:bg-b-1 has-[:focus-visible]:z-1 has-[:focus-visible]:absolute':
+          lineWrapping,
         'flow-code-input--error': error,
       }"
       @keydown.down.stop="handleKeyDown('down', $event)"
@@ -317,7 +321,11 @@ export default {
     class="centered-y text-orange absolute right-7 text-xs">
     <slot name="warning" />
   </div>
-  <slot name="icon" />
+  <div
+    v-if="$slots.icon"
+    class="centered-y group-has-[.cm-focused]:z-1 absolute right-0 flex h-full items-center p-1.5">
+    <slot name="icon" />
+  </div>
   <div
     v-if="required"
     class="required centered-y text-xxs text-c-3 group-[.error]:text-red bg-b-1 pointer-events-none absolute right-0 mr-0.5 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 group-[.alert]:bg-transparent group-[.error]:bg-transparent group-[.alert]:shadow-none group-[.error]:shadow-none peer-has-[.cm-focused]:opacity-0">
@@ -472,6 +480,11 @@ export default {
 }
 .copy-button svg {
   stroke-width: 1.5;
+}
+.line-wrapping:focus-within :deep(.cm-content) {
+  min-height: fit-content;
+  white-space: break-spaces;
+  word-break: break-all;
 }
 </style>
 <style>
