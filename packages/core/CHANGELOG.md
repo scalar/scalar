@@ -1,5 +1,11 @@
 # @scalar/core
 
+## 0.2.10
+
+### Patch Changes
+
+- @scalar/types@0.1.10
+
 ## 0.2.9
 
 ### Patch Changes

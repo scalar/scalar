@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.6.1
+
+### Patch Changes
+
+- @scalar/types@0.1.10
+
 ## 0.6.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.2.1
+
+### Patch Changes
+
+- fa8ed84: feat: custom OpenAPI extension to add SDK setup instructions
+
 ## 0.2.0
 
 ### Minor Changes
