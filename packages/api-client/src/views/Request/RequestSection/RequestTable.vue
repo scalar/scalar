@@ -132,6 +132,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
+          lineWrapping
           :envVariables="envVariables"
           :environment="environment"
           :modelValue="item.key"
@@ -157,6 +158,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
           :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
+          lineWrapping
           :enum="item.enum ?? []"
           :envVariables="envVariables"
           :environment="environment"
@@ -250,7 +252,9 @@ const showDeleteButton = (item: RequestExampleParameter) => {
   margin-left: 0.5px;
 }
 :deep(.cm-line) {
+  overflow: hidden;
   padding: 0;
+  text-overflow: ellipsis;
 }
 .filemask {
   mask-image: linear-gradient(
