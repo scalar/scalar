@@ -45,6 +45,10 @@ onMounted(() => {
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
+    if (!oldConfig) {
+      return
+    }
+
     const diff = microdiff(oldConfig, newConfig)
     const hasContentChanged = diff.some(
       (d) =>
