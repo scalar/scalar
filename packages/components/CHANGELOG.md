@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.52
+
+### Patch Changes
+
+- 1f8ac99: chore: export type for combobox group
+  - @scalar/themes@0.10.2
+  - @scalar/code-highlight@0.0.27
+  - @scalar/use-hooks@0.1.44
+  - @scalar/icons@0.3.1
+
 ## 0.13.51
 
 ### Patch Changes

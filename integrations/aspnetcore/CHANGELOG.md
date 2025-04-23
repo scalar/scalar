@@ -1,5 +1,19 @@
 # @scalar/aspnetcore
 
+## 2.2.0
+
+### Minor Changes
+
+- a20fd80: feat: support for new authentication please checkout the [migration guide](https://github.com/scalar/scalar/discussions/5468)
+
+### Patch Changes
+
+- Updated dependencies [fa8ed84]
+- Updated dependencies [119f04c]
+- Updated dependencies [2109da5]
+- Updated dependencies [ad9e626]
+  - @scalar/api-reference@1.28.25
+
 ## 2.1.18
 
 ### Patch Changes

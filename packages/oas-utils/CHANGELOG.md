@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.135
+
+### Patch Changes
+
+- fa8ed84: feat: custom OpenAPI extension to add SDK setup instructions
+- fa8ed84: fix: omitUndefinedValues transforms arrays to objects
+- 8d54857: feat: omit deprecated fields from examples
+- Updated dependencies [fa8ed84]
+  - @scalar/openapi-types@0.2.1
+  - @scalar/types@0.1.10
+  - @scalar/themes@0.10.2
+
 ## 0.2.134
 
 ### Patch Changes

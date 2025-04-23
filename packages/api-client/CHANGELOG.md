@@ -1,5 +1,30 @@
 # @scalar/api-client
 
+## 2.3.25
+
+### Patch Changes
+
+- 0ff02e3: feat: adds request table row deletion
+- 98fa8a0: fix: decreases import collection modal preview font size
+- 2109da5: feat: use live sync mutator for changes to config (do not blindly re-create state)
+- 0ff02e3: feat: adds request table input wrapping
+- Updated dependencies [fa8ed84]
+- Updated dependencies [fa8ed84]
+- Updated dependencies [8d54857]
+- Updated dependencies [1f8ac99]
+  - @scalar/openapi-types@0.2.1
+  - @scalar/oas-utils@0.2.135
+  - @scalar/components@0.13.52
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/postman-to-openapi@0.2.8
+  - @scalar/types@0.1.10
+  - @scalar/import@0.3.18
+  - @scalar/use-codemirror@0.11.97
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.2
+  - @scalar/use-hooks@0.1.44
+  - @scalar/icons@0.3.1
+
 ## 2.3.24
 
 ### Patch Changes
