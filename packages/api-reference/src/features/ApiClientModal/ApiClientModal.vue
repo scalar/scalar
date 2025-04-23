@@ -63,7 +63,6 @@ watchDebounced(
       client.value?.updateConfig(newConfig)
     }
     // Or we handle the specific diff changes, just auth and servers for now
-    // TODO: move to lib and add tests
     else {
       diff.forEach((diff) => {
         // Servers
