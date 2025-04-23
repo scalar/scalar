@@ -59,6 +59,7 @@ watchDebounced(
     )
 
     // If the content changes then we re-create the whole store
+    // TODO: we can easily use live sync for this as well
     if (hasContentChanged) {
       client.value?.updateConfig(newConfig)
     }
@@ -71,7 +72,6 @@ watchDebounced(
         }
         // Auth - TODO preferredSecurityScheme
         else if (diff.path[0] === 'authentication') {
-          console.log('security', diff.path.slice(1))
           mutateSecuritySchemeDiff(diff, activeEntities, store)
         }
         // TODO: baseServerURL
