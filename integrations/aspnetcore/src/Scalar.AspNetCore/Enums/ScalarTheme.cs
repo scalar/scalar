@@ -73,5 +73,11 @@ public enum ScalarTheme
     /// Deep Space theme.
     /// </summary>
     [Description("deepSpace")]
-    DeepSpace
+    DeepSpace,
+    
+    /// <summary>
+    /// Laserwave theme.
+    /// </summary>
+    [Description("laserwave")]
+    Laserwave
 }

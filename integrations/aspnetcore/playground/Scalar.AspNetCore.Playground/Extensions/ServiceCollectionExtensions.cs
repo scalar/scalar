@@ -9,8 +9,8 @@ internal static class ServiceCollectionExtensions
 {
     internal static void AddAuthenticationScheme(this IServiceCollection services)
     {
-        services.AddAuthentication(AuthConstants.ApiKey)
-            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(AuthConstants.ApiKey, null);
+        services.AddAuthentication(AuthConstants.ApiKeyScheme)
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(AuthConstants.ApiKeyScheme, null);
         services.AddAuthorization();
     }
 
@@ -30,7 +30,7 @@ internal static class ServiceCollectionExtensions
             services.AddOpenApi(version, options =>
             {
                 // Adds api key security scheme to the api
-                options.AddSecurityScheme(AuthConstants.ApiKey, scheme =>
+                options.AddSecurityScheme(AuthConstants.ApiKeyScheme, scheme =>
                 {
                     scheme.Type = SecuritySchemeType.ApiKey;
                     scheme.In = ParameterLocation.Header;

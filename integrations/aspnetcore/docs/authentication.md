@@ -87,24 +87,35 @@ This addition ensures that the security scheme is applied globally to all operat
 To make the usage of this scheme easier, you can prefill the `Token` in the `MapScalarApiReference()` method:
 
 ```csharp
-app.MapScalarApiReference(options => options.Authentication = new ScalarAuthenticationOptions
-{
-    PreferredSecurityScheme = JwtBearerDefaults.AuthenticationScheme,
-    Http = new HttpOptions
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BearerAuth")
+    .AddHttpAuthentication("BearerAuth", auth =>
     {
-        Bearer = new HttpBearerOptions
-        {
-            Token = "my JWT token"
-        }
-    }
-});
+        auth.Token = "ey...";
+    });
+);
 ```
 
 This configuration preselects the `Bearer` authentication scheme in the API Reference and pre-fills the token with a given value.
 
-## OAuth Authentication
+### HTTP Basic Authentication
 
-OAuth is a widely used authorization standard that typically uses a Bearer Token to authenticate users. It supports various flows, including Authorization Code, Implicit, and Client Credentials.
+Similarly, you can set up Basic authentication using HTTP security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BasicAuth")
+    .AddHttpAuthentication("BasicAuth", auth =>
+    {
+        auth.Username = "your-username";
+        auth.Password = "your-password";
+    })
+);
+```
+
+## OAuth2 Authentication
+
+OAuth is a widely used authorization standard that typically uses a Bearer Token to authenticate users. It supports various flows, including Authorization Code, Implicit, Client Credentials, and Password.
 
 When integrating OAuth with your API, you need to configure the appropriate OAuth flow as a security scheme in your OpenAPI document. This ensures that `Scalar.AspNetCore` can recognize and display the necessary authentication options based on the selected OAuth flow. It is possible to provide multiple flows for a security scheme.
 
@@ -141,61 +152,188 @@ options.AddDocumentTransformer((document, _, _) =>
 });
 ```
 
-This transformer ensures that the required security scheme is included in the generated OpenAPI document. Once you start your project, you will see an option in the authentication dropdown.
+### Using the Core OAuth2 Configuration Method
 
-### Adding a Global Security Requirement for OAuth
-
-Optionally, add a security requirement to the entire OpenAPI document:
+For direct control over OAuth2 security schemes, you can use the core `AddOAuth2Authentication` method. This is the foundation that all other OAuth2 configuration methods build on:
 
 ```csharp
-options.AddDocumentTransformer((document, _, _) =>
-{
-    var securityScheme = new OpenApiSecurityScheme
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddOAuth2Authentication("OAuth", scheme =>
     {
-        Type = SecuritySchemeType.OAuth2,
-        Flows = new OpenApiOAuthFlows
+        // Configure flows manually
+        scheme.Flows = new ScalarFlows
         {
-            ClientCredentials = new OpenApiOAuthFlow
+            AuthorizationCode = new AuthorizationCodeFlow
             {
-                TokenUrl = new Uri("https://your-authorization-server.com/connect/token")
+                ClientId = "your-client-id"
+            },
+            ClientCredentials = new ClientCredentialsFlow
+            {
+                ClientId = "your-client-id",
+                ClientSecret = "your-client-secret"
             }
-        }
-    };
-    document.Components ??= new OpenApiComponents();
-    document.Components.SecuritySchemes.Add("OAuth", securityScheme);
-
-    // Adds a global security requirement
-    var referenceScheme = new OpenApiSecurityScheme
-    {
-        Reference = new OpenApiReference
-        {
-            Id = "OAuth",
-            Type = ReferenceType.SecurityScheme
-        }
-    };
-    
-    document.SecurityRequirements.Add(new OpenApiSecurityRequirement
-    {
-        [referenceScheme] = []
+        };
+        
+        // Set default scopes
+        scheme.DefaultScopes = ["profile", "email"];
     });
-
-    return Task.CompletedTask;
-});
+);
 ```
 
-### Prefilling Credentials for OAuth
+> [!NOTE]
+> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
+> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core method 
+> that make it easier to configure specific flows.
 
-To make the usage of this scheme easier, you can prefill the `ClientId` in the `MapScalarApiReference()` method:
+### Prefilling Client Credentials Flow
+
+To make authentication easier for users, you can prefill the OAuth2 client credentials flow using the new authentication approach:
 
 ```csharp
-app.MapScalarApiReference(options => options.Authentication = new ScalarAuthenticationOptions
-{
-    PreferredSecurityScheme = "OAuth",
-    OAuth2 = new OAuth2Options
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddClientCredentialsFlow("OAuth", flow =>
     {
-        ClientId = "your-client-id"
-    }
-});
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+        flow.SelectedScopes = ["profile", "email"];
+    });
+);
 ```
 
-This configuration preselects the `OAuth` authentication scheme in the API Reference and pre-fills the token with a given value.
+### Authorization Code Flow
+
+For the Authorization Code flow, use the following configuration:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddAuthorizationCodeFlow("OAuth", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+        flow.Pkce = Pkce.Sha256; // Use PKCE for additional security
+    });
+);
+```
+
+### Implicit Flow
+
+For the Implicit flow, configure it like this:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddImplicitFlow("OAuth", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    });
+);
+```
+
+### Password Flow
+
+For the Resource Owner Password Credentials flow:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddPasswordFlow("OAuth", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.Username = "default-username";
+        flow.Password = "default-password";
+    });
+);
+```
+
+### Multiple OAuth Flows
+
+You can configure multiple OAuth flows for the same security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddOAuth2Flows("OAuth", flows =>
+    {
+        // Configure Authorization Code flow
+        flows.AuthorizationCode = new AuthorizationCodeFlow
+        {
+            ClientId = "your-client-id"
+        };
+
+        // Configure Client Credentials flow
+        flows.ClientCredentials = new ClientCredentialsFlow
+        {
+            ClientId = "your-client-id",
+            ClientSecret = "your-client-secret"
+        };
+    })
+    // All OAuth flows will have preselected scopes
+    .AddDefaultScopes("OAuth", ["profile", "email"])
+);
+```
+
+### Overriding OpenAPI Document Values
+
+When configuring authentication, you can also override values that are defined in the OpenAPI document. This is particularly useful when you need to change URLs or other properties without modifying the OpenAPI document itself.
+
+For example, you can override the TokenUrl, AuthorizationUrl, or other endpoints defined in the OpenAPI document:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth")
+    .AddOAuth2Flows("OAuth", flows =>
+    {
+        flows.AuthorizationCode = new AuthorizationCodeFlow
+        {
+            ClientId = "your-client-id",
+            // Override AuthorizationUrl from OpenAPI document
+            AuthorizationUrl = "https://your-custom-auth-server.com/authorize",
+            // Override TokenUrl from OpenAPI document
+            TokenUrl = "https://your-custom-auth-server.com/token",
+            // Override RedirectUri from OpenAPI document
+            RedirectUri = "https://your-app.com/custom-callback"
+        };
+    })
+);
+```
+
+## API Key Authentication
+
+For API Key authentication, configure it as follows:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("ApiKey")
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
+    {
+        apiKey.Value = "your-api-key";
+    })
+);
+```
+
+## Multiple Security Schemes
+
+You can configure multiple security schemes in the same application:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth") // Set the preferred default scheme
+    .AddOAuth2Flows("OAuth", flows =>
+    {
+        flows.AuthorizationCode = new AuthorizationCodeFlow
+        {
+            ClientId = "your-client-id"
+        };
+    })
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
+    {
+        apiKey.Value = "your-api-key";
+    });
+);
+```
+
+> [!WARNING]
+> Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.

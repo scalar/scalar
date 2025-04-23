@@ -2,5 +2,5 @@ namespace Scalar.AspNetCore.Playground;
 
 internal struct AuthConstants
 {
-    internal const string ApiKey = "ApiKey";
+    internal const string ApiKeyScheme = "ApiKey";
 }
