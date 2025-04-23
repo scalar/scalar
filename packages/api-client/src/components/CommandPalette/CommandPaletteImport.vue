@@ -210,7 +210,9 @@ const handleInput = (value: string) => {
     <template v-else>
       <!-- OpenAPI document preview -->
       <div class="flex justify-between">
-        <div class="text-c-2 min-h-8 py-2 pl-8 text-xs">Preview</div>
+        <div class="text-c-2 min-h-8 w-full py-2 pl-12 text-center text-xs">
+          Preview
+        </div>
         <ScalarButton
           class="hover:bg-b-2 relative ml-auto max-h-8 gap-1.5 p-2 text-xs"
           variant="ghost"
@@ -220,7 +222,7 @@ const handleInput = (value: string) => {
       </div>
       <ScalarCodeBlock
         v-if="documentDetails && !isUrl(inputContent)"
-        class="bg-b-2 mt-1 max-h-[40dvh] rounded border [--scalar-small:--scalar-font-size-4]"
+        class="bg-b-2 mt-1 max-h-[40dvh] rounded border px-2 py-1 text-sm"
         :content="inputContent"
         :copy="false"
         :lang="documentType" />
