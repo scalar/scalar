@@ -45,15 +45,15 @@ const customExtensions =
 </script>
 
 <template>
-  <template v-if="typeof value === 'object'">
-    <template v-for="extension in customExtensions">
-      <ScalarErrorBoundary>
-        <div class="text-base">
+  <template v-if="typeof value === 'object' && customExtensions.length">
+    <div class="text-base">
+      <template v-for="extension in customExtensions">
+        <ScalarErrorBoundary>
           <component
             :is="extension.component"
             v-bind="{ [extension.name]: value?.[extension.name] }" />
-        </div>
-      </ScalarErrorBoundary>
-    </template>
+        </ScalarErrorBoundary>
+      </template>
+    </div>
   </template>
 </template>
