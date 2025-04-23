@@ -149,8 +149,8 @@ const showDeleteButton = (item: RequestExampleParameter) => {
         <CodeInput
           :class="
             hasItemProperties(item)
-              ? 'pr-5 group-hover:pr-10 group-has-[.cm-focused]:pr-10'
-              : 'group-hover:pr-5 group-has-[.cm-focused]:pr-5'
+              ? 'pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10'
+              : 'group-hover:pr-6 group-has-[.cm-focused]:pr-6'
           "
           :default="item.default"
           disableCloseBrackets
