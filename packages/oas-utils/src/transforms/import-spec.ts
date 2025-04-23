@@ -178,7 +178,7 @@ export async function importSpecToWorkspace(
 
   const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
 
-  // Toss out a deprecated warning for the old authentication state
+  // @ts-expect-error - Toss out a deprecated warning for the old authentication state
   if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
     console.warn(
       `DEPRECATION WARNING: It looks like you're using legacy authentication config. Please migrate to use the updated config. See https://github.com/scalar/scalar/blob/main/documentation/configuration.md#authentication-partial This will be removed in a future version.`,
@@ -200,13 +200,15 @@ export async function importSpecToWorkspace(
         const flowKeys = Object.keys(payload.flows) as Array<keyof typeof payload.flows>
 
         flowKeys.forEach((key) => {
-          if (!payload.flows?.[key]) {
+          if (!payload.flows?.[key] || _scheme.type !== 'oauth2') {
             return
           }
+          const authFlow = (authentication?.securitySchemes?.[nameKey] as SecuritySchemeOauth2)?.flows?.[key] ?? {}
+
           // This part handles setting of flows via the new auth config, the rest can be removed in a future version
           payload.flows[key] = {
-            ...((_scheme as SecuritySchemeOauth2).flows?.[key] ?? {}),
-            ...(authentication?.securitySchemes?.[nameKey]?.flows?.[key] ?? {}),
+            ...(_scheme.flows?.[key] ?? {}),
+            ...authFlow,
           } satisfies Oauth2FlowPayload
 
           const flow = payload.flows[key] as Oauth2FlowPayload
@@ -215,21 +217,30 @@ export async function importSpecToWorkspace(
           flow.type = key
 
           // Prefill values from authorization config - old deprecated config
+          // @ts-expect-error - deprecated
           if (authentication?.oAuth2) {
+            // @ts-expect-error - deprecated
             if (authentication.oAuth2.accessToken) {
+              // @ts-expect-error - deprecated
               flow.token = authentication.oAuth2.accessToken
             }
 
+            // @ts-expect-error - deprecated
             if (authentication.oAuth2.clientId) {
+              // @ts-expect-error - deprecated
               flow['x-scalar-client-id'] = authentication.oAuth2.clientId
             }
 
+            // @ts-expect-error - deprecated
             if (authentication.oAuth2.scopes) {
+              // @ts-expect-error - deprecated
               flow.selectedScopes = authentication.oAuth2.scopes
             }
 
             if (flow.type === 'password') {
+              // @ts-expect-error - deprecated
               flow.username = authentication.oAuth2.username
+              // @ts-expect-error - deprecated
               flow.password = authentication.oAuth2.password
             }
           }
@@ -248,17 +259,24 @@ export async function importSpecToWorkspace(
       // Otherwise we just prefill  - old deprecated config
       else if (authentication) {
         // ApiKey
+        // @ts-expect-error - deprecated
         if (payload.type === 'apiKey' && authentication.apiKey?.token) {
+          // @ts-expect-error - deprecated
           payload.value = authentication.apiKey.token
         }
         // HTTP
         else if (payload.type === 'http') {
+          // @ts-expect-error - deprecated
           if (payload.scheme === 'basic' && authentication.http?.basic) {
+            // @ts-expect-error - deprecated
             payload.username = authentication.http.basic.username ?? ''
+            // @ts-expect-error - deprecated
             payload.password = authentication.http.basic.password ?? ''
           }
           // Bearer
+          // @ts-expect-error - deprecated
           else if (payload.scheme === 'bearer' && authentication.http?.bearer?.token) {
+            // @ts-expect-error - deprecated
             payload.token = authentication.http.bearer.token ?? ''
           }
         }
