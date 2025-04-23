@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
-import { apiReference } from '@scalar/hono-api-reference'
+import { Scalar } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 
 const specification = await readOpenApiDocumentFromDisk()
@@ -25,9 +25,10 @@ const app = await createMockServer({
 // Load the middleware
 app.get(
   '/',
-  apiReference({
+  Scalar({
     // Served by createMockServer
     url: '/openapi.yaml',
+    theme: 'default',
     pageTitle: 'Scalar Galaxy',
   }),
 )
