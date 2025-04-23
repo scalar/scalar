@@ -232,7 +232,7 @@ export const parseDiff = <T>(
 
   // Safe parse the value as well
   const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
-  if (!parsedValue) {
+  if (typeof parsedValue === 'undefined' || parsedValue === null) {
     return null
   }
 
