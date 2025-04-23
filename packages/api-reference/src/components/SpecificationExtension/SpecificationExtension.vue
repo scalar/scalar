@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import { computed } from 'vue'
 
 import { usePluginManager } from '@/plugins'
 
@@ -35,13 +36,14 @@ function getCustomOpenApiExtensionComponents(extensionNames: `x-${string}`[]) {
 /**
  * Get the names of custom extensions from the provided value.
  */
-const customExtensionNames = getCustomExtensionNames(value)
+const customExtensionNames = computed(() => getCustomExtensionNames(value))
 
 /**
  * Get the components for the custom extensions.
  */
-const customExtensions =
-  getCustomOpenApiExtensionComponents(customExtensionNames)
+const customExtensions = computed(() =>
+  getCustomOpenApiExtensionComponents(customExtensionNames.value),
+)
 </script>
 
 <template>
