@@ -1,12 +1,13 @@
 ls:
-  packages/{void-server,mock-server,core}/src:
+  packages/{void-server,mock-server,core,build-tooling,code-highlight,draggable,galaxy,icons,import,oas-utils,object-utils,snippetz}/src:
     .ts: kebab-case
     .d.ts: kebab-case
     .test.ts: kebab-case
     .vue: PascalCase
-  packages/{void-server,mock-server,core}/hooks:
-    .ts: PascalCase
-  packages/{void-server,mock-server,core}/libs:
+  packages/{void-server,mock-server,core,build-tooling,code-highlight,draggable,galaxy,icons,import,oas-utils,object-utils,snippetz}/src/hooks:
+    .ts: camelCase
+    .test.ts: camelCase
+  packages/{void-server,mock-server,core,build-tooling,code-highlight,draggable,galaxy,icons,import,oas-utils,object-utils,snippetz}/libs:
     .ts: kebab-case
 
 ignore:

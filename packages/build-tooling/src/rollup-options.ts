@@ -8,7 +8,7 @@ import type { InputPluginOption, RollupOptions } from 'rollup'
 import copy, { type Target } from 'rollup-plugin-copy'
 import css from 'rollup-plugin-import-css'
 
-import emptyOutDir from './rollup-plugins/emptyOutDir'
+import emptyOutDir from './rollup-plugins/empty-out-dir'
 
 export type StrictPluginOptions = RollupOptions & {
   plugins?: InputPluginOption[]

@@ -7,10 +7,15 @@ type CaseRule = 'kebab-case' | 'PascalCase' | string
 
 // Function to convert string based on rule
 function convertCase(str: string, rule: CaseRule): string {
+  // Special case for index.* files - always lowercase
+  if (str.toLowerCase().startsWith('index.')) {
+    return str.toLowerCase()
+  }
+
   // Handle regex rules (e.g. regex:${0})
   if (rule.startsWith('regex:')) {
     // TODO: Write the logic once we need regex rules
-    console.warn(`We didn’t implement regex rules yet for ${str}`)
+    console.warn(`We didn't implement regex rules yet for ${str}`)
     return str
   }
 
@@ -19,6 +24,8 @@ function convertCase(str: string, rule: CaseRule): string {
       const result = str
         // Handle special case for .test.ts files
         .replace(/\.test\.ts$/, (match) => match)
+        // Convert underscores to hyphens
+        .replace(/_/g, '-')
         // Convert camelCase/PascalCase to kebab-case
         .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
         .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
@@ -38,16 +45,24 @@ function convertCase(str: string, rule: CaseRule): string {
       return result
     }
 
+    case 'camelCase': {
+      // Convert kebab-case to camelCase
+      const result = str
+        .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+        .replace(/^[A-Z]/, (letter) => letter.toLowerCase())
+      return result
+    }
+
     default:
       return str
   }
 }
 
 // Function to safely rename a file
-function safeRename(oldPath: string, newPath: string) {
+function safeRename(oldPath: string, newPath: string, rule: CaseRule) {
   try {
     if (oldPath !== newPath) {
-      console.log(`${basename(oldPath)} -> ${basename(newPath)}`)
+      console.log(`${basename(oldPath)} -> ${basename(newPath)} (${rule})`)
       renameSync(oldPath, newPath)
     }
   } catch (error) {
@@ -58,29 +73,36 @@ function safeRename(oldPath: string, newPath: string) {
 // Function to get rule for a file based on its path and extension
 function getRuleForFile(config: any, filePath: string, extension: string): CaseRule | null {
   const normalizedPath = filePath.replace(/\\/g, '/')
+  const matchingRules: Array<{ pattern: string; rule: CaseRule }> = []
 
-  // Find matching configuration
+  // Find all matching configurations
   for (const [pattern, rules] of Object.entries(config.ls)) {
-    // Create a glob pattern that matches the directory structure
     const fullPattern = `${pattern}/**/*${extension}`
-
     const matches = globSync(fullPattern, {
       dot: true,
-      absolute: true, // Use absolute paths to match against normalizedPath
+      absolute: true,
     })
 
-    // Check if the normalized path matches any of the glob results exactly
     if (matches.some((match) => match === normalizedPath)) {
       const ruleSet = rules as any
-
-      // Find the rule for this extension
       if (ruleSet[extension]) {
-        return ruleSet[extension] as CaseRule
+        matchingRules.push({
+          pattern,
+          rule: ruleSet[extension] as CaseRule,
+        })
       }
     }
   }
 
-  return null
+  // Sort by pattern specificity (more segments = more specific)
+  matchingRules.sort((a, b) => {
+    const aSegments = a.pattern.split('/').length
+    const bSegments = b.pattern.split('/').length
+    return bSegments - aSegments
+  })
+
+  // Return the most specific matching rule, or null if no matches
+  return matchingRules[0]?.rule ?? null
 }
 
 // Main function to process file renaming
@@ -114,7 +136,7 @@ function renameFiles(config: any) {
     if (rule) {
       const newName = convertCase(file, rule)
       const newPath = join(dir, newName)
-      safeRename(filePath, newPath)
+      safeRename(filePath, newPath, rule)
     }
   })
 }
