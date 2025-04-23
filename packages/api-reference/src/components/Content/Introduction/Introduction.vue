@@ -99,6 +99,7 @@ onMounted(() => config.value.onLoaded?.())
             </div>
           </SectionColumn>
         </SectionColumns>
+        <SpecificationExtension :value="parsedSpec" />
         <SpecificationExtension :value="info" />
       </SectionContent>
       <slot name="after" />
