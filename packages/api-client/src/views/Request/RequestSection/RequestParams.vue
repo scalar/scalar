@@ -133,6 +133,20 @@ const deleteAllRows = () => {
   nextTick(() => addRow())
 }
 
+const deleteRow = (rowIdx: number) => {
+  const currentParams = params.value
+  if (currentParams.length > rowIdx) {
+    const updatedParams = [...currentParams]
+    updatedParams.splice(rowIdx, 1)
+
+    requestExampleMutators.edit(
+      example.uid,
+      `parameters.${paramKey}`,
+      updatedParams,
+    )
+  }
+}
+
 function defaultRow() {
   /** ensure one empty row by default */
   if (params.value.length === 0) {
@@ -225,7 +239,8 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         :label
         :workspace="workspace"
         @toggleRow="toggleRow"
-        @updateRow="updateRow" />
+        @updateRow="updateRow"
+        @deleteRow="deleteRow" />
     </div>
   </ViewLayoutCollapse>
 </template>

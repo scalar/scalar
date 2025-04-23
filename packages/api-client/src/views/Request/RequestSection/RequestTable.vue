@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import { ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -42,7 +43,7 @@ const emit = defineEmits<{
   (e: 'updateRow', idx: number, field: 'key' | 'value', value: string): void
   (e: 'toggleRow', idx: number, enabled: boolean): void
   (e: 'addRow'): void
-  (e: 'deleteRow'): void
+  (e: 'deleteRow', idx: number): void
   (e: 'inputFocus'): void
   (e: 'inputBlur'): void
   (e: 'uploadFile', idx: number): void
@@ -67,6 +68,11 @@ const flattenValue = (item: RequestExampleParameter) => {
   return Array.isArray(item.default) && item.default.length === 1
     ? item.default[0]
     : item.default
+}
+
+// Shows delete button if the item has key or value filled
+const showDeleteButton = (item: RequestExampleParameter) => {
+  return Boolean(item.key || item.value)
 }
 </script>
 <template>
@@ -141,9 +147,11 @@ const flattenValue = (item: RequestExampleParameter) => {
       </DataTableCell>
       <DataTableCell>
         <CodeInput
-          :class="{
-            'pr-6': hasItemProperties(item),
-          }"
+          :class="
+            hasItemProperties(item)
+              ? 'pr-5 group-hover:pr-10 group-has-[.cm-focused]:pr-10'
+              : 'group-hover:pr-5 group-has-[.cm-focused]:pr-5'
+          "
           :default="item.default"
           disableCloseBrackets
           :disabled="props.isReadOnly"
@@ -167,6 +175,17 @@ const flattenValue = (item: RequestExampleParameter) => {
             (v: string) => emit('updateRow', idx, 'value', v)
           ">
           <template #icon>
+            <ScalarButton
+              v-if="showDeleteButton(item) && !item.required"
+              :class="{
+                '-mr-0.5': hasItemProperties(item),
+              }"
+              class="text-c-2 hover:text-c-1 hover:bg-b-2 z-context hidden h-fit rounded p-1 group-hover:flex group-has-[.cm-focused]:flex"
+              size="sm"
+              variant="ghost"
+              @click="emit('deleteRow', idx)">
+              <ScalarIconTrash class="size-3.5" />
+            </ScalarButton>
             <RequestTableTooltip
               v-if="hasItemProperties(item)"
               :item="{ ...item, default: flattenValue(item) }" />
@@ -219,6 +238,7 @@ const flattenValue = (item: RequestExampleParameter) => {
   font-family: var(--scalar-font);
   font-size: var(--scalar-mini);
   padding: 6px 8px;
+  width: 100%;
 }
 :deep(.cm-content):has(.cm-pill) {
   padding: 4px 3px;
