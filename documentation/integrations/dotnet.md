@@ -4,6 +4,7 @@ The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar AP
 
 ## Migration Guide
 
+If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
 If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
 
 ## Basic Setup
