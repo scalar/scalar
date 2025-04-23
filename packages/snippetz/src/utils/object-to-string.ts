@@ -1,4 +1,4 @@
-import { needsQuotes } from './needsQuotes'
+import { needsQuotes } from './needs-quotes'
 
 /**
  * Converts an object into a string representation with proper formatting and indentation

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { clojureCljhttp } from './clj_http'
+import { clojureCljhttp } from './clj-http'
 
 describe('clojureCljhttp', () => {
   it('returns a basic request', () => {

@@ -1,5 +1,5 @@
 import { httpie } from '@/httpsnippet-lite/esm/targets/shell/httpie/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import { convertWithHttpSnippetLite } from '@/utils/convert-with-http-snippet-lite'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**

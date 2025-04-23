@@ -1,5 +1,5 @@
 import { native } from '@/httpsnippet-lite/esm/targets/ruby/native/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import { convertWithHttpSnippetLite } from '@/utils/convert-with-http-snippet-lite'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**

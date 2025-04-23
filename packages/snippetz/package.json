@@ -38,10 +38,10 @@
       "types": "./dist/plugins/c/libcurl/index.d.ts",
       "default": "./dist/plugins/c/libcurl/index.js"
     },
-    "./plugins/clojure/clj_http": {
-      "import": "./dist/plugins/clojure/clj_http/index.js",
-      "types": "./dist/plugins/clojure/clj_http/index.d.ts",
-      "default": "./dist/plugins/clojure/clj_http/index.js"
+    "./plugins/clojure/clj-http": {
+      "import": "./dist/plugins/clojure/clj-http/index.js",
+      "types": "./dist/plugins/clojure/clj-http/index.d.ts",
+      "default": "./dist/plugins/clojure/clj-http/index.js"
     },
     "./plugins/csharp/httpclient": {
       "import": "./dist/plugins/csharp/httpclient/index.js",

@@ -1,5 +1,5 @@
 import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
-import { clojureCljhttp } from '@/plugins/clojure/clj_http'
+import { clojureCljhttp } from '@/plugins/clojure/clj-http'
 import { csharpHttpclient } from '@/plugins/csharp/httpclient'
 import { csharpRestsharp } from '@/plugins/csharp/restsharp'
 import { dartHttp } from '@/plugins/dart/http'

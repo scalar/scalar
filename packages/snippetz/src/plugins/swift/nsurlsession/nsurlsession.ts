@@ -1,5 +1,5 @@
 import { nsurlsession } from '@/httpsnippet-lite/esm/targets/swift/nsurlsession/client'
-import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
+import { convertWithHttpSnippetLite } from '@/utils/convert-with-http-snippet-lite'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**

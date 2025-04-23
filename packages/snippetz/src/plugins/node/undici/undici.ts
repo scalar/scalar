@@ -1,5 +1,5 @@
-import { arrayToObject } from '@/utils/arrayToObject'
-import { objectToString } from '@/utils/objectToString'
+import { arrayToObject } from '@/utils/array-to-object'
+import { objectToString } from '@/utils/object-to-string'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
