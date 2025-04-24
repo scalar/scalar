@@ -302,6 +302,7 @@ You need them in another place? [Create an issue to let us know.](https://github
     XCustomExtensionPlugin(),
   ],
 }
+```
 
 ### showSidebar?: boolean
 
