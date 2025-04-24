@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.3.26
+
+### Patch Changes
+
+- Updated dependencies [eb4854d]
+- Updated dependencies [eb4854d]
+  - @scalar/types@0.1.11
+  - @scalar/oas-utils@0.2.136
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.3
+  - @scalar/import@0.3.19
+  - @scalar/postman-to-openapi@0.2.9
+  - @scalar/components@0.13.53
+  - @scalar/use-codemirror@0.11.98
+  - @scalar/use-hooks@0.1.45
+  - @scalar/icons@0.3.2
+
 ## 2.3.25
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.11
+
+### Patch Changes
+
+- eb4854d: fix: types of authentication config
+
 ## 0.1.10
 
 ### Patch Changes
