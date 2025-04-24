@@ -1189,12 +1189,6 @@ importers:
       nanoid:
         specifier: catalog:*
         version: 5.1.5
-      react:
-        specifier: ^19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.0.0)
       vue:
         specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
@@ -1208,12 +1202,6 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.0.1
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.0.2(@types/react@19.0.1)
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.0(vite@5.4.19(@types/node@22.15.3)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -1947,6 +1935,37 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+
+  packages/react-renderer:
+    dependencies:
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.12(typescript@5.6.2)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
+      '@vitejs/plugin-vue':
+        specifier: 'catalog:'
+        version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      '@vue/test-utils':
+        specifier: ^2.4.1
+        version: 2.4.6
+      vite:
+        specifier: ^5.1.1
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/snippetz:
     dependencies:

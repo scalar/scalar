@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.strict.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "types": ["react", "react-dom", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
