@@ -4,6 +4,7 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 import { Configuration } from './Panels/Configuration'
+import { Theme } from './Panels/Theme'
 
 defineProps<{
   modelValue: boolean
@@ -28,10 +29,11 @@ const items = [
     label: 'Configuration',
     component: Configuration,
   },
-  // {
-  //   icon: 'PaintBrush',
-  //   label: 'Theme',
-  // },
+  {
+    icon: 'PaintBrush',
+    label: 'Theme',
+    component: Theme,
+  },
   // {
   //   icon: 'Ship',
   //   label: 'Publish',
