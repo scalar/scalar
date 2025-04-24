@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarListbox } from '@scalar/components'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 // A list of system font-family font stacks (sans-serif, serif, monospace, Comic Sans)
 const fonts = [
@@ -25,12 +25,21 @@ const selectedFont = ref(fontOptions.value[0])
 
 // Helper function to get CSS variable value
 const getCssVariable = (variableName: string) => {
+  // First try to get from the .scalar-app element which is the root of the application
+  const scalarApp = document.querySelector('.scalar-app')
+  if (scalarApp) {
+    const value = getComputedStyle(scalarApp)
+      .getPropertyValue(variableName)
+      .trim()
+    if (value !== '') {
+      return value
+    }
+  }
+
+  // Fallback to document.documentElement
   const value = getComputedStyle(document.documentElement)
     .getPropertyValue(variableName)
     .trim()
-
-  // TODO: This doesn't work
-  console.log(variableName, value)
 
   return value === '' ? undefined : value
 }
@@ -44,6 +53,9 @@ const bgColor2 = ref(getCssVariable('--scalar-background-2'))
 const bgColor3 = ref(getCssVariable('--scalar-background-3'))
 const bgColorAccent = ref(getCssVariable('--scalar-background-accent'))
 const borderColor = ref(getCssVariable('--scalar-border-color'))
+const borderRadius = ref(getCssVariable('--scalar-radius'))
+const borderRadiusLg = ref(getCssVariable('--scalar-radius-lg'))
+const borderWidth = ref(getCssVariable('--scalar-border-width'))
 </script>
 
 <template>
@@ -101,6 +113,10 @@ const borderColor = ref(getCssVariable('--scalar-border-color'))
           type="color"
           v-model="colorAccent" />
       </div>
+    </fieldset>
+
+    <fieldset class="bg-b-2 w-1/3 rounded-md border p-3">
+      <legend class="font-bold">Background</legend>
 
       <label class="mb-2 block">Background Color 1</label>
       <div class="mb-4 flex gap-4">
@@ -129,6 +145,10 @@ const borderColor = ref(getCssVariable('--scalar-border-color'))
           type="color"
           v-model="bgColorAccent" />
       </div>
+    </fieldset>
+
+    <fieldset class="bg-b-2 w-1/3 rounded-md border p-3">
+      <legend class="font-bold">Border</legend>
 
       <label class="mb-2 block">Border Color</label>
       <div class="mb-4 flex gap-4">
@@ -136,14 +156,40 @@ const borderColor = ref(getCssVariable('--scalar-border-color'))
           type="color"
           v-model="borderColor" />
       </div>
+
+      <label class="mb-2 block">Border Radius</label>
+      <div class="mb-4 flex gap-4">
+        <input
+          type="text"
+          class="p-2"
+          v-model="borderRadius" />
+      </div>
+
+      <label class="mb-2 block">Border Radius Large</label>
+      <div class="mb-4 flex gap-4">
+        <input
+          type="text"
+          class="p-2"
+          v-model="borderRadiusLg" />
+      </div>
+
+      <label class="mb-2 block">Border Width</label>
+      <div class="mb-4 flex gap-4">
+        <input
+          type="text"
+          class="p-2"
+          v-model="borderWidth" />
+      </div>
     </fieldset>
   </div>
   <component is="style">
-    :root { --scalar-font: {{ selectedFont.value }}; } .light-mode {
-    --scalar-color-1: {{ color1 || 'inherit' }}; --scalar-color-2:
-    {{ color2 || 'inherit' }}; --scalar-color-3: {{ color3 || 'inherit' }};
-    --scalar-color-accent: {{ colorAccent || 'inherit' }};
-    --scalar-background-1: {{ bgColor1 || 'inherit' }}; --scalar-background-2:
+    :root { --scalar-font: {{ selectedFont.value }}; --scalar-radius:
+    {{ borderRadius || 'inherit' }}; --scalar-border-width:
+    {{ borderWidth || 'inherit' }}; } .light-mode { --scalar-color-1:
+    {{ color1 || 'inherit' }}; --scalar-color-2: {{ color2 || 'inherit' }};
+    --scalar-color-3: {{ color3 || 'inherit' }}; --scalar-color-accent:
+    {{ colorAccent || 'inherit' }}; --scalar-background-1:
+    {{ bgColor1 || 'inherit' }}; --scalar-background-2:
     {{ bgColor2 || 'inherit' }}; --scalar-background-3:
     {{ bgColor3 || 'inherit' }}; --scalar-background-accent :
     {{ bgColorAccent || 'inherit' }}; --scalar-border-color:
