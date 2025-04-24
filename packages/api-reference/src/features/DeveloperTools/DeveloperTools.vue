@@ -31,9 +31,11 @@ const updateConfiguration = (value: Partial<AnyApiReferenceConfiguration>) => {
 <template>
   <template v-if="shouldShow">
     <!-- TODO: Refactor into meaningful components -->
-    <FloatingButton
-      v-model="isOpen"
-      :configuration="configuration"
-      @update:configuration="updateConfiguration" />
+    <div class="dark-mode text-c-1">
+      <FloatingButton
+        v-model="isOpen"
+        :configuration="configuration"
+        @update:configuration="updateConfiguration" />
+    </div>
   </template>
 </template>

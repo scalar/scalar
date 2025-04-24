@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 import { Configuration } from './Panels/Configuration'
@@ -71,7 +71,8 @@ const items = [
             v-slot="{ selected }"
             as="template">
             <ScalarButton
-              class="developer-tools-button"
+              class="developer-tools-button max-h-7 p-0 px-3 text-xs"
+              variant="ghost"
               :class="{ 'developer-tools-button--selected': selected }">
               <ScalarIcon :icon="tab.icon" />
               {{ tab.label }}
@@ -85,7 +86,12 @@ const items = [
         @click="$emit('update:modelValue', !modelValue)">
         <!-- TODO: Too big -->
         <ScalarIcon icon="Terminal" />
-        <ScalarIcon icon="ChevronDown" />
+        <ScalarIcon
+          v-if="modelValue"
+          icon="ChevronUp" />
+        <ScalarIcon
+          v-else
+          icon="ChevronDown" />
       </div>
     </TabGroup>
   </div>

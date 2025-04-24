@@ -54,7 +54,7 @@ const updateConfiguration = (value: Partial<AnyApiReferenceConfiguration>) => {
 <template>
   <div class="scalar-app scalar-api-reference">
     <DeveloperTools
-      :configuration="configuration"
+      :configuration="configurationRef"
       @update:configuration="updateConfiguration" />
     <SingleApiReference :configuration="selectedConfiguration">
       <template #document-selector>

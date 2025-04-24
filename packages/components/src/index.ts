@@ -1,6 +1,7 @@
 import './tailwind/tailwind.css'
 
 export * from './components/ScalarButton'
+export * from './components/ScalarCheckbox'
 export * from './components/ScalarCodeBlock'
 export * from './components/ScalarColorModeToggle'
 export * from './components/ScalarCombobox'
