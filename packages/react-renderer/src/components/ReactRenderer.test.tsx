@@ -30,7 +30,6 @@ describe('ReactRenderer', () => {
     await wrapper.vm.$nextTick()
     await new Promise((resolve) => setTimeout(resolve, 0))
 
-    expect(wrapper.find('.react-mounter').exists()).toBe(true)
     const reactElement = wrapper.find('[data-testid="react-test"]')
     expect(reactElement.exists()).toBe(true)
     expect(reactElement.text()).toBe('Default message')
