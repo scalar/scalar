@@ -1,5 +1,5 @@
 import React from 'react'
-import '../../assets/style.css'
+import '../assets/style.css'
 
 type XCustomExtensionProps = {
   xCustomExtension: string

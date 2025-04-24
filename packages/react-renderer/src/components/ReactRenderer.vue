@@ -58,31 +58,5 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div
-    ref="containerRef"
-    class="react-mounter">
-    <!-- React component renders here -->
-  </div>
+  <div ref="containerRef" />
 </template>
-
-<style scoped>
-/** TODO: Remove styles once everything works fine. */
-.react-mounter {
-  border: 1px solid #1971c2;
-  padding: 0 1rem 1rem;
-  border-radius: 0.25rem;
-  margin: 1rem 0;
-}
-
-.react-mounter:before {
-  content: 'React';
-  display: inline-block;
-  font-size: 0.875rem;
-  color: white;
-  font-family: var(--scalar-font-code);
-  padding: 0.25rem 1rem;
-  border-radius: 0 0 0.25rem 0.25rem;
-  margin-bottom: 0.5rem;
-  background-color: #1971c2;
-}
-</style>

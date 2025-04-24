@@ -65,5 +65,10 @@
     "@vitejs/plugin-vue": "catalog:",
     "@vue/test-utils": "^2.4.1",
     "vite": "^5.1.1"
+  },
+  "peerDependencies": {
+    "vue": "catalog:",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
