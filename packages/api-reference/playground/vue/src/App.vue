@@ -8,9 +8,11 @@ import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
 import { sources } from './content/sources'
-import { XCustomExtensionPlugin } from './x-custom-extension-plugin/x-custom-extension-plugin'
+import { MyCustomPlugin } from './x-custom-extension-plugin/my-custom-plugin'
 
 const containerRef = ref<HTMLDivElement>()
+
+const plugins = [MyCustomPlugin()]
 
 const configuration = reactive({
   layout: 'modern' as const,
@@ -18,7 +20,7 @@ const configuration = reactive({
   sources: sources,
   showSidebar: true,
   withDefaultFonts: true,
-  plugins: [XCustomExtensionPlugin()],
+  plugins,
 })
 
 let app: ReturnType<typeof createApiReference> | null = null
@@ -33,7 +35,7 @@ const updateConfiguration = (
   Object.assign(configuration, newConfiguration)
   app?.updateConfiguration({
     ...newConfiguration,
-    plugins: [XCustomExtensionPlugin()],
+    plugins,
   })
 }
 </script>
