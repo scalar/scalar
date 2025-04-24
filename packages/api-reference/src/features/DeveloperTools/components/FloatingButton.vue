@@ -60,7 +60,6 @@ const items = [
           <TabPanel
             v-for="item in items"
             :key="item.label">
-            {{ selectedTab }}
             <template v-if="item.component">
               <component
                 :is="item.component"
