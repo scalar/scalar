@@ -1,71 +1,93 @@
 <script setup lang="ts">
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+
+import { Configuration } from './Panels/Configuration'
 
 defineProps<{
   modelValue: boolean
+  configuration?: Partial<AnyApiReferenceConfiguration>
 }>()
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void
 }>()
 
-const tabs = [
-  {
-    icon: 'Terminal',
-    label: 'Console',
-  },
+const items = [
+  // {
+  //   icon: 'Terminal',
+  //   label: 'Console',
+  // },
   {
     icon: 'Brackets',
     label: 'Configuration',
+    component: Configuration,
   },
-  {
-    icon: 'PaintBrush',
-    label: 'Theme',
-  },
-  {
-    icon: 'Ship',
-    label: 'Publish',
-  },
+  // {
+  //   icon: 'PaintBrush',
+  //   label: 'Theme',
+  // },
+  // {
+  //   icon: 'Ship',
+  //   label: 'Publish',
+  // },
 ] as const
 </script>
 
 <template>
   <div
-    class="dev-mode-toggle z-overlay"
-    :class="{ 'dev-mode-toggle__open': modelValue }">
-    <div class="dev-mode-toggle-edit"></div>
-    <div class="dev-mode-toggle-menu">
-      <span
-        v-for="tab in tabs"
-        :key="tab.label"
-        class="dev-mode-toggle-button"
-        @click="$emit('update:modelValue', true)">
-        <!-- dev-mode-toggle-button__active -->
-        <ScalarIcon :icon="tab.icon" />
-        {{ tab.label }}
-      </span>
-    </div>
-    <div
-      class="dev-mode-toggle-flip"
-      @click="$emit('update:modelValue', !modelValue)">
-      <ScalarIcon icon="Terminal" />
-      <svg
-        class="scalar-icon ml-1 size-3.5 shrink-0"
-        fill="none"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="m18 10-6 6-6-6"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round" />
-      </svg>
-    </div>
+    class="developer-tools z-overlay"
+    :class="{ 'developer-tools--open': modelValue }">
+    <TabGroup>
+      <!-- Content -->
+      <div class="developer-tools-content">
+        <TabPanels class="flex-1 overflow-auto">
+          <TabPanel
+            v-for="item in items"
+            :key="item.label">
+            <template v-if="item.component">
+              <component
+                :is="item.component"
+                v-bind="$props" />
+            </template>
+            <template v-else>
+              {{ item.label }}
+            </template>
+          </TabPanel>
+        </TabPanels>
+      </div>
+      <!-- Tabs -->
+      <div class="developer-tools-menu">
+        <TabList class="flex h-full gap-1">
+          <Tab
+            v-for="tab in items"
+            :key="tab.label"
+            v-slot="{ selected }"
+            as="template">
+            <ScalarButton
+              class="developer-tools-button"
+              :class="{ 'developer-tools-button--selected': selected }">
+              <ScalarIcon :icon="tab.icon" />
+              {{ tab.label }}
+            </ScalarButton>
+          </Tab>
+        </TabList>
+      </div>
+      <!-- Toggle -->
+      <div
+        class="developer-tools-toggle"
+        @click="$emit('update:modelValue', !modelValue)">
+        <!-- TODO: Too big -->
+        <ScalarIcon icon="Terminal" />
+        <ScalarIcon icon="ChevronDown" />
+      </div>
+    </TabGroup>
   </div>
 </template>
 
 <style scoped>
-.dev-mode-toggle {
+.developer-tools {
   position: fixed;
   bottom: 12px;
   right: 12px;
@@ -74,7 +96,8 @@ const tabs = [
   font-size: var(--scalar-font-size-4);
   font-weight: var(--scalar-medium);
 }
-.dev-mode-toggle-menu {
+
+.developer-tools-menu {
   border-radius: var(--scalar-radius-lg);
   padding: 4px 4px 4px 4px;
   background: color-mix(in srgb, var(--scalar-background-1) 94%, transparent);
@@ -90,7 +113,8 @@ const tabs = [
   transform: scale(1);
   transition: opacity 0.3s ease-in-out;
 }
-.dev-mode-toggle-button {
+
+.developer-tools-button {
   padding: 6px 8px;
   font-weight: var(--scalar-font-medium);
   color: var(--scalar-color-2);
@@ -98,19 +122,23 @@ const tabs = [
   align-items: center;
   gap: 6px;
 }
-.dev-mode-toggle-button__active {
+
+.developer-tools-button--selected {
   background: var(--scalar-background-2);
 }
-.dev-mode-toggle svg {
+
+.developer-tools svg {
   width: 14px;
   height: 14px;
 }
-.dev-mode-toggle-button:hover {
+
+.developer-tools-button:hover {
   background: var(--scalar-background-2);
   border-radius: var(--scalar-radius);
   cursor: pointer;
 }
-.dev-mode-toggle-flip {
+
+.developer-tools-toggle {
   background: linear-gradient(
     var(--scalar-background-1),
     var(--scalar-background-2)
@@ -126,29 +154,34 @@ const tabs = [
   align-items: center;
   z-index: 1;
 }
-.dev-mode-toggle-flip:hover {
+
+.developer-tools-toggle:hover {
   background: linear-gradient(
     var(--scalar-background-2),
     var(--scalar-background-1)
   );
 }
-.dark-mode .dev-mode-toggle-flip {
+
+.dark-mode .developer-tools-toggle {
   background: linear-gradient(
     var(--scalar-background-2),
     var(--scalar-background-1)
   );
 }
-.dark-mode .dev-mode-toggle-flip:hover {
+
+.dark-mode .developer-tools-toggle:hover {
   background: linear-gradient(
     var(--scalar-background-1),
     var(--scalar-background-2)
   );
 }
-.dev-mode-toggle-flip svg:first-of-type {
+
+.developer-tools-toggle svg:first-of-type {
   width: 20px;
   height: 20px;
 }
-.dev-mode-toggle-flip svg:last-of-type {
+
+.developer-tools-toggle svg:last-of-type {
   stroke-width: 2px;
 }
 
@@ -168,29 +201,33 @@ const tabs = [
     }
   }
 
-  .dev-mode-toggle-menu {
+  .developer-tools-menu {
     animation: fade-in auto linear both;
     animation-timeline: scroll();
     animation-range: 0% 200px;
   }
 }
-.dev-mode-toggle__open .dev-mode-toggle-menu,
-.dev-mode-toggle:hover .dev-mode-toggle-menu {
+
+.developer-tools--open .developer-tools-menu,
+.developer-tools:hover .developer-tools-menu {
   animation: none;
   opacity: 1;
   pointer-events: all;
 }
-.dev-mode-toggle-edit {
+
+.developer-tools-content {
   display: none;
   width: 100dvw;
   height: 350px;
   position: fixed;
+  padding: 12px;
   bottom: 0;
   left: 0;
   background: color-mix(in srgb, var(--scalar-background-1) 94%, transparent);
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.dev-mode-toggle__open .dev-mode-toggle-edit {
+
+.developer-tools--open .developer-tools-content {
   display: block;
 }
 </style>
