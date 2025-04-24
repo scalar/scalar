@@ -3,6 +3,7 @@ import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useLocalStorage } from '@vueuse/core'
+import { ref } from 'vue'
 
 import { Configuration } from './Panels/Configuration'
 import { Theme } from './Panels/Theme'
@@ -23,6 +24,38 @@ defineEmits<{
 // Persist the selected tab
 const selectedTab = useLocalStorage('devtools.tab', 0)
 const handleTabChange = (index: number) => (selectedTab.value = index)
+
+// Persist the panel height
+const panelHeight = useLocalStorage('devtools.height', 350)
+const isDragging = ref(false)
+
+const startDrag = (event: MouseEvent) => {
+  event.preventDefault()
+  isDragging.value = true
+
+  const startY = event.clientY
+  const startHeight = panelHeight.value
+
+  const doDrag = (dragEvent: MouseEvent) => {
+    // Calculate new height by taking the difference between start and current position
+    // Since we want to drag up to reduce height, we subtract the difference
+    const newHeight = startHeight - (dragEvent.clientY - startY)
+    // Set minimum and maximum heights
+    panelHeight.value = Math.min(
+      Math.max(newHeight, 100),
+      window.innerHeight * 0.8,
+    )
+  }
+
+  const stopDrag = () => {
+    isDragging.value = false
+    document.removeEventListener('mousemove', doDrag)
+    document.removeEventListener('mouseup', stopDrag)
+  }
+
+  document.addEventListener('mousemove', doDrag)
+  document.addEventListener('mouseup', stopDrag)
+}
 
 const items = [
   // {
@@ -55,7 +88,15 @@ const items = [
       @change="handleTabChange"
       as="div">
       <!-- Content -->
-      <div class="developer-tools-content">
+      <div
+        class="developer-tools-content"
+        :style="{ height: `${panelHeight}px` }">
+        <!-- Drag Handle -->
+        <div
+          class="developer-tools-drag-handle"
+          @mousedown="startDrag">
+          <div class="developer-tools-drag-handle-icon" />
+        </div>
         <TabPanels class="flex-1 overflow-auto">
           <TabPanel
             v-for="item in items"
@@ -239,7 +280,6 @@ const items = [
 .developer-tools-content {
   display: none;
   width: 100dvw;
-  height: 350px;
   position: fixed;
   padding: 12px;
   bottom: 0;
@@ -250,5 +290,31 @@ const items = [
 
 .developer-tools--open .developer-tools-content {
   display: block;
+}
+
+.developer-tools-drag-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: row-resize;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+}
+
+.developer-tools-drag-handle:hover .developer-tools-drag-handle-icon,
+.developer-tools-drag-handle:active .developer-tools-drag-handle-icon {
+  background: var(--scalar-color-2);
+}
+
+.developer-tools-drag-handle-icon {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--scalar-border-color);
+  transition: background-color 0.2s ease;
 }
 </style>
