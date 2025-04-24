@@ -17,7 +17,7 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const { toggleColorMode, isDarkMode } = useColorMode({
+const { toggleColorMode, isDarkMode, setColorMode } = useColorMode({
   initialColorMode: configuration.darkMode ? 'dark' : undefined,
   overrideColorMode: configuration.forceDarkModeState,
 })
@@ -26,6 +26,14 @@ const { toggleColorMode, isDarkMode } = useColorMode({
 watch(
   () => configuration.darkMode,
   (isDark) => (isDarkMode.value = !!isDark),
+)
+
+/** Update the override state when forceDarkModeState changes */
+watch(
+  () => configuration.forceDarkModeState,
+  (forcedState) => {
+    setColorMode(forcedState === undefined ? 'system' : forcedState)
+  },
 )
 
 if (configuration.metaData) {

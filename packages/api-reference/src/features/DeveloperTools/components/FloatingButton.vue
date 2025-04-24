@@ -12,6 +12,10 @@ defineProps<{
 
 defineEmits<{
   (e: 'update:modelValue', value: boolean): void
+  (
+    e: 'update:configuration',
+    value: Partial<AnyApiReferenceConfiguration>,
+  ): void
 }>()
 
 const items = [
@@ -49,7 +53,8 @@ const items = [
             <template v-if="item.component">
               <component
                 :is="item.component"
-                v-bind="$props" />
+                v-bind="$props"
+                @update:configuration="$emit('update:configuration', $event)" />
             </template>
             <template v-else>
               {{ item.label }}

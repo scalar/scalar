@@ -16,6 +16,8 @@ const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
 }>()
 
+const configurationRef = ref(props.configuration)
+
 const {
   availableDocuments,
   selectedConfiguration,
@@ -24,7 +26,7 @@ const {
   hash,
   hashPrefix,
 } = useMultipleDocuments({
-  configuration: toRef(props, 'configuration'),
+  configuration: configurationRef,
   isIntersectionEnabled: ref(false),
   hash: ref(''),
   hashPrefix: ref(''),
@@ -32,11 +34,28 @@ const {
 
 // Provide the intersection observer which has defaults
 provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
+
+const updateConfiguration = (value: Partial<AnyApiReferenceConfiguration>) => {
+  if (Array.isArray(configurationRef.value)) {
+    configurationRef.value = configurationRef.value.map((config) => ({
+      ...config,
+      ...value,
+    }))
+    return
+  }
+
+  configurationRef.value = {
+    ...(configurationRef.value ?? {}),
+    ...value,
+  }
+}
 </script>
 
 <template>
   <div class="scalar-app scalar-api-reference">
-    <DeveloperTools :configuration="configuration" />
+    <DeveloperTools
+      :configuration="configuration"
+      @update:configuration="updateConfiguration" />
     <SingleApiReference :configuration="selectedConfiguration">
       <template #document-selector>
         <DocumentSelector

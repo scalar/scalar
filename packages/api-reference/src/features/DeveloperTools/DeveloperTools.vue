@@ -9,18 +9,23 @@ defineProps<{
   configuration?: Partial<AnyApiReferenceConfiguration>
 }>()
 
-const isOpen = useLocalStorage('devtools.is-open', false)
+const emit = defineEmits<{
+  (
+    e: 'update:configuration',
+    value: Partial<AnyApiReferenceConfiguration>,
+  ): void
+}>()
 
-/** Tabs configuration for the developer tools panel */
-const tabs = [
-  { id: 'console', label: 'Console', icon: 'Terminal' },
-  { id: 'configuration', label: 'Configuration', icon: 'Settings' },
-] as const
+const isOpen = useLocalStorage('devtools.is-open', false)
 
 /** Show developer tools locally */
 const shouldShow =
   import.meta.env.DEV ||
   (typeof window !== 'undefined' && isLocalUrl(window.location.href))
+
+const updateConfiguration = (value: Partial<AnyApiReferenceConfiguration>) => {
+  emit('update:configuration', value)
+}
 </script>
 
 <template>
@@ -28,6 +33,7 @@ const shouldShow =
     <!-- TODO: Refactor into meaningful components -->
     <FloatingButton
       v-model="isOpen"
-      :configuration="configuration" />
+      :configuration="configuration"
+      @update:configuration="updateConfiguration" />
   </template>
 </template>
