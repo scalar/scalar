@@ -7,7 +7,8 @@ import type { ApiReferenceConfiguration } from './types.js'
  * The default configuration for the API Reference.
  */
 const DEFAULT_CONFIGURATION: Partial<ApiReferenceConfiguration> = {
-  _integration: 'svelte',
+  // TODO: Must be available in the CDN version
+  // _integration: 'svelte',
 }
 
 /**
