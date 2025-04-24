@@ -243,7 +243,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
   width: 100%;
 }
 :deep(.cm-content):has(.cm-pill) {
-  padding: 4px 3px;
+  padding: 6px 8px;
 }
 :deep(.cm-content .cm-pill:not(:last-of-type)) {
   margin-right: 0.5px;
