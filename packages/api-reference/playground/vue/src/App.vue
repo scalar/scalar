@@ -7,6 +7,7 @@ import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-ref
 import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
+import { sources } from './content/sources'
 import { XCustomExtensionPlugin } from './x-custom-extension-plugin/x-custom-extension-plugin'
 
 const containerRef = ref<HTMLDivElement>()
@@ -14,12 +15,7 @@ const containerRef = ref<HTMLDivElement>()
 const configuration = reactive({
   layout: 'modern' as const,
   theme: 'default' as const,
-  sources: [
-    {
-      title: 'Scalar Galaxy',
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    },
-  ],
+  sources: sources,
   showSidebar: true,
   withDefaultFonts: true,
   plugins: [XCustomExtensionPlugin()],
