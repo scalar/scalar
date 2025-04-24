@@ -27,7 +27,7 @@ public sealed class AuthorizationCodeFlow : OAuthFlow
     /// </summary>
     [JsonPropertyName("x-usePkce")]
     [JsonConverter(typeof(PkceJsonConverter))]
-    public Pkce Pkce { get; set; }
+    public Pkce? Pkce { get; set; }
 
     /// <summary>
     /// Gets or sets the redirect URI for the authorization code flow.
