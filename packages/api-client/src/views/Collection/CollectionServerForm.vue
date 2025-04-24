@@ -110,7 +110,9 @@ const updateServerVariable = (key: string, value: string) => {
 </script>
 
 <template>
-  <div class="bg-b-1 divide-0.5 flex w-full flex-col divide-y text-sm">
+  <div
+    class="divide-0.5 flex w-full flex-col divide-y rounded-b-lg text-sm"
+    :class="activeServer?.variables && 'bg-b-1'">
     <template v-if="activeServer">
       <Form
         :data="activeServer"

@@ -29,7 +29,7 @@ const { activeEnvVariables, activeEnvironment, activeWorkspace } =
 const id = useId()
 </script>
 <template>
-  <ViewLayoutSection>
+  <ViewLayoutSection class="rounded-b-lg">
     <template
       v-if="title || $slots.title"
       #title>
@@ -38,15 +38,18 @@ const id = useId()
         v-else
         name="title" />
     </template>
-    <div class="custom-scroll flex flex-1 flex-col gap-1.5">
+    <div class="flex flex-1 flex-col gap-1.5">
       <DataTable
         v-if="Object.keys(data).length > 0 && activeWorkspace"
-        :columns="['']">
+        :columns="['']"
+        class="rounded-b-lg">
         <DataTableRow
           v-for="(option, index) in options"
           :key="index"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
+            class="pr-9"
+            lineWrapping
             :id="id"
             :envVariables="activeEnvVariables"
             :environment="activeEnvironment"
@@ -62,7 +65,8 @@ const id = useId()
             <template
               v-if="option.key === 'description'"
               #icon>
-              <div class="bg-b-2 flex-center border-l px-2">
+              <div
+                class="centered-y bg-b-2 flex-center z-1 absolute right-1 rounded px-1 py-0.5">
                 <ScalarIcon
                   icon="Markdown"
                   size="lg" />
