@@ -14,9 +14,13 @@ export const OpenApiExtensionSchema = z.object({
    */
   name: z.string().regex(/^x-/),
   /**
-   * Vue component to render the OpenAPI extension
+   * Vue component to render the specification extension
    */
   component: z.unknown(),
+  /**
+   * Custom renderer to render the specification extension
+   */
+  renderer: z.unknown().optional(),
 })
 
 export const ApiReferencePluginSchema = z.function().returns(
