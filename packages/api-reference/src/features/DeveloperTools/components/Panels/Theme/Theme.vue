@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarListbox } from '@scalar/components'
+import { ScalarCodeBlock, ScalarListbox } from '@scalar/components'
 import { computed, ref } from 'vue'
 
 // A list of system font-family font stacks (sans-serif, serif, monospace, Comic Sans)
@@ -56,11 +56,33 @@ const borderColor = ref(getCssVariable('--scalar-border-color'))
 const borderRadius = ref(getCssVariable('--scalar-radius'))
 const borderRadiusLg = ref(getCssVariable('--scalar-radius-lg'))
 const borderWidth = ref(getCssVariable('--scalar-border-width'))
+
+const style = computed(() => {
+  return `:root {
+  --scalar-font: ${selectedFont.value.value};
+  --scalar-radius: ${borderRadius.value || 'inherit'};
+  --scalar-border-width: ${borderWidth.value || 'inherit'};
+}
+
+.light-mode {
+  --scalar-color-1: ${color1.value || 'inherit'};
+  --scalar-color-2: ${color2.value || 'inherit'};
+  --scalar-color-3: ${color3.value || 'inherit'};
+  --scalar-color-accent: ${colorAccent.value || 'inherit'};
+
+  --scalar-background-1: ${bgColor1.value || 'inherit'};
+  --scalar-background-2: ${bgColor2.value || 'inherit'};
+  --scalar-background-3: ${bgColor3.value || 'inherit'};
+  --scalar-background-accent: ${bgColorAccent.value || 'inherit'};
+
+  --scalar-border-color: ${borderColor.value || 'inherit'};
+}`
+})
 </script>
 
 <template>
-  <div class="flex gap-2">
-    <fieldset class="bg-b-2 w-1/3 rounded-md border p-3">
+  <div class="grid grid-cols-5 gap-2">
+    <fieldset class="bg-b-2 rounded-md border p-3">
       <legend class="font-bold">Typography</legend>
 
       <label class="mb-2 block">Font</label>
@@ -85,6 +107,10 @@ const borderWidth = ref(getCssVariable('--scalar-border-width'))
           </ScalarListbox>
         </div>
       </div>
+    </fieldset>
+
+    <fieldset class="bg-b-2 rounded-md border p-3">
+      <legend class="font-bold">Colors</legend>
 
       <label class="mb-2 block">Color 1</label>
       <div class="mb-4 flex gap-4">
@@ -115,7 +141,7 @@ const borderWidth = ref(getCssVariable('--scalar-border-width'))
       </div>
     </fieldset>
 
-    <fieldset class="bg-b-2 w-1/3 rounded-md border p-3">
+    <fieldset class="bg-b-2 rounded-md border p-3">
       <legend class="font-bold">Background</legend>
 
       <label class="mb-2 block">Background Color 1</label>
@@ -147,7 +173,7 @@ const borderWidth = ref(getCssVariable('--scalar-border-width'))
       </div>
     </fieldset>
 
-    <fieldset class="bg-b-2 w-1/3 rounded-md border p-3">
+    <fieldset class="bg-b-2 rounded-md border p-3">
       <legend class="font-bold">Border</legend>
 
       <label class="mb-2 block">Border Color</label>
@@ -181,18 +207,17 @@ const borderWidth = ref(getCssVariable('--scalar-border-width'))
           v-model="borderWidth" />
       </div>
     </fieldset>
+
+    <fieldset class="bg-b-2 rounded-md border p-3">
+      <legend class="font-bold">Result</legend>
+
+      <ScalarCodeBlock
+        :content="style"
+        class="max-w-full text-sm"
+        lang="css" />
+    </fieldset>
   </div>
   <component is="style">
-    :root { --scalar-font: {{ selectedFont.value }}; --scalar-radius:
-    {{ borderRadius || 'inherit' }}; --scalar-border-width:
-    {{ borderWidth || 'inherit' }}; } .light-mode { --scalar-color-1:
-    {{ color1 || 'inherit' }}; --scalar-color-2: {{ color2 || 'inherit' }};
-    --scalar-color-3: {{ color3 || 'inherit' }}; --scalar-color-accent:
-    {{ colorAccent || 'inherit' }}; --scalar-background-1:
-    {{ bgColor1 || 'inherit' }}; --scalar-background-2:
-    {{ bgColor2 || 'inherit' }}; --scalar-background-3:
-    {{ bgColor3 || 'inherit' }}; --scalar-background-accent :
-    {{ bgColorAccent || 'inherit' }}; --scalar-border-color:
-    {{ borderColor || 'inherit' }}; }
+    {{ style }}
   </component>
 </template>
