@@ -12,11 +12,8 @@ If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration gui
 1. **Install the package**
 
 ```shell
-dotnet add package Scalar.AspNetCore --version 2.1.*
+dotnet add package Scalar.AspNetCore
 ```
-
-> [!NOTE]
-> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `2.1.*`.
 
 2. **Add the using directive**
 
@@ -87,7 +84,10 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API reference for a specific document.
+You’re all set! 🎉 Visit `/scalar` to see the API Reference for the default OpenAPI document (`v1`).
+
+If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)).  
+To view a specific document, go to `/scalar/{documentName}` (like `/scalar/v1` or `/scalar/v2-beta`).
 
 ## Configuration Options
 

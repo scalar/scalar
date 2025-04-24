@@ -17,8 +17,6 @@ Made possible by the wonderful work of [@captainsafia](https://github.com/captai
 
 ![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/integrations/aspnetcore/dotnet.jpg)
 
-These packages enable advanced features like stability indicators and API reference exclusions. See the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#scalar-openapi-extensions) for details.
-
 ## Migration Guide
 
 If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
@@ -29,11 +27,8 @@ If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration gui
 1. **Install the package**
 
 ```shell
-dotnet add package Scalar.AspNetCore --version 2.1.*
+dotnet add package Scalar.AspNetCore
 ```
-
-> [!NOTE]
-> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `2.1.*`.
 
 2. **Add the using directive**
 
@@ -104,7 +99,10 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That's it! 🎉 You can now access the Scalar API Reference at `/scalar`. By default, the API Reference uses the `v1` document. You can add documents by calling the `AddDocument` method. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v1`) to view the API Reference for a specific document. Please check out the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents) for more details.
+You’re all set! 🎉 Visit `/scalar` to see the API Reference for the default OpenAPI document (`v1`).
+
+If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#multiple-openapi-documents)).  
+To view a specific document, go to `/scalar/{documentName}` (like `/scalar/v1` or `/scalar/v2-beta`).
 
 ## Configuration
 
@@ -117,7 +115,9 @@ For more realistic examples and advanced usage scenarios, such as authentication
 Scalar provides additional packages to enhance OpenAPI document generation:
 
 - **Scalar.AspNetCore.Microsoft**: Implements transformers for `Microsoft.AspNetCore.OpenApi`
-- **Scalar.AspNetCore.Swashbuckle**: Implements filters for `Swashbuckle.AspNetCore`
+- **Scalar.AspNetCore.Swashbuckle**: Implements filters for `Swashbuckle`
+
+These packages enable advanced features like stability indicators and API Reference exclusions. See the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md#scalar-openapi-extensions) for details.
 
 ## Development
 
