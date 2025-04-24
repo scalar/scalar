@@ -1,6 +1,6 @@
 # Scalar API Reference for Docusaurus
 
-Docusaurus helps you to ship a beautiful documentation site in no time. For everyone wo wants to make their API reference part of a Docusaurus website, we’ve built a Scalar API Reference plugin. Here is how you can integrate it in your project:
+Docusaurus helps you to ship a beautiful documentation site in no time. For everyone who wants to make their API reference part of a Docusaurus website, we’ve built a Scalar API Reference plugin. Here is how you can integrate it in your project:
 
 ## Create a new Docusaurus project (optional)
 
