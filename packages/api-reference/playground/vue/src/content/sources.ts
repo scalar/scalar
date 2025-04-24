@@ -43,65 +43,65 @@ export const sources = [
     title: 'Specification Extensions',
     default: true,
     content: JSON.stringify({
-      'x-custom-extension': 'root.x-custom-extension',
+      'x-custom-extension': '#/x-custom-extension',
       'openapi': '3.1.0',
       'info': {
         'title': 'Specification Extensions',
         'description': 'An OpenAPI document with specification extensions where the specification allows them.',
         'version': '1.0.0',
-        'x-custom-extension': 'info.x-custom-extension',
+        'x-custom-extension': '#/info/x-custom-extension',
         'contact': {
           'name': 'API Support',
           'url': 'https://www.example.com/support',
           'email': 'support@example.com',
-          'x-custom-extension': 'info.contact.x-custom-extension',
+          'x-custom-extension': '#/info/contact/x-custom-extension',
         },
         'license': {
           'name': 'Apache 2.0',
           'url': 'https://www.apache.org/licenses/LICENSE-2.0.html',
-          'x-custom-extension': 'info.license.x-custom-extension',
+          'x-custom-extension': '#/info/license/x-custom-extension',
         },
       },
       'tags': [
         {
           'name': 'Foobar',
-          'x-custom-extension': 'tags.Foobar.x-custom-extension',
+          'x-custom-extension': '#/tags/Foobar/x-custom-extension',
         },
       ],
       'externalDocumentation': {
         'url': 'https://www.example.com/docs',
-        'x-custom-extension': 'externalDocumentation.x-custom-extension',
+        'x-custom-extension': '#/externalDocumentation/x-custom-extension',
       },
       'servers': [
         {
           'url': 'https://example.com/{version}',
-          'x-custom-extension': 'servers.x-custom-extension',
+          'x-custom-extension': '#/servers/x-custom-extension',
           'variables': {
             version: {
               'default': 'v1',
-              'x-custom-extension': 'servers.variables.version.x-custom-extension',
+              'x-custom-extension': '#/servers/variables/version/x-custom-extension',
             },
           },
         },
       ],
       'paths': {
         '/': {
-          'x-custom-extension': 'paths./.x-custom-extension',
+          'x-custom-extension': '#/paths/~1/x-custom-extension',
           'post': {
             'tags': ['Foobar'],
             'operationId': 'foobar',
             'summary': 'Get a list of all foobars',
-            'x-custom-extension': 'paths./.get.x-custom-extension',
+            'x-custom-extension': '#/paths/~1/post/x-custom-extension',
             'parameters': [
               {
                 'name': 'limit',
                 'type': 'integer',
                 'in': 'query',
-                'x-custom-extension': 'paths./.get.parameters.limit.x-custom-extension',
+                'x-custom-extension': '#/paths/~1/post/parameters/limit/x-custom-extension',
               },
             ],
             'requestBody': {
-              'x-custom-extension': 'paths./.get.requestBody.x-custom-extension',
+              'x-custom-extension': '#/paths/~1/post/requestBody/x-custom-extension',
               'content': {
                 'application/x-www-form-urlencoded': {
                   schema: {
@@ -127,13 +127,13 @@ export const sources = [
                         cat: '#/components/schemas/Cat',
                       },
                       'x-custom-extension':
-                        'paths./.get.requestBody.content.application/x-www-form-urlencoded.schema.discriminator.x-custom-extension',
+                        '#/paths/~1/post/requestBody/content/application~1x-www-form-urlencoded/schema/discriminator/x-custom-extension',
                     },
                   },
                 },
                 'examples': {
                   foo: {
-                    'x-custom-extension': 'paths./.get.requestBody.examples.foo.x-custom-extension',
+                    'x-custom-extension': '#/paths/~1/post/requestBody/examples/foo/x-custom-extension',
                     'summary': 'A foo example',
                     'value': {
                       foo: 'bar',
@@ -143,15 +143,15 @@ export const sources = [
               },
               'encoding': {
                 icon: {
-                  'x-custom-extension': 'paths./.get.requestBody.encoding.icon.x-custom-extension',
+                  'x-custom-extension': '#/paths/~1/post/requestBody/encoding/icon/x-custom-extension',
                   'contentType': 'image/png, image/jpeg',
                 },
               },
             },
             'responses': {
-              'x-custom-extension': 'paths./.get.responses.x-custom-extension',
+              'x-custom-extension': '#/paths/~1/post/responses/x-custom-extension',
               '200': {
-                'x-custom-extension': 'paths./.get.responses.200.x-custom-extension',
+                'x-custom-extension': '#/paths/~1/post/responses/200.x-custom-extension',
                 'headers': {
                   'X-Rate-Limit-Limit': {
                     'x-custom-extension': 'paths./.get.responses.200.headers.X-Rate-Limit-Limit.x-custom-extension',
@@ -221,7 +221,7 @@ export const sources = [
           apiKey: {
             'type': 'apiKey',
             'name': 'apiKey',
-            'x-custom-extension': 'components.securitySchemes.apiKey.x-custom-extension',
+            'x-custom-extension': '#/components/securitySchemes/apiKey/x-custom-extension',
           },
           oAuth2: {
             type: 'oauth2',
@@ -232,7 +232,7 @@ export const sources = [
                   'read:foobars': 'Read access to foobars',
                   'write:foobars': 'Write access to foobars',
                 },
-                'x-custom-extension': 'components.securitySchemes.oAuth2.flows.clientCredentials.x-custom-extension',
+                'x-custom-extension': '#/components/securitySchemes/oAuth2/flows/clientCredentials/x-custom-extension',
               },
             },
           },
@@ -240,20 +240,20 @@ export const sources = [
         'schemas': {
           Foobar: {
             'type': 'object',
-            'x-custom-extension': 'components.schemas.Foobar.x-custom-extension',
+            'x-custom-extension': '#/components/schemas/Foobar/x-custom-extension',
             'properties': {
               foobar: {
                 'type': 'string',
-                'x-custom-extension': 'components.schemas.Foobar.properties.foobar.x-custom-extension',
+                'x-custom-extension': '#/components/schemas/Foobar/properties/foobar/x-custom-extension',
               },
             },
             'xml': {
               'name': 'Foobar',
-              'x-custom-extension': 'components.schemas.Foobar.xml.x-custom-extension',
+              'x-custom-extension': '#/components/schemas/Foobar/xml/x-custom-extension',
             },
           },
         },
-        'x-custom-extension': 'components.x-custom-extension',
+        'x-custom-extension': '#/components/x-custom-extension',
       },
     }),
   },

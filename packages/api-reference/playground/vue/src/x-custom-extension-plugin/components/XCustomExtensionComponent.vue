@@ -29,6 +29,7 @@ defineProps<{
   );
   background-size: 100%;
   overflow: hidden;
+  white-space: nowrap;
 }
 
 .x-custom-extension .label {
