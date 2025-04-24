@@ -2,6 +2,7 @@
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { AnyApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { useLocalStorage } from '@vueuse/core'
 
 import { Configuration } from './Panels/Configuration'
 import { Theme } from './Panels/Theme'
@@ -18,6 +19,10 @@ defineEmits<{
     value: Partial<AnyApiReferenceConfiguration>,
   ): void
 }>()
+
+// Persist the selected tab
+const selectedTab = useLocalStorage('devtools.tab', 0)
+const handleTabChange = (index: number) => (selectedTab.value = index)
 
 const items = [
   // {
@@ -45,13 +50,17 @@ const items = [
   <div
     class="developer-tools z-overlay"
     :class="{ 'developer-tools--open': modelValue }">
-    <TabGroup>
+    <TabGroup
+      :selectedIndex="selectedTab"
+      @change="handleTabChange"
+      as="div">
       <!-- Content -->
       <div class="developer-tools-content">
         <TabPanels class="flex-1 overflow-auto">
           <TabPanel
             v-for="item in items"
             :key="item.label">
+            {{ selectedTab }}
             <template v-if="item.component">
               <component
                 :is="item.component"
