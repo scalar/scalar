@@ -1,9 +1,9 @@
 // import { ReactRenderer } from '@scalar/react-renderer'
 import type { ApiReferencePlugin } from '@scalar/types/api-reference'
 // import { CustomReactComponent } from './components/CustomReactComponent'
-import XCustomExtensionComponent from './components/XCustomExtensionComponent.vue'
+import CustomVueComponent from './components/CustomVueComponent.vue'
 
-export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
+export const MyCustomPlugin = (): ApiReferencePlugin => {
   return () => {
     return {
       name: 'x-custom-extension-plugin',
@@ -11,7 +11,7 @@ export const XCustomExtensionPlugin = (): ApiReferencePlugin => {
         // Vue
         {
           name: 'x-custom-extension',
-          component: XCustomExtensionComponent,
+          component: CustomVueComponent,
         },
         // React
         // {
