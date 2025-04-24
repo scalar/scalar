@@ -15,5 +15,4 @@ internal static class JsonSerializerHelper
 [JsonSerializable(typeof(bool))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(Stability))]
-[JsonSourceGenerationOptions]
 internal sealed partial class ScalarSerializerContext : JsonSerializerContext;
