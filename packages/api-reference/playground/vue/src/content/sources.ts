@@ -41,7 +41,6 @@ export const sources = [
   },
   {
     title: 'Specification Extensions',
-    default: true,
     content: JSON.stringify({
       'x-custom-extension': '#/x-custom-extension',
       'openapi': '3.1.0',
