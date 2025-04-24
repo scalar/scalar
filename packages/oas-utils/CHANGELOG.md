@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.136
+
+### Patch Changes
+
+- eb4854d: fix: falsy values in auth config reactivity
+- Updated dependencies [eb4854d]
+  - @scalar/types@0.1.11
+  - @scalar/themes@0.10.3
+
 ## 0.2.135
 
 ### Patch Changes
