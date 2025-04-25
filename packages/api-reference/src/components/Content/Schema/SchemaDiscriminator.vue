@@ -59,6 +59,12 @@ const getModelNameFromSchema = (schema: any): string | null => {
     return Object.keys(schema)[0]
   }
 
+  // Handle array types with items
+  if (schema.type === 'array' && schema.items) {
+    const itemType = schema.items.type || 'any'
+    return `Array of ${itemType}`
+  }
+
   if (schema.type) {
     return schema.type
   }

@@ -93,6 +93,28 @@ describe('SchemaDiscriminator', () => {
       const tab = wrapper.find('.schema-tab-label')
       expect(tab.text()).toBe('User')
     })
+
+    it('humanizes array types with item type', () => {
+      const wrapper = mount(SchemaDiscriminator, {
+        props: {
+          discriminator: 'anyOf',
+          value: {
+            anyOf: [
+              {
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const tab = wrapper.find('.schema-tab-label')
+      expect(tab.text()).toBe('Array of string')
+    })
   })
 
   describe('discriminator type display', () => {
