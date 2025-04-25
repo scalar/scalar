@@ -334,7 +334,7 @@ const displayPropertyHeading = (
   color: var(--scalar-color-1);
   display: flex;
   flex-direction: column;
-  padding: 12px 8px;
+  padding: 8px;
   font-size: var(--scalar-mini);
   position: relative;
 }
@@ -346,16 +346,12 @@ const displayPropertyHeading = (
 
 .property--compact.property--level-0,
 .property--compact.property--level-1 {
-  padding: 12px 0;
+  padding: 8px 0;
 }
 /*  if a property doesn't have a heading, remove the top padding */
-.property:has(> .property-rule:nth-of-type(1)) {
-  padding-top: 0;
-}
-/*  if a property doesn't have a heading but has a panel || list */
-.property:has(> .property-rule:nth-of-type(1) .discriminator-tab-list),
-.property:has(> .property-rule:nth-of-type(1) .discriminator-panel) {
-  padding: 8px;
+.property:has(> .property-rule:nth-of-type(1)):not(.property--compact) {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .property--deprecated {
   background: repeating-linear-gradient(

@@ -152,8 +152,12 @@ const humanizeType = (type: string) => {
 .discriminator-panel :deep(.property--compact.property--level-1) {
   padding: 8px;
 }
-.discriminator-panel :deep(.property--compact.property--level-0) {
+.discriminator-panel
+  :deep(.property--compact.property--level-0):not(:has(.property--level-1)) {
   padding: 8px;
+}
+.discriminator-panel :deep(.property--compact.property--level-0) {
+  padding: 0;
 }
 .schema-tab {
   background: none;
