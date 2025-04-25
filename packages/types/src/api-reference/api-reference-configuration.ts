@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
 import { ApiReferencePluginSchema } from '@/api-reference/api-reference-plugin.ts'
+import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
 import type { TargetId } from '@/snippetz/index.ts'
 import type { AuthenticationConfiguration } from './authentication-configuration.ts'
-import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
 
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
@@ -75,6 +75,7 @@ const integrationEnum = z
     'platformatic',
     'react',
     'rust',
+    'svelte',
     'vue',
   ])
   .nullable()

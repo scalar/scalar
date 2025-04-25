@@ -29,6 +29,7 @@ const availableIntegrationIcons: Exclude<
   'platformatic',
   'react',
   'rust',
+  'svelte',
 ]
 
 /** Icon for the @scalar/api-reference integration the user is coming from */

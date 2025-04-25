@@ -20,3 +20,6 @@ test-*.json
 rollup.config-*.mjs
 
 .DS_Store
+
+# Svelte
+.svelte-kit
