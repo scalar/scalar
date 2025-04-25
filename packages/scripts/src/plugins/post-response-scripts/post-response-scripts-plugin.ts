@@ -4,10 +4,10 @@ import { PostResponseScripts } from './components/PostResponseScripts'
 import { TestResults } from './components/TestResults'
 import { type TestResult, executePostResponseScript } from './libs/execute-scripts'
 
-export const postResponseScriptsPlugin: ApiClientPlugin = () => {
+export const postResponseScriptsPlugin = (): ApiClientPlugin => {
   const results = ref<TestResult[]>([])
 
-  return {
+  return () => ({
     name: 'post-response-scripts',
     views: {
       'request.section': [
@@ -39,5 +39,5 @@ export const postResponseScriptsPlugin: ApiClientPlugin = () => {
         })
       },
     },
-  }
+  })
 }

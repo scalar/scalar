@@ -6,9 +6,8 @@ createApiClientApp(
   document.getElementById('scalar-client'),
   {
     proxyUrl: 'https://proxy.scalar.com',
+    plugins: [postResponseScriptsPlugin()],
   },
   true,
   undefined,
-  // Oh, we need to move this to another parameter, we don't need a separate parameter for plugins.
-  [postResponseScriptsPlugin],
 )

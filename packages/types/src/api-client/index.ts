@@ -1,1 +1,1 @@
-export type { ApiClientPlugin } from './api-client-plugin.ts'
+export { type ApiClientPlugin, ApiClientPluginSchema } from './api-client-plugin'

@@ -1,30 +1,37 @@
-// TODO: Make Zod Schema
-// TODO: Add comment
-export type ApiClientPlugin = () => {
-  name: string
-  views: {
-    'request.section': {
-      title?: string
-      // TODO: Better type
-      component: any
-      props?: Record<string, any>
-    }[]
-    'response.section': {
-      title?: string
-      // TODO: Better type
-      component: any
-      props?: Record<string, any>
-    }[]
-  }
-  hooks: {
-    onBeforeRequest: () => void
-    onResponseReceived: ({
-      response,
-      operation,
-    }: {
-      response: Response
-      // TODO: How do we get a proper type here?
-      operation: Record<string, any>
-    }) => void
-  }
-}
+import { z } from 'zod'
+
+const SectionViewSchema = z.object({
+  title: z.string().optional(),
+  // Since this is meant to be a Vue component, we'll use unknown
+  component: z.unknown(),
+  props: z.record(z.any()).optional(),
+})
+
+const ViewsSchema = z.object({
+  'request.section': z.array(SectionViewSchema),
+  'response.section': z.array(SectionViewSchema),
+})
+
+const HooksSchema = z.object({
+  onBeforeRequest: z.function().returns(z.union([z.void(), z.promise(z.void())])),
+  onResponseReceived: z
+    .function()
+    .args(
+      z.object({
+        response: z.instanceof(Response),
+        // Ideally, we'd have the Operation type here, but we don't.
+        operation: z.record(z.any()),
+      }),
+    )
+    .returns(z.union([z.void(), z.promise(z.void())])),
+})
+
+export const ApiClientPluginSchema = z.function().returns(
+  z.object({
+    name: z.string(),
+    views: ViewsSchema,
+    hooks: HooksSchema,
+  }),
+)
+
+export type ApiClientPlugin = z.infer<typeof ApiClientPluginSchema>
