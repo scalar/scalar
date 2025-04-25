@@ -1,4 +1,7 @@
 <script setup lang="ts">
+// TODO: This is a copy of the ViewLayoutCollapse component in the API client.
+// I’ve copied it here, so we can move the scripts to a separate package.
+// But maybe we can move the component to a shared package?
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { useId } from 'vue'
@@ -26,9 +29,7 @@ const id = useId()
     <section
       :aria-labelledby="id"
       class="contents">
-      <div
-        class="bg-b-2 flex items-center"
-        :class="layout === 'reference' && 'rounded-t-lg border border-b-0'">
+      <div class="bg-b-2 flex items-center">
         <DisclosureButton
           :class="[
             'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',

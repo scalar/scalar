@@ -2,6 +2,7 @@ import { createApiClient } from '@/libs'
 import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 
+import type { ApiClientPlugin } from '@/plugins/plugin-manager'
 import ApiClientApp from './ApiClientApp.vue'
 
 /**
@@ -19,6 +20,8 @@ export const createApiClientApp = async (
   mountOnInitialize = true,
   /** Vue router to use */
   router = createWebHistoryRouter(),
+  /** The API Client plugins to use */
+  plugins: ApiClientPlugin[] = [],
 ) => {
   const client = createApiClient({
     el,
@@ -27,6 +30,7 @@ export const createApiClientApp = async (
     mountOnInitialize,
     router,
     layout: 'desktop',
+    plugins,
   })
 
   const { importSpecFile, importSpecFromUrl } = client.store

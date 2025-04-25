@@ -6,5 +6,11 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src", "playground"]
+  "include": [
+    "src",
+    "playground",
+    "../scripts/src/plugins",
+    "../scripts/src/consts",
+    "../scripts/src/components/ViewLayout"
+  ]
 }
