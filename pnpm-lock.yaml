@@ -58,8 +58,8 @@ catalogs:
       specifier: ^2.4.5
       version: 2.6.0
     zod:
-      specifier: 3.24.1
-      version: 3.24.1
+      specifier: ^3.23.8
+      version: 3.23.8
 
 importers:
 
@@ -578,7 +578,7 @@ importers:
         version: 1.11.3
       '@hono/zod-openapi':
         specifier: ^0.8.6
-        version: 0.8.6(hono@4.6.5)(zod@3.24.1)
+        version: 0.8.6(hono@4.6.5)(zod@3.23.8)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
@@ -1018,7 +1018,7 @@ importers:
         version: 2.6.0
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1173,7 +1173,7 @@ importers:
         version: 3.5.12(typescript@5.6.2)
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1741,7 +1741,7 @@ importers:
     dependencies:
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1950,7 +1950,7 @@ importers:
         version: 2.6.0
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1969,7 +1969,7 @@ importers:
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
       zod-to-ts:
         specifier: github:amritk/zod-to-ts#build
-        version: https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.24.1)
+        version: https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.23.8)
 
   packages/object-utils:
     dependencies:
@@ -2052,7 +2052,7 @@ importers:
     dependencies:
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2224,7 +2224,7 @@ importers:
         version: 4.26.1
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2340,7 +2340,7 @@ importers:
         version: 3.5.12(typescript@5.6.2)
       zod:
         specifier: 'catalog:'
-        version: 3.24.1
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2356,7 +2356,7 @@ importers:
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       zod-to-ts:
         specifier: ^1.2.0
-        version: 1.2.0(typescript@5.6.2)(zod@3.24.1)
+        version: 1.2.0(typescript@5.6.2)(zod@3.23.8)
 
   packages/use-toasts:
     dependencies:
@@ -19044,9 +19044,6 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
-  zod@3.24.1:
-    resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
-
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -19244,10 +19241,10 @@ snapshots:
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
 
-  '@asteasolutions/zod-to-openapi@5.5.0(zod@3.24.1)':
+  '@asteasolutions/zod-to-openapi@5.5.0(zod@3.23.8)':
     dependencies:
       openapi3-ts: 4.3.3
-      zod: 3.24.1
+      zod: 3.23.8
 
   '@aw-web-design/x-default-browser@1.4.126':
     dependencies:
@@ -23236,17 +23233,17 @@ snapshots:
 
   '@hono/node-server@1.11.3': {}
 
-  '@hono/zod-openapi@0.8.6(hono@4.6.5)(zod@3.24.1)':
+  '@hono/zod-openapi@0.8.6(hono@4.6.5)(zod@3.23.8)':
     dependencies:
-      '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.24.1)
-      '@hono/zod-validator': 0.1.11(hono@4.6.5)(zod@3.24.1)
+      '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.23.8)
+      '@hono/zod-validator': 0.1.11(hono@4.6.5)(zod@3.23.8)
       hono: 4.6.5
-      zod: 3.24.1
+      zod: 3.23.8
 
-  '@hono/zod-validator@0.1.11(hono@4.6.5)(zod@3.24.1)':
+  '@hono/zod-validator@0.1.11(hono@4.6.5)(zod@3.23.8)':
     dependencies:
       hono: 4.6.5
-      zod: 3.24.1
+      zod: 3.23.8
 
   '@humanfs/core@0.19.1': {}
 
@@ -41081,18 +41078,16 @@ snapshots:
     dependencies:
       zod: 3.23.8
 
-  zod-to-ts@1.2.0(typescript@5.6.2)(zod@3.24.1):
+  zod-to-ts@1.2.0(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       typescript: 5.6.2
-      zod: 3.24.1
+      zod: 3.23.8
 
-  zod-to-ts@https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.24.1):
+  zod-to-ts@https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       typescript: 5.6.2
-      zod: 3.24.1
+      zod: 3.23.8
 
   zod@3.23.8: {}
-
-  zod@3.24.1: {}
 
   zwitch@2.0.4: {}
