@@ -211,7 +211,6 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
-    "@scalar/scripts": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -238,6 +237,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@scalar/scripts": "workspace:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "catalog:*",
