@@ -360,9 +360,18 @@ public static class ScalarOptionsExtensions
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="oauth2Options">The OAuth2 options to set.</param>
     /// <remarks>
-    /// This method is obsolete and will be removed in a future release. Use <see cref="AddClientCredentialsFlow" /> or <see cref="AddAuthorizationCodeFlow" /> instead.
+    /// This method is obsolete and will be removed in a future release.
+    /// Use one of the following extension methods instead:
+    /// <list type="bullet">
+    /// <item><description><see cref="ScalarOptionsExtensions.AddClientCredentialsFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddAuthorizationCodeFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddImplicitFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddPasswordFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Flows"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Authentication"/></description></item>
+    /// </list>
     /// </remarks>
-    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsAuthentication or AddAuthorizationCodeAuthentication instead.")]
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsFlow, AddAuthorizationCodeFlow, AddImplicitFlow, AddPasswordFlow, AddOAuth2Flows or AddOAuth2Authentication instead.")]
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, OAuth2Options oauth2Options)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
@@ -376,9 +385,18 @@ public static class ScalarOptionsExtensions
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureOAuth2Options">The action to configure the OAuth2 options.</param>
     /// <remarks>
-    /// This method is obsolete and will be removed in a future release. Use <see cref="AddClientCredentialsFlow" /> or <see cref="AddAuthorizationCodeFlow" /> instead.
+    /// This method is obsolete and will be removed in a future release.
+    /// Use one of the following extension methods instead:
+    /// <list type="bullet">
+    /// <item><description><see cref="ScalarOptionsExtensions.AddClientCredentialsFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddAuthorizationCodeFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddImplicitFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddPasswordFlow"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Flows"/></description></item>
+    /// <item><description><see cref="ScalarOptionsExtensions.AddOAuth2Authentication"/></description></item>
+    /// </list>
     /// </remarks>
-    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsAuthentication or AddAuthorizationCodeAuthentication instead.")]
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddClientCredentialsFlow, AddAuthorizationCodeFlow, AddImplicitFlow, AddPasswordFlow, AddOAuth2Flows or AddOAuth2Authentication instead.")]
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, Action<OAuth2Options> configureOAuth2Options)
     {
         var oauth2Options = new OAuth2Options();
@@ -525,7 +543,7 @@ public static class ScalarOptionsExtensions
             configureScheme(existingOAuth2Scheme);
             return options;
         }
-        
+
         var oAuth2Scheme = new ScalarOAuth2SecurityScheme();
         configureScheme(oAuth2Scheme);
 
@@ -611,7 +629,7 @@ public static class ScalarOptionsExtensions
             configureScheme(existingHttpScheme);
             return options;
         }
-        
+
         var headerScheme = new ScalarApiKeySecurityScheme();
         configureScheme(headerScheme);
 
