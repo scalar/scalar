@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import {
   ScalarButton,
-  ScalarDropdown,
-  ScalarDropdownItem,
   ScalarIcon,
   ScalarMarkdown,
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import { ScalarIconTrash } from '@scalar/icons'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
@@ -72,34 +71,24 @@ const openDeleteModal = (serverUid: Server['uid']) => {
       <div
         v-for="(server, index) in collectionServers"
         :key="server.uid">
-        <div class="bg-b-2 overflow-hidden rounded-lg border">
-          <div class="flex items-center justify-between py-1 pl-3 pr-1 text-sm">
+        <div class="bg-b-2 rounded-lg border">
+          <div
+            class="flex items-start justify-between rounded-t-lg py-1 pl-3 pr-1 text-sm">
             <ScalarMarkdown
               v-if="server.description"
-              :value="server.description" />
-            <span v-else>Server {{ index + 1 }}</span>
-            <ScalarDropdown placement="bottom-end">
-              <ScalarButton
-                class="hover:bg-b-3 h-full max-h-8 gap-1 p-1 text-xs"
-                variant="ghost">
-                <ScalarIcon
-                  class="text-c-3"
-                  icon="Ellipses"
-                  size="md" />
-              </ScalarButton>
-              <template #items>
-                <ScalarDropdownItem
-                  class="flex gap-2 font-normal"
-                  @click="openDeleteModal(server.uid)">
-                  <ScalarIcon
-                    class="inline-flex"
-                    icon="Delete"
-                    size="sm"
-                    thickness="1.5" />
-                  <span>Delete</span>
-                </ScalarDropdownItem>
-              </template>
-            </ScalarDropdown>
+              :value="server.description"
+              class="self-center" />
+            <span
+              class="self-center"
+              v-else
+              >Server {{ index + 1 }}</span
+            >
+            <ScalarButton
+              class="hover:bg-b-3 hover:text-c-1 p-1.25 h-fit"
+              variant="ghost"
+              @click="openDeleteModal(server.uid)">
+              <ScalarIconTrash class="size-3.5" />
+            </ScalarButton>
           </div>
           <CollectionServerForm
             v-if="activeCollection"
