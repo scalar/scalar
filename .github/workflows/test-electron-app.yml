@@ -11,7 +11,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     services:
       xvfb:
