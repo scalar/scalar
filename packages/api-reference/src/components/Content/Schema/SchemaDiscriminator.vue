@@ -9,7 +9,7 @@ import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all
 
 import Schema from './Schema.vue'
 
-const props = defineProps<{
+const { schemas } = defineProps<{
   discriminator: string
   schemas?:
     | OpenAPIV2.DefinitionsObject
@@ -45,15 +45,29 @@ const getModelNameFromSchema = (schema: any): string | null => {
     return schema.name
   }
 
+  if (schema.title) {
+    return schema.title
+  }
+
   // returns a matching schema name based on the schema object
-  if (props.schemas && typeof props.schemas === 'object') {
-    for (const [schemaName, schemaValue] of Object.entries(props.schemas)) {
+  if (schemas && typeof schemas === 'object') {
+    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
       if (stringify(schemaValue) === stringify(schema)) {
         return schemaName
       }
     }
-
     return Object.keys(schema)[0]
+  }
+
+  if (schema.type) {
+    return schema.type
+  }
+
+  if (typeof schema === 'object') {
+    const keys = Object.keys(schema)
+    if (keys.length > 0) {
+      return keys[0]
+    }
   }
 
   return null
