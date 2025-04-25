@@ -4,7 +4,16 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**"],
+      "outputs": [
+        "dist/**",
+        "storybook-static/**",
+        ".next/**",
+        "build/**",
+        ".nuxt/**",
+        ".output/**",
+        "public/build/**",
+        "projects/proxy-scalar-com/main"
+      ],
       "dependsOn": ["^build"]
     },
     "dev": {
