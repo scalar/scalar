@@ -7,7 +7,7 @@ import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-p
 import { decodeBuffer } from '@/libs/send-request/decode-buffer'
 import { getCookieHeader, setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
-import type { PluginManager } from '@/plugins/plugin-manager'
+import type { PluginManager } from '@/plugins'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,

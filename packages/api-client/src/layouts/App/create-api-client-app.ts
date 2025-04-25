@@ -2,7 +2,7 @@ import { createApiClient } from '@/libs'
 import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 
-import type { ApiClientPlugin } from '@/plugins/plugin-manager'
+import type { ApiClientPlugin } from '@/plugins'
 import ApiClientApp from './ApiClientApp.vue'
 
 /**
