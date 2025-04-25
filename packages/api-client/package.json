@@ -138,6 +138,11 @@
       "types": "./dist/libs/send-request/index.d.ts",
       "default": "./dist/libs/send-request/index.js"
     },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
+    },
     "./store": {
       "import": "./dist/store/index.js",
       "types": "./dist/store/index.d.ts",

@@ -1,5 +1,7 @@
-import type { ApiClientPlugin } from '@scalar/types'
-import { type InjectionKey, inject } from 'vue'
+import type { ApiClientPlugin } from '@scalar/types/api-client'
+import type { InjectionKey } from 'vue'
+
+export type { ApiClientPlugin }
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -46,18 +48,3 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
 
 export type PluginManager = ReturnType<typeof createPluginManager>
 export const PLUGIN_MANAGER_SYMBOL = Symbol() as InjectionKey<PluginManager>
-
-/**
- * Hook to access the plugin manager
- *
- * @throws Error if plugin manager is not provided
- */
-export const usePluginManager = (): PluginManager => {
-  const manager = inject(PLUGIN_MANAGER_SYMBOL)
-
-  if (!manager) {
-    throw new Error('Plugin manager not provided')
-  }
-
-  return manager
-}
