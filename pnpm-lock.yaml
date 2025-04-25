@@ -1053,6 +1053,9 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/scripts':
+        specifier: workspace:*
+        version: link:../scripts
       '@types/shell-quote':
         specifier: ^1.7.5
         version: 1.7.5
