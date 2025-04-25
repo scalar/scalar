@@ -22,7 +22,7 @@ export const createApiClientWeb = async (
   const client = createApiClient({
     el,
     appComponent: ApiClientWeb,
-    configuration: configuration,
+    configuration,
     mountOnInitialize,
     router,
     layout: 'web',

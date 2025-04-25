@@ -34,6 +34,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",
     "@scalar/api-client": "workspace:*",
+    "@scalar/scripts": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
