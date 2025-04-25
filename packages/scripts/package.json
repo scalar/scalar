@@ -1,0 +1,107 @@
+{
+  "name": "@scalar/scripts",
+  "description": "Execute pre-request and post-response scripts in the Scalar API Client",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/scripts"
+  },
+  "keywords": [
+    "scalar",
+    "openapi",
+    "swagger",
+    "scripts",
+    "pre-request scripts",
+    "post-response scripts",
+    "api client"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./components/ViewLayout": {
+      "import": "./dist/components/ViewLayout/index.js",
+      "types": "./dist/components/ViewLayout/index.d.ts",
+      "default": "./dist/components/ViewLayout/index.js"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    },
+    "./plugins/post-response-scripts": {
+      "import": "./dist/plugins/post-response-scripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/index.js"
+    },
+    "./plugins/post-response-scripts/components/PostResponseScripts": {
+      "import": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/components/PostResponseScripts/index.js"
+    },
+    "./plugins/post-response-scripts/components/TestResults": {
+      "import": "./dist/plugins/post-response-scripts/components/TestResults/index.js",
+      "types": "./dist/plugins/post-response-scripts/components/TestResults/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/components/TestResults/index.js"
+    },
+    "./plugins/post-response-scripts/libs/execute-scripts": {
+      "import": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.js"
+    },
+    "./plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts": {
+      "import": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.js",
+      "types": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.d.ts",
+      "default": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.3",
+    "@headlessui/vue": "^1.7.20",
+    "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/use-codemirror": "workspace:*",
+    "@vitejs/plugin-vue": "catalog:",
+    "@vue/test-utils": "^2.4.1",
+    "vite": "^5.1.1",
+    "vite-svg-loader": "^5.1.0",
+    "vue": "catalog:"
+  }
+}

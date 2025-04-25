@@ -36,6 +36,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./api-client": {
+      "import": "./dist/api-client/index.js",
+      "types": "./dist/api-client/index.d.ts",
+      "default": "./dist/api-client/index.js"
+    },
     "./api-reference": {
       "import": "./dist/api-reference/index.js",
       "types": "./dist/api-reference/index.d.ts",

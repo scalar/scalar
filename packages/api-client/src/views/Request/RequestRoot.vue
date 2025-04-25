@@ -13,6 +13,7 @@ import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { validateParameters } from '@/libs/validate-parameters'
+import { usePluginManager } from '@/plugins/plugin-manager'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
@@ -36,6 +37,8 @@ const {
 } = useActiveEntities()
 const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
+
+const pluginManager = usePluginManager()
 
 const element = ref<HTMLDivElement>()
 
@@ -99,6 +102,7 @@ const executeRequest = async () => {
     status: events.requestStatus,
     securitySchemes: securitySchemes,
     server,
+    pluginManager,
   })
 
   // Call the onRequestSent callback if it exists

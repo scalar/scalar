@@ -60,3 +60,8 @@ export {
   securityOpenIdSchema,
   securitySchemeSchema,
 } from '@scalar/types/entities'
+
+export type {
+  PostResponseScript,
+  PostResponseScripts,
+} from './requests.ts'

@@ -206,6 +206,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
+    "@scalar/scripts": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",

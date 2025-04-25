@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.strict.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "vite.config.ts"]
+}
