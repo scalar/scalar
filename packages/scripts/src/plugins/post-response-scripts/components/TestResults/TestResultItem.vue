@@ -2,7 +2,7 @@
 import { ScalarIcon, type Icon } from '@scalar/components'
 import { computed } from 'vue'
 
-import type { TestResult } from '@/plugins/post-response-scripts/libs/execute-scripts'
+import type { TestResult } from '@/libs/execute-scripts'
 
 const { currentState, result } = defineProps<{
   result: TestResult

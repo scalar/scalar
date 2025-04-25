@@ -1,4 +1,5 @@
-import type { TestResult } from '@/plugins/post-response-scripts/libs/execute-scripts'
+// @vitest-environment jsdom
+import type { TestResult } from '@/libs/execute-scripts'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { ref } from 'vue'

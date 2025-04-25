@@ -2,7 +2,7 @@
 import { cva, ScalarIcon, useBindCx, type Icon } from '@scalar/components'
 import { computed } from 'vue'
 
-import type { TestResult } from '@/plugins/post-response-scripts/libs/execute-scripts'
+import type { TestResult } from '@/libs/execute-scripts'
 
 const { state, totalTestsCount, pendingTestsCount, failedTestsCount } =
   defineProps<{

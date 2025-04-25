@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, type Ref } from 'vue'
 
-import type { TestResult } from '@/plugins/post-response-scripts/libs/execute-scripts'
+import type { TestResult } from '@/libs/execute-scripts'
 
 import { ViewLayoutCollapse } from '../../../../components/ViewLayout'
 import TestResultIndicator from './TestResultIndicator.vue'

@@ -1,8 +1,8 @@
 import type { ApiClientPlugin } from '@scalar/types/api-client'
 import { ref } from 'vue'
+import { type TestResult, executePostResponseScript } from '../../libs/execute-scripts'
 import { PostResponseScripts } from './components/PostResponseScripts'
 import { TestResults } from './components/TestResults'
-import { type TestResult, executePostResponseScript } from './libs/execute-scripts'
 
 export const postResponseScriptsPlugin = (): ApiClientPlugin => {
   const results = ref<TestResult[]>([])

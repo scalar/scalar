@@ -47,22 +47,20 @@ const createResponseContext = (response: Response): ResponseContext => ({
   headers: Object.fromEntries(response.headers.entries()),
 })
 
-const createContext = ({
+const createContext = async ({
   response,
-  responseText,
   onTestResultsUpdate,
 }: {
   response: Response
-  responseText: string
   onTestResultsUpdate?: ((results: TestResult[]) => void) | undefined
-}): { globalProxy: any; context: ScriptContext } => {
+}): Promise<{ globalProxy: any; context: ScriptContext }> => {
   const globalProxy = createGlobalProxy()
   const testResults: TestResult[] = []
 
   const context: ScriptContext = {
     response: createResponseContext(response),
     console: createConsoleContext(),
-    pm: createPostmanContext(response, responseText, {}, testResults, onTestResultsUpdate),
+    pm: await createPostmanContext(response, {}, testResults, onTestResultsUpdate),
     testResults,
   }
 
@@ -96,12 +94,8 @@ export const executePostResponseScript = async (
     return
   }
 
-  // Get response text before executing script
-  const responseText = await data.response.clone().text()
-
-  const { globalProxy, context } = createContext({
+  const { globalProxy, context } = await createContext({
     response: data.response,
-    responseText,
     onTestResultsUpdate: data.onTestResultsUpdate,
   })
 
@@ -123,7 +117,9 @@ export const executePostResponseScript = async (
       error: errorMessage,
       status: 'failed',
     }
+
     context.testResults.push(scriptErrorResult)
+
     data.onTestResultsUpdate?.(context.testResults)
   }
 }

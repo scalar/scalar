@@ -1,3 +1,4 @@
+import type { SynchronousResponse } from '@/types'
 import { validateJsonSchema } from './validate-json-schema'
 
 interface HeaderAssertions {
@@ -19,9 +20,7 @@ export type ResponseAssertions = {
   }
 }
 
-export const createResponseAssertions = (
-  response: Omit<Response, 'text' | 'json'> & { text: () => string; json: () => any },
-): ResponseAssertions => ({
+export const createResponseAssertions = (response: SynchronousResponse): ResponseAssertions => ({
   have: {
     status: (expectedStatus: number | string) => {
       if (typeof expectedStatus === 'number') {
@@ -53,10 +52,9 @@ export const createResponseAssertions = (
         },
       },
     }),
-    // @ts-expect-error TODO: Fix this
-    jsonSchema: async (schema: object) => {
+    jsonSchema: (schema: object) => {
       try {
-        const responseData = await response.clone().json()
+        const responseData = response.json()
         return validateJsonSchema(responseData, schema)
       } catch (error) {
         throw new Error(`JSON Schema validation failed: ${error instanceof Error ? error.message : String(error)}`)
