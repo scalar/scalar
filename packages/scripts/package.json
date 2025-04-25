@@ -56,6 +56,16 @@
       "require": "./dist/css/*.css",
       "default": "./dist/css/*.css"
     },
+    "./libs/execute-scripts": {
+      "import": "./dist/libs/execute-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/index.js"
+    },
+    "./libs/execute-scripts/context/postman-scripts": {
+      "import": "./dist/libs/execute-scripts/context/postman-scripts/index.js",
+      "types": "./dist/libs/execute-scripts/context/postman-scripts/index.d.ts",
+      "default": "./dist/libs/execute-scripts/context/postman-scripts/index.js"
+    },
     "./plugins/post-response-scripts": {
       "import": "./dist/plugins/post-response-scripts/index.js",
       "types": "./dist/plugins/post-response-scripts/index.d.ts",
@@ -70,16 +80,6 @@
       "import": "./dist/plugins/post-response-scripts/components/TestResults/index.js",
       "types": "./dist/plugins/post-response-scripts/components/TestResults/index.d.ts",
       "default": "./dist/plugins/post-response-scripts/components/TestResults/index.js"
-    },
-    "./plugins/post-response-scripts/libs/execute-scripts": {
-      "import": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/libs/execute-scripts/index.js"
-    },
-    "./plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts": {
-      "import": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.js",
-      "types": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.d.ts",
-      "default": "./dist/plugins/post-response-scripts/libs/execute-scripts/context/postman-scripts/index.js"
     }
   },
   "files": [

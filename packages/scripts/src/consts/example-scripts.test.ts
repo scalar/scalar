@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type TestResult, executePostResponseScript } from '../plugins/post-response-scripts/libs/execute-scripts'
+import { type TestResult, executePostResponseScript } from '../libs/execute-scripts'
 import { EXAMPLE_SCRIPTS } from './example-scripts'
 
 describe('example scripts', () => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TestResult } from '@/plugins/post-response-scripts/libs/execute-scripts'
+import type { TestResult } from '@/libs/execute-scripts'
 
 import TestResultIndicator from './TestResultIndicator.vue'
 
