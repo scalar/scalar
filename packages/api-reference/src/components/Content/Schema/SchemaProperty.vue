@@ -312,9 +312,7 @@ const displayPropertyHeading = (
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
           typeof optimizedValue.items === 'object' &&
-          discriminator in optimizedValue.items &&
-          Array.isArray(optimizedValue.items[discriminator]) &&
-          level < 3
+          discriminator in optimizedValue.items
         ">
         <SchemaDiscriminator
           :compact="compact"
