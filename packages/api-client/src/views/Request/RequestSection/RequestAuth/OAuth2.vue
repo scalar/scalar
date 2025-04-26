@@ -37,6 +37,11 @@ const {
   workspace: Workspace
 }>()
 
+defineSlots<{
+  /** For passing actions into the auth table */
+  actions: () => unknown
+}>()
+
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 const { securitySchemeMutators } = useWorkspace()
@@ -50,12 +55,11 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading || !collection?.uid) {
     return
   }
-  loadingState.startLoading()
-
   if (!server) {
     toast('No server selected', 'error')
     return
   }
+  loadingState.startLoading()
 
   const [error, accessToken] = await authorizeOauth2(
     flow,
@@ -94,7 +98,7 @@ const dataTableInputProps = {
       </RequestAuthDataTableInput>
     </DataTableRow>
     <DataTableRow class="min-w-full">
-      <div class="flex h-8 items-center justify-self-end">
+      <div class="border-t-1/2 flex h-8 items-center justify-end gap-2">
         <ScalarButton
           class="mr-1 p-0 px-2 py-0.5"
           :loading="loadingState"
@@ -103,6 +107,9 @@ const dataTableInputProps = {
           @click="updateScheme(`flows.${flow.type}.token`, '')">
           Clear
         </ScalarButton>
+
+        <!-- Action slot -->
+        <slot name="actions" />
       </div>
     </DataTableRow>
   </template>

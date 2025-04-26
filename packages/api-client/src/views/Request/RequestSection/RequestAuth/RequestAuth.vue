@@ -56,6 +56,11 @@ const {
   workspace: Workspace
 }>()
 
+defineSlots<{
+  /** For passing actions into the auth table */
+  actions: () => unknown
+}>()
+
 const { layout: clientLayout } = useLayout()
 const {
   securitySchemes,
@@ -274,7 +279,11 @@ const schemeOptions = computed(() =>
       :layout="layout"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
-      :workspace="workspace" />
+      :workspace="workspace">
+      <template #actions>
+        <slot name="actions" />
+      </template>
+    </RequestAuthDataTable>
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"

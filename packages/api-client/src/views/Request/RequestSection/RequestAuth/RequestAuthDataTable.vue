@@ -1,18 +1,12 @@
 <script setup lang="ts">
-import { useModal } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type {
-  Collection,
-  SecurityScheme,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, watch } from 'vue'
 
 import { DataTable } from '@/components/DataTable'
 import type { EnvVariable } from '@/store/active-entities'
 
-import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthTab from './RequestAuthTab.vue'
 
 const {
@@ -33,10 +27,10 @@ const {
   workspace: Workspace
 }>()
 
-const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
-  null,
-)
+defineSlots<{
+  /** For passing actions into the auth table */
+  actions: () => unknown
+}>()
 
 /** Add new ref for active tab */
 const activeAuthIndex = ref(0)
@@ -62,6 +56,7 @@ watch(
 </script>
 <template>
   <form @submit.prevent>
+    <!-- Auth Tabs -->
     <div
       v-if="selectedSchemeOptions.length > 1"
       class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border-t px-3">
@@ -97,7 +92,11 @@ watch(
         :layout="layout"
         :securitySchemeUids="activeScheme"
         :server="server"
-        :workspace="workspace" />
+        :workspace="workspace">
+        <template #actions>
+          <slot name="actions" />
+        </template>
+      </RequestAuthTab>
     </DataTable>
 
     <div
@@ -105,11 +104,6 @@ watch(
       class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
       No authentication selected
     </div>
-
-    <DeleteRequestAuthModal
-      :scheme="selectedScheme"
-      :state="deleteSchemeModal"
-      @close="deleteSchemeModal.hide()" />
   </form>
 </template>
 <style scoped>

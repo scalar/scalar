@@ -34,12 +34,15 @@ const {
   workspace: Workspace
 }>()
 
+defineSlots<{
+  /** For passing actions into the auth table */
+  actions: () => unknown
+}>()
+
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
 const security = computed(() =>
-  securitySchemeUids.map((uid) => ({
-    scheme: securitySchemes[uid],
-  })),
+  securitySchemeUids.map((uid) => securitySchemes[uid]),
 )
 
 const activeFlow = ref('')
@@ -91,7 +94,7 @@ const dataTableInputProps = {
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="{ scheme } in security"
+    v-for="(scheme, index) in security"
     :key="scheme?.uid">
     <!-- Header -->
     <DataTableRow
@@ -218,9 +221,27 @@ const dataTableInputProps = {
           :flow="flow!"
           :scheme="scheme"
           :server="server"
-          :workspace="workspace" />
+          :workspace="workspace">
+          <template
+            #actions
+            v-if="index === security.length - 1">
+            <slot name="actions" />
+          </template>
+        </OAuth2>
       </template>
     </template>
+
+    <!-- Action slot for adding additional actions -->
+    <DataTableRow
+      v-if="
+        $slots.actions &&
+        index === security.length - 1 &&
+        scheme?.type !== 'oauth2'
+      ">
+      <DataTableCell class="flex h-8 items-center justify-end">
+        <slot name="actions" />
+      </DataTableCell>
+    </DataTableRow>
 
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
