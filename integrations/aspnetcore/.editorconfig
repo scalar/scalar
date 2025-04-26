@@ -75,6 +75,6 @@ resharper_web_config_wrong_module_highlighting = warning
 resharper_place_simple_anonymousmethod_on_single_line = false
 
 # XML project files
-[*.{csproj,props,targets,json,yml,js}]
+[*.{csproj,props,targets,json,yml,js,slnx}]
 indent_size = 2
 

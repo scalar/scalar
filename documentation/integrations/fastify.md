@@ -38,7 +38,7 @@ fastify.listen({ port: 3000 }, function (err, address) {
 })
 ```
 
-If you start to run this script, it’ll fail though, because we’re newing the “new” way to _import_ EcmaScript Modules here. Anyway, the fix should be straight-forward. We need to add the highlighted lines to our package.json:
+If you start to run this script, it’ll fail though, because we’re using the “new” way to _import_ EcmaScript Modules here. Anyway, the fix should be straight-forward. We need to add the highlighted lines to our package.json:
 
 ```diff
 {

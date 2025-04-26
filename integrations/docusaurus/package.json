@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "0.5.23",
+  "version": "0.6.2",
   "engines": {
     "node": ">=18"
   },
@@ -38,7 +38,6 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/api-reference-react": "workspace:*",
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {

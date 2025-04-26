@@ -19,6 +19,7 @@ Made possible by the wonderful work of [@captainsafia](https://github.com/captai
 
 ## Migration Guide
 
+If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
 If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
 
 ## Usage
@@ -79,6 +80,21 @@ builder.Services.AddOpenApiDocument();
 if (app.Environment.IsDevelopment())
 {
     app.UseOpenApi(options =>
+    {
+        options.Path = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
+For `FastEndpoints`:
+
+```csharp
+builder.Services.SwaggerDocument();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerGen(options =>
     {
         options.Path = "/openapi/{documentName}.json";
     });

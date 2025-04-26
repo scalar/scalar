@@ -4,6 +4,7 @@ The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar AP
 
 ## Migration Guide
 
+If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
 If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
 
 ## Basic Setup
@@ -64,6 +65,21 @@ builder.Services.AddOpenApiDocument();
 if (app.Environment.IsDevelopment())
 {
     app.UseOpenApi(options =>
+    {
+        options.Path = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
+For `FastEndpoints`:
+
+```csharp
+builder.Services.SwaggerDocument();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerGen(options =>
     {
         options.Path = "/openapi/{documentName}.json";
     });
@@ -179,82 +195,207 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 
 ### Authentication
 
-Scalar supports various authentication schemes, including API Key, OAuth, HTTP Basic and Bearer, by allowing you to pre-fill certain authentication details.
+Scalar supports various authentication schemes, including API Key, OAuth2 (with multiple flows), and HTTP Basic/Bearer, by allowing you to pre-fill certain authentication details.
 
 These details can only be prefilled if the security schemes are defined in the OpenAPI document. Make sure your OpenAPI document includes the necessary security schemes for authentication to work correctly. The scheme is added by the OpenAPI generator, and the implementation may vary depending on the generator used (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). For more information, please refer to the documentation of the respective generator.
 
 > [!WARNING]
 > Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
 
-#### API Key
+#### API Key Authentication
 
-To simplify API key usage, you can provide a token:
+To configure API key authentication:
 
 ```csharp
-app.MapScalarApiReference(options =>
-{
-    // Fluent API
-    options
-        .WithPreferredScheme("ApiKey") // Optional. Security scheme name from the OpenAPI document
-        .WithApiKeyAuthentication(apiKey =>
-        {
-            apiKey.Token = "your-api-key";
-        });
-
-    // Object initializer
-    options.Authentication = new ScalarAuthenticationOptions
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("ApiKey") // Optional: Sets the default security scheme
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
-        PreferredSecurityScheme = "ApiKey", // Optional. Security scheme name from the OpenAPI document
-        ApiKey = new ApiKeyOptions
-        {
-            Token = "your-api-key"
-        }
-    }
-});
+        apiKey.Value = "your-api-key";
+    })
+);
 ```
 
-#### OAuth
+#### OAuth2 Authentication
 
-Similarly, you can pre-fill OAuth fields like the client ID and scopes:
-
-```csharp
-app.MapScalarApiReference(options =>
-{
-    options
-        .WithOAuth2Authentication(oauth =>
-        {
-            oauth.ClientId = "your-client-id";
-            oauth.Scopes = ["profile"];
-        });
-});
-```
-
-#### HTTP Basic/Bearer
-
-HTTP Basic or Bearer authentication fields can also be pre-filled easily:
+Scalar supports various OAuth2 flows through specific helper methods, but all of these methods are built on top of a core configuration method called `AddOAuth2Authentication`. This method gives you direct control over the OAuth2 security scheme configuration:
 
 ```csharp
-app.MapScalarApiReference(options =>
-{
-    // Basic
-    options
-        .WithHttpBasicAuthentication(basic =>
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddOAuth2Authentication("OAuth2", scheme => 
+    {
+        // Configure flows manually
+        scheme.Flows = new ScalarFlows
         {
-            basic.Username = "your-username";
-            basic.Password = "your-password";
-        });
-
-    // Bearer
-    options
-        .WithHttpBearerAuthentication(bearer =>
-        {
-            bearer.Token = "your-bearer-token";
-        });
-});
+            AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "your-client-id",
+                RedirectUri = "https://your-app.com/callback"
+            },
+            ClientCredentials = new ClientCredentialsFlow
+            {
+                ClientId = "your-client-id",
+                ClientSecret = "your-client-secret"
+            }
+        };
+        
+        // Set default scopes
+        scheme.DefaultScopes = ["profile", "email"];
+    })
+);
 ```
 
 > [!NOTE]
-> The `PreferredSecurityScheme` property is optional and only useful if the OpenAPI document contains multiple security schemes.
+> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
+> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core 
+> `AddOAuth2Authentication` method. These convenience methods make it easier to configure specific 
+> flows without having to set up the entire structure manually.
+
+##### Authorization Code Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+        flow.Pkce = Pkce.Sha256;
+        flow.SelectedScopes = ["profile", "email"];
+    });
+);
+```
+
+##### Client Credentials Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddClientCredentialsFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+    });
+);
+```
+
+##### Implicit Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddImplicitFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    });
+);
+```
+
+##### Password Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddPasswordFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.Username = "default-username"; // Pre-filled username
+        flow.Password = "default-password"; // Pre-filled password
+    });
+);
+```
+
+##### Multiple OAuth2 Flows
+
+You can configure multiple OAuth2 flows for a single security scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("OAuth2")
+    .AddOAuth2Flows("OAuth2", flows =>
+    {
+        // Authorization Code flow
+        flows.AuthorizationCode = new AuthorizationCodeFlow
+        {
+            ClientId = "your-client-id",
+            AuthorizationUrl = "https://auth.example.com/oauth2/authorize",
+            TokenUrl = "https://auth.example.com/oauth2/token",
+            RedirectUri = "https://your-app.com/callback"
+        };
+        
+        // Client Credentials flow
+        flows.ClientCredentials = new ClientCredentialsFlow
+        {
+            ClientId = "your-client-id",
+            ClientSecret = "your-client-secret",
+            TokenUrl = "https://auth.example.com/oauth2/token"
+        };
+    })
+    // All OAuth flows will have preselected scopes
+    .AddDefaultScopes("OAuth2", ["profile", "email"])
+);
+```
+
+#### HTTP Authentication
+
+##### Bearer Authentication
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BearerAuth")
+    .AddHttpAuthentication("BearerAuth", auth =>
+    {
+        auth.Token = "ey...";
+    });
+);
+```
+
+##### Basic Authentication
+
+```csharp
+app.MapScalarApiReference(options => options
+    .WithPreferredScheme("BasicAuth")
+    .AddHttpAuthentication("BasicAuth", auth =>
+    {
+        auth.Username = "your-username";
+        auth.Password = "your-password";
+    })
+);
+```
+
+#### Multiple Security Schemes
+
+You can configure multiple security schemes at once:
+
+```csharp
+app.MapScalarApiReference(options => options
+    // Set the preferred (default) scheme
+    .WithPreferredScheme("OAuth2")
+    
+    // Configure OAuth2
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    })
+    
+    // Configure API Key
+    .AddApiKeyAuthentication("ApiKey", apiKey =>
+    {
+        apiKey.Value = "your-api-key";
+    })
+    
+    // Configure HTTP Basic
+    .AddHttpAuthentication("BasicAuth", auth =>
+    {
+        auth.Username = "your-username";
+        auth.Password = "your-password";
+    });
+);
+```
+
+> [!NOTE]
+> For more detailed information about authentication, including how to configure security schemes in your OpenAPI document, refer to the [authentication documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/authentication.md).
 
 ### Custom HTTP Client
 
@@ -309,3 +450,115 @@ app
 ```
 
 For all available configuration properties and their default values, check out the [`ScalarOptions`](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) and the [`ScalarOptionsExtensions`](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/src/Scalar.AspNetCore/Extensions/ScalarOptionsExtensions.cs).
+
+## Legacy .NET Integration
+
+This guide explains how to integrate Scalar API Reference into .NET Framework and .NET Core projects using static assets.
+
+### Prerequisites
+
+- An ASP.NET or ASP.NET Core application with OpenAPI/Swagger support (using Swashbuckle or NSwag)
+
+
+### Step 1: Enable Swagger/OpenAPI in your project
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    
+    // Using Swashbuckle
+    services.AddSwaggerGen(c =>
+    {
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+    });
+    
+    // OR using NSwag
+    services.AddOpenApiDocument();
+}
+
+public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+{
+    // Enable the endpoint for generating the OpenAPI documents
+    app.UseSwagger();
+    
+    // Required for serving static scalar files
+    app.UseStaticFiles();
+    
+    // Other middleware
+    app.UseRouting();
+    app.UseEndpoints(endpoints =>
+    {
+        endpoints.MapControllers();
+    });
+}
+```
+
+### Step 2: Create the directory structure
+
+Create the following folder structure:
+
+```
+wwwroot/ (or your static files directory)
+└── scalar/
+    ├── index.html
+    └── scalar.config.js
+```
+
+### Step 3: Create the HTML file for Scalar
+
+Create `index.html` in the `wwwroot/scalar` directory with:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalar API Reference</title>
+</head>
+<body>
+    <div id="app"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script src="./scalar.config.js"></script>
+</body>
+</html>
+```
+
+### Step 4: Create the configuration file
+
+Create `scalar.config.js` in the same directory:
+
+```javascript
+Scalar.initialize({
+    selector: "#app",
+    url: "/swagger/v1/swagger.json", // Adjust this URL to match your OpenAPI document path
+    theme: "moon" // Other configuration
+});
+```
+
+### Step 5: Accessing your API Reference
+
+After starting your application, the Scalar API Reference will be available at:
+
+```
+http://localhost:<port>/scalar/index.html
+```
+
+#### Using a specific Scalar version
+
+To use a specific version instead of the latest, specify the version in your HTML:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.23"></script>
+```
+
+### Troubleshooting
+
+- **Swagger JSON not loading**: Verify the URL path to your Swagger JSON in the configuration
+- **CORS issues**: Ensure your API allows CORS if hosted on a different domain
+- **Static files not serving**: Check that `app.UseStaticFiles()` is present in your middleware pipeline
+- **404 errors**: Confirm the directory structure and that the files are correctly named
+
+For more configuration options, refer to the [official Scalar configuration documentation](https://github.com/scalar/scalar/blob/main/documentation/configuration.md).

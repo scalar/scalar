@@ -24,9 +24,11 @@ ignoredBuiltDependencies:
   - sharp
   - workerd
 catalog:
+  '@types/express': ^5.0.1
   '@types/node': ^20.17.10
   '@vitejs/plugin-vue': ^5.0.4
   '@vueuse/core': ^10.10.0
+  express: ^5.1.0
   nanoid: ^5.1.5
   next: ^15.2.3
   postcss: ^8.4.38

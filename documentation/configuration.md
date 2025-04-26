@@ -302,6 +302,7 @@ You need them in another place? [Create an issue to let us know.](https://github
     XCustomExtensionPlugin(),
   ],
 }
+```
 
 ### showSidebar?: boolean
 
@@ -583,11 +584,51 @@ To make authentication easier you can prefill the credentials for your users:
       oauth2: {
         flows: {
           authorizationCode: {
+            // Provide a token that is used instead of calling the auth provider
             token: 'auth code token',
+            // Prefill client id or secret
+            'x-scalar-client-id': 'your-client-id',
+            clientSecret: 'your-client-secret',
+            // Overwrite values from the OpenAPI document
+            authorizationUrl: 'https://auth.example.com/oauth2/authorize',
+            tokenUrl: 'https://auth.example.com/oauth2/token',
+            'x-scalar-redirect-uri': 'https://your-app.com/callback',
+            // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
+            'x-usePkce': 'SHA-256',
+            // Preselected scopes
+            selectedScopes: ['profile', 'email']
+          },
+          clientCredentials: {
+            token: 'client credentials token',
+            'x-scalar-client-id': 'your-client-id',
+            clientSecret: 'your-client-secret',
+            tokenUrl: 'https://auth.example.com/oauth2/token',
+            // Preselected scopes
+            selectedScopes: ['profile', 'api:read']
+          },
+          implicit: {
+            token: 'implicit flow token',
+            'x-scalar-client-id': 'your-client-id',
+            authorizationUrl: 'https://auth.example.com/oauth2/authorize',
+            'x-scalar-redirect-uri': 'https://your-app.com/callback',
+            // Preselected scopes
+            selectedScopes: ['openid', 'profile']
+          },
+          password: {
+            token: 'password flow token',
+            'x-scalar-client-id': 'your-client-id',
+            clientSecret: 'your-client-secret',
+            tokenUrl: 'https://auth.example.com/oauth2/token',
+            username: 'default-username',
+            password: 'default-password',
+            selectedScopes: ['profile', 'email']
           },
         },
-      },
+        // Set default scopes for all flows
+        'x-default-scopes': ['profile', 'email']
+      }
     },
+  }
 }
 ```
 

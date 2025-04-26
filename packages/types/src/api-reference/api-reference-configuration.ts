@@ -1,9 +1,10 @@
 import { z } from 'zod'
 
 import { ApiReferencePluginSchema } from '@/api-reference/api-reference-plugin.ts'
+import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
 import type { TargetId } from '@/snippetz/index.ts'
 import type { AuthenticationConfiguration } from './authentication-configuration.ts'
-import { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
+
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
   'alternate',
@@ -74,6 +75,7 @@ const integrationEnum = z
     'platformatic',
     'react',
     'rust',
+    'svelte',
     'vue',
   ])
   .nullable()
@@ -214,9 +216,6 @@ export const apiClientConfigurationSchema = z.object({
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
-
-const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
-const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 /** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
@@ -448,6 +447,9 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
   }),
 )
 
+const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
+const NEW_PROXY_URL = 'https://proxy.scalar.com'
+
 /** Migrate the configuration through a transform */
 const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>(_configuration: T): T => {
   const configuration = { ..._configuration }
@@ -509,7 +511,7 @@ export const apiReferenceConfigurationSchema = _apiReferenceConfigurationSchema.
 export type ApiReferenceConfiguration = Omit<
   z.infer<typeof _apiReferenceConfigurationSchema>,
   // Remove deprecated attributes
-  'proxy' | 'spec'
+  'proxy' | 'spec' | 'authentication'
 > & {
   authentication?: AuthenticationConfiguration
 }

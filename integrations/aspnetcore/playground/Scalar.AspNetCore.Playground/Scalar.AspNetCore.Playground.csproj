@@ -8,8 +8,8 @@
   <ItemGroup>
     <PackageReference Include="APIWeaver.OpenApi" Version="2.7.0" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
-    <PackageReference Include="Bogus" Version="35.6.2" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
+    <PackageReference Include="Bogus" Version="35.6.3" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
   </ItemGroup>
 
   <ItemGroup>

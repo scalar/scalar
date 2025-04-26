@@ -1,5 +1,29 @@
 # @scalar/icons
 
+## 0.3.2
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.45
+
+## 0.3.1
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.44
+
+## 0.3.0
+
+### Minor Changes
+
+- 49f1297: feat(icons): generate phosphor icons
+
+### Patch Changes
+
+- 2b61d8e: docs(icons): update docs and storybook
+- Updated dependencies [2b61d8e]
+  - @scalar/use-hooks@0.1.43
+
 ## 0.2.0
 
 ### Minor Changes

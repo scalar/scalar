@@ -57,8 +57,9 @@ const sources = [
   {
     title: 'Specification Extensions',
     content: JSON.stringify({
-      openapi: '3.1.0',
-      info: {
+      'x-custom-extension': 'root.x-custom-extension',
+      'openapi': '3.1.0',
+      'info': {
         'title': 'Specification Extensions',
         'description':
           'An OpenAPI document with specification extensions where the specification allows them.',
@@ -76,17 +77,17 @@ const sources = [
           'x-custom-extension': 'info.license.x-custom-extension',
         },
       },
-      tags: [
+      'tags': [
         {
           'name': 'Foobar',
           'x-custom-extension': 'tags.Foobar.x-custom-extension',
         },
       ],
-      externalDocumentation: {
+      'externalDocumentation': {
         'url': 'https://www.example.com/docs',
         'x-custom-extension': 'externalDocumentation.x-custom-extension',
       },
-      servers: [
+      'servers': [
         {
           'url': 'https://example.com/{version}',
           'x-custom-extension': 'servers.x-custom-extension',
@@ -99,7 +100,7 @@ const sources = [
           },
         },
       ],
-      paths: {
+      'paths': {
         '/': {
           'x-custom-extension': 'paths./.x-custom-extension',
           'post': {
@@ -240,7 +241,7 @@ const sources = [
           },
         },
       },
-      components: {
+      'components': {
         'securitySchemes': {
           apiKey: {
             'type': 'apiKey',

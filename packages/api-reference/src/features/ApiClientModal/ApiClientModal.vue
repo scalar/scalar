@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { useWorkspace } from '@scalar/api-client/store'
-import { getObjectKeys } from '@scalar/oas-utils/helpers'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import {
+  mutateSecuritySchemeDiff,
+  mutateServerDiff,
+  parseDiff,
+} from '@scalar/api-client/views/Request/libs'
+import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import { useExampleStore } from '#legacy'
+import microdiff, { type Difference } from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks'
@@ -18,6 +24,7 @@ const el = ref<HTMLDivElement | null>(null)
 
 const { client, init } = useApiClient()
 const { selectedExampleKey, operationId } = useExampleStore()
+const activeEntities = useActiveEntities()
 const store = useWorkspace()
 const { isIntersectionEnabled } = useNavState()
 
@@ -35,27 +42,47 @@ onMounted(() => {
 })
 
 // Update the config on change
-// We temporarily just debounce this but we should switch to the diff from watch mode for updates
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
-    /** Hacky way to ensure something actually changed in this watcher. This won't cover everything so we default to true */
-    let hasChanged = true
-    try {
-      hasChanged = JSON.stringify(newConfig) !== JSON.stringify(oldConfig)
-    } catch (error) {
-      // If we can't compare the configs, we default to true
+    if (!oldConfig) {
+      return
     }
 
-    if (newConfig && hasChanged) {
-      // Disable intersection observer in case there's some jumpiness
-      isIntersectionEnabled.value = false
+    const diff = microdiff(oldConfig, newConfig)
+    const hasContentChanged = diff.some(
+      (d) =>
+        d.path[0] === 'url' ||
+        d.path[0] === 'content' ||
+        d.path[1] === 'url' ||
+        d.path[1] === 'content',
+    )
+
+    // If the content changes then we re-create the whole store
+    // TODO: we can easily use live sync for this as well
+    if (hasContentChanged) {
       client.value?.updateConfig(newConfig)
-
-      setTimeout(() => {
-        isIntersectionEnabled.value = true
-      }, 1000)
     }
+    // Or we handle the specific diff changes, just auth and servers for now
+    else {
+      diff.forEach((diff) => {
+        // Servers
+        if (diff.path[0] === 'servers') {
+          mutateServerDiff(diff, activeEntities, store)
+        }
+        // Auth - TODO preferredSecurityScheme
+        else if (diff.path[0] === 'authentication') {
+          mutateSecuritySchemeDiff(diff, activeEntities, store)
+        }
+        // TODO: baseServerURL
+      })
+    }
+
+    // Disable intersection observer in case there's some jumpiness
+    isIntersectionEnabled.value = false
+    setTimeout(() => {
+      isIntersectionEnabled.value = true
+    }, 1000)
   },
   { deep: true, debounce: 300 },
 )

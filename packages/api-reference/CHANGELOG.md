@@ -1,5 +1,73 @@
 # @scalar/api-reference
 
+## 1.28.26
+
+### Patch Changes
+
+- Updated dependencies [eb4854d]
+- Updated dependencies [eb4854d]
+  - @scalar/types@0.1.11
+  - @scalar/oas-utils@0.2.136
+  - @scalar/api-client@2.3.26
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.3
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.53
+  - @scalar/use-hooks@0.1.45
+  - @scalar/icons@0.3.2
+
+## 1.28.25
+
+### Patch Changes
+
+- fa8ed84: feat: custom OpenAPI extension to add SDK setup instructions
+- 119f04c: feat: render top-level specification extensions
+- 2109da5: feat: use live sync mutator for changes to config (do not blindly re-create state)
+- ad9e626: feat: single text-base wrapper for multiple specification extensions
+- Updated dependencies [0ff02e3]
+- Updated dependencies [fa8ed84]
+- Updated dependencies [fa8ed84]
+- Updated dependencies [8d54857]
+- Updated dependencies [98fa8a0]
+- Updated dependencies [1f8ac99]
+- Updated dependencies [2109da5]
+- Updated dependencies [0ff02e3]
+  - @scalar/api-client@2.3.25
+  - @scalar/openapi-types@0.2.1
+  - @scalar/oas-utils@0.2.135
+  - @scalar/components@0.13.52
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/types@0.1.10
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.2
+  - @scalar/code-highlight@0.0.27
+  - @scalar/use-hooks@0.1.44
+  - @scalar/icons@0.3.1
+
+## 1.28.24
+
+### Patch Changes
+
+- 17131a7: style: Update padding in discriminator panel
+- 17e7d02: feat: register html api apps globally
+- Updated dependencies [17e7d02]
+- Updated dependencies [3cb857d]
+- Updated dependencies [2b61d8e]
+- Updated dependencies [49f1297]
+- Updated dependencies [ab4cf5a]
+- Updated dependencies [3cb857d]
+  - @scalar/types@0.1.9
+  - @scalar/api-client@2.3.24
+  - @scalar/components@0.13.51
+  - @scalar/use-hooks@0.1.43
+  - @scalar/icons@0.3.0
+  - @scalar/oas-utils@0.2.134
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.1
+  - @scalar/code-highlight@0.0.27
+
 ## 1.28.23
 
 ### Patch Changes

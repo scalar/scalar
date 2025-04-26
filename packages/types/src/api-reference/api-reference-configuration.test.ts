@@ -144,6 +144,7 @@ describe('api-reference-configuration', () => {
         'platformatic',
         'react',
         'rust',
+        'svelte',
         'vue',
         null,
       ]

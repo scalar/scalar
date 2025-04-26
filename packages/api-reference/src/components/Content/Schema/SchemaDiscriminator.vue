@@ -133,7 +133,7 @@ const humanizeType = (type: string) => {
   padding: 8px;
 }
 .discriminator-panel :deep(.property--compact.property--level-0) {
-  padding: 0;
+  padding: 8px;
 }
 .schema-tab {
   background: none;

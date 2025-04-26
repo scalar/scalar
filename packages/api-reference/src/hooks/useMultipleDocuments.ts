@@ -235,5 +235,17 @@ export const useMultipleDocuments = ({
     isIntersectionEnabled,
     hash,
     hashPrefix,
-  }
+  } as
+    /**
+     * This was needed for a the bug: The inferred type of 'useMultipleDocuments' cannot be named without a reference to
+     * A limitation of typescript
+     */
+    {
+      selectedConfiguration: Ref<SpecConfiguration>
+      availableDocuments: Ref<SpecConfiguration[]>
+      selectedDocumentIndex: Ref<number>
+      isIntersectionEnabled: Ref<boolean>
+      hash: Ref<string>
+      hashPrefix: Ref<string>
+    }
 }

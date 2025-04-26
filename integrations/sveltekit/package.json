@@ -1,0 +1,63 @@
+{
+  "name": "@scalar/sveltekit",
+  "version": "0.0.0",
+  "description": "A SvelteKit server handler to render API references from an OpenAPI file",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/sveltekit"
+  },
+  "keywords": [
+    "api",
+    "documentation",
+    "svelte",
+    "sveltekit",
+    "openapi",
+    "swagger"
+  ],
+  "scripts": {
+    "build": "svelte-package --input src",
+    "prepack": "pnpm build && publint",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch"
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.spec.*",
+    "src",
+    "!src/**/*.test.*",
+    "!src/**/*.spec.*"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "svelte": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "svelte": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@scalar/types": "workspace:*",
+    "@scalar/core": "workspace:*"
+  },
+  "peerDependencies": {
+    "svelte": "^5.0.0",
+    "@sveltejs/kit": "^2.16.0"
+  },
+  "devDependencies": {
+    "@sveltejs/kit": "^2.16.0",
+    "@sveltejs/package": "^2.0.0",
+    "publint": "^0.3.2",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0"
+  }
+}

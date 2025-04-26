@@ -16,7 +16,7 @@
     "scalar",
     "references"
   ],
-  "version": "0.1.10",
+  "version": "0.1.13",
   "engines": {
     "node": ">=18"
   },

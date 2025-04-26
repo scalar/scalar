@@ -1,6 +1,6 @@
 # Getting Started
 
-Reading this guide helps you to get started with Scalar Docs, literally in minutes. You don’t need anything to get started, not even account if just want to play around.
+Reading this guide helps you to get started with Scalar Docs, literally in minutes. You don’t need anything to get started, not even an account if you just want to play around.
 
 ## Guides
 

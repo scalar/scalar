@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.28.23",
+  "version": "1.28.26",
   "engines": {
     "node": ">=18"
   },
@@ -84,6 +84,7 @@
     "flatted": "^3.3.1",
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
+    "microdiff": "^1.4.0",
     "nanoid": "catalog:",
     "vue": "catalog:",
     "zod": "catalog:"

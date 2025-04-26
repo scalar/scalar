@@ -546,7 +546,7 @@ describe('importSpecToWorkspace', () => {
           },
         },
         useCollectionSecurity: true,
-      })
+      } as any)
       if (res.error) {
         throw res.error
       }
@@ -733,7 +733,7 @@ describe('importSpecToWorkspace', () => {
             scopes: ['read:account'],
           },
         },
-      })
+      } as any)
       if (res.error) {
         throw res.error
       }

@@ -1,5 +1,3 @@
-@import "@scalar/api-reference-react/style.css";
-
 /* Scalar Theme */
 :root {
   --scalar-font: var(--ifm-font-family-base);
@@ -8,6 +6,11 @@
 }
 .scalar-api-reference {
   --refs-header-height: var(--ifm-navbar-height);
+  /* Reset font size on h2 */
+  h2 {
+    font-size: unset;
+    margin: unset;
+  }
 }
 .scalar-api-reference.references-sidebar {
   --refs-sidebar-width: 300px;
@@ -168,6 +171,7 @@ html[data-theme="light"] body .api-client-drawer {
   border-radius: 3px;
 }
 .t-doc__sidebar {
+  height: calc(100dvh - var(--ifm-navbar-height));
   max-height: calc(100dvh - var(--ifm-navbar-height));
   position: sticky;
   top: var(--ifm-navbar-height);

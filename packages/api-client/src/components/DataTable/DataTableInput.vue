@@ -29,8 +29,14 @@ const props = withDefaults(
     envVariables: EnvVariable[]
     workspace: Workspace
     description?: string | undefined
+    lineWrapping?: boolean
   }>(),
-  { canAddCustomEnumValue: true, required: false, readOnly: false },
+  {
+    canAddCustomEnumValue: true,
+    required: false,
+    readOnly: false,
+    lineWrapping: false,
+  },
 )
 
 const emit = defineEmits<{
@@ -78,7 +84,7 @@ const handleLabelClick = () => {
       @click="handleLabelClick">
       <slot />:
     </div>
-    <div class="row-1 overflow-x-auto">
+    <div class="row-1 relative min-w-0">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
           :canAddCustomValue="props.canAddCustomEnumValue"
@@ -118,6 +124,7 @@ const handleLabelClick = () => {
           disableTabIndent
           :envVariables="envVariables"
           :environment="environment"
+          :lineWrapping="Boolean(lineWrapping)"
           :max="max"
           :min="min"
           :modelValue="modelValue ?? ''"
@@ -157,9 +164,10 @@ const handleLabelClick = () => {
   font-family: var(--scalar-font);
   font-size: var(--scalar-mini);
   padding: 6px 8px;
+  width: 100%;
 }
 :deep(.cm-content):has(.cm-pill) {
-  padding: 4px 3px;
+  padding: 6px 8px;
 }
 :deep(.cm-content .cm-pill:not(:last-of-type)) {
   margin-right: 0.5px;
@@ -168,7 +176,9 @@ const handleLabelClick = () => {
   margin-left: 0.5px;
 }
 :deep(.cm-line) {
+  overflow: hidden;
   padding: 0;
+  text-overflow: ellipsis;
 }
 .required::after {
   content: 'Required';

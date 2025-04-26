@@ -1,5 +1,27 @@
 # @scalar/express-api-reference
 
+## 0.7.1
+
+### Patch Changes
+
+- @scalar/core@0.2.11
+
+## 0.7.0
+
+### Minor Changes
+
+- 98f25a1: chore: upgrade to Express 5
+
+### Patch Changes
+
+- @scalar/core@0.2.10
+
+## 0.6.9
+
+### Patch Changes
+
+- @scalar/core@0.2.9
+
 ## 0.6.8
 
 ### Patch Changes

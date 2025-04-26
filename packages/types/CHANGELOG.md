@@ -1,5 +1,24 @@
 # @scalar/types
 
+## 0.1.11
+
+### Patch Changes
+
+- eb4854d: fix: types of authentication config
+
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [fa8ed84]
+  - @scalar/openapi-types@0.2.1
+
+## 0.1.9
+
+### Patch Changes
+
+- 17e7d02: chore: export more types from the base types package for commonjs apps
+
 ## 0.1.8
 
 ### Patch Changes

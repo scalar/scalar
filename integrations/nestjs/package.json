@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/nestjs"
   },
-  "version": "0.4.8",
+  "version": "0.4.11",
   "engines": {
     "node": ">=18"
   },
@@ -53,8 +53,8 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@types/express": "^4.17.21",
-    "express": "^4.21.2",
+    "@types/express": "catalog:",
+    "express": "catalog:",
     "fastify": "^4.26.2",
     "tsup": "^8.3.5",
     "vite": "catalog:",
