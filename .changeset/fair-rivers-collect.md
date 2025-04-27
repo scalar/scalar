@@ -2,4 +2,4 @@
 '@scalar/nextjs-openapi': patch
 ---
 
-support src directory
+feat: support src/ directory (not just app/)
