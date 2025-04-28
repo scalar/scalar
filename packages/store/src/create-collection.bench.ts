@@ -1,6 +1,6 @@
 import { dereference } from '@scalar/openapi-parser'
 import { bench, describe, expect } from 'vitest'
-import { createStore } from './create-store.ts'
+import { createCollection } from './create-collection.ts'
 
 // @ts-expect-error Idk
 import { createWorkspaceStore } from '@scalar/api-client/store'
@@ -27,7 +27,7 @@ const EXAMPLE_DOCUMENT = {
   },
 }
 
-describe('create-store-refs', () => {
+describe('create-collection', () => {
   bench.skip('dereference', async () => {
     const { schema } = await dereference(EXAMPLE_DOCUMENT)
 
@@ -61,7 +61,7 @@ describe('create-store-refs', () => {
   })
 
   bench('new store', async () => {
-    const store = createStore(EXAMPLE_DOCUMENT)
+    const store = createCollection(EXAMPLE_DOCUMENT)
 
     expect(store.document.paths?.['/foobar'].post.summary).toBe('Foobar')
   })

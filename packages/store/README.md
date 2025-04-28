@@ -1,4 +1,4 @@
-# Scalar Store
+# Scalar Collection
 
 A powerful data store for OpenAPI documents that handles `$ref` pointers with Vue reactivity support.
 
@@ -30,10 +30,10 @@ npm install @scalar/store
 Create a new store instance:
 
 ```ts
-import { createStore } from '@scalar/store/refs'
+import { createCollection } from '@scalar/store/refs'
 
 // Create a store with a document containing refs
-const store = createStore({
+const store = createCollection({
   openapi: '3.1.1',
   info: {
     title: 'Hello World',
@@ -65,7 +65,7 @@ console.log(store.document.components.schemas.User)
 The store automatically resolves JSON References (`$ref`) when accessing properties:
 
 ```ts
-const store = createStore({
+const store = createCollection({
   components: {
     schemas: {
       Person: {
@@ -96,9 +96,9 @@ The store maintains Vue reactivity while resolving references:
 
 ```ts
 import { watch } from 'vue'
-import { createStore } from '@scalar/store/refs'
+import { createCollection } from '@scalar/store/refs'
 
-const store = createStore({
+const store = createCollection({
   components: {
     schemas: {
       Person: {
@@ -128,7 +128,7 @@ watch(
 The store supports temporary data using properties prefixed with `_`. These properties are removed when exporting:
 
 ```ts
-const store = createStore({
+const store = createCollection({
   components: {
     schemas: {
       Person: {
@@ -153,7 +153,7 @@ store.document.components.schemas.Person._selected = true
 Export the raw document with references intact:
 
 ```ts
-const store = createStore({
+const store = createCollection({
   components: {
     schemas: {
       Person: {

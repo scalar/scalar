@@ -1,1 +1,1 @@
-export { createStore } from './create-store.ts'
+export { createCollection } from './create-collection.ts'

@@ -4,8 +4,8 @@
 import { describe, expect, it } from 'vitest'
 import { createWorkspace, localStoragePlugin } from './create-workspace.ts'
 
-describe('create-store-basic', () => {
-  it('creates a store and exports the state as an OpenAPI document', () => {
+describe('create-workspace', () => {
+  it('creates a workspace and exports the state as an OpenAPI document', () => {
     const workspace = createWorkspace()
 
     workspace.load('default', {
@@ -70,7 +70,7 @@ describe('create-store-basic', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(workspace.state.stores.default).toMatchObject({
+    expect(workspace.state.collections.default).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -100,7 +100,7 @@ describe('create-store-basic', () => {
     // Parse the localStorage value before comparing
     const state = JSON.parse(localStorage.getItem('state') || '{}')
 
-    expect(state.stores.default.document).toMatchObject({
+    expect(state.collections.default.document).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -114,7 +114,7 @@ describe('create-store-basic', () => {
     localStorage.setItem(
       'state',
       JSON.stringify({
-        stores: {
+        collections: {
           default: {
             openapi: '3.1.1',
             info: {
@@ -131,8 +131,8 @@ describe('create-store-basic', () => {
       plugins: [localStoragePlugin()],
     })
 
-    expect(workspace.state.stores.default).toBeDefined()
-    expect(workspace.state.stores.default).toMatchObject({
+    expect(workspace.state.collections.default).toBeDefined()
+    expect(workspace.state.collections.default).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',

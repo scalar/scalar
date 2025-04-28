@@ -1,7 +1,7 @@
 import { unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import { isReactive, reactive, toRaw } from '@vue/reactivity'
 
-export type Store = ReturnType<typeof createStore>
+export type Collection = ReturnType<typeof createCollection>
 
 /**
  * Creates a store with JSON reference resolution capabilities.
@@ -9,7 +9,7 @@ export type Store = ReturnType<typeof createStore>
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createStore(input: Record<string, unknown> | string) {
+export function createCollection(input: Record<string, unknown> | string) {
   // TODO: Embed external references
 
   // Upgrade
@@ -28,7 +28,7 @@ export function createStore(input: Record<string, unknown> | string) {
   /**
    * Creates a proxy that automatically resolves JSON references
    *
-   * TODO: Any chance we can move this out of createStore and make it a top-level function?
+   * TODO: Any chance we can move this out of createCollection and make it a top-level function?
    * Should improve readability and testability.
    */
   function createReferenceProxy(targetObject: Record<string, unknown>) {

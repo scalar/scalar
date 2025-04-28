@@ -1,8 +1,8 @@
 import { reactive, watch } from '@vue/reactivity'
-import { type Store, createStore } from './create-store.ts'
+import { type Collection, createCollection } from './create-collection.ts'
 
 type State = {
-  stores: Record<string, Store>
+  collections: Record<string, Collection>
 }
 
 type Workspace = {
@@ -17,11 +17,11 @@ type WorkspacePlugin = {
   onBeforeSave: (workspace: Workspace) => void
 }
 
-// Create a new Store
+// Create a new Collection
 export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Workspace {
   const workspace = {
     state: reactive({
-      stores: {},
+      collections: {},
     }),
     plugins: options?.plugins ?? [],
     async load(
@@ -33,14 +33,14 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
 
       // TODO: Validate content
 
-      if (typeof workspace.state.stores[collectionId] === 'undefined') {
-        workspace.state.stores[collectionId] = createStore(content)
+      if (typeof workspace.state.collections[collectionId] === 'undefined') {
+        workspace.state.collections[collectionId] = createCollection(content)
       }
 
-      Object.assign(workspace.state.stores[collectionId], content)
+      Object.assign(workspace.state.collections[collectionId], content)
     },
     export(collectionId: string) {
-      return workspace.state.stores[collectionId]?.export()
+      return workspace.state.collections[collectionId]?.export()
     },
   } as Workspace
 
@@ -90,7 +90,7 @@ export function localStoragePlugin(options?: { key?: string }): WorkspacePlugin 
         const state = JSON.parse(json)
 
         // Check whether the state looks valid
-        if (state && typeof state === 'object' && 'stores' in state) {
+        if (state && typeof state === 'object' && 'collections' in state) {
           return state as State
         }
 
