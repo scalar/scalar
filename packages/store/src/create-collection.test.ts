@@ -17,9 +17,9 @@ describe('create-collection', () => {
         definitions: {},
       }
 
-      const store = createCollection(definition)
+      const collection = createCollection(definition)
 
-      expect(store.document).toStrictEqual({
+      expect(collection.document).toStrictEqual({
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -47,9 +47,9 @@ describe('create-collection', () => {
         paths: {},
       }
 
-      const store = createCollection(JSON.stringify(definition))
+      const collection = createCollection(JSON.stringify(definition))
 
-      expect(store.document).toMatchObject(definition)
+      expect(collection.document).toMatchObject(definition)
     })
   })
 
@@ -77,10 +77,10 @@ describe('create-collection', () => {
         },
       }
 
-      const store = createCollection(definition)
+      const collection = createCollection(definition)
 
       // Original object
-      expect(store.document.components.schemas.Person).toMatchObject({
+      expect(collection.document.components.schemas.Person).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -88,7 +88,7 @@ describe('create-collection', () => {
       })
 
       // Resolved reference
-      expect(store.document.components.schemas.User).toMatchObject({
+      expect(collection.document.components.schemas.User).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -121,21 +121,21 @@ describe('create-collection', () => {
         },
       }
 
-      const store = createCollection(definition)
+      const collection = createCollection(definition)
 
       // Update via the original Person schema path
-      store.document.components.schemas.Person.properties.age = { type: 'number' }
+      collection.document.components.schemas.Person.properties.age = { type: 'number' }
 
       // Update via the User schema reference path
-      store.document.components.schemas.User.properties.gender = { type: 'string' }
+      collection.document.components.schemas.User.properties.gender = { type: 'string' }
 
-      expect(store.document.components.schemas.Person.properties).toMatchObject({
+      expect(collection.document.components.schemas.Person.properties).toMatchObject({
         name: { type: 'string' },
         age: { type: 'number' },
         gender: { type: 'string' },
       })
 
-      expect(store.document.components.schemas.User.properties).toMatchObject({
+      expect(collection.document.components.schemas.User.properties).toMatchObject({
         name: { type: 'string' },
         age: { type: 'number' },
         gender: { type: 'string' },
@@ -170,16 +170,16 @@ describe('create-collection', () => {
         paths: {},
       }
 
-      const store = createCollection(definition)
+      const collection = createCollection(definition)
 
-      store.document.servers[0].variables.version._value = 'v3'
+      collection.document.servers[0].variables.version._value = 'v3'
 
-      expect(store.document.servers[0].variables.version._value).toBe('v3')
+      expect(collection.document.servers[0].variables.version._value).toBe('v3')
 
       // Doesn’t have _ variables when exporting
-      expect(store.export()).not.toHaveProperty('servers.0.variables.version._value')
+      expect(collection.export()).not.toHaveProperty('servers.0.variables.version._value')
 
-      expect(store.export()).toMatchObject({
+      expect(collection.export()).toMatchObject({
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -202,6 +202,32 @@ describe('create-collection', () => {
           },
         ],
         paths: {},
+      })
+    })
+
+    it('supports circular references', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: { title: 'Example', version: '1.0.0' },
+        paths: {},
+        components: {
+          schemas: {
+            Circular: {
+              type: 'object',
+              properties: {
+                self: { $ref: '#/components/schemas/Circular' },
+              },
+            },
+          },
+        },
+      }
+
+      const collection = createCollection(definition)
+
+      const result = collection.export()
+
+      expect(result.components?.schemas?.Circular?.properties?.self).toMatchObject({
+        $ref: '#/components/schemas/Circular',
       })
     })
   })
