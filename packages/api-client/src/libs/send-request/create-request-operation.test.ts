@@ -145,7 +145,7 @@ describe('create-request-operation', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         requestPayload: {
-          path: 'https://void.scalar.com/me',
+          path: `${VOID_URL}/me`,
         },
       }),
     )
@@ -169,7 +169,7 @@ describe('create-request-operation', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         requestPayload: {
-          path: 'https://void.scalar.com',
+          path: `${VOID_URL}`,
         },
       }),
     )
@@ -740,7 +740,7 @@ describe('create-request-operation', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         requestPayload: {
-          path: 'void.scalar.com/me',
+          path: `${VOID_URL}/me`,
         },
       }),
     )
