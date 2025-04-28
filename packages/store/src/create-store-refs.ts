@@ -1,5 +1,5 @@
 import { upgrade } from '@scalar/openapi-parser'
-import { isReactive, reactive, toRaw } from 'vue'
+import { isReactive, reactive, toRaw } from '@vue/reactivity'
 
 /**
  * Creates a store with JSON reference resolution capabilities.
@@ -13,7 +13,7 @@ export function createStore(input: Record<string, unknown> | string) {
   const { specification: upgraded } = upgrade(input)
 
   // TODO: OpenApiObjectSchema.parse is too strict
-  // const content = OpenApiObjectSchema.parse(input)
+  // const content = OpenApiObjectSchema.parse(upgraded)
   const content = upgraded
 
   // Make the source document reactive for Vue change tracking
