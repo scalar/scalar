@@ -2,14 +2,13 @@
  * @vitest-environment jsdom
  */
 import { describe, expect, it } from 'vitest'
-import { nextTick } from 'vue'
-import { createStore, localStoragePlugin } from './create-store-basic.ts'
+import { createWorkspace, localStoragePlugin } from './create-workspace.ts'
 
 describe('create-store-basic', () => {
   it('creates a store and exports the state as an OpenAPI document', () => {
-    const store = createStore()
+    const workspace = createWorkspace()
 
-    store.actions.load('default', {
+    workspace.load('default', {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -29,7 +28,7 @@ describe('create-store-basic', () => {
       },
     })
 
-    const result = store.actions.export('default')
+    const result = workspace.export('default')
 
     expect(result).toMatchObject({
       openapi: '3.1.1',
@@ -53,10 +52,10 @@ describe('create-store-basic', () => {
   })
 
   it('imports content asynchronously', async () => {
-    const store = createStore()
+    const workspace = createWorkspace()
 
     // Simulate fetching content from a remote server
-    store.actions.load('default', async () => {
+    workspace.load('default', async () => {
       await new Promise((resolve) => setTimeout(resolve, 50))
 
       return {
@@ -71,7 +70,7 @@ describe('create-store-basic', () => {
 
     await new Promise((resolve) => setTimeout(resolve, 100))
 
-    expect(store.state.collections.default).toMatchObject({
+    expect(workspace.state.stores.default).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -82,11 +81,11 @@ describe('create-store-basic', () => {
   })
 
   it('persists the state to localStorage', async () => {
-    const store = createStore({
+    const workspace = createWorkspace({
       plugins: [localStoragePlugin()],
     })
 
-    store.actions.load('default', {
+    workspace.load('default', {
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -96,22 +95,18 @@ describe('create-store-basic', () => {
     })
 
     // Wait for the watcher to do its thing
-    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 100))
 
     // Parse the localStorage value before comparing
     const state = JSON.parse(localStorage.getItem('state') || '{}')
 
-    expect(state).toMatchObject({
-      collections: {
-        default: {
-          openapi: '3.1.1',
-          info: {
-            title: 'Test API',
-            version: '1.0.0',
-          },
-          paths: {},
-        },
+    expect(state.stores.default.document).toMatchObject({
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
       },
+      paths: {},
     })
   })
 
@@ -119,7 +114,7 @@ describe('create-store-basic', () => {
     localStorage.setItem(
       'state',
       JSON.stringify({
-        collections: {
+        stores: {
           default: {
             openapi: '3.1.1',
             info: {
@@ -132,12 +127,12 @@ describe('create-store-basic', () => {
       }),
     )
 
-    const store = createStore({
+    const workspace = createWorkspace({
       plugins: [localStoragePlugin()],
     })
 
-    expect(store.state.collections.default).toBeDefined()
-    expect(store.state.collections.default).toMatchObject({
+    expect(workspace.state.stores.default).toBeDefined()
+    expect(workspace.state.stores.default).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',

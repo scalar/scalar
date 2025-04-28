@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createStore } from './create-store-refs.ts'
+import { createStore } from './create-store.ts'
 
 describe('create-store-refs', () => {
   describe('create', () => {

@@ -1,6 +1,8 @@
 import { unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import { isReactive, reactive, toRaw } from '@vue/reactivity'
 
+export type Store = ReturnType<typeof createStore>
+
 /**
  * Creates a store with JSON reference resolution capabilities.
  *
