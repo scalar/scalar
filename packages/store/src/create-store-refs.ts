@@ -156,7 +156,6 @@ export function createStore(input: Record<string, unknown> | string) {
     export() {
       const raw = toRaw(sourceDocument)
 
-      // TODO: Doesn't work with circular references it seems
       removeProperties(raw, {
         test: (key) => key.startsWith('_'),
       })
