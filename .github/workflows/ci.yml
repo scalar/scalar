@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     steps:
       - name: Checkout repository
@@ -124,7 +124,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -154,7 +154,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -172,7 +172,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     steps:
       - name: Checkout repository
@@ -191,7 +191,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     steps:
       - name: Checkout repository
@@ -228,7 +228,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -262,7 +262,7 @@ jobs:
       [harden_security, build, format, types, test-packages, test-integrations]
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -315,7 +315,7 @@ jobs:
     needs: [build, test-packages]
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -356,7 +356,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -435,7 +435,7 @@ jobs:
     concurrency: ${{ github.workflow }}-${{ github.ref }}
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -479,7 +479,7 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [20]
+        node-version: [22]
 
     steps:
       - name: Checkout repository
@@ -550,7 +550,7 @@ jobs:
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build
         with:
-          node-version: 20
+          node-version: 22
           packages-only: '@scalar/api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
@@ -626,7 +626,7 @@ jobs:
         name: Build @scalar/api-reference
         uses: ./.github/actions/build
         with:
-          node-version: 20
+          node-version: 22
           packages-only: '@scalar/api-reference'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
