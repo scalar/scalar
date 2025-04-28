@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { createStore } from './create-store.ts'
+import { createCollection } from './create-collection.ts'
 
-describe('create-store-refs', () => {
+describe('create-collection', () => {
   describe('create', () => {
     it('upgrades to OpenAPI 3.1.1', () => {
       const definition = {
@@ -17,7 +17,7 @@ describe('create-store-refs', () => {
         definitions: {},
       }
 
-      const store = createStore(definition)
+      const store = createCollection(definition)
 
       expect(store.document).toStrictEqual({
         openapi: '3.1.1',
@@ -47,7 +47,7 @@ describe('create-store-refs', () => {
         paths: {},
       }
 
-      const store = createStore(JSON.stringify(definition))
+      const store = createCollection(JSON.stringify(definition))
 
       expect(store.document).toMatchObject(definition)
     })
@@ -77,7 +77,7 @@ describe('create-store-refs', () => {
         },
       }
 
-      const store = createStore(definition)
+      const store = createCollection(definition)
 
       // Original object
       expect(store.document.components.schemas.Person).toMatchObject({
@@ -121,7 +121,7 @@ describe('create-store-refs', () => {
         },
       }
 
-      const store = createStore(definition)
+      const store = createCollection(definition)
 
       // Update via the original Person schema path
       store.document.components.schemas.Person.properties.age = { type: 'number' }
@@ -170,7 +170,7 @@ describe('create-store-refs', () => {
         paths: {},
       }
 
-      const store = createStore(definition)
+      const store = createCollection(definition)
 
       store.document.servers[0].variables.version._value = 'v3'
 
