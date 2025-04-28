@@ -2,6 +2,57 @@ import { describe, expect, it } from 'vitest'
 import { createStore } from './create-store-refs.ts'
 
 describe('create-store-refs', () => {
+  describe('create', () => {
+    it('upgrades to OpenAPI 3.1.1', () => {
+      const definition = {
+        swagger: '2.0',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        host: 'localhost:8000',
+        basePath: '/api',
+        schemes: ['http'],
+        paths: {},
+        definitions: {},
+      }
+
+      const store = createStore(definition)
+
+      expect(store.document).toStrictEqual({
+        openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        servers: [
+          {
+            url: 'http://localhost:8000/api',
+          },
+        ],
+        paths: {},
+        components: {
+          schemas: {},
+        },
+      })
+    })
+
+    it('allows to pass a string', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        paths: {},
+      }
+
+      const store = createStore(JSON.stringify(definition))
+
+      expect(store.document).toMatchObject(definition)
+    })
+  })
+
   describe('read', () => {
     it('creates a store and resolves references on access', () => {
       const definition = {

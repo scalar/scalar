@@ -1,3 +1,4 @@
+import { upgrade } from '@scalar/openapi-parser'
 import { isReactive, reactive, toRaw } from 'vue'
 
 /**
@@ -5,14 +6,15 @@ import { isReactive, reactive, toRaw } from 'vue'
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createStore(input: Record<string, unknown>) {
-  // TODO: Normalize
+export function createStore(input: Record<string, unknown> | string) {
   // TODO: Embed external references
-  // TODO: Upgrade
+
+  // Upgrade
+  const { specification: upgraded } = upgrade(input)
 
   // TODO: OpenApiObjectSchema.parse is too strict
   // const content = OpenApiObjectSchema.parse(input)
-  const content = input
+  const content = upgraded
 
   // Make the source document reactive for Vue change tracking
   const sourceDocument = reactive(content)
