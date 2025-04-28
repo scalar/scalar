@@ -14,12 +14,14 @@ import {
   WidgetType,
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
+import { nanoid } from 'nanoid'
 
 /**
  * Displays the value of a variable of the active environment in a pill
  */
 class PillWidget extends WidgetType {
   private app: any
+  private uid: string
   environment: Environment | undefined
   envVariables: EnvVariables | undefined
   workspace: Workspace | undefined
@@ -38,6 +40,7 @@ class PillWidget extends WidgetType {
     this.envVariables = envVariables
     this.workspace = workspace
     this.isReadOnly = isReadOnly ?? false
+    this.uid = nanoid()
   }
 
   toDOM() {
@@ -52,13 +55,21 @@ class PillWidget extends WidgetType {
           ? parseEnvVariables(this.envVariables).find((thing) => thing.key === this.variableName)
           : undefined
 
-        // Set the pill color based on the environment or fallback to grey
-        const pillColor = val && this.environment ? getEnvColor(this.environment) : '#8E8E8E'
+        // Set the pill color based on the environment source or fallback to default color
+        const isGlobal = val?.source === 'global'
+        const pillColor = isGlobal ? '#FFFFFF' : val && this.environment ? getEnvColor(this.environment) : '#FFFFFF'
 
-        span.style.setProperty('--tw-bg-base', pillColor || '#8E8E8E')
+        span.style.setProperty('--tw-bg-base', pillColor)
 
         // Set opacity based on the existence of a value
         span.style.opacity = val?.value ? '1' : '0.5'
+
+        // Tooltip trigger element
+        const tooltipTrigger = h('div', { class: 'flex items-center gap-1 whitespace-nowrap' }, [
+          (isGlobal || (this.environment?.name === 'No Environment' && val?.value)) &&
+            h(ScalarIcon, { class: 'size-2.5 -ml-1', icon: 'Globe' }),
+          h('span', this.variableName),
+        ])
 
         const tooltipContent = val?.value
           ? h('div', { class: 'p-2' }, val.value)
@@ -101,15 +112,12 @@ class PillWidget extends WidgetType {
             sideOffset: 6,
           },
           {
-            trigger: () => h('span', `${this.variableName}`),
+            trigger: () => tooltipTrigger,
             content: () =>
               h(
                 'div',
                 {
-                  class: [
-                    'border w-content rounded  bg-b-1 brightness-lifted text-xxs leading-5 text-c-1',
-                    val?.value ? 'border-solid' : 'border-dashed',
-                  ],
+                  class: ['border w-content rounded bg-b-1 brightness-lifted text-xxs leading-5 text-c-1'],
                 },
                 tooltipContent,
               ),
@@ -131,7 +139,7 @@ class PillWidget extends WidgetType {
   }
 
   override eq(other: WidgetType) {
-    return other instanceof PillWidget && other.variableName === this.variableName
+    return other instanceof PillWidget && other.variableName === this.variableName && other.uid === this.uid
   }
 
   override ignoreEvent() {

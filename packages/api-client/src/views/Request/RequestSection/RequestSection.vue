@@ -227,8 +227,7 @@ const labelRequestNameId = useId()
         :readOnlyEntries="activeWorkspaceCookies"
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Cookies"
-        :workspace="workspace"
-        workspaceParamKey="cookies" />
+        :workspace="workspace" />
       <RequestParams
         v-show="selectedFilter === 'All' || selectedFilter === 'Headers'"
         :id="filterIds.Headers"
@@ -258,7 +257,7 @@ const labelRequestNameId = useId()
         title="Query Parameters"
         :workspace="workspace" />
       <RequestBody
-        v-show="
+        v-if="
           operation.method &&
           (selectedFilter === 'All' || selectedFilter === 'Body') &&
           canMethodHaveBody(operation.method)

@@ -72,7 +72,8 @@ export const createRequestOperation = ({
     }, {})
 
     const serverString = replaceTemplateVariables(server?.url ?? '', env)
-    const pathString = replaceTemplateVariables(request.path, pathVariables)
+    // Replace environment variables, then path variables
+    const pathString = replaceTemplateVariables(replaceTemplateVariables(request.path, env), pathVariables)
 
     /**
      * Start building the main URL, we cannot use the URL class yet as it does not work with relative servers

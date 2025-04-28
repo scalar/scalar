@@ -141,15 +141,24 @@ const extensions: Extension[] = []
 if (props.colorPicker) {
   extensions.push(colorPickerExtension)
 }
-extensions.push(
+
+// Create a reactive pill plugin that updates when environment changes
+const pillPluginExtension = computed(() =>
   pillPlugin({
     environment: props.environment,
     envVariables: props.envVariables,
     workspace: props.workspace,
     isReadOnly: layout === 'modal',
   }),
-  backspaceCommand,
 )
+
+// Base extensions that will be used for the editor
+const baseExtensions = computed(() => [
+  ...extensions,
+  pillPluginExtension.value,
+  backspaceCommand,
+])
+
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({
@@ -169,7 +178,7 @@ const { codeMirror } = useCodeMirror({
   lineNumbers: toRef(() => props.lineNumbers),
   language: toRef(() => props.language),
   lint: toRef(() => props.lint),
-  extensions,
+  extensions: baseExtensions,
   placeholder: toRef(() => props.placeholder),
 })
 
@@ -502,7 +511,7 @@ export default {
   background: var(--scalar-background-3) !important;
 }
 .dark-mode .cm-pill {
-  background: color-mix(in srgb, var(--tw-bg-base), transparent 80%) !important;
+  background: color-mix(in srgb, var(--tw-bg-base), transparent 90%) !important;
 }
 .cm-pill:first-of-type {
   margin-left: 0;

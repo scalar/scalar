@@ -38,7 +38,7 @@ const emit = defineEmits<{
 const { events } = useWorkspace()
 
 const environmentName = ref('')
-const selectedColor = ref('#8E8E8E')
+const selectedColor = ref('#FFFFFF')
 
 const collections = computed(() => [
   ...props.activeWorkspaceCollections
@@ -65,7 +65,7 @@ watch(
   (isOpen) => {
     if (isOpen) {
       environmentName.value = ''
-      selectedColor.value = '#8E8E8E'
+      selectedColor.value = '#FFFFFF'
       if (props.collectionId) {
         selectedEnvironment.value = collections.value.find(
           (collection) => collection.id === props.collectionId,
