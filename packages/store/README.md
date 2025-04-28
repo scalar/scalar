@@ -13,11 +13,9 @@ A powerful data store for OpenAPI documents that handles `$ref` pointers with Vu
 ## Tasks/Ideas
 
 - [ ] When a collection is imported asynchronously, we should already add a collection with a loading state or something, so we can render it already.
-- [ ] We need to add tests for a few real-world examples.
+- [ ] We need to add tests for a lot of real-world examples.
 - [ ] We need to use the new Zod schemas to validate the input.
-- [ ] We need to deal with $ref’s somehow (needs some tinkering with various approaches).
-- [ ] Prefix custom attributes with underscore _foobar (or extension)
-- [ ] While we’re at it, should we add super basic support for other formats like AsyncAPI? (no validation or such, just keeping in mind for the structure of the store)
+- [ ] While we’re at it, should we add super basic support for other formats like AsyncAPI? (no validation or such, just keeping it in mind for the structure of the store)
 
 ## Installation
 
