@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/fastify-api-reference"
+    "directory": "examples/fastify"
   },
   "version": "0.5.2",
   "private": true,
@@ -25,6 +25,13 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "@fastify/swagger": "^8.10.1",
     "@scalar/fastify-api-reference": "workspace:*",
@@ -33,12 +40,5 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
   }
 }

@@ -1,0 +1,30 @@
+{
+  "name": "@scalar-examples/nuxt-playground",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "nuxi prepare && nuxi build",
+    "dev": "nuxi dev",
+    "generate": "nuxi generate"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/nuxt": "workspace:*",
+    "nuxt": "^3.12.4"
+  },
+  "devDependencies": {
+    "@scalar/api-client": "workspace:*",
+    "@scalar/nuxt": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "examples/nuxt"
+  }
+}
