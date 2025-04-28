@@ -433,13 +433,13 @@ public class ScalarOptionsExtensionsTests
     {
         // Arrange
         var options = new ScalarOptions();
-        
+
         // Act
         options.AddOAuth2Flows("oauth2Scheme", flows =>
         {
             flows.AuthorizationCode = new AuthorizationCodeFlow
             {
-                ClientId = "clientId",
+                ClientId = "clientId"
             };
         });
         options.AddAuthorizationCodeFlow("oauth2Scheme", flow =>

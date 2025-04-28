@@ -636,15 +636,18 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
+        working-directory: integrations/aspnetcore
         run: dotnet restore
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Pack Scalar.AspNetCore
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
-        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
+        name: Pack packages
+        working-directory: integrations/aspnetcore
+        run: |
+          dotnet pack src/Scalar.AspNetCore -c Release --no-restore --output nupkgs /p:Version=$VERSION
+          dotnet pack src/Scalar.AspNetCore.Microsoft -c Release --no-restore --output nupkgs /p:Version=$VERSION
+          dotnet pack src/Scalar.AspNetCore.Swashbuckle -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Publish Scalar.AspNetCore
-        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
+        name: Publish packages
+        working-directory: integrations/aspnetcore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json

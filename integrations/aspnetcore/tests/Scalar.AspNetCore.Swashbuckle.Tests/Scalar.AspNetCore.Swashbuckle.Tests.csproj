@@ -4,10 +4,6 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(CI) == true">
-    <DefineConstants>CI_RUN</DefineConstants>
-  </PropertyGroup>
-  
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions" Version="8.1.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">
@@ -15,14 +11,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
-    <PackageReference Include="NSubstitute" Version="5.3.0" />
     <PackageReference Include="xunit.v3" Version="2.0.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  
+
   <ItemGroup Condition="$(TargetFrameWork) == 'net8.0'">
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.15" />
   </ItemGroup>
@@ -32,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Scalar.AspNetCore.Swashbuckle\Scalar.AspNetCore.Swashbuckle.csproj" />
     <ProjectReference Include="..\apis\Scalar.AspNetCore.Tests.Api\Scalar.AspNetCore.Tests.Api.csproj" />
   </ItemGroup>
 

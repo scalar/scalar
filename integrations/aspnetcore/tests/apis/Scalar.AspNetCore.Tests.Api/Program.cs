@@ -3,6 +3,7 @@ using Scalar.AspNetCore;
 using Scalar.AspNetCore.Tests.Api;
 
 var builder = WebApplication.CreateSlimBuilder(args);
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddAuthentication("api-key")
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>("api-key", null);
