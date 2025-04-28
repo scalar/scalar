@@ -3,6 +3,7 @@ import { isReactive, reactive, toRaw } from '@vue/reactivity'
 
 /**
  * Creates a store with JSON reference resolution capabilities.
+ *
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
@@ -23,38 +24,10 @@ export function createStore(input: Record<string, unknown> | string) {
   const resolvedProxyCache = new WeakMap()
 
   /**
-   * Parses a JSON Pointer string into an array of path segments
-   */
-  function parseJsonPointer(pointer: string): string[] {
-    return (
-      pointer
-        // Split on '/'
-        .split('/')
-        // Remove the leading '#' if present
-        .filter((segment, index) => index !== 0 || segment !== '#')
-        // Unescape the segments (e.g. ~1 -> /, ~0 -> ~, %20 -> space)
-        .map(unescapeJsonPointer)
-    )
-  }
-
-  /**
-   * Retrieves a nested value from the source document using a path array
-   */
-  function getValueByPath(
-    document: Record<string, unknown>,
-    pathSegments: string[],
-  ): Record<string, unknown> | undefined {
-    return pathSegments.reduce<unknown>(
-      (currentValue: unknown, pathSegment) =>
-        currentValue && typeof currentValue === 'object' && pathSegment in currentValue
-          ? (currentValue as Record<string, unknown>)[pathSegment]
-          : undefined,
-      document,
-    ) as Record<string, unknown> | undefined
-  }
-
-  /**
    * Creates a proxy that automatically resolves JSON references
+   *
+   * TODO: Any chance we can move this out of createStore and make it a top-level function?
+   * Should improve readability and testability.
    */
   function createReferenceProxy(targetObject: Record<string, unknown>) {
     if (targetObject === null || typeof targetObject !== 'object') {
@@ -173,6 +146,37 @@ export function createStore(input: Record<string, unknown> | string) {
 }
 
 /**
+ * Retrieves a nested value from the source document using a path array
+ */
+function getValueByPath(
+  document: Record<string, unknown>,
+  pathSegments: string[],
+): Record<string, unknown> | undefined {
+  return pathSegments.reduce<unknown>(
+    (currentValue: unknown, pathSegment) =>
+      currentValue && typeof currentValue === 'object' && pathSegment in currentValue
+        ? (currentValue as Record<string, unknown>)[pathSegment]
+        : undefined,
+    document,
+  ) as Record<string, unknown> | undefined
+}
+
+/**
+ * Parses a JSON Pointer string into an array of path segments
+ */
+function parseJsonPointer(pointer: string): string[] {
+  return (
+    pointer
+      // Split on '/'
+      .split('/')
+      // Remove the leading '#' if present
+      .filter((segment, index) => index !== 0 || segment !== '#')
+      // Unescape the segments (e.g. ~1 -> /, ~0 -> ~, %20 -> space)
+      .map(unescapeJsonPointer)
+  )
+}
+
+/**
  * Recursively removes properties from an object based on a condition.
  *
  * Handles circular references by tracking visited objects.
@@ -187,6 +191,7 @@ function removeProperties(
       // Already visited this object, avoid infinite recursion
       return
     }
+
     seen.add(obj)
   }
 
