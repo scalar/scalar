@@ -92,14 +92,6 @@ describe('create-store-refs', () => {
     })
   })
 
-  describe('values', () => {
-    it('returns the value of a reference', () => {
-      const definition = {
-        openapi: '3.1.1',
-      }
-    })
-  })
-
   describe('export', () => {
     it('updates properties through both original and reference paths', () => {
       const definition = {
@@ -135,6 +127,31 @@ describe('create-store-refs', () => {
 
       // Doesn’t have _ variables when exporting
       expect(store.export()).not.toHaveProperty('servers.0.variables.version._value')
+
+      expect(store.export()).toMatchObject({
+        openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        servers: [
+          {
+            url: 'https://example.com/{version}',
+            variables: {
+              version: {
+                default: 'v1',
+              },
+            },
+          },
+          {
+            url: 'https://example.com/v2',
+            variables: {
+              version: { default: 'v2' },
+            },
+          },
+        ],
+        paths: {},
+      })
     })
   })
 })
