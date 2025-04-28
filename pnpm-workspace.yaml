@@ -28,6 +28,9 @@ catalog:
   '@types/node': ^20.17.10
   '@vitejs/plugin-vue': ^5.0.4
   '@vueuse/core': ^10.10.0
+  ansis: 3.16.0
+  esbuild: 0.25.2
+  chokidar: 4.0.3
   express: ^5.1.0
   nanoid: ^5.1.5
   next: ^15.2.3

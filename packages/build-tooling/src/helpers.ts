@@ -7,6 +7,7 @@
 import fs from 'node:fs/promises'
 
 import { glob } from 'glob'
+import { fileURLToPath } from 'node:url'
 
 const cssExports = {
   /** Adds provisions for a css folder in the built output */
@@ -98,4 +99,12 @@ export async function addPackageFileExports({
   console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
 
   await fs.writeFile('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
+}
+
+/** Standard path aliases for Vite */
+export function alias(url: string) {
+  return {
+    '@test': fileURLToPath(new URL('./test', url)),
+    '@': fileURLToPath(new URL('./src', url)),
+  }
 }

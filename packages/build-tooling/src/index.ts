@@ -1,4 +1,14 @@
-export { findEntryPoints, addPackageFileExports } from './entry'
-export { createRollupConfig } from './rollup-options'
-export { alias, createViteBuildOptions, autoCSSInject } from './vite-options'
-export { ViteWatchWorkspace } from './workspace-reload'
+export { findEntryPoints, addPackageFileExports, alias } from './helpers'
+import { createRollupConfig } from './rollup'
+import { createViteBuildOptions, autoCSSInject } from './vite'
+import { ViteWatchWorkspace } from './vite/plugins'
+
+export {
+  /** @deprecated import from '@scalar/build-tooling/vite' */
+  createViteBuildOptions,
+  /** @deprecated import from '@scalar/build-tooling/vite' */
+  ViteWatchWorkspace,
+  /** @deprecated import from '@scalar/build-tooling/rollup' */
+  createRollupConfig,
+  autoCSSInject,
+}
