@@ -156,6 +156,18 @@ const mergeSchemaAttributes = (target: SchemaObject, source: SchemaObject): Sche
   if (source.description && !target.description) {
     merged.description = source.description
   }
+  // Merge oneOf/anyOf subschemas if present
+  ;['oneOf', 'anyOf'].forEach((key) => {
+    const options = source[key]
+
+    if (options) {
+      options.forEach((option: SchemaObject) => {
+        if (option.properties) {
+          merged.properties = mergeProperties(merged.properties || {}, option.properties)
+        }
+      })
+    }
+  })
 
   return merged
 }
