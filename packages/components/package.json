@@ -31,14 +31,194 @@
     "types:check": "scalar-types-check-vue"
   },
   "type": "module",
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
-    "./style.css": "./dist/style.css"
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./components/ScalarButton": {
+      "import": "./dist/components/ScalarButton/index.js",
+      "types": "./dist/components/ScalarButton/index.d.ts",
+      "default": "./dist/components/ScalarButton/index.js"
+    },
+    "./components/ScalarCheckbox": {
+      "import": "./dist/components/ScalarCheckbox/index.js",
+      "types": "./dist/components/ScalarCheckbox/index.d.ts",
+      "default": "./dist/components/ScalarCheckbox/index.js"
+    },
+    "./components/ScalarCodeBlock": {
+      "import": "./dist/components/ScalarCodeBlock/index.js",
+      "types": "./dist/components/ScalarCodeBlock/index.d.ts",
+      "default": "./dist/components/ScalarCodeBlock/index.js"
+    },
+    "./components/ScalarColorModeToggle": {
+      "import": "./dist/components/ScalarColorModeToggle/index.js",
+      "types": "./dist/components/ScalarColorModeToggle/index.d.ts",
+      "default": "./dist/components/ScalarColorModeToggle/index.js"
+    },
+    "./components/ScalarCombobox": {
+      "import": "./dist/components/ScalarCombobox/index.js",
+      "types": "./dist/components/ScalarCombobox/index.d.ts",
+      "default": "./dist/components/ScalarCombobox/index.js"
+    },
+    "./components/ScalarContextMenu": {
+      "import": "./dist/components/ScalarContextMenu/index.js",
+      "types": "./dist/components/ScalarContextMenu/index.d.ts",
+      "default": "./dist/components/ScalarContextMenu/index.js"
+    },
+    "./components/ScalarDropdown": {
+      "import": "./dist/components/ScalarDropdown/index.js",
+      "types": "./dist/components/ScalarDropdown/index.d.ts",
+      "default": "./dist/components/ScalarDropdown/index.js"
+    },
+    "./components/ScalarErrorBoundary": {
+      "import": "./dist/components/ScalarErrorBoundary/index.js",
+      "types": "./dist/components/ScalarErrorBoundary/index.d.ts",
+      "default": "./dist/components/ScalarErrorBoundary/index.js"
+    },
+    "./components/ScalarFileUpload": {
+      "import": "./dist/components/ScalarFileUpload/index.js",
+      "types": "./dist/components/ScalarFileUpload/index.d.ts",
+      "default": "./dist/components/ScalarFileUpload/index.js"
+    },
+    "./components/ScalarFloating": {
+      "import": "./dist/components/ScalarFloating/index.js",
+      "types": "./dist/components/ScalarFloating/index.d.ts",
+      "default": "./dist/components/ScalarFloating/index.js"
+    },
+    "./components/ScalarForm": {
+      "import": "./dist/components/ScalarForm/index.js",
+      "types": "./dist/components/ScalarForm/index.d.ts",
+      "default": "./dist/components/ScalarForm/index.js"
+    },
+    "./components/ScalarHeader": {
+      "import": "./dist/components/ScalarHeader/index.js",
+      "types": "./dist/components/ScalarHeader/index.d.ts",
+      "default": "./dist/components/ScalarHeader/index.js"
+    },
+    "./components/ScalarIcon": {
+      "import": "./dist/components/ScalarIcon/index.js",
+      "types": "./dist/components/ScalarIcon/index.d.ts",
+      "default": "./dist/components/ScalarIcon/index.js"
+    },
+    "./components/ScalarIcon/icons": {
+      "import": "./dist/components/ScalarIcon/icons/index.js",
+      "types": "./dist/components/ScalarIcon/icons/index.d.ts",
+      "default": "./dist/components/ScalarIcon/icons/index.js"
+    },
+    "./components/ScalarIcon/logos": {
+      "import": "./dist/components/ScalarIcon/logos/index.js",
+      "types": "./dist/components/ScalarIcon/logos/index.d.ts",
+      "default": "./dist/components/ScalarIcon/logos/index.js"
+    },
+    "./components/ScalarIcon/utils": {
+      "import": "./dist/components/ScalarIcon/utils/index.js",
+      "types": "./dist/components/ScalarIcon/utils/index.d.ts",
+      "default": "./dist/components/ScalarIcon/utils/index.js"
+    },
+    "./components/ScalarIconButton": {
+      "import": "./dist/components/ScalarIconButton/index.js",
+      "types": "./dist/components/ScalarIconButton/index.d.ts",
+      "default": "./dist/components/ScalarIconButton/index.js"
+    },
+    "./components/ScalarListbox": {
+      "import": "./dist/components/ScalarListbox/index.js",
+      "types": "./dist/components/ScalarListbox/index.d.ts",
+      "default": "./dist/components/ScalarListbox/index.js"
+    },
+    "./components/ScalarLoading": {
+      "import": "./dist/components/ScalarLoading/index.js",
+      "types": "./dist/components/ScalarLoading/index.d.ts",
+      "default": "./dist/components/ScalarLoading/index.js"
+    },
+    "./components/ScalarMarkdown": {
+      "import": "./dist/components/ScalarMarkdown/index.js",
+      "types": "./dist/components/ScalarMarkdown/index.d.ts",
+      "default": "./dist/components/ScalarMarkdown/index.js"
+    },
+    "./components/ScalarMenu": {
+      "import": "./dist/components/ScalarMenu/index.js",
+      "types": "./dist/components/ScalarMenu/index.d.ts",
+      "default": "./dist/components/ScalarMenu/index.js"
+    },
+    "./components/ScalarModal": {
+      "import": "./dist/components/ScalarModal/index.js",
+      "types": "./dist/components/ScalarModal/index.d.ts",
+      "default": "./dist/components/ScalarModal/index.js"
+    },
+    "./components/ScalarPopover": {
+      "import": "./dist/components/ScalarPopover/index.js",
+      "types": "./dist/components/ScalarPopover/index.d.ts",
+      "default": "./dist/components/ScalarPopover/index.js"
+    },
+    "./components/ScalarSearchInput": {
+      "import": "./dist/components/ScalarSearchInput/index.js",
+      "types": "./dist/components/ScalarSearchInput/index.d.ts",
+      "default": "./dist/components/ScalarSearchInput/index.js"
+    },
+    "./components/ScalarSearchResults": {
+      "import": "./dist/components/ScalarSearchResults/index.js",
+      "types": "./dist/components/ScalarSearchResults/index.d.ts",
+      "default": "./dist/components/ScalarSearchResults/index.js"
+    },
+    "./components/ScalarSidebar": {
+      "import": "./dist/components/ScalarSidebar/index.js",
+      "types": "./dist/components/ScalarSidebar/index.d.ts",
+      "default": "./dist/components/ScalarSidebar/index.js"
+    },
+    "./components/ScalarTeleport": {
+      "import": "./dist/components/ScalarTeleport/index.js",
+      "types": "./dist/components/ScalarTeleport/index.d.ts",
+      "default": "./dist/components/ScalarTeleport/index.js"
+    },
+    "./components/ScalarTextArea": {
+      "import": "./dist/components/ScalarTextArea/index.js",
+      "types": "./dist/components/ScalarTextArea/index.d.ts",
+      "default": "./dist/components/ScalarTextArea/index.js"
+    },
+    "./components/ScalarTextInput": {
+      "import": "./dist/components/ScalarTextInput/index.js",
+      "types": "./dist/components/ScalarTextInput/index.d.ts",
+      "default": "./dist/components/ScalarTextInput/index.js"
+    },
+    "./components/ScalarToggle": {
+      "import": "./dist/components/ScalarToggle/index.js",
+      "types": "./dist/components/ScalarToggle/index.d.ts",
+      "default": "./dist/components/ScalarToggle/index.js"
+    },
+    "./components/ScalarTooltip": {
+      "import": "./dist/components/ScalarTooltip/index.js",
+      "types": "./dist/components/ScalarTooltip/index.d.ts",
+      "default": "./dist/components/ScalarTooltip/index.js"
+    },
+    "./components/ScalarViewLayout": {
+      "import": "./dist/components/ScalarViewLayout/index.js",
+      "types": "./dist/components/ScalarViewLayout/index.d.ts",
+      "default": "./dist/components/ScalarViewLayout/index.js"
+    },
+    "./components/ScalarVirtualText": {
+      "import": "./dist/components/ScalarVirtualText/index.js",
+      "types": "./dist/components/ScalarVirtualText/index.d.ts",
+      "default": "./dist/components/ScalarVirtualText/index.js"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
+    }
   },
   "files": [
     "dist"

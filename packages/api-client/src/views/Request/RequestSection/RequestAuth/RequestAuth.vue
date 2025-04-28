@@ -7,6 +7,7 @@ import {
   type Icon,
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -19,7 +20,6 @@ import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, useId } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useLayout } from '@/hooks/useLayout'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
@@ -216,7 +216,7 @@ const schemeOptions = computed(() =>
 )
 </script>
 <template>
-  <ViewLayoutCollapse
+  <ScalarViewLayoutCollapse
     class="group/params"
     :itemCount="selectedSchemeOptions.length"
     :layout="layout">
@@ -289,7 +289,7 @@ const schemeOptions = computed(() =>
       :state="deleteSchemeModal"
       @close="deleteSchemeModal.hide()"
       @delete="unselectAuth(selectedScheme?.id)" />
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>
 <style scoped>
 .auth-combobox-position {

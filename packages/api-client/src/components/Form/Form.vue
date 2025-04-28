@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { useId } from 'vue'
@@ -7,7 +8,6 @@ import { useId } from 'vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities } from '@/store/active-entities'
 
 defineProps<{
@@ -29,7 +29,7 @@ const { activeEnvVariables, activeEnvironment, activeWorkspace } =
 const id = useId()
 </script>
 <template>
-  <ViewLayoutSection class="rounded-b-lg">
+  <ScalarViewLayoutSection class="rounded-b-lg">
     <template
       v-if="title || $slots.title"
       #title>
@@ -76,5 +76,5 @@ const id = useId()
         </DataTableRow>
       </DataTable>
     </div>
-  </ViewLayoutSection>
+  </ScalarViewLayoutSection>
 </template>

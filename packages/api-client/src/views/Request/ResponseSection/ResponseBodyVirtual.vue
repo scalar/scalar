@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarVirtualText } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import { formatJsonOrYamlString } from '@scalar/oas-utils/helpers'
 import { computed, toRef } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
@@ -23,7 +23,8 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
 </script>
 
 <template>
-  <ViewLayoutCollapse class="!max-h-100% response-body-virtual overflow-x-auto">
+  <ScalarViewLayoutCollapse
+    class="!max-h-100% response-body-virtual overflow-x-auto">
     <template #title>Body</template>
     <template
       v-if="dataUrl"
@@ -42,7 +43,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
       contentClass="language-plaintext whitespace-pre font-code text-base"
       :lineHeight="20"
       :text="textContent" />
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>
 
 <style>

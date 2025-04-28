@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
 import type {
   Collection,
   Operation,
@@ -8,7 +9,6 @@ import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, useId } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 
 import RequestHeaders from './RequestHeaders.vue'
@@ -141,7 +141,7 @@ const requestHeaders = computed(
 )
 </script>
 <template>
-  <ViewLayoutSection aria-label="Response">
+  <ScalarViewLayoutSection aria-label="Response">
     <template #title>
       <div class="flex h-8 flex-1 items-center">
         <div
@@ -227,7 +227,7 @@ const requestHeaders = computed(
       </template>
       <ResponseLoadingOverlay />
     </div>
-  </ViewLayoutSection>
+  </ScalarViewLayoutSection>
 </template>
 <style scoped>
 .animate-response-heading .response-heading {

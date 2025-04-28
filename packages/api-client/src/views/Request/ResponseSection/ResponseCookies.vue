@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
+
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 defineProps<{
   cookies: { name: string; value: string; required: boolean }[]
 }>()
 </script>
 <template>
-  <ViewLayoutCollapse :defaultOpen="false">
+  <ScalarViewLayoutCollapse :defaultOpen="false">
     <template #title>Cookies</template>
     <template v-if="true">
       <DataTable
@@ -30,5 +31,5 @@ defineProps<{
         No cookies
       </div>
     </template>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>

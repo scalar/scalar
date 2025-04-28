@@ -6,6 +6,7 @@ import {
   ScalarIcon,
   type ScalarComboboxOption,
 } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import type {
   Collection,
   Operation,
@@ -18,7 +19,6 @@ import { computed, ref } from 'vue'
 
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
 
@@ -213,7 +213,7 @@ const customCodeContent = computed(() => {
 
 <template>
   <div class="w-full">
-    <ViewLayoutCollapse
+    <ScalarViewLayoutCollapse
       class="group/preview w-full border-b-0"
       :defaultOpen="false">
       <template #title>Code Snippet</template>
@@ -263,7 +263,7 @@ const customCodeContent = computed(() => {
           </div>
         </DataTableRow>
       </DataTable>
-    </ViewLayoutCollapse>
+    </ScalarViewLayoutCollapse>
   </div>
 </template>
 <style scoped>

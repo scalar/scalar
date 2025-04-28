@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import {
+  ScalarViewLayout,
+  ScalarViewLayoutContent,
+} from '@scalar/components/components/ScalarViewLayout'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { computed } from 'vue'
 
 import EmptyState from '@/components/EmptyState.vue'
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
 import { useSidebar } from '@/hooks/useSidebar'
 import { importCurlCommand } from '@/libs/importers/curl'
@@ -76,9 +78,9 @@ function handleCurlImport(curl: string) {
           :workspace="activeWorkspace"
           @hideModal="() => modalState.hide()"
           @importCurl="handleCurlImport" />
-        <ViewLayout>
+        <ScalarViewLayout>
           <!-- TODO possible loading state -->
-          <ViewLayoutContent
+          <ScalarViewLayoutContent
             v-if="activeExample"
             class="flex-1"
             :class="[isSidebarOpen ? 'sidebar-active-hide-layout' : '']">
@@ -99,8 +101,8 @@ function handleCurlImport(curl: string) {
               :requestResult="requestResult"
               :numWorkspaceRequests="activeWorkspaceRequests.length"
               :response="activeHistoryEntry?.response" />
-          </ViewLayoutContent>
-        </ViewLayout>
+          </ScalarViewLayoutContent>
+        </ScalarViewLayout>
       </div>
 
       <!-- No active request -->

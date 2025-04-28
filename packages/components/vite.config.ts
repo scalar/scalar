@@ -1,4 +1,5 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
+import { createViteBuildOptions } from '@scalar/build-tooling/vite'
+import { findEntryPoints } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
@@ -28,7 +29,10 @@ export default defineConfig({
     }),
   ],
   build: createViteBuildOptions({
-    entry: ['src/index.ts'],
+    entry: await findEntryPoints({ allowCss: true }),
+    options: {
+      ssr: false,
+    },
   }),
   test: {
     environment: 'jsdom',

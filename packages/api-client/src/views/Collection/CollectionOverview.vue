@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
+
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import MarkdownInput from '@/views/Collection/components/MarkdownInput.vue'
@@ -25,7 +26,7 @@ const updateCollectionDescription = (value: string) => {
 </script>
 
 <template>
-  <ViewLayoutSection>
+  <ScalarViewLayoutSection>
     <MarkdownInput
       v-if="activeEnvironment && activeWorkspace"
       :envVariables="activeEnvVariables"
@@ -33,5 +34,5 @@ const updateCollectionDescription = (value: string) => {
       :modelValue="activeCollection?.info?.description ?? ''"
       :workspace="activeWorkspace"
       @update:modelValue="updateCollectionDescription" />
-  </ViewLayoutSection>
+  </ScalarViewLayoutSection>
 </template>

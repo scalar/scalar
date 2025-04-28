@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { useModal } from '@scalar/components'
+import {
+  ScalarViewLayout,
+  ScalarViewLayoutContent,
+  ScalarViewLayoutSection,
+} from '@scalar/components/components/ScalarViewLayout'
 import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -9,9 +14,6 @@ import EmptyState from '@/components/EmptyState.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useActiveEntities, useWorkspace } from '@/store'
@@ -134,7 +136,7 @@ const hasCookies = computed(
 )
 </script>
 <template>
-  <ViewLayout>
+  <ScalarViewLayout>
     <Sidebar title="Cookies">
       <template #content>
         <div class="flex-1">
@@ -173,21 +175,21 @@ const hasCookies = computed(
       </template>
     </Sidebar>
 
-    <ViewLayoutContent class="flex-1">
+    <ScalarViewLayoutContent class="flex-1">
       <template v-if="hasCookies">
-        <ViewLayoutSection class="*:border-b-0">
+        <ScalarViewLayoutSection class="*:border-b-0">
           <template #title>Edit Cookie</template>
           <CookieForm />
           <!--  Untested and disabled for now. -->
           <!-- <CookieRaw /> -->
-        </ViewLayoutSection>
+        </ScalarViewLayoutSection>
       </template>
       <EmptyState v-else />
-    </ViewLayoutContent>
+    </ScalarViewLayoutContent>
 
     <CookieModal
       :state="cookieModal"
       @cancel="cookieModal.hide()"
       @submit="addCookieHandler" />
-  </ViewLayout>
+  </ScalarViewLayout>
 </template>

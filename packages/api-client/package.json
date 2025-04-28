@@ -93,11 +93,6 @@
       "types": "./dist/components/Sidebar/index.d.ts",
       "default": "./dist/components/Sidebar/index.js"
     },
-    "./components/ViewLayout": {
-      "import": "./dist/components/ViewLayout/index.js",
-      "types": "./dist/components/ViewLayout/index.d.ts",
-      "default": "./dist/components/ViewLayout/index.js"
-    },
     "./css/*.css": {
       "import": "./dist/css/*.css",
       "require": "./dist/css/*.css",

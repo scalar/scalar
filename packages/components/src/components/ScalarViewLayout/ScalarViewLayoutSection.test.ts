@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import ViewLayoutSection from './ViewLayoutSection.vue'
+import ViewLayoutSection from './ScalarViewLayoutSection.vue'
 
 describe('ViewLayoutSection', () => {
   it('has .request-response-header class (when title slot is used)', () => {

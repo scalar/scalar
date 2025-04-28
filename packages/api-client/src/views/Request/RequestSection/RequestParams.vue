@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   requestExampleParametersSchema,
@@ -9,7 +10,6 @@ import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
@@ -188,7 +188,7 @@ watch(
 const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
 </script>
 <template>
-  <ViewLayoutCollapse
+  <ScalarViewLayoutCollapse
     class="group/params"
     :itemCount="itemCount">
     <template #title>{{ title }}</template>
@@ -251,5 +251,5 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
         @updateRow="updateRow"
         @deleteRow="deleteRow" />
     </div>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>

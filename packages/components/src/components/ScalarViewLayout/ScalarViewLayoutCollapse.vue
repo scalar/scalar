@@ -10,6 +10,7 @@ const {
 } = defineProps<{
   defaultOpen?: boolean
   itemCount?: number
+  /** todo: this prop should be renamed  */
   layout?: 'client' | 'reference'
 }>()
 

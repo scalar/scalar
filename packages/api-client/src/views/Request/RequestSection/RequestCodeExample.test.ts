@@ -104,7 +104,7 @@ describe('RequestCodeExample.vue', () => {
     })
 
     expect(wrapper.find('.w-full').exists()).toBe(true)
-    expect(wrapper.findComponent({ name: 'ViewLayoutCollapse' }).exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'ScalarViewLayoutCollapse' }).exists()).toBe(true)
     wrapper.unmount()
   })
 
