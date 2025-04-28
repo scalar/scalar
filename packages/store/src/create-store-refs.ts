@@ -1,4 +1,4 @@
-import { upgrade } from '@scalar/openapi-parser'
+import { unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import { isReactive, reactive, toRaw } from '@vue/reactivity'
 
 /**
@@ -25,9 +25,16 @@ export function createStore(input: Record<string, unknown> | string) {
   /**
    * Parses a JSON Pointer string into an array of path segments
    */
-  function parseJsonPointer(referenceString: string): string[] {
-    const pathSegments = referenceString.replace(/^#\//, '').split('/')
-    return pathSegments.map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
+  function parseJsonPointer(pointer: string): string[] {
+    return (
+      pointer
+        // Split on '/'
+        .split('/')
+        // Remove the leading '#' if present
+        .filter((segment, index) => index !== 0 || segment !== '#')
+        // Unescape the segments (e.g. ~1 -> /, ~0 -> ~, %20 -> space)
+        .map(unescapeJsonPointer)
+    )
   }
 
   /**
