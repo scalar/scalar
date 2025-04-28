@@ -154,10 +154,10 @@ export function createStore(input: Record<string, unknown>) {
     export() {
       const raw = toRaw(sourceDocument)
 
-      // TODO: Doesn’t work with circular references it seems
-      // removeProperties(raw, {
-      //   test: (key) => key.startsWith('_'),
-      // })
+      // TODO: Doesn't work with circular references it seems
+      removeProperties(raw, {
+        test: (key) => key.startsWith('_'),
+      })
 
       return raw
     },
@@ -165,14 +165,27 @@ export function createStore(input: Record<string, unknown>) {
 }
 
 /**
- * Recursively removes properties from an object based on a condition
+ * Recursively removes properties from an object based on a condition.
+ *
+ * Handles circular references by tracking visited objects.
  */
-// @ts-expect-error We’ll need this
-function removeProperties(obj: Record<string, unknown>, options: { test: (key: string) => boolean }) {
+function removeProperties(
+  obj: Record<string, unknown>,
+  options: { test: (key: string) => boolean },
+  seen: WeakSet<object> = new WeakSet(),
+) {
+  if (obj !== null && typeof obj === 'object') {
+    if (seen.has(obj)) {
+      // Already visited this object, avoid infinite recursion
+      return
+    }
+    seen.add(obj)
+  }
+
   if (Array.isArray(obj)) {
     obj.forEach((item) => {
       if (item !== null && typeof item === 'object') {
-        removeProperties(item as Record<string, unknown>, options)
+        removeProperties(item as Record<string, unknown>, options, seen)
       }
     })
   } else {
@@ -180,7 +193,7 @@ function removeProperties(obj: Record<string, unknown>, options: { test: (key: s
       if (options.test(key)) {
         delete obj[key]
       } else if (obj[key] !== null && typeof obj[key] === 'object') {
-        removeProperties(obj[key] as Record<string, unknown>, options)
+        removeProperties(obj[key] as Record<string, unknown>, options, seen)
       }
     }
   }
