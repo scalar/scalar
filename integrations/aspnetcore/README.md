@@ -110,7 +110,7 @@ For detailed configuration options, refer to the [integration documentation](htt
 
 For more realistic examples and advanced usage scenarios, such as authentication, API versioning, and handling multiple documents, check out our [extended examples documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/README.md). This documentation is also useful if you need more context on what `Scalar.AspNetCore` is for.
 
-## Additional Packages
+## OpenAPI extensions
 
 Scalar provides additional packages to enhance OpenAPI document generation:
 
