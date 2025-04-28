@@ -27,13 +27,13 @@ npm install @scalar/store
 
 ## Basic Usage
 
-Create a new store instance:
+Create a new collection instance:
 
 ```ts
-import { createCollection } from '@scalar/store/refs'
+import { createCollection } from '@scalar/store'
 
 // Create a store with a document containing refs
-const store = createCollection({
+const collection = createCollection({
   openapi: '3.1.1',
   info: {
     title: 'Hello World',
@@ -55,7 +55,7 @@ const store = createCollection({
 })
 
 // Access the data without caring about $ref's
-console.log(store.document.components.schemas.User)
+console.log(collection.document.components.schemas.User)
 
 // Output: { type: 'object', properties: { name: { type: 'string' } } }
 ```
@@ -65,7 +65,7 @@ console.log(store.document.components.schemas.User)
 The store automatically resolves JSON References (`$ref`) when accessing properties:
 
 ```ts
-const store = createCollection({
+const collection = createCollection({
   components: {
     schemas: {
       Person: {
@@ -82,8 +82,8 @@ const store = createCollection({
 })
 
 // Both paths access the same data
-const person = store.document.components.schemas.Person
-const user = store.document.components.schemas.User
+const person = collection.document.components.schemas.Person
+const user = collection.document.components.schemas.User
 
 // Changes through either path update the source
 user.properties.age = { type: 'number' }
@@ -92,13 +92,13 @@ console.log(person.properties.age) // { type: 'number' }
 
 ### Reactive Updates
 
-The store maintains Vue reactivity while resolving references:
+The collection maintains Vue reactivity while resolving references:
 
 ```ts
 import { watch } from 'vue'
-import { createCollection } from '@scalar/store/refs'
+import { createCollection } from '@scalar/store'
 
-const store = createCollection({
+const collection = createCollection({
   components: {
     schemas: {
       Person: {
@@ -116,7 +116,7 @@ const store = createCollection({
 
 // Vue reactivity works through references
 watch(
-  () => store.document.components.schemas.User.properties,
+  () => collection.document.components.schemas.User.properties,
   (newProps) => {
     console.log('User properties changed:', newProps)
   }
@@ -125,10 +125,10 @@ watch(
 
 ### Private properties
 
-The store supports temporary data using properties prefixed with `_`. These properties are removed when exporting:
+Collections support temporary data using properties prefixed with `_`. These properties are removed when exporting:
 
 ```ts
-const store = createCollection({
+const collection = createCollection({
   components: {
     schemas: {
       Person: {
@@ -145,7 +145,7 @@ const store = createCollection({
 })
 
 // Prefix temporary properties with _ and they won’t be exported.
-store.document.components.schemas.Person._selected = true
+collection.document.components.schemas.Person._selected = true
 ```
 
 ### Exporting
@@ -153,7 +153,7 @@ store.document.components.schemas.Person._selected = true
 Export the raw document with references intact:
 
 ```ts
-const store = createCollection({
+const collection = createCollection({
   components: {
     schemas: {
       Person: {
@@ -170,7 +170,7 @@ const store = createCollection({
 })
 
 // Get the raw document with $refs preserved
-const raw = store.export()
+const raw = collection.export()
 ```
 
 ## Workspaces
@@ -180,7 +180,7 @@ Create a new worksapce instance and manage collections:
 ```ts
 import { createWorkspace } from '@scalar/store'
 
-// Create a new store
+// Create a new workspace
 const workspace = createWorkspace()
 
 // Load data into a collection
@@ -199,7 +199,7 @@ const data = workspace.export('myCollection')
 
 ### Async Data Loading
 
-The store supports async data loading for remote data fetching:
+The workspace supports async data loading for remote data fetching:
 
 ```ts
 const workspace = createWorkspace()
@@ -219,7 +219,7 @@ Enable automatic state persistence to localStorage:
 ```ts
 import { createWorkspace, localStoragePlugin } from '@scalar/store'
 
-// Create a store with localStorage persistence
+// Create a workspace with localStorage persistence
 const workspace = createWorkspace({
   plugins: [
     localStoragePlugin(),
