@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Scalar.AspNetCore.Swashbuckle.Tests;
@@ -13,7 +14,7 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
         // Arrange
         var localFactory = factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureServices(services => services.AddSwaggerGen(options =>
+            builder.ConfigureTestServices(services => services.AddSwaggerGen(options =>
             {
                 options.AddScalarFilters();
             }));
