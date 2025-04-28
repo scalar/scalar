@@ -43,6 +43,13 @@ function setScope(id: string, checked: boolean) {
     )
   }
 }
+
+function selectAllScopes() {
+  updateScheme(
+    `flows.${flow.type}.selectedScopes`,
+    Object.keys(flow?.scopes ?? {}),
+  )
+}
 </script>
 
 <template>
@@ -63,10 +70,24 @@ function setScope(id: string, checked: boolean) {
             {{ flow?.selectedScopes?.length || 0 }} /
             {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
           </div>
-          <ScalarIcon
-            class="text-c-3 group-hover/scopes-accordion:text-c-2"
-            :icon="open ? 'ChevronDown' : 'ChevronRight'"
-            size="md" />
+          <div class="gap-1.75 flex items-center">
+            <ScalarButton
+              v-if="
+                flow?.selectedScopes?.length > 4 &&
+                open &&
+                flow?.selectedScopes?.length <
+                  Object.keys(flow?.scopes ?? {}).length
+              "
+              class="text-c-3 hover:bg-b-2 hover:text-c-1 rounded px-1.5"
+              size="sm"
+              @click.stop="selectAllScopes">
+              Select All
+            </ScalarButton>
+            <ScalarIcon
+              class="text-c-3 group-hover/scopes-accordion:text-c-2"
+              :icon="open ? 'ChevronDown' : 'ChevronRight'"
+              size="md" />
+          </div>
         </DisclosureButton>
         <DisclosurePanel as="template">
           <table
