@@ -1,5 +1,6 @@
 import Heading from '@theme/Heading'
 import clsx from 'clsx'
+import type { JSX } from 'react'
 
 import styles from './styles.module.css'
 
