@@ -1,4 +1,12 @@
 <script lang="ts" setup>
+import type {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-types'
+import { stringify } from 'flatted'
+
 import { discriminators } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -6,7 +14,7 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
-const props = withDefaults(
+const { value, schemas } = withDefaults(
   defineProps<{
     value?: Record<string, any>
     enum?: boolean
@@ -14,6 +22,11 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
+    schemas?:
+      | OpenAPIV2.DefinitionsObject
+      | Record<string, OpenAPIV3.SchemaObject>
+      | Record<string, OpenAPIV3_1.SchemaObject>
+      | unknown
   }>(),
   {
     level: 0,
@@ -23,15 +36,13 @@ const props = withDefaults(
 )
 
 const discriminatorType = discriminators.find((r) => {
-  if (!props.value || typeof props.value !== 'object') {
+  if (!value || typeof value !== 'object') {
     return false
   }
 
   return (
-    r in props.value ||
-    (props.value.items &&
-      typeof props.value.items === 'object' &&
-      r in props.value.items)
+    r in value ||
+    (value.items && typeof value.items === 'object' && r in value.items)
   )
 })
 
@@ -39,6 +50,27 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
     ? value.default[0]
     : value?.default
+}
+
+// Get model name from schema
+const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
+  if (!schema) {
+    return null
+  }
+
+  if (schema.name) {
+    return schema.name
+  }
+
+  if (schemas && typeof schemas === 'object') {
+    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+      if (stringify(schemaValue) === stringify(schema)) {
+        return schemaName
+      }
+    }
+  }
+
+  return null
 }
 </script>
 <template>
@@ -83,7 +115,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         <ScreenReader>Type:</ScreenReader>
         <template v-if="value?.items?.type">
           {{ value.type }}
-          {{ value.items.type }}[]
+          {{ getModelNameFromSchema(value.items) || value.items.type }}[]
         </template>
         <template v-else>
           {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
