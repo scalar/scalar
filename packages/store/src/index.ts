@@ -1,1 +1,1 @@
-export { createStore } from './create-store-refs.ts'
+export { createStore } from './create-store.ts'

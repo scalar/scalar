@@ -1,7 +1,8 @@
 import { dereference } from '@scalar/openapi-parser'
 import { bench, describe, expect } from 'vitest'
-import { createStore } from './create-store-refs.ts'
+import { createStore } from './create-store.ts'
 
+// @ts-expect-error Idk
 import { createWorkspaceStore } from '@scalar/api-client/store'
 
 const EXAMPLE_DOCUMENT = {

@@ -1,6 +1,14 @@
 # Scalar Store
 
-A state management solution for OpenAPI documents with built-in persistence support.
+A powerful data store for OpenAPI documents that handles `$ref` pointers with Vue reactivity support.
+
+## Features
+
+- Seamless reference resolution
+- Vue reactivity support
+- Circular reference handling
+- Original document structure preservation
+- Caching for resolved references
 
 ## Installation
 
@@ -10,16 +18,165 @@ npm install @scalar/store
 
 ## Basic Usage
 
-Create a new store instance and manage collections:
+Create a new store instance:
 
 ```ts
-import { createStore } from '@scalar/store'
+import { createStore } from '@scalar/store/refs'
+
+// Create a store with a document containing refs
+const store = createStore({
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0',
+  },
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Access the data without caring about $ref's
+console.log(workspace.document.components.schemas.User)
+
+// Output: { type: 'object', properties: { name: { type: 'string' } } }
+```
+
+## Reference Resolution
+
+The store automatically resolves JSON References (`$ref`) when accessing properties:
+
+```ts
+const store = createStore({
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Both paths access the same data
+const person = workspace.document.components.schemas.Person
+const user = workspace.document.components.schemas.User
+
+// Changes through either path update the source
+user.properties.age = { type: 'number' }
+console.log(person.properties.age) // { type: 'number' }
+```
+
+## Reactive Updates
+
+The store maintains Vue reactivity while resolving references:
+
+```ts
+import { watch } from 'vue'
+import { createStore } from '@scalar/store/refs'
+
+const store = createStore({
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Vue reactivity works through references
+watch(
+  () => workspace.document.components.schemas.User.properties,
+  (newProps) => {
+    console.log('User properties changed:', newProps)
+  }
+)
+```
+
+## Private properties
+
+The store supports temporary data using properties prefixed with `_`. These properties are removed when exporting:
+
+```ts
+const store = createStore({
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Prefix temporary properties with _ and they won’t be exported.
+workspace.document.components.schemas.Person._selected = true
+```
+
+
+## Exporting
+
+Export the raw document with references intact:
+
+```ts
+const store = createStore({
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Get the raw document with $refs preserved
+const raw = workspace.export()
+```
+
+## Workspaces
+
+Create a new worksapce instance and manage collections:
+
+```ts
+import { createWorkspace } from '@scalar/store'
 
 // Create a new store
-const store = createStore()
+const workspace = createWorkspace()
 
 // Load data into a collection
-store.actions.load('myCollection', {
+workspace.load('myCollection', {
   openapi: '3.1.1',
   info: {
     title: 'Hello World',
@@ -29,7 +186,7 @@ store.actions.load('myCollection', {
 })
 
 // Export data from a collection
-const data = store.actions.export('myCollection')
+const data = workspace.export('myCollection')
 ```
 
 ## Async Data Loading
@@ -37,10 +194,10 @@ const data = store.actions.export('myCollection')
 The store supports async data loading for remote data fetching:
 
 ```ts
-const store = createStore()
+const workspace = createWorkspace()
 
 // Load data asynchronously
-await store.actions.load('api', async () => {
+await workspace.load('api', async () => {
   const response = await fetch('https://example.com/openapi.json')
 
   return response.json()
@@ -52,10 +209,10 @@ await store.actions.load('api', async () => {
 Enable automatic state persistence to localStorage:
 
 ```ts
-import { createStore, localStoragePlugin } from '@scalar/store'
+import { createWorkspace, localStoragePlugin } from '@scalar/store'
 
 // Create a store with localStorage persistence
-const store = createStore({
+const workspace = createWorkspace({
   plugins: [
     localStoragePlugin(),
 
