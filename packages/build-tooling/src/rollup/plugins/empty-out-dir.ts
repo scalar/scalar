@@ -8,7 +8,7 @@ import type { Plugin } from 'rollup'
  *
  * @see https://github.com/rollup/rollup/blob/master/build-plugins/clean-before-write.ts
  */
-export default function emptyOutDir({ dir }: { dir: string }): Plugin {
+export function emptyOutDir({ dir }: { dir: string }): Plugin {
   let removePromise: Promise<void>
 
   return {

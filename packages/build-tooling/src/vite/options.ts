@@ -1,17 +1,7 @@
-import { fileURLToPath } from 'node:url'
-
 import type { Plugin } from 'rollup'
 import type { BuildOptions, LibraryOptions } from 'vite'
 
-import { createRollupConfig, type StrictPluginOptions } from './rollup-options'
-
-/** Standard path aliases for Vite */
-export function alias(url: string) {
-  return {
-    '@test': fileURLToPath(new URL('./test', url)),
-    '@': fileURLToPath(new URL('./src', url)),
-  }
-}
+import { createRollupConfig, type StrictPluginOptions } from '../rollup'
 
 /**
  * Creates a standard Scalar library vite build config
@@ -67,6 +57,10 @@ const VARS_DICT = {
   },
 }
 
+/**
+ *
+ * @deprecated We have moved away from javascript CSS injection. This will be deleted in the near future
+ */
 export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
   /**
    * Automatic css injection via js

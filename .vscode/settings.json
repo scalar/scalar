@@ -4,6 +4,14 @@
   "biome.searchInPath": true,
   "editor.formatOnSave": true,
   "editor.tabSize": 2,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/dist": true,
+    "**/build": true,
+    "**/coverage": true,
+    "**/.turbo": true,
+    "pnpm-lock.yaml": true
+  },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome",
     "editor.codeActionsOnSave": {

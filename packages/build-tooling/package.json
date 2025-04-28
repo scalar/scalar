@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "bash scripts/build-rollup.sh",
+    "build": "bash scripts/build-esbuild.sh",
     "dev": "vite",
     "format": "bash scripts/format.sh",
     "lint:check": "bash scripts/lint-check.sh",
@@ -26,15 +26,40 @@
     "types:check": "bash scripts/types-check.sh"
   },
   "type": "module",
-  "main": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./esbuild": {
+      "import": "./dist/esbuild/index.js",
+      "types": "./dist/esbuild/index.d.ts",
+      "default": "./dist/esbuild/index.js"
+    },
+    "./rollup": {
+      "import": "./dist/rollup/index.js",
+      "types": "./dist/rollup/index.d.ts",
+      "default": "./dist/rollup/index.js"
+    },
+    "./rollup/plugins": {
+      "import": "./dist/rollup/plugins/index.js",
+      "types": "./dist/rollup/plugins/index.d.ts",
+      "default": "./dist/rollup/plugins/index.js"
+    },
+    "./vite": {
+      "import": "./dist/vite/index.js",
+      "types": "./dist/vite/index.d.ts",
+      "default": "./dist/vite/index.js"
+    },
+    "./vite/plugins": {
+      "import": "./dist/vite/plugins/index.js",
+      "types": "./dist/vite/plugins/index.d.ts",
+      "default": "./dist/vite/plugins/index.js"
     }
   },
   "bin": {
+    "scalar-build-esbuild": "scripts/build-esbuild.sh",
     "scalar-build-rollup": "scripts/build-rollup.sh",
     "scalar-build-vite": "scripts/build-vite.sh",
     "scalar-format-check": "scripts/format-check.sh",
@@ -52,6 +77,9 @@
     "@rollup/plugin-swc": "^0.4.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-yaml": "^4.1.2",
+    "ansis": "catalog:",
+    "chokidar": "catalog:",
+    "esbuild": "catalog:",
     "glob": "^10.3.10",
     "picomatch": "^4.0.2",
     "rollup": "^4.24.1",
