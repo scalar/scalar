@@ -114,6 +114,32 @@ watch(
 )
 ```
 
+## Private properties
+
+The store supports temporary data using properties prefixed with `_`. These properties are removed when exporting:
+
+```ts
+const store = createStore({
+  components: {
+    schemas: {
+      Person: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      User: {
+        $ref: '#/components/schemas/Person',
+      },
+    },
+  },
+})
+
+// Prefix temporary properties with _ and they won’t be exported.
+store.document.components.schemas.Person._selected = true
+```
+
+
 ## Exporting
 
 Export the raw document with references intact:
