@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { ensureProtocol } from './ensure-protocol.ts'
+import { ensureProtocol } from './ensure-protocol'
 
 describe('ensureProtocol', () => {
   describe('URLs with existing protocols', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src/index.ts'
+import { validate } from '../../../../src/index'
 import minimal_paths from './minimal_paths.yaml?raw'
 
 describe('minimal_paths', () => {

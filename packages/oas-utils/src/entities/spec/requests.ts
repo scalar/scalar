@@ -1,13 +1,13 @@
-import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility.ts'
+import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { type ZodSchema, z } from 'zod'
 
 import { XCodeSamplesSchema } from '@scalar/openapi-types/schemas/extensions'
 import { XScalarStability } from '@scalar/types'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
-import { oasParameterSchema } from './parameters.ts'
-import { type RequestExample, xScalarExampleSchema } from './request-examples.ts'
-import { oasExternalDocumentationSchema } from './spec-objects.ts'
+import { oasParameterSchema } from './parameters'
+import { type RequestExample, xScalarExampleSchema } from './request-examples'
+import { oasExternalDocumentationSchema } from './spec-objects'
 
 export const requestMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 

@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { operationSchema } from './operation.ts'
+import { operationSchema } from './operation'
 import {
   convertExampleToXScalar,
   createExampleFromRequest,
   createParamInstance,
   parameterArrayToObject,
   requestExampleSchema,
-} from './request-examples.ts'
+} from './request-examples'
 
 describe('createParamInstance', () => {
   it('works with schema enum type number', () => {

@@ -1,2 +1,2 @@
-export { apiReference, Scalar } from './scalar.ts'
-export type { ApiReferenceConfiguration } from './types.ts'
+export { apiReference, Scalar } from './scalar'
+export type { ApiReferenceConfiguration } from './types'

@@ -1,6 +1,6 @@
-import type { v_2_1_0 } from '@/migrations/v-2.1.0/types.generated.ts'
+import type { v_2_1_0 } from '@/migrations/v-2.1.0/types.generated'
 
-import type { v_2_2_0 } from './types.generated.ts'
+import type { v_2_2_0 } from './types.generated'
 
 /** Migrate security scheme from v-2.1.0 to v-2.2.0 */
 const migrateSecurityScheme = (

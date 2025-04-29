@@ -30,7 +30,8 @@
       "**/httpsnippet-lite/**",
       "**/.next/**",
       "**/aspnetcore/**/obj/**",
-      "**/aspnetcore/**/bin/**"
+      "**/aspnetcore/**/bin/**",
+      "packages/openapi-parser/src/schemas/**/*.ts"
     ]
   },
   "organizeImports": {

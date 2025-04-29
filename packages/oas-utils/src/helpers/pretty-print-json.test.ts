@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { prettyPrintJson } from './pretty-print-json.ts'
+import { prettyPrintJson } from './pretty-print-json'
 
 describe('prettyPrintJson', () => {
   it('makes JSON strings beautiful', async () => {

@@ -1,5 +1,5 @@
 import { assertType, describe, it } from 'vitest'
-import type { AuthenticationConfiguration } from './authentication-configuration.ts'
+import type { AuthenticationConfiguration } from './authentication-configuration'
 
 describe('ApiReferenceConfiguration', () => {
   it('ensure we are generating correct types for preferredSecurityScheme', () => {

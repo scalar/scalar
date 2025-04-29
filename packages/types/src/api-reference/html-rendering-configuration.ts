@@ -1,4 +1,4 @@
-import type { ApiReferenceConfigurationWithSources } from './api-reference-configuration.ts'
+import type { ApiReferenceConfigurationWithSources } from './api-reference-configuration'
 import { z } from 'zod'
 
 /**

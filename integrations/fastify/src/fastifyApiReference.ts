@@ -5,11 +5,11 @@ import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } 
 import fp from 'fastify-plugin'
 import { slug } from 'github-slugger'
 
-import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types.ts'
-import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
+import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
+import { getJavaScriptFile } from './utils/getJavaScriptFile'
 
 import { getHtmlDocument } from '../../../packages/core/dist/libs/html-rendering/index.js'
-import type { ApiReferenceConfiguration } from './types.ts'
+import type { ApiReferenceConfiguration } from './types'
 
 /**
  * Path to the bundled Scalar JavaScript file

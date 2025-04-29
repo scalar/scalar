@@ -66,6 +66,7 @@ export async function build({
    * Used for post-build actions (ex. copying css files)
    */
   onSuccess?: () => Promise<void> | void
+  onBeforeBuild?: () => Promise<void> | void
 }) {
   await fs.rm('dist', { recursive: true, force: true })
 

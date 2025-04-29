@@ -1,5 +1,5 @@
-import { formatJsonOrYamlString } from './parse.ts'
-import { redirectToProxy } from './redirect-to-proxy.ts'
+import { formatJsonOrYamlString } from './parse'
+import { redirectToProxy } from './redirect-to-proxy'
 
 // Doesn’t work
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'

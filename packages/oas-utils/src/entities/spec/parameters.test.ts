@@ -1,4 +1,4 @@
-import { oasParameterSchema } from '@/entities/spec/parameters.ts'
+import { oasParameterSchema } from '@/entities/spec/parameters'
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 

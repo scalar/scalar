@@ -1,1 +1,1 @@
-export { getSlugUid, importSpecToWorkspace, parseSchema, type ImportSpecToWorkspaceArgs } from './import-spec.ts'
+export { getSlugUid, importSpecToWorkspace, parseSchema, type ImportSpecToWorkspaceArgs } from './import-spec'

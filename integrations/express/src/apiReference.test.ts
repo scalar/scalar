@@ -2,7 +2,7 @@ import express from 'express'
 import request from 'supertest'
 import { describe, expect, it } from 'vitest'
 
-import { apiReference } from './apiReference.ts'
+import { apiReference } from './apiReference'
 
 describe('apiReference', () => {
   it('should return HTML with default theme CSS when no theme is provided', async () => {

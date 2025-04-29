@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from './validate.ts'
+import { validate } from './validate'
 
 describe('validate', async () => {
   it('fails on invalid schema', async () => {

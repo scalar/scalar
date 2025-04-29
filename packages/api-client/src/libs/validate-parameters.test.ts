@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { validateParameters } from './validate-parameters.ts'
+import { validateParameters } from './validate-parameters'
 
 describe('validateParameters', () => {
   it('should return empty set when no example is provided', () => {

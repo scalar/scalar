@@ -1,6 +1,6 @@
-export { collectionSchema, type Collection, type CollectionPayload } from './collection.ts'
-export { oasParameterSchema, type RequestParameter, type RequestParameterPayload } from './parameters.ts'
-export { serverSchema, type Server, type ServerPayload } from './server.ts'
+export { collectionSchema, type Collection, type CollectionPayload } from './collection'
+export { oasParameterSchema, type RequestParameter, type RequestParameterPayload } from './parameters'
+export { serverSchema, type Server, type ServerPayload } from './server'
 export {
   requestSchema,
   type Request,
@@ -8,7 +8,7 @@ export {
   type RequestMethod,
   type ResponseInstance,
   type RequestEvent,
-} from './requests.ts'
+} from './requests'
 
 export {
   requestExampleSchema,
@@ -16,7 +16,7 @@ export {
   requestExampleParametersSchema,
   type RequestExample,
   type RequestExampleParameter,
-} from './request-examples.ts'
+} from './request-examples'
 
 export {
   tagSchema,
@@ -26,19 +26,19 @@ export {
   oasLicenseSchema,
   type Tag,
   type TagPayload,
-} from './spec-objects.ts'
+} from './spec-objects'
 
 export {
   type Operation,
   type OperationPayload,
   operationSchema,
-} from './operation.ts'
+} from './operation'
 
 export {
   xScalarEnvironmentsSchema,
   type XScalarEnvironment,
   type XScalarEnvironments,
-} from './x-scalar-environments.ts'
+} from './x-scalar-environments'
 
 /** Re-exported here for ease of use but we should use the other ones directly */
 export {

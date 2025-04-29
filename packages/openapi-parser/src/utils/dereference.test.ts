@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { dereference } from './dereference.ts'
+import { dereference } from './dereference'
 
 describe('dereference', async () => {
   it('dereferences an OpenAPI 3.1.0 file', async () => {

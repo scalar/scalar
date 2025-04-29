@@ -61,23 +61,25 @@ export function codeBlockLinesPlugin() {
  * @param copyParent - Whether to copy the parent node to save the original node styles
  */
 function addLines(node: Element, lines: Element[] = [], copyParent?: boolean): Element[] {
-  const line = () => lines[lines.length - 1] ?? (lines.push(createLine()) && lines[lines.length - 1])
+  const line = () => lines[lines.length - 1] ?? ((lines.push(createLine()) && lines[lines.length - 1]) || undefined)
 
   node.children.forEach((child: ElementContent) => {
     if (isText(child) && hasLineBreak(child)) {
       const split: string[] = child.value.split(/\n/)
 
       split.forEach((content: string, i: number) => {
-        copyParent
-          ? line().children.push({ ...node, children: [textElement(content)] })
-          : line().children.push(textElement(content))
+        if (copyParent) {
+          line()?.children.push({ ...node, children: [textElement(content)] })
+        } else {
+          line()?.children.push(textElement(content))
+        }
 
         i !== split.length - 1 && lines.push(createLine())
       })
     } else if (isElement(child) && child.children.some(hasLineBreak)) {
       addLines(child, lines, true)
     } else {
-      line().children.push(child)
+      line()?.children.push(child)
     }
   })
 

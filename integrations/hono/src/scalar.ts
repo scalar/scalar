@@ -1,7 +1,7 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Env, MiddlewareHandler } from 'hono'
 
-import type { ApiReferenceConfiguration } from './types.ts'
+import type { ApiReferenceConfiguration } from './types'
 
 /**
  * The default configuration for the API Reference.

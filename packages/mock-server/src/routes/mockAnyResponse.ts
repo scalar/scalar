@@ -6,8 +6,8 @@ import type { StatusCode } from 'hono/utils/http-status'
 // @ts-expect-error Doesn’t come with types
 import objectToXML from 'object-to-xml'
 
-import type { MockServerOptions } from '@/types.ts'
-import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey.ts'
+import type { MockServerOptions } from '@/types'
+import { findPreferredResponseKey } from '@/utils/findPreferredResponseKey'
 
 /**
  * Mock any response

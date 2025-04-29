@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { parseJsonOrYaml } from '@/helpers/parse.ts'
+import { parseJsonOrYaml } from '@/helpers/parse'
 import baseDefinition from '@/spec-extentions/x-scalar-environments.yaml?raw'
-import { xScalarSecretsSchema } from './x-scalar-secrets.ts'
+import { xScalarSecretsSchema } from './x-scalar-secrets'
 
 describe('x-scalar-secrets', () => {
   it('Handles spec definition', () => {

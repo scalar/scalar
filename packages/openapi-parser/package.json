@@ -22,7 +22,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",

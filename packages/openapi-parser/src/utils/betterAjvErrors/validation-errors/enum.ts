@@ -1,20 +1,23 @@
 import pointer from 'jsonpointer'
 import leven from 'leven'
 
-import BaseValidationError from './base'
+import BaseValidationError, { type BaseValidationErrorOptions } from './base'
 
 export default class EnumValidationError extends BaseValidationError {
-  constructor(...args) {
-    super(...args)
+  constructor(
+    options: BaseValidationErrorOptions,
+    context: { data?: any; schema?: any; jsonAst?: any; jsonRaw?: any },
+  ) {
+    super(options, context)
     this.name = 'EnumValidationError'
   }
 
-  getError() {
+  getError(): { message: string; path: string | undefined; suggestion?: string } {
     const { message, params } = this.options
     const bestMatch = this.findBestMatch()
-    const allowedValues = params.allowedValues.join(', ')
+    const allowedValues = params?.allowedValues?.join(', ')
 
-    const output = {
+    const output: { message: string; path: string | undefined; suggestion?: string } = {
       message: `${message}: ${allowedValues}`,
       path: this.instancePath,
     }
@@ -26,10 +29,9 @@ export default class EnumValidationError extends BaseValidationError {
     return output
   }
 
-  findBestMatch() {
-    const {
-      params: { allowedValues },
-    } = this.options
+  findBestMatch(): string | null {
+    const allowedValues = this.options.params?.allowedValues
+    if (!allowedValues) return null
 
     const currentValue = this.instancePath === '' ? this.data : pointer.get(this.data, this.instancePath)
 
@@ -38,7 +40,7 @@ export default class EnumValidationError extends BaseValidationError {
     }
 
     const bestMatch = allowedValues
-      .map((value) => ({
+      .map((value: string) => ({
         value,
         weight: leven(value, currentValue.toString()),
       }))

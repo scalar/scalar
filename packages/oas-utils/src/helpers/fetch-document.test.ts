@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { fetchDocument } from './fetch-document.ts'
+import { fetchDocument } from './fetch-document'
 
 const PROXY_PORT = 5051
 

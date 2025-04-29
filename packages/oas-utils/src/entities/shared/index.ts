@@ -1,4 +1,4 @@
 export {
   type SelectedSecuritySchemeUids,
   selectedSecuritySchemeUidSchema,
-} from './utility.ts'
+} from './utility'

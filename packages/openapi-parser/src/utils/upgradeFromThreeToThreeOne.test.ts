@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne.ts'
+import { isSchemaPath, upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne'
 
 describe('isSchemaPath', () => {
   it('correctly identifies schema paths', () => {

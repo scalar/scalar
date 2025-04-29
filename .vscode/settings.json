@@ -11,7 +11,8 @@
     "**/coverage": true,
     "**/.turbo": true,
     "pnpm-lock.yaml": true,
-    "**/CHANGELOG.md": true
+    "**/CHANGELOG.md": true,
+    "**/storybook-static": true
   },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome",

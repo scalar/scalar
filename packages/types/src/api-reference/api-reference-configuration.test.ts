@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration.ts'
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {

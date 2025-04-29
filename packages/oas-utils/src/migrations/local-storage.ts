@@ -1,6 +1,6 @@
-import type { LS_KEYS } from '@/helpers/local-storage.ts'
-import { DATA_VERSION_LS_LEY } from '@/migrations/data-version.ts'
-import type { v_2_1_0 } from '@/migrations/v-2.1.0/types.generated.ts'
+import type { LS_KEYS } from '@/helpers/local-storage'
+import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
+import type { v_2_1_0 } from '@/migrations/v-2.1.0/types.generated'
 import { parse } from 'flatted'
 
 /**

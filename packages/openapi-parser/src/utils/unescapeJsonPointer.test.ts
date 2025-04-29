@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { unescapeJsonPointer } from './unescapeJsonPointer.ts'
+import { unescapeJsonPointer } from './unescapeJsonPointer'
 
 describe('unescapeJsonPointer', async () => {
   it('unescapes a slash', () => {

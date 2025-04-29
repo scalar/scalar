@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest'
 
-import { validate } from '../../../../src/index.ts'
+import { validate } from '../../../../src/index'
 import internalPathItemRef from './internalPathItemRef.yaml?raw'
 
 describe.todo('internalPathItemRef', () => {

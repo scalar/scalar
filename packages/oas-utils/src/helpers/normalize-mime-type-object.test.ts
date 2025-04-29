@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalizeMimeTypeObject } from './normalize-mime-type-object.ts'
+import { normalizeMimeTypeObject } from './normalize-mime-type-object'
 
 describe('normalizeMimeTypeObject', () => {
   it('removes charset', async () => {

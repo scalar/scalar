@@ -1,2 +1,2 @@
-export type { UnknownObject } from './utility-types.ts'
-export { type ENTITY_BRANDS, nanoidSchema } from './nanoid.ts'
+export type { UnknownObject } from './utility-types'
+export { type ENTITY_BRANDS, nanoidSchema } from './nanoid'

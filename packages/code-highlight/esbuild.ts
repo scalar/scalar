@@ -4,7 +4,7 @@ import { build } from '@scalar/build-tooling/esbuild'
 console.log('Copying CSS files...')
 
 await build({
-  entries: ['./src/index.ts'],
+  entries: 'auto',
   platform: 'shared',
   allowCss: true,
   onSuccess: async () => {

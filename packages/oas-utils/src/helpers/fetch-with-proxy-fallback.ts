@@ -1,4 +1,4 @@
-import { redirectToProxy, shouldUseProxy } from './redirect-to-proxy.ts'
+import { redirectToProxy, shouldUseProxy } from './redirect-to-proxy'
 
 export type FetchWithProxyFallbackOptions = {
   proxyUrl: string | undefined

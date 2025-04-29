@@ -1,8 +1,8 @@
 import { z } from 'zod'
 
-import { ApiReferencePluginSchema } from './api-reference-plugin.ts'
-import type { TargetId } from '../snippetz/index.ts'
-import type { AuthenticationConfiguration } from './authentication-configuration.ts'
+import { ApiReferencePluginSchema } from './api-reference-plugin'
+import type { TargetId } from '../snippetz/index'
+import type { AuthenticationConfiguration } from './authentication-configuration'
 
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([

@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { v_2_4_0 } from '../v-2.4.0/types.generated.ts'
-import { migrate_v_2_5_0 } from './migration.ts'
-import type { v_2_5_0 } from './types.generated.ts'
+import type { v_2_4_0 } from '../v-2.4.0/types.generated'
+import { migrate_v_2_5_0 } from './migration'
+import type { v_2_5_0 } from './types.generated'
 
 describe('migrate_v_2_5_0', () => {
   it('should add default "Accept" header if it does not exist', () => {

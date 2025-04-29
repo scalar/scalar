@@ -1,7 +1,7 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { Request, Response } from 'express'
 
-import type { ApiReferenceConfiguration } from './types.ts'
+import type { ApiReferenceConfiguration } from './types'
 
 /**
  * The custom theme CSS for the Express theme

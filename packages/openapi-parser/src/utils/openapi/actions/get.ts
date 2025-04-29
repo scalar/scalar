@@ -1,5 +1,5 @@
-import type { CommandChain, Queue, Task } from '../../../types/index.ts'
-import { workThroughQueue } from '../utils/workThroughQueue.ts'
+import type { CommandChain, Queue, Task } from '../../../types/index'
+import { workThroughQueue } from '../utils/workThroughQueue'
 
 /**
  * Run the chained tasks and return the results

@@ -21,7 +21,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-esbuild && vite-node scripts/publish.ts",
+    "build": "scalar-build-esbuild",
     "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",

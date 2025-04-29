@@ -5,7 +5,7 @@ import type { SecurityScheme, SecuritySchemeOauth2 } from '@scalar/types/entitie
 import circular from '@test/fixtures/basic-circular-spec.json' assert { type: 'json' }
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json' assert { type: 'json' }
 import galaxy from '../../../galaxy/dist/latest.json' assert { type: 'json' }
-import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from './import-spec.ts'
+import { getSelectedSecuritySchemeUids, importSpecToWorkspace, parseSchema } from './import-spec'
 
 describe('getSelectedSecuritySchemeUids', () => {
   const securitySchemeMap = {
