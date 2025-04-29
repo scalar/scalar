@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "integrations/express/playground"
+    "directory": "examples/express"
   },
   "version": "0.1.0",
   "private": true,
@@ -24,6 +24,13 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
     "express": "catalog:",
@@ -34,12 +41,5 @@
     "@types/express": "catalog:",
     "@types/swagger-jsdoc": "^6.0.3",
     "vite": "catalog:"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
   }
 }
