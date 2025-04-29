@@ -21,15 +21,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup && vite-node scripts/publish.ts",
+    "build": "scalar-build-esbuild && vite-node scripts/publish.ts",
     "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "playground": "vite-node playground/index.ts",
     "test": "vitest",
-    "test:unit": "vitest",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
@@ -38,7 +34,8 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./3.1.yaml": "./dist/3.1.yaml",
     "./3.1.json": "./dist/3.1.json",

@@ -21,9 +21,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -70,15 +68,13 @@
   ],
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
-    "@unhead/schema": "^1.11.11",
     "nanoid": "catalog:",
-    "type-fest": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.15",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "type-fest": "catalog:",
+    "vite": "catalog:"
   }
 }

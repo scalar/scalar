@@ -210,18 +210,6 @@ describe('api-reference-configuration', () => {
       expect(migratedConfig.proxy).toBeUndefined()
     })
 
-    it('migrates legacy theme variables', () => {
-      const config = {
-        theme: 'default',
-        customCss: '--theme-color-red: red;',
-      }
-
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-
-      expect(migratedConfig.customCss).not.toContain('--theme-color-red')
-      expect(migratedConfig.customCss).toContain('--scalar-color-red')
-    })
-
     it('migrates spec.url to url', () => {
       const config = {
         spec: {

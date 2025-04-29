@@ -18,13 +18,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "dev": "vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "preview": "vite preview",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"

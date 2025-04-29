@@ -46,7 +46,7 @@
   "scripts": {
     "build": "turbo build",
     "build:docker-base": "docker build -t scalar-base -f ./tooling/base-docker-builder/Dockerfile .",
-    "build:packages": "turbo --filter './packages/**' build",
+    "build:packages": "turbo --filter './packages/**' --concurrency=100% build",
     "build:integrations": "turbo --filter './integrations/**' build",
     "build:api-reference": "turbo --filter './packages/api-reference' build",
     "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",

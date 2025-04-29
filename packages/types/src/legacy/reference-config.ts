@@ -1,7 +1,7 @@
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { ApiReferenceConfiguration } from '@/api-reference/index.ts'
-import type { HarRequest, TargetId } from '@/snippetz/index.ts'
+import type { ApiReferenceConfiguration } from '../api-reference/index.ts'
+import type { HarRequest, TargetId } from '../snippetz/index.ts'
 
 /**
  * This re-export is needed due to a typescript issue

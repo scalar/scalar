@@ -1,4 +1,4 @@
-import { type Path, type PathValue, getNestedValue, setNestedValue } from '@/nested'
+import { type Path, type PathValue, getNestedValue, setNestedValue } from '../nested'
 
 /** Type safe include */
 export function includes<T>(arr: readonly T[], x: T): boolean {

@@ -14,11 +14,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "build:playground": "cd ./playground && pnpm build",
-    "dev": "cd ./playground && pnpm dev",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",

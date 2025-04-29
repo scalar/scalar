@@ -41,6 +41,8 @@ function browserBuildOptions(_options: Record<string, never>): esbuild.BuildOpti
  * to find all index.ts files in the project.
  *
  * @scalar/build-tooling type building should be run after to generate types and handle path aliases
+ *
+ * If post-build actions are needed (such as copying files), use the `onSuccess` callback.
  */
 export async function build({
   platform,
@@ -50,13 +52,19 @@ export async function build({
   shimRequire,
   options,
   onSuccess,
+  allowCss = false,
 }: {
   platform?: 'node' | 'browser' | 'shared'
   sourcemap?: boolean
   entries: string[] | 'auto'
   bundle?: boolean
   shimRequire?: boolean
+  allowCss?: boolean
   options?: esbuild.BuildOptions
+  /**
+   * Handler that runs after the build is complete
+   * Used for post-build actions (ex. copying css files)
+   */
   onSuccess?: () => Promise<void> | void
 }) {
   await fs.rm('dist', { recursive: true, force: true })
@@ -66,11 +74,11 @@ export async function build({
    * or we write a specified subset (ex. entries: ['src/index.ts'])
    */
   if (entries === 'auto') {
-    await findEntryPoints({})
+    await findEntryPoints({ allowCss })
   } else {
     await addPackageFileExports({
       entries,
-      allowCss: false,
+      allowCss,
     })
   }
 
@@ -85,6 +93,7 @@ export async function build({
   })
 
   if (!process.env.ESBUILD_WATCH) {
+    const start = performance.now()
     return esbuild
       .build({
         sourcemap: sourcemap || true,
@@ -94,8 +103,17 @@ export async function build({
         ...options,
       })
       .finally(async () => {
+        const packageName = path.basename(process.cwd())
+        const end = performance.now()
+        console.log(as.blue(`@scalar/${packageName}: Build completed in ${(end - start).toFixed(2)}ms`))
+
         if (onSuccess) {
           await onSuccess()
+          console.log(
+            as.blue(
+              `@scalar/${packageName}: Additional build tasks completed in ${(performance.now() - end).toFixed(2)}ms`,
+            ),
+          )
         }
         process.exit(0)
       })

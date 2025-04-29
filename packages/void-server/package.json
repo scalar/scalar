@@ -20,7 +20,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
     "format": "scalar-format",
     "format:check": "scalar-format-check",

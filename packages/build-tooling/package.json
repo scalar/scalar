@@ -32,6 +32,16 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    },
     "./esbuild": {
       "import": "./dist/esbuild/index.js",
       "types": "./dist/esbuild/index.d.ts",

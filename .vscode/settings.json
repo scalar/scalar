@@ -10,7 +10,8 @@
     "**/build": true,
     "**/coverage": true,
     "**/.turbo": true,
-    "pnpm-lock.yaml": true
+    "pnpm-lock.yaml": true,
+    "**/CHANGELOG.md": true
   },
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome",
