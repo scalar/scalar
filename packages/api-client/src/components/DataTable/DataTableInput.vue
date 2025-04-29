@@ -59,11 +59,7 @@ const handleBlur = () => {
 }
 
 const inputType = computed(() =>
-  props.type === 'password'
-    ? mask.value
-      ? 'password'
-      : 'text'
-    : (props.type ?? 'text'),
+  props.type === 'password' ? 'text' : (props.type ?? 'text'),
 )
 
 // If not an enum nor read only, focus the code input
@@ -98,6 +94,7 @@ const handleLabelClick = () => {
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
           class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-1"
+          :class="{ 'scalar-password-input': type === 'password' }"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
@@ -118,6 +115,7 @@ const handleLabelClick = () => {
           :class="[
             type === 'password' && description && 'pr-12',
             description && 'pr-8',
+            type === 'password' && 'scalar-password-input',
           ]"
           :description="description"
           disableCloseBrackets
@@ -186,5 +184,11 @@ const handleLabelClick = () => {
 /* Tailwind placeholder is busted */
 input::placeholder {
   color: var(--scalar-color-3);
+}
+/* we want our inputs to look like a password input but not be one */
+.scalar-password-input {
+  text-security: disc;
+  -webkit-text-security: disc;
+  -moz-text-security: disc;
 }
 </style>
