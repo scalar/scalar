@@ -1,5 +1,13 @@
 # @scalar/mock-server
 
+## 0.3.21
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.137
+- @scalar/openapi-parser@0.10.16
+- @scalar/openapi-types@0.2.1
+
 ## 0.3.20
 
 ### Patch Changes

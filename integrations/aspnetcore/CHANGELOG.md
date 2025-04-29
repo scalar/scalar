@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.2.2
+
+### Patch Changes
+
+- b8a9711: fix: update obsolete messages to include all alternatives
+- 7ef25b9: feat: Initial support for Scalar Extensions
+- b3f54ba: fix: make Pkce property nullable
+- Updated dependencies [62c4ce3]
+- Updated dependencies [b079da8]
+- Updated dependencies [b079da8]
+  - @scalar/api-reference@1.28.27
+
 ## 2.2.1
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.1.12
+
+### Patch Changes
+
+- 62c4ce3: feat: SvelteKit API Reference integration
+  - @scalar/openapi-types@0.2.1
+
 ## 0.1.11
 
 ### Patch Changes
