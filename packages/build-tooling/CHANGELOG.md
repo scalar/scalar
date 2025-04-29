@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.18
+
+### Patch Changes
+
+- c7c061c: Added ESBuild configs
+
 ## 0.1.17
 
 ### Patch Changes

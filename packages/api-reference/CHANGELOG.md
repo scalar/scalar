@@ -1,5 +1,35 @@
 # @scalar/api-reference
 
+## 1.28.27
+
+### Patch Changes
+
+- 62c4ce3: feat: SvelteKit API Reference integration
+- b079da8: fix: increases schema property array item level support
+- b079da8: fix: updates schema discriminator to include title
+- Updated dependencies [1e9f510]
+- Updated dependencies [1e9f510]
+- Updated dependencies [335da88]
+- Updated dependencies [b240f4a]
+- Updated dependencies [62c4ce3]
+- Updated dependencies [3cf1457]
+- Updated dependencies [1e9f510]
+- Updated dependencies [950772d]
+- Updated dependencies [f2b8732]
+- Updated dependencies [b3f599f]
+  - @scalar/api-client@2.3.27
+  - @scalar/types@0.1.12
+  - @scalar/oas-utils@0.2.137
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.4
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.54
+  - @scalar/icons@0.3.3
+  - @scalar/openapi-types@0.2.1
+  - @scalar/use-hooks@0.1.46
+  - @scalar/use-toasts@0.7.9
+
 ## 1.28.26
 
 ### Patch Changes

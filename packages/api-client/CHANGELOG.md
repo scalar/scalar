@@ -1,5 +1,36 @@
 # @scalar/api-client
 
+## 2.3.27
+
+### Patch Changes
+
+- 1e9f510: feat: makes collection environment draggable
+- 1e9f510: fix: updates string template replacement value for operation
+- 335da88: fix: updates padding on request input with pill
+- b240f4a: feat: adds select all capability to auth scopes
+- 3cf1457: feat: updates collection server page style
+- 1e9f510: fix: environment collection management
+- 950772d: fix(api-client): make password fields not trigger browser autofill
+- f2b8732: fix: increases reponse loading overlay z index
+- b3f599f: fix: disables view layout section attribute inheritance
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/oas-utils@0.2.137
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.4
+  - @scalar/components@0.13.54
+  - @scalar/draggable@0.1.11
+  - @scalar/icons@0.3.3
+  - @scalar/import@0.3.20
+  - @scalar/object-utils@1.1.13
+  - @scalar/openapi-types@0.2.1
+  - @scalar/postman-to-openapi@0.2.10
+  - @scalar/use-codemirror@0.11.99
+  - @scalar/use-hooks@0.1.46
+  - @scalar/use-toasts@0.7.9
+  - @scalar/use-tooltip@1.0.6
+
 ## 2.3.26
 
 ### Patch Changes
