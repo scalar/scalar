@@ -7,7 +7,7 @@ import { execSync } from 'child_process'
  */
 export const executeCommand = (command: string, errorMessage?: string): void => {
   try {
-    execSync(command, { stdio: 'inherit' })
+    execSync(command, { stdio: 'inherit', env: { NODE_ENV: 'production' } })
   } catch (error) {
     console.error(errorMessage || `Error executing command: ${command}`, error)
     process.exit(1)
@@ -22,7 +22,7 @@ export const executeCommand = (command: string, errorMessage?: string): void => 
 export const executeCommands = (commands: string[], taskName: string): void => {
   try {
     for (const command of commands) {
-      execSync(command, { stdio: 'inherit' })
+      execSync(command, { stdio: 'inherit', env: { NODE_ENV: 'production' } })
     }
   } catch (error) {
     console.error(`Error during ${taskName}:`, error)

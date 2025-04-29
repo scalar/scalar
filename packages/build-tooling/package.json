@@ -16,7 +16,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "bash scripts/build-esbuild.sh",
+    "build": "vite-node scripts/build-esbuild.ts",
     "dev": "vite",
     "format": "vite-node scripts/format.ts",
     "lint:check": "vite-node scripts/lint-check.ts",
@@ -59,7 +59,7 @@
     }
   },
   "bin": {
-    "scalar-build-esbuild": "scripts/build-esbuild.sh",
+    "scalar-build-esbuild": "scripts/build-esbuild.ts",
     "scalar-build-rollup": "scripts/build-rollup.ts",
     "scalar-build-vite": "scripts/build-vite.ts",
     "scalar-format-check": "scripts/format-check.ts",
