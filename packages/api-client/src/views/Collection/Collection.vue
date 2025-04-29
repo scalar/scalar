@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import {
+  ScalarViewLayout,
+  ScalarViewLayoutSection,
+} from '@scalar/components/components/ScalarViewLayout'
 import { useScroll } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { PathId } from '@/router'
 import { useActiveEntities } from '@/store'
 import CollectionNavigation from '@/views/Collection/CollectionNavigation.vue'
@@ -35,14 +37,14 @@ watch(
 </script>
 
 <template>
-  <ViewLayout
+  <ScalarViewLayout
     ref="el"
     class="h-fit overflow-auto pb-6 xl:overflow-auto">
-    <ViewLayoutSection class="xl:h-fit">
+    <ScalarViewLayoutSection class="xl:h-fit">
       <CollectionNavigation :isSticky="isSticky" />
       <div class="w-full md:mx-auto md:max-w-[720px]">
         <RouterView />
       </div>
-    </ViewLayoutSection>
-  </ViewLayout>
+    </ScalarViewLayoutSection>
+  </ScalarViewLayout>
 </template>

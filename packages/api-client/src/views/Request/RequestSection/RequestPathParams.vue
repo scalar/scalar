@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { computed, watch } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
@@ -126,7 +126,7 @@ watch(
 )
 </script>
 <template>
-  <ViewLayoutCollapse :itemCount="params.length">
+  <ScalarViewLayoutSection :itemCount="params.length">
     <template #title>
       {{ title }}
     </template>
@@ -142,5 +142,5 @@ watch(
       :workspace="workspace"
       @updateRow="updateRow"
       @deleteRow="deleteRow" />
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutSection>
 </template>

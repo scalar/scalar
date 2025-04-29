@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
+
 import { DataTableHeader } from '@/components/DataTable'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
 import HelpfulLink from '@/components/HelpfulLink.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { httpHeaders } from '@/data/httpHeaders'
 
 type Header = { name: string; value: string; required: boolean }
@@ -20,7 +21,7 @@ const findHeaderInfo = (name: string) => {
 }
 </script>
 <template>
-  <ViewLayoutCollapse
+  <ScalarViewLayoutCollapse
     class="overflow-auto"
     :defaultOpen="false"
     :itemCount="headers.length">
@@ -64,5 +65,5 @@ const findHeaderInfo = (name: string) => {
       class="text-c-3 bg-b-1 flex min-h-12 items-center justify-center rounded border px-4 text-sm">
       No Headers
     </div>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>

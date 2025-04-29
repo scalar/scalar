@@ -38,6 +38,11 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
+    "./components/ScalarViewLayout": {
+      "import": "./dist/components/ScalarViewLayout/index.js",
+      "types": "./dist/components/ScalarViewLayout/index.d.ts",
+      "default": "./dist/components/ScalarViewLayout/index.js"
+    },
     "./style.css": "./dist/style.css"
   },
   "files": [

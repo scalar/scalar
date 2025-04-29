@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
 </script>
 
 <template>
-  <ViewLayoutSection>
+  <ScalarViewLayoutSection>
     <template #title>Environments</template>
-  </ViewLayoutSection>
+  </ScalarViewLayoutSection>
 </template>

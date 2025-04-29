@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   requestExampleParametersSchema,
@@ -16,7 +17,6 @@ import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
@@ -495,7 +495,7 @@ const selectedExample = computed({
 })
 </script>
 <template>
-  <ViewLayoutCollapse>
+  <ScalarViewLayoutCollapse>
     <template #title>{{ title }}</template>
     <DataTable
       :columns="['']"
@@ -624,7 +624,7 @@ const selectedExample = computed({
       <!-- Hacky... but effective, extra table row to trick the last group -->
       <DataTableRow />
     </DataTable>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>
 <style scoped>
 :deep(.cm-content) {

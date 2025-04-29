@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import { computed, ref, toRef } from 'vue'
 
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useResponseBody } from '@/hooks/useResponseBody'
 import { mediaTypes } from '@/views/Request/consts'
 
@@ -35,7 +35,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
 </script>
 <template>
-  <ViewLayoutCollapse class="max-h-content overflow-y-hidden">
+  <ScalarViewLayoutCollapse class="max-h-content overflow-y-hidden">
     <template #title>{{ title }}</template>
     <template
       v-if="data && dataUrl"
@@ -73,7 +73,7 @@ const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
         Binary file
       </ResponseBodyInfo>
     </div>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>
 <style scoped>
 .scalar-code-block:deep(.hljs *) {

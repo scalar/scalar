@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import { ScalarViewLayoutSection } from '@scalar/components/components/ScalarViewLayout'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -13,7 +14,6 @@ import { canMethodHaveBody, isDefined, REGEX } from '@scalar/oas-utils/helpers'
 import { computed, ref, useId, watch } from 'vue'
 
 import SectionFilter from '@/components/SectionFilter.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
@@ -145,7 +145,7 @@ const handleRequestNamePlaceholder = () => {
 const labelRequestNameId = useId()
 </script>
 <template>
-  <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
+  <ScalarViewLayoutSection :aria-label="`Request: ${operation.summary}`">
     <template #title>
       <div
         class="group pointer-events-none flex flex-1 items-center gap-1 lg:pr-24">
@@ -286,7 +286,7 @@ const labelRequestNameId = useId()
           :workspace="workspace" />
       </ScalarErrorBoundary>
     </div>
-  </ViewLayoutSection>
+  </ScalarViewLayoutSection>
 </template>
 <style scoped>
 .request-section-content {

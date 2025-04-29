@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { ScalarLoading, useLoadingState } from '@scalar/components'
+import { ScalarViewLayoutCollapse } from '@scalar/components/components/ScalarViewLayout'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-
-import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
 const { reader } = defineProps<{
   reader: ReadableStreamDefaultReader<Uint8Array>
@@ -71,7 +70,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <ViewLayoutCollapse class="max-h-content overflow-y-hidden">
+  <ScalarViewLayoutCollapse class="max-h-content overflow-y-hidden">
     <template #title>
       <div class="flex w-full items-center justify-between">
         <div>Body</div>
@@ -100,5 +99,5 @@ onBeforeUnmount(() => {
         </div>
       </template>
     </div>
-  </ViewLayoutCollapse>
+  </ScalarViewLayoutCollapse>
 </template>

@@ -5,6 +5,11 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import {
+  ScalarViewLayout,
+  ScalarViewLayoutContent,
+  ScalarViewLayoutSection,
+} from '@scalar/components/components/ScalarViewLayout'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -17,9 +22,6 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
-import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
-import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useSidebar } from '@/hooks/useSidebar'
 import type { HotKeyEvent } from '@/libs'
 import type { EnvConfig } from '@/libs/env-helpers'
@@ -408,7 +410,7 @@ const { handleDragEnd, isDroppable } = environmentDragHandlerFactory(
 )
 </script>
 <template>
-  <ViewLayout>
+  <ScalarViewLayout>
     <Sidebar title="Collections">
       <template #content>
         <div class="flex-1">
@@ -523,8 +525,8 @@ const { handleDragEnd, isDroppable } = environmentDragHandlerFactory(
         </SidebarButton>
       </template>
     </Sidebar>
-    <ViewLayoutContent class="flex-1">
-      <ViewLayoutSection>
+    <ScalarViewLayoutContent class="flex-1">
+      <ScalarViewLayoutSection>
         <template
           v-if="currentEnvironmentId"
           #title>
@@ -544,8 +546,8 @@ const { handleDragEnd, isDroppable } = environmentDragHandlerFactory(
           :modelValue="getEnvironmentValue()"
           :workspace="activeWorkspace"
           @update:modelValue="handleEnvironmentUpdate" />
-      </ViewLayoutSection>
-    </ViewLayoutContent>
+      </ScalarViewLayoutSection>
+    </ScalarViewLayoutContent>
     <EnvironmentColorModal
       :selectedColor="selectedColor"
       :state="colorModal"
@@ -567,5 +569,5 @@ const { handleDragEnd, isDroppable } = environmentDragHandlerFactory(
         @close="handleCancelRename"
         @edit="handleRename" />
     </ScalarModal>
-  </ViewLayout>
+  </ScalarViewLayout>
 </template>
