@@ -28,6 +28,7 @@ const props = withDefaults(
     modelValue: string | number
     error?: boolean
     emitOnBlur?: boolean
+    extensions?: Extension[]
     lineNumbers?: boolean
     lint?: boolean
     disableTabIndent?: boolean
@@ -54,6 +55,7 @@ const props = withDefaults(
   {
     disableCloseBrackets: false,
     disableEnter: false,
+    extensions: () => [],
     disableTabIndent: false,
     emitOnBlur: true,
     colorPicker: false,
@@ -137,7 +139,7 @@ function handleBlur(value: string) {
 
 // WARNING: Extensions are non-reactive! If props change nothing will happen
 
-const extensions: Extension[] = []
+const extensions: Extension[] = [...props.extensions]
 if (props.colorPicker) {
   extensions.push(colorPickerExtension)
 }
