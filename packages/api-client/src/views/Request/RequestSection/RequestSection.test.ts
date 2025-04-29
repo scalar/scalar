@@ -46,7 +46,7 @@ describe('RequestSection', () => {
         operation: {
           // @ts-expect-error
           uid: '1',
-          method: 'get',
+          method: 'post',
           path: '/test',
           summary: 'Test Operation',
         },

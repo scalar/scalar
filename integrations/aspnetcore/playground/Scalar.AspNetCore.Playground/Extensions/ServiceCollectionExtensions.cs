@@ -1,4 +1,3 @@
-using APIWeaver;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.OpenApi.Models;
@@ -23,30 +22,37 @@ internal static class ServiceCollectionExtensions
         });
 
         string[] versions = ["v1", "v2"];
-
         foreach (var version in versions)
         {
             services.Configure<ScalarOptions>(options => options.AddDocument(version, $"Version {version}"));
             services.AddOpenApi(version, options =>
             {
-                // Adds api key security scheme to the api
-                options.AddSecurityScheme(AuthConstants.ApiKeyScheme, scheme =>
+                options.AddDocumentTransformer((document, _, _) =>
                 {
-                    scheme.Type = SecuritySchemeType.ApiKey;
-                    scheme.In = ParameterLocation.Header;
-                    scheme.Name = "X-Api-Key";
+                    var securityScheme = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.ApiKey,
+                        In = ParameterLocation.Header,
+                        Name = "X-Api-Key"
+                    };
+                    document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes.Add(AuthConstants.ApiKeyScheme, securityScheme);
+                    return Task.CompletedTask;
                 });
 
-                // Adds 401 and 403 responses to operations
-                options.AddAuthResponse();
-
-                options.AddDocumentTransformer((document, context) =>
+                options.AddDocumentTransformer((document, context, _) =>
                 {
                     var descriptionProvider = context.ApplicationServices.GetRequiredService<IApiVersionDescriptionProvider>();
                     var versionDescription = descriptionProvider.ApiVersionDescriptions.FirstOrDefault(x => x.GroupName == version);
                     document.Info.Version = versionDescription?.ApiVersion.ToString();
+                    return Task.CompletedTask;
                 });
-                options.AddDocumentTransformer((document, _) => document.Servers = []);
+                options.AddDocumentTransformer((document, _, _) =>
+                {
+                    document.Servers = [];
+                    return Task.CompletedTask;
+                });
+                options.AddScalarTransformers();
             });
         }
     }

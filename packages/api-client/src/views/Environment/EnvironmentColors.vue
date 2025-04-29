@@ -22,7 +22,7 @@ const showCustomInput = ref(false)
 const showSelector = ref(false)
 
 const colorOptions = [
-  { color: '#8E8E8E' },
+  { color: '#FFFFFF' },
   { color: '#EF0006' },
   { color: '#EDBE20' },
   { color: '#069061' },

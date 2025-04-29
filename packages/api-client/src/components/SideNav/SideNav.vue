@@ -44,7 +44,13 @@ const { activeWorkspace } = useActiveEntities()
         )"
         :key="i">
         <SideNavRouterLink
-          :active="Boolean(currentRoute.name === displayName.toLowerCase())"
+          :active="
+            Boolean(
+              currentRoute.name === displayName.toLowerCase() ||
+                (displayName.toLowerCase() === 'environment' &&
+                  currentRoute.name === 'environment.collection'),
+            )
+          "
           :icon="icon"
           :to="{
             ...to,

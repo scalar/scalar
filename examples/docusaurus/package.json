@@ -1,0 +1,59 @@
+{
+  "name": "@scalar-examples/docusaurus",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "examples/docusaurus"
+  },
+  "version": "0.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "docusaurus build",
+    "clear": "docusaurus clear",
+    "deploy": "docusaurus deploy",
+    "dev": "docusaurus start --port=5063 --no-open",
+    "docusaurus": "docusaurus",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "serve": "docusaurus serve",
+    "swizzle": "docusaurus swizzle",
+    "types:check": "tsc",
+    "write-heading-ids": "docusaurus write-heading-ids",
+    "write-translations": "docusaurus write-translations"
+  },
+  "browserslist": {
+    "production": [
+      ">0.5%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 3 chrome version",
+      "last 3 firefox version",
+      "last 5 safari version"
+    ]
+  },
+  "dependencies": {
+    "@docusaurus/core": "^3.6.0",
+    "@docusaurus/preset-classic": "^3.6.0",
+    "@docusaurus/theme-classic": "^3.6.0",
+    "@mdx-js/react": "^3.0.0",
+    "@scalar/docusaurus": "workspace:*",
+    "clsx": "^2.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@docusaurus/module-type-aliases": "^3.6.0",
+    "@docusaurus/tsconfig": "^3.6.0",
+    "@docusaurus/types": "^3.6.0",
+    "@types/react": "^19.0.1"
+  }
+}

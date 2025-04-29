@@ -1,12 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount, type VueWrapper } from '@vue/test-utils'
 import CodeInput from './CodeInput.vue'
-import { useCodeMirror, type Extension } from '@scalar/use-codemirror'
+import { useCodeMirror } from '@scalar/use-codemirror'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { enableConsoleError, enableConsoleWarn } from '@/vitest.setup'
-import { ref } from 'vue'
+import { ref, toValue } from 'vue'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { nanoid } from 'nanoid'
 
 // Mock dependencies
 vi.mock('@scalar/use-codemirror', async (importOriginal) => {
@@ -53,13 +54,24 @@ describe('CodeInput', () => {
     }
   })
 
+  const defaultProps = {
+    modelValue: 'test value',
+    environment: environmentSchema.parse({
+      uid: nanoid(),
+      name: 'Test Environment',
+      value: 'test',
+      color: '#000000',
+    }),
+    envVariables: [],
+    workspace: workspaceSchema.parse({
+      name: 'Test Workspace',
+    }),
+  }
+
   const createWrapper = (props = {}, attrs = {}) => {
     return mount(CodeInput, {
       props: {
-        modelValue: 'test value',
-        environment: environmentSchema.parse({}),
-        envVariables: [],
-        workspace: workspaceSchema.parse({}),
+        ...defaultProps,
         ...props,
       },
       attrs,
@@ -170,7 +182,7 @@ describe('CodeInput', () => {
     })
 
     // Check that extensions are set up correctly
-    const extensions = vi.mocked(useCodeMirror).mock.calls[0]?.[0].extensions as Extension[]
-    expect(extensions.length).toBeGreaterThan(0)
+    const extensions = toValue(vi.mocked(useCodeMirror).mock.calls[0]?.[0].extensions)
+    expect(extensions?.length).toBeGreaterThan(0)
   })
 })

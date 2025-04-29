@@ -27,7 +27,7 @@ events.requestStatus.on((status) => {
   <Transition>
     <div
       v-if="loading.isLoading"
-      class="bg-b-1 absolute inset-0 flex flex-col items-center justify-center gap-6">
+      class="bg-b-1 z-overlay absolute inset-0 flex flex-col items-center justify-center gap-6">
       <ScalarLoading
         class="text-c-3"
         :loadingState="loading"

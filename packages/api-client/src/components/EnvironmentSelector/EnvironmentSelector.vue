@@ -12,6 +12,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useLayout } from '@/hooks'
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -33,11 +34,12 @@ const updateSelected = (uid: string) => {
     activeWorkspace.value.activeEnvironmentId = uid
   }
 }
-const createNewEnvironment = () =>
+
+const redirectToEnvironments = () =>
   router.push({
-    name: 'environment',
+    name: 'environment.default',
     params: {
-      environment: activeWorkspace.value?.uid,
+      [PathId.Workspace]: activeWorkspace.value?.uid,
     },
   })
 
@@ -45,7 +47,7 @@ const selectedEnvironment = computed(() => {
   const { value: environment } = activeEnvironment
   const { value: collection } = activeCollection
   return (
-    environment?.uid ||
+    environment?.name ||
     collection?.['x-scalar-active-environment'] ||
     'No Environment'
   )
@@ -83,62 +85,53 @@ onMounted(() => {
 })
 </script>
 <template>
-  <div>
-    <ScalarDropdown placement="bottom-end">
-      <ScalarButton
-        class="text-c-1 hover:bg-b-2 h-auto w-fit justify-start px-1.5 py-1.5 pl-2 font-normal"
-        fullWidth
-        variant="ghost">
-        <h2 class="m-0 flex items-center gap-1.5 whitespace-nowrap font-medium">
-          {{ selectedEnvironment }}
-        </h2>
-      </ScalarButton>
-      <!-- Workspace list -->
-      <template #items>
-        <ScalarDropdownItem
-          v-for="environment in availableEnvironments"
-          :key="environment.uid"
-          class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
-          @click.stop="updateSelected(environment.uid)">
-          <ScalarListboxCheckbox
-            :selected="
-              activeCollection?.['x-scalar-active-environment'] ===
-              environment.uid
-            " />
-          {{ environment.name }}
-        </ScalarDropdownItem>
-        <ScalarDropdownItem
-          class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
-          @click.stop="updateSelected('')">
-          <div
-            class="flex h-4 w-4 items-center justify-center rounded-full p-[3px]"
-            :class="
-              activeEnvironment?.uid === '' &&
-              activeCollection?.['x-scalar-active-environment'] === ''
-                ? 'bg-c-accent text-b-1'
-                : 'shadow-border text-transparent'
-            ">
-            <ScalarIcon
-              class="size-2.5"
-              icon="Checkmark"
-              thickness="3" />
-          </div>
-          No Environment
-        </ScalarDropdownItem>
-        <ScalarDropdownDivider />
-        <!-- Manage environments -->
-        <ScalarDropdownItem
-          v-if="layout !== 'modal'"
-          class="flex items-center gap-1.5"
-          @click="createNewEnvironment">
-          <div class="flex h-4 w-4 items-center justify-center">
-            <ScalarIcon
-              icon="Brackets"
-              size="sm" />
-          </div>
-          <span class="leading-none">Manage Environments</span>
-        </ScalarDropdownItem>
-      </template>
-    </ScalarDropdown>
-  </div>
+  <ScalarDropdown teleport>
+    <ScalarButton
+      class="text-c-1 hover:bg-b-2 line-clamp-1 h-auto w-fit justify-start px-1.5 py-1.5 font-normal"
+      fullWidth
+      variant="ghost">
+      <h2 class="m-0 flex items-center gap-1.5 whitespace-nowrap font-medium">
+        {{ selectedEnvironment }}
+      </h2>
+    </ScalarButton>
+    <!-- Workspace list -->
+    <template #items>
+      <ScalarDropdownItem
+        v-for="environment in availableEnvironments"
+        :key="environment.uid"
+        class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
+        @click.stop="updateSelected(environment.uid)">
+        <ScalarListboxCheckbox
+          :selected="
+            activeCollection?.['x-scalar-active-environment'] ===
+            environment.uid
+          " />
+        {{ environment.name }}
+      </ScalarDropdownItem>
+      <ScalarDropdownItem
+        class="group/item flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
+        @click.stop="updateSelected('')">
+        <ScalarListboxCheckbox
+          :selected="
+            (activeEnvironment?.uid === '' &&
+              activeCollection?.['x-scalar-active-environment'] === '') ||
+            activeEnvironment?.name === 'No Environment'
+          " />
+        No Environment
+      </ScalarDropdownItem>
+      <ScalarDropdownDivider />
+      <!-- Manage environments -->
+      <ScalarDropdownItem
+        v-if="layout !== 'modal'"
+        class="flex items-center gap-1.5"
+        @click="redirectToEnvironments">
+        <div class="flex h-4 w-4 items-center justify-center">
+          <ScalarIcon
+            icon="Brackets"
+            size="sm" />
+        </div>
+        <span class="leading-none">Manage Environments</span>
+      </ScalarDropdownItem>
+    </template>
+  </ScalarDropdown>
 </template>

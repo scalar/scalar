@@ -7,6 +7,7 @@ dist/
 *.tgz
 *.tsbuildinfo
 __pycache__/
+.output
 
 # Testing data
 test-*.json

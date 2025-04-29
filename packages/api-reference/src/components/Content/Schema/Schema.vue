@@ -275,7 +275,7 @@ button.schema-card-title:hover {
   flex-direction: column;
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-xl);
+  border-radius: var(--scalar-radius-lg);
   width: fit-content;
 }
 .schema-properties-name {
@@ -293,22 +293,15 @@ button.schema-card-title:hover {
 .schema-card--compact {
   align-self: flex-start;
 }
-
 .schema-card--compact.schema-card--open {
   align-self: initial;
 }
-
 .schema-card-title--compact {
   color: var(--scalar-color-2);
   padding: 6px 8px;
   height: auto;
   border-bottom: none;
 }
-.schema-card--compact > .schema-properties,
-.schema-card-title--compact {
-  border-radius: 13.5px;
-}
-
 .schema-card-title--compact > .schema-card-title-icon {
   margin: 0;
 }

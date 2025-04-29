@@ -33,23 +33,35 @@ describe('Replaces template vars with context values', () => {
       city: 'Peel',
       country: 'Bananaland',
     },
+    single: {
+      name: 'Nolan',
+      age: '1 month',
+    },
   }
+
   it('Handles double curly variable substitution', () => {
     const res = replaceTemplateVariables('My name is {{name}} from {{address.city}}', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
+
   it('Handles single curly variable substitution', () => {
     const res = replaceTemplateVariables('My name is {name} from { address.city }', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
+
   it('Handles colon variable substitution', () => {
     const res = replaceTemplateVariables('My name is :name from :address.city', ctx)
     expect(res).toEqual('My name is Dave from Peel')
   })
+
   it('Handles object conversion to string', () => {
     const res = replaceTemplateVariables('My name is {{name}} from {{address}}', ctx)
-
     expect(res).toEqual(`My name is Dave from ${JSON.stringify(ctx.address)}`)
+  })
+
+  it('Handles mixed double and single curly braces independently', () => {
+    const res = replaceTemplateVariables('{{name}} and {single.name} which is {single.age}', ctx)
+    expect(res).toEqual('Dave and Nolan which is 1 month')
   })
 })
 
