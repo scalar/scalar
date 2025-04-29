@@ -38,6 +38,7 @@ const id = useId()
     v-bind="$attrs"
     :envVariables="props.envVariables"
     :environment="props.environment"
+    lineWrapping
     :modelValue="props.modelValue"
     :readOnly="props.readOnly"
     :required="props.required"
