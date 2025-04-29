@@ -70,4 +70,21 @@ describe('SchemaPropertyHeading', () => {
     const constElement = wrapper.find('.property-pattern')
     expect(constElement.text()).toContain('pattern')
   })
+
+  it('renders schema name', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'Model' },
+        },
+        schemas: {
+          Model: { type: 'object', name: 'Model' },
+        },
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array Model[]')
+  })
 })

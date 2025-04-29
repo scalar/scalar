@@ -173,7 +173,8 @@ const displayPropertyHeading = (
       :enum="getEnumFromValue(optimizedValue).length > 0"
       :pattern="pattern"
       :required="required"
-      :value="optimizedValue">
+      :value="optimizedValue"
+      :schemas="schemas">
       <template
         v-if="name"
         #name>
