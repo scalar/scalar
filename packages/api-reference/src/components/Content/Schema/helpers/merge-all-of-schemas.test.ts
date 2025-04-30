@@ -503,4 +503,56 @@ describe('mergeAllOfSchemas', () => {
       'type': 'object',
     })
   })
+
+  it('merges properties from oneOf/anyOf subschemas within allOf', () => {
+    const schemas = [
+      {
+        allOf: [
+          {
+            properties: {
+              a: { type: 'string', example: 'foo' },
+            },
+          },
+          {
+            oneOf: [
+              {
+                properties: {
+                  b: { type: 'number', example: 42 },
+                },
+              },
+              {
+                properties: {
+                  c: { type: 'boolean', example: true },
+                },
+              },
+            ],
+          },
+          {
+            anyOf: [
+              {
+                properties: {
+                  d: { type: 'integer', example: 7 },
+                },
+              },
+              {
+                properties: {
+                  e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    ] as SchemaObject[]
+
+    expect(mergeAllOfSchemas(schemas)).toEqual({
+      properties: {
+        a: { type: 'string', example: 'foo' },
+        b: { type: 'number', example: 42 },
+        c: { type: 'boolean', example: true },
+        d: { type: 'integer', example: 7 },
+        e: { type: 'array', items: { type: 'string' }, example: ['x', 'y'] },
+      },
+    })
+  })
 })
