@@ -1,5 +1,7 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { RequestExampleParameter } from './request-examples.ts'
 
 export const parameterTypeSchema = z.enum(['path', 'query', 'header', 'cookie'])
 export type ParamType = z.infer<typeof parameterTypeSchema>
@@ -14,6 +16,15 @@ export const parameterStyleSchema = z.enum([
   'deepObject',
 ])
 export type ParameterStyle = z.infer<typeof parameterStyleSchema>
+export type ParameterContent = Record<
+  string,
+  {
+    schema?: OpenAPIV3_1.Document
+    examples?: Record<string, RequestExampleParameter>
+    example?: RequestExampleParameter
+  }
+>
+export const parameterExampleSchema = z.unknown()
 
 /**
  * OpenAPI compliant parameters object

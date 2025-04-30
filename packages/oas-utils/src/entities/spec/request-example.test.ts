@@ -233,6 +233,78 @@ describe('createParamInstance', () => {
       value: '',
     })
   })
+
+  it('works with content examples', () => {
+    const result = createParamInstance({
+      in: 'query',
+      name: 'foo',
+      required: false,
+      deprecated: false,
+      content: {
+        'application/json': {
+          schema: { type: 'integer', maximum: 50 },
+          examples: {
+            zero: { value: 0 },
+            max: { value: 50 },
+          },
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      value: '0',
+      enabled: false,
+      description: undefined,
+      required: false,
+    })
+  })
+
+  it('works with content example', () => {
+    const result = createParamInstance({
+      in: 'query',
+      name: 'foo',
+      required: false,
+      deprecated: false,
+      content: {
+        'application/json': {
+          schema: { type: 'integer' },
+          example: 42,
+        },
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      value: '42',
+      enabled: false,
+      description: undefined,
+      required: false,
+    })
+  })
+
+  it('works with parameter example', () => {
+    const result = createParamInstance({
+      in: 'query',
+      name: 'foo',
+      required: false,
+      deprecated: false,
+      example: 42,
+      schema: {
+        type: 'integer',
+        example: 1,
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      value: '42',
+      enabled: false,
+      description: undefined,
+      required: false,
+      type: 'integer',
+    })
+  })
 })
 
 describe('parameterArrayToObject', () => {
