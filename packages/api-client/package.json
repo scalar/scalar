@@ -58,6 +58,11 @@
       "types": "./dist/components/AddressBar/index.d.ts",
       "default": "./dist/components/AddressBar/index.js"
     },
+    "./components/CodeInput": {
+      "import": "./dist/components/CodeInput/index.js",
+      "types": "./dist/components/CodeInput/index.d.ts",
+      "default": "./dist/components/CodeInput/index.js"
+    },
     "./components/CommandPalette": {
       "import": "./dist/components/CommandPalette/index.js",
       "types": "./dist/components/CommandPalette/index.d.ts",
@@ -87,6 +92,11 @@
       "import": "./dist/components/Sidebar/index.js",
       "types": "./dist/components/Sidebar/index.d.ts",
       "default": "./dist/components/Sidebar/index.js"
+    },
+    "./components/ViewLayout": {
+      "import": "./dist/components/ViewLayout/index.js",
+      "types": "./dist/components/ViewLayout/index.d.ts",
+      "default": "./dist/components/ViewLayout/index.js"
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",

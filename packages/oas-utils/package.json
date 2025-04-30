@@ -68,6 +68,11 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
+    "./helpers/security": {
+      "import": "./dist/helpers/security/index.js",
+      "types": "./dist/helpers/security/index.d.ts",
+      "default": "./dist/helpers/security/index.js"
+    },
     "./migrations": {
       "import": "./dist/migrations/index.js",
       "types": "./dist/migrations/index.d.ts",
