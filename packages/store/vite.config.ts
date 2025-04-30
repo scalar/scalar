@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
-import pkg from './package.json'
+import pkg from './package.json' with { type: 'json' }
 
 export default defineConfig({
   plugins: [vue(), svgLoader()],
@@ -12,7 +12,6 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
-    dedupe: ['vue'],
   },
   build: {
     ssr: true,
