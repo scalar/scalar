@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.28.28
+
+### Patch Changes
+
+- 9eb9623: feat: add unique classes to intro cards
+- 539483e: fix: displays schema name in property heading
+- 33d2b37: fix: merges oneof/anyof subschemas in allof
+- Updated dependencies [5d24800]
+- Updated dependencies [5d24800]
+  - @scalar/api-client@2.3.28
+  - @scalar/oas-utils@0.2.138
+
 ## 1.28.27
 
 ### Patch Changes

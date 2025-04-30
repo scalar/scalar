@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.138
+
+### Patch Changes
+
+- 5d24800: feat: add a few security scheme helpers
+
 ## 0.2.137
 
 ### Patch Changes

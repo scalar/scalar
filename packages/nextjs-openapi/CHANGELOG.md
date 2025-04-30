@@ -1,5 +1,12 @@
 # @scalar/nextjs-openapi
 
+## 0.1.15
+
+### Patch Changes
+
+- 36fd1fc: feat: support src/ directory (not just app/)
+  - @scalar/nextjs-api-reference@0.7.13
+
 ## 0.1.14
 
 ### Patch Changes
