@@ -1,3 +1,4 @@
+import { ref } from '@vue/reactivity'
 import { describe, expect, it } from 'vitest'
 import { createCollection } from './create-collection.ts'
 
@@ -50,6 +51,24 @@ describe('create-collection', () => {
       const collection = createCollection(JSON.stringify(definition))
 
       expect(collection.document).toMatchObject(definition)
+    })
+
+    it('creates a collection from a Ref', () => {
+      const definition = ref({
+        openapi: '3.1.1',
+        info: { title: 'Example', version: '1.0.0' },
+        paths: {},
+      })
+
+      const collection = createCollection(definition)
+
+      expect(collection.document).toMatchObject(definition.value)
+
+      // keeps the collection up to date
+      definition.value.info.title = 'Changed'
+
+      // @ts-expect-error TODO: fix this
+      expect(collection.document?.info?.title).toBe('Changed')
     })
   })
 
@@ -176,7 +195,7 @@ describe('create-collection', () => {
 
       expect(collection.document.servers[0].variables.version._value).toBe('v3')
 
-      // Doesn’t have _ variables when exporting
+      // Doesn't have _ variables when exporting
       expect(collection.export()).not.toHaveProperty('servers.0.variables.version._value')
 
       expect(collection.export()).toMatchObject({
