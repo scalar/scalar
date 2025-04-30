@@ -1,4 +1,4 @@
-import { reactive, watch } from '@vue/reactivity'
+import { type Ref, isRef, reactive, watch } from '@vue/reactivity'
 import { type Collection, createCollection } from './create-collection.ts'
 
 type State = {
@@ -8,7 +8,10 @@ type State = {
 type Workspace = {
   state: State
   plugins: WorkspacePlugin[]
-  load: (collectionId: string, content: Record<string, unknown> | (() => Promise<Record<string, unknown>>)) => void
+  load: (
+    collectionId: string,
+    content: Record<string, unknown> | (() => Promise<Record<string, unknown>>) | Ref<Record<string, unknown>>,
+  ) => void
   export: (collectionId: string) => Record<string, unknown>
 }
 
@@ -26,7 +29,10 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
     plugins: options?.plugins ?? [],
     async load(
       collectionId: string,
-      contentOrAsyncCallback: Record<string, unknown> | (() => Promise<Record<string, unknown>>),
+      contentOrAsyncCallback:
+        | Record<string, unknown>
+        | (() => Promise<Record<string, unknown>>)
+        | Ref<Record<string, unknown>>,
     ) {
       const content =
         typeof contentOrAsyncCallback === 'function' ? await contentOrAsyncCallback() : contentOrAsyncCallback
@@ -35,9 +41,26 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
 
       if (typeof workspace.state.collections[collectionId] === 'undefined') {
         workspace.state.collections[collectionId] = createCollection(content)
-      }
 
-      Object.assign(workspace.state.collections[collectionId], content)
+        // If content is a Ref, watch for changes and reload the collection
+        if (isRef(content)) {
+          watch(
+            content,
+            () => {
+              workspace.state.collections[collectionId] = createCollection(content)
+            },
+            { deep: true },
+          )
+        }
+      } else {
+        // If content is a Ref, pass it directly to createCollection
+        // Otherwise wrap the content in an object assignment
+        if (isRef(content)) {
+          workspace.state.collections[collectionId] = createCollection(content)
+        } else {
+          Object.assign(workspace.state.collections[collectionId], content)
+        }
+      }
     },
     export(collectionId: string) {
       return workspace.state.collections[collectionId]?.export()

@@ -1,4 +1,5 @@
 import { sleep } from '@test/utils/sleep.ts'
+import { ref } from '@vue/reactivity'
 /**
  * @vitest-environment jsdom
  */
@@ -71,7 +72,7 @@ describe('create-workspace', () => {
 
     await sleep(100)
 
-    expect(workspace.state.collections.default).toMatchObject({
+    expect(workspace.state.collections.default?.document).toMatchObject({
       openapi: '3.1.1',
       info: {
         title: 'Test API',
@@ -79,6 +80,43 @@ describe('create-workspace', () => {
       },
       paths: {},
     })
+  })
+
+  it('creates a workspace from a Ref<Record<string, unknown>>', () => {
+    const workspace = createWorkspace()
+    const definition = ref({
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
+    })
+
+    workspace.load('default', definition)
+
+    expect(workspace.state.collections.default?.document).toMatchObject({
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
+    })
+
+    // Update the ref value
+    definition.value = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Updated API',
+        version: '1.0.0',
+      },
+      paths: {},
+    }
+
+    // Verify the workspace updates
+    // @ts-expect-error TODO: fix this
+    expect(workspace.state.collections.default?.document?.info?.title).toBe('Updated API')
   })
 
   it('persists the state to localStorage', async () => {
