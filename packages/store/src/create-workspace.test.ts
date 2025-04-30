@@ -119,6 +119,36 @@ describe('create-workspace', () => {
     expect(workspace.state.collections.default?.document?.info?.title).toBe('Updated API')
   })
 
+  it('creates a workspace from a Ref<string>', () => {
+    const workspace = createWorkspace()
+    const definition = ref(
+      JSON.stringify({
+        openapi: '3.1.1',
+        info: { title: 'Example', version: '1.0.0' },
+        paths: {},
+      }),
+    )
+
+    workspace.load('default', definition)
+
+    expect(workspace.state.collections.default?.document).toMatchObject({
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      paths: {},
+    })
+
+    // Update the ref value
+    definition.value = JSON.stringify({
+      openapi: '3.1.1',
+      info: { title: 'Updated Example', version: '1.0.0' },
+      paths: {},
+    })
+
+    // Verify the workspace updates
+    // @ts-expect-error TODO: fix this
+    expect(workspace.state.collections.default?.document?.info?.title).toBe('Updated Example')
+  })
+
   it('persists the state to localStorage', async () => {
     const workspace = createWorkspace({
       plugins: [localStoragePlugin()],
