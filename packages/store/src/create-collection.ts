@@ -1,5 +1,5 @@
-import { unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import { type Ref, isReactive, reactive, toRaw } from '@vue/reactivity'
+import { normalize, unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
+import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reactivity'
 
 export type Collection = ReturnType<typeof createCollection>
 
@@ -9,12 +9,14 @@ export type Collection = ReturnType<typeof createCollection>
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createCollection(input: Record<string, unknown> | string | Ref<Record<string, unknown>>) {
+export function createCollection(input: Record<string, unknown> | string | Ref<Record<string, unknown> | string>) {
   // Unwrap Ref input if necessary
-  const unwrappedInput =
-    typeof input === 'object' && input !== null && 'value' in input
-      ? (input as Ref<Record<string, unknown>>).value
-      : input
+  let unwrappedInput = isRef(input) ? input.value : input
+
+  // If input is a string (from Ref or direct), normalize it
+  if (typeof unwrappedInput === 'string') {
+    unwrappedInput = normalize(unwrappedInput) as Record<string, unknown>
+  }
 
   // TODO: Embed external references
 
@@ -25,8 +27,45 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
   // const content = OpenApiObjectSchema.parse(upgraded)
   const content = upgraded
 
+  // If input is a Ref<Record<string, unknown>>, use its value directly as the source document
+  if (isRef(input) && typeof input.value === 'object' && input.value !== null) {
+    // Cache for storing resolved reference proxies to handle circular references
+    const resolvedProxyCache = new WeakMap()
+    return {
+      document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
+      export() {
+        const raw = toRaw(input.value)
+        removeProperties(raw, {
+          test: (key) => key.startsWith('_'),
+        })
+        return raw
+      },
+    }
+  }
+
   // Make the source document reactive for Vue change tracking
   const sourceDocument = reactive(content)
+
+  // If input is a Ref<string>, watch for changes and update the reactive document
+  if (isRef(input) && typeof input.value === 'string') {
+    watch(
+      input,
+      (newValue) => {
+        const normalized = normalize(newValue)
+
+        // Remove all existing keys
+        Object.keys(sourceDocument).forEach((key) => {
+          delete sourceDocument[key]
+        })
+
+        // Add new keys
+        Object.entries(normalized).forEach(([key, value]) => {
+          sourceDocument[key] = value
+        })
+      },
+      { immediate: false },
+    )
+  }
 
   // Cache for storing resolved reference proxies to handle circular references
   const resolvedProxyCache = new WeakMap()

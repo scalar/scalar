@@ -53,7 +53,7 @@ describe('create-collection', () => {
       expect(collection.document).toMatchObject(definition)
     })
 
-    it('creates a collection from a Ref', () => {
+    it('creates a collection from a Ref<Record<string, unknown>>', () => {
       const definition = ref({
         openapi: '3.1.1',
         info: { title: 'Example', version: '1.0.0' },
@@ -66,6 +66,34 @@ describe('create-collection', () => {
 
       // keeps the collection up to date
       definition.value.info.title = 'Changed'
+
+      // @ts-expect-error TODO: fix this
+      expect(collection.document?.info?.title).toBe('Changed')
+    })
+
+    it('creates a collection from a Ref<string>', () => {
+      const definition = ref(
+        JSON.stringify({
+          openapi: '3.1.1',
+          info: { title: 'Example', version: '1.0.0' },
+          paths: {},
+        }),
+      )
+
+      const collection = createCollection(definition)
+
+      expect(collection.document).toMatchObject({
+        openapi: '3.1.1',
+        info: { title: 'Example', version: '1.0.0' },
+        paths: {},
+      })
+
+      // keeps the collection up to date
+      definition.value = JSON.stringify({
+        openapi: '3.1.1',
+        info: { title: 'Changed', version: '1.0.0' },
+        paths: {},
+      })
 
       // @ts-expect-error TODO: fix this
       expect(collection.document?.info?.title).toBe('Changed')
