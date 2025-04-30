@@ -4,6 +4,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "examples/nuxt"
+  },
   "private": true,
   "engines": {
     "node": ">=20"
@@ -21,10 +26,5 @@
   "devDependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/nuxt": "workspace:*"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/nuxt"
   }
 }
