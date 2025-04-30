@@ -17,6 +17,7 @@ type Workspace = {
       | Ref<string>,
   ) => void
   export: (collectionId: string) => Record<string, unknown>
+  delete: (collectionId: string) => void
 }
 
 type WorkspacePlugin = {
@@ -66,6 +67,9 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
           Object.assign(workspace.state.collections[collectionId], content)
         }
       }
+    },
+    delete(collectionId: string) {
+      delete workspace.state.collections[collectionId]
     },
     export(collectionId: string) {
       return workspace.state.collections[collectionId]?.export()
