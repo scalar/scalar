@@ -53,12 +53,11 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@scalar/api-client": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@vue/reactivity": "^3.5.13"
   },
   "devDependencies": {
+    "@scalar/api-client": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "catalog:",
     "vite": "^5.1.1",
