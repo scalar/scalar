@@ -10,7 +10,11 @@ type Workspace = {
   plugins: WorkspacePlugin[]
   load: (
     collectionId: string,
-    content: Record<string, unknown> | (() => Promise<Record<string, unknown>>) | Ref<Record<string, unknown>>,
+    content:
+      | Record<string, unknown>
+      | (() => Promise<Record<string, unknown>>)
+      | Ref<Record<string, unknown>>
+      | Ref<string>,
   ) => void
   export: (collectionId: string) => Record<string, unknown>
 }
@@ -32,7 +36,8 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
       contentOrAsyncCallback:
         | Record<string, unknown>
         | (() => Promise<Record<string, unknown>>)
-        | Ref<Record<string, unknown>>,
+        | Ref<Record<string, unknown>>
+        | Ref<string>,
     ) {
       const content =
         typeof contentOrAsyncCallback === 'function' ? await contentOrAsyncCallback() : contentOrAsyncCallback
