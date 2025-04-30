@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.3.28
+
+### Patch Changes
+
+- 5d24800: chore: export view layout collapse component
+- Updated dependencies [5d24800]
+  - @scalar/oas-utils@0.2.138
+  - @scalar/import@0.3.21
+  - @scalar/postman-to-openapi@0.2.11
+
 ## 2.3.27
 
 ### Patch Changes
