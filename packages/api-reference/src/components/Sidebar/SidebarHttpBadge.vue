@@ -8,8 +8,11 @@ defineProps<{
 </script>
 <template>
   <HttpMethod
-    class="sidebar-heading-type"
-    :class="{ 'sidebar-heading-type-active': active }"
+    :class="[
+      'sidebar-heading-type',
+      'sidebar-heading-type--' + method.toLowerCase(),
+      { 'sidebar-heading-type-active': active }
+    ]"
     :method="method"
     property="--method-color"
     short />
