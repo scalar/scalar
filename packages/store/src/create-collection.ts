@@ -26,13 +26,7 @@ export function createCollection(input: Record<string, unknown> | string) {
   const resolvedProxyCache = new WeakMap()
 
   // Create the root proxy for the entire document using the top-level function
-  const documentProxy = createReferenceProxy(
-    sourceDocument,
-    sourceDocument,
-    resolvedProxyCache,
-    parseJsonPointer,
-    getValueByPath,
-  )
+  const documentProxy = createReferenceProxy(sourceDocument, sourceDocument, resolvedProxyCache)
 
   return {
     document: documentProxy,
@@ -61,10 +55,6 @@ function createReferenceProxy(
   sourceDocument: Record<string, unknown>,
   /** A WeakMap for caching proxies to handle circular references */
   resolvedProxyCache: WeakMap<object, unknown>,
-  /** Function to parse JSON pointer strings */
-  parseJsonPointer: (pointer: string) => string[],
-  /** Function to resolve a value by path in the document */
-  getValueByPath: (document: Record<string, unknown>, pathSegments: string[]) => Record<string, unknown> | undefined,
 ) {
   if (targetObject === null || typeof targetObject !== 'object') {
     return targetObject // Return primitives as-is
@@ -91,13 +81,7 @@ function createReferenceProxy(
           const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
           if (resolvedValue) {
-            return createReferenceProxy(
-              resolvedValue,
-              sourceDocument,
-              resolvedProxyCache,
-              parseJsonPointer,
-              getValueByPath,
-            )
+            return createReferenceProxy(resolvedValue, sourceDocument, resolvedProxyCache)
           }
         }
 
@@ -169,6 +153,13 @@ function createReferenceProxy(
 
 /**
  * Retrieves a nested value from the source document using a path array
+ *
+ * @example
+ * ```ts
+ * getValueByPath(document, ['components', 'schemas', 'User'])
+ *
+ * // { id: '123', name: 'John Doe' }
+ * ```
  */
 function getValueByPath(
   document: Record<string, unknown>,
@@ -185,6 +176,13 @@ function getValueByPath(
 
 /**
  * Parses a JSON Pointer string into an array of path segments
+ *
+ * @example
+ * ```ts
+ * parseJsonPointer('#/components/schemas/User')
+ *
+ * // ['components', 'schemas', 'User']
+ * ```
  */
 function parseJsonPointer(pointer: string): string[] {
   return (

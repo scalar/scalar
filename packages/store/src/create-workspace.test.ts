@@ -1,3 +1,4 @@
+import { sleep } from '@test/utils/sleep.ts'
 /**
  * @vitest-environment jsdom
  */
@@ -56,7 +57,7 @@ describe('create-workspace', () => {
 
     // Simulate fetching content from a remote server
     workspace.load('default', async () => {
-      await new Promise((resolve) => setTimeout(resolve, 50))
+      await sleep(50)
 
       return {
         openapi: '3.1.1',
@@ -68,7 +69,7 @@ describe('create-workspace', () => {
       }
     })
 
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await sleep(100)
 
     expect(workspace.state.collections.default).toMatchObject({
       openapi: '3.1.1',
@@ -95,7 +96,7 @@ describe('create-workspace', () => {
     })
 
     // Wait for the watcher to do its thing
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await sleep(100)
 
     // Parse the localStorage value before comparing
     const state = JSON.parse(localStorage.getItem('state') || '{}')
