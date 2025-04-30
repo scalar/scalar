@@ -36,8 +36,9 @@ export const oasParameterSchema = z.object({
       z.record(
         z.string(),
         z.object({
-          value: z.unknown(),
+          value: z.unknown().optional(),
           summary: z.string().optional(),
+          externalValue: z.string().optional(),
         }),
       ),
       z.array(z.unknown()),
