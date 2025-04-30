@@ -1,5 +1,5 @@
 import { unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import { isReactive, reactive, toRaw } from '@vue/reactivity'
+import { type Ref, isReactive, reactive, toRaw } from '@vue/reactivity'
 
 export type Collection = ReturnType<typeof createCollection>
 
@@ -9,11 +9,17 @@ export type Collection = ReturnType<typeof createCollection>
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createCollection(input: Record<string, unknown> | string) {
+export function createCollection(input: Record<string, unknown> | string | Ref<Record<string, unknown>>) {
+  // Unwrap Ref input if necessary
+  const unwrappedInput =
+    typeof input === 'object' && input !== null && 'value' in input
+      ? (input as Ref<Record<string, unknown>>).value
+      : input
+
   // TODO: Embed external references
 
   // Upgrade
-  const { specification: upgraded } = upgrade(input)
+  const { specification: upgraded } = upgrade(unwrappedInput)
 
   // TODO: OpenApiObjectSchema.parse is too strict
   // const content = OpenApiObjectSchema.parse(upgraded)
