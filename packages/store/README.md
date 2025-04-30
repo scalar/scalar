@@ -10,13 +10,6 @@ A powerful data store for OpenAPI documents that handles `$ref` pointers with Vu
 - Original document structure preservation
 - Caching for resolved references
 
-## Tasks/Ideas
-
-- [ ] When a collection is imported asynchronously, we should already add a collection with a loading state or something, so we can render it already.
-- [ ] We need to add tests for a lot of real-world examples.
-- [ ] We need to use the new Zod schemas to validate the input.
-- [ ] While we’re at it, should we add super basic support for other formats like AsyncAPI? (no validation or such, just keeping it in mind for the structure of the store)
-
 ## Installation
 
 ```bash
@@ -30,7 +23,7 @@ Create a new collection instance:
 ```ts
 import { createCollection } from '@scalar/store'
 
-// Create a store with a document containing refs
+// Create a collection from an OpenAPI document containing $ref's
 const collection = createCollection({
   openapi: '3.1.1',
   info: {
@@ -203,7 +196,7 @@ The workspace supports async data loading for remote data fetching:
 const workspace = createWorkspace()
 
 // Load data asynchronously
-await workspace.load('api', async () => {
+await workspace.load('myCollection', async () => {
   const response = await fetch('https://example.com/openapi.json')
 
   return response.json()
