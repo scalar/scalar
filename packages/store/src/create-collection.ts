@@ -35,9 +35,12 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
       document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
       export() {
         const raw = toRaw(input.value)
+
+        // @ts-expect-error TODO: fix this
         removeProperties(raw, {
           test: (key) => key.startsWith('_'),
         })
+
         return raw
       },
     }
