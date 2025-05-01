@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.56
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/code-highlight@0.0.28
+  - @scalar/use-hooks@0.1.47
+  - @scalar/icons@0.3.4
+
 ## 0.13.55
 
 ### Patch Changes

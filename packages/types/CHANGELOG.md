@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.13
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+
 ## 0.1.12
 
 ### Patch Changes
