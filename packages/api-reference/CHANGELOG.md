@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.28.30
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/code-highlight@0.0.28
+  - @scalar/oas-utils@0.2.140
+  - @scalar/types@0.1.13
+  - @scalar/api-client@2.3.30
+  - @scalar/components@0.13.56
+  - @scalar/use-hooks@0.1.47
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/icons@0.3.4
+
 ## 1.28.29
 
 ### Patch Changes

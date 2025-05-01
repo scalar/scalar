@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.140
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/types@0.1.13
+
 ## 0.2.139
 
 ### Patch Changes

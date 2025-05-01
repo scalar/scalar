@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.28
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+
 ## 0.0.27
 
 ### Patch Changes
