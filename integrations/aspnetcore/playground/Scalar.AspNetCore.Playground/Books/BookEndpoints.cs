@@ -20,7 +20,7 @@ internal static class BookEndpoints
             .RequireAuthorization();
 
         books
-            .MapGet("/", [Stability(Stability.Stable)] ([FromServices] BookStore bookStore) => bookStore.GetAll())
+            .MapGet("/", [Stability(Stability.Stable)]([FromServices] BookStore bookStore) => bookStore.GetAll())
             .Produces<IEnumerable<Book>>();
 
         books
