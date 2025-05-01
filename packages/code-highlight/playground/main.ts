@@ -1,10 +1,9 @@
 /**
  * Simple demo page for all Scalar code highlighting functions
  */
-import { getThemeById } from '@scalar/themes'
+import { presets } from '@scalar/themes'
 
 import '@scalar/themes/base.css'
-import '@scalar/themes/fonts.css'
 import '@scalar/themes/style.css'
 
 import { syntaxHighlight } from '../src/code'
@@ -45,7 +44,7 @@ document.getElementById('dark-mode-btn')?.addEventListener('click', () => {
 })
 
 const styleSheet = new CSSStyleSheet()
-styleSheet.replaceSync(getThemeById('deepSpace'))
+styleSheet.replaceSync(presets.deepSpace.theme)
 document.adoptedStyleSheets.push(styleSheet)
 
 // ---------------------------------------------------------------------------

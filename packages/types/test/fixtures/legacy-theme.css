@@ -33,7 +33,7 @@
 /* Document header */
 .light-mode .t-doc__header,
 .dark-mode .t-doc__header {
-  --header-background-1: var(--theme-background-1);
+  --scalar-header-background-1: var(--theme-background-1);
   --header-border-color: var(--theme-border-color);
   --header-color-1: var(--theme-color-1);
   --header-color-2: var(--theme-color-2);

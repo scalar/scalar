@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { availableThemes, type ThemeId } from '@scalar/themes'
+import { themeIds, type ThemeId } from '@scalar/themes'
 import { computed } from 'vue'
 
 type ApiClientConfig = {
@@ -46,7 +46,7 @@ const config = computed(
     Theme:
     <select v-model="config.theme">
       <option
-        v-for="theme in availableThemes"
+        v-for="theme in themeIds"
         :key="theme"
         :value="theme">
         {{ theme }}

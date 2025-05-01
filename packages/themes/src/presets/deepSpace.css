@@ -163,3 +163,33 @@
 .dark-mode *::selection {
   background-color: color-mix(in srgb, var(--scalar-color-blue), transparent 50%);
 }
+
+/* document header */
+.light-mode .t-doc__header,
+.dark-mode .t-doc__header {
+  animation: headerbackground forwards;
+  animation-timeline: scroll();
+  animation-range: 0px 200px;
+}
+@keyframes headerbackground {
+  from {
+    background: transparent;
+    backdrop-filter: none;
+  }
+  to {
+    background: var(--scalar-header-background-1);
+    backdrop-filter: blur(12px);
+  }
+}
+/* remove flare on safari to prevent dropped frames on scroll */
+@supports (-webkit-hyphens: none) {
+  .section-flare {
+    display: none;
+  }
+}
+
+/* document background */
+.light-mode .t-doc .layout-content,
+.dark-mode .t-doc .layout-content {
+  background: transparent;
+}

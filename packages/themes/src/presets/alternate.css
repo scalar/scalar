@@ -3,6 +3,23 @@
   --scalar-text-decoration: underline;
   --scalar-text-decoration-hover: underline;
 }
+
+.dark-mode {
+  --scalar-background-1: #131313;
+  --scalar-background-2: #1d1d1d;
+  --scalar-background-3: #272727;
+  --scalar-background-card: #1d1d1d;
+
+  --scalar-color-1: rgba(255, 255, 255, 0.9);
+  --scalar-color-2: rgba(255, 255, 255, 0.62);
+  --scalar-color-3: rgba(255, 255, 255, 0.44);
+
+  --scalar-color-accent: var(--scalar-color-1);
+  --scalar-background-accent: var(--scalar-background-3);
+
+  --scalar-border-color: #2a2b2a;
+}
+
 .light-mode,
 .light-mode .dark-mode {
   --scalar-background-1: #f9f9f9;
@@ -19,22 +36,17 @@
 
   --scalar-border-color: rgba(0, 0, 0, 0.1);
 }
-.dark-mode {
-  --scalar-background-1: #131313;
-  --scalar-background-2: #1d1d1d;
-  --scalar-background-3: #272727;
-  --scalar-background-card: #1d1d1d;
 
-  --scalar-color-1: rgba(255, 255, 255, 0.9);
-  --scalar-color-2: rgba(255, 255, 255, 0.62);
-  --scalar-color-3: rgba(255, 255, 255, 0.44);
-
-  --scalar-color-accent: var(--scalar-color-1);
-  --scalar-background-accent: var(--scalar-background-3);
-
-  --scalar-border-color: #2a2b2a;
-}
 /* Document Sidebar */
+.t-doc__sidebar {
+  --scalar-color-green: var(--scalar-color-1);
+  --scalar-color-red: var(--scalar-color-1);
+  --scalar-color-yellow: var(--scalar-color-1);
+  --scalar-color-blue: var(--scalar-color-1);
+  --scalar-color-orange: var(--scalar-color-1);
+  --scalar-color-purple: var(--scalar-color-1);
+}
+
 .light-mode .t-doc__sidebar,
 .dark-mode .t-doc__sidebar {
   --scalar-sidebar-background-1: var(--scalar-background-1);
@@ -89,14 +101,7 @@
 .dark-mode .dark-mode.scalar-card {
   --scalar-background-3: var(--scalar-background-3);
 }
-.t-doc__sidebar {
-  --scalar-color-green: var(--scalar-color-1);
-  --scalar-color-red: var(--scalar-color-1);
-  --scalar-color-yellow: var(--scalar-color-1);
-  --scalar-color-blue: var(--scalar-color-1);
-  --scalar-color-orange: var(--scalar-color-1);
-  --scalar-color-purple: var(--scalar-color-1);
-}
+
 .light-mode *::selection {
   background-color: color-mix(in srgb, var(--scalar-color-blue), transparent 70%);
 }

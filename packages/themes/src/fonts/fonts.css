@@ -1,5 +1,5 @@
 /* Inter (--scalar-font) */
-@import "fonts/inter.css";
+@import "./inter.css";
 
 /* JetBrains Mono (--scalar-font-code) */
-@import "fonts/mono.css";
+@import "./mono.css";
