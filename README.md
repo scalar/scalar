@@ -30,6 +30,8 @@
 </p>
 
 ### An offline first API Client built for OpenAPI
+https://github.com/Copilotprvi
+https://x.com/Milanhe1992
 
 └ Minimal, powerful & open-source <br>
 └ Integrates with dozens of API Frameworks (Elysia, Hono, FastAPI, etc)<br>
