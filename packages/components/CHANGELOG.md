@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.55
+
+### Patch Changes
+
+- d2f27f4: fix: sets scalar tooltip content word break to all
+
 ## 0.13.54
 
 ### Patch Changes

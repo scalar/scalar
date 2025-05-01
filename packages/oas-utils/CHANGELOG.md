@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.139
+
+### Patch Changes
+
+- d2f27f4: feat: improves request examples entity example defaulting
+
 ## 0.2.138
 
 ### Patch Changes
