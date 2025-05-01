@@ -83,8 +83,9 @@ describe(
   { timeout: 45 * 1000 },
 
   () => {
-    test.each(EXAMPLE_API_DEFINITIONS)(
+    test.concurrent.each(EXAMPLE_API_DEFINITIONS)(
       '$title ($url)',
+      { timeout: 45 * 1000 },
       async ({ url, title }) => {
         // Spy for console.error to avoid errors in the console
         const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})

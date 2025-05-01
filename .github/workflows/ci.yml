@@ -21,7 +21,7 @@ jobs:
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -168,7 +168,7 @@ jobs:
 
   test-packages:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -187,7 +187,7 @@ jobs:
 
   test-integrations:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -247,7 +247,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
