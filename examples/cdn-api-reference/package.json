@@ -26,7 +26,6 @@
   "dependencies": {
     "@fastify/static": "^7.0.1",
     "@scalar/api-reference": "workspace:*",
-    "@scalar/play-button": "workspace:*",
     "fastify": "^4.26.2"
   },
   "devDependencies": {

@@ -31,7 +31,6 @@
 /packages/build-tooling @geoffgscott
 /packages/draggable @amritk
 /packages/mock-server @hanspagel
-/packages/play-button @marclave
 # /packages/use-modal
 /packages/build-watch @geoffgscott
 /integrations/nestjs @marclave
