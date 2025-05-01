@@ -51,7 +51,7 @@ export const customTheme = `
 /* Document header */
 .light-mode .t-doc__header,
 .dark-mode .t-doc__header {
-  --header-background-1: rgba(255,255,255,.8);
+  --scalar-header-background-1: rgba(255,255,255,.8);
   --header-border-color: var(--scalar-border-color);
   --header-color-1: var(--scalar-color-1);
   --header-color-2: var(--scalar-color-2);
@@ -61,7 +61,7 @@ export const customTheme = `
 }
 
 .dark-mode .t-doc__header {
-  --header-background-1: rgba(0,0,0,.5);
+  --scalar-header-background-1: rgba(0,0,0,.5);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,

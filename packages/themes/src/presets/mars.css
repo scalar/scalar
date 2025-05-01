@@ -124,3 +124,8 @@
 *::selection {
   background-color: color-mix(in srgb, var(--scalar-color-red), transparent 75%);
 }
+
+/* document layout */
+.dark-mode .t-doc .layout-content {
+  background: transparent;
+}

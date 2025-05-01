@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "types": ["vite/client"],
     "baseUrl": "."
   },
   "include": ["src", "env.d.ts"],

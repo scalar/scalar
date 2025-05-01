@@ -47,22 +47,6 @@ export type PathRouting = {
   basePath: string
 }
 
-export type ThemeId =
-  | 'alternate'
-  | 'default'
-  | 'moon'
-  | 'purple'
-  | 'solarized'
-  | 'bluePlanet'
-  | 'deepSpace'
-  | 'saturn'
-  | 'kepler'
-  | 'elysiajs'
-  | 'fastify'
-  | 'mars'
-  | 'laserwave'
-  | 'none'
-
 /**
  * @deprecated Use ApiReferenceConfiguration instead
  *

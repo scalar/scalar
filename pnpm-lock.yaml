@@ -1918,6 +1918,9 @@ importers:
 
   packages/oas-utils:
     dependencies:
+      '@hyperjump/browser':
+        specifier: ^1.1.0
+        version: 1.1.6
       '@hyperjump/json-schema':
         specifier: ^1.9.6
         version: 1.9.8(@hyperjump/browser@1.1.6)
@@ -2144,6 +2147,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      nanoid:
+        specifier: 'catalog:'
+        version: 5.1.5
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -27617,7 +27623,7 @@ snapshots:
       '@vue/devtools-kit': 7.3.3
       '@vue/devtools-shared': 7.3.5
       mitt: 3.0.1
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       pathe: 1.1.2
       vite-hot-client: 0.2.3(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
     transitivePeerDependencies:
@@ -36457,7 +36463,7 @@ snapshots:
 
   postcss@8.4.31:
     dependencies:
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -40592,7 +40598,7 @@ snapshots:
       date-fns: 3.6.0
       esbuild: 0.17.19
       miniflare: 3.20240701.0
-      nanoid: 3.3.7
+      nanoid: 3.3.11
       path-to-regexp: 6.2.2
       resolve: 1.22.8
       resolve.exports: 2.0.2
