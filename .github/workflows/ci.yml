@@ -21,7 +21,7 @@ jobs:
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4
 
   build:
-    runs-on: blacksmith-16vcpu-ubuntu-2204-arm
+    runs-on: blacksmith-16vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
