@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
-import type { v_2_3_0 } from '../v-2.3.0/types.generated.ts'
-import { migrate_v_2_4_0 } from './migration.ts'
-import type { v_2_4_0 } from './types.generated.ts'
+import type { v_2_3_0 } from '../v-2.3.0/types.generated'
+import { migrate_v_2_4_0 } from './migration'
+import type { v_2_4_0 } from './types.generated'
 
 describe('migrate_v_2_4_0', () => {
   it('should migrate draft collection by removing servers and updating request paths', () => {

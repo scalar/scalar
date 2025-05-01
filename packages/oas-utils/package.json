@@ -21,11 +21,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
-    "test:unit": "vitest .",
     "typegen:migration": "vite-node ./src/migrations/generate-types.ts",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"

@@ -15,9 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -28,6 +26,11 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./useBindCx": {
       "import": "./dist/useBindCx/index.js",
       "types": "./dist/useBindCx/index.d.ts",

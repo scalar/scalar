@@ -8,7 +8,7 @@ dist/
 *.tsbuildinfo
 __pycache__/
 .output
-
+.nuxt
 # Testing data
 test-*.json
 /test-results/

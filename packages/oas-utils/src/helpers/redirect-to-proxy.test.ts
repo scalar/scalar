@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isRelativePath, redirectToProxy } from './redirect-to-proxy.ts'
+import { isRelativePath, redirectToProxy } from './redirect-to-proxy'
 
 describe('redirectToProxy', () => {
   it('rewrites URLs', () => {

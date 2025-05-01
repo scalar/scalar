@@ -21,10 +21,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "next dev playground -p 5066",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { type ENTITY_BRANDS, nanoidSchema } from '@/utils/nanoid.ts'
+import { type ENTITY_BRANDS, nanoidSchema } from '../utils/nanoid'
 
 // ---------------------------------------------------------------------------
 // COMMON PROPS FOR ALL SECURITY SCHEMES

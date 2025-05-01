@@ -4,4 +4,4 @@ export {
   type Workspace,
   type WorkspacePayload,
   workspaceSchema,
-} from './workspace.ts'
+} from './workspace'

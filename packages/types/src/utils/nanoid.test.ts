@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { nanoidSchema, type Nanoid } from './nanoid.ts'
+import { nanoidSchema, type Nanoid } from './nanoid'
 import { z } from 'zod'
 
 describe('nanoidSchema', () => {

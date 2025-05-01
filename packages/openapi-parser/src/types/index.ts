@@ -1,6 +1,6 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import type { ERRORS, OpenApiVersion } from '../configuration/index.ts'
+import type { ERRORS, OpenApiVersion } from '../configuration/index'
 
 // TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
 /**

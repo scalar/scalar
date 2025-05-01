@@ -1,11 +1,12 @@
 {
-  "extends": "../../tsconfig.node.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     /** We need to remove these :) */
     "strictNullChecks": false,
     "noImplicitAny": false,
     "useUnknownInCatchVariables": false,
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "allowJs": true
   },
   "include": ["src", "tests", "rollup.config.ts"]
 }

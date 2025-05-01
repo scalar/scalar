@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getListOfReferences, validate } from '../../../../src/index.ts'
+import { getListOfReferences, validate } from '../../../../src/index'
 
 describe('cyclical', () => {
   it('resolves circular references', async () => {

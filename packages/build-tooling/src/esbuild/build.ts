@@ -6,15 +6,24 @@ import path from 'node:path'
 import as from 'ansis'
 import { runCommand } from './helpers'
 
+function makeEntryPoints(allowJs?: boolean) {
+  const entryPoints = ['src/**/*.ts']
+  if (allowJs) {
+    entryPoints.push('src/**/*.js')
+  }
+  return entryPoints
+}
+
 function nodeBuildOptions(
   options: {
     bundle?: boolean
     shimRequire?: boolean
+    allowJs?: boolean
     options?: esbuild.BuildOptions
   } = {},
 ): esbuild.BuildOptions {
   return {
-    entryPoints: options.bundle ? ['src/index.ts'] : ['src/**/*.ts'],
+    entryPoints: options.bundle ? ['src/index.ts'] : makeEntryPoints(options.allowJs),
     bundle: options.bundle || false,
     platform: 'node',
     target: 'node20',
@@ -23,9 +32,13 @@ function nodeBuildOptions(
   }
 }
 
-function browserBuildOptions(_options: Record<string, never>): esbuild.BuildOptions {
+function browserBuildOptions({
+  allowJs = false,
+}: {
+  allowJs?: boolean
+}): esbuild.BuildOptions {
   return {
-    entryPoints: ['src/**/*.ts'],
+    entryPoints: makeEntryPoints(allowJs),
     bundle: false,
     platform: 'browser',
     target: 'ES2022',
@@ -41,6 +54,8 @@ function browserBuildOptions(_options: Record<string, never>): esbuild.BuildOpti
  * to find all index.ts files in the project.
  *
  * @scalar/build-tooling type building should be run after to generate types and handle path aliases
+ *
+ * If post-build actions are needed (such as copying files), use the `onSuccess` callback.
  */
 export async function build({
   platform,
@@ -50,14 +65,23 @@ export async function build({
   shimRequire,
   options,
   onSuccess,
+  allowCss = false,
+  allowJs = false,
 }: {
   platform?: 'node' | 'browser' | 'shared'
   sourcemap?: boolean
   entries: string[] | 'auto'
   bundle?: boolean
   shimRequire?: boolean
+  allowCss?: boolean
+  allowJs?: boolean
   options?: esbuild.BuildOptions
+  /**
+   * Handler that runs after the build is complete
+   * Used for post-build actions (ex. copying css files)
+   */
   onSuccess?: () => Promise<void> | void
+  onBeforeBuild?: () => Promise<void> | void
 }) {
   await fs.rm('dist', { recursive: true, force: true })
 
@@ -66,15 +90,16 @@ export async function build({
    * or we write a specified subset (ex. entries: ['src/index.ts'])
    */
   if (entries === 'auto') {
-    await findEntryPoints({})
+    await findEntryPoints({ allowCss })
   } else {
     await addPackageFileExports({
       entries,
-      allowCss: false,
+      allowCss,
     })
   }
 
-  const buildOptions = platform === 'node' ? nodeBuildOptions({ bundle, shimRequire }) : browserBuildOptions({})
+  const buildOptions =
+    platform === 'node' ? nodeBuildOptions({ bundle, shimRequire, allowJs }) : browserBuildOptions({ allowJs })
 
   const esbuildCtx = await esbuild.context({
     sourcemap: sourcemap || true,
@@ -85,6 +110,7 @@ export async function build({
   })
 
   if (!process.env.ESBUILD_WATCH) {
+    const start = performance.now()
     return esbuild
       .build({
         sourcemap: sourcemap || true,
@@ -94,8 +120,17 @@ export async function build({
         ...options,
       })
       .finally(async () => {
+        const packageName = path.basename(process.cwd())
+        const end = performance.now()
+        console.log(as.blue(`@scalar/${packageName}: Build completed in ${(end - start).toFixed(2)}ms`))
+
         if (onSuccess) {
           await onSuccess()
+          console.log(
+            as.blue(
+              `@scalar/${packageName}: Additional build tasks completed in ${(performance.now() - end).toFixed(2)}ms`,
+            ),
+          )
         }
         process.exit(0)
       })

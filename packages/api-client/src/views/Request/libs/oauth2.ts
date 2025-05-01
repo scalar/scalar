@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '@/libs/errors.ts'
+import type { ErrorResponse } from '@/libs/errors'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 

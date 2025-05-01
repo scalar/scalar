@@ -1,6 +1,6 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
 
-import type { AnyObject } from '../../../src/index.ts'
+import type { AnyObject } from '../../../src/index'
 
 export async function resolveOld(specification: AnyObject) {
   return await new Promise((resolve, reject) => {

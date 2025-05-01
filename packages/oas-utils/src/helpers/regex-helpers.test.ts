@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { REGEX } from './regex-helpers.ts'
+import { REGEX } from './regex-helpers'
 
 describe('protocolRegex', () => {
   it('allows http://', () => {

@@ -1,10 +1,10 @@
 import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
-import { json2xml } from '@/helpers/json2xml.ts'
-import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object.ts'
-import { prettyPrintJson } from '@/helpers/pretty-print-json.ts'
-import { getExampleFromSchema } from './get-example-from-schema.ts'
-import { getParametersFromOperation } from './get-parameters-from-operation.ts'
+import { json2xml } from '@/helpers/json2xml'
+import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
+import { prettyPrintJson } from '@/helpers/pretty-print-json'
+import { getExampleFromSchema } from './get-example-from-schema'
+import { getParametersFromOperation } from './get-parameters-from-operation'
 
 type AnyObject = Record<string, any>
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize.ts'
+import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize'
 
 describe('sanitize', () => {
   describe('required properties', () => {

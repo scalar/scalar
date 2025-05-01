@@ -1,9 +1,8 @@
 import { z } from 'zod'
 
-import { ApiReferencePluginSchema } from '@/api-reference/api-reference-plugin.ts'
-import { migrateThemeVariables } from '@/api-reference/helpers/migrate-theme-variables.ts'
-import type { TargetId } from '@/snippetz/index.ts'
-import type { AuthenticationConfiguration } from './authentication-configuration.ts'
+import { ApiReferencePluginSchema } from './api-reference-plugin'
+import type { TargetId } from '../snippetz/index'
+import type { AuthenticationConfiguration } from './authentication-configuration'
 
 /** Available theme presets for the API reference */
 const themeIdEnum = z.enum([
@@ -471,11 +470,6 @@ const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfiguratio
 
     configuration.content = configuration.spec.content
     delete configuration.spec
-  }
-
-  // Migrate legacy theme variables
-  if (configuration.customCss) {
-    configuration.customCss = migrateThemeVariables(configuration.customCss)
   }
 
   // Migrate proxy URL

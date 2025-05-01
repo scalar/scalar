@@ -1,7 +1,7 @@
 import { securitySchemeSchema } from '@scalar/types/entities'
 import { describe, it, expect } from 'vitest'
 
-import { hasToken } from './has-token.ts'
+import { hasToken } from './has-token'
 
 describe('hasToken', () => {
   describe('apiKey scheme', () => {

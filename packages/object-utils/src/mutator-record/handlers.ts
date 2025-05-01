@@ -1,5 +1,5 @@
-import { Mutation } from '@/mutator-record/mutations'
-import type { Path, PathValue } from '@/nested'
+import { Mutation } from '../mutator-record/mutations'
+import type { Path, PathValue } from '../nested'
 import { stringify } from 'flatted'
 
 import { debounce } from './debounce'

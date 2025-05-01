@@ -21,7 +21,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "vite",
     "format": "scalar-format-js",
     "lint:check": "eslint .",

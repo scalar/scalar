@@ -21,14 +21,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "vite .",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitestq",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check-vue"
   },

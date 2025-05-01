@@ -16,4 +16,4 @@ export {
   securityOauthSchema,
   securityOpenIdSchema,
   securitySchemeSchema,
-} from './security-scheme.ts'
+} from './security-scheme'

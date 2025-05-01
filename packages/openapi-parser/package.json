@@ -22,7 +22,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
@@ -69,7 +69,6 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@babel/code-frame": "^7.24.7",
-    "@google-cloud/storage": "^7.12.1",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",

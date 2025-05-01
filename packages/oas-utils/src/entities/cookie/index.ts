@@ -1,1 +1,1 @@
-export { type Cookie, cookieSchema } from './cookie.ts'
+export { type Cookie, cookieSchema } from './cookie'

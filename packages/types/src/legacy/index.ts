@@ -1,1 +1,1 @@
-export * from './reference-config.ts'
+export * from './reference-config'

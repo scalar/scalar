@@ -8,7 +8,7 @@ import '@scalar/themes/style.css'
 
 import { syntaxHighlight } from '../src/code'
 // @ts-expect-error vite not looking for raw types
-import codeExampleLarge from '../src/constants.ts?raw'
+import codeExampleLarge from '../src/constants?raw'
 
 import '../src/css/code.css'
 import '../src/css/markdown.css'

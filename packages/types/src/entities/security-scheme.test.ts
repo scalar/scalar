@@ -7,7 +7,7 @@ import {
   securityOauthSchema,
   securityOpenIdSchema,
   securitySchemeSchema,
-} from './security-scheme.ts'
+} from './security-scheme'
 
 describe('Security Schemas', () => {
   describe('API Key Schema', () => {

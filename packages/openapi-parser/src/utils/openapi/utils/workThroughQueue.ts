@@ -1,9 +1,9 @@
-import type { CommandChain, Merge, Queue, Task } from '../../../types/index.ts'
-import { dereference } from '../../dereference.ts'
-import { filter } from '../../filter.ts'
-import { load } from '../../load/load.ts'
-import { upgrade } from '../../upgrade.ts'
-import { validate } from '../../validate.ts'
+import type { CommandChain, Merge, Queue, Task } from '../../../types/index'
+import { dereference } from '../../dereference'
+import { filter } from '../../filter'
+import { load } from '../../load/load'
+import { upgrade } from '../../upgrade'
+import { validate } from '../../validate'
 
 /**
  * Takes a queue of tasks and works through them
@@ -69,7 +69,6 @@ export async function workThroughQueue<T extends Task[]>(queue: Queue<T>): Promi
 
     // Make TS complain when we forgot to handle a command.
     else {
-      // @ts-expect-error to throw a ts error
       const _: never = name
     }
   }

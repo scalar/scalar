@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "exclude": ["tests"],
   "compilerOptions": {
-    "types": ["vite/client"],
+    "types": ["vite/client", "node"],
     "resolveJsonModule": true
   }
 }

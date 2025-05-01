@@ -1,11 +1,11 @@
 packages:
-  - 'examples/**/*'
-  - 'integrations/**/*'
-  - 'packages/**/*'
-  - 'playwright'
-  - 'projects/**/*'
-  - '!**/.next/**' # To prevent next.js duplicates
-  - '!**/dist/**' # To prevent dist duplicates
+  - examples/**/*
+  - integrations/**/*
+  - packages/**/*
+  - playwright
+  - projects/**/*
+  - '!**/.next/**'
+  - '!**/dist/**'
 onlyBuiltDependencies:
   - '@biomejs/biome'
   - '@todesktop/cli'
@@ -13,16 +13,8 @@ onlyBuiltDependencies:
   - core-js-pure
   - electron
   - lefthook
+  - rolldown
   - vue-demi
-ignoredBuiltDependencies:
-  - '@nestjs/core'
-  - '@swc/core'
-  - dtrace-provider
-  - esbuild
-  - msw
-  - protobufjs
-  - sharp
-  - workerd
 catalog:
   '@types/express': ^5.0.1
   '@types/node': ^20.17.10
