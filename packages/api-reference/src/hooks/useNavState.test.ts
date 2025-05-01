@@ -6,6 +6,12 @@ import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { computed, inject, ref } from 'vue'
 import { useNavState } from './useNavState'
 
+declare global {
+  interface Window {
+    location: Location
+  }
+}
+
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
   useConfig: vi.fn().mockReturnValue({ value: {} }),

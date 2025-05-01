@@ -7,6 +7,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
     useHead({
       script: [
         {
+          // @ts-expect-error vite compat issue. @amrit?
           children: `window.__SCALAR__ = ${JSON.stringify(ssrContext?.payload?.data ?? {})}`,
         },
       ],
