@@ -14,7 +14,6 @@ import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
 
 import customThemeStarter from './presets/custom-theme-starter.css?inline'
-export { migrateThemeVariables } from '@scalar/types/api-reference'
 export { hasObtrusiveScrollbars } from './utilities/has-obtrusive-scrollbars'
 import { nanoid } from 'nanoid'
 

@@ -1,8 +1,8 @@
 import { securitySchemeSchema, type SecurityScheme } from '@scalar/types/entities'
 import { describe, it, expect } from 'vitest'
 
-import { getSchemes } from './get-schemes.ts'
-import type { Operation } from '@/entities/spec/operation.ts'
+import { getSchemes } from './get-schemes'
+import type { Operation } from '@/entities/spec/operation'
 
 describe('getSchemes', () => {
   // Setup some mock security schemes for testing
