@@ -16,4 +16,5 @@ const entries = ['./src/index.ts', './src/plugins/fetch-urls/index.ts', './src/p
 build({
   entries,
   platform: 'shared',
+  allowJs: true,
 })
