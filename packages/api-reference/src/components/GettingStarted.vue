@@ -415,8 +415,11 @@ async function fetchExampleSpecification() {
   box-shadow:
     inset 0 0 50px var(--scalar-background-1),
     inset 0 0 50px var(--scalar-background-1);
-  background-image:
-    linear-gradient(to right, var(--scalar-border-color) 1px, transparent 1px),
+  background-image: linear-gradient(
+      to right,
+      var(--scalar-border-color) 1px,
+      transparent 1px
+    ),
     linear-gradient(to bottom, var(--scalar-border-color) 1px, transparent 1px);
 }
 .start-logo svg {
