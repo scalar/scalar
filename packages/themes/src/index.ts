@@ -32,6 +32,7 @@ export {
   saturnTheme,
   solarizedTheme,
   laserwaveTheme,
+  defaultFonts,
 }
 
 /** Theme definition for Scalar platform themes. Matches user provided theme definitions. */
