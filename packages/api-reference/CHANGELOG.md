@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.28.29
+
+### Patch Changes
+
+- d2f27f4: fix: updates parameter list item passed value
+- f039486: feat: CSS class for HTTP methods
+- d2f27f4: feat: adds external and object value format example
+- Updated dependencies [a4e5a2e]
+- Updated dependencies [d2f27f4]
+- Updated dependencies [d2f27f4]
+- Updated dependencies [701093e]
+  - @scalar/api-client@2.3.29
+  - @scalar/components@0.13.55
+  - @scalar/oas-utils@0.2.139
+
 ## 1.28.28
 
 ### Patch Changes

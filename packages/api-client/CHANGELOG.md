@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.3.29
+
+### Patch Changes
+
+- a4e5a2e: chore: export response body component
+- 701093e: chore: propogogate layout prop outside response body
+- Updated dependencies [d2f27f4]
+- Updated dependencies [d2f27f4]
+  - @scalar/components@0.13.55
+  - @scalar/oas-utils@0.2.139
+  - @scalar/use-codemirror@0.11.100
+  - @scalar/import@0.3.22
+  - @scalar/postman-to-openapi@0.2.12
+
 ## 2.3.28
 
 ### Patch Changes
