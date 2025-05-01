@@ -18,7 +18,7 @@
     "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitest --environment jsdom",
+    "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },

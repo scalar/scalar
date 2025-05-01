@@ -61,7 +61,7 @@ describe('diff', async () => {
   // Batch fetch all the files from storage
   const fetched = await Promise.all(
     set.map(async (file) => {
-      const content = await fetch(`https://storage.googleapis.com/scalar-test-fixtures/${file.name}`)
+      const content = await fetch(`https://fixtures.staging.scalar.com/${file.name}`)
         .then((r) => r.text())
         .catch(() => '')
       return {
