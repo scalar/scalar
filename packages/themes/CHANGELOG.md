@@ -1,5 +1,14 @@
 # @scalar/themes
 
+## 0.11.1
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- 2157fb4: add font exports back
+- Updated dependencies [8c7bad8]
+  - @scalar/types@0.1.14
+
 ## 0.11.0
 
 ### Minor Changes

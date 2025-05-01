@@ -1,5 +1,15 @@
 # @scalar/mock-server
 
+## 0.3.25
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/openapi-types@0.2.2
+  - @scalar/oas-utils@0.2.141
+
 ## 0.3.24
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.3.31
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/postman-to-openapi@0.2.14
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/use-codemirror@0.11.102
+  - @scalar/openapi-types@0.2.2
+  - @scalar/object-utils@1.1.14
+  - @scalar/use-tooltip@1.0.7
+  - @scalar/components@0.13.57
+  - @scalar/use-toasts@0.7.10
+  - @scalar/oas-utils@0.2.141
+  - @scalar/use-hooks@0.1.48
+  - @scalar/snippetz@0.2.20
+  - @scalar/import@0.3.24
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+  - @scalar/draggable@0.1.11
+  - @scalar/icons@0.3.5
+
 ## 2.3.30
 
 ### Patch Changes

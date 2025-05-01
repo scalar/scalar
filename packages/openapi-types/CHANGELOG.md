@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.2.2
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 0.2.1
 
 ### Patch Changes

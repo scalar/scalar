@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.14
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 1.1.13
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.0.6
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 0.0.5
 
 ### Patch Changes
