@@ -247,7 +247,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: blacksmith-4vcpu-ubuntu-2204
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
