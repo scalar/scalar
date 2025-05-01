@@ -8,7 +8,7 @@ on:
     branches:
       - main
   pull_request:
-
+  workflow_dispatch: null
 jobs:
   harden_security:
     name: Check used GitHub Actions
