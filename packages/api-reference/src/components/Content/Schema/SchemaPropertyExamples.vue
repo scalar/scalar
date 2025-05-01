@@ -98,6 +98,7 @@ const { copyToClipboard } = useClipboard()
 .property-example-value {
   font-family: var(--scalar-font-code);
   display: flex;
+  gap: 8px;
   align-items: center;
   width: 100%;
   padding: 6px;
