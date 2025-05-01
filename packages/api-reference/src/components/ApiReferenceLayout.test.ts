@@ -76,53 +76,54 @@ describe('ApiReferenceLayout', () => {
 
     expect(html).toContain('Test API')
   })
-
-  describe(
-    'real-world examples',
-    () => {
-      test.each(EXAMPLE_API_DEFINITIONS)(
-        '$title ($url)',
-        async ({ url, title }) => {
-          // Spy for console.error to avoid errors in the console
-          const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
-          const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
-          const definition = await fetch(url).then((res) => res.text())
-
-          const result = await parse(definition)
-
-          const app = createSSRApp({
-            render: () =>
-              h(ApiReferenceLayout, {
-                configuration: {},
-                parsedSpec: result,
-                rawSpec: definition,
-              }),
-          })
-
-          const html = await renderToString(app)
-
-          // Check if console.error was called
-          expect(consoleErrorSpy).not.toHaveBeenCalled()
-
-          // Restore the original console.error
-          consoleErrorSpy.mockRestore()
-
-          // Check if console.warn was called
-          // TODO: In the future, we should fix the warnings.
-          // expect(consoleWarnSpy).not.toHaveBeenCalled()
-
-          // Restore the original console.warn
-          consoleWarnSpy.mockRestore()
-
-          // Verify it renders the title in the HTML output
-          expect(html).toContain(title)
-        },
-        // Increase timeout to 20 seconds
-        20 * 1000,
-      )
-    },
-    { timeout: 45 * 1000 },
-  )
 })
+
+describe(
+  'real-world examples',
+  { timeout: 45 * 1000 },
+
+  () => {
+    test.each(EXAMPLE_API_DEFINITIONS)(
+      '$title ($url)',
+      async ({ url, title }) => {
+        // Spy for console.error to avoid errors in the console
+        const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+        const definition = await fetch(url).then((res) => res.text())
+
+        const result = await parse(definition)
+
+        const app = createSSRApp({
+          render: () =>
+            h(ApiReferenceLayout, {
+              configuration: {},
+              parsedSpec: result,
+              rawSpec: definition,
+            }),
+        })
+
+        const html = await renderToString(app)
+
+        // Check if console.error was called
+        expect(consoleErrorSpy).not.toHaveBeenCalled()
+
+        // Restore the original console.error
+        consoleErrorSpy.mockRestore()
+
+        // Check if console.warn was called
+        // TODO: In the future, we should fix the warnings.
+        // expect(consoleWarnSpy).not.toHaveBeenCalled()
+
+        // Restore the original console.warn
+        consoleWarnSpy.mockRestore()
+
+        // Verify it renders the title in the HTML output
+        expect(html).toContain(title)
+      },
+      // Increase timeout to 20 seconds
+      20 * 1000,
+    )
+  },
+)
