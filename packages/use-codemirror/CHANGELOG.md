@@ -1,5 +1,13 @@
 # @scalar/use-codemirror
 
+## 0.11.102
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/components@0.13.57
+
 ## 0.11.101
 
 ### Patch Changes

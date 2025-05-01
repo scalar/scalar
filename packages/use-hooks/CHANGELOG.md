@@ -1,5 +1,15 @@
 # @scalar/use-hooks
 
+## 0.1.48
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/use-toasts@0.7.10
+  - @scalar/themes@0.11.1
+
 ## 0.1.47
 
 ### Patch Changes

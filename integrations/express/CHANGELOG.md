@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.7.4
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/core@0.2.14
+
 ## 0.7.3
 
 ### Patch Changes

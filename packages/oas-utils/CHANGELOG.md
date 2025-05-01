@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.141
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/openapi-types@0.2.2
+  - @scalar/object-utils@1.1.14
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+
 ## 0.2.140
 
 ### Patch Changes

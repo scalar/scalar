@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.28.31
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/code-highlight@0.0.29
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/openapi-types@0.2.2
+  - @scalar/api-client@2.3.31
+  - @scalar/components@0.13.57
+  - @scalar/use-toasts@0.7.10
+  - @scalar/oas-utils@0.2.141
+  - @scalar/use-hooks@0.1.48
+  - @scalar/snippetz@0.2.20
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+  - @scalar/icons@0.3.5
+
 ## 1.28.30
 
 ### Patch Changes
