@@ -42,8 +42,8 @@
       "types": "./dist/tailwind.d.ts",
       "default": "./dist/tailwind.js"
     },
-    "./presets/*.css": "./dist/presets/*.css",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./fonts.css": "./dist/fonts/fonts.css"
   },
   "files": [
     "dist",
