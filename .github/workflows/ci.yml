@@ -344,7 +344,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './{packages,integrations}/**'
+          packages: './{packages,integrations,projects}/**'
       - name: Git Status
         run: git status
       - name: Stash changes
