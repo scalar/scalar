@@ -14,26 +14,24 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
-const { value, schemas } = withDefaults(
-  defineProps<{
-    value?: Record<string, any>
-    enum?: boolean
-    required?: boolean
-    additional?: boolean
-    pattern?: boolean
-    withExamples?: boolean
-    schemas?:
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
-      | unknown
-  }>(),
-  {
-    level: 0,
-    required: false,
-    withExamples: true,
-  },
-)
+const {
+  value,
+  schemas,
+  required = false,
+  withExamples = true,
+} = defineProps<{
+  value?: Record<string, any>
+  enum?: boolean
+  required?: boolean
+  additional?: boolean
+  pattern?: boolean
+  withExamples?: boolean
+  schemas?:
+    | OpenAPIV2.DefinitionsObject
+    | Record<string, OpenAPIV3.SchemaObject>
+    | Record<string, OpenAPIV3_1.SchemaObject>
+    | unknown
+}>()
 
 const discriminatorType = discriminators.find((r) => {
   if (!value || typeof value !== 'object') {
