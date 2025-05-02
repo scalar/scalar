@@ -15,7 +15,7 @@ const basicSpecString = JSON.stringify(basicSpec)
 
 global.fetch = vi.fn()
 
-describe('useReactiveSpec', () => {
+describe.concurrent('useReactiveSpec', () => {
   beforeEach(() => {
     // @ts-expect-error
     global.fetch.mockReset()

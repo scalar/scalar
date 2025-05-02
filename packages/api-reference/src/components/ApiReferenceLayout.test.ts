@@ -89,53 +89,54 @@ describe('ApiReferenceLayout', () => {
   })
 })
 
-describe('real-world examples', { timeout: 45 * 1000 }, () => {
-  test.concurrent.each(EXAMPLE_API_DEFINITIONS)(
-    '$title ($url)',
-    { timeout: 45 * 1000 },
-    async ({ title, url, name }) => {
-      // Spy for console.error to avoid errors in the console
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+const start = performance.now()
+const files = await Promise.all(
+  EXAMPLE_API_DEFINITIONS.map(
+    async ({ name, ...rest }) =>
+      await fetch(`https://fixtures.staging.scalar.com/layout-reference/${name}`)
+        .then((res) => (res.ok ? res.text() : null))
+        .then((document) => ({ name, document, ...rest })),
+  ),
+)
+console.log(`[ApiReferenceLayout.test.ts]: File fetch took: ${performance.now() - start}ms`)
 
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ title, document, name }) => {
+  // Spy for console.error to avoid errors in the console
+  const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const definition = await fetch(`https://fixtures.staging.scalar.com/layout-reference/${name}`).then((res) =>
-        res.ok ? res.text() : null,
-      )
+  const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      if (!definition) {
-        console.log(`Failed to fetch definition for https://fixtures.staging.scalar.com/layout-reference/${name}`)
-        throw new Error('Failed to fetch')
-      }
+  if (!document) {
+    console.log(`Failed to fetch definition for https://fixtures.staging.scalar.com/layout-reference/${name}`)
+    throw new Error('Failed to fetch')
+  }
 
-      const result = await parse(definition)
+  const result = await parse(document)
 
-      const app = createSSRApp({
-        render: () =>
-          h(ApiReferenceLayout, {
-            configuration: {},
-            parsedSpec: result,
-            rawSpec: definition,
-          }),
-      })
+  const app = createSSRApp({
+    render: () =>
+      h(ApiReferenceLayout, {
+        configuration: {},
+        parsedSpec: result,
+        rawSpec: document,
+      }),
+  })
 
-      const html = await renderToString(app)
+  const html = await renderToString(app)
 
-      // Check if console.error was called
-      expect(consoleErrorSpy).not.toHaveBeenCalled()
+  // Check if console.error was called
+  expect(consoleErrorSpy).not.toHaveBeenCalled()
 
-      // Restore the original console.error
-      consoleErrorSpy.mockRestore()
+  // Restore the original console.error
+  consoleErrorSpy.mockRestore()
 
-      // Check if console.warn was called
-      // TODO: In the future, we should fix the warnings.
-      // expect(consoleWarnSpy).not.toHaveBeenCalled()
+  // Check if console.warn was called
+  // TODO: In the future, we should fix the warnings.
+  // expect(consoleWarnSpy).not.toHaveBeenCalled()
 
-      // Restore the original console.warn
-      consoleWarnSpy.mockRestore()
+  // Restore the original console.warn
+  consoleWarnSpy.mockRestore()
 
-      // Verify it renders the title in the HTML output
-      expect(html).toContain(title)
-    },
-  )
+  // Verify it renders the title in the HTML output
+  expect(html).toContain(title)
 })
