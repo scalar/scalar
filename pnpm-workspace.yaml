@@ -14,7 +14,6 @@ onlyBuiltDependencies:
   - core-js-pure
   - electron
   - lefthook
-  - rolldown
   - vue-demi
 catalogs:
   '*':
@@ -25,6 +24,7 @@ catalogs:
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
     ansis: 3.16.0
+    concurrently: 9.1.2
     esbuild: 0.25.2
     chokidar: 4.0.3
     commander: 13.1.0
@@ -44,3 +44,4 @@ catalogs:
     semver: 7.6.3
     prettier: 3.5.3
     vite-node: 3.1.1
+    rollup: 4.36.0

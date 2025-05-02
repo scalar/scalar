@@ -1,5 +1,8 @@
 pre-commit:
   commands:
+    vite-cleanup:
+      glob: '*'
+      run: find . -name 'vite.config.ts.timestamp-*' -delete
     package_format:
       glob: 'pnpm-lock.yaml'
       run: pnpm script packages format; git add \*package.json pnpm-lock.yaml; echo PACKAGE FILES FORMATTED

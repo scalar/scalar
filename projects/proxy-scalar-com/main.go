@@ -112,13 +112,10 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Log the request
-	log.Println(r.Method, target)
-
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
 		// Log any errors
-		log.Printf("[ERROR] %v\n", err)
+		log.Printf("[Proxy Error:] %v\n", err)
 	}
 }
 

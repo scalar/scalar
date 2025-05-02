@@ -12,7 +12,7 @@ on:
 jobs:
   harden_security:
     name: Check used GitHub Actions
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -31,107 +31,106 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
       - name: Save Turborepo cache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684
+        uses: useblacksmith/cache/save@2eeac1b512bd646f22ec077775ae4e5d50cf955f
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}-v2
 
-  docker:
-    name: Build and Tag Docker Image
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+  # docker:
+  #   name: Build and Tag Docker Image
+  #   runs-on: blacksmith-2vcpu-ubuntu-2204
+  #   timeout-minutes: 10
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Check whether the Dockerfile or any of its contents were modified
-        id: changed-files
-        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
-        with:
-          files_yaml: |
-            api_reference_docker:
-              - packages/api-reference/docker/**
-            api_reference_docker_version:
-              - packages/api-reference/docker/package.json
+  #     - name: Check whether the Dockerfile or any of its contents were modified
+  #       id: changed-files
+  #       uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
+  #       with:
+  #         files_yaml: |
+  #           api_reference_docker:
+  #             - packages/api-reference/docker/**
+  #           api_reference_docker_version:
+  #             - packages/api-reference/docker/package.json
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Set up Docker
-        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
+  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+  #       name: Set up Docker
+  #       uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Get version from package.json
-        id: package-version
-        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
+  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+  #       name: Get version from package.json
+  #       id: package-version
+  #       run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build and tag Docker image
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
-        with:
-          context: packages/api-reference/docker/src
-          file: packages/api-reference/docker/src/Dockerfile
-          push: false
-          load: true
-          # Linux-only at first
-          platforms: linux/amd64
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+  #       name: Build and tag Docker image
+  #       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
+  #       with:
+  #         context: packages/api-reference/docker/src
+  #         file: packages/api-reference/docker/src/Dockerfile
+  #         push: false
+  #         load: true
+  #         # Linux-only at first
+  #         platforms: linux/amd64
+  #         tags: |
+  #           scalarapi/api-reference:latest
+  #           scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Scan for vulnerabilities
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
-        with:
-          scan-type: 'config'
-          scan-ref: 'packages/api-reference/docker/src/Dockerfile'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          retry-count: 3
-          retry-delay: 30s
+  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+  #       name: Scan for vulnerabilities
+  #       uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+  #       with:
+  #         scan-type: 'config'
+  #         scan-ref: 'packages/api-reference/docker/src/Dockerfile'
+  #         format: 'table'
+  #         exit-code: '1'
+  #         ignore-unfixed: true
+  #         vuln-type: 'os,library'
+  #         severity: 'CRITICAL,HIGH'
+  #         retry-count: 3
+  #         retry-delay: 30s
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Log in to DockerHub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-        with:
-          # Username of your Docker account
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          # https://app.docker.com/settings/personal-access-tokens
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #     - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+  #       name: Log in to DockerHub
+  #       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+  #       with:
+  #         # Username of your Docker account
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         # https://app.docker.com/settings/personal-access-tokens
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Push Docker image
-        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
-        with:
-          context: packages/api-reference/docker/src
-          file: packages/api-reference/docker/src/Dockerfile
-          push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          # With ARM
-          platforms: linux/amd64,linux/arm64
-          tags: |
-            scalarapi/api-reference:latest
-            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+  #     - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+  #       name: Push Docker image
+  #       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
+  #       with:
+  #         context: packages/api-reference/docker/src
+  #         file: packages/api-reference/docker/src/Dockerfile
+  #         push: true
+  #         cache-from: type=gha
+  #         cache-to: type=gha,mode=max
+  #         # With ARM
+  #         platforms: linux/amd64,linux/arm64
+  #         tags: |
+  #           scalarapi/api-reference:latest
+  #           scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
+        uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
@@ -150,17 +149,16 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
       - name: Check types
@@ -173,17 +171,19 @@ jobs:
     strategy:
       matrix:
         node-version: [20, 22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build packages
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'true'
       - name: Run tests
-        run: pnpm test:packages:ci
+        run: |
+          pnpm script run test-servers &&
+          pnpm script wait -p 5051 5052 &&
+          pnpm test:packages:ci
 
   test-integrations:
     needs: [build]
@@ -192,12 +192,11 @@ jobs:
     strategy:
       matrix:
         node-version: [20, 22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build packages
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: './integrations/*'
@@ -206,7 +205,7 @@ jobs:
 
   test-proxy-server:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -224,17 +223,16 @@ jobs:
 
   stats:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: '@scalar/api-reference'
@@ -271,6 +269,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
+          use-github-runner: 'true'
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -300,7 +299,7 @@ jobs:
 
   bust-cdn-cache:
     needs: [npm-publish]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
       - name: Bust CDN cache
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d
@@ -310,7 +309,7 @@ jobs:
 
   todesktop-build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
     strategy:
@@ -321,7 +320,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
       - name: Git Status
@@ -352,12 +351,11 @@ jobs:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -371,7 +369,7 @@ jobs:
               - packages/api-client/**
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
@@ -430,20 +428,19 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
       )
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency: ${{ github.workflow }}-${{ github.ref }}
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: true
@@ -475,12 +472,11 @@ jobs:
     # Skip for forks and bot PRs
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -498,7 +494,7 @@ jobs:
 
       - if: steps.changed-files.outputs.components_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
         env:
@@ -533,7 +529,7 @@ jobs:
           comment_tag: 'netlify-preview'
 
   aspnetcore-build-test:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
     steps:
@@ -548,7 +544,7 @@ jobs:
             8.x
 
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
           packages-only: '@scalar/api-reference'
@@ -571,7 +567,7 @@ jobs:
 
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don’t want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
@@ -624,7 +620,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
           packages-only: '@scalar/api-reference'

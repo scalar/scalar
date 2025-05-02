@@ -39,5 +39,6 @@ export async function waitForService(ports: number[]) {
     process.exit(1)
   } else {
     log(as.green(`Success: ${as.bold(ports.join(', '))} started`))
+    process.exit(0)
   }
 }

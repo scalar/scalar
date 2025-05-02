@@ -92,7 +92,7 @@
     "esbuild": "catalog:*",
     "glob": "^10.3.10",
     "picomatch": "^4.0.2",
-    "rollup": "^4.24.1",
+    "rollup": "catalog:*",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-import-css": "^3.5.8",
     "vite": "catalog:*",

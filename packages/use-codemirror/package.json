@@ -25,7 +25,7 @@
     "dev": "vite .",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "test": "vitestq",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check-vue"
   },

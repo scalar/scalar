@@ -26,7 +26,7 @@
     "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
     "test:unit": "vite-node scripts/load-files.ts && vitest",
     "types:build": "scalar-types-build",

@@ -1,5 +1,5 @@
 name: 'Build'
-description: 'Build everything'
+description: 'Build using blacksmith runners and cache'
 inputs:
   node-version:
     description: 'Node Version'
@@ -9,17 +9,13 @@ inputs:
     description: 'Whether to build packages/ only'
     required: false
     default: 'false'
-  use-github-runner:
-    description: 'Whether to use GitHub runner'
-    required: false
-    default: 'false'
 runs:
   using: 'composite'
   steps:
     - name: Install pnpm
       uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
-    - name: Use Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+    - name: Use Blacksmith Node.js ${{ inputs.node-version }}
+      uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
@@ -27,7 +23,7 @@ runs:
       shell: bash
       run: pnpm install
     - name: Restore Turborepo cache
-      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
+      uses: useblacksmith/cache/restore@2eeac1b512bd646f22ec077775ae4e5d50cf955f
       with:
         path: .turbo
         key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
@@ -43,7 +39,7 @@ runs:
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=100& --filter './packages/**' build
+      run: pnpm turbo --concurrency=100% --filter './packages/**' build
       env:
         NODE_OPTIONS: '--max_old_space_size=8192'
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
