@@ -24,10 +24,10 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "cd ./playground && pnpm dev",
     "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
-    "format:check": "scalar-format-check",
+    "dev": "cd ./playground && pnpm dev",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "types:check": "tsc --noEmit --skipLibCheck"
@@ -45,9 +45,10 @@
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "path": "^0.12.7",
-    "postcss": "catalog:",
+    "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
-    "postcss-nesting": "^12.1.5"
+    "postcss-nesting": "^12.1.5",
+    "react": "^19.0.0"
   },
   "peerDependencies": {
     "react": "^18.0.0"

@@ -102,19 +102,19 @@
     "@scalar/types": "workspace:*",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
-    "nanoid": "catalog:",
-    "type-fest": "catalog:",
-    "yaml": "catalog:",
-    "zod": "catalog:"
+    "nanoid": "catalog:*",
+    "type-fest": "catalog:*",
+    "yaml": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "type-fest": "^4.20.0",
-    "vite": "catalog:",
-    "vitest": "catalog:",
+    "vite": "catalog:*",
+    "vitest": "catalog:*",
     "zod-to-ts": "github:amritk/zod-to-ts#build"
   }
 }

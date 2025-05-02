@@ -9,10 +9,14 @@ on:
       - main
   pull_request:
   workflow_dispatch: null
+
+env:
+  NODE_OPTIONS: '--max_old_space_size=8192'
+  TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
 jobs:
   harden_security:
     name: Check used GitHub Actions
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -20,6 +24,9 @@ jobs:
       - name: Ensure all Actions are pinned to a Commit SHA
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4
 
+  # Initial build.
+  # We only build the packages and integrations as everything else depends on them
+  # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
     runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -31,18 +38,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Save Turborepo cache
-        uses: actions/cache/save@5a3ec84eff668545956fd18022155c47e93e2684
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}-v2
+          packages: './{packages,integrations}/**'
 
   docker:
     name: Build and Tag Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     steps:
       - name: Checkout repository
@@ -120,18 +123,17 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@cdca7365b2dadb8aad0a33bc7601856ffabcc48e
+        uses: useblacksmith/setup-node@65c6ca86fdeb0ab3d85e78f57e4f6a7e4780b391
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
@@ -148,21 +150,37 @@ jobs:
       - name: Check formatting
         run: pnpm prettier --check . && biome format
 
-  types:
+  build-examples:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './examples/**'
+
+  types:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
       - name: Check types
         run: pnpm types:check
 
@@ -173,17 +191,20 @@ jobs:
     strategy:
       matrix:
         node-version: [20, 22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build packages
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
+          packages: './packages/**'
+      - name: Start test servers
+        run: pnpm script run test-servers &
       - name: Run tests
-        run: pnpm test:packages:ci
+        run: |
+          pnpm script wait -p 5051 5052 &&
+          pnpm test:packages:ci
 
   test-integrations:
     needs: [build]
@@ -192,21 +213,20 @@ jobs:
     strategy:
       matrix:
         node-version: [20, 22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build packages
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: './integrations/*'
+          packages: './integrations/**'
       - name: Run tests
         run: pnpm test:integrations:ci
 
   test-proxy-server:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
@@ -224,20 +244,19 @@ jobs:
 
   stats:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
@@ -271,6 +290,7 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
+          use-github-runner: 'true'
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -300,7 +320,7 @@ jobs:
 
   bust-cdn-cache:
     needs: [npm-publish]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     steps:
       - name: Bust CDN cache
         uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d
@@ -310,7 +330,7 @@ jobs:
 
   todesktop-build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
     strategy:
@@ -321,9 +341,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -352,12 +373,11 @@ jobs:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -371,9 +391,10 @@ jobs:
               - packages/api-client/**
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: 'client-scalar-com...'
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.staging.scalar.com (staging)
         id: deploy-client-staging
@@ -430,27 +451,24 @@ jobs:
         github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
       )
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     concurrency: ${{ github.workflow }}-${{ github.ref }}
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: true
+          packages: '@scalar-examples/web...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Build examples/web
-        run: pnpm --filter @scalar-examples/web build
       - name: Install Netlify CLI
         run: pnpm install -g netlify
       - name: Deploy to Netlify
@@ -475,12 +493,11 @@ jobs:
     # Skip for forks and bot PRs
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     strategy:
       matrix:
         node-version: [22]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -498,9 +515,10 @@ jobs:
 
       - if: steps.changed-files.outputs.components_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
 
@@ -533,7 +551,7 @@ jobs:
           comment_tag: 'netlify-preview'
 
   aspnetcore-build-test:
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build]
     steps:
@@ -548,10 +566,10 @@ jobs:
             8.x
 
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference...'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: integrations/aspnetcore
@@ -571,7 +589,7 @@ jobs:
 
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don’t want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
@@ -624,10 +642,10 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Build @scalar/api-reference
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference...'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference

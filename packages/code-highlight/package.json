@@ -107,7 +107,7 @@
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.2",
     "vfile": "^6.0.1",
-    "vite": "catalog:",
-    "vue": "catalog:"
+    "vite": "catalog:*",
+    "vue": "catalog:*"
   }
 }

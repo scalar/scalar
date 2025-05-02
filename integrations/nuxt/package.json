@@ -29,8 +29,8 @@
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "format:check": "scalar-format-check",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test:watch": "vitest watch",
@@ -61,9 +61,9 @@
     "@nuxt/module-builder": "^0.8.1",
     "@nuxt/schema": "^3.12.3",
     "@nuxt/test-utils": "^3.13.1",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "changelogen": "^0.5.5",
     "nuxt": "^3.12.4",
-    "vitest": "catalog:"
+    "vitest": "catalog:*"
   }
 }

@@ -27,12 +27,12 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/types": "workspace:*",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
-    "vite": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*",
     "vite-ssg": "^0.24.1"
   }
 }

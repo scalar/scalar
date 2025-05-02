@@ -221,6 +221,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

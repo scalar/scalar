@@ -4,7 +4,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**", "storybook-static/**"],
+      "outputs": ["dist/**", "storybook-static/**", ".output", ".nuxt"],
       "dependsOn": ["^build"]
     },
     "dev": {

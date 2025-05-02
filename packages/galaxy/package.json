@@ -50,6 +50,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

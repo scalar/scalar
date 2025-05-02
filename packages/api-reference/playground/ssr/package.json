@@ -17,14 +17,14 @@
     "hono": "^4.6.5",
     "@hono/node-server": "^1.11.0",
     "sirv": "^3.0.1",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@types/compression": "^1.7.5",
-    "@types/node": "catalog:",
-    "@vitejs/plugin-vue": "catalog:",
+    "@types/node": "catalog:*",
+    "@vitejs/plugin-vue": "catalog:*",
     "cross-env": "^7.0.3",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "vue-tsc": "^2.1.10"
   }
 }

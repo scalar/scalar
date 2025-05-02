@@ -59,7 +59,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "zod": "catalog:"
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"

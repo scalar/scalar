@@ -21,7 +21,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "dev": "vite-node playground/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "eslint .",
@@ -52,6 +52,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

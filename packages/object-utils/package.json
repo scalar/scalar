@@ -78,10 +78,10 @@
     "flatted": "^3.3.1",
     "just-clone": "^6.2.0",
     "ts-deepmerge": "^7.0.1",
-    "type-fest": "catalog:"
+    "type-fest": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

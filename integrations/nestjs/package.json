@@ -53,11 +53,11 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@types/express": "catalog:",
-    "express": "catalog:",
+    "@types/express": "catalog:*",
+    "express": "catalog:*",
     "fastify": "^4.26.2",
     "tsup": "^8.3.5",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }

@@ -26,7 +26,6 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "preview": "vite preview",
-    "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },
@@ -58,14 +57,14 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@vueuse/core": "catalog:",
-    "vue": "catalog:"
+    "@vueuse/core": "catalog:*",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "rollup-plugin-webpack-stats": "^0.2.5",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
     "vite-svg-loader": "^5.1.0"

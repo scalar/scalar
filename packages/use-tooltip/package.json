@@ -44,7 +44,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "tippy.js": "^6.3.7",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
