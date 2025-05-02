@@ -174,7 +174,8 @@ public static class ScalarEndpointRouteBuilderExtensions
                           initialize(
                           '{{httpContext.Request.Path}}',
                           {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
-                          {{serializedConfiguration}})
+                          {{serializedConfiguration}},
+                          '{{options.JavaScriptConfiguration}}')
                       </script>
                   </body>
                   </html>

@@ -59,7 +59,8 @@ public class ScalarOptionsExtensionsTests
             .AddDocument("v1", "Version 1")
             .AddDocuments("v2", "v3")
             .WithBaseServerUrl("https://example.com")
-            .WithDynamicBaseServerUrl();
+            .WithDynamicBaseServerUrl()
+            .WithJavaScriptConfiguration("/scalar/config.js");
 
         // Assert
         options.Title.Should().Be("My title");
@@ -105,6 +106,7 @@ public class ScalarOptionsExtensionsTests
         options.Documents.Should().HaveCount(3).And.Contain(x => x.Title == "Version 1");
         options.BaseServerUrl.Should().Be("https://example.com");
         options.DynamicBaseServerUrl.Should().BeTrue();
+        options.JavaScriptConfiguration.Should().Be("/scalar/config.js");
 
 #pragma warning restore CS0618 // Type or member is obsolete
     }

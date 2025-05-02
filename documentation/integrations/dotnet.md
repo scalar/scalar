@@ -426,6 +426,40 @@ app.MapScalarApiReference(options =>
 > [!NOTE]
 > Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
 
+### Custom JavaScript Configuration
+
+Scalar allows you to extend its functionality by using a custom JavaScript configuration module. This is useful for customizing behavior that's not accessible through the C# configuration options.
+
+To use this feature, specify the path to your JavaScript module using the `ModulePath` property:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithModulePath("/scalar/config.js");
+    // or
+    options.ModulePath = "/scalar/config.js";
+});
+```
+
+Create a JavaScript module in your static files directory (e.g. `wwwroot/scalar/config.js`) that exports a default object with your custom configuration:
+
+```javascript
+// wwwroot/scalar/config.js
+export default {
+  // Custom slug generation for operations
+  generateOperationSlug: (operation) => `custom-${operation.method.toLowerCase()}${operation.path}`,
+  
+  // Hook into document selection events
+  onDocumentSelect: () => console.log('Document changed'),
+  
+  // Add any other custom configuration options supported by Scalar
+  // Checkout https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+}
+```
+
+> [!NOTE]
+> Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
+
 ### Dependency Injection
 
 Configuration options can also be set via dependency injection:

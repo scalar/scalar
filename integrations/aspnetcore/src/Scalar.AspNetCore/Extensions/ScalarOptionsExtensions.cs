@@ -787,4 +787,18 @@ public static class ScalarOptionsExtensions
         options.DynamicBaseServerUrl = dynamicBaseServerUrl;
         return options;
     }
+
+    /// <summary>
+    /// Sets the path to a custom configuration JS module.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="javaScriptConfiguration">The path to the custom JS module.</param>
+    /// <remarks>
+    /// If the path is relative, it will be normalized relative to the base path.
+    /// </remarks>
+    public static ScalarOptions WithJavaScriptConfiguration(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string javaScriptConfiguration)
+    {
+        options.JavaScriptConfiguration = javaScriptConfiguration;
+        return options;
+    }
 }

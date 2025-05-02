@@ -20,29 +20,22 @@ export const getBasePath = (suffix) => {
 }
 
 /**
- * Initializes the Scalar API reference documentation viewer.
- * This function handles two deployment scenarios:
- *
- * 1. Relative paths: When OpenAPI specs are hosted alongside the application
- * 2. Absolute paths: When OpenAPI specs are served from specific routes
- *
- * The function ensures URLs are correctly constructed regardless of whether
- * the application is hosted in a subdirectory or at the root path.
+ * Initialize Scalar with the given configuration
  *
  * @param {string} path - The current request path used to calculate the base URL
  * @param {boolean} useDynamicBaseServerUrl - When true, uses the current server URL as the base URL
  * @param {Object} configuration - Scalar configuration object
  * @param {Array<Object>} [configuration.sources=[]] - Array of OpenAPI source configurations
+ * @param {string} [modulePath] - Optional path to the custom configuration script
  */
-export const initialize = (path, useDynamicBaseServerUrl, configuration = { sources: [] }) => {
+export const initialize = async (path, useDynamicBaseServerUrl, configuration = { sources: [] }, modulePath) => {
   const basePath = getBasePath(path)
+  const httpUrlPattern = /^https?:\/\//i
 
   const normalizedConfig = {
     ...configuration,
     sources: configuration?.sources?.map((source) => ({ ...source })) || [],
   }
-
-  const httpUrlPattern = /^https?:\/\//i
 
   // Construct full URLs for subdirectory hosting support if URLs are relative
   normalizedConfig.sources = normalizedConfig.sources.map((source) => {
@@ -58,6 +51,21 @@ export const initialize = (path, useDynamicBaseServerUrl, configuration = { sour
 
   if (useDynamicBaseServerUrl) {
     normalizedConfig.baseServerURL = `${window.location.origin}${basePath}`
+  }
+
+  // Only load custom configuration if modulePath is provided
+  if (modulePath) {
+    // Normalize modulePath if it's a relative path
+    const normalizedConfigPath = httpUrlPattern.test(modulePath)
+      ? modulePath
+      : new URL(modulePath, `${window.location.origin}${basePath}/`).toString()
+
+    try {
+      const customConfiguration = await import(normalizedConfigPath)
+      Object.assign(normalizedConfig, customConfiguration.default)
+    } catch (e) {
+      console.error('Failed to load custom configuration', e)
+    }
   }
 
   window.Scalar.createApiReference('#app', normalizedConfig)
