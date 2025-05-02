@@ -25,8 +25,11 @@ runs:
     - name: Persist turbo cache
       uses: useblacksmith/stickydisk@1a5dbf4b4af58d15a0bcadf7a3928a287d5a600f
       with:
-        key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
+        key: ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
         path: ${{ env.TURBO_CACHE_DIR }}
+    - name: Check turbo cache dir
+      shell: bash
+      run: echo Connecting $TURBO_CACHE_DIR on ${{ github.repository }}-${{ inputs.node-version }}-turbo-cache
     - name: Install dependencies
       shell: bash
       run: pnpm install
