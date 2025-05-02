@@ -3,6 +3,7 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type { Spec } from '@scalar/types/legacy'
 import { watchDebounced } from '@vueuse/core'
 import { useExampleStore } from '#legacy'
 import microdiff from 'microdiff'
@@ -12,8 +13,9 @@ import { useNavState } from '@/hooks'
 
 import { useApiClient } from './useApiClient'
 
-const { configuration } = defineProps<{
+const { configuration, parsedSpec } = defineProps<{
   configuration: Partial<ApiClientConfiguration>
+  parsedSpec: Spec
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
@@ -70,15 +72,19 @@ watchDebounced(
       })
 
       // Servers
-      if (newConfig.servers?.length) {
+      if (newConfig.servers || oldConfig.servers) {
         // Delete all the old servers first
         collection.servers.forEach((serverUid) => {
           store.serverMutators.delete(serverUid, collection.uid)
         })
 
-        const newServers = getServersFromOpenApiDocument(newConfig.servers, {
-          baseServerURL: newConfig.baseServerURL,
-        })
+        // Now we either use the new servers or restore the ones from the spec
+        const newServers = getServersFromOpenApiDocument(
+          newConfig.servers ?? parsedSpec.servers,
+          {
+            baseServerURL: newConfig.baseServerURL,
+          },
+        )
 
         // Add the new ones
         newServers.forEach((server) => {
@@ -86,11 +92,13 @@ watchDebounced(
         })
 
         // Select the last server
-        store.collectionMutators.edit(
-          collection.uid,
-          'selectedServerUid',
-          newServers[newServers.length - 1].uid,
-        )
+        if (newServers.length) {
+          store.collectionMutators.edit(
+            collection.uid,
+            'selectedServerUid',
+            newServers[newServers.length - 1].uid,
+          )
+        }
       }
     }
 
