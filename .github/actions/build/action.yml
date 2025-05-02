@@ -9,10 +9,6 @@ inputs:
     description: 'Whether to build packages/ only'
     required: false
     default: 'false'
-  use-github-runner:
-    description: 'Whether to use GitHub runner'
-    required: false
-    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -43,7 +39,7 @@ runs:
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=100& --filter './packages/**' build
+      run: pnpm turbo --concurrency=100% --filter './packages/**' build
       env:
         NODE_OPTIONS: '--max_old_space_size=8192'
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}

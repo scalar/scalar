@@ -9,6 +9,10 @@ on:
       - main
   pull_request:
   workflow_dispatch: null
+
+env:
+  NODE_OPTIONS: '--max_old_space_size=8192'
+  TURBO_CACHE_DIR: '${{ github.sha }}/.turbo'
 jobs:
   harden_security:
     name: Check used GitHub Actions
@@ -665,3 +669,39 @@ jobs:
         name: Publish packages
         working-directory: integrations/aspnetcore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  cleanup-turbo-cache:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    needs:
+      [
+        build,
+        build-examples,
+        types,
+        test-packages,
+        test-integrations,
+        test-proxy-server,
+        stats,
+        deploy-examples,
+        deploy-components,
+        todesktop-build,
+        deploy-api-client,
+        aspnetcore-build-test,
+        aspnetcore-publish,
+      ]
+    if: always()
+    timeout-minutes: 10
+    steps:
+      - name: Attach sticky disk
+        uses: useblacksmith/stickydisk@1a5dbf4b4af58d15a0bcadf7a3928a287d5a600f
+        with:
+          key: ${{ github.repository }}-20-turbo-cache
+          path: ${{ env.TURBO_CACHE_DIR }}
+      - name: Cleanup Turbo Cache
+        run: rm -rf ${{ env.TURBO_CACHE_DIR }}
+      - name: Attach sticky disk
+        uses: useblacksmith/stickydisk@1a5dbf4b4af58d15a0bcadf7a3928a287d5a600f
+        with:
+          key: ${{ github.repository }}-22-turbo-cache
+          path: ${{ env.TURBO_CACHE_DIR }}
+      - name: Cleanup Turbo Cache
+        run: rm -rf ${{ env.TURBO_CACHE_DIR }}
