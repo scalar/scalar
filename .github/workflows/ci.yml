@@ -12,7 +12,7 @@ on:
 
 env:
   NODE_OPTIONS: '--max_old_space_size=8192'
-  TURBO_CACHE_DIR: '${{ github.base_ref }}/.turbo'
+  TURBO_CACHE_DIR: '${{ github.ref_name }}/.turbo'
 jobs:
   harden_security:
     name: Check used GitHub Actions

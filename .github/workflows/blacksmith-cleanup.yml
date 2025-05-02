@@ -1,9 +1,10 @@
 name: Blacksmith Cleanup
-
+permissions:
+  contents: read
 on:
-  push:
   workflow_dispatch: null
-
+  schedule:
+    - cron: '0 5 * * *'
 jobs:
   cleanup-turbo-cache:
     runs-on: blacksmith-2vcpu-ubuntu-2204

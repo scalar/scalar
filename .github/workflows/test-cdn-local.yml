@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: blacksmith-2vcpu-ubuntu-2204
+    runs-on: ubuntu-22.04
     timeout-minutes: 15
     strategy:
       matrix:
