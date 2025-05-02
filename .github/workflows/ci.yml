@@ -20,6 +20,9 @@ jobs:
       - name: Ensure all Actions are pinned to a Commit SHA
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@4830be28ce81da52ec70d65c552a7403821d98d4
 
+  # Initial build.
+  # We only build the packages and integrations as everything else depends on them
+  # turbo is cached to sticky disk and pnpm is cached in the standard actions cache
   build:
     runs-on: blacksmith-8vcpu-ubuntu-2204
     timeout-minutes: 10
@@ -34,90 +37,86 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Save Turborepo cache
-        uses: useblacksmith/cache/save@2eeac1b512bd646f22ec077775ae4e5d50cf955f
+          packages: './{packages,integrations}/**'
+
+  docker:
+    name: Build and Tag Docker Image
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Check whether the Dockerfile or any of its contents were modified
+        id: changed-files
+        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
         with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}-v2
+          files_yaml: |
+            api_reference_docker:
+              - packages/api-reference/docker/**
+            api_reference_docker_version:
+              - packages/api-reference/docker/package.json
 
-  # docker:
-  #   name: Build and Tag Docker Image
-  #   runs-on: blacksmith-2vcpu-ubuntu-2204
-  #   timeout-minutes: 10
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Set up Docker
+        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
 
-  #     - name: Check whether the Dockerfile or any of its contents were modified
-  #       id: changed-files
-  #       uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
-  #       with:
-  #         files_yaml: |
-  #           api_reference_docker:
-  #             - packages/api-reference/docker/**
-  #           api_reference_docker_version:
-  #             - packages/api-reference/docker/package.json
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Get version from package.json
+        id: package-version
+        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
 
-  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-  #       name: Set up Docker
-  #       uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Build and tag Docker image
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
+        with:
+          context: packages/api-reference/docker/src
+          file: packages/api-reference/docker/src/Dockerfile
+          push: false
+          load: true
+          # Linux-only at first
+          platforms: linux/amd64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
-  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-  #       name: Get version from package.json
-  #       id: package-version
-  #       run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Scan for vulnerabilities
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
+        with:
+          scan-type: 'config'
+          scan-ref: 'packages/api-reference/docker/src/Dockerfile'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+          retry-count: 3
+          retry-delay: 30s
 
-  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-  #       name: Build and tag Docker image
-  #       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
-  #       with:
-  #         context: packages/api-reference/docker/src
-  #         file: packages/api-reference/docker/src/Dockerfile
-  #         push: false
-  #         load: true
-  #         # Linux-only at first
-  #         platforms: linux/amd64
-  #         tags: |
-  #           scalarapi/api-reference:latest
-  #           scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+        name: Log in to DockerHub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          # Username of your Docker account
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # https://app.docker.com/settings/personal-access-tokens
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-  #     - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-  #       name: Scan for vulnerabilities
-  #       uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
-  #       with:
-  #         scan-type: 'config'
-  #         scan-ref: 'packages/api-reference/docker/src/Dockerfile'
-  #         format: 'table'
-  #         exit-code: '1'
-  #         ignore-unfixed: true
-  #         vuln-type: 'os,library'
-  #         severity: 'CRITICAL,HIGH'
-  #         retry-count: 3
-  #         retry-delay: 30s
-
-  #     - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-  #       name: Log in to DockerHub
-  #       uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-  #       with:
-  #         # Username of your Docker account
-  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
-  #         # https://app.docker.com/settings/personal-access-tokens
-  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-  #     - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-  #       name: Push Docker image
-  #       uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
-  #       with:
-  #         context: packages/api-reference/docker/src
-  #         file: packages/api-reference/docker/src/Dockerfile
-  #         push: true
-  #         cache-from: type=gha
-  #         cache-to: type=gha,mode=max
-  #         # With ARM
-  #         platforms: linux/amd64,linux/arm64
-  #         tags: |
-  #           scalarapi/api-reference:latest
-  #           scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
+        name: Push Docker image
+        uses: docker/build-push-action@ca877d9245402d1537745e0e356eab47c3520991
+        with:
+          context: packages/api-reference/docker/src
+          file: packages/api-reference/docker/src/Dockerfile
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          # With ARM
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -147,6 +146,22 @@ jobs:
       - name: Check formatting
         run: pnpm prettier --check . && biome format
 
+  build-examples:
+    needs: [build]
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages: './examples/**'
+
   types:
     needs: [build]
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -161,6 +176,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
       - name: Check types
         run: pnpm types:check
 
@@ -178,10 +194,11 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
+          packages: './packages/**'
+      - name: Start test servers
+        run: pnpm script run test-servers &
       - name: Run tests
         run: |
-          pnpm script run test-servers &&
           pnpm script wait -p 5051 5052 &&
           pnpm test:packages:ci
 
@@ -199,7 +216,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: './integrations/*'
+          packages: './integrations/**'
       - name: Run tests
         run: pnpm test:integrations:ci
 
@@ -235,7 +252,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
@@ -323,6 +340,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './{packages,integrations}/**'
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -372,6 +390,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: 'client-scalar-com...'
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.staging.scalar.com (staging)
         id: deploy-client-staging
@@ -443,11 +462,9 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: true
+          packages: '@scalar-examples/web...'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Build examples/web
-        run: pnpm --filter @scalar-examples/web build
       - name: Install Netlify CLI
         run: pnpm install -g netlify
       - name: Deploy to Netlify
@@ -497,6 +514,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
+          packages: './packages/**'
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
 
@@ -547,7 +565,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference...'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: integrations/aspnetcore
@@ -623,7 +641,7 @@ jobs:
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: 22
-          packages-only: '@scalar/api-reference'
+          packages: '@scalar/api-reference...'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference

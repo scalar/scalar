@@ -5,9 +5,9 @@ inputs:
     description: 'Node Version'
     required: false
     default: '20'
-  packages-only:
-    description: 'Whether to build packages/ only'
-    required: false
+  packages:
+    description: 'Package glob to build. Example: "@scalar/api-reference" or "packages/*"'
+    required: true
     default: 'false'
 runs:
   using: 'composite'
@@ -19,32 +19,16 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
+    - name: Persist turbo cache
+      uses: useblacksmith/stickydisk@v1
+      with:
+        key: ${{ github.repository }}-${{ inputs.node-version }}-${{ github.sha }}-turbo-cache
+        path: .turbo
     - name: Install dependencies
       shell: bash
       run: pnpm install
-    - name: Restore Turborepo cache
-      uses: useblacksmith/cache/restore@2eeac1b512bd646f22ec077775ae4e5d50cf955f
-      with:
-        path: .turbo
-        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
-        restore-keys: |
-          turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
-          turbo-${{ runner.os }}-node-
-    - if: ${{ inputs.packages-only == 'false' }}
-      name: Build
+    - name: Build specified packages
       shell: bash
-      run: pnpm turbo --concurrency=100% build
-      env:
-        NODE_OPTIONS: '--max_old_space_size=8192'
-    - if: ${{ inputs.packages-only == 'true' }}
-      name: Build packages
-      shell: bash
-      run: pnpm turbo --concurrency=100% --filter './packages/**' build
-      env:
-        NODE_OPTIONS: '--max_old_space_size=8192'
-    - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
-      name: Build package
-      shell: bash
-      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages-only}}' build
+      run: pnpm turbo --concurrency=100% --filter '${{inputs.packages}}' build
       env:
         NODE_OPTIONS: '--max_old_space_size=8192'
