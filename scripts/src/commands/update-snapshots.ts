@@ -4,6 +4,14 @@ import { fileURLToPath } from 'node:url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+import { Command } from 'commander'
+import { getWorkspaceRoot } from '@/helpers'
+
+export const updateTestSnapshots = new Command('update-snapshots')
+  .description('Update the snapshot files')
+  .action(async () => {
+    await updateSnapshots()
+  })
 
 // List of browsers we test on
 const browsers = ['chromium', 'firefox', 'Mobile-Chrome', 'Mobile-Safari']
@@ -16,7 +24,9 @@ const browsers = ['chromium', 'firefox', 'Mobile-Chrome', 'Mobile-Safari']
  * The intended use is to be run in the test-cdn-jsdelvr.yml GitHub action workflow
  */
 async function updateSnapshots() {
-  const testResultsFolders = await fs.readdir(path.join(__dirname, '../playwright/test-results'))
+  const root = getWorkspaceRoot()
+  const testResultsFolder = path.join(root, 'playwright/test-results')
+  const testResultsFolders = await fs.readdir(testResultsFolder)
 
   // filter out retry reports
   const playwrightReports = testResultsFolders.filter((report) => !report.includes('retry'))
@@ -28,7 +38,7 @@ async function updateSnapshots() {
       continue
     }
 
-    const snapshotReport = await fs.readdir(path.join(__dirname, '../playwright/test-results', report))
+    const snapshotReport = await fs.readdir(path.join(testResultsFolder, report))
 
     // Find the "actual" snapshot file
     const actualSnapshot = snapshotReport.find((name) => name.includes('actual'))
@@ -39,12 +49,8 @@ async function updateSnapshots() {
     // Copy the actual snapshot to the snapshot folder
     // and rename the file with the browser name and platform (linux or macos)
     await fs.copyFile(
-      path.join(__dirname, '../playwright/test-results', report, actualSnapshot),
-      path.join(
-        __dirname,
-        '../playwright/tests/jsdelivr.spec.ts-snapshots/',
-        `jsdelivr-snapshot-${browserName}-linux.png`,
-      ),
+      path.join(testResultsFolder, report, actualSnapshot),
+      path.join(root, 'playwright/tests/jsdelivr.spec.ts-snapshots/', `jsdelivr-snapshot-${browserName}-linux.png`),
     )
   }
 }

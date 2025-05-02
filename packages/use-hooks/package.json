@@ -59,17 +59,17 @@
   "dependencies": {
     "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@vueuse/core": "catalog:",
+    "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.2",
     "tailwind-merge": "^2.5.5",
-    "vue": "catalog:",
-    "zod": "catalog:"
+    "vue": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "zod-to-ts": "^1.2.0"
   }
 }

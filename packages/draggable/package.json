@@ -54,13 +54,13 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
-    "vite": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*",
     "vite-svg-loader": "^5.1.0",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   }
 }

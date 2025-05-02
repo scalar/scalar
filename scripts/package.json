@@ -1,0 +1,31 @@
+{
+  "name": "@scalar/scripts",
+  "version": "1.0.0",
+  "description": "Scalar OSS Scripts. Packaged for easy dependency installation.",
+  "scripts": {
+    "start": "vite-node src/cli.ts",
+    "test:unit": "vitest ."
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "stdout-update": "catalog:*",
+    "@scalar/build-tooling": "workspace:*",
+    "ansis": "catalog:*",
+    "commander": "catalog:*",
+    "nanoid": "catalog:*",
+    "picomatch": "catalog:*",
+    "prettier": "catalog:*",
+    "semver": "catalog:*",
+    "vite-node": "catalog:*",
+    "yaml": "catalog:*",
+    "zod": "catalog:*"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.5.8",
+    "vite": "catalog:*"
+  }
+}

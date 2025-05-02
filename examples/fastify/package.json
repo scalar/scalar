@@ -39,6 +39,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

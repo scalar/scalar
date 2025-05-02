@@ -20,8 +20,8 @@
     "dev": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5055:5055 express-api-reference",
-    "format:check": "scalar-format-check",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -48,11 +48,11 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/express": "catalog:",
+    "@types/express": "catalog:*",
     "@types/supertest": "^2.0.12",
-    "express": "catalog:",
+    "express": "catalog:*",
     "supertest": "^6.3.3",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   }
 }

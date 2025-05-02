@@ -33,13 +33,13 @@
   },
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
-    "express": "catalog:",
+    "express": "catalog:*",
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/express": "catalog:",
+    "@types/express": "catalog:*",
     "@types/swagger-jsdoc": "^6.0.3",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

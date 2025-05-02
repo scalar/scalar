@@ -28,13 +28,13 @@
     "@scalar/api-client-react": "workspace:*",
     "@scalar/api-reference-react": "workspace:*",
     "@scalar/nextjs-api-reference": "workspace:*",
-    "next": "catalog:",
+    "next": "catalog:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^15.1.1",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2"
   }

@@ -87,19 +87,19 @@
     "@rollup/plugin-swc": "^0.4.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@rollup/plugin-yaml": "^4.1.2",
-    "ansis": "catalog:",
-    "chokidar": "catalog:",
-    "esbuild": "catalog:",
+    "ansis": "catalog:*",
+    "chokidar": "catalog:*",
+    "esbuild": "catalog:*",
     "glob": "^10.3.10",
     "picomatch": "^4.0.2",
     "rollup": "^4.24.1",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-import-css": "^3.5.8",
-    "vite": "catalog:",
-    "vitest": "catalog:"
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "@types/picomatch": "^2.3.3"
   }
 }

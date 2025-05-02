@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
-  default:
+  '*':
     '@types/express':
       specifier: ^5.0.1
       version: 5.0.1
@@ -24,6 +24,9 @@ catalogs:
     chokidar:
       specifier: 4.0.3
       version: 4.0.3
+    commander:
+      specifier: 13.1.0
+      version: 13.1.0
     esbuild:
       specifier: 0.25.2
       version: 0.25.2
@@ -36,9 +39,21 @@ catalogs:
     next:
       specifier: ^15.2.3
       version: 15.2.3
+    picomatch:
+      specifier: 4.0.2
+      version: 4.0.2
     postcss:
       specifier: ^8.4.38
-      version: 8.4.47
+      version: 8.5.3
+    prettier:
+      specifier: 3.5.3
+      version: 3.5.3
+    semver:
+      specifier: 7.6.3
+      version: 7.6.3
+    stdout-update:
+      specifier: 4.0.1
+      version: 4.0.1
     tailwindcss:
       specifier: ^3.4.4
       version: 3.4.4
@@ -48,6 +63,9 @@ catalogs:
     vite:
       specifier: ^5.4.10
       version: 5.4.10
+    vite-node:
+      specifier: 3.1.1
+      version: 3.1.1
     vitest:
       specifier: ^1.6.0
       version: 1.6.0
@@ -84,7 +102,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(@vue/compiler-sfc@3.5.12)(prettier@3.4.2)(svelte@5.25.10)
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@vitest/coverage-v8':
         specifier: ^1.6.0
@@ -138,7 +156,7 @@ importers:
         specifier: ^12.4.0
         version: 12.4.0(typescript@5.6.2)
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       tsc-alias:
         specifier: ^1.8.10
@@ -159,7 +177,7 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
       vue-eslint-parser:
         specifier: ^9.4.3
@@ -184,10 +202,10 @@ importers:
         version: 4.28.0
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   examples/docusaurus:
@@ -236,7 +254,7 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/express
       express:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.0
       swagger-jsdoc:
         specifier: ^6.2.8
@@ -246,13 +264,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/build-tooling
       '@types/express':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.0.1
       '@types/swagger-jsdoc':
         specifier: ^6.0.3
         version: 6.0.4
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   examples/fastify:
@@ -271,7 +289,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   examples/nestjs/nestjs-api-reference-express:
@@ -320,7 +338,7 @@ importers:
         specifier: ^29.5.2
         version: 29.5.12
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/supertest':
         specifier: ^2.0.12
@@ -333,7 +351,7 @@ importers:
         version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
+        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3)
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3))
@@ -393,7 +411,7 @@ importers:
         specifier: ^29.5.2
         version: 29.5.12
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/supertest':
         specifier: ^2.0.12
@@ -406,7 +424,7 @@ importers:
         version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
       eslint-plugin-prettier:
         specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
+        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3)
       jest:
         specifier: ^29.5.0
         version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
@@ -435,7 +453,7 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/nextjs
       next:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 15.2.3(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react:
         specifier: ^19.0.0
@@ -448,7 +466,7 @@ importers:
         specifier: ^15.1.1
         version: 15.1.1
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/react':
         specifier: ^19.0.1
@@ -501,14 +519,14 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitejs/plugin-vue-jsx':
         specifier: ^3.1.0
         version: 3.1.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.47)
+        version: 10.4.19(postcss@8.5.3)
       eslint-plugin-react-hooks:
         specifier: ^4.6.0
         version: 4.6.2(eslint@9.20.1(jiti@2.4.0))
@@ -516,13 +534,13 @@ importers:
         specifier: ^0.4.3
         version: 0.4.7(eslint@9.20.1(jiti@2.4.0))
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   examples/ssg:
@@ -537,17 +555,17 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../../packages/build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-ssg:
         specifier: ^0.24.1
@@ -568,35 +586,35 @@ importers:
         specifier: workspace:*
         version: link:../../packages/types
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       monaco-editor:
         specifier: ^0.47.0
         version: 0.47.0
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
       vue-router:
         specifier: ^4.3.0
         version: 4.3.3(vue@3.5.12(typescript@5.6.2))
     devDependencies:
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.47)
+        version: 10.4.19(postcss@8.5.3)
       eslint-plugin-vue:
         specifier: ^9.31.0
         version: 9.32.0(eslint@9.20.1(jiti@2.4.0))
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       postcss-nested:
         specifier: ^6.0.1
-        version: 6.0.1(postcss@8.4.47)
+        version: 6.0.1(postcss@8.5.3)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   integrations/aspnetcore:
@@ -631,14 +649,14 @@ importers:
         specifier: ^0.12.7
         version: 0.12.7
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       postcss-cli:
         specifier: ^11.0.0
-        version: 11.0.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1)
+        version: 11.0.0(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1)
       postcss-nesting:
         specifier: ^12.1.5
-        version: 12.1.5(postcss@8.4.47)
+        version: 12.1.5(postcss@8.5.3)
 
   integrations/express:
     dependencies:
@@ -650,22 +668,22 @@ importers:
         specifier: workspace:*
         version: link:../../packages/build-tooling
       '@types/express':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.0.1
       '@types/supertest':
         specifier: ^2.0.12
         version: 2.0.16
       express:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.0
       supertest:
         specifier: ^6.3.3
         version: 6.3.4
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   integrations/fastify:
@@ -717,16 +735,16 @@ importers:
         specifier: ^5.30.0
         version: 5.31.2
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-static-copy:
         specifier: ^1.0.2
         version: 1.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
       yaml:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 2.6.0
 
   integrations/hono:
@@ -748,10 +766,10 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   integrations/nestjs:
@@ -764,10 +782,10 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-reference
       '@types/express':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.0.1
       express:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.0
       fastify:
         specifier: ^4.26.2
@@ -776,10 +794,10 @@ importers:
         specifier: ^8.3.5
         version: 8.4.0(@microsoft/api-extractor@7.48.1(@types/node@20.17.10))(@swc/core@1.5.29(@swc/helpers@0.5.15))(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1)(typescript@5.6.2)(yaml@2.6.0)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   integrations/nextjs:
@@ -798,7 +816,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-reference
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/react':
         specifier: ^19.0.1
@@ -810,13 +828,13 @@ importers:
         specifier: ^4.3.4
         version: 4.3.4(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       next:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 15.2.3(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-dom:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-dts:
         specifier: ^4.3.0
@@ -853,7 +871,7 @@ importers:
         specifier: ^3.13.1
         version: 3.13.1(@jest/globals@29.7.0)(@playwright/test@1.49.1)(@vue/test-utils@2.4.6)(h3@1.13.0)(jsdom@24.1.0)(magicast@0.3.5)(nitropack@2.10.4(encoding@0.1.13)(typescript@5.6.2))(playwright-core@1.49.1)(rollup@3.29.4)(vitest@1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2))(vue-router@4.4.5(vue@3.5.12(typescript@5.6.2)))(vue@3.5.12(typescript@5.6.2))
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       changelogen:
         specifier: ^0.5.5
@@ -862,7 +880,7 @@ importers:
         specifier: ^3.12.4
         version: 3.14.159(@biomejs/biome@1.9.4)(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@9.20.1(jiti@2.4.0))(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@3.29.4)(terser@5.31.2)(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2)
 
   integrations/sveltekit:
@@ -975,7 +993,7 @@ importers:
         specifier: workspace:*
         version: link:../use-tooltip
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       '@vueuse/integrations':
         specifier: ^11.2.0
@@ -990,7 +1008,7 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       pretty-bytes:
         specifier: ^6.1.1
@@ -1002,10 +1020,10 @@ importers:
         specifier: ^1.8.1
         version: 1.8.1
       type-fest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 4.26.1
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
       vue-router:
         specifier: ^4.3.0
@@ -1014,10 +1032,10 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       yaml:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 2.6.0
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -1033,34 +1051,34 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.47)
+        version: 10.4.19(postcss@8.5.3)
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       tailwindcss-color-mix:
         specifier: ^0.0.8
         version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@22.1.0)(terser@5.31.2)
 
   packages/api-client-react:
@@ -1072,7 +1090,7 @@ importers:
         specifier: workspace:*
         version: link:../types
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
@@ -1100,7 +1118,7 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(rollup@4.36.0)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/api-reference:
@@ -1151,7 +1169,7 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11(vue@3.5.12(typescript@5.6.2))
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       flatted:
         specifier: ^3.3.1
@@ -1166,13 +1184,13 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -1182,7 +1200,7 @@ importers:
         specifier: workspace:*
         version: link:../galaxy
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/server-renderer':
         specifier: ^3.5.13
@@ -1192,18 +1210,18 @@ importers:
         version: 2.4.6
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.47)
+        version: 10.4.19(postcss@8.5.3)
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.36.0)
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-banner:
         specifier: ^0.7.1
@@ -1212,7 +1230,7 @@ importers:
         specifier: ^3.4.0
         version: 3.5.1(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/api-reference-editor:
@@ -1239,17 +1257,17 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-svg-loader:
         specifier: ^5.1.0
@@ -1298,10 +1316,10 @@ importers:
         specifier: ^1.1.1
         version: 1.1.1(rollup@4.36.0)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
 
   packages/api-reference/docker: {}
@@ -1324,23 +1342,23 @@ importers:
         specifier: ^3.0.1
         version: 3.0.1
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@types/compression':
         specifier: ^1.7.5
         version: 1.7.5
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vue-tsc:
         specifier: ^2.1.10
@@ -1364,13 +1382,13 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2(rollup@4.24.4)
       ansis:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.16.0
       chokidar:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 4.0.3
       esbuild:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 0.25.2
       glob:
         specifier: ^10.3.10
@@ -1388,14 +1406,14 @@ importers:
         specifier: ^3.5.8
         version: 3.5.8(rollup@4.24.4)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
     devDependencies:
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/picomatch':
         specifier: ^2.3.3
@@ -1462,7 +1480,7 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/prettyjson':
         specifier: ^0.0.33
@@ -1556,10 +1574,10 @@ importers:
         specifier: ^6.0.1
         version: 6.0.1
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
 
   packages/components:
@@ -1589,13 +1607,13 @@ importers:
         specifier: workspace:*
         version: link:../use-toasts
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       cva:
         specifier: 1.0.0-beta.2
         version: 1.0.0-beta.2(typescript@5.6.2)
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       pretty-bytes:
         specifier: ^6.1.1
@@ -1604,7 +1622,7 @@ importers:
         specifier: ^1.9.3
         version: 1.9.3(vue@3.5.12(typescript@5.6.2))
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@headlessui/tailwindcss':
@@ -1615,7 +1633,7 @@ importers:
         version: link:../build-tooling
       '@storybook/addon-essentials':
         specifier: ^8.0.8
-        version: 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/addon-interactions':
         specifier: ^8.0.8
         version: 8.1.9(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))(vitest@1.6.0(@types/node@20.17.10)(jsdom@22.1.0)(terser@5.31.2))
@@ -1624,31 +1642,31 @@ importers:
         version: 8.1.9(react@18.3.1)
       '@storybook/blocks':
         specifier: ^8.0.8
-        version: 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/test':
         specifier: ^8.0.8
         version: 8.1.9(@jest/globals@29.7.0)(@types/jest@29.5.12)(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))(vitest@1.6.0(@types/node@20.17.10)(jsdom@22.1.0)(terser@5.31.2))
       '@storybook/vue3':
         specifier: ^8.0.8
-        version: 8.1.9(encoding@0.1.13)(prettier@3.4.2)(vue@3.5.12(typescript@5.6.2))
+        version: 8.1.9(encoding@0.1.13)(prettier@3.5.3)(vue@3.5.12(typescript@5.6.2))
       '@storybook/vue3-vite':
         specifier: ^8.0.8
-        version: 8.1.9(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+        version: 8.1.9(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@types/jsdom':
         specifier: ^21.1.3
         version: 21.1.7
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
       autoprefixer:
         specifier: ^10.4.19
-        version: 10.4.19(postcss@8.4.47)
+        version: 10.4.19(postcss@8.5.3)
       jsdom:
         specifier: ^22.1.0
         version: 22.1.0
@@ -1656,11 +1674,11 @@ importers:
         specifier: ^0.4.2
         version: 0.4.2
       postcss:
-        specifier: 'catalog:'
-        version: 8.4.47
+        specifier: catalog:*
+        version: 8.5.3
       postcss-prefix-selector:
         specifier: ^1.16.0
-        version: 1.16.1(postcss@8.4.47)
+        version: 1.16.1(postcss@8.5.3)
       storybook:
         specifier: ^8.0.8
         version: 8.1.9(@babel/preset-env@7.24.7(@babel/core@7.24.8))(encoding@0.1.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1671,19 +1689,19 @@ importers:
         specifier: ^2.7.1
         version: 2.7.1
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       tailwindcss-color-mix:
         specifier: ^0.0.8
         version: 0.0.8(tailwindcss@3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@22.1.0)(terser@5.31.2)
 
   packages/config:
@@ -1696,13 +1714,13 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/core:
@@ -1715,23 +1733,23 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/draggable:
     dependencies:
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-svg-loader:
         specifier: ^5.1.0
@@ -1740,7 +1758,7 @@ importers:
   packages/fetch:
     dependencies:
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -1759,7 +1777,7 @@ importers:
         specifier: workspace:*
         version: link:../openapi-parser
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/icons:
@@ -1771,20 +1789,20 @@ importers:
         specifier: workspace:*
         version: link:../use-hooks
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       chalk:
         specifier: ^5.4.1
         version: 5.4.1
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
@@ -1796,13 +1814,13 @@ importers:
         specifier: ^2.7.1
         version: 2.7.1
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@22.1.0)(terser@5.31.2)
 
   packages/import:
@@ -1814,14 +1832,14 @@ importers:
         specifier: workspace:*
         version: link:../openapi-parser
       yaml:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 2.6.0
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/mock-server:
@@ -1852,10 +1870,10 @@ importers:
         specifier: workspace:*
         version: link:../../integrations/hono
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/nextjs-openapi:
@@ -1877,7 +1895,7 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@types/react':
         specifier: ^19.0.1
@@ -1886,7 +1904,7 @@ importers:
         specifier: ^19.0.2
         version: 19.0.2(@types/react@19.0.1)
       next:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 15.2.3(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       openapi-types:
         specifier: ^12.1.3
@@ -1919,16 +1937,16 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       type-fest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 4.26.1
       yaml:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 2.6.0
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -1938,13 +1956,13 @@ importers:
         specifier: workspace:*
         version: link:../openapi-parser
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
       zod-to-ts:
         specifier: github:amritk/zod-to-ts#build
@@ -1962,14 +1980,14 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
       type-fest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 4.26.1
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/openapi-parser:
@@ -1990,7 +2008,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       yaml:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 2.6.0
     devDependencies:
       '@apidevtools/swagger-parser':
@@ -2009,7 +2027,7 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       glob:
         specifier: ^10.3.10
@@ -2027,7 +2045,7 @@ importers:
   packages/openapi-types:
     dependencies:
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -2055,23 +2073,23 @@ importers:
         specifier: workspace:*
         version: link:../types
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.36.0)
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-banner:
         specifier: ^0.7.1
@@ -2109,7 +2127,7 @@ importers:
         specifier: workspace:*
         version: link:../types
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/themes:
@@ -2118,29 +2136,29 @@ importers:
         specifier: workspace:*
         version: link:../types
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
       tailwindcss:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-static-copy:
         specifier: ^1.0.2
         version: 1.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/ts-to-openapi:
@@ -2159,7 +2177,7 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/types:
@@ -2168,10 +2186,10 @@ importers:
         specifier: workspace:*
         version: link:../openapi-types
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
@@ -2181,10 +2199,10 @@ importers:
         specifier: ^1.2.15
         version: 1.2.15
       type-fest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 4.26.1
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/use-codemirror:
@@ -2244,7 +2262,7 @@ importers:
         specifier: ^4.1.2
         version: 4.1.2
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
@@ -2254,16 +2272,16 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/use-hooks:
@@ -2275,7 +2293,7 @@ importers:
         specifier: workspace:*
         version: link:../use-toasts
       '@vueuse/core':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       cva:
         specifier: 1.0.0-beta.2
@@ -2284,23 +2302,23 @@ importers:
         specifier: ^2.5.5
         version: 2.5.5
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
       zod:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.24.1
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       zod-to-ts:
         specifier: ^1.2.0
@@ -2309,10 +2327,10 @@ importers:
   packages/use-toasts:
     dependencies:
       nanoid:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.1.5
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
       vue-sonner:
         specifier: ^1.0.3
@@ -2322,7 +2340,7 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitest/coverage-v8':
         specifier: ^1.6.0
@@ -2331,13 +2349,13 @@ importers:
         specifier: ^2.4.1
         version: 2.4.6
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vite-plugin-css-injected-by-js:
         specifier: ^3.4.0
         version: 3.5.1(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/use-tooltip:
@@ -2346,7 +2364,7 @@ importers:
         specifier: ^6.3.7
         version: 6.3.7
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
@@ -2369,7 +2387,7 @@ importers:
         specifier: workspace:*
         version: link:../build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   playwright:
@@ -2381,7 +2399,7 @@ importers:
   projects/client-scalar-com:
     dependencies:
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@cloudflare/workers-types':
@@ -2391,13 +2409,13 @@ importers:
         specifier: workspace:*
         version: link:../../packages/api-client
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vitest:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
       wrangler:
         specifier: ^3.62.0
@@ -2409,7 +2427,7 @@ importers:
         specifier: workspace:*
         version: link:../../packages/build-tooling
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   projects/scalar-app:
@@ -2452,14 +2470,14 @@ importers:
         specifier: ^1.12.0
         version: 1.12.0(@types/react@19.0.1)
       '@types/node':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 20.17.10
       '@vitejs/plugin-vue':
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vue/eslint-config-prettier':
         specifier: ^9.0.0
-        version: 9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
+        version: 9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3)
       '@vue/eslint-config-typescript':
         specifier: ^14.1.3
         version: 14.4.0(eslint-plugin-vue@9.32.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(typescript@5.6.2)
@@ -2470,11 +2488,54 @@ importers:
         specifier: ^2.3.0
         version: 2.3.0(@swc/core@1.5.29(@swc/helpers@0.5.15))(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       vite:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
       vue:
-        specifier: 'catalog:'
+        specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
+
+  scripts:
+    dependencies:
+      '@scalar/build-tooling':
+        specifier: 'workspace:'
+        version: link:../packages/build-tooling
+      ansis:
+        specifier: catalog:*
+        version: 3.16.0
+      commander:
+        specifier: catalog:*
+        version: 13.1.0
+      nanoid:
+        specifier: catalog:*
+        version: 5.1.5
+      picomatch:
+        specifier: catalog:*
+        version: 4.0.2
+      prettier:
+        specifier: catalog:*
+        version: 3.5.3
+      semver:
+        specifier: catalog:*
+        version: 7.6.3
+      stdout-update:
+        specifier: catalog:*
+        version: 4.0.1
+      vite-node:
+        specifier: catalog:*
+        version: 3.1.1(@types/node@20.17.10)(jiti@2.4.0)(terser@5.31.2)(tsx@4.19.1)(yaml@2.6.0)
+      yaml:
+        specifier: catalog:*
+        version: 2.6.0
+      zod:
+        specifier: catalog:*
+        version: 3.24.1
+    devDependencies:
+      '@types/semver':
+        specifier: ^7.5.8
+        version: 7.5.8
+      vite:
+        specifier: catalog:*
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
 packages:
 
@@ -9002,6 +9063,10 @@ packages:
     resolution: {integrity: sha512-5GFMVX8HqE/TB+FuBJGuO5XG0WrsA6ptUqoODaT/n9mmUaZFkqnBueB4leqGBCmrUHnCnC4PCZTCd0E7QQ83bA==}
     engines: {node: '>=12'}
 
+  ansi-escapes@6.2.1:
+    resolution: {integrity: sha512-4nJ3yixlEthEJ9Rk4vPcdBRkZvQZlYyu8j4/Mqz5sgIkddmEnH2Yj2ZrnP9S3tQOvSNRUIgVNF/1yPpRAGNRig==}
+    engines: {node: '>=14.16'}
+
   ansi-html-community@0.0.8:
     resolution: {integrity: sha512-1APHAyr3+PCamwNw3bXCPp4HFLONZt/yIH0sZp0/469KWNTEy+qN5jQ3GVX6DMZ1UXAi34yVwtTeaG/HpBuuzw==}
     engines: {'0': node >= 0.8.0}
@@ -9867,6 +9932,10 @@ packages:
 
   commander@12.1.0:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
+
+  commander@13.1.0:
+    resolution: {integrity: sha512-/rFeCpNJQbhSZjGVwO9RFV3xPqbnERS8MmIQzCtD/zl6gpJuV/bMLuN92oG3F7d8oDEHHRrujSXNUr8fpjntKw==}
     engines: {node: '>=18'}
 
   commander@2.20.3:
@@ -10902,6 +10971,9 @@ packages:
 
   es-module-lexer@1.5.4:
     resolution: {integrity: sha512-MVNK56NiMrOwitFB7cqDwq0CQutbw+0BvLshJSse0MUNU+y1FC3bUS/AQg7oUng+/wKrrki7JfmwtVHkVfPLlw==}
+
+  es-module-lexer@1.7.0:
+    resolution: {integrity: sha512-jEQoCwk8hyb2AZziIOLhDqpm5+2ww5uIE6lkO/6jcOCusfk6LhMHpXXfBLXTZ7Ydyt0j4VoUQv6uGNYbdW+kBA==}
 
   es-object-atoms@1.1.1:
     resolution: {integrity: sha512-FGgH2h8zKNim9ljj7dankFPcICIK9Cp5bm+c2gQSYePhpaG5+esrLODihIorn+Pe6FGJzWhXQotPv73jTaldXA==}
@@ -14104,11 +14176,6 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@3.3.7:
-    resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
-    engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
   nanoid@5.1.5:
     resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
     engines: {node: ^18 || >=20}
@@ -15434,10 +15501,6 @@ packages:
     resolution: {integrity: sha512-PS08Iboia9mts/2ygV3eLpY5ghnUcfLV/EXTOW1E2qYxJKGGBUtNjN76FYHnMs36RmARn41bC0AZmn+rR0OVpQ==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postcss@8.4.47:
-    resolution: {integrity: sha512-56rxCq7G/XfB4EkXq9Egn5GCqugWvDFjafDOThIdMBsI15iqPqR5r15TfSr1YPYeEI19YeaXMCbY6u88Y76GLQ==}
-    engines: {node: ^10 || ^12 || >=14}
-
   postcss@8.5.3:
     resolution: {integrity: sha512-dle9A3yYxlBSrt8Fu+IpjGT8SY8hN0mlaA6GY8t0P5PjIOZemULz/E2Bnm/2dcUOena75OTNkHI76uZBNUUq3A==}
     engines: {node: ^10 || ^12 || >=14}
@@ -15537,6 +15600,11 @@ packages:
 
   prettier@3.4.2:
     resolution: {integrity: sha512-e9MewbtFo+Fevyuxn/4rrcDAaq0IYxPGLvObpQjiZBMAzB9IGmzlnG9RZy3FFas+eBMu2vA0CszMeduow5dIuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  prettier@3.5.3:
+    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -16859,6 +16927,10 @@ packages:
     resolution: {integrity: sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==}
     engines: {node: '>=18'}
 
+  stdout-update@4.0.1:
+    resolution: {integrity: sha512-wiS21Jthlvl1to+oorePvcyrIkiG/6M3D3VTmDUlJm7Cy6SbFhKkAvX+YBuHLxck/tO3mrdpC/cNesigQc3+UQ==}
+    engines: {node: '>=16.0.0'}
+
   stop-iteration-iterator@1.0.0:
     resolution: {integrity: sha512-iCGQj+0l0HOdZ2AEeBADlsRC+vsnDsZsbdSiH1yNSjcfKM7fdpCMfqAL/dwF5BLiw/XhRft/Wax6zQbhq2BcjQ==}
     engines: {node: '>= 0.4'}
@@ -18085,6 +18157,11 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
+  vite-node@3.1.1:
+    resolution: {integrity: sha512-V+IxPAE2FvXpTCHXyNem0M+gWm6J7eRyWPR6vYoG/Gl+IscNOjXzztUhimQgTxaAoUoj40Qqimaa0NLIOOAH4w==}
+    engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
+    hasBin: true
+
   vite-plugin-banner@0.7.1:
     resolution: {integrity: sha512-Bww2Xd5tOGsZ1yZ9rQiGneryvsL1u86znPrqeQjCsXPsG72pnSdV5lcQA+cy8UNDguMqyTJiCevlNUbLnT85UA==}
 
@@ -18842,9 +18919,6 @@ packages:
     peerDependencies:
       typescript: ^4.9.4 || ^5.0.2
       zod: ^3
-
-  zod@3.23.8:
-    resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
   zod@3.24.1:
     resolution: {integrity: sha512-muH7gBL9sI1nciMZV67X5fTKKBLtwpZ5VBp1vsOQzj1MhrBZ4wlVCm3gedKZWLp0Oyel8sIGfeiz54Su+OVT+A==}
@@ -24318,10 +24392,10 @@ snapshots:
       '@rollup/plugin-replace': 6.0.1(rollup@3.29.4)
       '@vitejs/plugin-vue': 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitejs/plugin-vue-jsx': 4.1.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
-      autoprefixer: 10.4.20(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.5.3)
       clear: 0.1.0
       consola: 3.2.3
-      cssnano: 7.0.6(postcss@8.4.47)
+      cssnano: 7.0.6(postcss@8.5.3)
       defu: 6.1.4
       esbuild: 0.24.0
       escape-string-regexp: 5.0.0
@@ -24337,7 +24411,7 @@ snapshots:
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.2.1
-      postcss: 8.4.47
+      postcss: 8.5.3
       rollup-plugin-visualizer: 5.12.0(rollup@3.29.4)
       std-env: 3.7.0
       strip-literal: 2.1.0
@@ -24378,10 +24452,10 @@ snapshots:
       '@rollup/plugin-replace': 6.0.1(rollup@4.24.4)
       '@vitejs/plugin-vue': 5.2.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
       '@vitejs/plugin-vue-jsx': 4.1.0(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
-      autoprefixer: 10.4.20(postcss@8.4.47)
+      autoprefixer: 10.4.20(postcss@8.5.3)
       clear: 0.1.0
       consola: 3.2.3
-      cssnano: 7.0.6(postcss@8.4.47)
+      cssnano: 7.0.6(postcss@8.5.3)
       defu: 6.1.4
       esbuild: 0.24.0
       escape-string-regexp: 5.0.0
@@ -24397,7 +24471,7 @@ snapshots:
       pathe: 1.1.2
       perfect-debounce: 1.0.0
       pkg-types: 1.2.1
-      postcss: 8.4.47
+      postcss: 8.5.3
       rollup-plugin-visualizer: 5.12.0(rollup@4.24.4)
       std-env: 3.7.0
       strip-literal: 2.1.0
@@ -25595,9 +25669,9 @@ snapshots:
       memoizerific: 1.11.3
       ts-dedent: 2.2.0
 
-  '@storybook/addon-controls@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/addon-controls@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@storybook/blocks': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/blocks': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       dequal: 2.0.3
       lodash: 4.17.21
       ts-dedent: 2.2.0
@@ -25610,11 +25684,11 @@ snapshots:
       - react-dom
       - supports-color
 
-  '@storybook/addon-docs@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(encoding@0.1.13)(prettier@3.4.2)':
+  '@storybook/addon-docs@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(encoding@0.1.13)(prettier@3.5.3)':
     dependencies:
       '@babel/core': 7.24.8
       '@mdx-js/react': 3.0.1(@types/react@18.3.3)(react@18.3.1)
-      '@storybook/blocks': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/blocks': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/client-logger': 8.1.9
       '@storybook/components': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/csf-plugin': 8.1.9
@@ -25638,18 +25712,18 @@ snapshots:
       - prettier
       - supports-color
 
-  '@storybook/addon-essentials@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/addon-essentials@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@storybook/addon-actions': 8.1.9
       '@storybook/addon-backgrounds': 8.1.9
-      '@storybook/addon-controls': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@storybook/addon-docs': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/addon-controls': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/addon-docs': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/addon-highlight': 8.1.9
       '@storybook/addon-measure': 8.1.9
       '@storybook/addon-outline': 8.1.9
       '@storybook/addon-toolbars': 8.1.9
       '@storybook/addon-viewport': 8.1.9
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/manager-api': 8.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/node-logger': 8.1.9
       '@storybook/preview-api': 8.1.9
@@ -25706,14 +25780,14 @@ snapshots:
     dependencies:
       memoizerific: 1.11.3
 
-  '@storybook/blocks@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/blocks@8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@storybook/channels': 8.1.9
       '@storybook/client-logger': 8.1.9
       '@storybook/components': 8.1.9(@types/react-dom@19.0.2(@types/react@18.3.3))(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/core-events': 8.1.9
       '@storybook/csf': 0.1.8
-      '@storybook/docs-tools': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/docs-tools': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/global': 5.0.0
       '@storybook/icons': 1.2.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/manager-api': 8.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -25742,10 +25816,10 @@ snapshots:
       - prettier
       - supports-color
 
-  '@storybook/builder-manager@8.1.9(encoding@0.1.13)(prettier@3.4.2)':
+  '@storybook/builder-manager@8.1.9(encoding@0.1.13)(prettier@3.5.3)':
     dependencies:
       '@fal-works/esbuild-plugin-global-externals': 2.1.2
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/manager': 8.1.9
       '@storybook/node-logger': 8.1.9
       '@types/ejs': 3.1.5
@@ -25763,11 +25837,11 @@ snapshots:
       - prettier
       - supports-color
 
-  '@storybook/builder-vite@8.1.9(encoding@0.1.13)(prettier@3.4.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))':
+  '@storybook/builder-vite@8.1.9(encoding@0.1.13)(prettier@3.5.3)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))':
     dependencies:
       '@storybook/channels': 8.1.9
       '@storybook/client-logger': 8.1.9
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/core-events': 8.1.9
       '@storybook/csf-plugin': 8.1.9
       '@storybook/node-logger': 8.1.9
@@ -25804,12 +25878,12 @@ snapshots:
       '@babel/types': 7.26.0
       '@ndelangen/get-tarball': 3.0.9
       '@storybook/codemod': 8.1.9
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/core-events': 8.1.9
-      '@storybook/core-server': 8.1.9(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/core-server': 8.1.9(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/csf-tools': 8.1.9
       '@storybook/node-logger': 8.1.9
-      '@storybook/telemetry': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/telemetry': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/types': 8.1.9
       '@types/semver': 7.5.8
       '@yarnpkg/fslib': 2.10.3
@@ -25828,7 +25902,7 @@ snapshots:
       jscodeshift: 0.15.2(@babel/preset-env@7.24.7(@babel/core@7.24.8))
       leven: 3.1.0
       ora: 5.4.1
-      prettier: 3.4.2
+      prettier: 3.5.3
       prompts: 2.4.2
       read-pkg-up: 7.0.1
       semver: 7.6.3
@@ -25863,7 +25937,7 @@ snapshots:
       globby: 14.0.2
       jscodeshift: 0.15.2(@babel/preset-env@7.24.7(@babel/core@7.24.8))
       lodash: 4.17.21
-      prettier: 3.4.2
+      prettier: 3.5.3
       recast: 0.23.9
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
@@ -25887,7 +25961,7 @@ snapshots:
       - '@types/react'
       - '@types/react-dom'
 
-  '@storybook/core-common@8.1.9(encoding@0.1.13)(prettier@3.4.2)':
+  '@storybook/core-common@8.1.9(encoding@0.1.13)(prettier@3.5.3)':
     dependencies:
       '@storybook/core-events': 8.1.9
       '@storybook/csf-tools': 8.1.9
@@ -25910,7 +25984,7 @@ snapshots:
       node-fetch: 2.7.0(encoding@0.1.13)
       picomatch: 2.3.1
       pkg-dir: 5.0.0
-      prettier-fallback: prettier@3.4.2
+      prettier-fallback: prettier@3.5.3
       pretty-hrtime: 1.0.3
       resolve-from: 5.0.0
       semver: 7.6.3
@@ -25919,7 +25993,7 @@ snapshots:
       ts-dedent: 2.2.0
       util: 0.12.5
     optionalDependencies:
-      prettier: 3.4.2
+      prettier: 3.5.3
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -25929,15 +26003,15 @@ snapshots:
       '@storybook/csf': 0.1.8
       ts-dedent: 2.2.0
 
-  '@storybook/core-server@8.1.9(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@storybook/core-server@8.1.9(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@aw-web-design/x-default-browser': 1.4.126
       '@babel/core': 7.24.8
       '@babel/parser': 7.26.2
       '@discoveryjs/json-ext': 0.5.7
-      '@storybook/builder-manager': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/builder-manager': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/channels': 8.1.9
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/core-events': 8.1.9
       '@storybook/csf': 0.1.8
       '@storybook/csf-tools': 8.1.9
@@ -25947,7 +26021,7 @@ snapshots:
       '@storybook/manager-api': 8.1.9(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/node-logger': 8.1.9
       '@storybook/preview-api': 8.1.9
-      '@storybook/telemetry': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/telemetry': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/types': 8.1.9
       '@types/detect-port': 1.3.5
       '@types/diff': 5.2.1
@@ -26012,9 +26086,9 @@ snapshots:
 
   '@storybook/docs-mdx@3.1.0-next.0': {}
 
-  '@storybook/docs-tools@8.1.9(encoding@0.1.13)(prettier@3.4.2)':
+  '@storybook/docs-tools@8.1.9(encoding@0.1.13)(prettier@3.5.3)':
     dependencies:
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/core-events': 8.1.9
       '@storybook/preview-api': 8.1.9
       '@storybook/types': 8.1.9
@@ -26099,10 +26173,10 @@ snapshots:
       memoizerific: 1.11.3
       qs: 6.14.0
 
-  '@storybook/telemetry@8.1.9(encoding@0.1.13)(prettier@3.4.2)':
+  '@storybook/telemetry@8.1.9(encoding@0.1.13)(prettier@3.5.3)':
     dependencies:
       '@storybook/client-logger': 8.1.9
-      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/core-common': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/csf-tools': 8.1.9
       chalk: 4.1.2
       detect-package-manager: 2.0.1
@@ -26149,12 +26223,12 @@ snapshots:
       '@types/express': 4.17.21
       file-system-cache: 2.3.0
 
-  '@storybook/vue3-vite@8.1.9(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))':
+  '@storybook/vue3-vite@8.1.9(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))':
     dependencies:
-      '@storybook/builder-vite': 8.1.9(encoding@0.1.13)(prettier@3.4.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
-      '@storybook/core-server': 8.1.9(encoding@0.1.13)(prettier@3.4.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@storybook/builder-vite': 8.1.9(encoding@0.1.13)(prettier@3.5.3)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
+      '@storybook/core-server': 8.1.9(encoding@0.1.13)(prettier@3.5.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@storybook/types': 8.1.9
-      '@storybook/vue3': 8.1.9(encoding@0.1.13)(prettier@3.4.2)(vue@3.5.12(typescript@5.6.2))
+      '@storybook/vue3': 8.1.9(encoding@0.1.13)(prettier@3.5.3)(vue@3.5.12(typescript@5.6.2))
       find-package-json: 1.2.0
       magic-string: 0.30.12
       typescript: 5.6.2
@@ -26173,9 +26247,9 @@ snapshots:
       - vite-plugin-glimmerx
       - vue
 
-  '@storybook/vue3@8.1.9(encoding@0.1.13)(prettier@3.4.2)(vue@3.5.12(typescript@5.6.2))':
+  '@storybook/vue3@8.1.9(encoding@0.1.13)(prettier@3.5.3)(vue@3.5.12(typescript@5.6.2))':
     dependencies:
-      '@storybook/docs-tools': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
+      '@storybook/docs-tools': 8.1.9(encoding@0.1.13)(prettier@3.5.3)
       '@storybook/global': 5.0.0
       '@storybook/preview-api': 8.1.9
       '@storybook/types': 8.1.9
@@ -27241,7 +27315,7 @@ snapshots:
 
   '@vitest/snapshot@1.6.0':
     dependencies:
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       pathe: 1.1.2
       pretty-format: 29.7.0
 
@@ -27380,7 +27454,7 @@ snapshots:
 
   '@vue/compiler-core@3.4.29':
     dependencies:
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.9
       '@vue/shared': 3.4.29
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -27420,8 +27494,8 @@ snapshots:
       '@vue/compiler-ssr': 3.5.12
       '@vue/shared': 3.5.12
       estree-walker: 2.0.2
-      magic-string: 0.30.12
-      postcss: 8.4.47
+      magic-string: 0.30.17
+      postcss: 8.5.3
       source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.5.12':
@@ -27494,12 +27568,12 @@ snapshots:
     dependencies:
       rfdc: 1.4.1
 
-  '@vue/eslint-config-prettier@9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)':
+  '@vue/eslint-config-prettier@9.0.0(@types/eslint@8.56.10)(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3)':
     dependencies:
       eslint: 9.20.1(jiti@2.4.0)
       eslint-config-prettier: 9.1.0(eslint@9.20.1(jiti@2.4.0))
-      eslint-plugin-prettier: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
-      prettier: 3.4.2
+      eslint-plugin-prettier: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3)
+      prettier: 3.5.3
     transitivePeerDependencies:
       - '@types/eslint'
 
@@ -27915,6 +27989,8 @@ snapshots:
     dependencies:
       type-fest: 1.4.0
 
+  ansi-escapes@6.2.1: {}
+
   ansi-html-community@0.0.8: {}
 
   ansi-regex@5.0.1: {}
@@ -28103,24 +28179,14 @@ snapshots:
 
   auto-bind@4.0.0: {}
 
-  autoprefixer@10.4.19(postcss@8.4.47):
+  autoprefixer@10.4.19(postcss@8.5.3):
     dependencies:
       browserslist: 4.23.2
       caniuse-lite: 1.0.30001641
       fraction.js: 4.3.7
       normalize-range: 0.1.2
       picocolors: 1.1.0
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-
-  autoprefixer@10.4.20(postcss@8.4.47):
-    dependencies:
-      browserslist: 4.24.2
-      caniuse-lite: 1.0.30001680
-      fraction.js: 4.3.7
-      normalize-range: 0.1.2
-      picocolors: 1.1.1
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
   autoprefixer@10.4.20(postcss@8.5.3):
@@ -28972,6 +29038,8 @@ snapshots:
 
   commander@12.1.0: {}
 
+  commander@13.1.0: {}
+
   commander@2.20.3: {}
 
   commander@4.1.1: {}
@@ -29294,10 +29362,6 @@ snapshots:
     dependencies:
       type-fest: 1.4.0
 
-  css-declaration-sorter@7.2.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
-
   css-declaration-sorter@7.2.0(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
@@ -29438,47 +29502,43 @@ snapshots:
       postcss-svgo: 7.0.1(postcss@8.5.3)
       postcss-unique-selectors: 7.0.1(postcss@8.5.3)
 
-  cssnano-preset-default@7.0.6(postcss@8.4.47):
+  cssnano-preset-default@7.0.6(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
-      css-declaration-sorter: 7.2.0(postcss@8.4.47)
-      cssnano-utils: 5.0.0(postcss@8.4.47)
-      postcss: 8.4.47
-      postcss-calc: 10.0.2(postcss@8.4.47)
-      postcss-colormin: 7.0.2(postcss@8.4.47)
-      postcss-convert-values: 7.0.4(postcss@8.4.47)
-      postcss-discard-comments: 7.0.3(postcss@8.4.47)
-      postcss-discard-duplicates: 7.0.1(postcss@8.4.47)
-      postcss-discard-empty: 7.0.0(postcss@8.4.47)
-      postcss-discard-overridden: 7.0.0(postcss@8.4.47)
-      postcss-merge-longhand: 7.0.4(postcss@8.4.47)
-      postcss-merge-rules: 7.0.4(postcss@8.4.47)
-      postcss-minify-font-values: 7.0.0(postcss@8.4.47)
-      postcss-minify-gradients: 7.0.0(postcss@8.4.47)
-      postcss-minify-params: 7.0.2(postcss@8.4.47)
-      postcss-minify-selectors: 7.0.4(postcss@8.4.47)
-      postcss-normalize-charset: 7.0.0(postcss@8.4.47)
-      postcss-normalize-display-values: 7.0.0(postcss@8.4.47)
-      postcss-normalize-positions: 7.0.0(postcss@8.4.47)
-      postcss-normalize-repeat-style: 7.0.0(postcss@8.4.47)
-      postcss-normalize-string: 7.0.0(postcss@8.4.47)
-      postcss-normalize-timing-functions: 7.0.0(postcss@8.4.47)
-      postcss-normalize-unicode: 7.0.2(postcss@8.4.47)
-      postcss-normalize-url: 7.0.0(postcss@8.4.47)
-      postcss-normalize-whitespace: 7.0.0(postcss@8.4.47)
-      postcss-ordered-values: 7.0.1(postcss@8.4.47)
-      postcss-reduce-initial: 7.0.2(postcss@8.4.47)
-      postcss-reduce-transforms: 7.0.0(postcss@8.4.47)
-      postcss-svgo: 7.0.1(postcss@8.4.47)
-      postcss-unique-selectors: 7.0.3(postcss@8.4.47)
+      css-declaration-sorter: 7.2.0(postcss@8.5.3)
+      cssnano-utils: 5.0.0(postcss@8.5.3)
+      postcss: 8.5.3
+      postcss-calc: 10.0.2(postcss@8.5.3)
+      postcss-colormin: 7.0.2(postcss@8.5.3)
+      postcss-convert-values: 7.0.4(postcss@8.5.3)
+      postcss-discard-comments: 7.0.3(postcss@8.5.3)
+      postcss-discard-duplicates: 7.0.1(postcss@8.5.3)
+      postcss-discard-empty: 7.0.0(postcss@8.5.3)
+      postcss-discard-overridden: 7.0.0(postcss@8.5.3)
+      postcss-merge-longhand: 7.0.4(postcss@8.5.3)
+      postcss-merge-rules: 7.0.4(postcss@8.5.3)
+      postcss-minify-font-values: 7.0.0(postcss@8.5.3)
+      postcss-minify-gradients: 7.0.0(postcss@8.5.3)
+      postcss-minify-params: 7.0.2(postcss@8.5.3)
+      postcss-minify-selectors: 7.0.4(postcss@8.5.3)
+      postcss-normalize-charset: 7.0.0(postcss@8.5.3)
+      postcss-normalize-display-values: 7.0.0(postcss@8.5.3)
+      postcss-normalize-positions: 7.0.0(postcss@8.5.3)
+      postcss-normalize-repeat-style: 7.0.0(postcss@8.5.3)
+      postcss-normalize-string: 7.0.0(postcss@8.5.3)
+      postcss-normalize-timing-functions: 7.0.0(postcss@8.5.3)
+      postcss-normalize-unicode: 7.0.2(postcss@8.5.3)
+      postcss-normalize-url: 7.0.0(postcss@8.5.3)
+      postcss-normalize-whitespace: 7.0.0(postcss@8.5.3)
+      postcss-ordered-values: 7.0.1(postcss@8.5.3)
+      postcss-reduce-initial: 7.0.2(postcss@8.5.3)
+      postcss-reduce-transforms: 7.0.0(postcss@8.5.3)
+      postcss-svgo: 7.0.1(postcss@8.5.3)
+      postcss-unique-selectors: 7.0.3(postcss@8.5.3)
 
   cssnano-utils@4.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-
-  cssnano-utils@5.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
 
   cssnano-utils@5.0.0(postcss@8.5.3):
     dependencies:
@@ -29496,11 +29556,11 @@ snapshots:
       lilconfig: 3.1.2
       postcss: 8.5.3
 
-  cssnano@7.0.6(postcss@8.4.47):
+  cssnano@7.0.6(postcss@8.5.3):
     dependencies:
-      cssnano-preset-default: 7.0.6(postcss@8.4.47)
+      cssnano-preset-default: 7.0.6(postcss@8.5.3)
       lilconfig: 3.1.2
-      postcss: 8.4.47
+      postcss: 8.5.3
 
   csso@5.0.5:
     dependencies:
@@ -30055,6 +30115,8 @@ snapshots:
 
   es-module-lexer@1.5.4: {}
 
+  es-module-lexer@1.7.0: {}
+
   es-object-atoms@1.1.1:
     dependencies:
       es-errors: 1.3.0
@@ -30369,6 +30431,16 @@ snapshots:
     dependencies:
       eslint: 9.20.1(jiti@2.4.0)
       prettier: 3.4.2
+      prettier-linter-helpers: 1.0.0
+      synckit: 0.9.2
+    optionalDependencies:
+      '@types/eslint': 8.56.10
+      eslint-config-prettier: 9.1.0(eslint@9.20.1(jiti@2.4.0))
+
+  eslint-plugin-prettier@5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.5.3):
+    dependencies:
+      eslint: 9.20.1(jiti@2.4.0)
+      prettier: 3.5.3
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.2
     optionalDependencies:
@@ -31539,7 +31611,7 @@ snapshots:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 3.0.0
@@ -34308,7 +34380,7 @@ snapshots:
       workerd: 1.20240701.0
       ws: 8.18.0
       youch: 3.3.3
-      zod: 3.23.8
+      zod: 3.24.1
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -34517,8 +34589,6 @@ snapshots:
     optional: true
 
   nanoid@3.3.11: {}
-
-  nanoid@3.3.7: {}
 
   nanoid@5.1.5: {}
 
@@ -35335,7 +35405,7 @@ snapshots:
 
   parse-imports@2.1.1:
     dependencies:
-      es-module-lexer: 1.5.4
+      es-module-lexer: 1.7.0
       slashes: 3.0.12
 
   parse-json@5.2.0:
@@ -35605,9 +35675,9 @@ snapshots:
       postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
-  postcss-calc@10.0.2(postcss@8.4.47):
+  postcss-calc@10.0.2(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
@@ -35617,7 +35687,7 @@ snapshots:
       postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
-  postcss-cli@11.0.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1):
+  postcss-cli@11.0.0(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1):
     dependencies:
       chokidar: 3.6.0
       dependency-graph: 0.11.0
@@ -35625,9 +35695,9 @@ snapshots:
       get-stdin: 9.0.0
       globby: 14.0.2
       picocolors: 1.0.1
-      postcss: 8.4.47
-      postcss-load-config: 5.1.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1)
-      postcss-reporter: 7.1.0(postcss@8.4.47)
+      postcss: 8.5.3
+      postcss-load-config: 5.1.0(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1)
+      postcss-reporter: 7.1.0(postcss@8.5.3)
       pretty-hrtime: 1.0.3
       read-cache: 1.0.0
       slash: 5.1.0
@@ -35652,12 +35722,12 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-colormin@7.0.2(postcss@8.4.47):
+  postcss-colormin@7.0.2(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
       caniuse-api: 3.0.0
       colord: 2.9.3
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
   postcss-convert-values@6.1.0(postcss@8.5.3):
@@ -35672,10 +35742,10 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-convert-values@7.0.4(postcss@8.4.47):
+  postcss-convert-values@7.0.4(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
   postcss-discard-comments@6.0.2(postcss@8.5.3):
@@ -35687,9 +35757,9 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  postcss-discard-comments@7.0.3(postcss@8.4.47):
+  postcss-discard-comments@7.0.3(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
   postcss-discard-duplicates@6.0.3(postcss@8.5.3):
@@ -35700,17 +35770,13 @@ snapshots:
     dependencies:
       postcss: 8.5.3
 
-  postcss-discard-duplicates@7.0.1(postcss@8.4.47):
+  postcss-discard-duplicates@7.0.1(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
 
   postcss-discard-empty@6.0.3(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-
-  postcss-discard-empty@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
 
   postcss-discard-empty@7.0.0(postcss@8.5.3):
     dependencies:
@@ -35719,10 +35785,6 @@ snapshots:
   postcss-discard-overridden@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-
-  postcss-discard-overridden@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
 
   postcss-discard-overridden@7.0.0(postcss@8.5.3):
     dependencies:
@@ -35733,33 +35795,33 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  postcss-import@15.1.0(postcss@8.4.47):
+  postcss-import@15.1.0(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
       read-cache: 1.0.0
       resolve: 1.22.8
 
-  postcss-js@4.0.1(postcss@8.4.47):
+  postcss-js@4.0.1(postcss@8.5.3):
     dependencies:
       camelcase-css: 2.0.1
-      postcss: 8.4.47
+      postcss: 8.5.3
 
-  postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
+  postcss-load-config@4.0.2(postcss@8.5.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.6.0
     optionalDependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
 
-  postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1):
+  postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.6.0
     optionalDependencies:
       jiti: 2.4.0
-      postcss: 8.4.47
+      postcss: 8.5.3
       tsx: 4.19.1
 
   postcss-load-config@6.0.1(jiti@2.4.0)(postcss@8.5.3)(tsx@4.19.1)(yaml@2.6.0):
@@ -35799,11 +35861,11 @@ snapshots:
       postcss-value-parser: 4.2.0
       stylehacks: 7.0.2(postcss@8.5.3)
 
-  postcss-merge-longhand@7.0.4(postcss@8.4.47):
+  postcss-merge-longhand@7.0.4(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
-      stylehacks: 7.0.4(postcss@8.4.47)
+      stylehacks: 7.0.4(postcss@8.5.3)
 
   postcss-merge-rules@6.1.1(postcss@8.5.3):
     dependencies:
@@ -35821,22 +35883,17 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  postcss-merge-rules@7.0.4(postcss@8.4.47):
+  postcss-merge-rules@7.0.4(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
       caniuse-api: 3.0.0
-      cssnano-utils: 5.0.0(postcss@8.4.47)
-      postcss: 8.4.47
+      cssnano-utils: 5.0.0(postcss@8.5.3)
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
   postcss-minify-font-values@6.1.0(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-minify-font-values@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-minify-font-values@7.0.0(postcss@8.5.3):
@@ -35849,13 +35906,6 @@ snapshots:
       colord: 2.9.3
       cssnano-utils: 4.0.2(postcss@8.5.3)
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-minify-gradients@7.0.0(postcss@8.4.47):
-    dependencies:
-      colord: 2.9.3
-      cssnano-utils: 5.0.0(postcss@8.4.47)
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-minify-gradients@7.0.0(postcss@8.5.3):
@@ -35879,11 +35929,11 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-minify-params@7.0.2(postcss@8.4.47):
+  postcss-minify-params@7.0.2(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
-      cssnano-utils: 5.0.0(postcss@8.4.47)
-      postcss: 8.4.47
+      cssnano-utils: 5.0.0(postcss@8.5.3)
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
   postcss-minify-selectors@6.0.4(postcss@8.5.3):
@@ -35897,10 +35947,10 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  postcss-minify-selectors@7.0.4(postcss@8.4.47):
+  postcss-minify-selectors@7.0.4(postcss@8.5.3):
     dependencies:
       cssesc: 3.0.0
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
   postcss-modules-extract-imports@3.1.0(postcss@8.5.3):
@@ -35924,30 +35974,21 @@ snapshots:
       icss-utils: 5.1.0(postcss@8.5.3)
       postcss: 8.5.3
 
-  postcss-nested@6.0.1(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
-      postcss-selector-parser: 6.1.0
-
   postcss-nested@6.0.1(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.0
 
-  postcss-nesting@12.1.5(postcss@8.4.47):
+  postcss-nesting@12.1.5(postcss@8.5.3):
     dependencies:
       '@csstools/selector-resolve-nested': 1.1.0(postcss-selector-parser@6.1.1)
       '@csstools/selector-specificity': 3.1.1(postcss-selector-parser@6.1.1)
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.1
 
   postcss-normalize-charset@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-
-  postcss-normalize-charset@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
 
   postcss-normalize-charset@7.0.0(postcss@8.5.3):
     dependencies:
@@ -35956,11 +35997,6 @@ snapshots:
   postcss-normalize-display-values@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-normalize-display-values@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-display-values@7.0.0(postcss@8.5.3):
@@ -35973,11 +36009,6 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-normalize-positions@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-
   postcss-normalize-positions@7.0.0(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
@@ -35986,11 +36017,6 @@ snapshots:
   postcss-normalize-repeat-style@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-normalize-repeat-style@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-repeat-style@7.0.0(postcss@8.5.3):
@@ -36003,11 +36029,6 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-normalize-string@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-
   postcss-normalize-string@7.0.0(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
@@ -36016,11 +36037,6 @@ snapshots:
   postcss-normalize-timing-functions@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-normalize-timing-functions@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-timing-functions@7.0.0(postcss@8.5.3):
@@ -36040,20 +36056,15 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-normalize-unicode@7.0.2(postcss@8.4.47):
+  postcss-normalize-unicode@7.0.2(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
   postcss-normalize-url@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-normalize-url@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-url@7.0.0(postcss@8.5.3):
@@ -36064,11 +36075,6 @@ snapshots:
   postcss-normalize-whitespace@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-normalize-whitespace@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-whitespace@7.0.0(postcss@8.5.3):
@@ -36082,21 +36088,15 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-ordered-values@7.0.1(postcss@8.4.47):
-    dependencies:
-      cssnano-utils: 5.0.0(postcss@8.4.47)
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-
   postcss-ordered-values@7.0.1(postcss@8.5.3):
     dependencies:
       cssnano-utils: 5.0.0(postcss@8.5.3)
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-prefix-selector@1.16.1(postcss@8.4.47):
+  postcss-prefix-selector@1.16.1(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
 
   postcss-reduce-idents@6.0.3(postcss@8.5.3):
     dependencies:
@@ -36115,20 +36115,15 @@ snapshots:
       caniuse-api: 3.0.0
       postcss: 8.5.3
 
-  postcss-reduce-initial@7.0.2(postcss@8.4.47):
+  postcss-reduce-initial@7.0.2(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
       caniuse-api: 3.0.0
-      postcss: 8.4.47
+      postcss: 8.5.3
 
   postcss-reduce-transforms@6.0.2(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
-      postcss-value-parser: 4.2.0
-
-  postcss-reduce-transforms@7.0.0(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-reduce-transforms@7.0.0(postcss@8.5.3):
@@ -36136,10 +36131,10 @@ snapshots:
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
 
-  postcss-reporter@7.1.0(postcss@8.4.47):
+  postcss-reporter@7.1.0(postcss@8.5.3):
     dependencies:
       picocolors: 1.1.0
-      postcss: 8.4.47
+      postcss: 8.5.3
       thenby: 1.3.4
 
   postcss-selector-parser@6.1.0:
@@ -36168,12 +36163,6 @@ snapshots:
       postcss-value-parser: 4.2.0
       svgo: 3.3.2
 
-  postcss-svgo@7.0.1(postcss@8.4.47):
-    dependencies:
-      postcss: 8.4.47
-      postcss-value-parser: 4.2.0
-      svgo: 3.3.2
-
   postcss-svgo@7.0.1(postcss@8.5.3):
     dependencies:
       postcss: 8.5.3
@@ -36190,9 +36179,9 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  postcss-unique-selectors@7.0.3(postcss@8.4.47):
+  postcss-unique-selectors@7.0.3(postcss@8.5.3):
     dependencies:
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
   postcss-value-parser@4.2.0: {}
@@ -36204,12 +36193,6 @@ snapshots:
   postcss@8.4.31:
     dependencies:
       nanoid: 3.3.11
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
-  postcss@8.4.47:
-    dependencies:
-      nanoid: 3.3.7
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
@@ -36249,6 +36232,8 @@ snapshots:
   prettier@3.3.3: {}
 
   prettier@3.4.2: {}
+
+  prettier@3.5.3: {}
 
   pretty-bytes@5.6.0: {}
 
@@ -36501,7 +36486,7 @@ snapshots:
       quick-lru: 7.0.0
       url-join: 5.0.0
       validate-npm-package-name: 5.0.1
-      zod: 3.23.8
+      zod: 3.24.1
       zod-package-json: 1.0.3
 
   query-string@9.1.1:
@@ -37985,6 +37970,13 @@ snapshots:
 
   stdin-discarder@0.2.2: {}
 
+  stdout-update@4.0.1:
+    dependencies:
+      ansi-escapes: 6.2.1
+      ansi-styles: 6.2.1
+      string-width: 7.1.0
+      strip-ansi: 7.1.0
+
   stop-iteration-iterator@1.0.0:
     dependencies:
       internal-slot: 1.0.7
@@ -38176,10 +38168,10 @@ snapshots:
       postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
-  stylehacks@7.0.4(postcss@8.4.47):
+  stylehacks@7.0.4(postcss@8.5.3):
     dependencies:
       browserslist: 4.24.2
-      postcss: 8.4.47
+      postcss: 8.5.3
       postcss-selector-parser: 6.1.2
 
   sucrase@3.35.0:
@@ -38225,7 +38217,7 @@ snapshots:
       methods: 1.1.2
       mime: 2.6.0
       qs: 6.13.0
-      semver: 7.6.2
+      semver: 7.6.3
     transitivePeerDependencies:
       - supports-color
 
@@ -38398,12 +38390,12 @@ snapshots:
       micromatch: 4.0.8
       normalize-path: 3.0.0
       object-hash: 3.0.0
-      picocolors: 1.1.0
-      postcss: 8.4.47
-      postcss-import: 15.1.0(postcss@8.4.47)
-      postcss-js: 4.0.1(postcss@8.4.47)
-      postcss-load-config: 4.0.2(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      postcss-nested: 6.0.1(postcss@8.4.47)
+      picocolors: 1.1.1
+      postcss: 8.5.3
+      postcss-import: 15.1.0(postcss@8.5.3)
+      postcss-js: 4.0.1(postcss@8.5.3)
+      postcss-load-config: 4.0.2(postcss@8.5.3)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
+      postcss-nested: 6.0.1(postcss@8.5.3)
       postcss-selector-parser: 6.1.2
       resolve: 1.22.8
       sucrase: 3.35.0
@@ -39541,7 +39533,7 @@ snapshots:
     dependencies:
       cac: 6.7.14
       debug: 4.4.0(supports-color@9.4.0)
-      es-module-lexer: 1.5.4
+      es-module-lexer: 1.7.0
       pathe: 1.1.2
       vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
     transitivePeerDependencies:
@@ -39554,6 +39546,27 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vite-node@3.1.1(@types/node@20.17.10)(jiti@2.4.0)(terser@5.31.2)(tsx@4.19.1)(yaml@2.6.0):
+    dependencies:
+      cac: 6.7.14
+      debug: 4.4.0(supports-color@9.4.0)
+      es-module-lexer: 1.7.0
+      pathe: 2.0.3
+      vite: 6.2.5(@types/node@20.17.10)(jiti@2.4.0)(terser@5.31.2)(tsx@4.19.1)(yaml@2.6.0)
+    transitivePeerDependencies:
+      - '@types/node'
+      - jiti
+      - less
+      - lightningcss
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tsx
+      - yaml
 
   vite-plugin-banner@0.7.1: {}
 
@@ -39708,8 +39721,8 @@ snapshots:
   vite@5.4.10(@types/node@20.17.10)(terser@5.31.2):
     dependencies:
       esbuild: 0.21.5
-      postcss: 8.4.47
-      rollup: 4.24.4
+      postcss: 8.5.3
+      rollup: 4.36.0
     optionalDependencies:
       '@types/node': 20.17.10
       fsevents: 2.3.3
@@ -39767,7 +39780,7 @@ snapshots:
       debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       pathe: 1.1.2
       picocolors: 1.1.1
       std-env: 3.7.0
@@ -39802,7 +39815,7 @@ snapshots:
       debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       pathe: 1.1.2
       picocolors: 1.1.1
       std-env: 3.7.0
@@ -39837,7 +39850,7 @@ snapshots:
       debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       pathe: 1.1.2
       picocolors: 1.1.1
       std-env: 3.7.0
@@ -40477,7 +40490,7 @@ snapshots:
 
   zod-package-json@1.0.3:
     dependencies:
-      zod: 3.23.8
+      zod: 3.24.1
 
   zod-to-ts@1.2.0(typescript@5.6.2)(zod@3.24.1):
     dependencies:
@@ -40488,8 +40501,6 @@ snapshots:
     dependencies:
       typescript: 5.6.2
       zod: 3.24.1
-
-  zod@3.23.8: {}
 
   zod@3.24.1: {}
 
