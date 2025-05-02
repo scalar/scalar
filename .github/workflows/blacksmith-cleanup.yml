@@ -1,0 +1,23 @@
+name: Blacksmith Cleanup
+
+on:
+  push:
+  workflow_dispatch: null
+
+jobs:
+  cleanup-turbo-cache:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    timeout-minutes: 10
+    steps:
+      - name: Attach sticky disk
+        uses: useblacksmith/stickydisk@1a5dbf4b4af58d15a0bcadf7a3928a287d5a600f
+        with:
+          key: ${{ github.repository }}-${{ matrix.node-version }}-turbo-cache
+          path: /
+      - name: Check
+        run: echo Removing on ${{ matrix.node-version }}
+      - name: Cleanup Turbo Cache
+        run: rm -rf *
