@@ -1,7 +1,6 @@
 import { test } from '@playwright/test'
 
 import { testApiReference, testHelloWorld } from './testApiReference'
-import { testPlayButton } from './testPlayButton'
 
 const HOST = process.env.HOST || 'localhost'
 
@@ -38,9 +37,4 @@ test('@scalar/api-reference local build (json content)', async ({ page }) => {
 test('@scalar/api-reference local build (yaml content)', async ({ page }) => {
   await page.goto(`http://${HOST}:3173/api-reference-local-yaml-content.html`)
   await testHelloWorld(page)
-})
-
-test('@scalar/play-button local build', async ({ page }) => {
-  await page.goto(`http://${HOST}:3173/play-button-local.html`)
-  await testPlayButton(page)
 })

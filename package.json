@@ -49,7 +49,7 @@
     "build:packages": "turbo --filter './packages/**' --concurrency=100% build",
     "build:integrations": "turbo --filter './integrations/**' build",
     "build:api-reference": "turbo --filter './packages/api-reference' build",
-    "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",
+    "build:standalone": "pnpm --filter api-reference build:standalone",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt; pnpm clean:next",
     "clean:install": "pnpm clean ; pnpm i",
     "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",

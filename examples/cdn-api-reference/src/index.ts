@@ -3,7 +3,6 @@ import { join } from 'node:path'
 
 import fastifyStatic from '@fastify/static'
 import apiReferenceBundle from '@scalar/api-reference/browser/standalone.js?raw'
-import playButtonBundle from '@scalar/play-button?raw'
 import fastify from 'fastify'
 
 const app = await fastify({ logger: true })
@@ -23,12 +22,6 @@ app.get('/ping', (_request, reply) => {
 
 app.get('/api-reference/standalone.js', (_request, reply) => {
   reply.code(200).header('Content-Type', 'text/javascript; charset=utf-8').send(apiReferenceBundle)
-})
-
-// @scalar/play-button bundle
-
-app.get('/play-button/standalone.js', (_request, reply) => {
-  reply.code(200).header('Content-Type', 'text/javascript; charset=utf-8').send(playButtonBundle)
 })
 
 // Run the server!
