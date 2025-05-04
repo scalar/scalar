@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <Title>Scalar.AspNetCore</Title>
     <Description>Generate beautiful interactive API documentation from OpenAPI/Swagger documents.</Description>
@@ -18,11 +18,11 @@
     <InternalsVisibleTo Include="$(AssemblyName).Microsoft" />
     <InternalsVisibleTo Include="$(AssemblyName).Swashbuckle" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta12" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>
-  
+
   <ItemGroup>
     <EmbeddedResource Include="StaticAssets/*" Exclude="StaticAssets/*test.js">
       <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
