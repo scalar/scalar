@@ -237,7 +237,7 @@ const collection = createCollection({
 })
 
 // Add an overlay
-collection.addOverlay({
+collection.apply({
   overlay: '1.0.0',
   info: {
     title: 'Overlay Example',
@@ -256,7 +256,7 @@ collection.addOverlay({
 })
 
 // Or even multiple at once
-collection.addOverlay([overlay1, overlay2])
+collection.apply([overlay1, overlay2])
 ```
 
 
@@ -317,3 +317,17 @@ const workspace = createWorkspace({
 })
 ```
 
+### Work with collections
+
+You can access all collection methods through the workspace for convenience.
+
+```ts
+// Replace the whole OpenAPI document
+workspace.update('myCollection', { … })
+
+// Add data to an existing document
+workspace.merge('myCollection', { … })
+
+// Apply OpenAPI overlays
+workspace.apply('myCollection', { … })
+```

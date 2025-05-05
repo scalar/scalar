@@ -215,6 +215,44 @@ describe('create-workspace', () => {
     })
   })
 
+  describe('update', () => {
+    it('can update a collection via workspace.update', () => {
+      const workspace = createWorkspace()
+      workspace.load('foo', {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {},
+      })
+
+      workspace.update('foo', {
+        openapi: '3.1.1',
+        info: { title: 'Updated', version: '2.0.0' },
+        paths: {},
+      })
+
+      expect(workspace.state.collections.foo.document.info.title).toBe('Updated')
+      expect(workspace.state.collections.foo.document.info.version).toBe('2.0.0')
+    })
+  })
+
+  describe('merge', () => {
+    it('can merge a collection via workspace.merge', () => {
+      const workspace = createWorkspace()
+      workspace.load('foo', {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {},
+      })
+
+      workspace.merge('foo', {
+        info: { title: 'Merged Title' },
+      })
+
+      expect(workspace.state.collections.foo.document.info.title).toBe('Merged Title')
+      expect(workspace.state.collections.foo.document.info.version).toBe('1.0.0')
+    })
+  })
+
   describe('delete', () => {
     it('deletes a collection', () => {
       const workspace = createWorkspace()
@@ -230,6 +268,38 @@ describe('create-workspace', () => {
       workspace.delete('default')
 
       expect(workspace.state.collections.default).toBeUndefined()
+    })
+  })
+
+  describe('overlay', () => {
+    it('can apply an overlay to a collection via workspace.overlay', () => {
+      const workspace = createWorkspace()
+      workspace.load('foo', {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {
+          '/planets': {
+            get: { summary: 'List planets' },
+          },
+        },
+      })
+
+      workspace.apply('foo', {
+        overlay: '1.0.0',
+        actions: [
+          {
+            target: '$.info',
+            update: { title: 'Overlayed Title' },
+          },
+          {
+            target: "$.paths['/planets'].get",
+            update: { summary: 'Overlayed summary' },
+          },
+        ],
+      })
+
+      expect(workspace.state.collections.foo.document.info.title).toBe('Overlayed Title')
+      expect(workspace.state.collections.foo.document.paths['/planets'].get.summary).toBe('Overlayed summary')
     })
   })
 })

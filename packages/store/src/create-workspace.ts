@@ -18,6 +18,9 @@ type Workspace = {
   ) => void
   export: (collectionId: string) => Record<string, unknown>
   delete: (collectionId: string) => void
+  update: (collectionId: string, newDocument: Record<string, unknown>) => void
+  merge: (collectionId: string, partialDocument: Record<string, unknown>) => void
+  apply: (collectionId: string, overlay: Record<string, unknown> | Record<string, unknown>[]) => void
 }
 
 type WorkspacePlugin = {
@@ -73,6 +76,24 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
     },
     export(collectionId: string) {
       return workspace.state.collections[collectionId]?.export()
+    },
+    update(collectionId: string, newDocument: Record<string, unknown>) {
+      const collection = workspace.state.collections[collectionId]
+      if (collection && typeof collection.update === 'function') {
+        collection.update(newDocument)
+      }
+    },
+    merge(collectionId: string, partialDocument: Record<string, unknown>) {
+      const collection = workspace.state.collections[collectionId]
+      if (collection && typeof collection.merge === 'function') {
+        collection.merge(partialDocument)
+      }
+    },
+    apply(collectionId: string, overlay: Record<string, unknown> | Record<string, unknown>[]) {
+      const collection = workspace.state.collections[collectionId]
+      if (collection && typeof collection.apply === 'function') {
+        collection.apply(overlay)
+      }
     },
   } as Workspace
 
