@@ -57,6 +57,9 @@ export function createCollection(
     return {
       document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
       export: () => exportRawDocument(unwrappedInput),
+      merge: (partialDocument: UnknownObject) => {
+        deepMerge(input.value, partialDocument)
+      },
     }
   }
 
@@ -98,6 +101,9 @@ export function createCollection(
       return exportRawDocument(sourceDocument)
     },
     apply,
+    merge(partialDocument: UnknownObject) {
+      deepMerge(sourceDocument, partialDocument)
+    },
   }
 }
 
@@ -421,6 +427,20 @@ function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
       } else if (action.update && typeof target === 'object' && target !== null) {
         Object.assign(target, action.update)
       }
+    }
+  }
+}
+
+/**
+ * Deeply merges source into target, mutating target.
+ * Only merges plain objects, not arrays.
+ */
+function deepMerge(target: UnknownObject, source: UnknownObject) {
+  for (const key in source) {
+    if (isObject(source[key]) && isObject(target[key])) {
+      deepMerge(target[key] as UnknownObject, source[key] as UnknownObject)
+    } else {
+      target[key] = source[key]
     }
   }
 }
