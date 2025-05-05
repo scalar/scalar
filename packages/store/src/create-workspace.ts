@@ -124,7 +124,11 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
   return workspace
 }
 
-// Persistence plugin
+/**
+ * Local Storage Persistence Plugin
+ *
+ * TODO: Make this work with async hooks (We’ll need this to support IndexDB).
+ */
 export function localStoragePlugin(options?: { key?: string }): WorkspacePlugin {
   const DEFAULT_LOCAL_STORAGE_KEY = 'state'
   const key = options?.key || DEFAULT_LOCAL_STORAGE_KEY
