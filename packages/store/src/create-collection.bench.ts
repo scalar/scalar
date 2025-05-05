@@ -37,9 +37,7 @@ describe('create-collection', () => {
     const workspaceStore = createWorkspaceStore({
       useLocalStorage: false,
     })
-
     workspaceStore.workspaceMutators.add('default')
-
     workspaceStore.importSpecFile(EXAMPLE_DOCUMENT, 'default')
 
     await waitFor(() => {
