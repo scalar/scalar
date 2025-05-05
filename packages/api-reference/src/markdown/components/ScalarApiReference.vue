@@ -31,4 +31,21 @@ const content = computed<OpenAPIV3_1.Document>(() =>
   <ScalarMarkdown
     :value="content?.info?.description"
     v-if="content?.info?.description" />
+
+  <template v-if="Object.keys(content?.paths ?? {}).length">
+    <h2>Operations</h2>
+
+    <template
+      v-for="path in Object.keys(content?.paths ?? {})"
+      :key="path">
+      <template
+        v-for="(operation, method) in content?.paths?.[path]"
+        :key="operation">
+        <h3>{{ method.toString().toUpperCase() }} {{ path }}</h3>
+
+        <ScalarMarkdown :value="operation.summary" />
+        <ScalarMarkdown :value="operation.description" />
+      </template>
+    </template>
+  </template>
 </template>
