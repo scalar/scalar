@@ -92,16 +92,15 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
     "vite": "^5.1.1",
-    "vite-svg-loader": "^5.1.0",
-    "vue": "catalog:"
+    "vite-svg-loader": "^5.1.0"
   }
 }
