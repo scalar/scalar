@@ -185,8 +185,7 @@ export const createRequestOperation = ({
          * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
          * content-type === 'text/plain' and transfer-encoding === 'chunked'
          *
-         * Currently we are only checking for server sent events. In the future we should let the user select if its a stream in the UI as there's no
-         * way to reliably test for it in the browser.
+         * Currently we are only checking for server sent events. In OpenApi 3.2.0 streams will be added to the spec
          */
         const isStreaming = response.headers.get('content-type')?.startsWith('text/event-stream')
         status?.emit('stop')
