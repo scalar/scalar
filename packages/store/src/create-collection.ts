@@ -4,19 +4,21 @@ import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reacti
 
 export type Collection = ReturnType<typeof createCollection>
 
+type UnknownObject = Record<string, unknown>
+
 /**
  * Creates a store with JSON reference resolution capabilities.
  *
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createCollection(input: Record<string, unknown> | string | Ref<Record<string, unknown> | string>) {
+export function createCollection(input: UnknownObject | string | Ref<UnknownObject | string>) {
   // Unwrap Ref input if necessary
   let unwrappedInput = isRef(input) ? input.value : input
 
   // If input is a string (from Ref or direct), normalize it
   if (typeof unwrappedInput === 'string') {
-    unwrappedInput = normalize(unwrappedInput) as Record<string, unknown>
+    unwrappedInput = normalize(unwrappedInput) as UnknownObject
   }
 
   // TODO: Embed external references
@@ -26,9 +28,8 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
 
   // TODO: OpenApiObjectSchema.parse is too strict
   const content = OpenApiObjectSchema.parse(upgraded)
-  // const content = upgraded
 
-  // If input is a Ref<Record<string, unknown>>, use its value directly as the source document
+  // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
     // Cache for storing resolved reference proxies to handle circular references
     const resolvedProxyCache = new WeakMap()
@@ -44,21 +45,7 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
 
   // If input is a Ref<string>, watch for changes and update the reactive document
   if (isRef(input) && typeof input.value === 'string') {
-    watch(
-      input,
-      (newValue) => {
-        const normalized = normalize(newValue)
-
-        // Remove all existing keys
-        Object.keys(sourceDocument).forEach((key) => {
-          delete sourceDocument[key as keyof typeof sourceDocument]
-        })
-
-        // Add new keys
-        Object.entries(normalized).forEach(([key, value]) => ((sourceDocument as Record<string, unknown>)[key] = value))
-      },
-      { immediate: false },
-    )
+    watch(input, (newValue) => updateReactiveDocument(sourceDocument, newValue), { immediate: false })
   }
 
   // Cache for storing resolved reference proxies to handle circular references
@@ -81,7 +68,7 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
 /**
  * Exports a raw document with internal properties (starting with "_") removed.
  */
-function exportRawDocument(document: Record<string, unknown>): Record<string, unknown> {
+function exportRawDocument(document: UnknownObject): UnknownObject {
   const raw = toRaw(document)
 
   removeProperties(raw, {
@@ -96,9 +83,9 @@ function exportRawDocument(document: Record<string, unknown>): Record<string, un
  */
 function createReferenceProxy(
   /** The object to wrap in a proxy */
-  targetObject: Record<string, unknown>,
+  targetObject: UnknownObject,
   /** The root reactive document for reference resolution */
-  sourceDocument: Record<string, unknown>,
+  sourceDocument: UnknownObject,
   /** A WeakMap for caching proxies to handle circular references */
   resolvedProxyCache: WeakMap<object, unknown>,
 ) {
@@ -114,14 +101,14 @@ function createReferenceProxy(
   }
 
   const proxyHandler = {
-    get(target: Record<string, unknown>, property: string, receiver: Record<string, unknown>) {
+    get(target: UnknownObject, property: string, receiver: UnknownObject) {
       if (property === '__isProxy') {
         return true
       }
 
       const value = Reflect.get(target, property, receiver)
 
-      if (value && typeof value === 'object') {
+      if (isObject(value)) {
         if ('$ref' in value) {
           const referencePath = parseJsonPointer(value.$ref as string)
           const resolvedValue = getValueByPath(sourceDocument, referencePath)
@@ -138,16 +125,11 @@ function createReferenceProxy(
       return value
     },
 
-    set(target: Record<string, unknown>, property: string, newValue: unknown, receiver: Record<string, unknown>) {
+    set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
       const rawTarget = isReactive(target) ? toRaw(target) : target
       const currentValue = rawTarget[property]
 
-      if (
-        currentValue &&
-        typeof currentValue === 'object' &&
-        '$ref' in currentValue &&
-        typeof currentValue.$ref === 'string'
-      ) {
+      if (isObject(currentValue) && '$ref' in currentValue && typeof currentValue.$ref === 'string') {
         const referencePath = parseJsonPointer(currentValue.$ref)
         const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
         const lastPathSegment = referencePath[referencePath.length - 1]
@@ -161,40 +143,63 @@ function createReferenceProxy(
       return true
     },
 
-    has(target: Record<string, unknown>, key: string) {
+    has(target: UnknownObject, key: string) {
       if (typeof key === 'string' && key !== '$ref' && typeof target.$ref === 'string') {
         const referencePath = parseJsonPointer(target['$ref'])
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
+
         return resolvedValue ? key in resolvedValue : false
       }
 
       return key in target
     },
 
-    ownKeys(target: Record<string, unknown>) {
+    ownKeys(target: UnknownObject) {
       if ('$ref' in target && typeof target.$ref === 'string') {
         const referencePath = parseJsonPointer(target['$ref'])
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
+
         return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
       }
+
       return Reflect.ownKeys(target)
     },
 
-    getOwnPropertyDescriptor(target: Record<string, unknown>, key: string) {
+    getOwnPropertyDescriptor(target: UnknownObject, key: string) {
       if ('$ref' in target && key !== '$ref' && typeof target.$ref === 'string') {
         const referencePath = parseJsonPointer(target['$ref'])
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
+
         if (resolvedValue) {
           return Object.getOwnPropertyDescriptor(resolvedValue, key)
         }
       }
+
       return Object.getOwnPropertyDescriptor(target, key)
     },
   }
 
   const proxy = new Proxy(targetObject, proxyHandler)
+
   resolvedProxyCache.set(rawTarget, proxy)
+
   return proxy
+}
+
+/**
+ * Updates a reactive document with the normalized content of a new string value.
+ * Removes all existing keys and adds new ones from the normalized object.
+ */
+function updateReactiveDocument(sourceDocument: UnknownObject, newValue: string) {
+  const normalized = normalize(newValue)
+
+  // Remove all existing keys
+  Object.keys(sourceDocument).forEach((key) => {
+    delete sourceDocument[key as keyof typeof sourceDocument]
+  })
+
+  // Add new keys
+  Object.entries(normalized).forEach(([key, value]) => ((sourceDocument as UnknownObject)[key] = value))
 }
 
 /**
@@ -207,17 +212,12 @@ function createReferenceProxy(
  * // { id: '123', name: 'John Doe' }
  * ```
  */
-function getValueByPath(
-  document: Record<string, unknown>,
-  pathSegments: string[],
-): Record<string, unknown> | undefined {
+function getValueByPath(document: UnknownObject, pathSegments: string[]): UnknownObject | undefined {
   return pathSegments.reduce<unknown>(
     (currentValue: unknown, pathSegment) =>
-      isObject(currentValue) && pathSegment in currentValue
-        ? (currentValue as Record<string, unknown>)[pathSegment]
-        : undefined,
+      isObject(currentValue) && pathSegment in currentValue ? (currentValue as UnknownObject)[pathSegment] : undefined,
     document,
-  ) as Record<string, unknown> | undefined
+  ) as UnknownObject | undefined
 }
 
 /**
@@ -248,7 +248,7 @@ function parseJsonPointer(pointer: string): string[] {
  * Handles circular references by tracking visited objects.
  */
 function removeProperties(
-  obj: Record<string, unknown>,
+  obj: UnknownObject,
   options: { test: (key: string) => boolean },
   seen: WeakSet<object> = new WeakSet(),
 ) {
@@ -264,14 +264,14 @@ function removeProperties(
       if (options.test(key)) {
         delete obj[key]
       } else if (isObject(obj[key])) {
-        removeProperties(obj[key] as Record<string, unknown>, options, seen)
+        removeProperties(obj[key] as UnknownObject, options, seen)
       } else if (Array.isArray(obj[key])) {
         // Recursively process each item in the array
         const arr = obj[key] as unknown[]
 
         arr.forEach((item) => {
           if (isObject(item)) {
-            removeProperties(item as Record<string, unknown>, options, seen)
+            removeProperties(item as UnknownObject, options, seen)
           }
         })
       }
@@ -281,7 +281,7 @@ function removeProperties(
 
     arr.forEach((item) => {
       if (isObject(item)) {
-        removeProperties(item as Record<string, unknown>, options, seen)
+        removeProperties(item as UnknownObject, options, seen)
       }
     })
   }
@@ -297,6 +297,6 @@ function removeProperties(
  * isObject(null) // false
  * ```
  */
-function isObject(value: unknown): value is Record<string, unknown> {
+function isObject(value: unknown): value is UnknownObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
