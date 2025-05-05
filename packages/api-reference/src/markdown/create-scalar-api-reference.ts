@@ -1,5 +1,8 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-
+import rehypeParse from 'rehype-parse'
+import rehypeRemark from 'rehype-remark'
+import remarkStringify from 'remark-stringify'
+import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import ScalarApiReference from './components/ScalarApiReference.vue'
@@ -13,13 +16,14 @@ export async function createScalarApiReference(configuration: Partial<ApiReferen
   // Render the app to HTML string
   const html = await renderToString(app)
 
-  // Parse the HTML string into a DOM element
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(html, 'text/html')
+  // return html
 
-  // Get the pre element content and remove comments
-  const preElement = doc.querySelector('pre')
-  const content = preElement?.textContent || ''
+  return markdownFromHtml(html)
+}
 
-  return content.trim()
+async function markdownFromHtml(html: string): Promise<string> {
+  // TODO: Remove HTML comments
+  const file = await unified().use(rehypeParse).use(rehypeRemark).use(remarkStringify).process(html)
+
+  return String(file)
 }
