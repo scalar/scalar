@@ -184,9 +184,11 @@ export const createRequestOperation = ({
          * Checks if the response is streaming
          * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
          * content-type === 'text/plain' and transfer-encoding === 'chunked'
+         *
+         * Currently we are only checking for server sent events. In the future we should let the user select if its a stream in the UI as there's no
+         * way to reliably test for it in the browser.
          */
-        const isStreaming = response.headers.get('content-type')?.includes('stream')
-
+        const isStreaming = response.headers.get('content-type')?.startsWith('text/event-stream')
         status?.emit('stop')
 
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
