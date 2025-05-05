@@ -164,6 +164,37 @@ const collection = createCollection({
 const raw = collection.export()
 ```
 
+## Merge Unrelated Documents
+
+```ts
+const collection = createCollection({
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0'
+  },
+  paths: {
+    '/planets': {
+      get: { summary: 'List planets' },
+    },
+  }
+})
+
+// Add something to the existing document
+collection.merge({
+  info: {
+    // The result will have the new title and the version from the original document
+    title: 'New Title'
+  },
+  paths: {
+    // The result will have both paths
+    '/foobar': {
+      get: { summary: 'Foobar' },
+    },
+  },
+})
+```
+
 ## Overlays
 
 ```ts

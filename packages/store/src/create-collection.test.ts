@@ -100,6 +100,44 @@ describe('create-collection', () => {
     })
   })
 
+  describe('merge', () => {
+    it('manually merges the collection document', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {},
+      }
+
+      const collection = createCollection(definition)
+
+      // Update the document using the new .merge method
+      collection.merge({
+        info: { title: 'Updated Title', version: '2.0.0' },
+      })
+
+      expect(collection.document.info.title).toBe('Updated Title')
+      expect(collection.document.info.version).toBe('2.0.0')
+    })
+
+    it('deep merges merges with the existing document', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {},
+      }
+
+      const collection = createCollection(definition)
+
+      // Only merge the title, version should remain unchanged
+      collection.merge({
+        info: { title: 'New Title' },
+      })
+
+      expect(collection.document.info.title).toBe('New Title')
+      expect(collection.document.info.version).toBe('1.0.0')
+    })
+  })
+
   describe('overlays', () => {
     it('applies an OpenAPI Overlay with actions', () => {
       const definition = {
