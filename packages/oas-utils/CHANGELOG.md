@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.142
+
+### Patch Changes
+
+- cd6cf24: chore: export getServersFromOpenapi function
+
 ## 0.2.141
 
 ### Patch Changes
