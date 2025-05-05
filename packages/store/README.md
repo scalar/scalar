@@ -164,7 +164,32 @@ const collection = createCollection({
 const raw = collection.export()
 ```
 
+## Update an OpenAPI Document
+
+```ts
+const collection = createCollection({
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0'
+  },
+  paths: {}
+})
+
+// Replace the original content with a new document
+collection.update({
+  openapi: '3.1.1',
+  info: {
+    title: 'New OpenAPI Document',
+    version: '1.2.0'
+  },
+  paths: {}
+})
+```
+
 ## Merge Unrelated Documents
+
+Add data to an existing OpenAPI document:
 
 ```ts
 const collection = createCollection({

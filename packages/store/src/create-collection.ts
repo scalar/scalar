@@ -60,6 +60,16 @@ export function createCollection(
       merge: (partialDocument: UnknownObject) => {
         deepMerge(input.value, partialDocument)
       },
+      update: (newDocument: UnknownObject) => {
+        // Replace all keys in input.value with those from newDocument
+        Object.keys(input.value).forEach((key) => {
+          delete input.value[key]
+        })
+
+        Object.entries(newDocument).forEach(([key, value]) => {
+          input.value[key] = value
+        })
+      },
     }
   }
 
@@ -103,6 +113,16 @@ export function createCollection(
     apply,
     merge(partialDocument: UnknownObject) {
       deepMerge(sourceDocument, partialDocument)
+    },
+    update(newDocument: UnknownObject) {
+      // Replace all keys in sourceDocument with those from newDocument
+      Object.keys(sourceDocument).forEach((key) => {
+        delete sourceDocument[key]
+      })
+
+      Object.entries(newDocument).forEach(([key, value]) => {
+        sourceDocument[key] = value
+      })
     },
   }
 }

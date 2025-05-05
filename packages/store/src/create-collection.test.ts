@@ -100,6 +100,38 @@ describe('create-collection', () => {
     })
   })
 
+  describe('update', () => {
+    it('updates the document', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        paths: {},
+      }
+
+      const collection = createCollection(definition)
+
+      collection.update({
+        openapi: '3.1.1',
+        info: {
+          title: 'New Title',
+          version: '1.2.0',
+        },
+        paths: {
+          '/planets': {
+            get: { summary: 'List planets' },
+          },
+        },
+      })
+
+      expect(collection.document.info.title).toBe('New Title')
+      expect(collection.document.info.version).toBe('1.2.0')
+      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
+    })
+  })
+
   describe('merge', () => {
     it('manually merges the collection document', () => {
       const definition = {
