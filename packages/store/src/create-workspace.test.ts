@@ -116,7 +116,6 @@ describe('create-workspace', () => {
       }
 
       // Verify the workspace updates
-      // @ts-expect-error TODO: fix this
       expect(workspace.state.collections.default?.document?.info?.title).toBe('Updated API')
     })
 
@@ -146,7 +145,6 @@ describe('create-workspace', () => {
       })
 
       // Verify the workspace updates
-      // @ts-expect-error TODO: fix this
       expect(workspace.state.collections.default?.document?.info?.title).toBe('Updated Example')
     })
   })
@@ -230,8 +228,8 @@ describe('create-workspace', () => {
         paths: {},
       })
 
-      expect(workspace.state.collections.foo.document.info.title).toBe('Updated')
-      expect(workspace.state.collections.foo.document.info.version).toBe('2.0.0')
+      expect(workspace.state.collections.foo?.document.info.title).toBe('Updated')
+      expect(workspace.state.collections.foo?.document.info.version).toBe('2.0.0')
     })
   })
 
@@ -248,8 +246,8 @@ describe('create-workspace', () => {
         info: { title: 'Merged Title' },
       })
 
-      expect(workspace.state.collections.foo.document.info.title).toBe('Merged Title')
-      expect(workspace.state.collections.foo.document.info.version).toBe('1.0.0')
+      expect(workspace.state.collections.foo?.document.info.title).toBe('Merged Title')
+      expect(workspace.state.collections.foo?.document.info.version).toBe('1.0.0')
     })
   })
 
@@ -298,8 +296,8 @@ describe('create-workspace', () => {
         ],
       })
 
-      expect(workspace.state.collections.foo.document.info.title).toBe('Overlayed Title')
-      expect(workspace.state.collections.foo.document.paths['/planets'].get.summary).toBe('Overlayed summary')
+      expect(workspace.state.collections.foo?.document.info.title).toBe('Overlayed Title')
+      expect(workspace.state.collections.foo?.document.paths?.['/planets']?.get?.summary).toBe('Overlayed summary')
     })
   })
 })
