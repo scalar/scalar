@@ -23,7 +23,47 @@ Test description`
     expectMarkdownToBeRendered(content, markdown)
   })
 
-  it.only('renders operations', async () => {
+  it('renders servers', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      servers: [
+        {
+          url: 'https://test.com',
+          description: 'Test server',
+        },
+        {
+          url: 'https://test.com/{version}',
+          description: 'Test server v2',
+          variables: {
+            version: {
+              default: 'v2',
+              description: 'Test version',
+            },
+          },
+        },
+      ],
+      paths: {},
+    }
+
+    const markdown = `## Servers
+
+- **URL:** \`https://test.com\`
+  - **Description:** Test server
+
+- **URL:** \`https://test.com/{version}\`
+  - **Description:** Test server v2
+  - **Variables:**
+    - \`version\` (default: \`v2\`): Test version
+`
+
+    expectMarkdownToBeRendered(content, markdown)
+  })
+
+  it('renders operations', async () => {
     const content = {
       openapi: '3.1.1',
       info: {

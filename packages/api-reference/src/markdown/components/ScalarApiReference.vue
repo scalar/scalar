@@ -16,7 +16,7 @@ const parsedConfiguration = computed(() =>
   apiReferenceConfigurationSchema.parse(configuration),
 )
 
-// TODO: We can't assume it’s always OpenAPI 3.1 and always content, we need the new store here. :)
+// TODO: We can't assume it's always OpenAPI 3.1 and always content, we need the new store here. :)
 const content = computed<OpenAPIV3_1.Document>(() =>
   // @ts-expect-error whatever
   normalize(parsedConfiguration.value.content),
@@ -31,6 +31,36 @@ const content = computed<OpenAPIV3_1.Document>(() =>
   <ScalarMarkdown
     :value="content?.info?.description"
     v-if="content?.info?.description" />
+
+  <template v-if="content?.servers?.length">
+    <h2>Servers</h2>
+    <ul>
+      <li
+        v-for="server in content.servers"
+        :key="server.url">
+        <strong>URL:</strong> <code>{{ server.url }}</code>
+        <ul>
+          <li v-if="server.description">
+            <strong>Description:</strong> {{ server.description }}
+          </li>
+          <li v-if="server.variables && Object.keys(server.variables).length">
+            <strong>Variables:</strong>
+            <ul>
+              <li
+                v-for="(variable, name) in server.variables"
+                :key="name">
+                <code>{{ name }}</code> (default:
+                <code>{{ variable.default }}</code
+                >)<span v-if="variable.description"
+                  >: {{ variable.description }}</span
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </template>
 
   <template v-if="Object.keys(content?.paths ?? {}).length">
     <h2>Operations</h2>

@@ -87,6 +87,7 @@
     "microdiff": "^1.4.0",
     "nanoid": "catalog:*",
     "rehype-parse": "^9.0.0",
+    "rehype-preset-minify": "^7.0.1",
     "rehype-raw": "^7.0.0",
     "rehype-remark": "^10.0.1",
     "rehype-stringify": "^10.0.0",

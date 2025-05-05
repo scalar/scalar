@@ -1,5 +1,6 @@
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import rehypeParse from 'rehype-parse'
+import rehypePresetMinify from 'rehype-preset-minify'
 import rehypeRemark from 'rehype-remark'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
@@ -22,8 +23,21 @@ export async function createScalarApiReference(configuration: Partial<ApiReferen
 }
 
 async function markdownFromHtml(html: string): Promise<string> {
-  // TODO: Remove HTML comments
-  const file = await unified().use(rehypeParse).use(rehypeRemark).use(remarkStringify).process(html)
+  const file = await unified()
+    .use(rehypeParse)
+    .use(rehypePresetMinify)
+    .use(rehypeRemark)
+    .use(remarkStringify, {
+      bullet: '-',
+    })
+    .process(html)
 
-  return String(file)
+  return (
+    String(file)
+      // TODO: Better way to remove HTML comments
+      .replace(/<!--[\s\S]*?(?:-->)/g, '')
+      // Make sure there's never more than one empty line
+      // TODO: Is there a better way to do this?
+      .replace(/\n\n+/g, '\n\n')
+  )
 }
