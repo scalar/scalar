@@ -86,7 +86,7 @@ describe('create-collection', () => {
       },
     }
 
-    const TRIES = 1_000
+    const TRIES = 100
 
     bench('with cache', async () => {
       const store = createCollection(EXAMPLE_DOCUMENT, { cache: true })

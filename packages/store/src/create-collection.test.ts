@@ -67,7 +67,6 @@ describe('create-collection', () => {
       // keeps the collection up to date
       definition.value.info.title = 'Changed'
 
-      // @ts-expect-error TODO: fix this
       expect(collection.document?.info?.title).toBe('Changed')
     })
 
@@ -95,7 +94,6 @@ describe('create-collection', () => {
         paths: {},
       })
 
-      // @ts-expect-error TODO: fix this
       expect(collection.document?.info?.title).toBe('Changed')
     })
   })
@@ -128,7 +126,7 @@ describe('create-collection', () => {
 
       expect(collection.document.info.title).toBe('New Title')
       expect(collection.document.info.version).toBe('1.2.0')
-      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
+      expect(collection.document.paths?.['/planets']?.get?.summary).toBe('List planets')
     })
   })
 
@@ -185,7 +183,7 @@ describe('create-collection', () => {
       const collection = createCollection(definition)
 
       expect(collection.document.info.title).toBe('Original')
-      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
+      expect(collection.document.paths?.['/planets']?.get?.summary).toBe('List planets')
 
       // Apply the overlay
       const overlay = {
@@ -206,7 +204,7 @@ describe('create-collection', () => {
       collection.apply(overlay)
 
       expect(collection.document.info.title).toBe('Overlayed Title')
-      expect(collection.document.paths['/planets'].get.summary).toBe('Overlayed summary')
+      expect(collection.document.paths?.['/planets']?.get?.summary).toBe('Overlayed summary')
     })
 
     it('applies multiple overlays at once', () => {
@@ -224,8 +222,8 @@ describe('create-collection', () => {
       const collection = createCollection(definition)
 
       expect(collection.document.info.title).toBe('Original')
-      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
-      expect(collection.document.paths['/planets'].post.summary).toBe('Create planet')
+      expect(collection.document.paths?.['/planets']?.get?.summary).toBe('List planets')
+      expect(collection.document.paths?.['/planets']?.post?.summary).toBe('Create planet')
 
       // Apply multiple overlays
       const overlay1 = {
@@ -260,8 +258,8 @@ describe('create-collection', () => {
 
       // Second overlay should override first overlay for info.title
       expect(collection.document.info.title).toBe('Second Overlay')
-      expect(collection.document.paths['/planets'].get.summary).toBe('Get all planets')
-      expect(collection.document.paths['/planets'].post.summary).toBe('Add new planet')
+      expect(collection.document.paths?.['/planets']?.get?.summary).toBe('Get all planets')
+      expect(collection.document.paths?.['/planets']?.post?.summary).toBe('Add new planet')
     })
   })
 
@@ -292,7 +290,7 @@ describe('create-collection', () => {
       const collection = createCollection(definition)
 
       // Original object
-      expect(collection.document.components.schemas.Person).toMatchObject({
+      expect(collection.document.components?.schemas?.Person).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -300,7 +298,7 @@ describe('create-collection', () => {
       })
 
       // Resolved reference
-      expect(collection.document.components.schemas.User).toMatchObject({
+      expect(collection.document.components?.schemas?.User).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -341,13 +339,13 @@ describe('create-collection', () => {
       // Update via the User schema reference path
       collection.document.components.schemas.User.properties.gender = { type: 'string' }
 
-      expect(collection.document.components.schemas.Person.properties).toMatchObject({
+      expect(collection.document.components?.schemas?.Person?.properties).toMatchObject({
         name: { type: 'string' },
         age: { type: 'number' },
         gender: { type: 'string' },
       })
 
-      expect(collection.document.components.schemas.User.properties).toMatchObject({
+      expect(collection.document.components?.schemas?.User?.properties).toMatchObject({
         name: { type: 'string' },
         age: { type: 'number' },
         gender: { type: 'string' },
@@ -386,7 +384,7 @@ describe('create-collection', () => {
 
       collection.document.servers[0].variables.version._value = 'v3'
 
-      expect(collection.document.servers[0].variables.version._value).toBe('v3')
+      expect(collection.document.servers?.[0]?.variables?.version?._value).toBe('v3')
 
       // Doesn't have _ variables when exporting
       expect(collection.export()).not.toHaveProperty('servers.0.variables.version._value')
