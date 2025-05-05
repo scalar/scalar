@@ -283,7 +283,8 @@ const labelRequestNameId = useId()
           :example="example"
           :operation="operation"
           :server="server"
-          :workspace="workspace" />
+          :workspace="workspace"
+          :environment="envVariables" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>
