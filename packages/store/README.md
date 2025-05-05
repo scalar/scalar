@@ -259,7 +259,6 @@ collection.apply({
 collection.apply([overlay1, overlay2])
 ```
 
-
 ## Workspaces
 
 Create a new worksapce instance and manage collections:
