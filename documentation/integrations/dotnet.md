@@ -430,14 +430,14 @@ app.MapScalarApiReference(options =>
 
 Scalar allows you to extend its functionality by using a custom JavaScript configuration module. This is useful for customizing behavior that's not accessible through the C# configuration options.
 
-To use this feature, specify the path to your JavaScript module using the `ModulePath` property:
+To use this feature, specify the path to your JavaScript module using the `JavaScriptConfiguration` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
 {
-    options.WithModulePath("/scalar/config.js");
+    options.WithJavaScriptConfiguration("/scalar/config.js");
     // or
-    options.ModulePath = "/scalar/config.js";
+    options.JavaScriptConfiguration = "/scalar/config.js";
 });
 ```
 
