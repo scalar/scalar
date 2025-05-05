@@ -102,6 +102,11 @@
     "vite": "catalog:*",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "@scalar/react-renderer": "workspace:*",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }
