@@ -10,7 +10,9 @@ export type CreateCollectionOptions = {
   /**
    * Whether to cache the resolved references
    *
-   * @default true
+   * @default false
+   *
+   * @deprecated This will probably be removed in the future.
    */
   cache?: boolean
 }
@@ -29,8 +31,9 @@ export function createCollection(
   // Looks like it's already fast without it, so we can default to false.
   // But let's leave the flag for a while, to check whether it changes in the future.
   //
-  // with cache - src/create-collection.bench.ts > create-collection > cache
-  // 1.01x faster than without cache
+  //   with cache - src/create-collection.bench.ts > create-collection > cache
+  //   1.01x faster than without cache
+  //
   const { cache = false } = options
 
   // Unwrap Ref input if necessary
@@ -58,17 +61,10 @@ export function createCollection(
       document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
       export: () => exportRawDocument(unwrappedInput),
       merge: (partialDocument: UnknownObject) => {
-        deepMerge(input.value, partialDocument)
+        mergeDocuments(input.value as UnknownObject, partialDocument)
       },
       update: (newDocument: UnknownObject) => {
-        // Replace all keys in input.value with those from newDocument
-        Object.keys(input.value).forEach((key) => {
-          delete input.value[key]
-        })
-
-        Object.entries(newDocument).forEach(([key, value]) => {
-          input.value[key] = value
-        })
+        updateDocument(sourceDocument, newDocument)
       },
     }
   }
@@ -87,6 +83,7 @@ export function createCollection(
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
 
+  // TODO: Can we move this outside?
   function apply(singleOrMultipleOverlays: UnknownObject | UnknownObject[]) {
     // Multiple overlays
     if (Array.isArray(singleOrMultipleOverlays)) {
@@ -112,19 +109,23 @@ export function createCollection(
     },
     apply,
     merge(partialDocument: UnknownObject) {
-      deepMerge(sourceDocument, partialDocument)
+      return mergeDocuments(sourceDocument, partialDocument)
     },
     update(newDocument: UnknownObject) {
-      // Replace all keys in sourceDocument with those from newDocument
-      Object.keys(sourceDocument).forEach((key) => {
-        delete sourceDocument[key]
-      })
-
-      Object.entries(newDocument).forEach(([key, value]) => {
-        sourceDocument[key] = value
-      })
+      return updateDocument(sourceDocument, newDocument)
     },
   }
+}
+
+function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
+  // Replace all keys in input.value with those from newDocument
+  Object.keys(sourceDocument).forEach((key) => {
+    delete sourceDocument[key]
+  })
+
+  Object.entries(newDocument).forEach(([key, value]) => {
+    sourceDocument[key] = value
+  })
 }
 
 /**
@@ -383,9 +384,11 @@ function getByJsonPath(obj: UnknownObject, path: string): any[] {
   if (!path.startsWith('$')) {
     return []
   }
+
   if (path === '$') {
     return [obj]
   }
+
   // Remove leading $
   const segments = path
     .slice(1)
@@ -393,14 +396,17 @@ function getByJsonPath(obj: UnknownObject, path: string): any[] {
     .replace(/\["([^"]+)"\]/g, '.$1')
     .split('.')
     .filter(Boolean)
-  let results = [obj]
+
+  let results: unknown[] = [obj]
+
   for (const seg of segments) {
     if (seg === '*') {
-      results = results.flatMap((o) => (isObject(o) && o !== null ? Object.values(o) : []))
+      results = results.flatMap((o) => (isObject(o) ? Object.values(o) : []))
     } else {
-      results = results.map((o) => (isObject(o) && o !== null ? o[seg] : undefined)).filter((v) => v !== undefined)
+      results = results.map((o) => (isObject(o) ? o[seg] : undefined)).filter((v) => v !== undefined)
     }
   }
+
   return results
 }
 
@@ -455,10 +461,10 @@ function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
  * Deeply merges source into target, mutating target.
  * Only merges plain objects, not arrays.
  */
-function deepMerge(target: UnknownObject, source: UnknownObject) {
+function mergeDocuments(target: UnknownObject, source: UnknownObject) {
   for (const key in source) {
     if (isObject(source[key]) && isObject(target[key])) {
-      deepMerge(target[key] as UnknownObject, source[key] as UnknownObject)
+      mergeDocuments(target[key] as UnknownObject, source[key] as UnknownObject)
     } else {
       target[key] = source[key]
     }
