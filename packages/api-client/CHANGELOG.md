@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.3.32
+
+### Patch Changes
+
+- e42dfc0: feat: add support application/dns-json media type
+- 4483ac4: fix: displays selected security schemes in snippet
+- 4483ac4: feat: replaces snippet templates with value
+- Updated dependencies [cd6cf24]
+  - @scalar/oas-utils@0.2.142
+  - @scalar/import@0.3.25
+  - @scalar/postman-to-openapi@0.2.15
+
 ## 2.3.31
 
 ### Patch Changes
