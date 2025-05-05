@@ -164,6 +164,46 @@ const collection = createCollection({
 const raw = collection.export()
 ```
 
+## Overlays
+
+```ts
+const collection = createCollection({
+  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
+    version: '1.0.0'
+  },
+  paths: {
+    '/planets': {
+      get: { summary: 'List planets' },
+    },
+  },
+})
+
+// Add an overlay
+collection.addOverlay({
+  overlay: '1.0.0',
+  info: {
+    title: 'Overlay Example',
+    version: '1.0.0'
+  },
+  actions: [
+    {
+      target: '$.info',
+      update: { title: 'Overlayed Title' },
+    },
+    {
+      target: "$.paths['/planets'].get",
+      update: { summary: 'Overlayed summary' },
+    },
+  ]
+})
+
+// Or even multiple at once
+collection.addOverlay([overlay1, overlay2])
+```
+
+
 ## Workspaces
 
 Create a new worksapce instance and manage collections:

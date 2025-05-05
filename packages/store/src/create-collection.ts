@@ -25,9 +25,9 @@ export function createCollection(
   input: UnknownObject | string | Ref<UnknownObject | string>,
   options: CreateCollectionOptions = {},
 ) {
-  // The cache doesn’t seem to be useful in the benchmarks.
-  // Looks like it’s already fast without it, so we can default to false.
-  // But let’s leave the flag for a while, to check whether it changes in the future.
+  // The cache doesn't seem to be useful in the benchmarks.
+  // Looks like it's already fast without it, so we can default to false.
+  // But let's leave the flag for a while, to check whether it changes in the future.
   //
   // with cache - src/create-collection.bench.ts > create-collection > cache
   // 1.01x faster than without cache
@@ -71,6 +71,24 @@ export function createCollection(
   // Create the root proxy for the entire document using the top-level function
   const documentProxy = createReferenceProxy(sourceDocument, sourceDocument, resolvedProxyCache)
 
+  // Store overlays for possible re-application
+  const overlays: UnknownObject[] = []
+
+  function apply(singleOrMultipleOverlays: UnknownObject | UnknownObject[]) {
+    // Multiple overlays
+    if (Array.isArray(singleOrMultipleOverlays)) {
+      singleOrMultipleOverlays.forEach((overlay) => {
+        overlays.push(overlay)
+        applyOverlay(sourceDocument, overlay)
+      })
+    }
+    // Single overlay
+    else {
+      overlays.push(singleOrMultipleOverlays)
+      applyOverlay(sourceDocument, singleOrMultipleOverlays)
+    }
+  }
+
   return {
     document: documentProxy,
     /**
@@ -79,6 +97,7 @@ export function createCollection(
     export() {
       return exportRawDocument(sourceDocument)
     },
+    apply,
   }
 }
 
@@ -319,4 +338,89 @@ function removeProperties(
  */
 function isObject(value: unknown): value is UnknownObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/**
+ * Retrieves objects from a document by JSONPath.
+ *
+ * @see https://github.com/json-path/JsonPath
+ *
+ * @example
+ * ```ts
+ * getByJsonPath(document, '$.info')
+ *
+ * // [{ title: 'My API', version: '1.0.0' }]
+ * ```
+ */
+function getByJsonPath(obj: UnknownObject, path: string): any[] {
+  // Only support $ (root), dot/bracket notation, and wildcards for now
+  if (!path.startsWith('$')) {
+    return []
+  }
+  if (path === '$') {
+    return [obj]
+  }
+  // Remove leading $
+  const segments = path
+    .slice(1)
+    .replace(/\['([^']+)'\]/g, '.$1') // bracket to dot
+    .replace(/\["([^"]+)"\]/g, '.$1')
+    .split('.')
+    .filter(Boolean)
+  let results = [obj]
+  for (const seg of segments) {
+    if (seg === '*') {
+      results = results.flatMap((o) => (isObject(o) && o !== null ? Object.values(o) : []))
+    } else {
+      results = results.map((o) => (isObject(o) && o !== null ? o[seg] : undefined)).filter((v) => v !== undefined)
+    }
+  }
+  return results
+}
+
+/**
+ * Applies an OpenAPI Overlay to the document.
+ *
+ * @see https://github.com/OAI/Overlay-Specification/blob/main/versions/1.0.0.md
+ */
+function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
+  // If this is a full Overlay
+  if (typeof overlay !== 'object' || !overlay || !('overlay' in overlay) || !('actions' in overlay)) {
+    throw new Error('Invalid OpenAPI Overlay')
+  }
+
+  const actions = Array.isArray(overlay.actions) ? overlay.actions : []
+  for (const action of actions) {
+    if (!action.target) {
+      continue
+    }
+    const targets = getByJsonPath(document, action.target)
+    for (const target of targets) {
+      if (action.remove) {
+        // Remove the target from its parent
+        // Only works for object properties, not array elements
+        // (Full spec supports arrays, but for brevity, we focus on objects)
+        // Find parent and key
+        const pathSegments = action.target
+          .replace(/^\$/, '')
+          .replace(/\['([^']+)'\]/g, '.$1')
+          .replace(/\["([^"]+)"\]/g, '.$1')
+          .split('.')
+          .filter(Boolean)
+        if (pathSegments.length > 0) {
+          const key = pathSegments[pathSegments.length - 1]
+          const parentPath = '$' + (pathSegments.length > 1 ? '.' + pathSegments.slice(0, -1).join('.') : '')
+          const parents = getByJsonPath(document, parentPath)
+
+          for (const parent of parents) {
+            if (typeof parent === 'object' && parent !== null) {
+              delete parent[key]
+            }
+          }
+        }
+      } else if (action.update && typeof target === 'object' && target !== null) {
+        Object.assign(target, action.update)
+      }
+    }
+  }
 }

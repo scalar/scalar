@@ -100,6 +100,101 @@ describe('create-collection', () => {
     })
   })
 
+  describe('overlays', () => {
+    it('applies an OpenAPI Overlay with actions', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {
+          '/planets': {
+            get: { summary: 'List planets' },
+          },
+        },
+      }
+
+      const collection = createCollection(definition)
+
+      expect(collection.document.info.title).toBe('Original')
+      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
+
+      // Apply the overlay
+      const overlay = {
+        overlay: '1.0.0',
+        info: { title: 'Overlay Example', version: '1.0.0' },
+        actions: [
+          {
+            target: '$.info',
+            update: { title: 'Overlayed Title' },
+          },
+          {
+            target: "$.paths['/planets'].get",
+            update: { summary: 'Overlayed summary' },
+          },
+        ],
+      } as const
+
+      collection.apply(overlay)
+
+      expect(collection.document.info.title).toBe('Overlayed Title')
+      expect(collection.document.paths['/planets'].get.summary).toBe('Overlayed summary')
+    })
+
+    it('applies multiple overlays at once', () => {
+      const definition = {
+        openapi: '3.1.1',
+        info: { title: 'Original', version: '1.0.0' },
+        paths: {
+          '/planets': {
+            get: { summary: 'List planets' },
+            post: { summary: 'Create planet' },
+          },
+        },
+      }
+
+      const collection = createCollection(definition)
+
+      expect(collection.document.info.title).toBe('Original')
+      expect(collection.document.paths['/planets'].get.summary).toBe('List planets')
+      expect(collection.document.paths['/planets'].post.summary).toBe('Create planet')
+
+      // Apply multiple overlays
+      const overlay1 = {
+        overlay: '1.0.0',
+        actions: [
+          {
+            target: '$.info',
+            update: { title: 'First Overlay' },
+          },
+          {
+            target: "$.paths['/planets'].get",
+            update: { summary: 'Get all planets' },
+          },
+        ],
+      } as const
+
+      const overlay2 = {
+        overlay: '1.0.0',
+        actions: [
+          {
+            target: '$.info',
+            update: { title: 'Second Overlay' },
+          },
+          {
+            target: "$.paths['/planets'].post",
+            update: { summary: 'Add new planet' },
+          },
+        ],
+      } as const
+
+      collection.apply([overlay1, overlay2])
+
+      // Second overlay should override first overlay for info.title
+      expect(collection.document.info.title).toBe('Second Overlay')
+      expect(collection.document.paths['/planets'].get.summary).toBe('Get all planets')
+      expect(collection.document.paths['/planets'].post.summary).toBe('Add new planet')
+    })
+  })
+
   describe('read', () => {
     it('creates a store and resolves references on access', () => {
       const definition = {
