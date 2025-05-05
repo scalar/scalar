@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
+import { normalize } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
@@ -14,15 +17,18 @@ const parsedConfiguration = computed(() =>
 )
 
 // TODO: We can't assume it’s always OpenAPI 3.1 and always content, we need the new store here. :)
-const content = computed(() => parsedConfiguration.value.content)
+const content = computed<OpenAPIV3_1.Document>(() =>
+  // @ts-expect-error whatever
+  normalize(parsedConfiguration.value.content),
+)
 </script>
 
 <template>
-  <pre>
-# {{ content.info.title }} ({{ content.info.version }})
+  <h1>{{ content?.info?.title }} ({{ content?.info?.version }})</h1>
 
-OpenAPI {{ content.openapi }}
+  <p>OpenAPI {{ content?.openapi }}</p>
 
-<template v-if="content.info.description">{{ content.info.description }}</template>
-</pre>
+  <ScalarMarkdown
+    :value="content?.info?.description"
+    v-if="content?.info?.description" />
 </template>
