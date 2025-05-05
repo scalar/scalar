@@ -9,7 +9,7 @@ import { ServerObjectSchema } from './server-object'
 import { TagObjectSchema } from './tag-object'
 import { WebhooksObjectSchema } from './webhooks-object'
 
-type OpenApiObject = {
+export type OpenApiObject = {
   openapi: string
   info: z.infer<typeof InfoObjectSchema>
   jsonSchemaDialect?: string

@@ -8,6 +8,8 @@ import { ServerObjectSchema } from './server-object'
 import { TagObjectSchema } from './tag-object'
 import { WebhooksObjectSchema } from './webhooks-object'
 
+export type OpenApiObject = z.infer<typeof OpenApiObjectSchema>
+
 /**
  * OpenAPI Object
  *

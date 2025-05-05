@@ -1,5 +1,9 @@
 import { normalize, unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
+import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
+import {
+  type OpenApiObject as UnprocessedOpenApiObject,
+  OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
+} from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reactivity'
 
 export type Collection = ReturnType<typeof createCollection>
@@ -50,7 +54,7 @@ export function createCollection(
   const { specification: upgraded } = upgrade(unwrappedInput)
 
   // TODO: OpenApiObjectSchema.parse is too strict
-  const content = OpenApiObjectSchema.parse(upgraded)
+  const content = UnprocessedOpenApiObjectSchema.parse(upgraded)
 
   // Only create a cache if cache is true
   const resolvedProxyCache = cache ? new WeakMap() : undefined
@@ -58,8 +62,9 @@ export function createCollection(
   // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
     return {
-      document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
-      export: () => exportRawDocument(unwrappedInput),
+      document: createReferenceProxy(input.value, input.value, resolvedProxyCache) as ProcessedOpenApiObject,
+      export: () => exportRawDocument(unwrappedInput) as UnprocessedOpenApiObject,
+      apply,
       merge: (partialDocument: UnknownObject) => {
         mergeDocuments(input.value as UnknownObject, partialDocument)
       },
@@ -100,12 +105,12 @@ export function createCollection(
   }
 
   return {
-    document: documentProxy,
+    document: documentProxy as ProcessedOpenApiObject,
     /**
      * Exports the raw OpenAPI document with $ref's intact
      */
     export() {
-      return exportRawDocument(sourceDocument)
+      return exportRawDocument(sourceDocument) as UnprocessedOpenApiObject
     },
     apply,
     merge(partialDocument: UnknownObject) {
@@ -370,7 +375,7 @@ function isObject(value: unknown): value is UnknownObject {
 /**
  * Retrieves objects from a document by JSONPath.
  *
- * @see https://github.com/json-path/JsonPath
+ * @see https://www.ietf.org/archive/id/draft-goessner-dispatch-jsonpath-00.html
  *
  * @example
  * ```ts
