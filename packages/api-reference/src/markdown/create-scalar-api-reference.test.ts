@@ -22,6 +22,38 @@ Test description`
 
     expectMarkdownToBeRendered(content, markdown)
   })
+
+  it.only('renders operations', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            summary: 'Test operation',
+            description: 'Test description',
+          },
+        },
+      },
+    }
+
+    const markdown = `# Test API (1.0.0)
+
+OpenAPI 3.1.1
+
+## Operations
+
+### GET /test
+
+Test operation
+
+Test description`
+
+    expectMarkdownToBeRendered(content, markdown)
+  })
 })
 
 async function expectMarkdownToBeRendered(content: Record<string, unknown>, markdown: string) {
