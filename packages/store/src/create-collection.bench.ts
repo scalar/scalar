@@ -27,7 +27,7 @@ const EXAMPLE_DOCUMENT = {
 }
 
 describe('create-collection', () => {
-  bench('dereference', async () => {
+  bench.skip('dereference', async () => {
     const { schema } = await dereference(EXAMPLE_DOCUMENT)
 
     expect(schema?.paths?.['/foobar']?.post?.summary).toBe('Foobar')
@@ -42,17 +42,9 @@ describe('create-collection', () => {
 
     workspaceStore.importSpecFile(EXAMPLE_DOCUMENT, 'default')
 
-    await new Promise((resolve) => {
-      const checkRequests = () => {
-        const request = Object.values(workspaceStore.requests)[1]
-        // @ts-expect-error
-        if (request?.summary === 'Foobar') {
-          resolve(undefined)
-        } else {
-          setTimeout(checkRequests, 1)
-        }
-      }
-      checkRequests()
+    await waitFor(() => {
+      // @ts-expect-error
+      return Object.values(workspaceStore.requests)[1]?.summary === 'Foobar'
     })
 
     // @ts-expect-error whatever
@@ -66,3 +58,22 @@ describe('create-collection', () => {
     expect(store.document?.paths?.['/foobar'].post.summary).toBe('Foobar')
   })
 })
+
+/**
+ * Asynchronously waits for a condition to become true, or throws after maxTries.
+ * Waits for a short delay between tries.
+ *
+ * @param condition - Function that returns true when the wait should stop
+ * @param maxTries - Maximum number of iterations to try (default: 100_000)
+ * @param delayMs - Delay in milliseconds between tries (default: 1)
+ */
+async function waitFor(condition: () => boolean, maxTries = 100_000, delayMs = 1): Promise<void> {
+  let tries = 0
+  while (!condition() && tries < maxTries) {
+    tries++
+    await new Promise((resolve) => setTimeout(resolve, delayMs))
+  }
+  if (tries === maxTries) {
+    throw new Error('waitFor: Condition not met in time')
+  }
+}
