@@ -6,13 +6,33 @@ export type Collection = ReturnType<typeof createCollection>
 
 type UnknownObject = Record<string, unknown>
 
+export type CreateCollectionOptions = {
+  /**
+   * Whether to cache the resolved references
+   *
+   * @default true
+   */
+  cache?: boolean
+}
+
 /**
  * Creates a store with JSON reference resolution capabilities.
  *
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createCollection(input: UnknownObject | string | Ref<UnknownObject | string>) {
+export function createCollection(
+  input: UnknownObject | string | Ref<UnknownObject | string>,
+  options: CreateCollectionOptions = {},
+) {
+  // The cache doesn’t seem to be useful in the benchmarks.
+  // Looks like it’s already fast without it, so we can default to false.
+  // But let’s leave the flag for a while, to check whether it changes in the future.
+  //
+  // with cache - src/create-collection.bench.ts > create-collection > cache
+  // 1.01x faster than without cache
+  const { cache = false } = options
+
   // Unwrap Ref input if necessary
   let unwrappedInput = isRef(input) ? input.value : input
 
@@ -29,11 +49,11 @@ export function createCollection(input: UnknownObject | string | Ref<UnknownObje
   // TODO: OpenApiObjectSchema.parse is too strict
   const content = OpenApiObjectSchema.parse(upgraded)
 
+  // Only create a cache if cache is true
+  const resolvedProxyCache = cache ? new WeakMap() : undefined
+
   // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
-    // Cache for storing resolved reference proxies to handle circular references
-    const resolvedProxyCache = new WeakMap()
-
     return {
       document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
       export: () => exportRawDocument(unwrappedInput),
@@ -48,16 +68,13 @@ export function createCollection(input: UnknownObject | string | Ref<UnknownObje
     watch(input, (newValue) => updateReactiveDocument(sourceDocument, newValue), { immediate: false })
   }
 
-  // Cache for storing resolved reference proxies to handle circular references
-  const resolvedProxyCache = new WeakMap()
-
   // Create the root proxy for the entire document using the top-level function
   const documentProxy = createReferenceProxy(sourceDocument, sourceDocument, resolvedProxyCache)
 
   return {
     document: documentProxy,
     /**
-     * Exports the raw document with references intact
+     * Exports the raw OpenAPI document with $ref's intact
      */
     export() {
       return exportRawDocument(sourceDocument)
@@ -87,7 +104,7 @@ function createReferenceProxy(
   /** The root reactive document for reference resolution */
   sourceDocument: UnknownObject,
   /** A WeakMap for caching proxies to handle circular references */
-  resolvedProxyCache: WeakMap<object, unknown>,
+  resolvedProxyCache?: WeakMap<object, unknown>,
 ) {
   if (!isObject(targetObject)) {
     return targetObject // Return primitives as-is
@@ -95,8 +112,8 @@ function createReferenceProxy(
 
   const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
 
-  // Return cached proxy if it exists
-  if (resolvedProxyCache.has(rawTarget)) {
+  // Only use the cache if it exists
+  if (resolvedProxyCache?.has(rawTarget)) {
     return resolvedProxyCache.get(rawTarget)
   }
 
@@ -181,13 +198,16 @@ function createReferenceProxy(
 
   const proxy = new Proxy(targetObject, proxyHandler)
 
-  resolvedProxyCache.set(rawTarget, proxy)
+  if (resolvedProxyCache) {
+    resolvedProxyCache.set(rawTarget, proxy)
+  }
 
   return proxy
 }
 
 /**
  * Updates a reactive document with the normalized content of a new string value.
+ *
  * Removes all existing keys and adds new ones from the normalized object.
  */
 function updateReactiveDocument(sourceDocument: UnknownObject, newValue: string) {
