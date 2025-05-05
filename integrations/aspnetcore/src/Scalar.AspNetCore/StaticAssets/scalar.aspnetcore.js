@@ -60,5 +60,5 @@ export const initialize = (path, useDynamicBaseServerUrl, configuration = { sour
     normalizedConfig.baseServerURL = `${window.location.origin}${basePath}`
   }
 
-  Scalar.createApiReference('#app', normalizedConfig)
+  window.Scalar.createApiReference('#app', normalizedConfig)
 }

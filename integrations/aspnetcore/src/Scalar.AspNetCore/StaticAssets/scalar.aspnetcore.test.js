@@ -41,22 +41,19 @@ describe('scalar.aspnetcore', () => {
     let mockScalar
 
     beforeEach(() => {
+      mockScalar = {
+        createApiReference: vi.fn(),
+      }
       // Create a mock window object
       global.window = {
         location: new URL('https://example.com/api/docs'),
+        Scalar: mockScalar,
       }
     })
 
     afterEach(() => {
       // Clean up after each test
       delete global.window
-    })
-
-    beforeEach(() => {
-      mockScalar = {
-        createApiReference: vi.fn(),
-      }
-      global.Scalar = mockScalar
     })
 
     it('transforms URLs to absolute paths when using relative URLs', () => {
