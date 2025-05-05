@@ -1,4 +1,5 @@
 import { normalize, unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
+import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reactivity'
 
 export type Collection = ReturnType<typeof createCollection>
@@ -24,25 +25,17 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
   const { specification: upgraded } = upgrade(unwrappedInput)
 
   // TODO: OpenApiObjectSchema.parse is too strict
-  // const content = OpenApiObjectSchema.parse(upgraded)
-  const content = upgraded
+  const content = OpenApiObjectSchema.parse(upgraded)
+  // const content = upgraded
 
   // If input is a Ref<Record<string, unknown>>, use its value directly as the source document
-  if (isRef(input) && typeof input.value === 'object' && input.value !== null) {
+  if (isRef(input) && isObject(input.value)) {
     // Cache for storing resolved reference proxies to handle circular references
     const resolvedProxyCache = new WeakMap()
+
     return {
       document: createReferenceProxy(input.value, input.value, resolvedProxyCache),
-      export() {
-        const raw = toRaw(input.value)
-
-        // @ts-expect-error TODO: fix this
-        removeProperties(raw, {
-          test: (key) => key.startsWith('_'),
-        })
-
-        return raw
-      },
+      export: () => exportRawDocument(unwrappedInput),
     }
   }
 
@@ -58,13 +51,11 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
 
         // Remove all existing keys
         Object.keys(sourceDocument).forEach((key) => {
-          delete sourceDocument[key]
+          delete sourceDocument[key as keyof typeof sourceDocument]
         })
 
         // Add new keys
-        Object.entries(normalized).forEach(([key, value]) => {
-          sourceDocument[key] = value
-        })
+        Object.entries(normalized).forEach(([key, value]) => ((sourceDocument as Record<string, unknown>)[key] = value))
       },
       { immediate: false },
     )
@@ -82,15 +73,22 @@ export function createCollection(input: Record<string, unknown> | string | Ref<R
      * Exports the raw document with references intact
      */
     export() {
-      const raw = toRaw(sourceDocument)
-
-      removeProperties(raw, {
-        test: (key) => key.startsWith('_'),
-      })
-
-      return raw
+      return exportRawDocument(sourceDocument)
     },
   }
+}
+
+/**
+ * Exports a raw document with internal properties (starting with "_") removed.
+ */
+function exportRawDocument(document: Record<string, unknown>): Record<string, unknown> {
+  const raw = toRaw(document)
+
+  removeProperties(raw, {
+    test: (key) => key.startsWith('_'),
+  })
+
+  return raw
 }
 
 /**
@@ -104,7 +102,7 @@ function createReferenceProxy(
   /** A WeakMap for caching proxies to handle circular references */
   resolvedProxyCache: WeakMap<object, unknown>,
 ) {
-  if (targetObject === null || typeof targetObject !== 'object') {
+  if (!isObject(targetObject)) {
     return targetObject // Return primitives as-is
   }
 
@@ -215,7 +213,7 @@ function getValueByPath(
 ): Record<string, unknown> | undefined {
   return pathSegments.reduce<unknown>(
     (currentValue: unknown, pathSegment) =>
-      currentValue && typeof currentValue === 'object' && pathSegment in currentValue
+      isObject(currentValue) && pathSegment in currentValue
         ? (currentValue as Record<string, unknown>)[pathSegment]
         : undefined,
     document,
@@ -254,28 +252,51 @@ function removeProperties(
   options: { test: (key: string) => boolean },
   seen: WeakSet<object> = new WeakSet(),
 ) {
-  if (obj !== null && typeof obj === 'object') {
+  if (isObject(obj)) {
     if (seen.has(obj)) {
       // Already visited this object, avoid infinite recursion
       return
     }
 
     seen.add(obj)
-  }
 
-  if (Array.isArray(obj)) {
-    obj.forEach((item) => {
-      if (item !== null && typeof item === 'object') {
-        removeProperties(item as Record<string, unknown>, options, seen)
-      }
-    })
-  } else {
     for (const key in obj) {
       if (options.test(key)) {
         delete obj[key]
-      } else if (obj[key] !== null && typeof obj[key] === 'object') {
+      } else if (isObject(obj[key])) {
         removeProperties(obj[key] as Record<string, unknown>, options, seen)
+      } else if (Array.isArray(obj[key])) {
+        // Recursively process each item in the array
+        const arr = obj[key] as unknown[]
+
+        arr.forEach((item) => {
+          if (isObject(item)) {
+            removeProperties(item as Record<string, unknown>, options, seen)
+          }
+        })
       }
     }
+  } else if (Array.isArray(obj)) {
+    const arr = obj as unknown[]
+
+    arr.forEach((item) => {
+      if (isObject(item)) {
+        removeProperties(item as Record<string, unknown>, options, seen)
+      }
+    })
   }
+}
+
+/**
+ * Returns true if the value is a non-null object (but not an array).
+ *
+ * @example
+ * ```ts
+ * isObject({}) // true
+ * isObject([]) // false
+ * isObject(null) // false
+ * ```
+ */
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
