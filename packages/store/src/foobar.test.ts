@@ -1,7 +1,7 @@
 import { createWorkspaceStore } from '@scalar/api-client/store'
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import { waitFor } from '@test/utils/waitFor'
-import { bench, describe, expect } from 'vitest'
+import { describe, expect, test } from 'vitest'
 import { createCollection } from './create-collection'
 import { createCollection as createCollectionOld } from './slow/create-collection'
 
@@ -13,7 +13,7 @@ const EXAMPLE_DOCUMENT = await fetch(
 describe('create-collection', async () => {
   describe.only('old vs. new', () => {
     // how we used to create the store (the hard work is done right-away)
-    bench('old store', async () => {
+    test('old store', async () => {
       const workspaceStore = createWorkspaceStore({
         useLocalStorage: false,
       })
@@ -28,10 +28,8 @@ describe('create-collection', async () => {
     })
 
     // how we create the store now (the hard work is done on-demand)
-    bench('new store (no Zod yet)', async () => {
-      const { specification: upgraded } = upgrade(EXAMPLE_DOCUMENT)
-
-      const store = createCollection(upgraded)
+    test('new store', async () => {
+      const store = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
         return !!store.document?.paths?.['/v1/account']
@@ -72,7 +70,7 @@ describe('create-collection', async () => {
 
     const TRIES = 100
 
-    bench('with cache', async () => {
+    test('with cache', async () => {
       const store = createCollection(EXAMPLE_DOCUMENT, { cache: true })
 
       for (let i = 0; i < TRIES; i++) {
@@ -83,7 +81,7 @@ describe('create-collection', async () => {
       }
     })
 
-    bench('without cache', async () => {
+    test('without cache', async () => {
       const store = createCollection(EXAMPLE_DOCUMENT, { cache: false })
 
       for (let i = 0; i < TRIES; i++) {
@@ -96,7 +94,7 @@ describe('create-collection', async () => {
   })
 
   describe('compare dereference vs createWorkspace', async () => {
-    bench('full dereference (upgrading, but no Zod)', async () => {
+    test('full dereference (upgrading, but no Zod)', async () => {
       const { specification: upgraded } = upgrade(EXAMPLE_DOCUMENT)
       const { schema } = await dereference(upgraded)
 
@@ -108,7 +106,7 @@ describe('create-collection', async () => {
       expect(schema?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
 
-    bench('new createCollection', async () => {
+    test('new createCollection', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
@@ -121,7 +119,7 @@ describe('create-collection', async () => {
   })
 
   describe('regular', async () => {
-    bench('new', async () => {
+    test('new', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
@@ -132,7 +130,7 @@ describe('create-collection', async () => {
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
 
-    bench('old', async () => {
+    test('old', async () => {
       const collection = createCollectionOld(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
@@ -145,7 +143,7 @@ describe('create-collection', async () => {
   })
 
   describe('first render', async () => {
-    bench('new', async () => {
+    test('new', async () => {
       const { paths, ...rest } = EXAMPLE_DOCUMENT
       const collection = createCollection({ ...rest, paths: {} })
 
@@ -157,7 +155,7 @@ describe('create-collection', async () => {
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
 
-    bench('old', async () => {
+    test('old', async () => {
       const { paths, ...rest } = EXAMPLE_DOCUMENT
       const collection = createCollectionOld({ ...rest, paths: {} })
 
@@ -168,7 +166,7 @@ describe('create-collection', async () => {
   })
 
   describe('chunking, full load', async () => {
-    bench('new', async () => {
+    test('new', async () => {
       const { paths, ...rest } = EXAMPLE_DOCUMENT
       const collection = createCollection({ ...rest, paths: {} })
 
@@ -188,7 +186,7 @@ describe('create-collection', async () => {
       expect(Object.keys(collection.document?.paths ?? {}).length).toBeGreaterThan(0)
     })
 
-    bench('old', async () => {
+    test('old', async () => {
       const { paths, ...rest } = EXAMPLE_DOCUMENT
       const collection = createCollectionOld({ ...rest, paths: {} })
 
@@ -210,7 +208,7 @@ describe('create-collection', async () => {
   })
 
   describe.todo('partial update', async () => {
-    bench('new', async () => {
+    test('new', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
@@ -238,7 +236,7 @@ describe('create-collection', async () => {
       expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
     })
 
-    bench('old', async () => {
+    test('old', async () => {
       const collection = createCollectionOld(EXAMPLE_DOCUMENT)
 
       // Update just the summary of the first operation
