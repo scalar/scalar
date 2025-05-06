@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -110,11 +111,10 @@ const dataTableInputProps = {
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
         :aria-label="scheme.description"
-        class="text-c-2 auth-description-container -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
-        <span
-          class="auth-description z-1 bg-b-1 outline-b-3 top-0 w-full overflow-hidden text-ellipsis px-3 py-1.5">
-          {{ scheme.description }}
-        </span>
+        class="text-c-2 auth-description-container group/auth -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
+        <ScalarMarkdown
+          :value="scheme.description"
+          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none" />
       </DataTableCell>
     </DataTableRow>
 
@@ -256,5 +256,6 @@ const dataTableInputProps = {
 
 .scalar-data-table .auth-description-container:hover .auth-description {
   position: absolute;
+  height: auto;
 }
 </style>
