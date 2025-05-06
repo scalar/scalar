@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import { waitFor } from '@test/utils/waitFor'
-import { computed, ref, toRaw } from '@vue/reactivity'
+import { computed, reactive, ref, toRaw } from '@vue/reactivity'
 import { computedAsync } from '@vueuse/core'
 import { onMounted } from 'vue'
 
 import { createWorkspace, localStoragePlugin } from '@/create-workspace'
+
+const EXAMPLE_URL =
+  'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
 
 const workspace = createWorkspace({
   plugins: [
@@ -15,47 +18,68 @@ const workspace = createWorkspace({
 
 const content = ref<Record<string, unknown>>({})
 
+// Benchmarks for comparison
+const benchmarks = {
+  fetch: 42,
+  load: 200,
+  merge: 1306,
+}
+
+// Reactive object to store perf results
+const perfResults = reactive<{
+  fetch?: number
+  load?: number
+  merge?: number
+}>({})
+
+// Helper to calculate delta and percent
+function getPerfDelta(key: keyof typeof benchmarks) {
+  const current = perfResults[key]
+  const baseline = benchmarks[key]
+  if (current == null || baseline == null) return { delta: 0, percent: 0 }
+  const delta = current - baseline
+  const percent = (delta / baseline) * 100
+  return { delta, percent }
+}
+
 // Heavy work
 onMounted(async () => {
   content.value = (await measure(`fetch('stripe')`, async () => {
-    const response = await fetch(
-      'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
-    )
-
+    const response = await fetch(EXAMPLE_URL)
     return JSON.parse(await response.text())
   })) as Record<string, unknown>
 
   // Initial data load
-  const start = performance.now()
-
-  workspace.load('stripe', () => {
-    // Destructure to remove 'paths', then return the rest
-    const { paths, ...rest } = content.value
-
-    return {
-      ...rest,
-    }
+  await measure(`load('stripe')`, async () => {
+    const start = performance.now()
+    await workspace.load('stripe', async () => {
+      // Destructure to remove 'paths', then return the rest
+      const { paths, ...rest } = content.value
+      return { ...rest }
+    })
+    await waitFor(() => {
+      return !!workspace.state.collections.stripe?.document?.info?.title
+    })
+    const end = performance.now()
+    console.log(`load('stripe') ${Math.round(end - start)}ms`)
   })
-
-  await waitFor(() => {
-    return !!workspace.state.collections.stripe?.document?.info?.title
-  })
-  const end = performance.now()
-  console.log(`load('stripe') ${Math.round(end - start)}ms`)
 
   // Ingest more data
-  const start2 = performance.now()
-  workspace.merge('stripe', {
-    paths: content.value.paths,
+  await measure(`merge('stripe', { paths: {…} })`, async () => {
+    const start2 = performance.now()
+    workspace.merge('stripe', {
+      paths: content.value.paths,
+    })
+    await waitFor(() => {
+      return !!Object.keys(
+        workspace.state.collections.stripe?.document?.paths ?? {},
+      ).length
+    })
+    const end2 = performance.now()
+    console.log(
+      `merge('stripe', { paths: {…} }) ${Math.round(end2 - start2)}ms`,
+    )
   })
-  await waitFor(() => {
-    return !!Object.keys(
-      workspace.state.collections.stripe?.document?.paths ?? {},
-    ).length
-  })
-
-  const end2 = performance.now()
-  console.log(`merge('stripe', { paths: {…} }) ${Math.round(end2 - start2)}ms`)
 })
 
 // TODO: This would be great to visually compare the performance, but Vue seems to always render both at once.
@@ -82,23 +106,48 @@ async function measure(name: string, fn: () => Promise<unknown>) {
   const end = performance.now()
   const duration = Math.round(end - start)
   console.log(`${name} ${duration}ms`)
+
+  // Store in perfResults
+  if (name.startsWith("fetch('stripe')")) perfResults.fetch = duration
+  if (name.startsWith("load('stripe')")) perfResults.load = duration
+  if (name.startsWith("merge('stripe'")) perfResults.merge = duration
+
   return result
 }
 </script>
 <template>
-  <div>
-    <h1>createWorkspace</h1>
+  <div class="m-4 max-w-xl">
+    <h1 class="mb-4 text-2xl font-bold">createWorkspace</h1>
     <template
       v-for="collection in Object.keys(collections)"
       v-if="Object.keys(collections).length">
-      <h2>{{ collection }}</h2>
+      <h2 class="mb-2 text-xl font-semibold">{{ collection }}</h2>
       <template v-if="collections[collection]">
-        <p>OpenAPI {{ collections[collection].document?.openapi }}</p>
-        <p>$.info.title: {{ collections.stripe.document?.info?.title }}</p>
-        <p>
-          {{ Object.keys(collections.stripe.document?.paths ?? {}).length }}
-          paths
-        </p>
+        <table class="border text-sm text-gray-700">
+          <tbody>
+            <tr>
+              <td class="border px-2 py-1 font-bold">OpenAPI</td>
+              <td class="border px-2 py-1">
+                {{ collections[collection].document?.openapi }}
+              </td>
+            </tr>
+            <tr>
+              <td class="border px-2 py-1 font-bold">$.info.title</td>
+              <td class="border px-2 py-1">
+                {{ collections[collection].document?.info?.title }}
+              </td>
+            </tr>
+            <tr>
+              <td class="border px-2 py-1 font-bold">Paths</td>
+              <td class="border px-2 py-1">
+                {{
+                  Object.keys(collections[collection].document?.paths ?? {})
+                    .length
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </template>
     </template>
     <p v-else>Loading workspace…</p>
@@ -110,5 +159,55 @@ async function measure(name: string, fn: () => Promise<unknown>) {
       <p>{{ Object.keys(dereferencedCollection.paths ?? {}).length }} paths</p>
     </template>
     <p v-else>Dereferencing...</p> -->
+
+    <h2 class="mb-2 mt-8 font-bold">Benchmarks</h2>
+    <table class="min-w-full border text-sm">
+      <thead>
+        <tr>
+          <th class="border px-2 py-1 text-left">Step</th>
+          <th class="border px-2 py-1">Benchmark</th>
+          <th class="border px-2 py-1">Current</th>
+          <th class="border px-2 py-1">Δ (ms)</th>
+          <th class="border px-2 py-1">% Change</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="key in ['fetch', 'load', 'merge']"
+          :key="key">
+          <td class="border px-2 py-1">
+            <span v-if="key === 'fetch'">fetch('stripe')</span>
+            <span v-else-if="key === 'load'">load('stripe')</span>
+            <span v-else>merge('stripe', {'{'} paths: {'{…}'} {'}'})</span>
+          </td>
+          <td class="border px-2 py-1 text-center">{{ benchmarks[key] }}ms</td>
+          <td class="border px-2 py-1 text-center">
+            <span v-if="perfResults[key] != null"
+              >{{ perfResults[key] }}ms</span
+            >
+            <span v-else>–</span>
+          </td>
+          <td class="border px-2 py-1 text-center">
+            <span v-if="perfResults[key] != null">
+              {{ getPerfDelta(key).delta > 0 ? '+' : ''
+              }}{{ getPerfDelta(key).delta }}ms
+            </span>
+            <span v-else>–</span>
+          </td>
+          <td class="border px-2 py-1 text-center">
+            <span
+              v-if="perfResults[key] != null"
+              :class="{
+                'text-green-600': getPerfDelta(key).percent < 0,
+                'text-red-600': getPerfDelta(key).percent > 0,
+              }">
+              {{ getPerfDelta(key).percent > 0 ? '+' : ''
+              }}{{ getPerfDelta(key).percent.toFixed(1) }}%
+            </span>
+            <span v-else>–</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
