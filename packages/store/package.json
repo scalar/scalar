@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite ./playground",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -62,6 +63,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "vite": "^5.1.1",
-    "vite-svg-loader": "^5.1.0"
+    "vite-svg-loader": "^5.1.0",
+    "vue": "^3.5.13"
   }
 }

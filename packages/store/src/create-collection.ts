@@ -1,8 +1,8 @@
 import { normalize, unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
-import {
-  type OpenApiObject as UnprocessedOpenApiObject,
-  OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
+import type {
+  OpenApiObject as UnprocessedOpenApiObject,
+  // OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
 } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reactivity'
 
@@ -54,7 +54,8 @@ export function createCollection(
   const { specification: upgraded } = upgrade(unwrappedInput)
 
   // TODO: OpenApiObjectSchema.parse is too strict
-  const content = UnprocessedOpenApiObjectSchema.parse(upgraded)
+  // const content = UnprocessedOpenApiObjectSchema.parse(upgraded)
+  const content = upgraded
 
   // Only create a cache if cache is true
   const resolvedProxyCache = cache ? new WeakMap() : undefined
