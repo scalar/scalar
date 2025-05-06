@@ -1,9 +1,8 @@
-import { dereference } from '@scalar/openapi-parser'
-import { bench, describe, expect } from 'vitest'
-import { createCollection } from './create-collection.ts'
-
 import { createWorkspaceStore } from '@scalar/api-client/store'
-import { waitFor } from '@test/utils/waitFor.ts'
+import { dereference, upgrade } from '@scalar/openapi-parser'
+import { waitFor } from '@test/utils/waitFor'
+import { bench, describe, expect } from 'vitest'
+import { createCollection } from './create-collection'
 
 describe('create-collection', () => {
   describe('old vs. new', () => {
@@ -29,13 +28,6 @@ describe('create-collection', () => {
       },
     }
 
-    // plain dereference (not even passing Zod)
-    bench.skip('dereference', async () => {
-      const { schema } = await dereference(EXAMPLE_DOCUMENT)
-
-      expect(schema?.paths?.['/foobar']?.post?.summary).toBe('Foobar')
-    })
-
     // how we used to create the store (the hard work is done right-away)
     bench('old store', async () => {
       const workspaceStore = createWorkspaceStore({
@@ -45,11 +37,9 @@ describe('create-collection', () => {
       workspaceStore.importSpecFile(EXAMPLE_DOCUMENT, 'default')
 
       await waitFor(() => {
-        // @ts-expect-error
         return Object.values(workspaceStore.requests)[1]?.summary === 'Foobar'
       })
 
-      // @ts-expect-error whatever
       expect(Object.values(workspaceStore.requests)[1]?.summary ?? '').toBe('Foobar')
     })
 
@@ -108,6 +98,36 @@ describe('create-collection', () => {
           expect(store.document?.paths?.[`/foo${j}`].get.summary).toBe('Shared Foobar')
         }
       }
+    })
+  })
+
+  describe('compare dereference vs createWorkspace', async () => {
+    // Fetch the Stripe OpenAPI document once for all benchmarks
+    const EXAMPLE_DOCUMENT = await fetch(
+      'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+    ).then((r) => r.json())
+
+    bench('full dereference (upgrading, but no Zod)', async () => {
+      const { specification: upgraded } = upgrade(EXAMPLE_DOCUMENT)
+      const { schema } = await dereference(upgraded)
+
+      await waitFor(() => {
+        return !!schema?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(schema?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(schema?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+    })
+
+    bench('new createCollection', async () => {
+      const workspace = createCollection(EXAMPLE_DOCUMENT)
+
+      await waitFor(() => {
+        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
   })
 })
