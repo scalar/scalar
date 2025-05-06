@@ -13,9 +13,11 @@ export async function waitFor(
   maxTries = 100_000,
 ): Promise<void> {
   let tries = 0
+
   while (!condition() && tries < maxTries) {
     tries++
   }
+
   if (tries === maxTries) {
     throw new Error('waitFor: Condition not met in time')
   }

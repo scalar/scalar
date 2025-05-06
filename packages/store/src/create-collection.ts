@@ -123,15 +123,25 @@ export function createCollection(
   }
 }
 
+/**
+ * Efficiently updates the sourceDocument to match newDocument,
+ * only changing top-level keys that are different.
+ * This avoids unnecessary deletes/adds for unchanged keys.
+ */
 function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
-  // Replace all keys in input.value with those from newDocument
-  Object.keys(sourceDocument).forEach((key) => {
-    delete sourceDocument[key]
-  })
+  // Remove keys that are no longer present
+  for (const key of Object.keys(sourceDocument)) {
+    if (!(key in newDocument)) {
+      delete sourceDocument[key]
+    }
+  }
 
-  Object.entries(newDocument).forEach(([key, value]) => {
-    sourceDocument[key] = value
-  })
+  // Add or update changed keys
+  for (const [key, value] of Object.entries(newDocument)) {
+    if (sourceDocument[key] !== value) {
+      sourceDocument[key] = value
+    }
+  }
 }
 
 /**

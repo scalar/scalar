@@ -11,7 +11,7 @@ const EXAMPLE_DOCUMENT = await fetch(
 ).then((r) => r.json())
 
 describe('create-collection', async () => {
-  describe.only('old vs. new', () => {
+  describe('old vs. new', () => {
     // how we used to create the store (the hard work is done right-away)
     bench('old store', async () => {
       const workspaceStore = createWorkspaceStore({
@@ -27,8 +27,8 @@ describe('create-collection', async () => {
       expect(Object.values(workspaceStore.requests)[0]?.summary ?? '').toBe('My First Request')
     })
 
-    // how we create the store now (the hard work is done on-demand)
-    bench('new store (no Zod yet)', async () => {
+    // TODO: This doesn’t pass Zod yet
+    bench('new store', async () => {
       const { specification: upgraded } = upgrade(EXAMPLE_DOCUMENT)
 
       const store = createCollection(upgraded)
@@ -209,7 +209,18 @@ describe('create-collection', async () => {
     })
   })
 
-  describe.todo('partial update', async () => {
+  describe('partial update', async () => {
+    const NEW_DOCUMENT = {
+      ...EXAMPLE_DOCUMENT,
+      paths: {
+        ...EXAMPLE_DOCUMENT.paths,
+        '/v1/account': {
+          ...EXAMPLE_DOCUMENT.paths?.['/v1/account'],
+          get: { ...EXAMPLE_DOCUMENT.paths?.['/v1/account']?.get, summary: 'Updated Foobar' },
+        },
+      },
+    } as const
+
     bench('new', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
 
@@ -217,22 +228,10 @@ describe('create-collection', async () => {
         return !!collection.document?.components?.schemas?.account?.properties?.capabilities
       })
 
-      // Update just the summary of the first operation
-      const NEW_DOCUMENT = {
-        ...collection.document,
-        paths: {
-          ...collection.document?.paths,
-          '/v1/account': {
-            ...collection.document?.paths?.['/v1/account'],
-            get: { ...collection.document?.paths?.['/v1/account']?.get, summary: 'Updated Foobar' },
-          },
-        },
-      }
-
       collection.update(NEW_DOCUMENT)
 
       await waitFor(() => {
-        return !!collection.document?.paths?.['/v1/account']?.get?.summary
+        return collection.document?.paths?.['/v1/account']?.get?.summary === 'Updated Foobar'
       })
 
       expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
@@ -241,22 +240,14 @@ describe('create-collection', async () => {
     bench('old', async () => {
       const collection = createCollectionOld(EXAMPLE_DOCUMENT)
 
-      // Update just the summary of the first operation
-      const NEW_DOCUMENT = {
-        ...collection.document,
-        paths: {
-          ...collection.document?.paths,
-          '/v1/account': {
-            ...collection.document?.paths?.['/v1/account'],
-            get: { ...collection.document?.paths?.['/v1/account']?.get, summary: 'Updated Foobar' },
-          },
-        },
-      }
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
 
       collection.update(NEW_DOCUMENT)
 
       await waitFor(() => {
-        return !!collection.document?.paths?.['/v1/account']?.get?.summary
+        return collection.document?.paths?.['/v1/account']?.get?.summary === 'Updated Foobar'
       })
 
       expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
