@@ -1,5 +1,5 @@
 import { type Ref, isRef, reactive, watch } from '@vue/reactivity'
-import { type Collection, createCollection } from './create-collection.ts'
+import { type Collection, createCollection } from './create-collection'
 
 type State = {
   collections: Record<string, Collection>
