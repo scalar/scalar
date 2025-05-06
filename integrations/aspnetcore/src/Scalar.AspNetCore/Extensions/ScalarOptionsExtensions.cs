@@ -315,10 +315,29 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="preferredScheme">The preferred authentication scheme.</param>
+    [Obsolete("This method is obsolete and will be removed in a future release. Use AddPreferredSecuritySchemes instead.")]
     public static ScalarOptions WithPreferredScheme(this ScalarOptions options, string preferredScheme)
     {
         options.Authentication ??= new ScalarAuthenticationOptions();
-        options.Authentication.PreferredSecurityScheme = preferredScheme;
+        options.Authentication.PreferredSecuritySchemes = [preferredScheme];
+        return options;
+    }
+
+    /// <summary>
+    /// Adds one or more preferred security schemes to the authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="preferredSchemes">A collection of preferred security schemes.</param>
+    public static ScalarOptions AddPreferredSecuritySchemes(this ScalarOptions options, params IEnumerable<string> preferredSchemes)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        if (options.Authentication.PreferredSecuritySchemes is null)
+        {
+            options.Authentication.PreferredSecuritySchemes = [.. preferredSchemes];
+            return options;
+        }
+
+        options.Authentication.PreferredSecuritySchemes = [.. options.Authentication.PreferredSecuritySchemes, .. preferredSchemes];
         return options;
     }
 
