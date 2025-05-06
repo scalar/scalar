@@ -5,7 +5,7 @@ type State = {
   collections: Record<string, Collection>
 }
 
-type Workspace = {
+export type Workspace = {
   state: State
   plugins: WorkspacePlugin[]
   load: (
