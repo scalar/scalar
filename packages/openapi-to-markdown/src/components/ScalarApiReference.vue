@@ -1,12 +1,28 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { snippetz, type HarRequest } from '@scalar/snippetz'
 
 const { content } = defineProps<{
   content: OpenAPIV3_1.Document
 }>()
 
 // TODO: Use the new store here.
+
+const getRequestExample = (harRequest: Partial<HarRequest>) => {
+  const snippet = snippetz().print('shell', 'curl', {
+    httpVersion: 'HTTP/1.1',
+    headers: [],
+    queryString: [],
+    cookies: [],
+    headersSize: -1,
+    bodySize: -1,
+    method: 'get',
+    ...harRequest,
+  })
+
+  return snippet
+}
 </script>
 
 <template>
@@ -78,7 +94,10 @@ const { content } = defineProps<{
 
         <ScalarMarkdown :value="operation.description" />
 
-        <pre><code>curl -X {{ method.toString().toUpperCase() }} {{ path }}</code></pre>
+        <pre><code>{{ getRequestExample({
+          method: method.toString(),
+          url: content.servers?.[0]?.url + path,
+        }) }}</code></pre>
       </template>
     </template>
   </template>

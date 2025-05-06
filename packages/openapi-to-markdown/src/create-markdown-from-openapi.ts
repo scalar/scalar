@@ -5,6 +5,7 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
+// @ts-expect-error TODO: Fix this
 import HTMLMinifier from '../node_modules/html-minifier-terser/dist/htmlminifier.esm.bundle.js'
 import ScalarApiReference from './components/ScalarApiReference.vue'
 
@@ -31,11 +32,11 @@ export async function createHtmlFromOpenApi(content: OpenAPIV3_1.Document | Reco
 </html>
 `,
     {
-      // removeComments: true,
-      // removeCommentsFromCDATA: true,
-      // removeCDATASectionsFromCDATA: true,
-      // removeEmptyElements: true,
-      // removeEmptyElementsFromCDATA: true,
+      removeComments: true,
+      removeCommentsFromCDATA: true,
+      removeCDATASectionsFromCDATA: true,
+      removeEmptyElements: true,
+      removeEmptyElementsFromCDATA: true,
     },
   )
 }
