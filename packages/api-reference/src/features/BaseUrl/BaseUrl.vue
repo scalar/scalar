@@ -42,7 +42,10 @@ const updateServer = (newServer: string) => {
   </label>
   <div
     :id="id"
-    class="rounded-b-lg border">
+    class="border"
+    :class="{
+      'rounded-b-lg': !server?.description,
+    }">
     <ServerSelector
       v-if="collection?.servers?.length"
       :collection="collection"
@@ -56,6 +59,6 @@ const updateServer = (newServer: string) => {
   <!-- Description -->
   <ScalarMarkdown
     v-if="server?.description"
-    class="text-c-3 px-3 py-1.5"
+    class="text-c-3 rounded-b-lg border border-t-0 px-3 py-1.5"
     :value="server.description" />
 </template>
