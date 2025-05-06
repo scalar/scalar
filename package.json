@@ -81,7 +81,6 @@
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
     "lint:fix": "biome lint --write && pnpm eslint '**/*.vue' --fix",
-    "pack:packages": "./scripts/pack.sh",
     "playwright:install": "npx playwright install --with-deps",
     "scripts:generate-cloudbuild": "vite-node ./tooling/cloudbuild/generateCloudbuild.ts",
     "test": "vitest",
@@ -96,7 +95,6 @@
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",
     "test:e2e:electron": "pnpm --filter playwright test:e2e electron",
     "types:check": "pnpm run -r --parallel types:check",
-    "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts",
     "markdown:check": "remark --frail .",
     "script": "pnpm --filter @scalar/scripts start"
   },
