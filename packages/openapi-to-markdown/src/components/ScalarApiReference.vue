@@ -1,32 +1,21 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import {
-  apiReferenceConfigurationSchema,
-  type ApiReferenceConfiguration,
-} from '@scalar/types/api-reference'
-import { computed } from 'vue'
 
-const { configuration } = defineProps<{
-  configuration: Partial<ApiReferenceConfiguration>
+const { content } = defineProps<{
+  content: OpenAPIV3_1.Document
 }>()
 
-const parsedConfiguration = computed(() =>
-  apiReferenceConfigurationSchema.parse(configuration),
-)
-
-// TODO: We can't assume it's always OpenAPI 3.1 and always content, we need the new store here. :)
-const content = computed<OpenAPIV3_1.Document>(() =>
-  // @ts-expect-error whatever
-  normalize(parsedConfiguration.value.content),
-)
+// TODO: Use the new store here.
 </script>
 
 <template>
-  <h1>{{ content?.info?.title }} ({{ content?.info?.version }})</h1>
+  <h1>{{ content?.info?.title }}</h1>
 
-  <p>OpenAPI {{ content?.openapi }}</p>
+  <p>
+    <strong>OpenAPI:</strong> {{ content?.openapi }}<br />
+    <strong>Version:</strong> {{ content?.info?.version }}
+  </p>
 
   <ScalarMarkdown
     :value="content?.info?.description"
@@ -36,8 +25,8 @@ const content = computed<OpenAPIV3_1.Document>(() =>
     <h2>Servers</h2>
     <ul>
       <li
-        v-for="server in content.servers"
-        :key="server.url">
+        v-for="(server, index) in content.servers"
+        :key="index">
         <strong>URL:</strong> <code>{{ server.url }}</code>
         <ul>
           <li v-if="server.description">
@@ -50,8 +39,8 @@ const content = computed<OpenAPIV3_1.Document>(() =>
                 v-for="(variable, name) in server.variables"
                 :key="name">
                 <code>{{ name }}</code> (default:
-                <code>{{ variable.default }}</code
-                >)<span v-if="variable.description"
+                <code>'{{ variable.default }}'</code>)<span
+                  v-if="variable.description"
                   >: {{ variable.description }}</span
                 >
               </li>
@@ -71,10 +60,25 @@ const content = computed<OpenAPIV3_1.Document>(() =>
       <template
         v-for="(operation, method) in content?.paths?.[path]"
         :key="operation">
-        <h3>{{ method.toString().toUpperCase() }} {{ path }}</h3>
+        <h3>
+          <template v-if="operation.summary">
+            {{ operation.summary }}
+          </template>
+          <template v-else>
+            {{ method.toString().toUpperCase() }} {{ path }}
+          </template>
+        </h3>
 
-        <ScalarMarkdown :value="operation.summary" />
+        <p v-if="operation.summary">
+          <strong>Method:</strong>
+          {{ method.toString().toUpperCase() }}<br />
+          <strong>Path:</strong>
+          {{ path }}
+        </p>
+
         <ScalarMarkdown :value="operation.description" />
+
+        <pre><code>curl -X {{ method.toString().toUpperCase() }} {{ path }}</code></pre>
       </template>
     </template>
   </template>
