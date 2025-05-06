@@ -18,8 +18,6 @@ export async function createHtmlFromOpenApi(content: OpenAPIV3_1.Document | Reco
   // Get static HTML
   const html = await renderToString(app)
 
-  console.log(html)
-
   return HTMLMinifier.minify(
     `<!doctype html>
 <html lang="en">
@@ -54,12 +52,5 @@ export async function markdownFromHtml(html: string): Promise<string> {
     })
     .process(html)
 
-  return (
-    String(file)
-      // TODO: Better way to remove HTML comments
-      .replace(/<!--[\s\S]*?(?:-->)/g, '')
-    // Make sure there's never more than one empty line
-    // TODO: Is there a better way to do this?
-    // .replace(/\n\n+/g, '\n\n')
-  )
+  return String(file)
 }
