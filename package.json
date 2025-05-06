@@ -98,7 +98,7 @@
     "types:check": "pnpm run -r --parallel types:check",
     "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts",
     "markdown:check": "remark --frail .",
-    "script": "pnpm --filter @scalar/scripts start"
+    "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
   "exports": {
     "./css/*.css": {
