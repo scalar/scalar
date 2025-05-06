@@ -3,6 +3,7 @@ import { dereference, upgrade } from '@scalar/openapi-parser'
 import { waitFor } from '@test/utils/waitFor'
 import { bench, describe, expect } from 'vitest'
 import { createCollection } from './create-collection'
+import { createCollection as createCollectionOld } from './slow/create-collection'
 
 describe('create-collection', () => {
   describe('old vs. new', () => {
@@ -121,6 +122,35 @@ describe('create-collection', () => {
 
     bench('new createCollection', async () => {
       const workspace = createCollection(EXAMPLE_DOCUMENT)
+
+      await waitFor(() => {
+        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+    })
+  })
+
+  describe.only('optimize createCollection', async () => {
+    // Fetch the Stripe OpenAPI document once for all benchmarks
+    const EXAMPLE_DOCUMENT = await fetch(
+      'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+    ).then((r) => r.json())
+
+    bench('new', async () => {
+      const workspace = createCollection(EXAMPLE_DOCUMENT)
+
+      await waitFor(() => {
+        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+    })
+
+    bench('old', async () => {
+      const workspace = createCollectionOld(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
         return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
