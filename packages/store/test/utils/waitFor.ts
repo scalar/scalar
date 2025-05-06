@@ -11,15 +11,10 @@ export async function waitFor(
    * Maximum number of iterations to try (default: 100_000)
    */
   maxTries = 100_000,
-  /**
-   * Delay in milliseconds between tries (default: 1)
-   */
-  delayMs = 1,
 ): Promise<void> {
   let tries = 0
   while (!condition() && tries < maxTries) {
     tries++
-    await new Promise((resolve) => setTimeout(resolve, delayMs))
   }
   if (tries === maxTries) {
     throw new Error('waitFor: Condition not met in time')
