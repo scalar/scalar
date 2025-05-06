@@ -1,8 +1,7 @@
-import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest' // or 'jest'
-import { createScalarApiReference } from './create-scalar-api-reference'
+import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
-describe('createScalarApiReference', () => {
+describe('createMarkdownFromOpenApi', () => {
   it('renders title, version and OpenAPI version', async () => {
     const content = {
       openapi: '3.1.1',
@@ -20,7 +19,9 @@ OpenAPI 3.1.1
 
 Test description`
 
-    expectMarkdownToBeRendered(content, markdown)
+    const result = await createMarkdownFromOpenApi(content)
+
+    expect(result).toContain(markdown)
   })
 
   it('renders servers', async () => {
@@ -55,12 +56,17 @@ Test description`
   - **Description:** Test server
 
 - **URL:** \`https://test.com/{version}\`
+
   - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
 `
 
-    expectMarkdownToBeRendered(content, markdown)
+    const result = await createMarkdownFromOpenApi(content)
+
+    // console.log(await createHtmlFromOpenApi(content), await createMarkdownFromOpenApi(content))
+
+    expect(result).toContain(markdown)
   })
 
   it('renders operations', async () => {
@@ -92,16 +98,8 @@ Test operation
 
 Test description`
 
-    expectMarkdownToBeRendered(content, markdown)
+    const result = await createMarkdownFromOpenApi(content)
+
+    expect(result).toContain(markdown)
   })
 })
-
-async function expectMarkdownToBeRendered(content: Record<string, unknown>, markdown: string) {
-  const configuration = {
-    content,
-  } as Partial<ApiReferenceConfiguration>
-
-  const html = await createScalarApiReference(configuration)
-
-  expect(html).toContain(markdown)
-}
