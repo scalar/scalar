@@ -5,7 +5,7 @@ import { bench, describe, expect } from 'vitest'
 import { createCollection } from './create-collection'
 import { createCollection as createCollectionOld } from './slow/create-collection'
 
-describe('create-collection', () => {
+describe('create-collection', async () => {
   describe('old vs. new', () => {
     const EXAMPLE_DOCUMENT = {
       openapi: '3.1.1',
@@ -121,43 +121,162 @@ describe('create-collection', () => {
     })
 
     bench('new createCollection', async () => {
-      const workspace = createCollection(EXAMPLE_DOCUMENT)
+      const collection = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
-        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
       })
 
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
   })
 
-  describe.only('optimize createCollection', async () => {
-    // Fetch the Stripe OpenAPI document once for all benchmarks
-    const EXAMPLE_DOCUMENT = await fetch(
-      'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
-    ).then((r) => r.json())
+  // Fetch the Stripe OpenAPI document once for all benchmarks
+  const EXAMPLE_DOCUMENT = (await fetch(
+    'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
+  ).then((r) => r.json())) as Record<string, unknown>
 
+  describe.only('regular', async () => {
     bench('new', async () => {
-      const workspace = createCollection(EXAMPLE_DOCUMENT)
+      const collection = createCollection(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
-        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
       })
 
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
 
     bench('old', async () => {
-      const workspace = createCollectionOld(EXAMPLE_DOCUMENT)
+      const collection = createCollectionOld(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
-        return !!workspace.document?.components?.schemas?.account?.properties?.capabilities
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
       })
 
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
-      expect(workspace.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+    })
+  })
+
+  describe.only('first render', async () => {
+    bench('new', async () => {
+      const { paths, ...rest } = EXAMPLE_DOCUMENT
+      const collection = createCollection({ ...rest, paths: {} })
+
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+    })
+
+    bench('old', async () => {
+      const { paths, ...rest } = EXAMPLE_DOCUMENT
+      const collection = createCollectionOld({ ...rest, paths: {} })
+
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
+    })
+  })
+
+  describe.only('chunking, full load', async () => {
+    bench('new', async () => {
+      const { paths, ...rest } = EXAMPLE_DOCUMENT
+      const collection = createCollection({ ...rest, paths: {} })
+
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+
+      collection.merge({ paths })
+
+      await waitFor(() => {
+        return !!Object.keys(collection.document?.paths ?? {}).length
+      })
+
+      expect(Object.keys(collection.document?.paths ?? {}).length).toBeGreaterThan(0)
+    })
+
+    bench('old', async () => {
+      const { paths, ...rest } = EXAMPLE_DOCUMENT
+      const collection = createCollectionOld({ ...rest, paths: {} })
+
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
+      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
+
+      collection.merge({ paths })
+
+      await waitFor(() => {
+        return !!Object.keys(collection.document?.paths ?? {}).length
+      })
+
+      expect(Object.keys(collection.document?.paths ?? {}).length).toBeGreaterThan(0)
+    })
+  })
+
+  describe.todo('partial update', async () => {
+    bench('new', async () => {
+      const collection = createCollection(EXAMPLE_DOCUMENT)
+
+      await waitFor(() => {
+        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
+      })
+
+      // Update just the summary of the first operation
+      const NEW_DOCUMENT = {
+        ...collection.document,
+        paths: {
+          ...collection.document?.paths,
+          '/v1/account': {
+            ...collection.document?.paths?.['/v1/account'],
+            get: { ...collection.document?.paths?.['/v1/account']?.get, summary: 'Updated Foobar' },
+          },
+        },
+      }
+
+      collection.update(NEW_DOCUMENT)
+
+      await waitFor(() => {
+        return !!collection.document?.paths?.['/v1/account']?.get?.summary
+      })
+
+      expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
+    })
+
+    bench('old', async () => {
+      const collection = createCollectionOld(EXAMPLE_DOCUMENT)
+
+      // Update just the summary of the first operation
+      const NEW_DOCUMENT = {
+        ...collection.document,
+        paths: {
+          ...collection.document?.paths,
+          '/v1/account': {
+            ...collection.document?.paths?.['/v1/account'],
+            get: { ...collection.document?.paths?.['/v1/account']?.get, summary: 'Updated Foobar' },
+          },
+        },
+      }
+
+      collection.update(NEW_DOCUMENT)
+
+      await waitFor(() => {
+        return !!collection.document?.paths?.['/v1/account']?.get?.summary
+      })
+
+      expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
     })
   })
 })

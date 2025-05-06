@@ -36,7 +36,9 @@ const perfResults = reactive<{
 function getPerfDelta(key: keyof typeof benchmarks) {
   const current = perfResults[key]
   const baseline = benchmarks[key]
-  if (current == null || baseline == null) return { delta: 0, percent: 0 }
+  if (current == null || baseline == null) {
+    return { delta: 0, percent: 0 }
+  }
   const delta = current - baseline
   const percent = (delta / baseline) * 100
   return { delta, percent }
@@ -51,34 +53,28 @@ onMounted(async () => {
 
   // Initial data load
   await measure(`load('stripe')`, async () => {
-    const start = performance.now()
     await workspace.load('stripe', async () => {
       // Destructure to remove 'paths', then return the rest
       const { paths, ...rest } = content.value
       return { ...rest }
     })
+
     await waitFor(() => {
       return !!workspace.state.collections.stripe?.document?.info?.title
     })
-    const end = performance.now()
-    console.log(`load('stripe') ${Math.round(end - start)}ms`)
   })
 
   // Ingest more data
   await measure(`merge('stripe', { paths: {…} })`, async () => {
-    const start2 = performance.now()
     workspace.merge('stripe', {
       paths: content.value.paths,
     })
+
     await waitFor(() => {
       return !!Object.keys(
         workspace.state.collections.stripe?.document?.paths ?? {},
       ).length
     })
-    const end2 = performance.now()
-    console.log(
-      `merge('stripe', { paths: {…} }) ${Math.round(end2 - start2)}ms`,
-    )
   })
 })
 
@@ -105,12 +101,19 @@ async function measure(name: string, fn: () => Promise<unknown>) {
   const result = await fn()
   const end = performance.now()
   const duration = Math.round(end - start)
+
   console.log(`${name} ${duration}ms`)
 
   // Store in perfResults
-  if (name.startsWith("fetch('stripe')")) perfResults.fetch = duration
-  if (name.startsWith("load('stripe')")) perfResults.load = duration
-  if (name.startsWith("merge('stripe'")) perfResults.merge = duration
+  if (name.startsWith('fetch')) {
+    perfResults.fetch = duration
+  }
+  if (name.startsWith('load')) {
+    perfResults.load = duration
+  }
+  if (name.startsWith('merge')) {
+    perfResults.merge = duration
+  }
 
   return result
 }
