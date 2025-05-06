@@ -63,7 +63,7 @@ export function createCollection(
   // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
     return {
-      document: createReferenceProxy(input.value, input.value, resolvedProxyCache) as ProcessedOpenApiObject,
+      document: createMagicProxy(input.value, input.value, resolvedProxyCache) as ProcessedOpenApiObject,
       export: () => exportRawDocument(unwrappedInput) as UnprocessedOpenApiObject,
       apply,
       merge: (partialDocument: UnknownObject) => {
@@ -84,7 +84,7 @@ export function createCollection(
   }
 
   // Create the root proxy for the entire document using the top-level function
-  const documentProxy = createReferenceProxy(sourceDocument, sourceDocument, resolvedProxyCache)
+  const documentProxy = createMagicProxy(sourceDocument, sourceDocument, resolvedProxyCache)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -150,7 +150,7 @@ function exportRawDocument(document: UnknownObject): UnknownObject {
 /**
  * Creates a proxy that automatically resolves JSON references.
  */
-function createReferenceProxy(
+export function createMagicProxy(
   /** The object to wrap in a proxy */
   targetObject: UnknownObject,
   /** The root reactive document for reference resolution */
@@ -183,12 +183,12 @@ function createReferenceProxy(
           const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
           if (resolvedValue) {
-            return createReferenceProxy(resolvedValue, sourceDocument, resolvedProxyCache)
+            return createMagicProxy(resolvedValue, sourceDocument, resolvedProxyCache)
           }
         }
 
         // @ts-expect-error TODO: fix this
-        return createReferenceProxy(value, sourceDocument, resolvedProxyCache, parseJsonPointer, getValueByPath)
+        return createMagicProxy(value, sourceDocument, resolvedProxyCache, parseJsonPointer, getValueByPath)
       }
 
       return value
