@@ -20,6 +20,7 @@ const content = ref<Record<string, unknown>>({})
 
 // Benchmarks for comparison
 const benchmarks = {
+  upgrade: 80,
   fetch: 42,
   load: 200,
   merge: 1306,
@@ -27,6 +28,7 @@ const benchmarks = {
 
 // Reactive object to store perf results
 const perfResults = reactive<{
+  upgrade?: number
   fetch?: number
   load?: number
   merge?: number
@@ -46,10 +48,15 @@ function getPerfDelta(key: keyof typeof benchmarks) {
 
 // Heavy work
 onMounted(async () => {
-  content.value = (await measure(`fetch('stripe')`, async () => {
+  const data = (await measure(`fetch('stripe')`, async () => {
     const response = await fetch(EXAMPLE_URL)
     return JSON.parse(await response.text())
   })) as Record<string, unknown>
+
+  await measure(`upgrade('stripe')`, async () => {
+    const { specification } = upgrade(data)
+    content.value = specification
+  })
 
   // Initial data load
   await measure(`load('stripe')`, async () => {
@@ -71,9 +78,10 @@ onMounted(async () => {
     })
 
     await waitFor(() => {
-      return !!Object.keys(
-        workspace.state.collections.stripe?.document?.paths ?? {},
-      ).length
+      return (
+        Object.keys(workspace.state.collections.stripe?.document?.paths ?? {})
+          .length === 391
+      )
     })
   })
 })
@@ -104,7 +112,9 @@ async function measure(name: string, fn: () => Promise<unknown>) {
 
   console.log(`${name} ${duration}ms`)
 
-  // Store in perfResults
+  if (name.startsWith('upgrade')) {
+    perfResults.upgrade = duration
+  }
   if (name.startsWith('fetch')) {
     perfResults.fetch = duration
   }
@@ -149,6 +159,20 @@ async function measure(name: string, fn: () => Promise<unknown>) {
                 }}
               </td>
             </tr>
+            <tr>
+              <td class="border px-2 py-1 font-bold">
+                resolved $ref's in paths
+              </td>
+              <td class="border px-2 py-1">
+                {{
+                  !!collections[collection].document?.paths?.['/v1/accounts']
+                    ?.get?.responses?.['200']?.content?.['application/json']
+                    ?.schema?.type
+                    ? 'yes'
+                    : 'no'
+                }}
+              </td>
+            </tr>
           </tbody>
         </table>
       </template>
@@ -176,12 +200,13 @@ async function measure(name: string, fn: () => Promise<unknown>) {
       </thead>
       <tbody>
         <tr
-          v-for="key in ['fetch', 'load', 'merge']"
+          v-for="key in ['upgrade', 'fetch', 'load', 'merge']"
           :key="key">
           <td class="border px-2 py-1">
-            <span v-if="key === 'fetch'">fetch('stripe')</span>
+            <span v-if="key === 'upgrade'">upgrade('stripe')</span>
+            <span v-else-if="key === 'fetch'">fetch('stripe')</span>
             <span v-else-if="key === 'load'">load('stripe')</span>
-            <span v-else>merge('stripe', {'{'} paths: {'{…}'} {'}'})</span>
+            <span v-else>merge('stripe', { paths: {…} })</span>
           </td>
           <td class="border px-2 py-1 text-center">{{ benchmarks[key] }}ms</td>
           <td class="border px-2 py-1 text-center">
@@ -206,6 +231,60 @@ async function measure(name: string, fn: () => Promise<unknown>) {
               }">
               {{ getPerfDelta(key).percent > 0 ? '+' : ''
               }}{{ getPerfDelta(key).percent.toFixed(1) }}%
+            </span>
+            <span v-else>–</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="border px-2 py-1 font-bold">Total</td>
+          <td class="border px-2 py-1 text-center font-bold">
+            {{ Object.values(benchmarks).reduce((a, b) => a + b, 0) }}ms
+          </td>
+          <td class="border px-2 py-1 text-center font-bold">
+            <span v-if="Object.values(perfResults).every((r) => r != null)">
+              {{
+                Object.values(perfResults).reduce((a, b) => a + (b ?? 0), 0)
+              }}ms
+            </span>
+            <span v-else>–</span>
+          </td>
+          <td class="border px-2 py-1 text-center font-bold">
+            <span v-if="Object.values(perfResults).every((r) => r != null)">
+              {{
+                Object.values(getPerfDelta).reduce((a, b) => a + b.delta, 0) > 0
+                  ? '+'
+                  : ''
+              }}{{
+                Object.values(getPerfDelta).reduce((a, b) => a + b.delta, 0)
+              }}ms
+            </span>
+            <span v-else>–</span>
+          </td>
+          <td class="border px-2 py-1 text-center font-bold">
+            <span
+              v-if="Object.values(perfResults).every((r) => r != null)"
+              :class="{
+                'text-green-600':
+                  Object.values(getPerfDelta).reduce(
+                    (a, b) => a + b.percent,
+                    0,
+                  ) < 0,
+                'text-red-600':
+                  Object.values(getPerfDelta).reduce(
+                    (a, b) => a + b.percent,
+                    0,
+                  ) > 0,
+              }">
+              {{
+                Object.values(getPerfDelta).reduce((a, b) => a + b.percent, 0) >
+                0
+                  ? '+'
+                  : ''
+              }}{{
+                Object.values(getPerfDelta)
+                  .reduce((a, b) => a + b.percent, 0)
+                  .toFixed(1)
+              }}%
             </span>
             <span v-else>–</span>
           </td>

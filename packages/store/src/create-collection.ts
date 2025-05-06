@@ -1,4 +1,4 @@
-import { normalize, unescapeJsonPointer, upgrade } from '@scalar/openapi-parser'
+import { normalize, unescapeJsonPointer } from '@scalar/openapi-parser'
 import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
 import type {
   OpenApiObject as UnprocessedOpenApiObject,
@@ -51,11 +51,11 @@ export function createCollection(
   // TODO: Embed external references
 
   // Upgrade
-  const { specification: upgraded } = upgrade(unwrappedInput)
+  // const { specification: upgraded } = upgrade(unwrappedInput)
 
   // TODO: OpenApiObjectSchema.parse is too strict
   // const content = UnprocessedOpenApiObjectSchema.parse(upgraded)
-  const content = upgraded
+  const content = unwrappedInput
 
   // Only create a cache if cache is true
   const resolvedProxyCache = cache ? new WeakMap() : undefined
@@ -147,48 +147,27 @@ function exportRawDocument(document: UnknownObject): UnknownObject {
   return raw
 }
 
-/**
- * Creates a proxy that automatically resolves JSON references.
- */
-export function createMagicProxy(
-  /** The object to wrap in a proxy */
-  targetObject: UnknownObject,
-  /** The root reactive document for reference resolution */
+function createProxyHandler(
   sourceDocument: UnknownObject,
-  /** A WeakMap for caching proxies to handle circular references */
   resolvedProxyCache?: WeakMap<object, unknown>,
-) {
-  if (!isObject(targetObject)) {
-    return targetObject // Return primitives as-is
-  }
-
-  const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
-
-  // Only use the cache if it exists
-  if (resolvedProxyCache?.has(rawTarget)) {
-    return resolvedProxyCache.get(rawTarget)
-  }
-
-  const proxyHandler = {
-    get(target: UnknownObject, property: string, receiver: UnknownObject) {
-      if (property === '__isProxy') {
-        return true
-      }
+): ProxyHandler<UnknownObject> {
+  return {
+    get(target, property, receiver) {
+      if (property === '__isProxy') return true
 
       const value = Reflect.get(target, property, receiver)
 
       if (isObject(value)) {
         if ('$ref' in value) {
-          const referencePath = parseJsonPointer(value.$ref as string)
+          const ref = value.$ref as string
+          const referencePath = parseJsonPointer(ref)
           const resolvedValue = getValueByPath(sourceDocument, referencePath)
-
           if (resolvedValue) {
             return createMagicProxy(resolvedValue, sourceDocument, resolvedProxyCache)
           }
         }
-
-        // @ts-expect-error TODO: fix this
-        return createMagicProxy(value, sourceDocument, resolvedProxyCache, parseJsonPointer, getValueByPath)
+        // Only pass required arguments
+        return createMagicProxy(value, sourceDocument, resolvedProxyCache)
       }
 
       return value
@@ -247,8 +226,27 @@ export function createMagicProxy(
       return Object.getOwnPropertyDescriptor(target, key)
     },
   }
+}
 
-  const proxy = new Proxy(targetObject, proxyHandler)
+/**
+ * Creates a proxy that automatically resolves JSON references.
+ */
+export function createMagicProxy(
+  targetObject: UnknownObject,
+  sourceDocument: UnknownObject,
+  resolvedProxyCache?: WeakMap<object, unknown>,
+) {
+  if (!isObject(targetObject)) return targetObject
+
+  const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
+
+  if (resolvedProxyCache?.has(rawTarget)) {
+    return resolvedProxyCache.get(rawTarget)
+  }
+
+  // Create a handler with the correct context
+  const handler = createProxyHandler(sourceDocument, resolvedProxyCache)
+  const proxy = new Proxy(rawTarget, handler)
 
   if (resolvedProxyCache) {
     resolvedProxyCache.set(rawTarget, proxy)
