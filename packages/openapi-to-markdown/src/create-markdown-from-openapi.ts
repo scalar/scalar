@@ -1,12 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+// @ts-expect-error TODO: Fix this
+import HTMLMinifier from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-// @ts-expect-error TODO: Fix this
-import HTMLMinifier from '../node_modules/html-minifier-terser/dist/htmlminifier.esm.bundle.js'
 import ScalarApiReference from './components/ScalarApiReference.vue'
 
 export async function createHtmlFromOpenApi(content: OpenAPIV3_1.Document | Record<string, unknown>) {
