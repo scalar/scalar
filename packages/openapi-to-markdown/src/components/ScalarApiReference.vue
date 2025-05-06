@@ -83,6 +83,10 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template v-else>
             {{ method.toString().toUpperCase() }} {{ path }}
           </template>
+          <template v-if="operation['x-scalar-stability']">
+            ({{ operation['x-scalar-stability'] }})
+          </template>
+          <template v-else-if="operation.deprecated"> (deprecated) </template>
         </h3>
 
         <p v-if="operation.summary">
@@ -99,6 +103,25 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           url: content.servers?.[0]?.url + path,
         }) }}</code></pre>
       </template>
+    </template>
+  </template>
+
+  <template
+    v-if="
+      content?.components?.schemas &&
+      Object.keys(content.components.schemas).length
+    ">
+    <h2>Schemas</h2>
+    <template
+      v-for="(schema, name) in content.components.schemas"
+      :key="name">
+      <h3>{{ name }}</h3>
+      <template v-if="schema.description">
+        <ScalarMarkdown :value="schema.description" />
+      </template>
+      <pre v-if="schema.type === 'object'">
+          <code>{{ JSON.stringify(schema, null, 2) }}</code>
+        </pre>
     </template>
   </template>
 </template>
