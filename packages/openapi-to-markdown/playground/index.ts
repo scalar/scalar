@@ -5,10 +5,8 @@ import { Hono } from 'hono'
 import { logger } from 'hono/logger'
 
 const html = await createHtmlFromOpenApi(content)
-console.log('html:', html)
 
 const markdown = await createMarkdownFromOpenApi(content)
-console.log('markdown:', markdown)
 
 const app = new Hono()
 app.use(logger())

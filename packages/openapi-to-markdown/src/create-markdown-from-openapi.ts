@@ -1,10 +1,10 @@
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-// @ts-expect-error TODO: Fix this
-import HTMLMinifier from 'html-minifier-terser'
+import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
 import rehypeSanitize from 'rehype-sanitize'
+import remarkGfm from 'remark-gfm'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { createSSRApp } from 'vue'
@@ -24,17 +24,16 @@ export async function createHtmlFromOpenApi(input: AnyDocument) {
   // Get static HTML
   const html = await renderToString(app)
 
-  return HTMLMinifier.minify(html, {
+  // Clean the output
+  return minify(html, {
     removeComments: true,
-    removeCommentsFromCDATA: true,
-    removeCDATASectionsFromCDATA: true,
     removeEmptyElements: true,
-    removeEmptyElementsFromCDATA: true,
     collapseWhitespace: true,
     continueOnParseError: true,
     noNewlinesBeforeTagClose: true,
     preserveLineBreaks: true,
     removeEmptyAttributes: true,
+    decodeEntities: true,
   })
 }
 
@@ -45,6 +44,7 @@ export async function createMarkdownFromOpenApi(content: AnyDocument) {
 export async function markdownFromHtml(html: string): Promise<string> {
   const file = await unified()
     .use(rehypeParse, { fragment: true })
+    .use(remarkGfm)
     .use(rehypeSanitize)
     .use(rehypeRemark)
     .use(remarkStringify, {

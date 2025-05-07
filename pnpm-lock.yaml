@@ -1987,6 +1987,9 @@ importers:
       rehype-stringify:
         specifier: ^10.0.0
         version: 10.0.0
+      remark-gfm:
+        specifier: ^4.0.0
+        version: 4.0.0
       remark-stringify:
         specifier: ^11.0.0
         version: 11.0.0
@@ -2006,6 +2009,9 @@ importers:
       '@scalar/galaxy':
         specifier: ^0.3.2
         version: 0.3.2
+      '@types/html-minifier-terser':
+        specifier: ^7.0.2
+        version: 7.0.2
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.0(vite@5.4.19(@types/node@22.15.3)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -8141,6 +8147,9 @@ packages:
 
   '@types/html-minifier-terser@6.1.0':
     resolution: {integrity: sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==}
+
+  '@types/html-minifier-terser@7.0.2':
+    resolution: {integrity: sha512-mm2HqV22l8lFQh4r2oSsOEVea+m0qqxEmwpc9kC1p/XzmjLWrReR9D/GRs8Pex2NX/imyEH9c5IU/7tMBQCHOA==}
 
   '@types/http-cache-semantics@4.0.4':
     resolution: {integrity: sha512-1m0bIFVc7eJWyve9S0RnuRgcQqF/Xd5QsUZAZeQFr1Q3/p9JWoQQEqmVy+DPTNpGXwhgIetAoYF8JSc33q29QA==}
@@ -26656,6 +26665,8 @@ snapshots:
   '@types/hosted-git-info@3.0.5': {}
 
   '@types/html-minifier-terser@6.1.0': {}
+
+  '@types/html-minifier-terser@7.0.2': {}
 
   '@types/http-cache-semantics@4.0.4': {}
 

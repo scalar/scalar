@@ -64,6 +64,7 @@
     "rehype-remark": "^10.0.1",
     "rehype-sanitize": "^6.0.0",
     "rehype-stringify": "^10.0.0",
+    "remark-gfm": "^4.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.4",
     "vue": "catalog:*"
@@ -72,6 +73,7 @@
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "^0.3.2",
+    "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "hono": "^4.6.5",
     "vite": "catalog:*",
