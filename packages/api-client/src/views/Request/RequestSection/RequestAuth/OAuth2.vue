@@ -223,6 +223,19 @@ const dataTableInputProps = {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
+    <!-- Prompt -->
+    <DataTableRow v-if="'x-prompt' in flow">
+      <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
+        :modelValue="flow['x-prompt']"
+        placeholder="login"
+        @update:modelValue="
+          (v) => updateScheme(`flows.${flow.type}.x-prompt`, v)
+        ">
+        Prompt
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
     <!-- Scopes -->
     <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
       <OAuthScopesInput

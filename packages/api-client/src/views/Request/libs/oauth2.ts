@@ -120,6 +120,10 @@ export const authorizeOauth2 = async (
       url.searchParams.set('redirect_uri', flow['x-scalar-redirect-uri'])
     }
 
+    if (flow['x-prompt']) {
+      url.searchParams.set('prompt', flow['x-prompt'])
+    }
+
     // Common to all flows
     url.searchParams.set('client_id', flow['x-scalar-client-id'])
     url.searchParams.set('state', state)
@@ -137,27 +141,38 @@ export const authorizeOauth2 = async (
         const checkWindowClosed = setInterval(() => {
           let accessToken: string | null = null
           let code: string | null = null
+          let error: string | null = null
+          let errorDescription: string | null = null
 
           try {
             const urlParams = new URL(authWindow.location.href).searchParams
             accessToken = urlParams.get('access_token')
             code = urlParams.get('code')
 
+            error = urlParams.get('error')
+            errorDescription = urlParams.get('error_description')
+
             // We may get the properties in a hash
             const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
             accessToken ||= hashParams.get('access_token')
             code ||= hashParams.get('code')
+            error ||= hashParams.get('error')
+            errorDescription ||= hashParams.get('error_description')
           } catch (_e) {
             // Ignore CORS error from popup
           }
 
           // The window has closed OR we have what we are looking for so we stop polling
-          if (authWindow.closed || accessToken || code) {
+          if (authWindow.closed || accessToken || code || error) {
             clearInterval(checkWindowClosed)
             authWindow.close()
 
+            if (error) {
+              resolve([new Error(`OAuth error: ${error}${errorDescription ? ` (${errorDescription})` : ''}`), null])
+            }
+
             // Implicit Flow
-            if (accessToken) {
+            else if (accessToken) {
               // State is a hash fragment and cannot be found through search params
               const _state = authWindow.location.href.match(/state=([^&]*)/)?.[1]
 
