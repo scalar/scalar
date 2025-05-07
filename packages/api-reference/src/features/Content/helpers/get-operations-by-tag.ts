@@ -30,13 +30,26 @@ export function getOperationsByTag(
 
     // Loop through all HTTP methods in the path
     Object.entries(pathItem).forEach(([method, operation]) => {
-      // Skip if not an operation or if operation doesn't have tags
-      if (typeof operation === 'string' || !operation?.tags) {
+      // Skip if not an operation
+      if (typeof operation === 'string') {
         return
       }
 
-      // Check if the operation has our target tag
-      if (operation.tags.includes(tag.name)) {
+      // For default tag, include operations without tags
+      // TODO: Make the 'default' tag configurable
+      if (tag.name === 'default') {
+        if (!operation?.tags) {
+          operations.push({
+            method: method.toUpperCase() as OpenAPIV3_1.HttpMethods,
+            path,
+            operation,
+          })
+        }
+        return
+      }
+
+      // For other tags, only include operations that have the tag
+      if (operation?.tags?.includes(tag.name)) {
         operations.push({
           method: method.toUpperCase() as OpenAPIV3_1.HttpMethods,
           path,

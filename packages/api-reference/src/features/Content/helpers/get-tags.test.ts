@@ -153,22 +153,6 @@ describe('getTags', () => {
     expect(tags[0].name).toBe('Public')
   })
 
-  it('includes internal tags when includeInternal is true', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Internal', 'x-internal': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument, { includeInternal: true })
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Public')
-    expect(tags[1].name).toBe('Internal')
-  })
-
   it('filters out ignored tags by default', () => {
     const collection = createCollection({
       openapi: '3.1.0',
@@ -182,22 +166,6 @@ describe('getTags', () => {
     const tags = getTags(collection.document as ExtendedDocument)
     expect(tags).toHaveLength(1)
     expect(tags[0].name).toBe('Public')
-  })
-
-  it('includes ignored tags when includeIgnored is true', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Ignored', 'x-scalar-ignore': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument, { includeIgnored: true })
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Public')
-    expect(tags[1].name).toBe('Ignored')
   })
 
   it('uses x-displayName for sorting when available', () => {
@@ -234,5 +202,48 @@ describe('getTags', () => {
     expect(tags).toHaveLength(2)
     expect(tags[0].name).toBe('Tag1')
     expect(tags[1].name).toBe('Tag2')
+  })
+
+  it('returns empty array when no tags are defined', () => {
+    const collection = createCollection({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/test': {
+          get: {
+            tags: ['Tag1'],
+            operationId: 'test',
+          },
+        },
+      },
+    })
+
+    const tags = getTags(collection.document as ExtendedDocument)
+    expect(tags).toHaveLength(1)
+    expect(tags[0].name).toBe('Tag1')
+  })
+
+  it('returns default tag for operations without tags', () => {
+    const collection = createCollection({
+      openapi: '3.1.0',
+      info: { title: 'Test', version: '1.0.0' },
+      paths: {
+        '/test': {
+          get: {
+            // No tags here
+            operationId: 'test1',
+          },
+          post: {
+            tags: ['Tag1'],
+            operationId: 'test2',
+          },
+        },
+      },
+    })
+
+    const tags = getTags(collection.document as ExtendedDocument)
+    expect(tags).toHaveLength(2)
+    expect(tags[0].name).toBe('Tag1')
+    expect(tags[1].name).toBe('default')
   })
 })

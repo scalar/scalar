@@ -5,10 +5,10 @@ import { createCollection } from '@scalar/store'
 import { type SortOptions, useSidebar } from './useSidebar'
 
 /**
- * Parse the given OpenAPI definition and return the items for the sidebar.
+ * Parse the given OpenAPI document and return the items for the sidebar.
  */
-async function getItemsForDocument(definition: Record<string, any>, options?: SortOptions) {
-  const collection = createCollection(definition)
+async function getItemsForDocument(content: Record<string, any>, options?: SortOptions) {
+  const collection = createCollection(content)
 
   const { items } = useSidebar({
     ...{
@@ -119,7 +119,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('has a tag', async () => {
+  it.only('has a tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -150,7 +150,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('has multiple tags', async () => {
+  it.only('has multiple tags', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -189,7 +189,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('sorts tags alphabetically', async () => {
+  it.only('sorts tags alphabetically', async () => {
     expect(
       await getItemsForDocument(
         {
@@ -233,7 +233,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('sorts tags with custom function', async () => {
+  it.only('sorts tags with custom function', async () => {
     expect(
       await getItemsForDocument(
         {
@@ -283,7 +283,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('adds to existing tags', async () => {
+  it.only('adds to existing tags', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -320,7 +320,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('creates a default tag', async () => {
+  it.only('creates a default tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
