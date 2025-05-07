@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { computed, toValue } from 'vue'
 
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { parse } from '../helpers'
+import { parse } from '../../helpers'
 import { type SorterOption, useSidebar } from './useSidebar'
 
 // Mock the useConfig hook
