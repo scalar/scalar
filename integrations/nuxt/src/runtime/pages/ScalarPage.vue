@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useRoute } from '#imports'
+import { definePageMeta, useRoute } from '@nuxt/kit'
 import type { Meta } from '~/src/types'
 
 const route = useRoute()
