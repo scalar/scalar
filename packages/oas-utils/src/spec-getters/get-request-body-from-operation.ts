@@ -14,16 +14,21 @@ type AnyObject = Record<string, any>
  */
 function getParamsFromObject(
   obj: AnyObject,
-  prefix = '',
+  nested = false,
+  field?: string,
 ): {
   name: string
   value: any
 }[] {
   return Object.entries(obj).flatMap(([key, value]) => {
-    const newKey = prefix ? `${prefix}[${key}]` : key
+    const newKey = field ?? key
+
+    if (Array.isArray(value) && !nested) {
+      return getParamsFromObject(value, true, key)
+    }
 
     if (typeof value === 'object' && value !== null) {
-      return getParamsFromObject(value, newKey)
+      throw new Error('Form data should not contain nested objects')
     }
 
     return [{ name: newKey, value }]
