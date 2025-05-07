@@ -615,7 +615,9 @@ To make authentication easier you can prefill the credentials for your users:
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
             'x-usePkce': 'SHA-256',
             // Preselected scopes
-            selectedScopes: ['profile', 'email']
+            selectedScopes: ['profile', 'email'],
+            // Set the prompt query parameter. Dependant on Authorization Server. Common values: login, select_account, consent, none 
+            'x-prompt': 'consent'
           },
           clientCredentials: {
             token: 'client credentials token',
