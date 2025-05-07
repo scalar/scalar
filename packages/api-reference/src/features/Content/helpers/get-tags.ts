@@ -1,6 +1,4 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { createCollection } from '@scalar/store'
-import { describe, expect, it } from 'vitest'
 
 // TODO: The store should support those custom properties
 type ExtendedTagObject = OpenAPIV3_1.TagObject & {
@@ -21,247 +19,21 @@ type ExtendedDocument = OpenAPIV3_1.Document & {
   'x-tagGroups'?: TagGroup[]
 }
 
-const collection = createCollection({
-  openapi: '3.1.0',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0',
-  },
-  tags: [
-    {
-      name: 'Hello',
-      description: 'Hello World',
-      operations: [],
-    },
-    {
-      name: 'World',
-      description: 'World Hello',
-      operations: [],
-    },
-  ],
-  paths: {
-    '/hello': {
-      get: {
-        summary: 'Hello World',
-        tags: ['Hello'],
-      },
-    },
-    '/world': {
-      post: {
-        summary: 'World Hello',
-        tags: ['World'],
-      },
-    },
-  },
-})
-
-describe('getTags', () => {
-  it('returns sorted tags when using a custom sorter', () => {
-    const tagsSorter = (a: ExtendedTagObject, b: ExtendedTagObject) => a.name?.localeCompare(b.name ?? '') ?? 0
-    const tags = getTags(collection.document as ExtendedDocument, { sort: tagsSorter })
-
-    expect(tags).toHaveLength(2)
-    expect(tags?.[0].name).toBe('Hello')
-    expect(tags?.[1].name).toBe('World')
-  })
-
-  it('returns empty array when no tags exist', () => {
-    const emptyCollection = createCollection({
-      openapi: '3.1.0',
-      info: {
-        title: 'Empty API',
-        version: '1.0.0',
-      },
-    })
-
-    const tags = getTags(emptyCollection.document as ExtendedDocument)
-    expect(tags).toHaveLength(0)
-  })
-
-  it('returns unsorted tags when no sort option is provided', () => {
-    const tags = getTags(collection.document as ExtendedDocument)
-    expect(tags).toHaveLength(2)
-    expect(tags).toEqual(collection.document.tags)
-  })
-
-  it('sorts tags alphabetically when sort is alpha', () => {
-    const unsortedCollection = createCollection({
-      openapi: '3.1.0',
-      info: {
-        title: 'Unsorted API',
-        version: '1.0.0',
-      },
-      tags: [
-        {
-          name: 'Zebra',
-          description: 'Zebra description',
-          operations: [],
-        },
-        {
-          name: 'Apple',
-          description: 'Apple description',
-          operations: [],
-        },
-      ],
-    })
-
-    const tags = getTags(unsortedCollection.document as ExtendedDocument, { sort: 'alpha' })
-    expect(tags).toHaveLength(2)
-    expect(tags?.[0].name).toBe('Apple')
-    expect(tags?.[1].name).toBe('Zebra')
-  })
-
-  it('handles tags with missing names', () => {
-    const collectionWithMissingNames = createCollection({
-      openapi: '3.1.0',
-      info: {
-        title: 'API with Missing Names',
-        version: '1.0.0',
-      },
-      tags: [
-        {
-          name: 'Valid',
-          description: 'Valid tag',
-          operations: [],
-        },
-        {
-          description: 'Missing name tag',
-          operations: [],
-        },
-      ],
-    })
-
-    const tags = getTags(collectionWithMissingNames.document as ExtendedDocument, { sort: 'alpha' })
-    expect(tags).toHaveLength(2)
-    expect(tags?.[0].name).toBe('Valid')
-    expect(tags?.[1].name).toBeUndefined()
-  })
-
-  it('filters out internal tags by default', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Internal', 'x-internal': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument)
-    expect(tags).toHaveLength(1)
-    expect(tags[0].name).toBe('Public')
-  })
-
-  it('includes internal tags when includeInternal is true', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Internal', 'x-internal': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument, { includeInternal: true })
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Public')
-    expect(tags[1].name).toBe('Internal')
-  })
-
-  it('filters out ignored tags by default', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Ignored', 'x-scalar-ignore': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument)
-    expect(tags).toHaveLength(1)
-    expect(tags[0].name).toBe('Public')
-  })
-
-  it('includes ignored tags when includeIgnored is true', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Public', operations: [] },
-        { name: 'Ignored', 'x-scalar-ignore': true, operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument, { includeIgnored: true })
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Public')
-    expect(tags[1].name).toBe('Ignored')
-  })
-
-  it('uses x-displayName for sorting when available', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'b', 'x-displayName': 'Zebra', operations: [] },
-        { name: 'a', 'x-displayName': 'Apple', operations: [] },
-      ],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument, { sort: 'alpha' })
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('a')
-    expect(tags[1].name).toBe('b')
-  })
-
-  // TODO: I don't really know how we want to support tag groups.
-  // I’d expect getTags to return a flat array, but we also need the grouping somehow?
-  it('supports tag groups', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Tag1', operations: [] },
-        { name: 'Tag2', operations: [] },
-        { name: 'Tag3', operations: [] },
-      ],
-      'x-tagGroups': [{ name: 'Group1', tags: ['Tag1', 'Tag2'] }],
-    })
-
-    const tags = getTags(collection.document as ExtendedDocument)
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Tag1')
-    expect(tags[1].name).toBe('Tag2')
-  })
-})
+export type TagSortOption = {
+  sort?: 'alpha' | ((a: ExtendedTagObject, b: ExtendedTagObject) => number)
+}
 
 /**
  * Takes an OpenAPI Document and returns an array of tags.
  */
-function getTags(
-  content: ExtendedDocument,
-  {
-    sort,
-    includeInternal = false,
-    includeIgnored = false,
-  }: {
-    sort?: 'alpha' | ((a: ExtendedTagObject, b: ExtendedTagObject) => number)
-    includeInternal?: boolean
-    includeIgnored?: boolean
-  } = {},
-): ExtendedTagObject[] {
+export function getTags(content: ExtendedDocument, { sort }: TagSortOption = {}): ExtendedTagObject[] {
   let tags = (content.tags ?? []) as ExtendedTagObject[]
 
   // Filter out internal tags unless explicitly included
-  if (!includeInternal) {
-    tags = tags.filter((tag) => !tag['x-internal'])
-  }
+  tags = tags.filter((tag) => !tag['x-internal'])
 
   // Filter out ignored tags unless explicitly included
-  if (!includeIgnored) {
-    tags = tags.filter((tag) => !tag['x-scalar-ignore'])
-  }
+  tags = tags.filter((tag) => !tag['x-scalar-ignore'])
 
   // Handle tag groups if present
   if (content['x-tagGroups']) {
