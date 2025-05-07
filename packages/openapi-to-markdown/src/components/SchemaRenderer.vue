@@ -8,8 +8,50 @@ defineProps<{
 
 <template>
   <section v-if="schema">
+    <!-- Composition keywords -->
+    <template v-if="schema.allOf">
+      <div>
+        <strong>All of:</strong>
+        <div
+          v-for="(subSchema, index) in schema.allOf"
+          :key="index">
+          <SchemaRenderer :schema="subSchema" />
+        </div>
+      </div>
+    </template>
+
+    <template v-else-if="schema.anyOf">
+      <div>
+        <strong>Any of:</strong>
+        <div
+          v-for="(subSchema, index) in schema.anyOf"
+          :key="index">
+          <SchemaRenderer :schema="subSchema" />
+        </div>
+      </div>
+    </template>
+
+    <template v-else-if="schema.oneOf">
+      <div>
+        <strong>One of:</strong>
+        <div
+          v-for="(subSchema, index) in schema.oneOf"
+          :key="index">
+          v-for="(subSchema, index) in schema.oneOf" :key="index">
+          <SchemaRenderer :schema="subSchema" />
+        </div>
+      </div>
+    </template>
+
+    <template v-else-if="schema.not">
+      <div>
+        <strong>Not:</strong>
+        <SchemaRenderer :schema="schema.not" />
+      </div>
+    </template>
+
     <!-- Object type -->
-    <template v-if="schema.type === 'object' || schema.properties">
+    <template v-else-if="schema.type === 'object' || schema.properties">
       <ul>
         <template
           v-for="(propSchema, propName) in schema.properties"
