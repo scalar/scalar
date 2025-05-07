@@ -95,7 +95,7 @@
     "test:e2e:electron": "pnpm --filter playwright test:e2e electron",
     "types:check": "pnpm run -r --parallel types:check",
     "markdown:check": "remark --frail .",
-    "script": "pnpm --filter @scalar/scripts start"
+    "script": "pnpm --filter @scalar-internal/build-scripts start"
   },
   "exports": {
     "./css/*.css": {
