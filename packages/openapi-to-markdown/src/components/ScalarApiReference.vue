@@ -9,8 +9,6 @@ const { content } = defineProps<{
   content: OpenAPIV3_1.Document
 }>()
 
-// TODO: Use the new store here.
-
 const getRequestExample = (harRequest: Partial<HarRequest>) => {
   const snippet = snippetz().print('shell', 'curl', {
     httpVersion: 'HTTP/1.1',
@@ -138,10 +136,20 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template
             v-for="(response, statusCode) in operation.responses"
             :key="statusCode">
-            <h5>Status: {{ statusCode }}</h5>
-            <h6>Code: {{ statusCode }}</h6>
-
-            <pre><code>{{ JSON.stringify(response, null, 2) }}</code></pre>
+            <h5>
+              Status: {{ statusCode }}
+              <template v-if="response.description">
+                {{ response.description }}
+              </template>
+            </h5>
+            <template
+              v-for="(content, mediaType) in response.content"
+              :key="mediaType">
+              <h6>Content-Type: {{ mediaType }}</h6>
+              <template v-if="content.schema">
+                <SchemaRenderer :schema="content.schema" />
+              </template>
+            </template>
           </template>
         </template>
       </template>

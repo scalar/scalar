@@ -14,6 +14,7 @@ import ScalarApiReference from './components/ScalarApiReference.vue'
 type AnyDocument = OpenAPI.Document | Record<string, unknown> | string
 
 export async function createHtmlFromOpenApi(input: AnyDocument) {
+  // TODO: Use the new store here.
   const { specification: upgraded } = upgrade(input)
   const { schema: content } = await dereference(upgraded)
 
