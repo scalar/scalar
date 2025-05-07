@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
 
 import { createCollection } from '@scalar/store'
-import { type SortOptions, useSidebar } from './useSidebar'
+import { type SortOptions, createSidebar } from './useSidebar'
 
 /**
  * Parse the given OpenAPI document and return the items for the sidebar.
@@ -10,7 +10,7 @@ import { type SortOptions, useSidebar } from './useSidebar'
 async function getItemsForDocument(content: Record<string, any>, options?: SortOptions) {
   const collection = createCollection(content)
 
-  const { items } = useSidebar({
+  const { items } = createSidebar({
     ...{
       tagSort: undefined,
       operationSort: undefined,
@@ -22,8 +22,31 @@ async function getItemsForDocument(content: Record<string, any>, options?: SortO
   return toValue(items)
 }
 
-describe('useSidebar', async () => {
-  it('doesn’t return any entries for an empty specification', async () => {
+describe('createSidebar', async () => {
+  it('creates a shared instance that can be accessed multiple times', async () => {
+    const collection = createCollection({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/hello': {
+          get: {
+            summary: 'Hello World',
+          },
+        },
+      },
+    })
+
+    const sidebar1 = createSidebar({ collection })
+    const sidebar2 = createSidebar({ collection })
+
+    // Both instances should return the same computed value
+    expect(toValue(sidebar1.items)).toBe(toValue(sidebar2.items))
+  })
+
+  it("doesn't return any entries for an empty specification", async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -98,28 +121,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('has a single entry for a single operation', async () => {
-    expect(
-      await getItemsForDocument({
-        openapi: '3.1.0',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
-        },
-        paths: {
-          '/hello': {
-            get: {
-              summary: 'Hello World',
-            },
-          },
-        },
-      }),
-    ).toMatchObject({
-      entries: [{ title: 'Hello World' }],
-    })
-  })
-
-  it.only('has a tag', async () => {
+  it('has a tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -150,7 +152,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('has multiple tags', async () => {
+  it('has multiple tags', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -189,7 +191,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('sorts tags alphabetically', async () => {
+  it('sorts tags alphabetically', async () => {
     expect(
       await getItemsForDocument(
         {
@@ -233,7 +235,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('sorts tags with custom function', async () => {
+  it('sorts tags with custom function', async () => {
     expect(
       await getItemsForDocument(
         {
@@ -283,7 +285,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('adds to existing tags', async () => {
+  it('adds to existing tags', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -320,7 +322,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('creates a default tag', async () => {
+  it('creates a default tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -804,7 +806,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('doesn’t add third level of headings', async () => {
+  it("doesn't add third level of headings", async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',

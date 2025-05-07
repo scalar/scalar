@@ -26,9 +26,10 @@ export type SortOptions = {
 }
 
 /**
- * Provides the sidebar state and methods to control it.
+ * Creates a new instance of the sidebar hook with the given collection.
+ * This allows multiple components to use the same computed state.
  */
-export function useSidebar(options?: InputOption & SortOptions) {
+export function createSidebar(options?: InputOption & SortOptions) {
   const items = computed(() => {
     if (!options?.collection?.document) {
       return { entries: [], titles: {} }
