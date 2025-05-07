@@ -177,7 +177,7 @@ const items = computed(() => {
                   id,
                   title,
                   httpVerb: operation.httpVerb,
-                  // TODO: Workaround until we’re using the store directly
+                  // TODO: Workaround until we're using the store directly
                   deprecated: operation.information
                     ? isOperationDeprecated({
                         deprecated: operation.information?.deprecated,
@@ -199,7 +199,7 @@ const items = computed(() => {
             id,
             title,
             httpVerb: operation.httpVerb,
-            // TODO: Workaround until we’re using the store directly
+            // TODO: Workaround until we're using the store directly
             deprecated: operation.information
               ? isOperationDeprecated({
                   deprecated: operation.information?.deprecated,
@@ -266,12 +266,12 @@ const items = computed(() => {
           if (tagName === 'models' && modelEntries.length > 0) {
             // Add default models entry to the group
             children.push(modelEntries[0])
-            // Don’t show default models entry
+            // Don't show default models entry
             modelEntries = []
           } else if (tagName === 'webhooks' && webhookEntries.length > 0) {
             // Add default webhooks entry to the group
             children.push(webhookEntries[0])
-            // Don’t show default webhooks entry
+            // Don't show default webhooks entry
             webhookEntries = []
           } else {
             const tag = operationEntries?.find((entry) => entry.title === tagName)
@@ -357,6 +357,8 @@ export const scrollToOperation = (operationId: string, focus?: boolean) => {
 
 /**
  * Provides the sidebar state and methods to control it.
+ *
+ * @deprecated We want to use the new useSidebar from @/features/Content
  */
 export function useSidebar(options?: ParsedSpecOption & SorterOption) {
   Object.assign(optionsRef, options)
