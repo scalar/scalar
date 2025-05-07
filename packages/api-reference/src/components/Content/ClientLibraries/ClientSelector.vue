@@ -143,7 +143,8 @@ const isSelectedClient = (language: HttpClientState) => {
   overflow: hidden;
   padding: 0 12px;
   background-color: var(--scalar-background-1);
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .client-libraries {
   display: flex;

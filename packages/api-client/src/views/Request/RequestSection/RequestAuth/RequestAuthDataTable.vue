@@ -64,7 +64,7 @@ watch(
   <form @submit.prevent>
     <div
       v-if="selectedSchemeOptions.length > 1"
-      class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border-t px-3">
+      class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"
@@ -87,7 +87,7 @@ watch(
     <DataTable
       v-if="activeScheme.length"
       class="flex-1"
-      :class="layout === 'reference' && 'border-0'"
+      :class="layout === 'reference' && 'rounded-b-lg border border-t-0'"
       :columns="['']"
       presentational>
       <RequestAuthTab
@@ -102,7 +102,7 @@ watch(
 
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
+      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border border-b-0 px-4 text-sm">
       No authentication selected
     </div>
 
