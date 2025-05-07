@@ -27,4 +27,10 @@ public abstract class OAuthFlow
     /// Gets or sets the authentication token.
     /// </summary>
     public string? Token { get; set; }
+
+    /// <summary>
+    /// Gets or sets the prompt parameter.
+    /// </summary>
+    [JsonPropertyName("x-prompt")]
+    public string? Prompt { get; set; }
 }

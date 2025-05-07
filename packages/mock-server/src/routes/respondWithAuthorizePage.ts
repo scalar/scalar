@@ -30,7 +30,14 @@ export function respondWithAuthorizePage(c: Context, title = '') {
       redirectUrl.searchParams.set('state', state)
     }
 
-    const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), title)
+    const deniedUrl = new URL(redirectUri)
+    if (state) {
+      deniedUrl.searchParams.set('state', state)
+    }
+    deniedUrl.searchParams.set('error', 'access_denied')
+    deniedUrl.searchParams.set('error_description', 'User has denied the authorization request')
+
+    const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), deniedUrl.toString(), title)
 
     return c.html(htmlContent)
   } catch {
@@ -44,7 +51,7 @@ export function respondWithAuthorizePage(c: Context, title = '') {
   }
 }
 
-function generateAuthorizationHtml(redirectUrl: string, title = '') {
+function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title = '') {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +85,7 @@ function generateAuthorizationHtml(redirectUrl: string, title = '') {
               </p>
             </div>
             <div class="px-6 py-4 pt-0 flex justify-between">
-              <a href="javascript:history.back()" class="inline-block px-6 py-2 text-gray-600 rounded border" aria-label="Cancel authorization">
+              <a href="${deniedUrl}" class="inline-block px-6 py-2 text-gray-600 rounded border" aria-label="Cancel authorization">
                 Cancel
               </a>
               <a href="${redirectUrl}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800" aria-label="Authorize application">

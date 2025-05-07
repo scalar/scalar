@@ -195,6 +195,7 @@ describe('Security Schemas', () => {
             },
             clientSecret: 'client-secret',
             token: 'access-token-456',
+            'x-prompt': 'login',
           },
         },
       }
