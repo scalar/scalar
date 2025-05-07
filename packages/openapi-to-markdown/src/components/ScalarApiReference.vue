@@ -89,11 +89,14 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template v-else-if="operation.deprecated"> (deprecated) </template>
         </h3>
 
-        <p v-if="operation.summary">
-          <strong>Method:</strong>
-          {{ method.toString().toUpperCase() }}<br />
-          <strong>Path:</strong>
-          {{ path }}
+        <p>
+          <template v-if="operation.summary">
+            <strong>Method:</strong> {{ method.toString().toUpperCase() }}<br />
+            <strong>Path:</strong> {{ path }}<br />
+          </template>
+          <template v-if="operation.tags">
+            <strong>Tags:</strong> {{ operation.tags.join(', ') }}
+          </template>
         </p>
 
         <ScalarMarkdown :value="operation.description" />
@@ -101,6 +104,48 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
         <pre><code>{{ getRequestExample({
           method: method.toString(),
           url: content.servers?.[0]?.url + path,
+        }) }}</code></pre>
+      </template>
+    </template>
+  </template>
+
+  <template v-if="Object.keys(content?.webhooks ?? {}).length">
+    <h2>Webhooks</h2>
+
+    <template
+      v-for="(webhook, name) in content?.webhooks"
+      :key="name">
+      <template
+        v-for="(operation, method) in webhook"
+        :key="operation">
+        <h3>
+          <template v-if="operation.summary">
+            {{ operation.summary }}
+          </template>
+          <template v-else>
+            {{ name }}
+          </template>
+          <template v-if="operation['x-scalar-stability']">
+            ({{ operation['x-scalar-stability'] }})
+          </template>
+          <template v-else-if="operation.deprecated"> (deprecated) </template>
+        </h3>
+
+        <p>
+          <strong>Method:</strong> {{ method.toString().toUpperCase() }}<br />
+          <template v-if="operation.summary">
+            <strong>Name:</strong> {{ name }}<br />
+          </template>
+          <template v-if="operation.tags">
+            <strong>Tags:</strong> {{ operation.tags.join(', ') }}
+          </template>
+        </p>
+
+        <ScalarMarkdown :value="operation.description" />
+
+        <pre><code>{{ getRequestExample({
+          method: method.toString(),
+          url: content.servers?.[0]?.url + name,
         }) }}</code></pre>
       </template>
     </template>
