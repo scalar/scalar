@@ -61,8 +61,8 @@ public class ScalarOptionsMapperTests
             HiddenClients = true,
             Authentication = new ScalarAuthenticationOptions
             {
-                PreferredSecurityScheme = "my-scheme",
 #pragma warning disable CS0618 // Type or member is obsolete
+                PreferredSecurityScheme = "my-scheme",
                 ApiKey = new ApiKeyOptions
                 {
                     Token = "my-token"
@@ -88,7 +88,6 @@ public class ScalarOptionsMapperTests
         configuration.HideDownloadButton.Should().BeTrue();
         configuration.HideTestRequestButton.Should().BeTrue();
         configuration.DarkMode.Should().BeFalse();
-        configuration.ForceDarkModeState.Should().Be("light");
         configuration.HideDarkModeToggle.Should().BeTrue();
         configuration.CustomCss.Should().Be("*{}");
         configuration.SearchHotKey.Should().Be("o");
@@ -98,8 +97,8 @@ public class ScalarOptionsMapperTests
         configuration.DefaultHttpClient!.ClientKey.Should().Be("httpclient");
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
-        configuration.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
 #pragma warning disable CS0618 // Type or member is obsolete
+        configuration.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
         configuration.Authentication.ApiKey.Should().NotBeNull();
         configuration.Authentication.ApiKey!.Token.Should().Be("my-token");
 #pragma warning restore CS0618 // Type or member is obsolete
@@ -203,5 +202,26 @@ public class ScalarOptionsMapperTests
                 first => first.Url.Should().Be("openapi/default.json"),
                 second => second.Url.Should().Be("external/custom.json")
             );
+    }
+
+    [Fact]
+    public void PreferredSecurityScheme_ShouldOverridePreferredSecuritySchemes_WhenSet()
+    {
+        // Arrange
+        var options = new ScalarOptions
+        {
+            // Act
+            Authentication = new ScalarAuthenticationOptions
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                PreferredSecurityScheme = "my-scheme"
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        };
+
+        var configuration = options.ToScalarConfiguration();
+
+        // Assert
+        configuration.Authentication!.PreferredSecuritySchemes.Should().ContainSingle().Which.Should().Be("my-scheme");
     }
 }
