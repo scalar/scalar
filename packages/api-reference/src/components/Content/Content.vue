@@ -101,7 +101,7 @@ const introCardsSlot = computed(() =>
             :class="{ 'introduction-card-row': layout === 'classic' }">
             <div
               v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item divide-y text-sm [--scalar-address-bar-height:0px]">
+              class="scalar-reference-intro-server scalar-client introduction-card-item text-sm [--scalar-address-bar-height:0px]">
               <BaseUrl
                 :collection="activeCollection"
                 :server="activeServer" />
@@ -194,9 +194,6 @@ const introCardsSlot = computed(() =>
 }
 .introduction-card-item {
   display: flex;
-  overflow: hidden;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
   margin-bottom: 12px;
   flex-direction: column;
   justify-content: start;

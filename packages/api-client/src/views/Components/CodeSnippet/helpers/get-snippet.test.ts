@@ -109,7 +109,7 @@ $.ajax(settings).done(function (response) {
     })
 
     expect(error).toBeNull()
-    expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
+    expect(result).toEqual(`fetch('https://void.scalar.com/{path}/users')`)
   })
 
   it('should show the accept header if its not */*', () => {

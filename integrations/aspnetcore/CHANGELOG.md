@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.2.7
+
+### Patch Changes
+
+- 55eb589: fix(Scalar.AspNetCore): improve script module loading
+- Updated dependencies [902f58b]
+- Updated dependencies [cd6cf24]
+  - @scalar/api-reference@1.28.32
+
 ## 2.2.6
 
 ### Patch Changes

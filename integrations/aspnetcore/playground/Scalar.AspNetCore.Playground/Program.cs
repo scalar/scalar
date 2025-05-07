@@ -3,7 +3,7 @@ using Scalar.AspNetCore.Playground;
 using Scalar.AspNetCore.Playground.Books;
 using Scalar.AspNetCore.Playground.Extensions;
 
-var builder = WebApplication.CreateSlimBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<BookStore>();
 
 builder.Services.ConfigureHttpJsonOptions(options =>
@@ -25,10 +25,11 @@ app.MapOpenApi();
 
 Action<ScalarOptions> configureOptions = options =>
     options
+        .WithJavaScriptConfiguration("./scalar/config.js")
         .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
         .WithFavicon("/favicon.png")
-        .WithPreferredScheme(AuthConstants.ApiKeyScheme)
         .AddApiKeyAuthentication(AuthConstants.ApiKeyScheme, scheme => scheme.Value = "my-api-key")
+        .AddPreferredSecuritySchemes(AuthConstants.ApiKeyScheme)
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 
 app.MapScalarApiReference(options =>

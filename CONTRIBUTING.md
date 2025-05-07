@@ -87,6 +87,10 @@ Here are all the prefixes you need to know:
 | chore    | Other changes that don't modify src or test files                                                           |
 | revert   | Reverts a previous commit                                                                                   |
 
+### Changesets
+
+If your PR will cause a version bump for any package, you will need to include a [changeset](https://github.com/changesets/changesets/blob/main/docs/adding-a-changeset.md) by running `pnpm changeset`.
+
 ## Styles and CSS Layers
 
 The Scalar packages use CSS cascade layers extensively to manage the priority of exported styles and to make it easy to override themes and component styles in projects consuming those packages.

@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.28.32
+
+### Patch Changes
+
+- 902f58b: fix: updates prop destructuring defaults in schema property heading
+- cd6cf24: fix: remove old servers then re-add new ones on config.servers change
+- Updated dependencies [e42dfc0]
+- Updated dependencies [4483ac4]
+- Updated dependencies [cd6cf24]
+- Updated dependencies [4483ac4]
+  - @scalar/api-client@2.3.32
+  - @scalar/oas-utils@0.2.142
+
 ## 1.28.31
 
 ### Patch Changes

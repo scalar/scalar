@@ -255,4 +255,14 @@ public sealed class ScalarOptions
     /// adjusted based on the request context. This only works for relative server URLs.
     /// </remarks>
     public bool DynamicBaseServerUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to a custom configuration JS module.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    /// <remarks>
+    /// If the path is relative, it will be normalized relative to the base path.
+    /// </remarks>
+    [StringSyntax(StringSyntaxAttribute.Uri)]
+    public string? JavaScriptConfiguration { get; set; }
 }

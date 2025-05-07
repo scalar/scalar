@@ -208,7 +208,7 @@ To configure API key authentication:
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("ApiKey") // Optional: Sets the default security scheme
+    .AddPreferredSecuritySchemes("ApiKey") // Optional: Sets the default security scheme
     .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
         apiKey.Value = "your-api-key";
@@ -222,7 +222,7 @@ Scalar supports various OAuth2 flows through specific helper methods, but all of
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddOAuth2Authentication("OAuth2", scheme => 
     {
         // Configure flows manually
@@ -256,7 +256,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
@@ -271,7 +271,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddClientCredentialsFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
@@ -284,7 +284,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddImplicitFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
@@ -296,7 +296,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddPasswordFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
@@ -312,7 +312,7 @@ You can configure multiple OAuth2 flows for a single security scheme:
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("OAuth2")
+    .AddPreferredSecuritySchemes("OAuth2")
     .AddOAuth2Flows("OAuth2", flows =>
     {
         // Authorization Code flow
@@ -343,7 +343,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("BearerAuth")
+    .AddPreferredSecuritySchemes("BearerAuth")
     .AddHttpAuthentication("BearerAuth", auth =>
     {
         auth.Token = "ey...";
@@ -355,7 +355,7 @@ app.MapScalarApiReference(options => options
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .WithPreferredScheme("BasicAuth")
+    .AddPreferredSecuritySchemes("BasicAuth")
     .AddHttpAuthentication("BasicAuth", auth =>
     {
         auth.Username = "your-username";
@@ -370,8 +370,8 @@ You can configure multiple security schemes at once:
 
 ```csharp
 app.MapScalarApiReference(options => options
-    // Set the preferred (default) scheme
-    .WithPreferredScheme("OAuth2")
+    // Set the preferred (default) schemes - you can specify multiple preferred schemes
+    .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
     
     // Configure OAuth2
     .AddAuthorizationCodeFlow("OAuth2", flow =>
@@ -425,6 +425,40 @@ app.MapScalarApiReference(options =>
 
 > [!NOTE]
 > Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
+
+### Custom JavaScript Configuration
+
+Scalar allows you to extend its functionality by using a custom JavaScript configuration module. This is useful for customizing behavior that's not accessible through the C# configuration options.
+
+To use this feature, specify the path to your JavaScript module using the `JavaScriptConfiguration` property:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithJavaScriptConfiguration("/scalar/config.js");
+    // or
+    options.JavaScriptConfiguration = "/scalar/config.js";
+});
+```
+
+Create a JavaScript module in your static files directory (e.g. `wwwroot/scalar/config.js`) that exports a default object with your custom configuration:
+
+```javascript
+// wwwroot/scalar/config.js
+export default {
+  // Custom slug generation for operations
+  generateOperationSlug: (operation) => `custom-${operation.method.toLowerCase()}${operation.path}`,
+  
+  // Hook into document selection events
+  onDocumentSelect: () => console.log('Document changed'),
+  
+  // Add any other custom configuration options supported by Scalar
+  // Checkout https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
+}
+```
+
+> [!NOTE]
+> Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
 
 ### Dependency Injection
 
