@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite ./playground",
+    "dev": "vite-node --watch ./playground/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "test": "vitest",
@@ -59,19 +59,21 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/types": "workspace:*",
-    "html-minifier": "^4.0.0",
     "html-minifier-terser": "^7.2.0",
     "rehype-parse": "^9.0.0",
-    "rehype-preset-minify": "^7.0.1",
     "rehype-remark": "^10.0.1",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.0",
     "remark-stringify": "^11.0.0",
     "unified": "^11.0.4",
     "vue": "catalog:*"
   },
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
-    "@types/html-minifier": "^4.0.5",
+    "@scalar/galaxy": "^0.3.2",
     "@vitejs/plugin-vue": "catalog:*",
+    "hono": "^4.6.5",
     "vite": "catalog:*",
     "vue": "catalog:*"
   }

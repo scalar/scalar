@@ -33,9 +33,9 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
     <strong>Version:</strong> {{ content?.info?.version }}
   </p>
 
-  <ScalarMarkdown
+  <!-- <ScalarMarkdown
     :value="content?.info?.description"
-    v-if="content?.info?.description" />
+    v-if="content?.info?.description" /> -->
 
   <template v-if="content?.servers?.length">
     <h2>Servers</h2>
@@ -119,9 +119,10 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
       <template v-if="schema.description">
         <ScalarMarkdown :value="schema.description" />
       </template>
-      <pre v-if="schema.type === 'object'">
-          <code>{{ JSON.stringify(schema, null, 2) }}</code>
-        </pre>
+      <pre
+        v-if="
+          schema.type === 'object'
+        "><code>{{ JSON.stringify(schema, null, 2) }}</code></pre>
     </template>
   </template>
 </template>
