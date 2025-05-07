@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { isDefined } from '@scalar/oas-utils/helpers'
 import type {
   OpenAPI,
   OpenAPIV2,
@@ -101,11 +102,11 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
       <Badge>deprecated</Badge>
     </div>
     <div
-      v-if="value?.const || (value?.enum && value.enum.length === 1)"
+      v-if="isDefined(value?.const) || (value?.enum && value.enum.length === 1)"
       class="property-const">
       <SchemaPropertyDetail truncate>
         <template #prefix>const:</template>
-        {{ value.const ?? value.enum[0] }}
+        {{ value?.const ?? value?.enum?.[0] }}
       </SchemaPropertyDetail>
     </div>
     <template v-else-if="value?.type">
