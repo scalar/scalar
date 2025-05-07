@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { snippetz, type HarRequest } from '@scalar/snippetz'
 
@@ -26,223 +27,264 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
 </script>
 
 <template>
-  <h1>{{ content?.info?.title }}</h1>
+  <section>
+    <header>
+      <h1>{{ content?.info?.title }}</h1>
+      <ul>
+        <li>
+          <strong>OpenAPI Version:</strong>
+          <code>{{ content?.openapi }}</code>
+        </li>
+        <li>
+          <strong>API Version:</strong>
+          <code>{{ content?.info?.version }}</code>
+        </li>
+      </ul>
+    </header>
 
-  <p>
-    <strong>OpenAPI:</strong> {{ content?.openapi }}<br />
-    <strong>Version:</strong> {{ content?.info?.version }}
-  </p>
+    <ScalarMarkdown
+      :value="content?.info?.description"
+      v-if="content?.info?.description" />
 
-  <!-- <ScalarMarkdown
-    :value="content?.info?.description"
-    v-if="content?.info?.description" /> -->
-
-  <template v-if="content?.servers?.length">
-    <h2>Servers</h2>
-    <ul>
-      <li
-        v-for="(server, index) in content.servers"
-        :key="index">
-        <strong>URL:</strong> <code>{{ server.url }}</code>
-        <ul>
-          <li v-if="server.description">
-            <strong>Description:</strong> {{ server.description }}
-          </li>
-          <li v-if="server.variables && Object.keys(server.variables).length">
-            <strong>Variables:</strong>
-            <ul>
-              <li
-                v-for="(variable, name) in server.variables"
-                :key="name">
-                <code>{{ name }}</code> (default:
-                <code>'{{ variable.default }}'</code>)<span
-                  v-if="variable.description"
-                  >: {{ variable.description }}</span
-                >
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </template>
-
-  <template v-if="Object.keys(content?.paths ?? {}).length">
-    <h2>Operations</h2>
-
-    <template
-      v-for="path in Object.keys(content?.paths ?? {})"
-      :key="path">
-      <template
-        v-for="(operation, method) in content?.paths?.[path]"
-        :key="operation">
-        <h3>
-          <template v-if="operation.summary">
-            {{ operation.summary }}
-          </template>
-          <template v-else>
-            {{ method.toString().toUpperCase() }} {{ path }}
-          </template>
-          <template v-if="operation['x-scalar-stability']">
-            ({{ operation['x-scalar-stability'] }})
-          </template>
-          <template v-else-if="operation.deprecated">
-            <span class="deprecated">(deprecated)</span>
-          </template>
-        </h3>
-
-        <div class="operation-details">
-          <table>
-            <tbody>
-              <tr>
-                <th>Method</th>
-                <td>
-                  <code>{{ method.toString().toUpperCase() }}</code>
-                </td>
-              </tr>
-              <tr>
-                <th>Path</th>
-                <td>
-                  <code>{{ path }}</code>
-                </td>
-              </tr>
-              <template v-if="operation.tags">
-                <tr>
-                  <th>Tags</th>
-                  <td>{{ operation.tags.join(', ') }}</td>
-                </tr>
-              </template>
-              <template v-if="operation.deprecated">
-                <tr>
-                  <th>Deprecated</th>
-                  <td>true</td>
-                </tr>
-              </template>
-            </tbody>
-          </table>
-        </div>
-
-        <ScalarMarkdown :value="operation.description" />
-
-        <h4>Request Example</h4>
-        <pre><code>{{ getRequestExample({
-            method: method.toString(),
-            url: content.servers?.[0]?.url + path,
-          }) }}</code></pre>
-
-        <template v-if="operation.responses">
-          <h4>Responses</h4>
-
-          <template
-            v-for="(response, statusCode) in operation.responses"
-            :key="statusCode">
-            <h5>
-              Status: {{ statusCode }}
-              <template v-if="response.description">
-                {{ response.description }}
-              </template>
-            </h5>
-            <template
-              v-for="(content, mediaType) in response.content"
-              :key="mediaType">
-              <h6>Content-Type: {{ mediaType }}</h6>
-              <template v-if="content.schema">
-                <SchemaRenderer :schema="content.schema" />
-              </template>
+    <section v-if="content?.servers?.length">
+      <h2>Servers</h2>
+      <ul>
+        <template
+          v-for="(server, index) in content.servers"
+          :key="index">
+          <li>
+            <strong>URL:</strong>
+            <code>{{ server.url }}</code>
+            <template v-if="server.description">
+              <p>{{ server.description }}</p>
             </template>
-          </template>
+            <template
+              v-if="server.variables && Object.keys(server.variables).length">
+              <ul>
+                <template
+                  v-for="(variable, name) in server.variables"
+                  :key="name">
+                  <li>
+                    <strong>{{ name }}:</strong>
+                    Default: <code>'{{ variable.default }}'</code>
+                    <template v-if="variable.description">
+                      <p>{{ variable.description }}</p>
+                    </template>
+                  </li>
+                </template>
+              </ul>
+            </template>
+          </li>
+        </template>
+      </ul>
+    </section>
+
+    <section v-if="Object.keys(content?.paths ?? {}).length">
+      <h2>Operations</h2>
+
+      <template
+        v-for="path in Object.keys(content?.paths ?? {})"
+        :key="path">
+        <template
+          v-for="(operation, method) in content?.paths?.[path]"
+          :key="operation">
+          <section>
+            <header>
+              <h3>
+                <template v-if="operation.summary">
+                  {{ operation.summary }}
+                </template>
+                <template v-else>
+                  {{ method.toString().toUpperCase() }} {{ path }}
+                </template>
+                <template v-if="operation['x-scalar-stability']">
+                  ({{ operation['x-scalar-stability'] }})
+                </template>
+                <template v-else-if="operation.deprecated">
+                  ⚠️ Deprecated
+                </template>
+              </h3>
+            </header>
+
+            <ul>
+              <li>
+                <strong>Method:</strong>
+                <code>{{ method.toString().toUpperCase() }}</code>
+              </li>
+              <li>
+                <strong>Path:</strong>
+                <code>{{ path }}</code>
+              </li>
+              <template v-if="operation.tags">
+                <li>
+                  <strong>Tags:</strong>
+                  {{ operation.tags.join(', ') }}
+                </li>
+              </template>
+              <template v-if="operation['x-scalar-stability']">
+                <li>
+                  <strong>Stability:</strong>
+                  {{ operation['x-scalar-stability'] }}
+                </li>
+              </template>
+            </ul>
+
+            <ScalarMarkdown :value="operation.description" />
+
+            <section>
+              <h4>Request Example</h4>
+              <pre><code>{{ getRequestExample({
+                method: method.toString(),
+                url: content.servers?.[0]?.url + path,
+              }) }}</code></pre>
+            </section>
+
+            <template v-if="operation.requestBody?.content">
+              <section>
+                <h4>Request Body</h4>
+                <template
+                  v-for="(content, mediaType) in operation.requestBody.content"
+                  :key="mediaType">
+                  <h5>Content-Type: {{ mediaType }}</h5>
+                  <template v-if="content.schema">
+                    <SchemaRenderer :schema="content.schema" />
+                    <p><strong>Example:</strong></p>
+                    <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
+                  </template>
+                </template>
+              </section>
+            </template>
+
+            <template v-if="operation.responses">
+              <section>
+                <h4>Responses</h4>
+
+                <template
+                  v-for="(response, statusCode) in operation.responses"
+                  :key="statusCode">
+                  <section>
+                    <header>
+                      <h5>
+                        Status: {{ statusCode }}
+                        <template v-if="response.description">
+                          {{ response.description }}
+                        </template>
+                      </h5>
+                    </header>
+                    <template
+                      v-for="(content, mediaType) in response.content"
+                      :key="mediaType">
+                      <section>
+                        <h6>Content-Type: {{ mediaType }}</h6>
+                        <template v-if="content.schema">
+                          <SchemaRenderer :schema="content.schema" />
+                          <p><strong>Example:</strong></p>
+                          <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
+                        </template>
+                      </section>
+                    </template>
+                  </section>
+                </template>
+              </section>
+            </template>
+          </section>
         </template>
       </template>
-    </template>
-  </template>
+    </section>
 
-  <template v-if="Object.keys(content?.webhooks ?? {}).length">
-    <h2>Webhooks</h2>
+    <section v-if="Object.keys(content?.webhooks ?? {}).length">
+      <h2>Webhooks</h2>
 
-    <template
-      v-for="(webhook, name) in content?.webhooks"
-      :key="name">
       <template
-        v-for="(operation, method) in webhook"
-        :key="operation">
-        <h3>
-          <template v-if="operation.summary">
-            {{ operation.summary }}
-          </template>
-          <template v-else>
-            {{ name }}
-          </template>
-          <template v-if="operation['x-scalar-stability']">
-            ({{ operation['x-scalar-stability'] }})
-          </template>
-          <template v-else-if="operation.deprecated">
-            <span class="deprecated">(deprecated)</span>
-          </template>
-        </h3>
+        v-for="(webhook, name) in content?.webhooks"
+        :key="name">
+        <template
+          v-for="(operation, method) in webhook"
+          :key="operation">
+          <section>
+            <header>
+              <h3>
+                <template v-if="operation.summary">
+                  {{ operation.summary }}
+                </template>
+                <template v-else>
+                  {{ name }}
+                </template>
+                <template v-if="operation['x-scalar-stability']">
+                  <span>({{ operation['x-scalar-stability'] }})</span>
+                </template>
+                <template v-else-if="operation.deprecated">
+                  <span>⚠️ Deprecated</span>
+                </template>
+              </h3>
+            </header>
 
-        <div class="operation-details">
-          <table>
-            <tbody>
-              <tr>
-                <th>Method</th>
-                <td>
-                  <code>{{ method.toString().toUpperCase() }}</code>
-                </td>
-              </tr>
-              <tr>
-                <th>Path</th>
-                <td>
-                  <code>/webhooks/{{ name }}</code>
-                </td>
-              </tr>
+            <ul>
+              <li>
+                <strong>Method:</strong>
+                <code>{{ method.toString().toUpperCase() }}</code>
+              </li>
+              <li>
+                <strong>Path:</strong>
+                <code>/webhooks/{{ name }}</code>
+              </li>
               <template v-if="operation.tags">
-                <tr>
-                  <th>Tags</th>
-                  <td>{{ operation.tags.join(', ') }}</td>
-                </tr>
+                <li>
+                  <strong>Tags:</strong>
+                  {{ operation.tags.join(', ') }}
+                </li>
               </template>
               <template v-if="operation.deprecated">
-                <tr>
-                  <th>Deprecated</th>
-                  <td>true</td>
-                </tr>
+                <li>
+                  <strong>Deprecated:</strong>
+                  true
+                </li>
               </template>
-            </tbody>
-          </table>
-        </div>
+            </ul>
 
-        <ScalarMarkdown :value="operation.description" />
+            <ScalarMarkdown :value="operation.description" />
 
-        <div class="request-example">
-          <h4>Request Example</h4>
-          <pre><code>{{ getRequestExample({
-            method: method.toString(),
-            url: content.servers?.[0]?.url + '/webhooks/' + name,
-          }) }}</code></pre>
-        </div>
+            <section>
+              <h4>Request Example</h4>
+              <pre><code>{{ getRequestExample({
+                method: method.toString(),
+                url: content.servers?.[0]?.url + '/webhooks/' + name,
+              }) }}</code></pre>
+            </section>
+          </section>
+        </template>
       </template>
-    </template>
-  </template>
+    </section>
 
-  <template
-    v-if="
-      content?.components?.schemas &&
-      Object.keys(content.components.schemas).length
-    ">
-    <h2>Schemas</h2>
-    <template
-      v-for="(schema, name) in content.components.schemas"
-      :key="name">
-      <h3>{{ schema.title ?? name }}</h3>
-      <p>
-        Type: <code>{{ schema.type }}</code>
-      </p>
-      <template v-if="schema.description">
-        <ScalarMarkdown :value="schema.description" />
+    <section
+      v-if="
+        content?.components?.schemas &&
+        Object.keys(content.components.schemas).length
+      ">
+      <h2>Schemas</h2>
+      <template
+        v-for="(schema, name) in content.components.schemas"
+        :key="name">
+        <section>
+          <header>
+            <h3>{{ schema.title ?? name }}</h3>
+          </header>
+          <ul>
+            <li>
+              <strong>Type:</strong>
+              <code>{{ schema.type }}</code>
+            </li>
+          </ul>
+          <template v-if="schema.description">
+            <ScalarMarkdown :value="schema.description" />
+          </template>
+          <SchemaRenderer
+            v-if="schema.type === 'object'"
+            :schema="schema" />
+          <p><strong>Example:</strong></p>
+          <pre><code>{{ JSON.stringify(getExampleFromSchema(schema), null, 2) }}</code></pre>
+        </section>
       </template>
-      <SchemaRenderer
-        v-if="schema.type === 'object'"
-        :schema="schema" />
-    </template>
-  </template>
+    </section>
+  </section>
 </template>
