@@ -1,5 +1,5 @@
-import { normalize } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { dereference, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { minify } from 'html-minifier-terser'
 import rehypeParse from 'rehype-parse'
 import rehypeRemark from 'rehype-remark'
@@ -11,10 +11,11 @@ import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
 import ScalarApiReference from './components/ScalarApiReference.vue'
 
-type AnyDocument = OpenAPIV3_1.Document | Record<string, unknown> | string
+type AnyDocument = OpenAPI.Document | Record<string, unknown> | string
 
 export async function createHtmlFromOpenApi(input: AnyDocument) {
-  const content = normalize(input)
+  const { specification: upgraded } = upgrade(input)
+  const { schema: content } = await dereference(upgraded)
 
   // Create and configure a server-side rendered Vue app
   const app = createSSRApp(ScalarApiReference, {

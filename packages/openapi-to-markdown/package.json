@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "vite-node --watch ./playground/index.ts",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts,vue --quiet --watch ./",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "test": "vitest",

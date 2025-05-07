@@ -3,6 +3,8 @@ import { ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { snippetz, type HarRequest } from '@scalar/snippetz'
 
+import SchemaRenderer from './SchemaRenderer.vue'
+
 const { content } = defineProps<{
   content: OpenAPIV3_1.Document
 }>()
@@ -86,25 +88,62 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template v-if="operation['x-scalar-stability']">
             ({{ operation['x-scalar-stability'] }})
           </template>
-          <template v-else-if="operation.deprecated"> (deprecated) </template>
+          <template v-else-if="operation.deprecated">
+            <span class="deprecated">(deprecated)</span>
+          </template>
         </h3>
 
-        <p>
-          <template v-if="operation.summary">
-            <strong>Method:</strong> {{ method.toString().toUpperCase() }}<br />
-            <strong>Path:</strong> {{ path }}<br />
-          </template>
-          <template v-if="operation.tags">
-            <strong>Tags:</strong> {{ operation.tags.join(', ') }}
-          </template>
-        </p>
+        <div class="operation-details">
+          <table>
+            <tbody>
+              <tr>
+                <th>Method</th>
+                <td>
+                  <code>{{ method.toString().toUpperCase() }}</code>
+                </td>
+              </tr>
+              <tr>
+                <th>Path</th>
+                <td>
+                  <code>{{ path }}</code>
+                </td>
+              </tr>
+              <template v-if="operation.tags">
+                <tr>
+                  <th>Tags</th>
+                  <td>{{ operation.tags.join(', ') }}</td>
+                </tr>
+              </template>
+              <template v-if="operation.deprecated">
+                <tr>
+                  <th>Deprecated</th>
+                  <td>true</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
 
         <ScalarMarkdown :value="operation.description" />
 
+        <h4>Request Example</h4>
         <pre><code>{{ getRequestExample({
-          method: method.toString(),
-          url: content.servers?.[0]?.url + path,
-        }) }}</code></pre>
+            method: method.toString(),
+            url: content.servers?.[0]?.url + path,
+          }) }}</code></pre>
+
+        <template v-if="operation.responses">
+          <h4>Responses</h4>
+
+          <template
+            v-for="(response, statusCode) in operation.responses"
+            :key="statusCode">
+            <h5>Status: {{ statusCode }}</h5>
+            <h6>Code: {{ statusCode }}</h6>
+
+            <pre><code>{{ JSON.stringify(response, null, 2) }}</code></pre>
+          </template>
+        </template>
       </template>
     </template>
   </template>
@@ -128,25 +167,51 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template v-if="operation['x-scalar-stability']">
             ({{ operation['x-scalar-stability'] }})
           </template>
-          <template v-else-if="operation.deprecated"> (deprecated) </template>
+          <template v-else-if="operation.deprecated">
+            <span class="deprecated">(deprecated)</span>
+          </template>
         </h3>
 
-        <p>
-          <strong>Method:</strong> {{ method.toString().toUpperCase() }}<br />
-          <template v-if="operation.summary">
-            <strong>Name:</strong> {{ name }}<br />
-          </template>
-          <template v-if="operation.tags">
-            <strong>Tags:</strong> {{ operation.tags.join(', ') }}
-          </template>
-        </p>
+        <div class="operation-details">
+          <table>
+            <tbody>
+              <tr>
+                <th>Method</th>
+                <td>
+                  <code>{{ method.toString().toUpperCase() }}</code>
+                </td>
+              </tr>
+              <tr>
+                <th>Path</th>
+                <td>
+                  <code>/webhooks/{{ name }}</code>
+                </td>
+              </tr>
+              <template v-if="operation.tags">
+                <tr>
+                  <th>Tags</th>
+                  <td>{{ operation.tags.join(', ') }}</td>
+                </tr>
+              </template>
+              <template v-if="operation.deprecated">
+                <tr>
+                  <th>Deprecated</th>
+                  <td>true</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </div>
 
         <ScalarMarkdown :value="operation.description" />
 
-        <pre><code>{{ getRequestExample({
-          method: method.toString(),
-          url: content.servers?.[0]?.url + name,
-        }) }}</code></pre>
+        <div class="request-example">
+          <h4>Request Example</h4>
+          <pre><code>{{ getRequestExample({
+            method: method.toString(),
+            url: content.servers?.[0]?.url + '/webhooks/' + name,
+          }) }}</code></pre>
+        </div>
       </template>
     </template>
   </template>
@@ -160,14 +225,102 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
     <template
       v-for="(schema, name) in content.components.schemas"
       :key="name">
-      <h3>{{ name }}</h3>
+      <h3>{{ schema.title ?? name }}</h3>
+      <p>
+        Type: <code>{{ schema.type }}</code>
+      </p>
       <template v-if="schema.description">
         <ScalarMarkdown :value="schema.description" />
       </template>
-      <pre
-        v-if="
-          schema.type === 'object'
-        "><code>{{ JSON.stringify(schema, null, 2) }}</code></pre>
+      <SchemaRenderer
+        v-if="schema.type === 'object'"
+        :schema="schema" />
     </template>
   </template>
 </template>
+
+<style scoped>
+.schema-container {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background-color: #f9fafb;
+}
+
+.schema-properties {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.schema-property {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border-left: 2px solid #e5e7eb;
+}
+
+.schema-description {
+  color: #6b7280;
+  margin: 0.25rem 0;
+}
+
+.schema-type,
+.schema-format,
+.schema-enum,
+.schema-default {
+  margin: 0.25rem 0;
+  color: #4b5563;
+}
+
+.operation-details {
+  margin: 1rem 0;
+}
+
+.operation-details table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 600px;
+}
+
+.operation-details th,
+.operation-details td {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+}
+
+.operation-details th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  width: 120px;
+}
+
+.request-example,
+.response-example {
+  margin: 1rem 0;
+}
+
+.request-example h4,
+.response-example h4 {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+.deprecated {
+  color: #dc2626;
+  font-size: 0.875em;
+  margin-left: 0.5rem;
+}
+
+pre {
+  background-color: #f9fafb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}
+</style>
