@@ -1,0 +1,49 @@
+{
+  "name": "@scalar/store",
+  "description": "Store interface for openapi documents",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/themes"
+  },
+  "keywords": [
+    "store",
+    "openapi",
+    "scalar"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-esbuild",
+    "dev": "vite-node src/index.ts",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test:unit": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "dependencies": {
+    "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "vitest": "catalog:*"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  }
+}

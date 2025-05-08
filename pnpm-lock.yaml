@@ -1952,6 +1952,25 @@ importers:
         specifier: catalog:*
         version: 5.4.19(@types/node@20.17.10)(terser@5.31.2)
 
+  packages/store:
+    dependencies:
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../openapi-types
+      nanoid:
+        specifier: catalog:*
+        version: 5.1.5
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      vitest:
+        specifier: catalog:*
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
   packages/themes:
     dependencies:
       '@scalar/types':
