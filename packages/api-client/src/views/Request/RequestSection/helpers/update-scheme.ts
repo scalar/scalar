@@ -21,7 +21,6 @@ export const updateScheme = <U extends SecurityScheme['uid'], P extends Path<Sec
   }
 
   // We persist auth to local storage by name key
-
   try {
     const auth: Auth<P> = JSON.parse(localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}')
     const scheme = securitySchemes[uid]
