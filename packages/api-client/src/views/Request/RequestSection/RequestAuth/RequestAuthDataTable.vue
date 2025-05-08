@@ -105,7 +105,7 @@ watch(
 
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border border-b-0 px-4 text-sm">
+      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
       No authentication selected
     </div>
 
