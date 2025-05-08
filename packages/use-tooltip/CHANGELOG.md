@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.7
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 1.0.6
 
 ### Patch Changes

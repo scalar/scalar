@@ -1,5 +1,5 @@
-import { isLocalUrl } from './is-local-url.ts'
-import { REGEX } from './regex-helpers.ts'
+import { isLocalUrl } from './is-local-url'
+import { REGEX } from './regex-helpers'
 
 /**
  * Redirects the request to a proxy server with a given URL. But not for:

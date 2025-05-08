@@ -16,15 +16,13 @@
     "swagger",
     "cli"
   ],
-  "version": "0.3.20",
+  "version": "0.3.26",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -57,7 +55,7 @@
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
-    "@types/node": "catalog:",
-    "vite": "catalog:"
+    "@types/node": "catalog:*",
+    "vite": "catalog:*"
   }
 }

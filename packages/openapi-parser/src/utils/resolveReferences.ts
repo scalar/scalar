@@ -1,10 +1,10 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import { ERRORS } from '../configuration/index.ts'
-import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '../types/index.ts'
-import { getEntrypoint } from './getEntrypoint.ts'
-import { getSegmentsFromPath } from './getSegmentsFromPath.ts'
-import { makeFilesystem } from './makeFilesystem.ts'
+import { ERRORS } from '../configuration/index'
+import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '../types/index'
+import { getEntrypoint } from './getEntrypoint'
+import { getSegmentsFromPath } from './getSegmentsFromPath'
+import { makeFilesystem } from './makeFilesystem'
 
 // TODO: Add support for all pointer words
 // export const pointerWords = new Set([

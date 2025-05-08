@@ -1,5 +1,26 @@
 # @scalar/types
 
+## 0.1.14
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/openapi-types@0.2.2
+
+## 0.1.13
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+
+## 0.1.12
+
+### Patch Changes
+
+- 62c4ce3: feat: SvelteKit API Reference integration
+  - @scalar/openapi-types@0.2.1
+
 ## 0.1.11
 
 ### Patch Changes

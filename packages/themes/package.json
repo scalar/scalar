@@ -15,7 +15,7 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.10.3",
+  "version": "0.11.1",
   "engines": {
     "node": ">=18"
   },
@@ -34,18 +34,16 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./tailwind": {
       "import": "./dist/tailwind.js",
-      "require": "./dist/tailwind.cjs",
       "types": "./dist/tailwind.d.ts",
       "default": "./dist/tailwind.js"
     },
-    "./presets/*.css": "./dist/presets/*.css",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./fonts.css": "./dist/fonts/fonts.css"
   },
   "files": [
     "dist",
@@ -54,15 +52,16 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "nanoid": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vitest/coverage-v8": "^1.6.0",
-    "tailwindcss": "catalog:",
-    "vite": "catalog:",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*",
     "vite-plugin-static-copy": "^1.0.2",
-    "vitest": "catalog:"
+    "vitest": "catalog:*"
   }
 }

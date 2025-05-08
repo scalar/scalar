@@ -1,4 +1,4 @@
-import { sortByOrder } from '@/arrays/sort'
+import { sortByOrder } from '../arrays/sort'
 import { describe, expect, it } from 'vitest'
 
 describe('Sort arrays by an order list', () => {

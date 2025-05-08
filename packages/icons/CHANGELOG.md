@@ -1,5 +1,24 @@
 # @scalar/icons
 
+## 0.3.5
+
+### Patch Changes
+
+- Updated dependencies [8c7bad8]
+  - @scalar/use-hooks@0.1.48
+
+## 0.3.4
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.47
+
+## 0.3.3
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.46
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,1 +1,1 @@
-export * from './sanitize.ts'
+export * from './sanitize'

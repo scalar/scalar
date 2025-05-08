@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { htmlFromMarkdown } from '@scalar/code-highlight'
+import { cx } from '@scalar/use-hooks/useBindCx'
 import { computed, onServerPrefetch } from 'vue'
 
 import { sleep } from '../../helpers/oas-utils'
@@ -11,6 +12,7 @@ const props = withDefaults(
     transform?: (node: Record<string, any>) => Record<string, any>
     transformType?: string
     clamp?: string | boolean
+    class?: string
   }>(),
   {
     withImages: false,
@@ -30,8 +32,9 @@ onServerPrefetch(async () => await sleep(1))
 </script>
 <template>
   <div
-    class="markdown text-ellipsis"
-    :class="{ 'line-clamp-4': clamp }"
+    :class="
+      cx('markdown text-ellipsis', { 'line-clamp-4': clamp }, props.class)
+    "
     :style="{
       '-webkit-line-clamp': typeof clamp === 'string' ? clamp : undefined,
     }"

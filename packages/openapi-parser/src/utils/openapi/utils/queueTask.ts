@@ -1,4 +1,4 @@
-import type { Queue, Task } from '../../../types/index.ts'
+import type { Queue, Task } from '../../../types/index'
 
 /**
  * Add a new task to the existing queue

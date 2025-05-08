@@ -16,18 +16,14 @@
     "vue",
     "vue3"
   ],
-  "version": "1.0.6",
+  "version": "1.0.7",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "dev": "vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "preview": "vite preview",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -48,14 +44,9 @@
   "module": "dist/index.js",
   "dependencies": {
     "tippy.js": "^6.3.7",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
-    "@vitest/coverage-v8": "^1.6.0",
-    "vite": "catalog:",
-    "vitest": "catalog:",
-    "vue": "catalog:"
+    "@scalar/build-tooling": "workspace:*"
   }
 }

@@ -3,4 +3,4 @@ export {
   getHtmlDocument,
   getScriptTags,
   getConfiguration,
-} from './html-rendering.ts'
+} from './html-rendering'

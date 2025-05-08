@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src/index.ts'
+import { validate } from '../../../../src/index'
 import path_var_empty_pathitem from './path_var_empty_pathitem.yaml?raw'
 
 describe('path_var_empty_pathitem', () => {

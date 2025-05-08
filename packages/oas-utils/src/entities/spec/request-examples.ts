@@ -1,13 +1,16 @@
-import { schemaModel } from '@/helpers/schema-model.ts'
-import { getServerVariableExamples } from '@/spec-getters/get-server-variable-examples.ts'
+import { schemaModel } from '@/helpers/schema-model'
+import { getServerVariableExamples } from '@/spec-getters/get-server-variable-examples'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
-import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation.ts'
-import type { RequestParameter } from './parameters.ts'
-import type { Request } from './requests.ts'
-import type { Server } from './server.ts'
+import { isDefined } from '@/helpers/is-defined'
+import { getObjectKeys } from '@/helpers/object'
+
+import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation'
+import type { RequestParameter, ParameterContent } from './parameters'
+import type { Request } from './requests'
+import type { Server } from './server'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
@@ -27,7 +30,7 @@ export const requestExampleParametersSchema = z
     description: z.string().optional(),
     required: z.boolean().optional(),
     enum: z.array(z.string()).optional(),
-    examples: z.array(z.string()).optional(),
+    examples: z.array(z.any()).optional(),
     type: z
       .union([
         // 'string'
@@ -51,7 +54,7 @@ export const requestExampleParametersSchema = z
       data.nullable = true
     }
 
-    // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
+    // Hey, if it's just one value and 'null', we can make it a string and ditch the 'null'.
     if (Array.isArray(data.type) && data.type.length === 2 && data.type.includes('null')) {
       data.type = data.type.find((item) => item !== 'null')
     }
@@ -287,19 +290,72 @@ export function convertExampleToXScalar(example: RequestExample) {
 /** Create new instance parameter from a request parameter */
 export function createParamInstance(param: RequestParameter) {
   const schema = param.schema as any
-  const keys = Object.keys(param?.examples ?? {})
 
   const firstExample = (() => {
-    if (keys.length && !Array.isArray(param.examples)) {
-      return param.examples?.[keys[0]!]
+    if (param.examples && !Array.isArray(param.examples) && getObjectKeys(param.examples).length > 0) {
+      const exampleValues = Object.entries(param.examples).map(([_, example]) => {
+        // returns the external value if it exists
+        if (example.externalValue) {
+          return example.externalValue
+        }
+
+        // returns the value if it exists and is defined
+        // e.g. { examples: { foo: { value: 'bar' } } } would return ['bar']
+        return example.value
+      })
+
+      // returns the first example as selected value along other examples
+      return { value: exampleValues[0], examples: exampleValues }
     }
 
+    // param example e.g. { example: 'foo' }
+    if (isDefined(param.example)) {
+      return { value: param.example }
+    }
+
+    // param examples e.g. { examples: ['foo', 'bar'] }
     if (Array.isArray(param.examples) && param.examples.length > 0) {
       return { value: param.examples[0] }
     }
 
+    // schema example e.g. { example: 'foo' } while being discouraged
+    // see https://spec.openapis.org/oas/v3.1.1.html#fixed-fields-20
+    if (isDefined(schema?.example)) {
+      return { value: schema.example }
+    }
+
+    // schema examples e.g. { examples: ['foo', 'bar'] }
+    if (Array.isArray(schema?.examples) && schema.examples.length > 0) {
+      // For boolean type, default to false when using schema examples
+      if (schema?.type === 'boolean') {
+        return { value: schema.default ?? false }
+      }
+      return { value: schema.examples[0] }
+    }
+
+    // content examples e.g. { content: { 'application/json': { examples: { foo: { value: 'bar' } } } } }
+    if (param.content) {
+      const firstContentType = getObjectKeys(param.content)[0]
+      if (firstContentType) {
+        const content = (param.content as ParameterContent)[firstContentType]
+        if (content?.examples) {
+          const firstExampleKey = Object.keys(content.examples)[0]
+          if (firstExampleKey) {
+            const example = content.examples[firstExampleKey]
+            if (isDefined(example?.value)) {
+              return { value: example.value }
+            }
+          }
+        }
+        // content example e.g. { example: 'foo' }
+        if (isDefined(content?.example)) {
+          return { value: content.example }
+        }
+      }
+    }
+
     return null
-  })()
+  })() as null | { value: any; examples?: string[] }
 
   /**
    * TODO:
@@ -307,9 +363,7 @@ export function createParamInstance(param: RequestParameter) {
    * - Need to handle non-string parameters much better
    * - Need to handle unions/array values for schema
    */
-  const value = String(
-    schema?.default ?? schema?.examples?.[0] ?? schema?.example ?? firstExample?.value ?? param.example ?? '',
-  )
+  const value = String(firstExample?.value ?? schema?.default ?? '')
 
   // Handle non-string enums and enums within items for array types
   const parseEnum = (() => {
@@ -324,8 +378,10 @@ export function createParamInstance(param: RequestParameter) {
     return schema?.enum
   })()
 
-  // Handle non-string examples
-  const parseExamples = schema?.examples && schema?.type !== 'string' ? schema.examples?.map(String) : schema?.examples
+  // Handle parameter examples
+  const examples =
+    firstExample?.examples ||
+    (schema?.examples && schema?.type !== 'string' ? schema.examples?.map(String) : schema?.examples)
 
   // safe parse the example
   const example = schemaModel(
@@ -338,7 +394,7 @@ export function createParamInstance(param: RequestParameter) {
       /** Initialized all required properties to enabled */
       enabled: !!param.required,
       enum: parseEnum,
-      examples: parseExamples,
+      examples,
     },
     requestExampleParametersSchema,
     false,

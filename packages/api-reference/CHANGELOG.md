@@ -1,5 +1,111 @@
 # @scalar/api-reference
 
+## 1.28.32
+
+### Patch Changes
+
+- 902f58b: fix: updates prop destructuring defaults in schema property heading
+- cd6cf24: fix: remove old servers then re-add new ones on config.servers change
+- Updated dependencies [e42dfc0]
+- Updated dependencies [4483ac4]
+- Updated dependencies [cd6cf24]
+- Updated dependencies [4483ac4]
+  - @scalar/api-client@2.3.32
+  - @scalar/oas-utils@0.2.142
+
+## 1.28.31
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/code-highlight@0.0.29
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/openapi-types@0.2.2
+  - @scalar/api-client@2.3.31
+  - @scalar/components@0.13.57
+  - @scalar/use-toasts@0.7.10
+  - @scalar/oas-utils@0.2.141
+  - @scalar/use-hooks@0.1.48
+  - @scalar/snippetz@0.2.20
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+  - @scalar/icons@0.3.5
+
+## 1.28.30
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/code-highlight@0.0.28
+  - @scalar/oas-utils@0.2.140
+  - @scalar/types@0.1.13
+  - @scalar/api-client@2.3.30
+  - @scalar/components@0.13.56
+  - @scalar/use-hooks@0.1.47
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/icons@0.3.4
+
+## 1.28.29
+
+### Patch Changes
+
+- d2f27f4: fix: updates parameter list item passed value
+- f039486: feat: CSS class for HTTP methods
+- d2f27f4: feat: adds external and object value format example
+- Updated dependencies [a4e5a2e]
+- Updated dependencies [d2f27f4]
+- Updated dependencies [d2f27f4]
+- Updated dependencies [701093e]
+  - @scalar/api-client@2.3.29
+  - @scalar/components@0.13.55
+  - @scalar/oas-utils@0.2.139
+
+## 1.28.28
+
+### Patch Changes
+
+- 9eb9623: feat: add unique classes to intro cards
+- 539483e: fix: displays schema name in property heading
+- 33d2b37: fix: merges oneof/anyof subschemas in allof
+- Updated dependencies [5d24800]
+- Updated dependencies [5d24800]
+  - @scalar/api-client@2.3.28
+  - @scalar/oas-utils@0.2.138
+
+## 1.28.27
+
+### Patch Changes
+
+- 62c4ce3: feat: SvelteKit API Reference integration
+- b079da8: fix: increases schema property array item level support
+- b079da8: fix: updates schema discriminator to include title
+- Updated dependencies [1e9f510]
+- Updated dependencies [1e9f510]
+- Updated dependencies [335da88]
+- Updated dependencies [b240f4a]
+- Updated dependencies [62c4ce3]
+- Updated dependencies [3cf1457]
+- Updated dependencies [1e9f510]
+- Updated dependencies [950772d]
+- Updated dependencies [f2b8732]
+- Updated dependencies [b3f599f]
+  - @scalar/api-client@2.3.27
+  - @scalar/types@0.1.12
+  - @scalar/oas-utils@0.2.137
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.4
+  - @scalar/code-highlight@0.0.27
+  - @scalar/components@0.13.54
+  - @scalar/icons@0.3.3
+  - @scalar/openapi-types@0.2.1
+  - @scalar/use-hooks@0.1.46
+  - @scalar/use-toasts@0.7.9
+
 ## 1.28.26
 
 ### Patch Changes

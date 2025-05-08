@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.20
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 0.2.19
 
 ### Patch Changes

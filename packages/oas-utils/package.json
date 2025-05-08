@@ -16,16 +16,15 @@
     "specification",
     "yaml"
   ],
-  "version": "0.2.136",
+  "version": "0.2.142",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
-    "test:unit": "vitest .",
     "typegen:migration": "vite-node ./src/migrations/generate-types.ts",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -68,6 +67,11 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
+    "./helpers/security": {
+      "import": "./dist/helpers/security/index.js",
+      "types": "./dist/helpers/security/index.d.ts",
+      "default": "./dist/helpers/security/index.js"
+    },
     "./migrations": {
       "import": "./dist/migrations/index.js",
       "types": "./dist/migrations/index.d.ts",
@@ -90,6 +94,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@hyperjump/browser": "^1.1.0",
     "@hyperjump/json-schema": "^1.9.6",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
@@ -97,19 +102,19 @@
     "@scalar/types": "workspace:*",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
-    "nanoid": "catalog:",
-    "type-fest": "catalog:",
-    "yaml": "catalog:",
-    "zod": "catalog:"
+    "nanoid": "catalog:*",
+    "type-fest": "catalog:*",
+    "yaml": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "type-fest": "^4.20.0",
-    "vite": "catalog:",
-    "vitest": "catalog:",
+    "vite": "catalog:*",
+    "vitest": "catalog:*",
     "zod-to-ts": "github:amritk/zod-to-ts#build"
   }
 }

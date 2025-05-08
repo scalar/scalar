@@ -7,7 +7,7 @@
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "repository": {
     "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
+    "url": "git+https://github.com/scalar/scalar.git",
     "directory": "projects/client-scalar-com"
   },
   "version": "0.1.0",
@@ -19,8 +19,8 @@
     "build": "vite build",
     "deploy": "pnpm run build && wrangler pages deploy ./dist --project-name=client",
     "dev": "vite",
-    "format:check": "scalar-format-check",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "preview": "pnpm run build && wrangler pages dev ./dist",
@@ -29,14 +29,14 @@
   },
   "type": "module",
   "dependencies": {
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",
     "@scalar/api-client": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
-    "vite": "catalog:",
-    "vitest": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*",
     "wrangler": "^3.62.0"
   }
 }

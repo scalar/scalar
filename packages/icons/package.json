@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/icons"
   },
-  "version": "0.3.2",
+  "version": "0.3.5",
   "engines": {
     "node": ">=18"
   },
@@ -46,18 +46,18 @@
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
     "@scalar/use-hooks": "workspace:*",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "chalk": "^5.4.1",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
     "jsdom": "^22.1.0",
     "svglint": "^2.7.1",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "vite-svg-loader": "^5.1.0",
-    "vitest": "catalog:"
+    "vitest": "catalog:*"
   }
 }

@@ -1,4 +1,4 @@
-import type { Filesystem, FilesystemEntry } from '../types/index.ts'
+import type { Filesystem, FilesystemEntry } from '../types/index'
 
 /**
  * Return just the entrypoint of the filesystem.

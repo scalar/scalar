@@ -1,5 +1,5 @@
-import type { AnyObject } from '../types/index.ts'
-import { traverse } from './traverse.ts'
+import type { AnyObject } from '../types/index'
+import { traverse } from './traverse'
 
 /**
  * Walks through the specification and returns all references as an array.

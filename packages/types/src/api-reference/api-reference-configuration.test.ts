@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration.ts'
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from './api-reference-configuration'
 
 describe('api-reference-configuration', () => {
   describe('schema', () => {
@@ -208,18 +208,6 @@ describe('api-reference-configuration', () => {
       const migratedConfig = apiReferenceConfigurationSchema.parse(config)
       expect(migratedConfig.proxyUrl).toBe('https://proxy.scalar.com')
       expect(migratedConfig.proxy).toBeUndefined()
-    })
-
-    it('migrates legacy theme variables', () => {
-      const config = {
-        theme: 'default',
-        customCss: '--theme-color-red: red;',
-      }
-
-      const migratedConfig = apiReferenceConfigurationSchema.parse(config)
-
-      expect(migratedConfig.customCss).not.toContain('--theme-color-red')
-      expect(migratedConfig.customCss).toContain('--scalar-color-red')
     })
 
     it('migrates spec.url to url', () => {

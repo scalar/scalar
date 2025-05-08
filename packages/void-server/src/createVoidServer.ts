@@ -1,16 +1,16 @@
 import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
 import type { StatusCode } from 'hono/utils/http-status'
 
-import { errors } from '@/utils/constants.ts'
-import { createHtmlResponse } from '@/utils/createHtmlResponse.ts'
-import { createJsonResponse } from '@/utils/createJsonResponse.ts'
-import { createStreamResponse } from '@/utils/createStreamResponse.ts'
-import { createXmlResponse } from '@/utils/createXmlResponse.ts'
-import { createZipFileResponse } from '@/utils/createZipFileResponse.ts'
-import { getRequestData } from '@/utils/getRequestData.ts'
+import { errors } from '@/utils/constants'
+import { createHtmlResponse } from '@/utils/createHtmlResponse'
+import { createJsonResponse } from '@/utils/createJsonResponse'
+import { createStreamResponse } from '@/utils/createStreamResponse'
+import { createXmlResponse } from '@/utils/createXmlResponse'
+import { createZipFileResponse } from '@/utils/createZipFileResponse'
+import { getRequestData } from '@/utils/getRequestData'
+import { logger } from 'hono/logger'
 
 /**
  * Create a mock server instance
@@ -19,7 +19,9 @@ export async function createVoidServer() {
   const app = new Hono()
 
   // Logger
-  app.use(logger())
+  if (!process.env.CI) {
+    app.use(logger())
+  }
 
   // CORS headers
   app.use(cors())

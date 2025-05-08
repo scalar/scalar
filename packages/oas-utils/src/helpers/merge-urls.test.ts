@@ -3,7 +3,7 @@
  */
 import { describe, expect, it } from 'vitest'
 
-import { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls.ts'
+import { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls'
 
 describe('mergeSearchParams', () => {
   it('merges basic params from different sources', () => {

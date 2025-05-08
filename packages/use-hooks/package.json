@@ -10,14 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.1.45",
+  "version": "0.1.48",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-vite",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
+    "build": "scalar-build-esbuild",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",
@@ -28,6 +26,11 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./useBindCx": {
       "import": "./dist/useBindCx/index.js",
       "types": "./dist/useBindCx/index.d.ts",
@@ -56,17 +59,17 @@
   "dependencies": {
     "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
-    "@vueuse/core": "catalog:",
+    "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.2",
     "tailwind-merge": "^2.5.5",
-    "vue": "catalog:",
-    "zod": "catalog:"
+    "vue": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "zod-to-ts": "^1.2.0"
   }
 }

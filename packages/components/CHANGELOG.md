@@ -1,5 +1,44 @@
 # @scalar/components
 
+## 0.13.57
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/code-highlight@0.0.29
+  - @scalar/use-toasts@0.7.10
+  - @scalar/use-hooks@0.1.48
+  - @scalar/themes@0.11.1
+  - @scalar/icons@0.3.5
+
+## 0.13.56
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/code-highlight@0.0.28
+  - @scalar/use-hooks@0.1.47
+  - @scalar/icons@0.3.4
+
+## 0.13.55
+
+### Patch Changes
+
+- d2f27f4: fix: sets scalar tooltip content word break to all
+
+## 0.13.54
+
+### Patch Changes
+
+- @scalar/themes@0.10.4
+- @scalar/code-highlight@0.0.27
+- @scalar/icons@0.3.3
+- @scalar/use-hooks@0.1.46
+- @scalar/use-toasts@0.7.9
+
 ## 0.13.53
 
 ### Patch Changes

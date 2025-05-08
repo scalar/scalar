@@ -16,15 +16,13 @@
     "scalar",
     "references"
   ],
-  "version": "0.1.13",
+  "version": "0.1.17",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "next dev playground -p 5066",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",
@@ -50,10 +48,10 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@types/node": "catalog:",
+    "@types/node": "catalog:*",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
-    "next": "catalog:",
+    "next": "catalog:*",
     "openapi-types": "^12.1.3"
   }
 }

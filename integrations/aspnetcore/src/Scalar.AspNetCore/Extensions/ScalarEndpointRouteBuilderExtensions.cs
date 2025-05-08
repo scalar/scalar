@@ -167,14 +167,15 @@ public static class ScalarEndpointRouteBuilderExtensions
                   <body>
                       {{options.HeaderContent}}
                       <div id="app"></div>
+                      <script src="{{standaloneResourceUrl}}"></script>
                       <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
-                      <script type="module" src="{{standaloneResourceUrl}}"></script>
                       <script type="module">
                           import { initialize } from './{{ScalarJavaScriptHelperFile}}'
                           initialize(
                           '{{httpContext.Request.Path}}',
                           {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
-                          {{serializedConfiguration}})
+                          {{serializedConfiguration}},
+                          '{{options.JavaScriptConfiguration}}')
                       </script>
                   </body>
                   </html>

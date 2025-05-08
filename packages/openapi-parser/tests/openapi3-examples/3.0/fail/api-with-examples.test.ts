@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src/index.ts'
+import { validate } from '../../../../src/index'
 import apiWithExamples from './api-with-examples.yaml?raw'
 
 describe('api-with-examples', () => {

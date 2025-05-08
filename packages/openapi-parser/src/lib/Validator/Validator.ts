@@ -2,11 +2,11 @@ import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
 import Ajv2020 from 'ajv/dist/2020.js'
 
-import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '../../configuration/index.ts'
-import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '../../types/index.ts'
-import { details as getOpenApiVersion } from '../../utils/details.ts'
-import { resolveReferences } from '../../utils/resolveReferences.ts'
-import { transformErrors } from '../../utils/transformErrors.ts'
+import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '../../configuration/index'
+import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '../../types/index'
+import { details as getOpenApiVersion } from '../../utils/details'
+import { resolveReferences } from '../../utils/resolveReferences'
+import { transformErrors } from '../../utils/transformErrors'
 
 /**
  * Configure available JSON Schema versions
@@ -148,7 +148,6 @@ export class Validator {
 
     // Register formats
     // https://ajv.js.org/packages/ajv-formats.html#formats
-    // @ts-expect-error ajv-formats is not well typed
     addFormats(ajv)
 
     // OpenAPI 3.1 uses media-range format

@@ -1,5 +1,32 @@
 # @scalar/themes
 
+## 0.11.1
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- 2157fb4: add font exports back
+- Updated dependencies [8c7bad8]
+  - @scalar/types@0.1.14
+
+## 0.11.0
+
+### Minor Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/types@0.1.13
+
+## 0.10.4
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+
 ## 0.10.3
 
 ### Patch Changes

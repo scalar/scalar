@@ -8,18 +8,16 @@ export {
   apiReferenceConfigurationSchema,
   specConfigurationSchema,
   isConfigurationWithSources,
-} from './api-reference-configuration.ts'
+} from './api-reference-configuration'
 
 export {
   type HtmlRenderingConfiguration,
   htmlRenderingConfigurationSchema,
-} from './html-rendering-configuration.ts'
-
-export { migrateThemeVariables } from './helpers/migrate-theme-variables.ts'
+} from './html-rendering-configuration'
 
 export type {
   SpecificationExtension,
   ApiReferencePlugin,
-} from './api-reference-plugin.ts'
+} from './api-reference-plugin'
 
-export type { ApiReferenceInstance, CreateApiReference } from './html-api.ts'
+export type { ApiReferenceInstance, CreateApiReference } from './html-api'

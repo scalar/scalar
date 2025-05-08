@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isValidUrl } from './is-valid-url.ts'
+import { isValidUrl } from './is-valid-url'
 
 describe('isValidUrl ', () => {
   it('says false for empty string', () => {

@@ -1,7 +1,7 @@
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { ApiReferenceConfiguration } from '@/api-reference/index.ts'
-import type { HarRequest, TargetId } from '@/snippetz/index.ts'
+import type { ApiReferenceConfiguration } from '../api-reference/index'
+import type { HarRequest, TargetId } from '../snippetz/index'
 
 /**
  * This re-export is needed due to a typescript issue
@@ -46,22 +46,6 @@ export type HiddenClients =
 export type PathRouting = {
   basePath: string
 }
-
-export type ThemeId =
-  | 'alternate'
-  | 'default'
-  | 'moon'
-  | 'purple'
-  | 'solarized'
-  | 'bluePlanet'
-  | 'deepSpace'
-  | 'saturn'
-  | 'kepler'
-  | 'elysiajs'
-  | 'fastify'
-  | 'mars'
-  | 'laserwave'
-  | 'none'
 
 /**
  * @deprecated Use ApiReferenceConfiguration instead

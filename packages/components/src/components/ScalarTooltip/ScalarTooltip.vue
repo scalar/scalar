@@ -10,7 +10,7 @@ import {
 import { ScalarTeleport } from '../ScalarTeleport'
 
 const variants = cva({
-  base: 'scalar-app z-overlay',
+  base: 'scalar-app z-overlay break-all',
   variants: {
     textSize: {
       xs: 'text-xs',

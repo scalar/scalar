@@ -4,7 +4,7 @@ import { useToasts } from '@scalar/use-toasts'
 import { nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { workspaceStoreIsEmpty } from '@/components/ImportCollection/utils/workspace-store-is-empty.ts'
+import { workspaceStoreIsEmpty } from '@/components/ImportCollection/utils/workspace-store-is-empty'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 

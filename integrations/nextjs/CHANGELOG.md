@@ -1,5 +1,30 @@
 # @scalar/nextjs-api-reference
 
+## 0.7.15
+
+### Patch Changes
+
+- Updated dependencies [8c7bad8]
+  - @scalar/types@0.1.14
+  - @scalar/core@0.2.14
+
+## 0.7.14
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+- Updated dependencies [e8457cb]
+  - @scalar/types@0.1.13
+  - @scalar/core@0.2.13
+
+## 0.7.13
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/core@0.2.12
+
 ## 0.7.12
 
 ### Patch Changes

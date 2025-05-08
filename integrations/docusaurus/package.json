@@ -19,15 +19,15 @@
     "testing",
     "react"
   ],
-  "version": "0.6.2",
+  "version": "0.6.5",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
+    "build": "shx rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
     "dev": "cd ./playground && pnpm dev",
-    "build": "shx rm -rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
-    "format:check": "scalar-format-check",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "types:check": "tsc --noEmit --skipLibCheck"
@@ -48,6 +48,7 @@
     "postcss": "catalog:",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
+    "react": "^19.0.0",
     "shx": "^0.4.0"
   },
   "peerDependencies": {

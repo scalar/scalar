@@ -1,5 +1,41 @@
 # @scalar/fastify-api-reference
 
+## 1.28.32
+
+## 1.28.31
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/openapi-types@0.2.2
+  - @scalar/types@0.1.14
+  - @scalar/core@0.2.14
+
+## 1.28.30
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/types@0.1.13
+  - @scalar/core@0.2.13
+  - @scalar/openapi-parser@0.10.16
+
+## 1.28.29
+
+## 1.28.28
+
+## 1.28.27
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/core@0.2.12
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/openapi-types@0.2.1
+
 ## 1.28.26
 
 ### Patch Changes

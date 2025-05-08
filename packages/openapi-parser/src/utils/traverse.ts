@@ -1,4 +1,4 @@
-import type { AnyObject } from '../types/index.ts'
+import type { AnyObject } from '../types/index'
 
 /**
  * Recursively traverses the specification and applies the transform function to each node.

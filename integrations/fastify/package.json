@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.28.26",
+  "version": "1.28.32",
   "engines": {
     "node": ">=18"
   },
@@ -70,10 +70,9 @@
     "rollup-plugin-node-externals": "^7.1.2",
     "shx": "^0.4.0",
     "terser": "^5.30.0",
-    "vite": "catalog:",
-    "vite-node": "^2.1.1",
+    "vite": "catalog:*",
     "vite-plugin-static-copy": "^1.0.2",
-    "vitest": "catalog:",
-    "yaml": "catalog:"
+    "vitest": "catalog:*",
+    "yaml": "catalog:*"
   }
 }

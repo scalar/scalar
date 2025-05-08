@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.1.1
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 2.1.0
 
 ### Minor Changes

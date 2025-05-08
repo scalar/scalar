@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.3.26",
+  "version": "2.3.32",
   "engines": {
     "node": ">=18"
   },
@@ -58,6 +58,11 @@
       "types": "./dist/components/AddressBar/index.d.ts",
       "default": "./dist/components/AddressBar/index.js"
     },
+    "./components/CodeInput": {
+      "import": "./dist/components/CodeInput/index.js",
+      "types": "./dist/components/CodeInput/index.d.ts",
+      "default": "./dist/components/CodeInput/index.js"
+    },
     "./components/CommandPalette": {
       "import": "./dist/components/CommandPalette/index.js",
       "types": "./dist/components/CommandPalette/index.d.ts",
@@ -87,6 +92,11 @@
       "import": "./dist/components/Sidebar/index.js",
       "types": "./dist/components/Sidebar/index.d.ts",
       "default": "./dist/components/Sidebar/index.js"
+    },
+    "./components/ViewLayout": {
+      "import": "./dist/components/ViewLayout/index.js",
+      "types": "./dist/components/ViewLayout/index.d.ts",
+      "default": "./dist/components/ViewLayout/index.js"
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",
@@ -203,36 +213,36 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
-    "@vueuse/core": "catalog:",
+    "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "^11.2.0",
     "focus-trap": "^7",
     "fuse.js": "^7.0.0",
     "microdiff": "^1.4.0",
-    "nanoid": "catalog:",
+    "nanoid": "catalog:*",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",
     "shell-quote": "^1.8.1",
-    "type-fest": "catalog:",
-    "vue": "catalog:",
+    "type-fest": "catalog:*",
+    "vue": "catalog:*",
     "vue-router": "^4.3.0",
     "whatwg-mimetype": "^4.0.0",
-    "yaml": "catalog:",
-    "zod": "catalog:"
+    "yaml": "catalog:*",
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",
-    "postcss": "catalog:",
-    "tailwindcss": "catalog:",
+    "postcss": "catalog:*",
+    "tailwindcss": "catalog:*",
     "tailwindcss-color-mix": "^0.0.8",
-    "vite": "catalog:",
+    "vite": "catalog:*",
     "vite-svg-loader": "^5.1.0",
-    "vitest": "catalog:"
+    "vitest": "catalog:*"
   }
 }

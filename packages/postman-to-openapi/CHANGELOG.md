@@ -1,5 +1,49 @@
 # @scalar/postman-to-openapi
 
+## 0.2.15
+
+### Patch Changes
+
+- Updated dependencies [cd6cf24]
+  - @scalar/oas-utils@0.2.142
+
+## 0.2.14
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/openapi-types@0.2.2
+  - @scalar/oas-utils@0.2.141
+
+## 0.2.13
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/oas-utils@0.2.140
+
+## 0.2.12
+
+### Patch Changes
+
+- Updated dependencies [d2f27f4]
+  - @scalar/oas-utils@0.2.139
+
+## 0.2.11
+
+### Patch Changes
+
+- Updated dependencies [5d24800]
+  - @scalar/oas-utils@0.2.138
+
+## 0.2.10
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.137
+- @scalar/openapi-types@0.2.1
+
 ## 0.2.9
 
 ### Patch Changes

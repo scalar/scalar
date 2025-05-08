@@ -16,13 +16,12 @@
     "swagger",
     "typescript"
   ],
-  "version": "0.2.1",
+  "version": "0.2.2",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
-    "format": "prettier --write .",
+    "build": "scalar-build-esbuild",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test:prepare": "vite-node scripts/load-files.ts",
@@ -60,7 +59,7 @@
   ],
   "sideEffects": false,
   "dependencies": {
-    "zod": "catalog:"
+    "zod": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"

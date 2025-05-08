@@ -1,5 +1,25 @@
 # @scalar/hono-api-reference
 
+## 0.8.8
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/core@0.2.14
+
+## 0.8.7
+
+### Patch Changes
+
+- @scalar/core@0.2.13
+
+## 0.8.6
+
+### Patch Changes
+
+- @scalar/core@0.2.12
+
 ## 0.8.5
 
 ### Patch Changes

@@ -13,6 +13,7 @@ import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
 const props = defineProps<{
   title: string
+  layout: 'client' | 'reference'
   data: unknown
   headers: { name: string; value: string; required: boolean }[]
 }>()
@@ -35,7 +36,9 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
 </script>
 <template>
-  <ViewLayoutCollapse class="max-h-content overflow-y-hidden">
+  <ViewLayoutCollapse
+    class="max-h-content overflow-y-hidden"
+    :layout="layout">
     <template #title>{{ title }}</template>
     <template
       v-if="data && dataUrl"

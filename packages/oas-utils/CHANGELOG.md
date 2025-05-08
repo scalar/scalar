@@ -1,5 +1,54 @@
 # @scalar/oas-utils
 
+## 0.2.142
+
+### Patch Changes
+
+- cd6cf24: chore: export getServersFromOpenapi function
+
+## 0.2.141
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/openapi-types@0.2.2
+  - @scalar/object-utils@1.1.14
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+
+## 0.2.140
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/types@0.1.13
+
+## 0.2.139
+
+### Patch Changes
+
+- d2f27f4: feat: improves request examples entity example defaulting
+
+## 0.2.138
+
+### Patch Changes
+
+- 5d24800: feat: add a few security scheme helpers
+
+## 0.2.137
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/themes@0.10.4
+  - @scalar/object-utils@1.1.13
+  - @scalar/openapi-types@0.2.1
+
 ## 0.2.136
 
 ### Patch Changes

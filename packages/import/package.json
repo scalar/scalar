@@ -16,15 +16,13 @@
     "postman",
     "scalar"
   ],
-  "version": "0.3.19",
+  "version": "0.3.25",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
-    "format": "scalar-format",
-    "format:check": "scalar-format-check",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
@@ -48,10 +46,10 @@
   "dependencies": {
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "yaml": "catalog:"
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

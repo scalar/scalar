@@ -4,7 +4,7 @@ import {
   htmlRenderingConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { describe, expect, it } from 'vitest'
-import { getConfiguration, getHtmlDocument, getScriptTags } from './html-rendering.ts'
+import { getConfiguration, getHtmlDocument, getScriptTags } from './html-rendering'
 
 describe('html-rendering', () => {
   describe('getHtmlDocument', () => {

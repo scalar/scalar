@@ -1,4 +1,4 @@
-import { Scalar, apiReference } from '@/scalar.ts'
+import { Scalar, apiReference } from './scalar'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 

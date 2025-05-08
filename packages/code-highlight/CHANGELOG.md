@@ -1,5 +1,17 @@
 # @scalar/code-highlight
 
+## 0.0.29
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
+## 0.0.28
+
+### Patch Changes
+
+- e8457cb: Unify themes across scalar. Cleanup interface and remove CJS build.
+
 ## 0.0.27
 
 ### Patch Changes

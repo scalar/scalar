@@ -1,6 +1,6 @@
 import { assertType, describe, it } from 'vitest'
 
-import type { ClientId, TargetId } from './index.ts'
+import type { ClientId, TargetId } from './index'
 
 describe('TargetId', () => {
   it('has node as a target', () => {

@@ -1,5 +1,113 @@
 # @scalar/api-client
 
+## 2.3.32
+
+### Patch Changes
+
+- e42dfc0: feat: add support application/dns-json media type
+- 4483ac4: fix: displays selected security schemes in snippet
+- 4483ac4: feat: replaces snippet templates with value
+- Updated dependencies [cd6cf24]
+  - @scalar/oas-utils@0.2.142
+  - @scalar/import@0.3.25
+  - @scalar/postman-to-openapi@0.2.15
+
+## 2.3.31
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+- Updated dependencies [2157fb4]
+  - @scalar/postman-to-openapi@0.2.14
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/use-codemirror@0.11.102
+  - @scalar/openapi-types@0.2.2
+  - @scalar/object-utils@1.1.14
+  - @scalar/use-tooltip@1.0.7
+  - @scalar/components@0.13.57
+  - @scalar/use-toasts@0.7.10
+  - @scalar/oas-utils@0.2.141
+  - @scalar/use-hooks@0.1.48
+  - @scalar/snippetz@0.2.20
+  - @scalar/import@0.3.24
+  - @scalar/themes@0.11.1
+  - @scalar/types@0.1.14
+  - @scalar/draggable@0.1.11
+  - @scalar/icons@0.3.5
+
+## 2.3.30
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/themes@0.11.0
+  - @scalar/oas-utils@0.2.140
+  - @scalar/types@0.1.13
+  - @scalar/components@0.13.56
+  - @scalar/use-codemirror@0.11.101
+  - @scalar/use-hooks@0.1.47
+  - @scalar/import@0.3.23
+  - @scalar/postman-to-openapi@0.2.13
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/icons@0.3.4
+
+## 2.3.29
+
+### Patch Changes
+
+- a4e5a2e: chore: export response body component
+- 701093e: chore: propogogate layout prop outside response body
+- Updated dependencies [d2f27f4]
+- Updated dependencies [d2f27f4]
+  - @scalar/components@0.13.55
+  - @scalar/oas-utils@0.2.139
+  - @scalar/use-codemirror@0.11.100
+  - @scalar/import@0.3.22
+  - @scalar/postman-to-openapi@0.2.12
+
+## 2.3.28
+
+### Patch Changes
+
+- 5d24800: chore: export view layout collapse component
+- Updated dependencies [5d24800]
+  - @scalar/oas-utils@0.2.138
+  - @scalar/import@0.3.21
+  - @scalar/postman-to-openapi@0.2.11
+
+## 2.3.27
+
+### Patch Changes
+
+- 1e9f510: feat: makes collection environment draggable
+- 1e9f510: fix: updates string template replacement value for operation
+- 335da88: fix: updates padding on request input with pill
+- b240f4a: feat: adds select all capability to auth scopes
+- 3cf1457: feat: updates collection server page style
+- 1e9f510: fix: environment collection management
+- 950772d: fix(api-client): make password fields not trigger browser autofill
+- f2b8732: fix: increases reponse loading overlay z index
+- b3f599f: fix: disables view layout section attribute inheritance
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/oas-utils@0.2.137
+  - @scalar/openapi-parser@0.10.16
+  - @scalar/snippetz@0.2.19
+  - @scalar/themes@0.10.4
+  - @scalar/components@0.13.54
+  - @scalar/draggable@0.1.11
+  - @scalar/icons@0.3.3
+  - @scalar/import@0.3.20
+  - @scalar/object-utils@1.1.13
+  - @scalar/openapi-types@0.2.1
+  - @scalar/postman-to-openapi@0.2.10
+  - @scalar/use-codemirror@0.11.99
+  - @scalar/use-hooks@0.1.46
+  - @scalar/use-toasts@0.7.9
+  - @scalar/use-tooltip@1.0.6
+
 ## 2.3.26
 
 ### Patch Changes

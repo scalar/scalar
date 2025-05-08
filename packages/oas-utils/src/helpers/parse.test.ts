@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse.ts'
+import { isJsonString, json, parseJsonOrYaml, transformToJson, yaml } from './parse'
 
 describe('Handles yaml and json parsing', () => {
   it('Parses basic yaml', () => {

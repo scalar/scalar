@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 
 import { serve } from '@hono/node-server'
-import { apiReference } from '@scalar/hono-api-reference'
+import { Scalar } from '@scalar/hono-api-reference'
 
 import { createMockServer } from '../src/createMockServer'
 
@@ -28,9 +28,19 @@ const app = await createMockServer({
 // Render the API reference
 app.get(
   '/',
-  apiReference({
+  Scalar({
     pageTitle: 'Scalar Galaxy',
-    url: '/openapi.yaml',
+    sources: [
+      {
+        title: 'Scalar Galaxy',
+        url: '/openapi.yaml',
+      },
+      {
+        title: 'Petstore (OpenAPI 3.1)',
+        url: 'https://petstore31.swagger.io/api/v31/openapi.json',
+      },
+    ],
+    proxyUrl: 'https://proxy.scalar.com',
     baseServerURL: `http://localhost:${port}`,
   }),
 )

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../../src/index.ts'
+import { validate } from '../../../../../src/index'
 import refEncoding3 from './ref-encoding3.yaml?raw'
 
 describe('ref-encoding3', () => {

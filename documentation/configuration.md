@@ -435,6 +435,15 @@ Pass a list of servers to override the servers in your OpenAPI document.
       url: 'https://api.scalar.com',
       description: 'Production',
     },
+    {
+      url: 'https://sandbox.scalar.com:{port}',
+      description: 'Development sandboxes',
+      variables: {
+        port: {
+          default: '8080',
+        }
+      }
+    },
   ]
 }
 ```

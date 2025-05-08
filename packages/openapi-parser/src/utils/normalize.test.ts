@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalize } from './normalize.ts'
+import { normalize } from './normalize'
 
 describe('normalize', () => {
   it('should return an empty object if the specification is null', () => {

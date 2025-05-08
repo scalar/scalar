@@ -60,6 +60,57 @@ describe('SchemaPropertyHeading', () => {
     expect(constElement.text()).toContain('example')
   })
 
+  it('renders const value: false', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          const: false,
+        },
+      },
+    })
+    const constElement = wrapper.find('.property-const')
+    expect(constElement.text()).toContain('const:')
+    expect(constElement.text()).toContain('false')
+  })
+
+  it('renders const value: 0', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          const: 0,
+        },
+      },
+    })
+    const constElement = wrapper.find('.property-const')
+    expect(constElement.text()).toContain('const:')
+    expect(constElement.text()).toContain('0')
+  })
+
+  it('renders const value: empty string', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          const: '',
+        },
+      },
+    })
+    const constElement = wrapper.find('.property-const')
+    expect(constElement.text()).toContain('const:')
+    expect(constElement.text()).toContain('')
+  })
+
+  it('renders const value: null', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          const: null,
+        },
+      },
+    })
+    const constElement = wrapper.find('.property-const')
+    expect(constElement.exists()).toBe(false)
+  })
+
   it('renders pattern badge', async () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
@@ -69,5 +120,22 @@ describe('SchemaPropertyHeading', () => {
 
     const constElement = wrapper.find('.property-pattern')
     expect(constElement.text()).toContain('pattern')
+  })
+
+  it('renders schema name', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'Model' },
+        },
+        schemas: {
+          Model: { type: 'object', name: 'Model' },
+        },
+      },
+    })
+
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array Model[]')
   })
 })

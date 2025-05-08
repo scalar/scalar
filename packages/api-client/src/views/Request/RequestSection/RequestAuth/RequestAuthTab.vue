@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarMarkdown } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -109,8 +110,11 @@ const dataTableInputProps = {
     <!-- Description -->
     <DataTableRow v-if="scheme?.description && security.length <= 1">
       <DataTableCell
-        class="text-c-2 flex items-center overflow-auto whitespace-nowrap pl-3">
-        {{ scheme.description }}
+        :aria-label="scheme.description"
+        class="text-c-2 auth-description-container group/auth -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
+        <ScalarMarkdown
+          :value="scheme.description"
+          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none" />
       </DataTableCell>
     </DataTableRow>
 
@@ -225,7 +229,7 @@ const dataTableInputProps = {
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
+        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border border-b-0 px-4 text-sm">
         Coming soon
       </div>
     </template>
@@ -244,5 +248,14 @@ const dataTableInputProps = {
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+}
+
+.scalar-data-table .auth-description-container .auth-description {
+  outline: 0.5px solid var(--scalar-border-color);
+}
+
+.scalar-data-table .auth-description-container:hover .auth-description {
+  position: absolute;
+  height: auto;
 }
 </style>

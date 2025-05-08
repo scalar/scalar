@@ -1,5 +1,50 @@
 # @scalar/import
 
+## 0.3.25
+
+### Patch Changes
+
+- Updated dependencies [cd6cf24]
+  - @scalar/oas-utils@0.2.142
+
+## 0.3.24
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/oas-utils@0.2.141
+
+## 0.3.23
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/oas-utils@0.2.140
+  - @scalar/openapi-parser@0.10.16
+
+## 0.3.22
+
+### Patch Changes
+
+- Updated dependencies [d2f27f4]
+  - @scalar/oas-utils@0.2.139
+
+## 0.3.21
+
+### Patch Changes
+
+- Updated dependencies [5d24800]
+  - @scalar/oas-utils@0.2.138
+
+## 0.3.20
+
+### Patch Changes
+
+- @scalar/oas-utils@0.2.137
+- @scalar/openapi-parser@0.10.16
+
 ## 0.3.19
 
 ### Patch Changes

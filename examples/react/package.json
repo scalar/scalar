@@ -36,13 +36,13 @@
     "@types/react-dom": "^19.0.2",
     "@typescript-eslint/parser": "^6.21.0",
     "@vitejs/plugin-react": "^4.3.4",
-    "@vitejs/plugin-vue": "catalog:",
+    "@vitejs/plugin-vue": "catalog:*",
     "@vitejs/plugin-vue-jsx": "^3.1.0",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
-    "postcss": "catalog:",
-    "tailwindcss": "catalog:",
-    "vite": "catalog:"
+    "postcss": "catalog:*",
+    "tailwindcss": "catalog:*",
+    "vite": "catalog:*"
   }
 }

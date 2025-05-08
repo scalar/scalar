@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.10
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
 ## 0.7.9
 
 ### Patch Changes

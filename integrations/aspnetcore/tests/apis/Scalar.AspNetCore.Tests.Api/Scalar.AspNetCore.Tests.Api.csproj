@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Scalar.AspNetCore\Scalar.AspNetCore.csproj"/>
+    <ProjectReference Include="..\..\..\src\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>

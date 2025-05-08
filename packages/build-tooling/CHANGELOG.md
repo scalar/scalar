@@ -1,5 +1,17 @@
 # @scalar/build-tooling
 
+## 0.1.19
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+
+## 0.1.18
+
+### Patch Changes
+
+- c7c061c: Added ESBuild configs
+
 ## 0.1.17
 
 ### Patch Changes

@@ -116,7 +116,7 @@ describe('RequestBody.vue', () => {
     }
     const wrapper = mount(RequestBody, props)
 
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 750))
 
     expect(wrapper.findComponent({ name: 'ScalarListbox' }).text()).toContain('JSON')
     wrapper.unmount()

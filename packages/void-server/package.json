@@ -15,13 +15,13 @@
     "http testing",
     "hono"
   ],
-  "version": "2.1.0",
+  "version": "2.1.1",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "build": "scalar-build-esbuild",
+    "dev": "vite-node playground/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "eslint .",
@@ -52,6 +52,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   }
 }

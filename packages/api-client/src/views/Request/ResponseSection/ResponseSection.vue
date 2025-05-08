@@ -218,6 +218,7 @@ const requestHeaders = computed(
             class="response-section-content-body"
             v-else
             :id="filterIds.Body"
+            layout="client"
             :active="true"
             :data="response?.data"
             :headers="responseHeaders"

@@ -19,7 +19,7 @@
     "testing",
     "react"
   ],
-  "version": "1.2.26",
+  "version": "1.2.32",
   "engines": {
     "node": ">=18"
   },
@@ -47,7 +47,7 @@
   "dependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/types": "workspace:*",
-    "vue": "catalog:"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
@@ -58,7 +58,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rollup-preserve-directives": "^1.1.1",
-    "vite": "catalog:"
+    "vite": "catalog:*"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0"

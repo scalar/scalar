@@ -1,15 +1,14 @@
 /**
  * Simple demo page for all Scalar code highlighting functions
  */
-import { getThemeById } from '@scalar/themes'
+import { presets } from '@scalar/themes'
 
 import '@scalar/themes/base.css'
-import '@scalar/themes/fonts.css'
 import '@scalar/themes/style.css'
 
 import { syntaxHighlight } from '../src/code'
 // @ts-expect-error vite not looking for raw types
-import codeExampleLarge from '../src/constants.ts?raw'
+import codeExampleLarge from '../src/constants?raw'
 
 import '../src/css/code.css'
 import '../src/css/markdown.css'
@@ -45,7 +44,7 @@ document.getElementById('dark-mode-btn')?.addEventListener('click', () => {
 })
 
 const styleSheet = new CSSStyleSheet()
-styleSheet.replaceSync(getThemeById('deepSpace'))
+styleSheet.replaceSync(presets.deepSpace.theme)
 document.adoptedStyleSheets.push(styleSheet)
 
 // ---------------------------------------------------------------------------

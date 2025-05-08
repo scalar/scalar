@@ -1,5 +1,57 @@
 # @scalar/aspnetcore
 
+## 2.2.7
+
+### Patch Changes
+
+- 55eb589: fix(Scalar.AspNetCore): improve script module loading
+- Updated dependencies [902f58b]
+- Updated dependencies [cd6cf24]
+  - @scalar/api-reference@1.28.32
+
+## 2.2.6
+
+### Patch Changes
+
+- Updated dependencies [8c7bad8]
+  - @scalar/api-reference@1.28.31
+
+## 2.2.5
+
+### Patch Changes
+
+- @scalar/api-reference@1.28.30
+
+## 2.2.4
+
+### Patch Changes
+
+- Updated dependencies [d2f27f4]
+- Updated dependencies [f039486]
+- Updated dependencies [d2f27f4]
+  - @scalar/api-reference@1.28.29
+
+## 2.2.3
+
+### Patch Changes
+
+- Updated dependencies [9eb9623]
+- Updated dependencies [539483e]
+- Updated dependencies [33d2b37]
+  - @scalar/api-reference@1.28.28
+
+## 2.2.2
+
+### Patch Changes
+
+- b8a9711: fix: update obsolete messages to include all alternatives
+- 7ef25b9: feat: Initial support for Scalar Extensions
+- b3f54ba: fix: make Pkce property nullable
+- Updated dependencies [62c4ce3]
+- Updated dependencies [b079da8]
+- Updated dependencies [b079da8]
+  - @scalar/api-reference@1.28.27
+
 ## 2.2.1
 
 ### Patch Changes

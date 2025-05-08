@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test'
 
 import { testApiReference, testHelloWorld } from './testApiReference'
-import { testPlayButton } from './testPlayButton'
 
 const HOST = process.env.HOST || 'localhost'
 
@@ -38,10 +37,4 @@ test('@scalar/api-reference jsdelivr build (json content)', async ({ page }) => 
 test.skip('@scalar/api-reference jsdelivr build (yaml content)', async ({ page }) => {
   await page.goto(`http://${HOST}:3173/api-reference-jsdelivr-yaml-content.html`)
   await testHelloWorld(page)
-})
-
-// TODO: The package is just broken and needs to be fixed.
-test.skip('@scalar/play-button jsdelivr build', async ({ page }) => {
-  await page.goto(`http://${HOST}:3173/play-button-jsdelivr.html`)
-  await testPlayButton(page)
 })

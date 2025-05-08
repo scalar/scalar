@@ -89,7 +89,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
 
 <template>
   <div
-    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full pr-4 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
+    class="group-[.alert]:outline-orange group-[.error]:outline-red w-full pr-10 -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline">
     <template v-if="type === 'array'">
       <ScalarComboboxMultiselect
         :modelValue="selectedArrayOptions"
@@ -106,7 +106,8 @@ const updateSelectedOptions = (selectedOptions: any) => {
           }}</span>
           <ScalarIcon
             icon="ChevronDown"
-            size="md" />
+            size="md"
+            class="min-w-4" />
         </ScalarButton>
       </ScalarComboboxMultiselect>
     </template>
@@ -128,7 +129,9 @@ const updateSelectedOptions = (selectedOptions: any) => {
           class="h-full justify-start gap-1.5 overflow-auto whitespace-nowrap px-2 py-1.5 font-normal outline-none"
           fullWidth
           variant="ghost">
-          <span class="text-c-1">{{ initialValue || 'Select a value' }}</span>
+          <span class="text-c-1 overflow-hidden text-ellipsis">{{
+            initialValue || 'Select a value'
+          }}</span>
           <ScalarIcon
             icon="ChevronDown"
             size="md" />
@@ -152,7 +155,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
                 icon="Checkmark"
                 thickness="3" />
             </div>
-            {{ option }}
+            <span class="overflow-hidden text-ellipsis">{{ option }}</span>
           </ScalarDropdownItem>
           <template v-if="canAddCustomValue">
             <ScalarDropdownDivider v-if="options.length" />

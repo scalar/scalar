@@ -41,22 +41,39 @@ describe('scalar.aspnetcore', () => {
     let mockScalar
 
     beforeEach(() => {
+      mockScalar = {
+        createApiReference: vi.fn(),
+      }
       // Create a mock window object
       global.window = {
         location: new URL('https://example.com/api/docs'),
+        Scalar: mockScalar,
       }
+      // Mock dynamic imports for testing the modulePath parameter
+      vi.mock(
+        'https://example.com/api/config.js',
+        () => ({
+          default: { theme: 'dark', logo: 'custom-logo.png' },
+        }),
+        { virtual: true },
+      )
+
+      vi.mock(
+        'https://example.com/absolute/path/config.js',
+        () => ({
+          default: { theme: 'light', header: { enabled: true } },
+        }),
+        { virtual: true },
+      )
+
+      // Spy on console.error
+      vi.spyOn(console, 'error').mockImplementation(() => {})
     })
 
     afterEach(() => {
       // Clean up after each test
       delete global.window
-    })
-
-    beforeEach(() => {
-      mockScalar = {
-        createApiReference: vi.fn(),
-      }
-      global.Scalar = mockScalar
+      vi.clearAllMocks()
     })
 
     it('transforms URLs to absolute paths when using relative URLs', () => {
@@ -142,6 +159,61 @@ describe('scalar.aspnetcore', () => {
 
       const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
       expect(normalizedConfig.baseServerURL).toBeUndefined()
+    })
+
+    it('loads custom configuration from relative modulePath', async () => {
+      const configuration = {
+        sources: [{ url: 'swagger.json' }],
+      }
+
+      await initialize('/docs', false, configuration, './config.js')
+
+      const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
+      expect(normalizedConfig.theme).toBe('dark')
+      expect(normalizedConfig.logo).toBe('custom-logo.png')
+      expect(normalizedConfig.sources[0].url).toBe('https://example.com/api/swagger.json')
+    })
+
+    it('loads custom configuration from absolute modulePath', async () => {
+      const configuration = {
+        sources: [{ url: 'swagger.json' }],
+      }
+
+      await initialize('/docs', false, configuration, 'https://example.com/absolute/path/config.js')
+
+      const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
+      expect(normalizedConfig.theme).toBe('light')
+      expect(normalizedConfig.header.enabled).toBe(true)
+      expect(normalizedConfig.sources[0].url).toBe('https://example.com/api/swagger.json')
+    })
+
+    it('handles errors when loading custom configuration', async () => {
+      const configuration = {
+        sources: [{ url: 'swagger.json' }],
+        originalProperty: 'value',
+      }
+
+      await initialize('/docs', false, configuration, '/error-config.js')
+
+      // Should log error but continue with normal initialization
+      expect(console.error).toHaveBeenCalled()
+
+      // Should still call createApiReference with the original config
+      const normalizedConfig = mockScalar.createApiReference.mock.calls[0][1]
+      expect(normalizedConfig.originalProperty).toBe('value')
+      expect(normalizedConfig.sources[0].url).toBe('https://example.com/api/swagger.json')
+    })
+
+    it('skips loading custom configuration when modulePath is not provided', async () => {
+      const configuration = {
+        sources: [{ url: 'swagger.json' }],
+      }
+
+      await initialize('/docs', false, configuration)
+
+      expect(mockScalar.createApiReference).toHaveBeenCalled()
+      // No errors should be logged
+      expect(console.error).not.toHaveBeenCalled()
     })
   })
 })

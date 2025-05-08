@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchUrls } from './fetchUrls.ts'
+import { fetchUrls } from './fetchUrls'
 
 global.fetch = vi.fn()
 

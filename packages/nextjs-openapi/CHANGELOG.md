@@ -1,5 +1,39 @@
 # @scalar/nextjs-openapi
 
+## 0.1.17
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/ts-to-openapi@0.0.6
+  - @scalar/types@0.1.14
+  - @scalar/nextjs-api-reference@0.7.15
+
+## 0.1.16
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/nextjs-api-reference@0.7.14
+  - @scalar/types@0.1.13
+
+## 0.1.15
+
+### Patch Changes
+
+- 36fd1fc: feat: support src/ directory (not just app/)
+  - @scalar/nextjs-api-reference@0.7.13
+
+## 0.1.14
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+  - @scalar/nextjs-api-reference@0.7.13
+  - @scalar/ts-to-openapi@0.0.5
+
 ## 0.1.13
 
 ### Patch Changes

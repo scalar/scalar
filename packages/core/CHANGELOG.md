@@ -1,5 +1,27 @@
 # @scalar/core
 
+## 0.2.14
+
+### Patch Changes
+
+- 8c7bad8: chore: move build tooling to esbuild
+- Updated dependencies [8c7bad8]
+  - @scalar/types@0.1.14
+
+## 0.2.13
+
+### Patch Changes
+
+- Updated dependencies [e8457cb]
+  - @scalar/types@0.1.13
+
+## 0.2.12
+
+### Patch Changes
+
+- Updated dependencies [62c4ce3]
+  - @scalar/types@0.1.12
+
 ## 0.2.11
 
 ### Patch Changes

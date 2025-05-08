@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src/index.ts'
+import { validate } from '../../../../src/index'
 import unknown_container from './unknown_container.yaml?raw'
 
 describe('unknown_container', () => {

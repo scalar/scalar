@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { makeFilesystem } from './makeFilesystem.ts'
-import { transformErrors } from './transformErrors.ts'
+import { makeFilesystem } from './makeFilesystem'
+import { transformErrors } from './transformErrors'
 
 describe('transformErrors', () => {
   it('transforms a string to a proper error object', () => {

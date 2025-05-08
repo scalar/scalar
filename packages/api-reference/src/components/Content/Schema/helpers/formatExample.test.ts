@@ -79,4 +79,20 @@ describe('formatExample', () => {
     const result = formatExample(input)
     expect(result).toBe('123.456')
   })
+
+  it('handles external value', () => {
+    const input = {
+      externalValue: 'https://example.com',
+    }
+    const result = formatExample(input)
+    expect(result).toBe('https://example.com')
+  })
+
+  it('handles object value', () => {
+    const input = {
+      value: '123',
+    }
+    const result = formatExample(input)
+    expect(result).toBe('123')
+  })
 })

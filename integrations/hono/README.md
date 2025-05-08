@@ -17,7 +17,7 @@ npm install @scalar/hono-api-reference
 
 ## Usage
 
-Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) and pass the configured URL to the `Scalar` middleware:
+Set up [Zod OpenAPI Hono](https://github.com/honojs/middleware/tree/main/packages/zod-openapi) or [Hono OpenAPI](https://github.com/rhinobase/hono-openapi) and pass the configured URL to the `Scalar` middleware:
 
 ```ts
 import { Hono } from 'hono'

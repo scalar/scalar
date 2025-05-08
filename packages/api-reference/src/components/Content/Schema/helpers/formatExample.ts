@@ -26,12 +26,20 @@ export function formatExample(example: unknown): string | number {
       .join(', ')}]`
   }
 
-  if (typeof example === 'object') {
-    return JSON.stringify(example)
-  }
-
   if (example === null) {
     return 'null'
+  }
+
+  if (typeof example === 'object') {
+    if ('value' in example) {
+      return example.value as string | number
+    }
+
+    if ('externalValue' in example) {
+      return example.externalValue as string | number
+    }
+
+    return JSON.stringify(example)
   }
 
   if (example === undefined) {

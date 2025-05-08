@@ -19,12 +19,12 @@
     "export",
     "scalar"
   ],
-  "version": "0.2.9",
+  "version": "0.2.15",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "format": "scalar-format",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -52,7 +52,6 @@
     "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
-    "vite": "catalog:"
+    "@scalar/build-tooling": "workspace:*"
   }
 }

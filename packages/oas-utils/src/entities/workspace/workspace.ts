@@ -2,7 +2,7 @@ import { themeIds } from '@scalar/themes'
 import { z } from 'zod'
 
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
-import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys/hotkeys.ts'
+import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys/hotkeys'
 
 const modifier = z
   .enum(['Meta', 'Control', 'Shift', 'Alt', 'default'] as const)

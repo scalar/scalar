@@ -1,1 +1,1 @@
-export * as path from './path.ts'
+export * as path from './path'
