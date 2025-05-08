@@ -15,6 +15,7 @@ import { DataTableRow } from '@/components/DataTable'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace, type UpdateScheme } from '@/store/store'
 import { authorizeOauth2 } from '@/views/Request/libs'
+import { updateScheme as _updateScheme } from '@/views/Request/RequestSection/helpers/update-scheme'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -24,6 +25,7 @@ const {
   environment,
   envVariables,
   flow,
+  persistAuth = false,
   scheme,
   server,
   workspace,
@@ -32,6 +34,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   flow: Oauth2Flow
+  persistAuth: boolean
   scheme: SecuritySchemeOauth2
   server: Server | undefined
   workspace: Workspace
@@ -39,11 +42,11 @@ const {
 
 const loadingState = useLoadingState()
 const { toast } = useToasts()
-const { securitySchemeMutators } = useWorkspace()
+const storeContext = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
-  securitySchemeMutators.edit(scheme.uid, path, value)
+  _updateScheme(scheme.uid, path, value, storeContext, persistAuth)
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {

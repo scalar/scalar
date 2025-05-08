@@ -14,6 +14,10 @@ import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { CLIENT_LS_KEYS } from '@/libs/local-storage'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
+import {
+  updateScheme as _updateScheme,
+  type Auth,
+} from '@/views/Request/RequestSection/helpers/update-scheme'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -38,8 +42,8 @@ const {
   workspace: Workspace
 }>()
 
-const { securitySchemes, securitySchemeMutators } = useWorkspace()
-
+const storeContext = useWorkspace()
+const { securitySchemes, securitySchemeMutators } = storeContext
 const security = computed(() =>
   securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
@@ -75,13 +79,7 @@ const generateLabel = (scheme: SecurityScheme) => {
   return `${baseLabel}${description}`
 }
 
-/** Shape of the local storage auth object */
-type Auth<P extends Path<SecurityScheme>> = Record<
-  string,
-  { path: P; value: NonNullable<PathValue<SecurityScheme, P>> }
->
-
-/** Update the scheme */
+/** Wrapper for the updateScheme function */
 const updateScheme = <
   U extends SecurityScheme['uid'],
   P extends Path<SecurityScheme>,
@@ -90,20 +88,7 @@ const updateScheme = <
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => {
-  securitySchemeMutators.edit(uid, path, value)
-
-  // We persist auth to local storage by name key
-  if (persistAuth) {
-    const auth: Auth<P> = JSON.parse(
-      localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
-    )
-    const scheme = securitySchemes[uid]
-
-    if (auth && scheme?.nameKey) {
-      auth[scheme.nameKey] = { path, value }
-      localStorage.setItem(CLIENT_LS_KEYS.AUTH, JSON.stringify(auth))
-    }
-  }
+  _updateScheme(uid, path, value, storeContext, persistAuth)
 }
 
 // Restore auth from local storage on mount
@@ -273,6 +258,7 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :collection="collection"
           :flow="flow!"
+          :persistAuth="persistAuth"
           :scheme="scheme"
           :server="server"
           :workspace="workspace" />
