@@ -16,6 +16,7 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
       version: '3.1',
     }
   }
+
   const upgraders = [upgradeFromTwoToThree, upgradeFromThreeToThreeOne]
 
   // TODO: Run upgrade over the whole filesystem
