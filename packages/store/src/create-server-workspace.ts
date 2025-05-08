@@ -106,17 +106,7 @@ export function escapePaths(paths: OpenAPIV3_1.PathsObject) {
  */
 export function externalizeComponentReferences(
   document: OpenAPIV3_1.Document,
-  meta:
-    | {
-        mode: 'ssr'
-        name: string
-        baseUrl: string
-      }
-    | {
-        mode: 'static'
-        name: string
-        directory: string
-      },
+  meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
 
@@ -190,7 +180,10 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
   })
 
   /**
-   * Document chunks which can be loaded async from the client
+   * A map of document chunks that can be loaded asynchronously by the client.
+   * Each document is split into components and operations to enable lazy loading.
+   * The keys are document names and values contain the components and operations
+   * for that document.
    */
   const assets = documents.reduce<
     Record<string, { components?: OpenAPIV3_1.ComponentsObject; operations?: Record<string, unknown> }>
@@ -203,9 +196,13 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
   }, {})
 
   /**
-   * Base workspace document which is going to give basic workspace information needed for the first render
+   * Base workspace document containing essential metadata and document references.
    *
-   * All the components and path operations are going to be refs
+   * This workspace document provides the minimal information needed for initial rendering.
+   * All components and path operations are replaced with references to enable lazy loading.
+   *
+   * In SSR mode, references point to API endpoints.
+   * In static mode, references point to filesystem chunks.
    */
   const workspace = {
     ...workspaceProps.meta,
@@ -225,6 +222,18 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
   }
 
   return {
+    /**
+     * Generates workspace chunks by writing components and operations to the filesystem.
+     *
+     * This method is only available in static mode. It creates a directory structure containing:
+     * - A workspace file with metadata and document references
+     * - Component chunks split by type (schemas, parameters, etc)
+     * - Operation chunks split by path and HTTP method
+     *
+     * The generated workspace references will be relative file paths pointing to these chunks.
+     *
+     * @throws {Error} If called when mode is not 'static'
+     */
     generateWorkspaceChunks: async () => {
       if (workspaceProps.mode !== 'static') {
         throw 'Mode has to be set to `static` to generate filesystem workspace chunks'
@@ -264,12 +273,53 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
         }
       }
     },
+    /**
+     * Returns the workspace document containing metadata and all sparse documents.
+     *
+     * The workspace document includes:
+     * - Global workspace metadata (theme, active document, etc)
+     * - Document metadata and sparse document
+     * - In SSR mode: References point to in-memory chunks
+     * - In static mode: References point to filesystem chunks
+     *
+     * @returns The complete workspace document
+     */
     getWorkspace: () => {
       return workspace
     },
+    /**
+     * Retrieves a chunk of data from the workspace using a JSON Pointer
+     *
+     * A JSON Pointer is a string that references a specific location in a JSON document.
+     * Only components and operations chunks can be retrieved.
+     *
+     * @example
+     * ```ts
+     * // Get a component
+     * get('#/document-name/components/schemas/User')
+     *
+     * // Get an operation
+     * get('#/document-name/operations/pets/get')
+     * ```
+     *
+     * @param pointer - The JSON Pointer string to locate the chunk
+     * @returns The chunk data if found, undefined otherwise
+     */
     get: (pointer: string) => {
       return getValueByPath(assets, parseJsonPointer(pointer))
     },
+    /**
+     * Adds a new document to the workspace.
+     *
+     * The document will be:
+     * - Upgraded to OpenAPI 3.1 if needed
+     * - Split into components and operations chunks
+     * - Have its references externalized based on the workspace mode
+     * - Added to the workspace with its metadata
+     *
+     * @param document - The OpenAPI document to add
+     * @param meta - Document metadata including required name and optional settings
+     */
     addDocument: (document: Record<string, unknown>, meta: { name: string } & DocumentMeta) => {
       const { name, ...documentMeta } = meta
 
@@ -289,7 +339,8 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
       const components = externalizeComponentReferences(documentV3, options)
       const paths = externalizePathReferences(documentV3, options)
 
-      // at this point document should be partial document with refs that needs to be resolved async
+      // The document is now a minimal version with externalized references to components and operations.
+      // These references will be resolved asynchronously when needed through the workspace's get() method.
       workspace.documents[meta.name] = { ...documentMeta, ...documentV3, components, paths }
     },
   }
