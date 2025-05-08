@@ -1,6 +1,6 @@
 # @scalar/store
 
-Server side data store for openapi documents
+A powerful server-side data store for managing OpenAPI documents. This package provides a flexible solution for handling multiple OpenAPI specifications in a workspace environment, with support for both SSR (Server-Side Rendering) and static modes.
 
 ## Usage
 
@@ -75,7 +75,7 @@ const chunk = store.get('#/document-name/components/schemas/Person')
 ```
 
 
-Create a new store in ssr mode
+Create a new store in static mode
 
 ```ts
 // Create the store
@@ -139,5 +139,5 @@ store.addDocument({
 // Generate the workspace file system
 // This will write in the filesystem the workspace and all the chucks
 // which can be resolved by the consumer
-const workspace = store.generateWorkspaceChunks()
+const workspace = await store.generateWorkspaceChunks()
 ```
