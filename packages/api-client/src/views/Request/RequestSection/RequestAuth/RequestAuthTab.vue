@@ -7,7 +7,9 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import type { Entries } from 'type-fest'
 import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
@@ -43,7 +45,8 @@ const {
 }>()
 
 const storeContext = useWorkspace()
-const { securitySchemes, securitySchemeMutators } = storeContext
+const { collectionMutators, securitySchemes, securitySchemeMutators } =
+  storeContext
 const security = computed(() =>
   securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
@@ -93,30 +96,56 @@ const updateScheme = <
 
 // Restore auth from local storage on mount
 onMounted(() => {
-  if (persistAuth) {
-    const auth: Auth<Path<SecurityScheme>> = JSON.parse(
-      localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
-    )
+  if (!persistAuth) {
+    return
+  }
 
-    /** Map the security scheme name key to the uid */
-    const dict = Object.keys(securitySchemes).reduce(
-      (acc, key) => {
-        const scheme = securitySchemes[key]
-        if (scheme) {
-          acc[scheme.nameKey] = scheme.uid
-        }
-        return acc
-      },
-      {} as Record<string, SecurityScheme['uid']>,
-    )
+  const auth: Auth<Path<SecurityScheme>> = JSON.parse(
+    localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
+  )
 
-    /** Now we can use the dict to restore the auth from local storage */
-    Object.entries(auth).forEach(([key, { path, value }]) => {
-      const uid = dict[key]
-      if (uid) {
-        securitySchemeMutators.edit(uid, path, value)
+  /** Map the security scheme name key to the uid */
+  const dict = Object.keys(securitySchemes).reduce(
+    (acc, key) => {
+      const scheme = securitySchemes[key]
+      if (scheme) {
+        acc[scheme.nameKey] = scheme.uid
       }
-    })
+      return acc
+    },
+    {} as Record<string, SecurityScheme['uid']>,
+  )
+
+  /** Now we can use the dict to restore the auth from local storage */
+  Object.entries(auth).forEach(([key, entry]) => {
+    const uid = dict[key]
+    if (uid) {
+      const entries = Object.entries(entry) as Entries<typeof entry>
+      entries.forEach(([path, value]) => {
+        securitySchemeMutators.edit(uid, path, value)
+      })
+    }
+  })
+
+  /** Restore the selected security scheme uids */
+  try {
+    const selectedSchemeUids: (string | string[])[] = JSON.parse(
+      localStorage.getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ?? '',
+    )
+
+    // Convert back to uids
+    const uids = selectedSchemeUids
+      .map((nameKeys) => {
+        if (Array.isArray(nameKeys)) {
+          return nameKeys.map((key) => dict[key]).filter(isDefined)
+        }
+        return dict[nameKeys]
+      })
+      .filter(isDefined)
+
+    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
+  } catch (e) {
+    // Nothing to restore
   }
 })
 

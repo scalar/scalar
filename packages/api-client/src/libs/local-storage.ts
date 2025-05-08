@@ -88,4 +88,5 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
  */
 export const CLIENT_LS_KEYS = {
   AUTH: 'scalar-client-auth',
+  SELECTED_SECURITY_SCHEMES: 'scalar-client-selected-security-schemes',
 } as const
