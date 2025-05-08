@@ -352,7 +352,7 @@ const blurSearch = () => {
               :id="`#search-input-${entry.item.id}`"
               :key="entry.refIndex"
               :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
-              :active="selectedSearchResult === index"
+              :selected="selectedSearchResult === index"
               class="px-2"
               :href="entry.item.link"
               @click.prevent="onSearchResultClick(entry)"
