@@ -5,6 +5,10 @@ import type { Meta } from '~/src/types'
 const route = useRoute()
 const meta = route.meta as Meta
 
+definePageMeta({
+  layout: false,
+})
+
 // Ensure we have a spec
 if (
   !meta.isOpenApiEnabled &&
