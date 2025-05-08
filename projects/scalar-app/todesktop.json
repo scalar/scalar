@@ -18,7 +18,8 @@
       "@scalar/api-client": null,
       "@scalar/themes": null,
       "@scalar/components": null,
-      "@scalar/import": null
+      "@scalar/import": null,
+      "@scalar/scripts": null
     },
     "devDependencies": {
       "@types/node": null,

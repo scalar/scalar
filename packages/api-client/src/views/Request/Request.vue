@@ -15,11 +15,12 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-const { invalidParams, selectedSecuritySchemeUids } = defineProps<{
-  invalidParams: Set<string>
-  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
-  requestResult?: SendRequestResult | null
-}>()
+const { invalidParams, selectedSecuritySchemeUids, requestResult } =
+  defineProps<{
+    invalidParams: Set<string>
+    selectedSecuritySchemeUids: SelectedSecuritySchemeUids
+    requestResult?: SendRequestResult | null
+  }>()
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 
 const { events } = useWorkspace()
