@@ -5,6 +5,7 @@
  *
  */
 import fs from 'node:fs/promises'
+import path from 'node:path'
 
 import { glob } from 'glob'
 import { fileURLToPath } from 'node:url'
@@ -65,7 +66,9 @@ export async function addPackageFileExports({
 
   paths.forEach((entry) => {
     // Get the nested path that will be transpiled to dist with preserved modules
-    const segments = entry.split('/').filter((s) => !['.', 'src'].includes(s))
+    // Always use forward slashes for paths in package.json regardless of OS
+    const normalizedEntry = entry.split(path.sep).join('/')
+    const segments = normalizedEntry.split('/').filter((s) => !['.', 'src'].includes(s))
 
     /** Nested folder the entry files lives in for a path scoped export */
     const namespace = segments.slice(0, -1)
