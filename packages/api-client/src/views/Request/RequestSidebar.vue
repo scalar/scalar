@@ -272,6 +272,13 @@ const collections = computed(() => {
   }
   return activeWorkspaceCollections.value
 })
+
+/** Blur the search input if the text is empty */
+const blurSearch = () => {
+  if (!searchText.value) {
+    isSearchVisible.value = false
+  }
+}
 </script>
 <template>
   <Sidebar
@@ -319,7 +326,8 @@ const collections = computed(() => {
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
-          @keydown.up.stop="navigateSearchResults('up')" />
+          @keydown.up.stop="navigateSearchResults('up')"
+          @blur="blurSearch" />
       </div>
       <div
         class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pb-3 pt-0"
