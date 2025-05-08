@@ -1,4 +1,3 @@
 {
-  "extends": "../../tsconfig.json",
-  "include": ["src", "index.d.ts", "esbuild.config.ts"]
+  "extends": "../../tsconfig.json"
 }

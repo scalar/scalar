@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/themes"
+    "directory": "packages/store"
   },
   "keywords": [
     "store",
@@ -21,7 +21,6 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "vite-node src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "eslint .",
