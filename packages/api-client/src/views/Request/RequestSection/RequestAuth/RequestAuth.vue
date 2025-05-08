@@ -40,6 +40,7 @@ const {
   envVariables,
   layout,
   operation,
+  persistAuth = false,
   selectedSecuritySchemeUids,
   server,
   title,
@@ -50,6 +51,7 @@ const {
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   operation?: Operation | undefined
+  persistAuth?: boolean
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   server: Server | undefined
   title: string
@@ -272,6 +274,7 @@ const schemeOptions = computed(() =>
       :envVariables="envVariables"
       :environment="environment"
       :layout="layout"
+      :persistAuth="persistAuth"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
       :workspace="workspace" />

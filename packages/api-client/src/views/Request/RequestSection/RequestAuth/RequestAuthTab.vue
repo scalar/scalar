@@ -8,9 +8,10 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { CLIENT_LS_KEYS } from '@/libs/local-storage'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 
@@ -22,6 +23,7 @@ const {
   environment,
   envVariables,
   layout,
+  persistAuth = false,
   securitySchemeUids,
   server,
   workspace,
@@ -30,6 +32,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
+  persistAuth: boolean
   securitySchemeUids: string[]
   server: Server | undefined
   workspace: Workspace
@@ -72,6 +75,12 @@ const generateLabel = (scheme: SecurityScheme) => {
   return `${baseLabel}${description}`
 }
 
+/** Shape of the local storage auth object */
+type Auth<P extends Path<SecurityScheme>> = Record<
+  string,
+  { path: P; value: NonNullable<PathValue<SecurityScheme, P>> }
+>
+
 /** Update the scheme */
 const updateScheme = <
   U extends SecurityScheme['uid'],
@@ -80,7 +89,51 @@ const updateScheme = <
   uid: U,
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
-) => securitySchemeMutators.edit(uid, path, value)
+) => {
+  securitySchemeMutators.edit(uid, path, value)
+
+  // We persist auth to local storage by name key
+  if (persistAuth) {
+    const auth: Auth<P> = JSON.parse(
+      localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
+    )
+    const scheme = securitySchemes[uid]
+
+    if (auth && scheme?.nameKey) {
+      auth[scheme.nameKey] = { path, value }
+      localStorage.setItem(CLIENT_LS_KEYS.AUTH, JSON.stringify(auth))
+    }
+  }
+}
+
+// Restore auth from local storage on mount
+onMounted(() => {
+  if (persistAuth) {
+    const auth: Auth<Path<SecurityScheme>> = JSON.parse(
+      localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
+    )
+
+    /** Map the security scheme name key to the uid */
+    const dict = Object.keys(securitySchemes).reduce(
+      (acc, key) => {
+        const scheme = securitySchemes[key]
+        if (scheme) {
+          acc[scheme.nameKey] = scheme.uid
+        }
+        return acc
+      },
+      {} as Record<string, SecurityScheme['uid']>,
+    )
+
+    /** Now we can use the dict to restore the auth from local storage */
+    Object.entries(auth).forEach(([key, { path, value }]) => {
+      const uid = dict[key]
+      if (uid) {
+        securitySchemeMutators.edit(uid, path, value)
+      }
+    })
+  }
+})
 
 /** To make prop drilling a little easier */
 const dataTableInputProps = {
@@ -113,8 +166,8 @@ const dataTableInputProps = {
         :aria-label="scheme.description"
         class="text-c-2 auth-description-container group/auth -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
         <ScalarMarkdown
-          :value="scheme.description"
-          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none" />
+          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none"
+          :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
 

@@ -81,3 +81,11 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
     console.error(e)
   }
 }
+
+/**
+ * localStorage keys for all client resources
+ * to ensure we do not have any conflicts
+ */
+export const CLIENT_LS_KEYS = {
+  AUTH: 'scalar-client-auth',
+} as const

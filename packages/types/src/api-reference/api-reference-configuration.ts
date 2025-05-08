@@ -212,6 +212,8 @@ export const apiClientConfigurationSchema = z.object({
   _integration: integrationEnum.optional(),
   /** onRequestSent is fired when a request is sent */
   onRequestSent: z.function().args(z.string()).returns(z.void()).optional(),
+  /** Whether to persist auth across to local storage */
+  persistAuth: z.boolean().optional().default(false).catch(false),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
