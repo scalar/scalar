@@ -392,6 +392,28 @@ Whether to show the dark mode toggle
 }
 ```
 
+### layout?: 'modern' | 'classic'
+
+The layout style to use for the API reference.
+
+```js
+{
+  layout: 'modern' // or 'classic'
+}
+```
+
+### isLoading?: boolean
+
+Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
+
+`@default false`
+
+```js
+{
+  isLoading: true
+}
+```
+
 ### customCss?: string
 
 You can pass custom CSS directly to the component. This is helpful for the integrations for Fastify, Express, Hono and others where you it's easier to add CSS to the configuration.
@@ -741,6 +763,42 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
+### pathRouting?: { basePath: string }
+
+Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
+
+```js
+{
+  pathRouting: {
+    basePath: '/standalone-api-reference/:custom(.*)?'
+  }
+}
+```
+
+
+### redirect?: (path: string) => string | null | undefined
+
+Function to handle redirects in the API reference. Receives either:
+- The current path with hash if pathRouting is enabled
+- The current hash if using hashRouting (default)
+
+```js
+// Example for hashRouting (default)
+{
+  redirect: (hash) => hash.replace('#v1/old-path', '#v2/new-path')
+}
+
+// Example for pathRouting
+{
+  redirect: (pathWithHash) => {
+    if (pathWithHash.includes('#')) {
+      return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+    }
+    return null
+  }
+}
+```
+
 ### onLoaded?: () => void
 
 Callback that triggers as soon as the references are lazy loaded.
@@ -752,6 +810,54 @@ Callback that triggers as soon as the references are lazy loaded.
   onLoaded: () => {
     console.log('References loaded')
   }
+}
+```
+
+### onShowMore?: (tagId: string) => void | Promise<void>
+
+Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
+
+```js
+{
+  onShowMore: (tagId) => {
+    console.log('Show more clicked for tag:', tagId)
+  }
+}
+```
+
+### onSidebarClick?: (href: string) => void | Promise<void>
+
+Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
+
+```js
+{
+  onSidebarClick: (href) => {
+    console.log('Sidebar item clicked:', href)
+  }
+}
+```
+
+### onRequestSent?: (request: string) => void
+
+Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
+
+```js
+{
+  onRequestSent: (request) => {
+    console.log('Request sent:', request)
+  }
+}
+```
+
+### persistAuth?: boolean
+
+Whether to persist authentication credentials in local storage. This allows the authentication state to be maintained across page reloads.
+
+`@default false`
+
+```js
+{
+  persistAuth: true
 }
 ```
 

@@ -236,7 +236,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     plugins: z.array(ApiReferencePluginSchema).optional(),
     /**
-     * Whether the spec input should show
+     * Allows the user to inject an editor for the spec
      * @default false
      */
     isEditable: z.boolean().optional().default(false).catch(false),
