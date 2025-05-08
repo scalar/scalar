@@ -14,9 +14,9 @@
     "Courier New", monospace;
 
   /** Font sizes for rendered text content (editor styles or static content) */
-  --scalar-heading-1: 40px; /* Editor Page heading */
-  --scalar-page-description: 24px;
-  --scalar-heading-2: 24px; /* Editor section headings */
+  --scalar-heading-1: 24px; /* Editor Page heading */
+  --scalar-page-description: 16px;
+  --scalar-heading-2: 20px; /* Editor section headings */
   --scalar-heading-3: 20px;
   --scalar-heading-4: 16px;
   --scalar-heading-5: 16px;
