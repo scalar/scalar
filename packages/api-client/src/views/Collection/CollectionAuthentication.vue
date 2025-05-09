@@ -32,19 +32,18 @@ const handleToggleCollectionSecurity = () => {
 <template>
   <div class="flex h-full w-full flex-col gap-12 px-1.5 pt-8">
     <div class="flex flex-col gap-4">
-      <div class="flex h-8 items-center">
-        <h3 class="font-bold">Authenticate with the API once</h3>
-      </div>
-
-      <div class="bg-b-1 flex items-center justify-between gap-4 text-sm">
-        <p class="text-c-2 flex flex-1 text-balance">
-          Don’t want to set up the authentication for each request? Enable this
-          option to set the authentication once for the whole collection.
+      <div class="flex flex-col gap-2">
+        <div class="flex h-8 items-center justify-between">
+          <h3 class="font-bold">Authentication</h3>
+          <ScalarToggle
+            class="w-4"
+            :modelValue="activeCollection?.useCollectionSecurity ?? false"
+            @update:modelValue="handleToggleCollectionSecurity" />
+        </div>
+        <p class="pr-6 text-sm">
+          Added authentication will apply to all requests under this collection.
+          You can override this by specifying another one in the request.
         </p>
-        <ScalarToggle
-          class="w-4"
-          :modelValue="activeCollection?.useCollectionSecurity ?? false"
-          @update:modelValue="handleToggleCollectionSecurity" />
       </div>
 
       <RequestAuth
