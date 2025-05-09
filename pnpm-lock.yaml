@@ -1202,6 +1202,15 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
+      '@scalar/react-renderer':
+        specifier: workspace:*
+        version: link:../react-renderer
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.0(vite@5.4.19(@types/node@22.15.3)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -1217,6 +1226,12 @@ importers:
       postcss:
         specifier: catalog:*
         version: 8.5.3
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
       rollup-plugin-webpack-stats:
         specifier: ^0.2.5
         version: 0.2.6(rollup@4.40.1)
@@ -1935,6 +1950,40 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+
+  packages/react-renderer:
+    dependencies:
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+      vue:
+        specifier: catalog:*
+        version: 3.5.12(typescript@5.6.2)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.4
+        version: 4.3.4(vite@5.4.10(@types/node@22.15.3)(terser@5.31.2))
+      '@vitejs/plugin-vue':
+        specifier: catalog:*
+        version: 5.2.0(vite@5.4.10(@types/node@22.15.3)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      '@vue/test-utils':
+        specifier: ^2.4.1
+        version: 2.4.6
+      vite:
+        specifier: ^5.1.1
+        version: 5.4.10(@types/node@22.15.3)(terser@5.31.2)
 
   packages/snippetz:
     dependencies:
@@ -25704,7 +25753,7 @@ snapshots:
     dependencies:
       '@aw-web-design/x-default-browser': 1.4.126
       '@babel/core': 7.24.8
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.9
       '@discoveryjs/json-ext': 0.5.7
       '@storybook/builder-manager': 8.1.9(encoding@0.1.13)(prettier@3.4.2)
       '@storybook/channels': 8.1.9
@@ -26978,6 +27027,17 @@ snapshots:
       - encoding
       - supports-color
 
+  '@vitejs/plugin-react@4.3.4(vite@5.4.10(@types/node@22.15.3)(terser@5.31.2))':
+    dependencies:
+      '@babel/core': 7.26.0
+      '@babel/plugin-transform-react-jsx-self': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-transform-react-jsx-source': 7.25.9(@babel/core@7.26.0)
+      '@types/babel__core': 7.20.5
+      react-refresh: 0.14.2
+      vite: 5.4.10(@types/node@22.15.3)(terser@5.31.2)
+    transitivePeerDependencies:
+      - supports-color
+
   '@vitejs/plugin-react@4.3.4(vite@5.4.19(@types/node@20.17.10)(terser@5.31.2))':
     dependencies:
       '@babel/core': 7.26.0
@@ -27287,7 +27347,7 @@ snapshots:
       '@vue/compiler-ssr': 3.5.12
       '@vue/shared': 3.5.12
       estree-walker: 2.0.2
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       postcss: 8.5.3
       source-map-js: 1.2.1
 
@@ -39868,7 +39928,7 @@ snapshots:
 
   vue-docgen-api@4.78.0(vue@3.5.12(typescript@5.6.2)):
     dependencies:
-      '@babel/parser': 7.26.2
+      '@babel/parser': 7.26.9
       '@babel/types': 7.26.0
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-sfc': 3.5.12

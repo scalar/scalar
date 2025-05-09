@@ -183,12 +183,13 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 ### Documentation
 
-| Topic                                           | Description                        |
-| ----------------------------------------------- | ---------------------------------- |
-| [Themes](documentation/themes.md)               | Themes, layouts & styling          |
-| [Configuration](documentation/configuration.md) | The universal configuration object |
-| [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it   |
-| [Markdown](documentation/markdown.md)           | Markdown syntax                    |
+| Topic                                           | Description                          |
+| ----------------------------------------------- | ------------------------------------ |
+| [Themes](documentation/themes.md)               | Predefined themes, layouts & styling |
+| [Configuration](documentation/configuration.md) | The universal configuration object   |
+| [Plugins](documentation/plugins.md)             | Extend the functionality             |
+| [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it     |
+| [Markdown](documentation/markdown.md)           | The supported Markdown syntax        |
 
 <br>
 

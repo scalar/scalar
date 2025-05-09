@@ -51,9 +51,21 @@ const customExtensions = computed(() =>
     <div class="text-base">
       <template v-for="extension in customExtensions">
         <ScalarErrorBoundary>
-          <component
-            :is="extension.component"
-            v-bind="{ [extension.name]: value?.[extension.name] }" />
+          <template v-if="extension.renderer">
+            <!-- Custom rendering -->
+            <component
+              :is="extension.renderer"
+              v-bind="{
+                [extension.name]: value?.[extension.name],
+                component: extension.component,
+              }" />
+          </template>
+          <template v-else>
+            <!-- Vue rendering -->
+            <component
+              :is="extension.component"
+              v-bind="{ [extension.name]: value?.[extension.name] }" />
+          </template>
         </ScalarErrorBoundary>
       </template>
     </div>
