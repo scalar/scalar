@@ -406,18 +406,18 @@ const displayPropertyHeading = (
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .property-rule,
-.property-rule:has(> .discriminator-tab-list)
+.property-rule:has(> .discriminator-selector)
   :deep(.property-rule .schema-properties.schema-properties-open) {
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
 }
-.property-rule:has(.discriminator-tab-list)
+.property-rule:has(.discriminator-selector)
   :deep(.schema-card .schema-properties.schema-properties-open) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.property-rule:has(.discriminator-tab-list)
+.property-rule:has(.discriminator-selector)
   :deep(.children .schema-card .schema-properties.schema-properties-open) {
   border-top-left-radius: var(--scalar-radius-lg);
   border-top-right-radius: var(--scalar-radius-lg);
