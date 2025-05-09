@@ -15,7 +15,7 @@ const { cx } = useBindCx()
     v-bind="
       cx(
         scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible',
-        'scalar-data-table bg-b-1',
+        'scalar-data-table',
       )
     ">
     <table
