@@ -120,8 +120,14 @@ export const authorizeOauth2 = async (
       url.searchParams.set('redirect_uri', flow['x-scalar-redirect-uri'])
     }
 
-    if (flow['x-prompt']) {
-      url.searchParams.set('prompt', flow['x-prompt'])
+    if (flow['x-scalar-security-query']) {
+      Object.keys(flow['x-scalar-security-query']).forEach((key: string): void => {
+        const value = flow['x-scalar-security-query']?.[key];
+        if (!value) {
+          return;
+        }
+        url.searchParams.set(key, value);
+      })
     }
 
     // Common to all flows
