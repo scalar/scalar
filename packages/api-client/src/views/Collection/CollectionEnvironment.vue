@@ -11,6 +11,7 @@ import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { computed, ref } from 'vue'
 
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities, useWorkspace } from '@/store'
 import EnvironmentColorModal from '@/views/Environment/EnvironmentColorModal.vue'
@@ -25,8 +26,10 @@ const { collectionMutators } = useWorkspace()
 const colorModal = useModal()
 const deleteModal = useModal()
 const environmentModal = useModal()
+const editModal = useModal()
 const selectedColor = ref('')
 const selectedEnvironmentName = ref<string | null>(null)
+const tempEnvironmentName = ref<string | undefined>(undefined)
 
 const collectionEnvironments = computed(() => {
   if (!activeCollection.value?.['x-scalar-environments']) {
@@ -112,6 +115,58 @@ const submitColorChange = (color: string) => {
   colorModal.hide()
 }
 
+const openRenameModal = (environmentName: string) => {
+  selectedEnvironmentName.value = environmentName
+  tempEnvironmentName.value = environmentName
+  editModal.show()
+}
+
+const closeRenameModal = () => {
+  selectedEnvironmentName.value = null
+  tempEnvironmentName.value = undefined
+  editModal.hide()
+}
+
+const handleRename = (newName: string) => {
+  if (!activeCollection.value?.uid || !selectedEnvironmentName.value) {
+    return
+  }
+
+  const environments = { ...activeCollection.value['x-scalar-environments'] }
+  const environment = environments[selectedEnvironmentName.value]
+  if (!environment) {
+    return
+  }
+
+  // Create a new ordered environments object
+  const orderedEnvs: Record<string, any> = {}
+  const envEntries = Object.entries(environments)
+
+  // Find the index of the environment being renamed
+  const envIndex = envEntries.findIndex(
+    ([key]) => key === selectedEnvironmentName.value,
+  )
+
+  // Rebuild the environments object maintaining order
+  envEntries.forEach(([key, value], index) => {
+    if (index === envIndex) {
+      orderedEnvs[newName] = value
+    } else {
+      orderedEnvs[key] = value
+    }
+  })
+
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    'x-scalar-environments',
+    orderedEnvs,
+  )
+
+  selectedEnvironmentName.value = null
+  tempEnvironmentName.value = undefined
+  editModal.hide()
+}
+
 const handleDragEnd = (
   draggingItem: { id: string },
   hoveredItem: { id: string },
@@ -185,7 +240,7 @@ const handleDragEnd = (
           <div class="rounded-lg border">
             <div
               class="bg-b-2 flex cursor-grab items-center justify-between rounded-t-lg px-1 py-1 text-sm">
-              <div class="flex items-center gap-1">
+              <div class="flex items-center">
                 <ScalarButton
                   class="hover:bg-b-3 flex h-6 w-6 p-1"
                   @click="handleOpenColorModal(environment)"
@@ -194,7 +249,11 @@ const handleDragEnd = (
                     :style="{ backgroundColor: environment.color || '#FFFFFF' }"
                     class="h-2.5 w-2.5 rounded-full"></span>
                 </ScalarButton>
-                <span class="text-sm">{{ environment.name }}</span>
+                <button
+                  class="hover:bg-b-3 rounded px-1 py-0.5 text-sm"
+                  @click="openRenameModal(environment.name)">
+                  {{ environment.name }}
+                </button>
               </div>
               <ScalarButton
                 class="hover:bg-b-3 hover:text-c-1 p-1.25 h-fit"
@@ -248,6 +307,15 @@ const handleDragEnd = (
         :state="colorModal"
         @cancel="colorModal.hide()"
         @submit="submitColorChange" />
+      <ScalarModal
+        :size="'xxs'"
+        :state="editModal"
+        :title="`Edit ${selectedEnvironmentName}`">
+        <EditSidebarListElement
+          :name="tempEnvironmentName ?? ''"
+          @close="closeRenameModal"
+          @edit="handleRename" />
+      </ScalarModal>
     </div>
   </ViewLayoutSection>
 </template>
