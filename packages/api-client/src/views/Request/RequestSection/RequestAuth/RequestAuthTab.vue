@@ -7,12 +7,19 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { capitalize, computed, ref } from 'vue'
+import type { Entries } from 'type-fest'
+import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { CLIENT_LS_KEYS } from '@/libs/local-storage'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
+import {
+  updateScheme as _updateScheme,
+  type Auth,
+} from '@/views/Request/RequestSection/helpers/update-scheme'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -22,6 +29,7 @@ const {
   environment,
   envVariables,
   layout,
+  persistAuth = false,
   securitySchemeUids,
   server,
   workspace,
@@ -30,13 +38,15 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
+  persistAuth: boolean
   securitySchemeUids: string[]
   server: Server | undefined
   workspace: Workspace
 }>()
 
-const { securitySchemes, securitySchemeMutators } = useWorkspace()
-
+const storeContext = useWorkspace()
+const { collectionMutators, securitySchemes, securitySchemeMutators } =
+  storeContext
 const security = computed(() =>
   securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
@@ -72,7 +82,7 @@ const generateLabel = (scheme: SecurityScheme) => {
   return `${baseLabel}${description}`
 }
 
-/** Update the scheme */
+/** Wrapper for the updateScheme function */
 const updateScheme = <
   U extends SecurityScheme['uid'],
   P extends Path<SecurityScheme>,
@@ -80,7 +90,64 @@ const updateScheme = <
   uid: U,
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
-) => securitySchemeMutators.edit(uid, path, value)
+) => {
+  _updateScheme(uid, path, value, storeContext, persistAuth)
+}
+
+// Restore auth from local storage on mount
+onMounted(() => {
+  if (!persistAuth) {
+    return
+  }
+
+  const auth: Auth<Path<SecurityScheme>> = JSON.parse(
+    localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
+  )
+
+  /** Map the security scheme name key to the uid */
+  const dict = Object.keys(securitySchemes).reduce(
+    (acc, key) => {
+      const scheme = securitySchemes[key]
+      if (scheme) {
+        acc[scheme.nameKey] = scheme.uid
+      }
+      return acc
+    },
+    {} as Record<string, SecurityScheme['uid']>,
+  )
+
+  /** Now we can use the dict to restore the auth from local storage */
+  Object.entries(auth).forEach(([key, entry]) => {
+    const uid = dict[key]
+    if (uid) {
+      const entries = Object.entries(entry) as Entries<typeof entry>
+      entries.forEach(([path, value]) => {
+        securitySchemeMutators.edit(uid, path, value)
+      })
+    }
+  })
+
+  /** Restore the selected security scheme uids */
+  try {
+    const selectedSchemeUids: (string | string[])[] = JSON.parse(
+      localStorage.getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ?? '',
+    )
+
+    // Convert back to uids
+    const uids = selectedSchemeUids
+      .map((nameKeys) => {
+        if (Array.isArray(nameKeys)) {
+          return nameKeys.map((key) => dict[key]).filter(isDefined)
+        }
+        return dict[nameKeys]
+      })
+      .filter(isDefined)
+
+    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
+  } catch (e) {
+    // Nothing to restore
+  }
+})
 
 /** To make prop drilling a little easier */
 const dataTableInputProps = {
@@ -113,8 +180,8 @@ const dataTableInputProps = {
         :aria-label="scheme.description"
         class="text-c-2 auth-description-container group/auth -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
         <ScalarMarkdown
-          :value="scheme.description"
-          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none" />
+          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none"
+          :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
 
@@ -220,6 +287,7 @@ const dataTableInputProps = {
           v-bind="dataTableInputProps"
           :collection="collection"
           :flow="flow!"
+          :persistAuth="persistAuth"
           :scheme="scheme"
           :server="server"
           :workspace="workspace" />

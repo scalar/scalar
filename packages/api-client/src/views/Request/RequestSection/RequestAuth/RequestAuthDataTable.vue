@@ -20,6 +20,7 @@ const {
   environment,
   envVariables,
   layout = 'client',
+  persistAuth = false,
   selectedSchemeOptions = [],
   server,
   workspace,
@@ -28,6 +29,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
+  persistAuth: boolean
   selectedSchemeOptions: { id: string; label: string }[]
   server: Server | undefined
   workspace: Workspace
@@ -95,6 +97,7 @@ watch(
         :envVariables="envVariables"
         :environment="environment"
         :layout="layout"
+        :persistAuth="persistAuth"
         :securitySchemeUids="activeScheme"
         :server="server"
         :workspace="workspace" />
