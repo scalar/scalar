@@ -5,6 +5,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import { Draggable } from '@scalar/draggable'
 import { ScalarIconTrash } from '@scalar/icons'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { computed, ref } from 'vue'
@@ -110,6 +111,46 @@ const submitColorChange = (color: string) => {
   )
   colorModal.hide()
 }
+
+const handleDragEnd = (
+  draggingItem: { id: string },
+  hoveredItem: { id: string },
+) => {
+  if (!activeCollection.value?.uid) {
+    return
+  }
+
+  const environments = { ...activeCollection.value['x-scalar-environments'] }
+  const orderedEnvs: Record<string, any> = {}
+  const envEntries = Object.entries(environments)
+
+  // Find the indices of the dragged and hovered items
+  const dragIndex = envEntries.findIndex(([key]) => key === draggingItem.id)
+  const hoverIndex = envEntries.findIndex(([key]) => key === hoveredItem.id)
+
+  if (dragIndex === -1 || hoverIndex === -1) {
+    return
+  }
+
+  // Reorder the environments
+  const draggedEnv = envEntries[dragIndex]
+  if (!draggedEnv) {
+    return
+  }
+  envEntries.splice(dragIndex, 1)
+  envEntries.splice(hoverIndex, 0, draggedEnv)
+
+  // Rebuild the environments object in the new order
+  envEntries.forEach(([key, value]) => {
+    orderedEnvs[key] = value
+  })
+
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    'x-scalar-environments',
+    orderedEnvs,
+  )
+}
 </script>
 
 <template>
@@ -133,12 +174,17 @@ const submitColorChange = (color: string) => {
             </p>
           </div>
         </div>
-        <div
+        <Draggable
           v-for="environment in collectionEnvironments"
-          :key="environment.name">
+          :key="environment.name"
+          :id="environment.name"
+          :isDraggable="true"
+          :isDroppable="true"
+          :parentIds="[]"
+          @onDragEnd="handleDragEnd">
           <div class="rounded-lg border">
             <div
-              class="bg-b-2 flex items-center justify-between rounded-t-lg px-1 py-1 text-sm">
+              class="bg-b-2 flex cursor-grab items-center justify-between rounded-t-lg px-1 py-1 text-sm">
               <div class="flex items-center gap-1">
                 <ScalarButton
                   class="hover:bg-b-3 flex h-6 w-6 p-1"
@@ -164,7 +210,7 @@ const submitColorChange = (color: string) => {
               :envVariables="activeEnvVariables"
               :workspace="activeWorkspace" />
           </div>
-        </div>
+        </Draggable>
         <div
           class="text-c-3 flex h-full items-center justify-center rounded-lg border p-4">
           <ScalarButton
@@ -205,3 +251,7 @@ const submitColorChange = (color: string) => {
     </div>
   </ViewLayoutSection>
 </template>
+
+<style>
+@import '@scalar/draggable/style.css';
+</style>
