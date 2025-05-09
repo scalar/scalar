@@ -52,16 +52,16 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
       },
     },
   },
-  // {
-  //   displayName: 'Environments',
-  //   // icon: 'Brackets',
-  //   to: {
-  //     name: 'collection.environment',
-  //     params: {
-  //       [PathId.Collection]: activeCollection.value?.uid,
-  //     },
-  //   },
-  // },
+  {
+    displayName: 'Environment',
+    // icon: 'Brackets',
+    to: {
+      name: 'collection.environment',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
   // {
   //   displayName: 'Cookies',
   //   // icon: 'Cookie',
