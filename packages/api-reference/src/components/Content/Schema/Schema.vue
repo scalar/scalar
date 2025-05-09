@@ -210,6 +210,7 @@ const handleClick = (e: MouseEvent) =>
             <SchemaProperty
               :compact="compact"
               :hideHeading="hideHeading"
+              :level="level"
               :name="(value as OpenAPIV2.SchemaObject).name"
               :schemas="schemas"
               :value="value" />
