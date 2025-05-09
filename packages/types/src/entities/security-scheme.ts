@@ -118,7 +118,7 @@ const flowsCommon = z.object({
   /** The auth token */
   'token': z.string().default(''),
   /** The prompt query parameter. Common values are: login, consent, select_account, none */
-  'x-prompt': z.string().optional().default(''),
+  'x-scalar-security-query': z.record(z.string(), z.string()).optional(),
 })
 
 /** Setup a default redirect uri if we can */
