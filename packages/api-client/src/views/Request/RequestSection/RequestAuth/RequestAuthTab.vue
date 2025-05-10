@@ -297,7 +297,8 @@ const dataTableInputProps = {
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border border-b-0 px-4 text-sm">
+        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-b-0 border-t px-4 text-sm"
+        :class="{ 'rounded-b-lg': layout === 'reference' }">
         Coming soon
       </div>
     </template>
