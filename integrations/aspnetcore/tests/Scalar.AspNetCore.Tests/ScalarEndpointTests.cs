@@ -32,8 +32,8 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                 <body>
                                     
                                     <div id="app"></div>
+                                    <script src="scalar.js"></script>
                                     <script type="module" src="scalar.aspnetcore.js"></script>
-                                    <script type="module" src="scalar.js"></script>
                                     <script type="module">
                                         import { initialize } from './scalar.aspnetcore.js'
                                         initialize(
@@ -161,7 +161,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         index.StatusCode.Should().Be(HttpStatusCode.OK);
         var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        indexContent.Should().Contain($"<script type=\"module\" src=\"{cdnUrl}\"></script>");
+        indexContent.Should().Contain($"<script src=\"{cdnUrl}\"></script>");
     }
 
     [Fact]

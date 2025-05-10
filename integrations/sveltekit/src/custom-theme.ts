@@ -52,11 +52,11 @@ export const customTheme = `
 .light-mode .t-doc__header,
 .dark-mode .t-doc__header {
   --scalar-header-background-1: rgba(255,255,255,.8);
-  --header-border-color: var(--scalar-border-color);
-  --header-color-1: var(--scalar-color-1);
-  --header-color-2: var(--scalar-color-2);
-  --header-background-toggle: var(--scalar-color-3);
-  --header-call-to-action-color: var(--scalar-color-accent);
+  --scalar-header-border-color: var(--scalar-border-color);
+  --scalar-header-color-1: var(--scalar-color-1);
+  --scalar-header-color-2: var(--scalar-color-2);
+  --scalar-header-background-toggle: var(--scalar-color-3);
+  --scalar-header-call-to-action-color: var(--scalar-color-accent);
   backdrop-filter: saturate(180%) blur(5px);
 }
 

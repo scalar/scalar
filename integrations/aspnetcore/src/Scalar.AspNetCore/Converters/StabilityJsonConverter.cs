@@ -5,11 +5,9 @@ namespace Scalar.AspNetCore;
 
 internal sealed class StabilityJsonConverter : JsonConverter<Stability>
 {
-    public override Stability Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
+    public override Stability Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
         // We don't have to implement this method because we don't need to deserialize the Stability enum.
-        return default;
-    }
+        default;
 
     public override void Write(Utf8JsonWriter writer, Stability value, JsonSerializerOptions options)
     {

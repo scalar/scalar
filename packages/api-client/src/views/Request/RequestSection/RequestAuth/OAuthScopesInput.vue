@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 

@@ -127,7 +127,7 @@ export function useLoadingState() {
           cy="50"
           fill="none"
           r="20"
-          stroke-width="2" />
+          stroke-width="3" />
       </g>
     </svg>
   </div>
@@ -157,7 +157,7 @@ export function useLoadingState() {
 }
 
 .svg-path {
-  stroke-width: 14;
+  stroke-width: 12;
   fill: none;
   transition: 0.3s;
 }
@@ -190,7 +190,7 @@ export function useLoadingState() {
     fade-in 0.4s;
 
   transform-origin: center center;
-  transform: scale(5);
+  transform: scale(3.5);
 
   background: transparent;
 }
@@ -222,10 +222,10 @@ export function useLoadingState() {
 
 @keyframes rotate {
   from {
-    transform: scale(5) rotate(0deg);
+    transform: scale(3.5) rotate(0deg);
   }
   to {
-    transform: scale(5) rotate(360deg);
+    transform: scale(3.5) rotate(360deg);
   }
 }
 </style>

@@ -15,8 +15,4 @@
     <ProjectReference Include="..\..\src\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
 </Project>

@@ -1,6 +1,7 @@
 import type { ErrorResponse } from '@/libs/errors'
 import type { Operation, RequestExample, SecurityScheme, Server } from '@scalar/oas-utils/entities/spec'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import type { EnvVariables } from '@/libs/env-helpers'
 
 import { getHarRequest } from './get-har-request'
 
@@ -18,11 +19,13 @@ export const getSnippet = <T extends TargetId>(
     example,
     server,
     securitySchemes = [],
+    environment,
   }: {
     operation?: Operation | undefined
     example?: RequestExample | undefined
     server?: Server | undefined
     securitySchemes?: SecurityScheme[]
+    environment?: EnvVariables | undefined
   },
 ): ErrorResponse<string> => {
   try {
@@ -31,6 +34,7 @@ export const getSnippet = <T extends TargetId>(
       example,
       server,
       securitySchemes,
+      environment,
     })
 
     if (!harRequest.url) {

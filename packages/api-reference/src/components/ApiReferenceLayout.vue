@@ -422,7 +422,9 @@ const themeStyleTag = computed(
           name="footer" />
       </div>
     </template>
-    <ApiClientModal :configuration="configuration" />
+    <ApiClientModal
+      :configuration="configuration"
+      :parsedSpec="parsedSpec" />
   </div>
   <ScalarToasts />
 </template>
