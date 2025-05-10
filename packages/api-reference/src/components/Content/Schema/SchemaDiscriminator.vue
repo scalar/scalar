@@ -112,7 +112,7 @@ const humanizeType = (type: string) => {
           class="discriminator-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex cursor-pointer gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
           type="button">
           <span class="text-c-2">{{ humanizeType(discriminator) }}</span>
-          <span class="schema-tab-label text-c-1 relative">
+          <span class="discriminator-selector-label text-c-1 relative">
             {{ selectedOption?.label || 'Schema' }}
           </span>
           <ScalarIconCaretDown class="z-1" />
@@ -140,55 +140,3 @@ const humanizeType = (type: string) => {
     </template>
   </div>
 </template>
-<style scoped>
-.discriminator-panel :deep(.schema-properties .schema-properties-open) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.discriminator-panel :deep(.property--level-0),
-.discriminator-panel :deep(.property--compact.property--level-1) {
-  padding: 8px;
-}
-.discriminator-panel
-  :deep(.property--compact.property--level-0):not(:has(.property--level-1)) {
-  padding: 8px;
-}
-.discriminator-panel :deep(.property--compact.property--level-0) {
-  padding: 0;
-}
-.schema-tab {
-  background: none;
-  border: none;
-  font-size: var(--scalar-mini);
-  font-family: var(--scalar-font);
-  color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold);
-  line-height: calc(var(--scalar-mini) + 2px);
-  white-space: nowrap;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  line-height: 1.35;
-  position: relative;
-}
-.schema-tab:before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  left: -4px;
-  top: -4px;
-  width: calc(100% + 8px);
-  height: calc(100% + 8px);
-  border-radius: var(--scalar-radius);
-  background: var(--scalar-background-2);
-  opacity: 0;
-}
-.schema-tab:hover:before {
-  opacity: 1;
-}
-.schema-tab-selected:not([aria-haspopup='listbox']) {
-  color: var(--scalar-color-1);
-  text-decoration: underline;
-  text-underline-offset: 8px;
-}
-</style>
