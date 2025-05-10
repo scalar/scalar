@@ -78,6 +78,10 @@ watch(
 )
 
 const handleSubmit = () => {
+  if (!environmentName.value.trim()) {
+    toast('Please enter a name before adding an environment.', 'error')
+    return
+  }
   if (!selectedEnvironment.value?.id) {
     toast('Please select a collection before adding an environment.', 'error')
     return
@@ -105,7 +109,7 @@ const redirectToCreateCollection = () => {
     size="xs"
     :state="state">
     <CommandActionForm
-      :disabled="!selectedEnvironment"
+      :disabled="!selectedEnvironment || !environmentName.trim()"
       @cancel="emit('cancel')"
       @submit="handleSubmit">
       <div class="flex items-start gap-2">

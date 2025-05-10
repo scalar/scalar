@@ -48,7 +48,7 @@ const props = withDefaults(
     isCopyable?: boolean
     default?: string | number
     environment: Environment
-    envVariables: EnvVariable[]
+    envVariables?: EnvVariable[]
     workspace: Workspace
     lineWrapping?: boolean
   }>(),
@@ -334,7 +334,7 @@ export default {
   </div>
   <div
     v-if="$slots.icon"
-    class="centered-y group-has-[.cm-focused]:z-1 absolute right-0 flex h-full items-center p-1.5">
+    class="centered-y group-has-[.cm-focused]:z-1 -right-0.25 absolute flex h-full items-center p-1.5">
     <slot name="icon" />
   </div>
   <div
@@ -343,7 +343,13 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="showDropdown && withVariables && layout !== 'modal' && environment"
+    v-if="
+      showDropdown &&
+      withVariables &&
+      layout !== 'modal' &&
+      environment &&
+      envVariables
+    "
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :envVariables="envVariables"
