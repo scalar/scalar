@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.15
+
+### Patch Changes
+
+- f711ab5: feat: add auth persistance to references
+
 ## 0.1.14
 
 ### Patch Changes
