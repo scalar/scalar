@@ -312,7 +312,8 @@ const displayPropertyHeading = (
         v-else-if="
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
-          typeof optimizedValue.items !== 'object' &&
+          typeof optimizedValue.items === 'object' &&
+          !('type' in optimizedValue.items) &&
           discriminator in optimizedValue.items
         ">
         <SchemaDiscriminator
