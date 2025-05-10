@@ -313,6 +313,7 @@ const displayPropertyHeading = (
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
           typeof optimizedValue.items === 'object' &&
+          !('type' in optimizedValue.items) &&
           discriminator in optimizedValue.items
         ">
         <SchemaDiscriminator
@@ -405,22 +406,17 @@ const displayPropertyHeading = (
   padding: 6px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.property-rule,
-.property-rule:has(> .discriminator-tab-list)
-  :deep(.property-rule .schema-properties.schema-properties-open) {
+.property-rule {
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
 }
-.property-rule:has(.discriminator-tab-list)
-  :deep(.schema-card .schema-properties.schema-properties-open) {
+.property-rule
+  :deep(
+    .discriminator-panel .schema-card .schema-properties.schema-properties-open
+  ) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-}
-.property-rule:has(.discriminator-tab-list)
-  :deep(.children .schema-card .schema-properties.schema-properties-open) {
-  border-top-left-radius: var(--scalar-radius-lg);
-  border-top-right-radius: var(--scalar-radius-lg);
 }
 .property-enum-value {
   color: var(--scalar-color-3);

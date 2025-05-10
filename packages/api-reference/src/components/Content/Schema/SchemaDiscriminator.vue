@@ -30,27 +30,6 @@ const { schemas, value, discriminator } = defineProps<{
 }>()
 
 const selectedIndex = ref(0)
-const tabsContainer = ref<HTMLElement | null>(null)
-const isOverflowing = ref(false)
-
-onMounted(async () => {
-  await nextTick()
-  // Check if the tabs container is overflowing
-  if (tabsContainer.value) {
-    const container = tabsContainer.value
-    isOverflowing.value = container.scrollWidth > container.clientWidth
-  }
-})
-
-const buttonVariants = cva({
-  base: 'schema-tab',
-  variants: {
-    selected: {
-      true: 'schema-tab-selected',
-      false: 'text-c-3',
-    },
-  },
-})
 
 const listboxOptions = computed(() =>
   value[discriminator].map((schema: any, index: number) => ({
@@ -125,71 +104,30 @@ const humanizeType = (type: string) => {
   <div class="property-rule">
     <template v-if="discriminator === 'oneOf' || discriminator === 'anyOf'">
       <!-- Tabs -->
-      <TabGroup
-        v-model="selectedIndex"
-        as="div">
-        <TabList
-          class="discriminator-tab-list py-1.25 flex flex-col gap-1 rounded-t-lg border border-b-0 px-2 pr-3">
-          <span class="text-c-3">{{ humanizeType(discriminator) }}</span>
-          <div
-            ref="tabsContainer"
-            class="flex items-center gap-1.5">
-            <template v-if="!isOverflowing">
-              <Tab
-                v-for="(schema, index) in value[discriminator]"
-                :key="index"
-                :class="
-                  cx(buttonVariants({ selected: selectedIndex === index }))
-                "
-                @click="selectedIndex = index">
-                <span class="schema-tab-label z-1 relative">
-                  {{ getModelNameFromSchema(schema) || 'Schema' }}
-                </span>
-              </Tab>
-            </template>
-            <template v-else>
-              <ScalarListbox
-                v-model="selectedOption"
-                :options="listboxOptions"
-                resize>
-                <div
-                  class="flex cursor-pointer items-center gap-1"
-                  :class="cx(buttonVariants({ selected: true }))">
-                  <span class="schema-tab-label z-1 text-c-1 relative">
-                    {{ selectedOption?.label || 'Schema' }}
-                  </span>
-                  <ScalarIconCaretDown class="z-1" />
-                </div>
-              </ScalarListbox>
-            </template>
-          </div>
-        </TabList>
-        <template v-if="!isOverflowing">
-          <TabPanel
-            v-for="(schema, index) in value[discriminator]"
-            :key="index"
-            class="discriminator-panel">
-            <Schema
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :name="name"
-              :noncollapsible="true"
-              :schemas="schemas"
-              :value="schema" />
-          </TabPanel>
-        </template>
-        <template v-else>
-          <TabPanel class="discriminator-panel">
-            <Schema
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :name="name"
-              :noncollapsible="true"
-              :schemas="schemas"
-              :value="value[discriminator][selectedIndex]" />
-          </TabPanel>
-        </template>
-      </TabGroup>
+      <ScalarListbox
+        v-model="selectedOption"
+        :options="listboxOptions"
+        resize>
+        <button
+          class="discriminator-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex cursor-pointer gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
+          type="button">
+          <span class="text-c-2">{{ humanizeType(discriminator) }}</span>
+          <span class="discriminator-selector-label text-c-1 relative">
+            {{ selectedOption?.label || 'Schema' }}
+          </span>
+          <ScalarIconCaretDown class="z-1" />
+        </button>
+      </ScalarListbox>
+      <div class="discriminator-panel">
+        <Schema
+          :compact="compact"
+          :level="level"
+          :hideHeading="hideHeading"
+          :name="name"
+          :noncollapsible="true"
+          :schemas="schemas"
+          :value="value[discriminator][selectedIndex]" />
+      </div>
     </template>
     <template v-else>
       <Schema
@@ -202,60 +140,3 @@ const humanizeType = (type: string) => {
     </template>
   </div>
 </template>
-<style scoped>
-.discriminator-panel:has(.property--compact) {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-bottom-left-radius: var(--scalar-radius-lg);
-  border-bottom-right-radius: var(--scalar-radius-lg);
-}
-.discriminator-panel :deep(.schema-properties .schema-properties-open) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.discriminator-panel :deep(.property--level-0),
-.discriminator-panel :deep(.property--compact.property--level-1) {
-  padding: 8px;
-}
-.discriminator-panel
-  :deep(.property--compact.property--level-0):not(:has(.property--level-1)) {
-  padding: 8px;
-}
-.discriminator-panel :deep(.property--compact.property--level-0) {
-  padding: 0;
-}
-.schema-tab {
-  background: none;
-  border: none;
-  font-size: var(--scalar-mini);
-  font-family: var(--scalar-font);
-  color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold);
-  line-height: calc(var(--scalar-mini) + 2px);
-  white-space: nowrap;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  line-height: 1.35;
-  position: relative;
-}
-.schema-tab:before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  left: -4px;
-  top: -4px;
-  width: calc(100% + 8px);
-  height: calc(100% + 8px);
-  border-radius: var(--scalar-radius);
-  background: var(--scalar-background-2);
-  opacity: 0;
-}
-.schema-tab:hover:before {
-  opacity: 1;
-}
-.schema-tab-selected:not([aria-haspopup='listbox']) {
-  color: var(--scalar-color-1);
-  text-decoration: underline;
-  text-underline-offset: 8px;
-}
-</style>
