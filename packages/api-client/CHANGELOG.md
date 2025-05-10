@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.3.33
+
+### Patch Changes
+
+- f711ab5: feat: add auth persistance to references
+- 52dd8a1: fix: displays wrapped auth description on hover
+- ac16fca: fix: updates border style on request section
+- 1966c5a: fix: remove streaming header check as it was incorrect
+- ac16fca: fix: sidebar search visual indicator on navigation
+- Updated dependencies [f711ab5]
+- Updated dependencies [90b773e]
+- Updated dependencies [af38fa6]
+  - @scalar/types@0.1.15
+  - @scalar/themes@0.11.2
+  - @scalar/components@0.13.58
+  - @scalar/oas-utils@0.2.143
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/snippetz@0.2.20
+  - @scalar/use-codemirror@0.11.103
+  - @scalar/use-hooks@0.1.49
+  - @scalar/import@0.3.26
+  - @scalar/postman-to-openapi@0.2.16
+  - @scalar/icons@0.3.6
+
 ## 2.3.32
 
 ### Patch Changes

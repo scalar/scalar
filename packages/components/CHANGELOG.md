@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.58
+
+### Patch Changes
+
+- af38fa6: feat: updates scalar loading component style
+- Updated dependencies [90b773e]
+  - @scalar/themes@0.11.2
+  - @scalar/code-highlight@0.0.29
+  - @scalar/use-hooks@0.1.49
+  - @scalar/icons@0.3.6
+
 ## 0.13.57
 
 ### Patch Changes

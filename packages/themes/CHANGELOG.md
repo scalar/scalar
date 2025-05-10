@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.11.2
+
+### Patch Changes
+
+- 90b773e: feat: updates heading variables
+- Updated dependencies [f711ab5]
+  - @scalar/types@0.1.15
+
 ## 0.11.1
 
 ### Patch Changes
