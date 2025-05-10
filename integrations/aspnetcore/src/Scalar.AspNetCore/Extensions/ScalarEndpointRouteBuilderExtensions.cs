@@ -206,7 +206,20 @@ public static class ScalarEndpointRouteBuilderExtensions
         var etag = $"\"{resourceFile.LastModified.Ticks}\"";
 
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
-        return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        if (ifNoneMatch == etag)
+        {
+            return Results.StatusCode(StatusCodes.Status304NotModified);
+        }
+
+        if (httpContext.IsGZipAccepted())
+        {
+            httpContext.Response.Headers.ContentEncoding = "gzip";
+            return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        }
+        else
+        {
+            return Results.Stream(new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        }
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
