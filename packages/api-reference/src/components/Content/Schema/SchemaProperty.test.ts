@@ -300,4 +300,34 @@ describe('SchemaProperty sub-schema', () => {
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
   })
+
+  it('renders discriminators for object of array items', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          type: 'array',
+          items: {
+            type: 'object',
+            oneOf: [
+              {
+                description: 'foobar',
+                properties: { test: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // Check that the discriminator is not rendered
+    expect(wrapper.html().match(/foobar/g)).toBeNull()
+    expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
+
+    // Open the schema card
+    await wrapper.find('.schema-card-title').trigger('click')
+
+    // Find 'foobar' only once
+    const foobar = wrapper.html().match(/foobar/g)
+    expect(foobar).toHaveLength(1)
+  })
 })
