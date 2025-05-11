@@ -1,6 +1,10 @@
 <template>
   <div>
-    <NuxtLink to="/_scalar">Checkout the docs</NuxtLink>
+    <NuxtLink
+      external
+      to="/_scalar">
+      Checkout the docs
+    </NuxtLink>
   </div>
 </template>
 
