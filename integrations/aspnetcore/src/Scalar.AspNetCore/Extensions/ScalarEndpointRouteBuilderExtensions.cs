@@ -22,7 +22,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string DocumentName = "{documentName}";
     private const string LegacyPattern = $"/scalar/{DocumentName}";
     private const string DefaultEndpointPrefix = "/scalar";
-    internal const string ScalarJavaScriptFile = "scalar.js";
+    private const string ScalarJavaScriptFile = "scalar.js";
     private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
 
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
@@ -37,17 +37,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <br />
     /// This method overload is compatible with the obsolete <see cref="ScalarOptions.EndpointPathPrefix" /> property.
     /// </remarks>
-    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints)
-    {
-        // Support for obsolete `EndpointPathPrefix` property.
-        using var scope = endpoints.ServiceProvider.CreateScope();
-        var legacyOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarOptions>>().Value;
-#pragma warning disable CS0618 // Type or member is obsolete
-        // Remove '/{documentName}' from the prefix
-        var prefix = legacyOptions.EndpointPathPrefix != LegacyPattern ? legacyOptions.EndpointPathPrefix.Replace($"/{DocumentName}", string.Empty) : DefaultEndpointPrefix;
-#pragma warning restore CS0618 // Type or member is obsolete
-        return endpoints.MapScalarApiReference(prefix);
-    }
+    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints) => MapScalarApiReferenceLegacy(endpoints);
 
     /// <summary>
     /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>'/scalar'</c> and custom options.
@@ -60,18 +50,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <br />
     /// This method overload is compatible with the obsolete <see cref="ScalarOptions.EndpointPathPrefix" /> property.
     /// </remarks>
-    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
-    {
-        // Support for obsolete `EndpointPathPrefix` property.
-        using var scope = endpoints.ServiceProvider.CreateScope();
-        var legacyOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarOptions>>().Value;
-        configureOptions.Invoke(legacyOptions);
-#pragma warning disable CS0618 // Type or member is obsolete
-        // Remove '/{documentName}' from the prefix
-        var prefix = legacyOptions.EndpointPathPrefix != LegacyPattern ? legacyOptions.EndpointPathPrefix.Replace($"/{DocumentName}", string.Empty) : DefaultEndpointPrefix;
-#pragma warning restore CS0618 // Type or member is obsolete
-        return endpoints.MapScalarApiReference(prefix, (options, _) => configureOptions(options));
-    }
+    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions) => MapScalarApiReferenceLegacy(endpoints, configureOptions);
 
     /// <summary>
     /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>'/scalar'</c> and custom options, providing access to the <see cref="HttpContext" />.
@@ -139,51 +118,118 @@ public static class ScalarEndpointRouteBuilderExtensions
             var options = optionsSnapshot.Value;
             configureOptions?.Invoke(options, httpContext);
 
-            // If a document name is provided as route parameter, clear the document names and add the provided document name
-            if (!string.IsNullOrEmpty(documentName))
-            {
-                options.Documents.Clear();
-                options.AddDocument(documentName);
-            }
-            // If no document names or provider are provided, fallback to the default document name
-            else if (options.Documents.Count == 0)
-            {
-                options.AddDocument("v1");
-            }
+            ConfigureDocuments(options, documentName);
 
             var configuration = options.ToScalarConfiguration();
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
+            UpdateTitleWithDocumentName(options);
+            
+            var scalarEndpointOptions = new ScalarEndpointOptions(options.CdnUrl, options.Title, options.HeadContent, options.HeaderContent, options.DynamicBaseServerUrl);
+            return GenerateContentResult(scalarEndpointOptions, httpContext.Request.Path, serializedConfiguration);
 
-            var title = options.Documents.Count == 1 ? options.Title?.Replace(DocumentName, options.Documents[0].Name) : options.Title;
-            var standaloneResourceUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
-
-            return Results.Content(
-                $$"""
-                  <!doctype html>
-                  <html>
-                  <head>
-                      <title>{{title}}</title>
-                      <meta charset="utf-8" />
-                      <meta name="viewport" content="width=device-width, initial-scale=1" />
-                      {{options.HeadContent}}
-                  </head>
-                  <body>
-                      {{options.HeaderContent}}
-                      <div id="app"></div>
-                      <script src="{{standaloneResourceUrl}}"></script>
-                      <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
-                      <script type="module">
-                          import { initialize } from './{{ScalarJavaScriptHelperFile}}'
-                          initialize(
-                          '{{httpContext.Request.Path}}',
-                          {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
-                          {{serializedConfiguration}},
-                          '{{options.JavaScriptConfiguration}}')
-                      </script>
-                  </body>
-                  </html>
-                  """, "text/html");
         });
+    }
+
+    /// <summary>
+    /// Maps the Scalar API reference endpoint with multiple configurations.
+    /// </summary>
+    /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
+    /// <param name="endpointPrefix">The prefix for the endpoint.</param>
+    /// <param name="endpointOptions">The options for configuring the endpoint.</param>
+    /// <param name="options">The collection of API reference options.</param>
+    /// <remarks>
+    /// This endpoint is currently used by the Aspire integration.
+    /// </remarks>
+    internal static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, ScalarEndpointOptions endpointOptions,
+        IEnumerable<ScalarApiReferenceOptions> options)
+    {
+        var scalarEndpointGroup = endpoints.MapGroup(endpointPrefix).ExcludeFromDescription();
+
+        // Handle static assets
+        scalarEndpointGroup.MapStaticAssetsEndpoint();
+
+        return scalarEndpointGroup.MapGet("/", (HttpContext httpContext) =>
+        {
+            if (ShouldRedirectToTrailingSlash(httpContext, null, out var redirectUrl))
+            {
+                return Results.Redirect(redirectUrl);
+            }
+
+            var configurations = options.ToScalarConfigurations();
+            var serializedConfigurations = JsonSerializer.Serialize(configurations, typeof(IEnumerable<ScalarConfiguration>), ScalarConfigurationSerializerContext.Default);
+
+            return GenerateContentResult(endpointOptions, httpContext.Request.Path, serializedConfigurations);
+        });
+    }
+
+    /// <summary>
+    /// Helper method to support the deprecated <see cref="ScalarOptions.EndpointPathPrefix"/> property.
+    /// </summary>
+    private static IEndpointConventionBuilder MapScalarApiReferenceLegacy(IEndpointRouteBuilder endpoints, Action<ScalarOptions>? configureOptions = null)
+    {
+        // Support for obsolete `EndpointPathPrefix` property.
+        using var scope = endpoints.ServiceProvider.CreateScope();
+        var legacyOptions = scope.ServiceProvider.GetRequiredService<IOptionsSnapshot<ScalarOptions>>().Value;
+        configureOptions?.Invoke(legacyOptions);
+#pragma warning disable CS0618 // Type or member is obsolete
+        // Remove '/{documentName}' from the prefix
+        var prefix = legacyOptions.EndpointPathPrefix != LegacyPattern ? legacyOptions.EndpointPathPrefix.Replace($"/{DocumentName}", string.Empty) : DefaultEndpointPrefix;
+#pragma warning restore CS0618 // Type or member is obsolete
+        return endpoints.MapScalarApiReference(prefix, (options, _) => configureOptions?.Invoke(options));
+    }
+
+    private static void ConfigureDocuments(ScalarOptions options, string? documentName)
+    {
+        // If a document name is provided as route parameter, clear the document names and add the provided document name
+        if (!string.IsNullOrEmpty(documentName))
+        {
+            options.Documents.Clear();
+            options.AddDocument(documentName);
+        }
+        // If no document names are provided, fallback to the default document name
+        else if (options.Documents.Count == 0)
+        {
+            options.AddDocument("v1");
+        }
+    }
+
+    private static void UpdateTitleWithDocumentName(ScalarOptions options)
+    {
+        // Update title with document name if only one document exists
+        if (options.Documents.Count == 1)
+        {
+            options.Title = options.Title?.Replace(DocumentName, options.Documents[0].Name);
+        }
+    }
+
+    private static IResult GenerateContentResult(ScalarEndpointOptions options, string requestPath,string configuration)
+    {
+        var scriptUrl = string.IsNullOrEmpty(options.CdnUrl) ? ScalarJavaScriptFile : options.CdnUrl;
+        return Results.Content(
+            $$"""
+              <!doctype html>
+              <html>
+              <head>
+                  <title>{{options.Title}}</title>
+                  <meta charset="utf-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1" />
+                  {{options.HeadContent}}
+              </head>
+              <body>
+                  {{options.HeaderContent}}
+                  <div id="app"></div>
+                  <script type="module" src="{{ScalarJavaScriptHelperFile}}"></script>
+                  <script type="module" src="{{scriptUrl}}"></script>
+                  <script type="module">
+                      import { initialize } from './{{ScalarJavaScriptHelperFile}}'
+                      initialize(
+                      '{{requestPath}}',
+                      {{options.DynamicBaseServerUrl.ToString().ToLowerInvariant()}},
+                      {{configuration}})
+                  </script>
+              </body>
+              </html>
+              """, "text/html");
     }
 
     /// <summary>
