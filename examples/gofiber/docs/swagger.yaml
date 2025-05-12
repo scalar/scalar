@@ -1,0 +1,15 @@
+components: {}
+externalDocs:
+  description: ""
+  url: ""
+info:
+  title: ""
+  version: ""
+openapi: 3.1.0
+paths:
+  /:
+    get:
+      responses:
+        "200":
+          description: OK
+      summary: hello
