@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.3.27
+
+### Patch Changes
+
+- cb9428c: Support additional query parameters for the OAuth authorization request (prompt, audience, anything), and handle OAuth authorization denials
+- Updated dependencies [cb9428c]
+- Updated dependencies [67aa0f4]
+  - @scalar/openapi-types@0.2.3
+  - @scalar/oas-utils@0.2.143
+  - @scalar/openapi-parser@0.10.17
+
 ## 0.3.26
 
 ### Patch Changes

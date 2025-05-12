@@ -1,5 +1,22 @@
 # @scalar/aspnetcore
 
+## 2.3.0
+
+### Minor Changes
+
+- 992f797: feat(Scalar.AspNetCore): support multiple preferred security schemes
+
+### Patch Changes
+
+- f2bee61: feat(Scalar.AspNetCore): support for custom JS configuration module
+- Updated dependencies [f711ab5]
+- Updated dependencies [90b773e]
+- Updated dependencies [52dd8a1]
+- Updated dependencies [0222ad4]
+- Updated dependencies [ffe6338]
+- Updated dependencies [2dadcfb]
+  - @scalar/api-reference@1.28.33
+
 ## 2.2.7
 
 ### Patch Changes
