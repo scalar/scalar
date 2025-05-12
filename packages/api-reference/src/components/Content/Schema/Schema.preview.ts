@@ -90,24 +90,30 @@ export const discriminatorsSchema = {
     name: 'CustomDiscriminator',
     noncollapsible: true,
     value: {
-      anyOf: [
-        {
-          name: 'Foo',
+      type: 'object',
+      properties: {
+        foobar: {
           type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['foo'] },
-            fooProperty: { type: 'string' },
-          },
+          anyOf: [
+            {
+              name: 'Foo',
+              type: 'object',
+              properties: {
+                type: { type: 'string', enum: ['foo'] },
+                fooProperty: { type: 'string' },
+              },
+            },
+            {
+              name: 'Bar',
+              type: 'object',
+              properties: {
+                type: { type: 'string', enum: ['bar'] },
+                barProperty: { type: 'number' },
+              },
+            },
+          ],
         },
-        {
-          name: 'Bar',
-          type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['bar'] },
-            barProperty: { type: 'number' },
-          },
-        },
-      ],
+      },
     },
   },
 }

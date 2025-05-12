@@ -317,6 +317,11 @@ button.schema-card-title:hover {
   > .schema-properties {
   border: none;
 }
+.discriminator-panel
+  > .schema-card--level-0:not(.schema-card--compact)
+  > .schema-properties {
+  border: none;
+}
 :deep(.schema-card-description) p {
   font-size: var(--scalar-mini, var(--scalar-paragraph));
   color: var(--scalar-color-2);
