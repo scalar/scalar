@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest' // or 'jest'
+import { describe, expect, it } from 'vitest'
 import { createMarkdownFromOpenApi } from './create-markdown-from-openapi'
 
 describe('createMarkdownFromOpenApi', () => {
@@ -157,14 +157,8 @@ Test description`
       },
     }
 
-    const markdown = `### Create user
-
-- **Method:** \`POST\`
-- **Path:** \`/users\`
-
-Creates a new user`
-
     const result = await createMarkdownFromOpenApi(content)
+
     expect(result).toContain('Request Body')
     expect(result).toContain('name')
     expect(result).toContain('email')
