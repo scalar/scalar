@@ -350,6 +350,11 @@ const displayPropertyHeading = (
 .property--compact.property--level-1 {
   padding: 8px 0;
 }
+.property--compact.property--level-0
+  .discriminator-panel
+  .property--compact.property--level-1 {
+  padding: 8px;
+}
 /*  if a property doesn't have a heading, remove the top padding */
 .property:has(> .property-rule:nth-of-type(1)):not(.property--compact) {
   padding-top: 8px;
