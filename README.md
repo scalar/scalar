@@ -150,6 +150,7 @@ The following frameworks have chosen Scalar API Reference as their default OpenA
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [Nitro](documentation/integrations/nitro.md)
 - [Platformatic](documentation/integrations/platformatic.md)
+- [oRPC](https://orpc.unnoq.com/docs/openapi/plugins/openapi-reference)
 
 <br>
 
