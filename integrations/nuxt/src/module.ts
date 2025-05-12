@@ -95,6 +95,7 @@ export default defineNuxtModule<ModuleOptions>({
             name: 'scalar-' + index,
             path: configuration.pathRouting?.basePath + ':pathMatch(.*)*',
             meta: {
+              layout: false,
               configuration,
               isOpenApiEnabled,
             },
@@ -108,6 +109,7 @@ export default defineNuxtModule<ModuleOptions>({
           name: 'scalar',
           path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
           meta: {
+            layout: false,
             configuration: _options,
             isOpenApiEnabled,
           },
