@@ -10,7 +10,7 @@ namespace Scalar.AspNetCore;
 /// </summary>
 internal static partial class HttpContextAcceptEncodingCheckExtensions
 {
-    private static readonly Regex s_gzipAcceptedCheckRegex = GetGZipAcceptedCheckRegex();
+    private static readonly Regex SGzipAcceptedCheckRegex = GetGZipAcceptedCheckRegex();
 
     /// <summary>
     /// Check is the <paramref name="httpContext"/> support gzip response
@@ -23,7 +23,7 @@ internal static partial class HttpContextAcceptEncodingCheckExtensions
     private static partial Regex GetGZipAcceptedCheckRegex();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool IsGZipAccepted(string? acceptEncoding) => !string.IsNullOrWhiteSpace(acceptEncoding) && s_gzipAcceptedCheckRegex.IsMatch(acceptEncoding);
+    private static bool IsGZipAccepted(string? acceptEncoding) => !string.IsNullOrWhiteSpace(acceptEncoding) && SGzipAcceptedCheckRegex.IsMatch(acceptEncoding);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsGZipAccepted(in StringValues acceptEncodingValues)

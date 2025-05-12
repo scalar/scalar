@@ -21,16 +21,13 @@
 
   <ItemGroup>
     <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta12" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
-    <PackageReference Include="ResourceCompressor" Version="1.0.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <CompressedEmbeddedResource Include="StaticAssets/*" Exclude="StaticAssets/*test.js">
-      <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
-    </CompressedEmbeddedResource>
+    <EmbeddedResource Include="StaticAssets/*.gz">
+      <!-- Import .gz files without extension so the original filename is used "scalar.js.gz" -> "scalar.js" -->
+      <LogicalName>ScalarStaticAssets.%(Filename)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

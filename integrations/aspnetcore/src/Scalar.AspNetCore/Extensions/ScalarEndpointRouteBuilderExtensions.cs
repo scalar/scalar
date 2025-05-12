@@ -202,6 +202,8 @@ public static class ScalarEndpointRouteBuilderExtensions
             // Return 404 if the file does not exist. This should not happen because the file is embedded.
             return Results.NotFound();
         }
+        
+        httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
         var etag = $"\"{resourceFile.LastModified.Ticks}\"";
 
@@ -216,10 +218,8 @@ public static class ScalarEndpointRouteBuilderExtensions
             httpContext.Response.Headers.ContentEncoding = "gzip";
             return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
         }
-        else
-        {
-            return Results.Stream(new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
-        }
+
+        return Results.Stream(new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)

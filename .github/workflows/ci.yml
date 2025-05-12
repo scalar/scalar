@@ -653,6 +653,11 @@ jobs:
         run: pnpm copy:standalone
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Compress static assets
+        working-directory: integrations/aspnetcore
+        run: pnpm compress
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: integrations/aspnetcore
         run: dotnet restore
