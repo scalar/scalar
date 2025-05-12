@@ -575,6 +575,10 @@ jobs:
         working-directory: integrations/aspnetcore
         run: pnpm copy:standalone
 
+      - name: Compress static assets
+        working-directory: integrations/aspnetcore
+        run: pnpm compress
+
       - name: Restore dependencies
         working-directory: integrations/aspnetcore
         run: dotnet restore
