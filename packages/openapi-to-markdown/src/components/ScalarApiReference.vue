@@ -4,7 +4,7 @@ import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { snippetz, type HarRequest } from '@scalar/snippetz'
 
-import SchemaRenderer from './SchemaRenderer.vue'
+import Schema from './Schema.vue'
 
 const { content } = defineProps<{
   content: OpenAPIV3_1.Document
@@ -147,7 +147,7 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
                   :key="mediaType">
                   <h5>Content-Type: {{ mediaType }}</h5>
                   <template v-if="content.schema">
-                    <SchemaRenderer :schema="content.schema" />
+                    <Schema :schema="content.schema" />
                     <p><strong>Example:</strong></p>
                     <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
                   </template>
@@ -177,7 +177,7 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
                       <section>
                         <h6>Content-Type: {{ mediaType }}</h6>
                         <template v-if="content.schema">
-                          <SchemaRenderer :schema="content.schema" />
+                          <Schema :schema="content.schema" />
                           <p><strong>Example:</strong></p>
                           <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
                         </template>
@@ -278,7 +278,7 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
           <template v-if="schema.description">
             <ScalarMarkdown :value="schema.description" />
           </template>
-          <SchemaRenderer
+          <Schema
             v-if="schema.type === 'object'"
             :schema="schema" />
           <p><strong>Example:</strong></p>

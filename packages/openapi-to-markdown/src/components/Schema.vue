@@ -32,7 +32,7 @@ const sortProperties = (
         <section
           v-for="(subSchema, index) in schema.allOf"
           :key="index">
-          <SchemaRenderer :schema="subSchema" />
+          <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -45,7 +45,7 @@ const sortProperties = (
         <section
           v-for="(subSchema, index) in schema.anyOf"
           :key="index">
-          <SchemaRenderer :schema="subSchema" />
+          <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -58,7 +58,7 @@ const sortProperties = (
         <section
           v-for="(subSchema, index) in schema.oneOf"
           :key="index">
-          <SchemaRenderer :schema="subSchema" />
+          <Schema :schema="subSchema" />
         </section>
       </section>
     </template>
@@ -69,7 +69,7 @@ const sortProperties = (
           <strong>Not:</strong>
         </header>
         <section>
-          <SchemaRenderer :schema="schema.not" />
+          <Schema :schema="schema.not" />
         </section>
       </section>
     </template>
@@ -124,7 +124,7 @@ const sortProperties = (
                   <span> — {{ propSchema.description }}</span>
                 </template>
               </p>
-              <SchemaRenderer
+              <Schema
                 v-if="propSchema.type === 'object' || propSchema.properties"
                 :schema="propSchema" />
               <template v-if="propSchema.type === 'array' && propSchema.items">
@@ -132,7 +132,7 @@ const sortProperties = (
                   <header>
                     <strong>Items:</strong>
                   </header>
-                  <SchemaRenderer :schema="propSchema.items" />
+                  <Schema :schema="propSchema.items" />
                 </section>
               </template>
             </li>
@@ -148,7 +148,7 @@ const sortProperties = (
           <strong>Array of:</strong>
         </header>
         <section>
-          <SchemaRenderer :schema="schema.items" />
+          <Schema :schema="schema.items" />
         </section>
         <ul
           v-if="
