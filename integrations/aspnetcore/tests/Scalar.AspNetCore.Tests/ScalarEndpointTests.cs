@@ -90,7 +90,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain(expectedContent);
     }
-    
+
 #if RELEASE
     [Theory]
     [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]

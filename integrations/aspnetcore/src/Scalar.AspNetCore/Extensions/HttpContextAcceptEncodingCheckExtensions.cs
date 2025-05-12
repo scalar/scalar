@@ -30,7 +30,7 @@ internal static partial class HttpContextAcceptEncodingCheckExtensions
         {
             0 => false,
             1 => IsGZipAccepted(acceptEncodingValues[0]),
-            _ => SlowCheckIsGZipAccepted(in acceptEncodingValues),
+            _ => SlowCheckIsGZipAccepted(in acceptEncodingValues)
         };
     }
 
@@ -44,6 +44,7 @@ internal static partial class HttpContextAcceptEncodingCheckExtensions
                 return true;
             }
         }
+
         return false;
     }
 }

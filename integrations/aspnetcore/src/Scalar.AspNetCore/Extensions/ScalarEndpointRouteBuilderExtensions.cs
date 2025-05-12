@@ -202,7 +202,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             // Return 404 if the file does not exist. This should not happen because the file is embedded.
             return Results.NotFound();
         }
-        
+
         httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
 
         var etag = $"\"{resourceFile.LastModified.Ticks}\"";
@@ -219,6 +219,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             httpContext.Response.Headers.ContentEncoding = "gzip";
             return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
         }
+
         var stream = new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
 #else
         var stream = resourceFile.CreateReadStream();
