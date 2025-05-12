@@ -59,6 +59,44 @@ app.get('/llms.txt', (c) => c.text(markdown))
 serve(app)
 ```
 
+### Generate HTML
+
+This is not really the purpose of the package, but maybe good to know: This package actually renders HTML at first, and
+transforms the HTML to Markdown then.
+
+So if you’d like to have a really light-weight HTML API Reference, here you are:
+
+```ts
+import { Hono } from 'hono'
+import { createHtmlFromOpenApi } from '@scalar/openapi-to-markdown'
+
+// Generate HTML from an OpenAPI document
+const html = await createHtmlFromOpenApi(content)
+
+const app = new Hono()
+
+app.get('/', (c) =>
+  c.html(
+    `<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scalar Galaxy</title>
+  <!-- Basic styling for semantic HTML tags (optional) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    ${html}
+  </main>
+</body>
+</html>`,
+  ),
+)
+
+serve(app)
+```
+
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>

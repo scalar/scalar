@@ -9,7 +9,7 @@ import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { createSSRApp } from 'vue'
 import { renderToString } from 'vue/server-renderer'
-import ScalarApiReference from './components/ScalarApiReference.vue'
+import MarkdownReference from './components/MarkdownReference.vue'
 
 type AnyDocument = OpenAPI.Document | Record<string, unknown> | string
 
@@ -19,7 +19,7 @@ export async function createHtmlFromOpenApi(input: AnyDocument) {
   const { schema: content } = await dereference(upgraded)
 
   // Create and configure a server-side rendered Vue app
-  const app = createSSRApp(ScalarApiReference, {
+  const app = createSSRApp(MarkdownReference, {
     content,
   })
 
@@ -36,6 +36,7 @@ export async function createHtmlFromOpenApi(input: AnyDocument) {
     preserveLineBreaks: true,
     removeEmptyAttributes: true,
     decodeEntities: true,
+    useShortDoctype: true,
   })
 }
 

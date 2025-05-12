@@ -13,9 +13,10 @@ describe('createMarkdownFromOpenApi', () => {
       paths: {},
     }
 
-    const markdown = `# Test API (1.0.0)
+    const markdown = `# Test API
 
-OpenAPI 3.1.1
+- **OpenAPI Version:** \`3.1.1\`
+- **API Version:** \`1.0.0\`
 
 Test description`
 
@@ -50,21 +51,24 @@ Test description`
       paths: {},
     }
 
-    const markdown = `## Servers
+    const markdown = `# Test API
 
-- **URL:** \`https://test.com\`
-  - **Description:** Test server
+- **OpenAPI Version:** \`3.1.1\`
+- **API Version:** \`1.0.0\`
 
-- **URL:** \`https://test.com/{version}\`
+## Servers
 
-  - **Description:** Test server v2
+- **URL:** \`https://test.com\`
+  - **Description:** Test server
+
+- **URL:** \`https://test.com/{version}\`
+
+  - **Description:** Test server v2
   - **Variables:**
     - \`version\` (default: \`v2\`): Test version
 `
 
     const result = await createMarkdownFromOpenApi(content)
-
-    // console.log(await createHtmlFromOpenApi(content), await createMarkdownFromOpenApi(content))
 
     expect(result).toContain(markdown)
   })
@@ -86,20 +90,86 @@ Test description`
       },
     }
 
-    const markdown = `# Test API (1.0.0)
+    const markdown = `# Test API
 
-OpenAPI 3.1.1
+- **OpenAPI Version:** \`3.1.1\`
+- **API Version:** \`1.0.0\`
 
 ## Operations
 
-### GET /test
+### Test operation
 
-Test operation
+- **Method:** \`GET\`
+- **Path:** \`/test\`
 
 Test description`
 
     const result = await createMarkdownFromOpenApi(content)
 
     expect(result).toContain(markdown)
+  })
+
+  it('renders request body and response schemas', async () => {
+    const content = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/users': {
+          post: {
+            summary: 'Create user',
+            description: 'Creates a new user',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string', description: 'User name' },
+                      email: { type: 'string', format: 'email' },
+                    },
+                    required: ['name', 'email'],
+                  },
+                },
+              },
+            },
+            responses: {
+              '201': {
+                description: 'User created',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        email: { type: 'string', format: 'email' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const markdown = `### Create user
+
+- **Method:** \`POST\`
+- **Path:** \`/users\`
+
+Creates a new user`
+
+    const result = await createMarkdownFromOpenApi(content)
+    expect(result).toContain('Request Body')
+    expect(result).toContain('name')
+    expect(result).toContain('email')
+    expect(result).toContain('Responses')
+    expect(result).toContain('201')
+    expect(result).toContain('id')
   })
 })

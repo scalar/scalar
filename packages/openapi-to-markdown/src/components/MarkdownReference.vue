@@ -2,28 +2,30 @@
 import { ScalarMarkdown } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { snippetz, type HarRequest } from '@scalar/snippetz'
+
+// import { snippetz, type HarRequest } from '@scalar/snippetz'
 
 import Schema from './Schema.vue'
+import XmlOrJson from './XmlOrJson.vue'
 
 const { content } = defineProps<{
   content: OpenAPIV3_1.Document
 }>()
 
-const getRequestExample = (harRequest: Partial<HarRequest>) => {
-  const snippet = snippetz().print('shell', 'curl', {
-    httpVersion: 'HTTP/1.1',
-    headers: [],
-    queryString: [],
-    cookies: [],
-    headersSize: -1,
-    bodySize: -1,
-    method: 'get',
-    ...harRequest,
-  })
+// const getRequestExample = (harRequest: Partial<HarRequest>) => {
+//   const snippet = snippetz().print('shell', 'curl', {
+//     httpVersion: 'HTTP/1.1',
+//     headers: [],
+//     queryString: [],
+//     cookies: [],
+//     headersSize: -1,
+//     bodySize: -1,
+//     method: 'get',
+//     ...harRequest,
+//   })
 
-  return snippet
-}
+//   return snippet
+// }
 </script>
 
 <template>
@@ -32,12 +34,14 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
       <h1>{{ content?.info?.title }}</h1>
       <ul>
         <li>
-          <strong>OpenAPI Version:</strong>
-          <code>{{ content?.openapi }}</code>
+          <strong>OpenAPI Version:</strong>&nbsp;<code>{{
+            content?.openapi
+          }}</code>
         </li>
         <li>
-          <strong>API Version:</strong>
-          <code>{{ content?.info?.version }}</code>
+          <strong>API Version:</strong>&nbsp;<code>{{
+            content?.info?.version
+          }}</code>
         </li>
       </ul>
     </header>
@@ -50,30 +54,36 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
       <h2>Servers</h2>
       <ul>
         <template
-          v-for="(server, index) in content.servers"
-          :key="index">
+          v-for="server in content.servers"
+          :key="server.url">
           <li>
-            <strong>URL:</strong>
-            <code>{{ server.url }}</code>
-            <template v-if="server.description">
-              <p>{{ server.description }}</p>
-            </template>
-            <template
-              v-if="server.variables && Object.keys(server.variables).length">
-              <ul>
-                <template
-                  v-for="(variable, name) in server.variables"
-                  :key="name">
-                  <li>
-                    <strong>{{ name }}:</strong>
-                    Default: <code>'{{ variable.default }}'</code>
-                    <template v-if="variable.description">
-                      <p>{{ variable.description }}</p>
+            <strong>URL:</strong>&nbsp;<code>{{ server.url }}</code>
+            <ul>
+              <template v-if="server.description">
+                <li>
+                  <strong>Description:</strong>&nbsp;{{ server.description }}
+                </li>
+              </template>
+              <template
+                v-if="server.variables && Object.keys(server.variables).length">
+                <li>
+                  <strong>Variables:</strong>
+                  <ul>
+                    <template
+                      v-for="(variable, name) in server.variables"
+                      :key="name">
+                      <li>
+                        <code>{{ name }}</code> (default:
+                        <code>{{ variable.default }}</code
+                        >)<template v-if="variable.description"
+                          >: {{ variable.description }}
+                        </template>
+                      </li>
                     </template>
-                  </li>
-                </template>
-              </ul>
-            </template>
+                  </ul>
+                </li>
+              </template>
+            </ul>
           </li>
         </template>
       </ul>
@@ -108,36 +118,37 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
 
             <ul>
               <li>
-                <strong>Method:</strong>
-                <code>{{ method.toString().toUpperCase() }}</code>
+                <strong>Method:</strong>&nbsp;<code>{{
+                  method.toString().toUpperCase()
+                }}</code>
               </li>
               <li>
-                <strong>Path:</strong>
-                <code>{{ path }}</code>
+                <strong>Path:</strong>&nbsp;<code>{{ path }}</code>
               </li>
               <template v-if="operation.tags">
                 <li>
-                  <strong>Tags:</strong>
-                  {{ operation.tags.join(', ') }}
+                  <strong>Tags:</strong>&nbsp;{{ operation.tags.join(', ') }}
                 </li>
               </template>
               <template v-if="operation['x-scalar-stability']">
                 <li>
-                  <strong>Stability:</strong>
-                  {{ operation['x-scalar-stability'] }}
+                  <strong>Stability:</strong>&nbsp;{{
+                    operation['x-scalar-stability']
+                  }}
                 </li>
               </template>
             </ul>
 
             <ScalarMarkdown :value="operation.description" />
 
-            <section>
+            <!-- TODO: We need way more context to generate proper request examples -->
+            <!-- <section>
               <h4>Request Example</h4>
               <pre><code>{{ getRequestExample({
                 method: method.toString(),
                 url: content.servers?.[0]?.url + path,
               }) }}</code></pre>
-            </section>
+            </section> -->
 
             <template v-if="operation.requestBody?.content">
               <section>
@@ -149,7 +160,13 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
                   <template v-if="content.schema">
                     <Schema :schema="content.schema" />
                     <p><strong>Example:</strong></p>
-                    <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
+                    <XmlOrJson
+                      :xml="mediaType?.toString().includes('xml')"
+                      :model-value="
+                        getExampleFromSchema(content.schema, {
+                          xml: mediaType?.toString().includes('xml'),
+                        })
+                      " />
                   </template>
                 </template>
               </section>
@@ -179,7 +196,13 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
                         <template v-if="content.schema">
                           <Schema :schema="content.schema" />
                           <p><strong>Example:</strong></p>
-                          <pre><code>{{ JSON.stringify(getExampleFromSchema(content.schema), null, 2) }}</code></pre>
+                          <XmlOrJson
+                            :xml="mediaType?.toString().includes('xml')"
+                            :model-value="
+                              getExampleFromSchema(content.schema, {
+                                xml: mediaType?.toString().includes('xml'),
+                              })
+                            " />
                         </template>
                       </section>
                     </template>
@@ -235,22 +258,20 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
                 </li>
               </template>
               <template v-if="operation.deprecated">
-                <li>
-                  <strong>Deprecated:</strong>
-                  true
-                </li>
+                <li><strong>Deprecated</strong></li>
               </template>
             </ul>
 
             <ScalarMarkdown :value="operation.description" />
 
-            <section>
+            <!-- TODO: We need way more context to generate proper request examples -->
+            <!-- <section>
               <h4>Request Example</h4>
               <pre><code>{{ getRequestExample({
                 method: method.toString(),
                 url: content.servers?.[0]?.url + '/webhooks/' + name,
               }) }}</code></pre>
-            </section>
+            </section> -->
           </section>
         </template>
       </template>
@@ -282,7 +303,9 @@ const getRequestExample = (harRequest: Partial<HarRequest>) => {
             v-if="schema.type === 'object'"
             :schema="schema" />
           <p><strong>Example:</strong></p>
-          <pre><code>{{ JSON.stringify(getExampleFromSchema(schema), null, 2) }}</code></pre>
+          <template v-if="schema.type === 'object'">
+            <XmlOrJson :model-value="getExampleFromSchema(schema)" />
+          </template>
         </section>
       </template>
     </section>
