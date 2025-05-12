@@ -21,17 +21,18 @@ function getParamsFromObject(
   value: any
 }[] {
   return Object.entries(obj).flatMap(([key, value]) => {
-    const newKey = field ?? key
+    const name = field ?? key
 
     if (Array.isArray(value) && !nested) {
       return getParamsFromObject(value, true, key)
     }
 
-    if (typeof value === 'object' && value !== null) {
-      throw new Error('Form data should not contain nested objects')
+    if (typeof value === 'object' && !(value instanceof File) && value !== null) {
+      // Nested object inside formData field: no way to represent it, so just serialize to JSON string
+      value = JSON.stringify(value)
     }
 
-    return [{ name: newKey, value }]
+    return [{ name, value }]
   })
 }
 // Define preferred standard mime types (order indicates preference)
@@ -56,7 +57,7 @@ export function getRequestBodyFromOperation(
   text?: string | undefined
   params?: {
     name: string
-    value?: string
+    value?: string | File
   }[]
 } | null {
   const originalContent = operation.information?.requestBody?.content
