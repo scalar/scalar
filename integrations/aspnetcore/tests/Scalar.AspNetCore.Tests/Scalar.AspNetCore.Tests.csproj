@@ -4,10 +4,6 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(CI) == true">
-    <DefineConstants>CI_RUN</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions" Version="8.1.0" />
     <PackageReference Include="coverlet.collector" Version="6.0.4">

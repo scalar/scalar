@@ -71,7 +71,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
     [Theory]
     [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]
-#if CI_RUN
+#if RELEASE
     [InlineData($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}", "@scalar/api-reference")]
 #endif
     public async Task MapScalarApiReference_ShouldReturnUncompressedStaticAssets_WhenRequested(string assetUrl, string expectedContent)
@@ -91,7 +91,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         content.Should().Contain(expectedContent);
     }
     
-#if CI_RUN
+#if RELEASE
     [Theory]
     [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]
     [InlineData($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}", "@scalar/api-reference")]

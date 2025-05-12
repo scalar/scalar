@@ -213,13 +213,18 @@ public static class ScalarEndpointRouteBuilderExtensions
             return Results.StatusCode(StatusCodes.Status304NotModified);
         }
 
+#if RELEASE
         if (httpContext.IsGZipAccepted())
         {
             httpContext.Response.Headers.ContentEncoding = "gzip";
             return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
         }
+        var stream = new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
+#else
+        var stream = resourceFile.CreateReadStream();
+#endif
 
-        return Results.Stream(new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        return Results.Stream(stream, MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)
