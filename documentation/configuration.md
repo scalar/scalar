@@ -615,7 +615,12 @@ To make authentication easier you can prefill the credentials for your users:
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
             'x-usePkce': 'SHA-256',
             // Preselected scopes
-            selectedScopes: ['profile', 'email']
+            selectedScopes: ['profile', 'email'],
+            // Set additional query parameters for the Authorization request 
+            'x-scalar-security-query': {
+              prompt: 'consent',
+              audience: 'scalar'
+            }
           },
           clientCredentials: {
             token: 'client credentials token',

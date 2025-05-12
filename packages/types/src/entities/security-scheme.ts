@@ -117,6 +117,8 @@ const flowsCommon = z.object({
   'x-scalar-client-id': z.string().optional().default(''),
   /** The auth token */
   'token': z.string().default(''),
+  /** Additional query parameters for the OAuth authorization request. Example: { prompt: 'consent', audience: 'scalar' }. */
+  'x-scalar-security-query': z.record(z.string(), z.string()).optional(),
 })
 
 /** Setup a default redirect uri if we can */

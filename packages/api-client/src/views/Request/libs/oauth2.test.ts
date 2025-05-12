@@ -145,6 +145,10 @@ describe('oauth2', () => {
         const _flow = {
           ...flow,
           'x-usePkce': 'SHA-256',
+          'x-scalar-security-query': {
+            prompt: 'login',
+            audience: 'scalar',
+          },
         } as const
 
         const accessToken = 'pkce_access_token_123'
@@ -175,6 +179,8 @@ describe('oauth2', () => {
               code_challenge: codeChallenge,
               code_challenge_method: 'S256',
               redirect_uri: _flow['x-scalar-redirect-uri'],
+              prompt: 'login',
+              audience: 'scalar',
               client_id: _flow['x-scalar-client-id'],
               state: state,
               scope: scope.join(' '),
