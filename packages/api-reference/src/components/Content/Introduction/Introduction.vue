@@ -5,11 +5,12 @@ import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import DownloadLink from '@/features/DownloadLink/DownloadLink.vue'
+import ExternalDocs from '@/features/ExternalDocs/ExternalDocs.vue'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
 
-import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
 import {
   Section,
@@ -25,6 +26,7 @@ import Description from './Description.vue'
 const props = defineProps<{
   info: Partial<OpenAPIV3_1.InfoObject>
   parsedSpec: Spec
+  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
 }>()
 
 const { getHeadingId } = useNavState()
@@ -78,7 +80,10 @@ onMounted(() => config.value.onLoaded?.())
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="info.title" />
+            <div class="links">
+              <DownloadLink :title="info.title" />
+              <ExternalDocs :value="parsedSpec.externalDocs" />
+            </div>
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
@@ -100,5 +105,12 @@ onMounted(() => config.value.onLoaded?.())
   flex-direction: column;
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 18px;
 }
 </style>
