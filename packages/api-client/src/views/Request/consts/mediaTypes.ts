@@ -127,3 +127,27 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
 export const textMediaTypes: string[] = Object.entries(mediaTypes)
   .filter(([, config]) => config?.raw)
   .map(([type]) => type)
+
+/** Get the config for a media type */
+export function getMediaTypeConfig(type: string): MediaConfig | undefined {
+  const config = mediaTypes[type]
+  if (config) {
+    return config
+  }
+
+  // Fallback for +json types
+  if (type.endsWith('+json')) {
+    return {
+      extension: '.json',
+      raw: true,
+      language: 'json',
+    }
+  }
+
+  return undefined
+}
+
+/** Check if a media type that can be displayed as raw text */
+export function isTextMediaType(type: string): boolean {
+  return !!getMediaTypeConfig(type)?.raw
+}
