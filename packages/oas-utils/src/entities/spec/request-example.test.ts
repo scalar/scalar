@@ -372,8 +372,8 @@ describe('convertExampleToXScalar', () => {
             { key: 'field1', value: 'value1', enabled: true },
             {
               key: 'file1',
-              value: 'test.txt',
-              file: new Blob(['test content'], { type: 'text/plain' }),
+              value: 'ignore this',
+              file: new File(['test content'], 'test.txt', { type: 'text/plain' }),
               enabled: true,
             },
           ],
@@ -594,10 +594,9 @@ describe('createExampleFromRequest', () => {
         formData: {
           encoding: 'form-data',
           value: [
-            { key: 'image', value: '', enabled: true },
-            { key: 'additionalImages[0]', value: '', enabled: true },
-            { key: 'metadata[caption]', value: '', enabled: true },
-            { key: 'metadata[tags][0]', value: '', enabled: true },
+            { key: 'image', value: 'BINARY', file: expect.any(File), enabled: true },
+            { key: 'additionalImages', value: 'BINARY', file: expect.any(File), enabled: true },
+            { key: 'metadata', value: '{"caption":"","tags":[""]}', enabled: true },
           ],
         },
       },
