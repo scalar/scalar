@@ -20,7 +20,7 @@
   ],
   "version": "0.6.30",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",

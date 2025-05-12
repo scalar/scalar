@@ -18,7 +18,7 @@
   ],
   "version": "0.3.27",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

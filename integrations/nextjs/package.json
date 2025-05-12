@@ -20,7 +20,7 @@
   ],
   "version": "0.7.16",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",

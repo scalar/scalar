@@ -18,7 +18,7 @@
   ],
   "version": "0.1.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",

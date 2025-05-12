@@ -21,7 +21,7 @@
   ],
   "version": "0.6.6",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
