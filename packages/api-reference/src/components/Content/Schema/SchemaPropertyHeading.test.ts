@@ -138,4 +138,32 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('array Model[]')
   })
+
+  it('renders default value: null', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'string',
+          default: null,
+        },
+      },
+    })
+    const defaultValueElement = wrapper.find('.property-heading')
+    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('null')
+  })
+
+  it('renders default value: empty string', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'string',
+          default: '',
+        },
+      },
+    })
+    const defaultValueElement = wrapper.find('.property-heading')
+    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('""')
+  })
 })

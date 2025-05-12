@@ -1,0 +1,77 @@
+{
+  "name": "@scalar/react-renderer",
+  "description": "Render React components in Vue",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/react-renderer"
+  },
+  "keywords": [
+    "react",
+    "vue",
+    "scalar",
+    "api-reference"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "dev": "vite",
+    "preview": "vite preview",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "^2.4.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vite": "^5.1.1",
+    "vue": "catalog:*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "vue": "catalog:*"
+  }
+}

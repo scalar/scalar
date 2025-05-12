@@ -282,19 +282,7 @@ If you like to run your own, check out our [example proxy written in Go](https:/
 
 ### plugins?: ApiReferencePlugin[]
 
-Pass an array of custom plugins that you want. As of now, we don’t provide any official plugins (yet).
-
-You can build your own plugins, though. There is an example how to render custom specification extensions:
-
-https://github.com/scalar/scalar/tree/main/packages/api-reference/playground/vue/src/x-custom-extension-plugin/x-custom-extension-plugin.ts
-
-You can add specification extensions (starting with `x-`) to the following objects:
-
-* Info Object
-* Tag Object
-* Schema Object
-
-You need them in another place? [Create an issue to let us know.](https://github.com/scalar/scalar/issues/new/choose)
+Pass an array of custom plugins that you want. [Read more about plugins here.](./plugins.md)
 
 ```js
 {
@@ -389,6 +377,28 @@ Whether to show the dark mode toggle
 ```js
 {
   hideDarkModeToggle: true
+}
+```
+
+### layout?: 'modern' | 'classic'
+
+The layout style to use for the API reference.
+
+```js
+{
+  layout: 'modern' // or 'classic'
+}
+```
+
+### isLoading?: boolean
+
+Controls whether the references show a loading state in the intro section. Useful when you want to indicate that content is being loaded.
+
+`@default false`
+
+```js
+{
+  isLoading: true
 }
 ```
 
@@ -605,7 +615,12 @@ To make authentication easier you can prefill the credentials for your users:
             // Use PKCE for additional security: 'SHA-256', 'plain', or 'no'
             'x-usePkce': 'SHA-256',
             // Preselected scopes
-            selectedScopes: ['profile', 'email']
+            selectedScopes: ['profile', 'email'],
+            // Set additional query parameters for the Authorization request 
+            'x-scalar-security-query': {
+              prompt: 'consent',
+              audience: 'scalar'
+            }
           },
           clientCredentials: {
             token: 'client credentials token',
@@ -741,6 +756,42 @@ Customize how webhook URLs are generated. This function receives the webhook obj
 }
 ```
 
+### pathRouting?: { basePath: string }
+
+Configuration for path-based routing instead of hash-based routing. Your server must support this routing method.
+
+```js
+{
+  pathRouting: {
+    basePath: '/standalone-api-reference/:custom(.*)?'
+  }
+}
+```
+
+
+### redirect?: (path: string) => string | null | undefined
+
+Function to handle redirects in the API reference. Receives either:
+- The current path with hash if pathRouting is enabled
+- The current hash if using hashRouting (default)
+
+```js
+// Example for hashRouting (default)
+{
+  redirect: (hash) => hash.replace('#v1/old-path', '#v2/new-path')
+}
+
+// Example for pathRouting
+{
+  redirect: (pathWithHash) => {
+    if (pathWithHash.includes('#')) {
+      return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
+    }
+    return null
+  }
+}
+```
+
 ### onLoaded?: () => void
 
 Callback that triggers as soon as the references are lazy loaded.
@@ -752,6 +803,54 @@ Callback that triggers as soon as the references are lazy loaded.
   onLoaded: () => {
     console.log('References loaded')
   }
+}
+```
+
+### onShowMore?: (tagId: string) => void | Promise<void>
+
+Callback function that is triggered when a user clicks the "Show more" button in the references. The function receives the ID of the tag that was clicked.
+
+```js
+{
+  onShowMore: (tagId) => {
+    console.log('Show more clicked for tag:', tagId)
+  }
+}
+```
+
+### onSidebarClick?: (href: string) => void | Promise<void>
+
+Callback function that is triggered when a user clicks on any item in the sidebar. The function receives the href of the clicked item.
+
+```js
+{
+  onSidebarClick: (href) => {
+    console.log('Sidebar item clicked:', href)
+  }
+}
+```
+
+### onRequestSent?: (request: string) => void
+
+Callback function that is triggered when a request is sent through the API client. The function receives the request details as a string.
+
+```js
+{
+  onRequestSent: (request) => {
+    console.log('Request sent:', request)
+  }
+}
+```
+
+### persistAuth?: boolean
+
+Whether to persist authentication credentials in local storage. This allows the authentication state to be maintained across page reloads.
+
+`@default false`
+
+```js
+{
+  persistAuth: true
 }
 ```
 

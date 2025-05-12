@@ -118,6 +118,7 @@ const introCardsSlot = computed(() =>
                 :envVariables="activeEnvVariables"
                 :environment="activeEnvironment"
                 layout="reference"
+                :persistAuth="config.persistAuth"
                 :selectedSecuritySchemeUids="
                   activeCollection?.selectedSecuritySchemeUids ?? []
                 "

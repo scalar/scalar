@@ -173,7 +173,7 @@ const labelRequestNameId = useId()
     </template>
     <div
       :id="filterIds.All"
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
         v-if="
@@ -186,7 +186,7 @@ const labelRequestNameId = useId()
           (selectedFilter === 'All' || selectedFilter === 'Auth')
         "
         :id="filterIds.Auth"
-        class="request-section-content-auth border-b-0"
+        class="request-section-content-auth"
         :collection="collection"
         :envVariables="envVariables"
         :environment="environment"
@@ -273,12 +273,12 @@ const labelRequestNameId = useId()
         :workspace="workspace" />
 
       <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <div class="flex flex-grow" />
 
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
-          class="request-section-content-code-example"
+          class="request-section-content-code-example -mt-1/2 border-t"
           :collection="collection"
           :example="example"
           :operation="operation"

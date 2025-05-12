@@ -195,6 +195,9 @@ describe('Security Schemas', () => {
             },
             clientSecret: 'client-secret',
             token: 'access-token-456',
+            'x-scalar-security-query': {
+              prompt: 'consent',
+            },
           },
         },
       }
@@ -237,6 +240,10 @@ describe('Security Schemas', () => {
             password: 'testpass',
             clientSecret: 'client-secret',
             token: 'access-token-101',
+            'x-scalar-security-query': {
+              prompt: 'consent',
+              audience: 'scalar',
+            },
           },
         },
       }

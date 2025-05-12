@@ -20,6 +20,7 @@ const {
   environment,
   envVariables,
   layout = 'client',
+  persistAuth = false,
   selectedSchemeOptions = [],
   server,
   workspace,
@@ -28,6 +29,7 @@ const {
   environment: Environment
   envVariables: EnvVariable[]
   layout: 'client' | 'reference'
+  persistAuth: boolean
   selectedSchemeOptions: { id: string; label: string }[]
   server: Server | undefined
   workspace: Workspace
@@ -95,6 +97,7 @@ watch(
         :envVariables="envVariables"
         :environment="environment"
         :layout="layout"
+        :persistAuth="persistAuth"
         :securitySchemeUids="activeScheme"
         :server="server"
         :workspace="workspace" />
@@ -102,7 +105,7 @@ watch(
 
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border border-b-0 px-4 text-sm">
+      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
       No authentication selected
     </div>
 

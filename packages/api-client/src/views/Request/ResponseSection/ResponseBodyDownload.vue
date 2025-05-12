@@ -2,7 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { computed } from 'vue'
 
-import { mediaTypes } from '@/views/Request/consts'
+import { getMediaTypeConfig } from '@/views/Request/consts'
 
 const props = defineProps<{
   href: string
@@ -11,7 +11,8 @@ const props = defineProps<{
 }>()
 
 const filenameExtension = computed(() => {
-  const extension = mediaTypes[props.type ?? '']?.extension ?? '.unknown'
+  const extension =
+    getMediaTypeConfig(props.type ?? '')?.extension ?? '.unknown'
   return props.filename ? props.filename : `response${extension}`
 })
 </script>
