@@ -46,9 +46,19 @@ const discriminatorType = discriminators.find((r) => {
 })
 
 const flattenDefaultValue = (value: Record<string, any>) => {
-  return Array.isArray(value?.default) && value.default.length === 1
-    ? value.default[0]
-    : value?.default
+  if (value?.default === null) {
+    return 'null'
+  }
+
+  if (Array.isArray(value?.default) && value.default.length === 1) {
+    return value.default[0]
+  }
+
+  if (typeof value?.default === 'string') {
+    return JSON.stringify(value.default)
+  }
+
+  return value?.default
 }
 
 // Get model name from schema
