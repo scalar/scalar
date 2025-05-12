@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.2.3
+
+### Patch Changes
+
+- cb9428c: Support additional query parameters for the OAuth authorization request (prompt, audience, anything), and handle OAuth authorization denials
+
 ## 0.2.2
 
 ### Patch Changes
