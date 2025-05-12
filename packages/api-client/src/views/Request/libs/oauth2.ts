@@ -122,11 +122,11 @@ export const authorizeOauth2 = async (
 
     if (flow['x-scalar-security-query']) {
       Object.keys(flow['x-scalar-security-query']).forEach((key: string): void => {
-        const value = flow['x-scalar-security-query']?.[key];
+        const value = flow['x-scalar-security-query']?.[key]
         if (!value) {
-          return;
+          return
         }
-        url.searchParams.set(key, value);
+        url.searchParams.set(key, value)
       })
     }
 

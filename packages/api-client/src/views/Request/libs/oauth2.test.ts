@@ -147,7 +147,7 @@ describe('oauth2', () => {
           'x-usePkce': 'SHA-256',
           'x-scalar-security-query': {
             prompt: 'login',
-            audience: 'scalar'
+            audience: 'scalar',
           },
         } as const
 

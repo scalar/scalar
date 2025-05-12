@@ -197,7 +197,7 @@ describe('Security Schemas', () => {
             token: 'access-token-456',
             'x-scalar-security-query': {
               prompt: 'consent',
-            }
+            },
           },
         },
       }
@@ -242,8 +242,8 @@ describe('Security Schemas', () => {
             token: 'access-token-101',
             'x-scalar-security-query': {
               prompt: 'consent',
-              audience: 'scalar'
-            }
+              audience: 'scalar',
+            },
           },
         },
       }
