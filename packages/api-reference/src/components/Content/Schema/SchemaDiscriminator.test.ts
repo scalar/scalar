@@ -21,7 +21,7 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.schema-tab-label')
+      const tab = wrapper.find('.discriminator-selector-label')
       expect(tab.text()).toBe('One')
     })
 
@@ -41,7 +41,7 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.schema-tab-label')
+      const tab = wrapper.find('.discriminator-selector-label')
       expect(tab.text()).toBe('Any')
     })
 
@@ -60,7 +60,7 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.schema-tab-label')
+      const tab = wrapper.find('.discriminator-selector-label')
       expect(tab.text()).toBe('object')
     })
 
@@ -90,7 +90,7 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.schema-tab-label')
+      const tab = wrapper.find('.discriminator-selector-label')
       expect(tab.text()).toBe('User')
     })
 
@@ -112,7 +112,7 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.schema-tab-label')
+      const tab = wrapper.find('.discriminator-selector-label')
       expect(tab.text()).toBe('Array of string')
     })
   })
