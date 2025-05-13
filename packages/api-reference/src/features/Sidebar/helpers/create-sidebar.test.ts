@@ -1,7 +1,8 @@
+import type { SortOptions } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
-import { type SortOptions, createSidebar } from './create-sidebar'
+import { createSidebar } from './create-sidebar'
 
 /**
  * Parse the given OpenAPI document and return the items for the sidebar.
@@ -380,7 +381,7 @@ describe('createSidebar', async () => {
   })
 
   describe('tag groups', () => {
-    it.only('groups tags by x-tagGroups', async () => {
+    it('groups tags by x-tagGroups', async () => {
       expect(
         await getItemsForDocument({
           'openapi': '3.1.0',
@@ -427,7 +428,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('groups tags by x-tagGroups and shows default webhook group', async () => {
+    it('groups tags by x-tagGroups and shows default webhook group', async () => {
       expect(
         await getItemsForDocument({
           'openapi': '3.1.0',
