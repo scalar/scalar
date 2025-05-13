@@ -24,7 +24,7 @@ async function getItemsForDocument(content: Record<string, any>, options?: SortO
 
 describe('createSidebar', async () => {
   describe('instance', () => {
-    it.only('creates a new instance every time', async () => {
+    it('creates a new instance every time', async () => {
       const collection = createCollection({
         openapi: '3.1.0',
         info: {
@@ -51,7 +51,7 @@ describe('createSidebar', async () => {
   })
 
   describe('empty content', () => {
-    it.only("doesn't return any entries for an empty specification", async () => {
+    it("doesn't return any entries for an empty specification", async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -69,7 +69,7 @@ describe('createSidebar', async () => {
   })
 
   describe('tags', () => {
-    it.only('has a tag', async () => {
+    it('has a tag', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -100,7 +100,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('has multiple tags', async () => {
+    it('has multiple tags', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -139,7 +139,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('shows operations without tags directly in the sidebar', async () => {
+    it('shows operations without tags directly in the sidebar', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -178,7 +178,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('filters out both internal and ignored tags', async () => {
+    it('filters out both internal and ignored tags', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -202,7 +202,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('sorts tags alphabetically', async () => {
+    it('sorts tags alphabetically', async () => {
       expect(
         await getItemsForDocument(
           {
@@ -246,7 +246,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('sorts tags with custom function', async () => {
+    it('sorts tags with custom function', async () => {
       expect(
         await getItemsForDocument(
           {
@@ -296,7 +296,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('adds to existing tags', async () => {
+    it('adds to existing tags', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -333,7 +333,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('creates a default tag', async () => {
+    it('creates a default tag', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -383,7 +383,7 @@ describe('createSidebar', async () => {
   })
 
   describe('tag groups', () => {
-    it.todo('groups tags by x-tagGroups', async () => {
+    it.only('groups tags by x-tagGroups', async () => {
       expect(
         await getItemsForDocument({
           'openapi': '3.1.0',
@@ -430,7 +430,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.todo('groups tags by x-tagGroups and shows default webhook group', async () => {
+    it.only('groups tags by x-tagGroups and shows default webhook group', async () => {
       expect(
         await getItemsForDocument({
           'openapi': '3.1.0',
@@ -619,7 +619,7 @@ describe('createSidebar', async () => {
   })
 
   describe('description', () => {
-    it.only('adds heading to the sidebar', async () => {
+    it('adds heading to the sidebar', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -642,7 +642,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('adds two levels of headings to the sidebar', async () => {
+    it('adds two levels of headings to the sidebar', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -670,7 +670,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only("doesn't add third level of headings", async () => {
+    it("doesn't add third level of headings", async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -700,7 +700,7 @@ describe('createSidebar', async () => {
   })
 
   describe('operations', () => {
-    it.only('has a single entry for a single operation', async () => {
+    it('has a single entry for a single operation', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -721,7 +721,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('has two entries for a single operation and a webhook', async () => {
+    it('has two entries for a single operation and a webhook', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -759,7 +759,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('hides operations with x-internal: true', async () => {
+    it('hides operations with x-internal: true', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -785,7 +785,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('sorts operations alphabetically with summary', async () => {
+    it('sorts operations alphabetically with summary', async () => {
       expect(
         await getItemsForDocument(
           {
@@ -830,7 +830,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('sorts operations alphabetically with paths', async () => {
+    it('sorts operations alphabetically with paths', async () => {
       expect(
         await getItemsForDocument(
           {
@@ -873,7 +873,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('sorts operations by method', async () => {
+    it('sorts operations by method', async () => {
       expect(
         await getItemsForDocument(
           {
@@ -992,7 +992,7 @@ describe('createSidebar', async () => {
   })
 
   describe('webhooks', () => {
-    it.only('shows webhooks', async () => {
+    it('shows webhooks', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -1014,7 +1014,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('hides webhooks with x-internal: true', async () => {
+    it('hides webhooks with x-internal: true', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -1048,7 +1048,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('shows operations and webhooks', async () => {
+    it('shows operations and webhooks', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -1078,7 +1078,7 @@ describe('createSidebar', async () => {
   })
 
   describe('schemas', () => {
-    it.only('shows schemas', async () => {
+    it('shows schemas', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -1121,7 +1121,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.only('hides schemas with x-internal: true', async () => {
+    it('hides schemas with x-internal: true', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',

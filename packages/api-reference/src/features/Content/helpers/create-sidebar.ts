@@ -60,15 +60,91 @@ type TaggedEntry = {
   children: SidebarEntry[]
 }
 
+type TagGroup = {
+  name: string
+  tags: string[]
+}
+
+type ExtendedDocument = OpenAPIV3_1.Document & {
+  'x-tagGroups'?: TagGroup[]
+}
+
 /**
- * Creates sidebar entries for tagged operations
+ * Creates sidebar entries for tag groups
  */
-function createTaggedEntries(
-  document: OpenAPIV3_1.Document,
+function createTagGroupEntries(
+  document: ExtendedDocument,
   titlesById: Record<string, string>,
   tags: OpenAPIV3_1.TagObject[],
   operationSort?: OperationSortOption['sort'],
 ): SidebarEntry[] {
+  if (!document['x-tagGroups']?.length) {
+    return []
+  }
+
+  // Create a map of tags by name for quick lookup
+  const tagMap = new Map(tags.map((tag) => [tag.name, tag]))
+
+  return document['x-tagGroups'].map((group) => {
+    const children: SidebarEntry[] = []
+
+    // Handle regular tags
+    const groupTags = group.tags
+      .filter((tagName) => tagName !== 'webhooks')
+      .map((tagName) => tagMap.get(tagName))
+      .filter((tag): tag is OpenAPIV3_1.TagObject => tag !== undefined)
+
+    const tagEntries = groupTags
+      .map((tag) => {
+        const operations = getOperationsByTag(document, tag, {
+          sort: operationSort,
+          filter: (operation) => !operation['x-internal'] && !operation['x-scalar-ignore'],
+        })
+
+        return {
+          id: tag.name ?? 'untitled-tag',
+          title: tag.name ?? 'Untitled Tag',
+          displayTitle: tag['x-displayName'] ?? tag.name ?? 'Untitled Tag',
+          show: true,
+          children: operations.map((item) => createOperationEntry(titlesById, tag, item)),
+        }
+      })
+      .filter((entry) => entry.children.length > 0)
+
+    children.push(...tagEntries)
+
+    // Handle webhooks if they're in the group
+    if (group.tags.includes('webhooks')) {
+      const webhookEntry = createWebhookEntries(document, titlesById)
+      if (webhookEntry) {
+        children.push(webhookEntry)
+      }
+    }
+
+    return {
+      id: `group-${group.name}`,
+      title: group.name,
+      show: true,
+      isGroup: true,
+      children,
+    }
+  })
+}
+
+/**
+ * Creates sidebar entries for tagged operations
+ */
+function createTaggedEntries(
+  document: ExtendedDocument,
+  titlesById: Record<string, string>,
+  tags: OpenAPIV3_1.TagObject[],
+  operationSort?: OperationSortOption['sort'],
+): SidebarEntry[] {
+  // If we have tag groups, use those instead of flat tags
+  if (document['x-tagGroups']?.length) {
+    return createTagGroupEntries(document, titlesById, tags, operationSort)
+  }
+
   return tags
     .map((tag): TaggedEntry | null => {
       const operations = getOperationsByTag(document, tag, {
