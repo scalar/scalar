@@ -1,6 +1,8 @@
 import { getWebhooks } from '@/features/Content/helpers/get-webhooks'
+import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Collection } from '@scalar/store'
+import type { Heading } from '@scalar/types/legacy'
 import { computed } from 'vue'
 import { type OperationSortOption, getOperationsByTag } from './get-operations-by-tag'
 import { getSchemas } from './get-schemas'
@@ -209,6 +211,59 @@ function createSchemaEntries(document: OpenAPIV3_1.Document, titlesById: Record<
 }
 
 /**
+ * Creates sidebar entries from markdown headings in the OpenAPI description.
+ * Only includes the top two levels of headings (e.g. h1 and h2).
+ *
+ * @param description - The markdown description from the OpenAPI document
+ * @param getHeadingId - Function to generate heading IDs
+ * @returns Array of sidebar entries for the headings
+ */
+function createHeadingEntries(
+  description: string | undefined,
+  getHeadingId: (heading: Heading) => string,
+): SidebarEntry[] {
+  if (!description?.trim()) {
+    return []
+  }
+
+  const headings = getHeadingsFromMarkdown(description)
+  const lowestLevel = getLowestHeadingLevel(headings)
+
+  // Filter headings to only include top two levels
+  const relevantHeadings = headings.filter(
+    (heading) => heading.depth === lowestLevel || heading.depth === lowestLevel + 1,
+  )
+
+  if (!relevantHeadings.length) {
+    return []
+  }
+
+  const entries: SidebarEntry[] = []
+  let currentParent: SidebarEntry | null = null
+
+  for (const heading of relevantHeadings) {
+    const entry: SidebarEntry = {
+      id: getHeadingId(heading),
+      title: heading.value,
+      show: true,
+    }
+
+    // If this is a top-level heading, add it as a parent
+    if (heading.depth === lowestLevel) {
+      entry.children = []
+      entries.push(entry)
+      currentParent = entry
+    }
+    // If this is a second-level heading and we have a parent, add it as a child
+    else if (currentParent) {
+      currentParent.children?.push(entry)
+    }
+  }
+
+  return entries
+}
+
+/**
  * Creates a new instance of the sidebar hook with the given collection.
  * This allows multiple components to use the same computed state.
  */
@@ -235,7 +290,15 @@ export function createSidebar(options?: InputOption & SortOptions) {
         }).length > 0,
     )
 
-    const entries: SidebarEntry[] = [...createTaggedEntries(document, titlesById, tags, options.operationSort)]
+    // Create heading entries from the description
+    const headingEntries = createHeadingEntries(document.info?.description, (heading) => `description/${heading.slug}`)
+
+    const entries: SidebarEntry[] = [
+      // Add heading entries first
+      ...headingEntries,
+      // Then add tagged operations
+      ...createTaggedEntries(document, titlesById, tags, options.operationSort),
+    ]
 
     // Untagged operations
     if (!tags.some((tag) => tag.name === 'default')) {
@@ -244,14 +307,12 @@ export function createSidebar(options?: InputOption & SortOptions) {
 
     // Webhooks
     const webhookEntry = createWebhookEntries(document, titlesById)
-
     if (webhookEntry) {
       entries.push(webhookEntry)
     }
 
     // Models
     const schemaEntry = createSchemaEntries(document, titlesById)
-
     if (schemaEntry) {
       entries.push(schemaEntry)
     }

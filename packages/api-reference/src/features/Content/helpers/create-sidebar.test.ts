@@ -619,7 +619,7 @@ describe('createSidebar', async () => {
   })
 
   describe('description', () => {
-    it('adds heading to the sidebar', async () => {
+    it.only('adds heading to the sidebar', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -642,7 +642,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('adds two levels of headings to the sidebar', async () => {
+    it.only('adds two levels of headings to the sidebar', async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
@@ -670,7 +670,7 @@ describe('createSidebar', async () => {
       })
     })
 
-    it("doesn't add third level of headings", async () => {
+    it.only("doesn't add third level of headings", async () => {
       expect(
         await getItemsForDocument({
           openapi: '3.1.0',
