@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV3_1, Spec } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import { useSidebar, type SortOptions } from '@/features/Sidebar'
