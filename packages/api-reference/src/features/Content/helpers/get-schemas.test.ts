@@ -2,7 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getSchemas } from './get-schemas'
 
-describe('get-schemas', () => {
+describe('getSchemas', () => {
   const EXAMPLE_DOCUMENT: OpenAPIV3_1.Document = {
     openapi: '3.1.0',
     info: {

@@ -28,21 +28,201 @@ export type SortOptions = {
 }
 
 /**
+ * Creates a sidebar entry for a single operation
+ */
+function createOperationEntry(
+  titlesById: Record<string, string>,
+  tag: OpenAPIV3_1.TagObject,
+  item: { method: string; path: string; operation: OpenAPIV3_1.OperationObject },
+): SidebarEntry {
+  const id = `${tag.name}-${item.method}-${item.path}`
+  const title = item.operation.summary ?? item.path
+  titlesById[id] = title
+
+  return {
+    id,
+    title,
+    httpVerb: item.method,
+    show: true,
+    select: () => {
+      console.log(`Selected operation: ${id}`)
+    },
+  }
+}
+
+type TaggedEntry = {
+  id: string
+  title: string
+  displayTitle?: string
+  show: boolean
+  children: SidebarEntry[]
+}
+
+/**
+ * Creates sidebar entries for tagged operations
+ */
+function createTaggedEntries(
+  document: OpenAPIV3_1.Document,
+  titlesById: Record<string, string>,
+  tags: OpenAPIV3_1.TagObject[],
+  operationSort?: OperationSortOption['sort'],
+): SidebarEntry[] {
+  return tags
+    .map((tag): TaggedEntry | null => {
+      const operations = getOperationsByTag(document, tag, {
+        sort: operationSort,
+        filter: (operation) => !operation['x-internal'] && !operation['x-scalar-ignore'],
+      })
+
+      if (!operations.length) {
+        return null
+      }
+
+      return {
+        id: tag.name ?? 'untitled-tag',
+        title: tag.name ?? 'Untitled Tag',
+        displayTitle: tag['x-displayName'] ?? tag.name ?? 'Untitled Tag',
+        show: true,
+        children: operations.map((item) => createOperationEntry(titlesById, tag, item)),
+      }
+    })
+    .filter((entry): entry is TaggedEntry => entry !== null)
+}
+
+/**
+ * Creates sidebar entries for untagged operations
+ */
+function createUntaggedEntries(
+  document: OpenAPIV3_1.Document,
+  titlesById: Record<string, string>,
+  hasTaggedOperations: boolean,
+  operationSort?: OperationSortOption['sort'],
+): SidebarEntry[] {
+  const untaggedOperations = getOperationsByTag(
+    document,
+    { name: 'default' },
+    {
+      sort: operationSort,
+      filter: (operation) => {
+        return !operation['x-internal'] && !operation['x-scalar-ignore'] && !operation.tags?.length
+      },
+    },
+  )
+
+  if (!untaggedOperations.length) {
+    return []
+  }
+
+  if (hasTaggedOperations) {
+    return [
+      {
+        id: 'default',
+        title: 'default',
+        show: true,
+        children: untaggedOperations.map((item) => createOperationEntry(titlesById, { name: 'default' }, item)),
+      },
+    ]
+  }
+
+  return untaggedOperations.map((item) => createOperationEntry(titlesById, { name: 'untagged' }, item))
+}
+
+type WebhookEntry = {
+  id: string
+  title: string
+  httpVerb: string
+  show: boolean
+}
+
+/**
+ * Creates sidebar entries for webhooks
+ */
+function createWebhookEntries(document: OpenAPIV3_1.Document, titlesById: Record<string, string>): SidebarEntry | null {
+  const webhooks = getWebhooks(document, {
+    filter: (webhook) => !webhook['x-internal'] && !webhook['x-scalar-ignore'],
+  })
+
+  if (Object.keys(webhooks).length === 0) {
+    return null
+  }
+
+  const webhookEntries = Object.entries(webhooks).flatMap(([name, webhook]) => {
+    return Object.entries(webhook)
+      .map(([method, operation]): WebhookEntry | null => {
+        if (typeof operation !== 'object') {
+          return null
+        }
+
+        const id = `webhook-${name}-${method}`
+        titlesById[id] = name
+
+        return {
+          id,
+          title: operation.summary ?? name,
+          httpVerb: method,
+          show: true,
+        }
+      })
+      .filter((entry): entry is WebhookEntry => entry !== null)
+  })
+
+  return {
+    id: 'webhooks',
+    title: 'Webhooks',
+    show: true,
+    children: webhookEntries,
+  }
+}
+
+/**
+ * Creates sidebar entries for schemas
+ */
+function createSchemaEntries(document: OpenAPIV3_1.Document, titlesById: Record<string, string>): SidebarEntry | null {
+  const schemas = getSchemas(document, {
+    filter: (schema) => !schema['x-internal'] && !schema['x-scalar-ignore'],
+  })
+
+  if (Object.keys(schemas).length === 0) {
+    return null
+  }
+
+  const schemaEntries = Object.entries(schemas).map(([name]) => {
+    const id = `schema-${name}`
+    titlesById[id] = name
+
+    return {
+      id,
+      title: name,
+      show: true,
+      select: () => {
+        console.log(`Selected schema: ${id}`)
+      },
+    }
+  })
+
+  return {
+    id: 'models',
+    title: 'Models',
+    show: true,
+    children: schemaEntries,
+  }
+}
+
+/**
  * Creates a new instance of the sidebar hook with the given collection.
  * This allows multiple components to use the same computed state.
  */
 export function createSidebar(options?: InputOption & SortOptions) {
   const items = computed(() => {
-    // Empty
     if (!options?.collection?.document) {
       return { entries: [], titles: {} }
     }
 
     const titlesById: Record<string, string> = {}
-    const entries: SidebarEntry[] = []
+    const document = options.collection.document as OpenAPIV3_1.Document
 
     // Get sorted tags
-    const tags = getTags(options.collection.document as OpenAPIV3_1.Document, {
+    const tags = getTags(document, {
       sort: options.tagSort,
       filter: (tag) => !tag['x-internal'] && !tag['x-scalar-ignore'],
     })
@@ -50,166 +230,30 @@ export function createSidebar(options?: InputOption & SortOptions) {
     // Check if we have any tagged operations
     const hasTaggedOperations = tags.some(
       (tag) =>
-        getOperationsByTag(options.collection.document as OpenAPIV3_1.Document, tag, {
+        getOperationsByTag(document, tag, {
           filter: (operation) => !operation['x-internal'] && !operation['x-scalar-ignore'],
         }).length > 0,
     )
 
-    // Handle tagged operations
-    tags.forEach((tag: OpenAPIV3_1.TagObject) => {
-      const operations = getOperationsByTag(options.collection.document as OpenAPIV3_1.Document, tag, {
-        sort: options.operationSort,
-        filter: (operation) => {
-          return !operation['x-internal'] && !operation['x-scalar-ignore']
-        },
-      })
+    const entries: SidebarEntry[] = [...createTaggedEntries(document, titlesById, tags, options.operationSort)]
 
-      // No operations for this tag, skip
-      if (!operations.length) {
-        return
-      }
-
-      const tagEntry: SidebarEntry = {
-        id: tag.name ?? 'untitled-tag',
-        title: tag.name ?? 'Untitled Tag',
-        displayTitle: tag['x-displayName'] ?? tag.name ?? 'Untitled Tag',
-        show: true,
-        children: operations.map((item) => {
-          const id = `${tag.name}-${item.method}-${item.path}`
-          const title = item.operation.summary ?? item.path
-          titlesById[id] = title
-
-          return {
-            id,
-            title,
-            httpVerb: item.method,
-            show: true,
-            select: () => {
-              console.log(`Selected operation: ${id}`)
-            },
-          }
-        }),
-      }
-
-      entries.push(tagEntry)
-    })
-
-    // Only handle untagged operations if we don't have a default tag in the tags array
+    // Untagged operations
     if (!tags.some((tag) => tag.name === 'default')) {
-      const untaggedOperations = getOperationsByTag(
-        options.collection.document as OpenAPIV3_1.Document,
-        { name: 'default' },
-        {
-          sort: options.operationSort,
-          filter: (operation) => {
-            return !operation['x-internal'] && !operation['x-scalar-ignore'] && !operation.tags?.length
-          },
-        },
-      )
-
-      // If we have untagged operations
-      if (untaggedOperations.length > 0) {
-        if (hasTaggedOperations) {
-          // If we also have tagged operations, add them under a default tag
-          entries.push({
-            id: 'default',
-            title: 'default',
-            show: true,
-            children: untaggedOperations.map((item) => {
-              const id = `default-${item.method}-${item.path}`
-              const title = item.operation.summary ?? item.path
-              titlesById[id] = title
-
-              return {
-                id,
-                title,
-                httpVerb: item.method,
-                show: true,
-                select: () => {
-                  console.log(`Selected operation: ${id}`)
-                },
-              }
-            }),
-          })
-        } else {
-          // If we only have untagged operations, add them directly to entries
-          untaggedOperations.forEach((item) => {
-            const id = `untagged-${item.method}-${item.path}`
-            const title = item.operation.summary ?? item.path
-            titlesById[id] = title
-
-            entries.push({
-              id,
-              title,
-              httpVerb: item.method,
-              show: true,
-              select: () => {
-                console.log(`Selected operation: ${id}`)
-              },
-            })
-          })
-        }
-      }
+      entries.push(...createUntaggedEntries(document, titlesById, hasTaggedOperations, options.operationSort))
     }
 
-    // Add webhooks section
-    const webhooks = getWebhooks(options.collection.document as OpenAPIV3_1.Document, {
-      filter: (webhook) => !webhook['x-internal'] && !webhook['x-scalar-ignore'],
-    })
+    // Webhooks
+    const webhookEntry = createWebhookEntries(document, titlesById)
 
-    if (Object.keys(webhooks).length > 0) {
-      const webhookEntries = Object.entries(webhooks).flatMap(([name, webhook]) => {
-        return Object.entries(webhook).map(([method, operation]) => {
-          if (typeof operation !== 'object') {
-            return []
-          }
-
-          const id = `webhook-${name}-${method}`
-          titlesById[id] = name
-
-          return {
-            id,
-            title: operation.summary ?? name,
-            httpVerb: method,
-            show: true,
-          }
-        })
-      }) as SidebarEntry[]
-
-      entries.push({
-        id: 'webhooks',
-        title: 'Webhooks',
-        show: true,
-        children: webhookEntries,
-      })
+    if (webhookEntry) {
+      entries.push(webhookEntry)
     }
 
-    // Add schemas section
-    const schemas = getSchemas(options.collection.document as OpenAPIV3_1.Document, {
-      filter: (schema) => !schema['x-internal'] && !schema['x-scalar-ignore'],
-    })
+    // Models
+    const schemaEntry = createSchemaEntries(document, titlesById)
 
-    if (Object.keys(schemas).length > 0) {
-      const schemaEntries = Object.entries(schemas).map(([name]) => {
-        const id = `schema-${name}`
-        titlesById[id] = name
-
-        return {
-          id,
-          title: name,
-          show: true,
-          select: () => {
-            console.log(`Selected schema: ${id}`)
-          },
-        }
-      })
-
-      entries.push({
-        id: 'models',
-        title: 'Models',
-        show: true,
-        children: schemaEntries,
-      })
+    if (schemaEntry) {
+      entries.push(schemaEntry)
     }
 
     return {

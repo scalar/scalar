@@ -2,7 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getWebhooks } from './get-webhooks'
 
-describe('get-webhooks', () => {
+describe('getWebhooks', () => {
   it('returns empty object when no content is provided', () => {
     const result = getWebhooks()
     expect(result).toEqual({})

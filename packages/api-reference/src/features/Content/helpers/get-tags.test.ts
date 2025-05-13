@@ -11,17 +11,6 @@ type ExtendedTagObject = OpenAPIV3_1.TagObject & {
   operations?: any[]
 }
 
-// TODO: The store should support those custom properties
-type TagGroup = {
-  name: string
-  tags: string[]
-}
-
-// TODO: The store should support those custom properties
-type ExtendedDocument = OpenAPIV3_1.Document & {
-  'x-tagGroups'?: TagGroup[]
-}
-
 const collection = createCollection({
   openapi: '3.1.0',
   info: {

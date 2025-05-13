@@ -38,7 +38,7 @@ vi.mock('vue', () => {
   }
 })
 
-describe('useSidebar', async () => {
+describe('createSidebar', async () => {
   bench('old (stripe)', async () => {
     const { items } = useSidebarOld({
       parsedSpec,
