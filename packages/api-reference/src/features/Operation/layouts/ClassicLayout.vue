@@ -306,9 +306,4 @@ const title = computed(() => operation.summary || operation.path)
   padding: 9px;
   margin: 0;
 }
-.operation-details-card :deep(.request-body-title-select) {
-  text-transform: initial;
-  font-weight: initial;
-  margin-left: auto;
-}
 </style>
