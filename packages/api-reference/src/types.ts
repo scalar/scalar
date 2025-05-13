@@ -20,6 +20,7 @@ export type ReferenceLayoutProps = {
   parsedSpec: Spec
   rawSpec: string
   isDark: boolean
+  theme?: 'light' | 'system' | 'dark'
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'

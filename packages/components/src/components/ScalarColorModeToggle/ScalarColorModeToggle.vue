@@ -18,7 +18,7 @@ import ScalarColorModeToggleSelect from './ScalarColorModeToggleSelect.vue'
 export default {}
 </script>
 <script lang="ts" setup>
-const { variant = 'switch' } = defineProps<{
+const { variant = 'buttons' } = defineProps<{
   /**
    * The style of the toggle.
    * @default 'switch'

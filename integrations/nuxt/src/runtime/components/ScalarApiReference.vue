@@ -10,6 +10,7 @@ const props = defineProps<{
 }>()
 
 const isDark = ref(props.configuration.darkMode)
+const theme = ref(props.configuration.theme)
 
 // @ts-expect-error support the old syntax for a bit
 const content = props.configuration.spec?.content ?? props.configuration.content
@@ -61,6 +62,7 @@ const config: Partial<ApiReferenceConfiguration> = {
     :isDark="!!isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
+    @changedTheme="theme"
     @toggleDarkMode="isDark = !isDark" />
 </template>
 
