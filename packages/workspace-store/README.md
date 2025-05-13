@@ -1,10 +1,10 @@
-# @scalar/store
+# @scalar/workspace-store
 
-A powerful server-side data store for managing OpenAPI documents. This package provides a flexible solution for handling multiple OpenAPI specifications in a workspace environment, with support for both SSR (Server-Side Rendering) and static modes.
+A powerful server-side data store for managing OpenAPI documents. This package provides a flexible solution for handling multiple OpenAPI documents in a workspace environment, with support for both SSR (Server-Side Rendering) and static modes.
 
 ## Usage
 
-Create a new store in ssr mode
+Create a new store in SSR mode
 
 ```ts
 // Create the store

@@ -4,6 +4,9 @@ import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 
+const DEFAULT_ASSETS_FOLDER = 'assets'
+const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
+
 type WorkspaceMeta = Partial<{
   'x-scalar-dark-mode': boolean
   'x-scalar-default-client': string
@@ -165,9 +168,6 @@ export function externalizePathReferences(
 
   return result
 }
-
-const DEFAULT_ASSETS_FOLDER = 'assets'
-const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
 /**
  * Create server state workspace store

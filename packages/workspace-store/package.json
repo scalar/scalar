@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/store",
+  "name": "@scalar/workspace-store",
   "description": "Store interface for openapi documents",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -8,9 +8,10 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/store"
+    "directory": "packages/workspace-store"
   },
   "keywords": [
+    "workspace",
     "store",
     "openapi",
     "scalar"
@@ -30,6 +31,13 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*"
@@ -37,12 +45,5 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vitest": "catalog:*"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
   }
 }
