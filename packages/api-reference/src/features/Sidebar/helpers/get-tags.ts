@@ -1,3 +1,4 @@
+import type { TagSortOption } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 // TODO: The store should support those custom properties
@@ -6,11 +7,6 @@ type ExtendedTagObject = OpenAPIV3_1.TagObject & {
   'x-scalar-ignore'?: boolean
   'x-displayName'?: string
   operations?: any[]
-}
-
-export type TagSortOption = {
-  sort?: 'alpha' | ((a: ExtendedTagObject, b: ExtendedTagObject) => number)
-  filter?: (tag: ExtendedTagObject) => boolean
 }
 
 /**

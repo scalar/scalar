@@ -1,32 +1,12 @@
-import { getWebhooks } from '@/features/Content/helpers/get-webhooks'
+import { getWebhooks } from '@/features/Sidebar/helpers/get-webhooks'
+import type { InputOption, OperationSortOption, SidebarEntry, SortOptions } from '@/features/Sidebar/types'
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Heading } from '@scalar/types/legacy'
 import { computed } from 'vue'
-import { type OperationSortOption, getOperationsByTag } from './get-operations-by-tag'
+import { getOperationsByTag } from './get-operations-by-tag'
 import { getSchemas } from './get-schemas'
-import { type TagSortOption, getTags } from './get-tags'
-
-export type SidebarEntry = {
-  id: string
-  title: string
-  displayTitle?: string
-  children?: SidebarEntry[]
-  select?: () => void
-  httpVerb?: string
-  show: boolean
-  deprecated?: boolean
-  isGroup?: boolean
-}
-
-export type InputOption = {
-  content: OpenAPIV3_1.Document
-}
-
-export type SortOptions = {
-  tagSort?: TagSortOption['sort']
-  operationSort?: OperationSortOption['sort']
-}
+import { getTags } from './get-tags'
 
 /**
  * Creates a sidebar entry for a single operation

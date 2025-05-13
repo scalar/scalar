@@ -1,14 +1,5 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getTags } from './get-tags'
-
-// TODO: The store should support those custom properties
-type ExtendedTagObject = OpenAPIV3_1.TagObject & {
-  'x-internal'?: boolean
-  'x-scalar-ignore'?: boolean
-  'x-displayName'?: string
-  operations?: any[]
-}
 
 const EXAMPLE_DOCUMENT = {
   openapi: '3.1.0',

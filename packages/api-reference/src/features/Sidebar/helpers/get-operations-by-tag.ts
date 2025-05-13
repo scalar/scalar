@@ -1,8 +1,5 @@
+import type { OperationSortOption } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
-export type OperationSortOption = {
-  sort?: 'alpha' | 'method' | ((a: OpenAPIV3_1.OperationObject, b: OpenAPIV3_1.OperationObject) => number)
-}
 
 /**
  * Takes an OpenAPI Document and a tag, and returns an array of operations that have the tag.
