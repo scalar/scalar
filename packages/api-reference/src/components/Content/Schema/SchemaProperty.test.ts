@@ -330,4 +330,61 @@ describe('SchemaProperty sub-schema', () => {
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
   })
+
+  it('renders nested discriminators correctly', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                customerComment: {
+                  type: 'string',
+                },
+              },
+            },
+            {
+              oneOf: [
+                {
+                  allOf: [
+                    {
+                      title: 'foo (1)',
+                      type: 'object',
+                    },
+                    {
+                      oneOf: [
+                        {
+                          title: 'bar (1)',
+                          type: 'object',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    })
+
+    // Check that the first level discriminator is rendered
+    const firstLevelSelector = wrapper.find('.discriminator-selector')
+    expect(firstLevelSelector.exists()).toBe(true)
+    expect(firstLevelSelector.text()).toContain('One of')
+
+    // Open the first level
+    await firstLevelSelector.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Check that the nested discriminator is rendered
+    const nestedSelector = wrapper.find('.discriminator-panel .discriminator-selector')
+    expect(nestedSelector.exists()).toBe(true)
+    expect(nestedSelector.text()).toContain('One of')
+
+    // Check that the titles are displayed correctly
+    expect(wrapper.html()).toContain('foo (1)')
+    expect(wrapper.html()).toContain('bar (1)')
+  })
 })
