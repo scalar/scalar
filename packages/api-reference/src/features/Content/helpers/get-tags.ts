@@ -8,17 +8,6 @@ type ExtendedTagObject = OpenAPIV3_1.TagObject & {
   operations?: any[]
 }
 
-// TODO: The store should support those custom properties
-type TagGroup = {
-  name: string
-  tags: string[]
-}
-
-// TODO: The store should support those custom properties
-type ExtendedDocument = OpenAPIV3_1.Document & {
-  'x-tagGroups'?: TagGroup[]
-}
-
 export type TagSortOption = {
   sort?: 'alpha' | ((a: ExtendedTagObject, b: ExtendedTagObject) => number)
   filter?: (tag: ExtendedTagObject) => boolean
@@ -27,7 +16,7 @@ export type TagSortOption = {
 /**
  * Takes an OpenAPI Document and returns an array of tags.
  */
-export function getTags(content: ExtendedDocument, { sort, filter }: TagSortOption = {}): ExtendedTagObject[] {
+export function getTags(content: OpenAPIV3_1.Document, { sort, filter }: TagSortOption = {}): ExtendedTagObject[] {
   // Start with top-level tags
   let tags = (content.tags ?? []) as ExtendedTagObject[]
 
@@ -70,17 +59,6 @@ export function getTags(content: ExtendedDocument, { sort, filter }: TagSortOpti
 
   if (filter) {
     tags = tags.filter(filter)
-  }
-
-  // Handle tag groups if present
-  if (content['x-tagGroups']) {
-    // Create a map of tags by name for quick lookup
-    const tagMap = new Map(tags.map((tag) => [tag.name, tag]))
-
-    // Process tag groups and flatten back to array
-    tags = content['x-tagGroups'].flatMap((group) =>
-      group.tags.map((tagName) => tagMap.get(tagName)).filter((tag): tag is ExtendedTagObject => tag !== undefined),
-    )
   }
 
   if (sort === 'alpha') {

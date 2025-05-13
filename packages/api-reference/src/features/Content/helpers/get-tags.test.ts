@@ -173,26 +173,6 @@ describe('getTags', () => {
     expect(tags[1].name).toBe('b')
   })
 
-  // TODO: I don't really know how we want to support tag groups.
-  // I'd expect getTags to return a flat array, but we also need the grouping somehow?
-  it('supports tag groups', () => {
-    const collection = createCollection({
-      openapi: '3.1.0',
-      info: { title: 'Test', version: '1.0.0' },
-      tags: [
-        { name: 'Tag1', operations: [] },
-        { name: 'Tag2', operations: [] },
-        { name: 'Tag3', operations: [] },
-      ],
-      'x-tagGroups': [{ name: 'Group1', tags: ['Tag1', 'Tag2'] }],
-    })
-
-    const tags = getTags(collection.document)
-    expect(tags).toHaveLength(2)
-    expect(tags[0].name).toBe('Tag1')
-    expect(tags[1].name).toBe('Tag2')
-  })
-
   it('returns empty array when no tags are defined', () => {
     const collection = createCollection({
       openapi: '3.1.0',
