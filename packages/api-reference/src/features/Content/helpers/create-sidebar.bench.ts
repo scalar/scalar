@@ -5,7 +5,7 @@ import { parse } from '@/helpers'
 import { useSidebar as useSidebarOld } from '@/hooks/old/useSidebar'
 import { createCollection } from '@scalar/store'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
-import { createSidebar } from './useSidebar'
+import { createSidebar } from './create-sidebar'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks
 const EXAMPLE_DOCUMENT = await fetch(
