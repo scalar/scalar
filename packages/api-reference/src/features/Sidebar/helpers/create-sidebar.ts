@@ -9,7 +9,45 @@ import { getSchemas } from './get-schemas'
 import { getTags } from './get-tags'
 
 /**
- * Creates a sidebar entry for a single operation
+ * Represents a tag group in the OpenAPI specification.
+ * Used to organize operations into logical groups.
+ */
+type TagGroup = {
+  name: string
+  tags: string[]
+}
+
+/**
+ * Extended OpenAPI document that includes custom tag groups.
+ */
+type ExtendedDocument = OpenAPIV3_1.Document & {
+  'x-tagGroups'?: TagGroup[]
+}
+
+/**
+ * Represents a tagged entry in the sidebar with its children.
+ */
+type TaggedEntry = {
+  id: string
+  title: string
+  displayTitle?: string
+  show: boolean
+  children: SidebarEntry[]
+}
+
+/**
+ * Represents a webhook entry in the sidebar.
+ */
+type WebhookEntry = {
+  id: string
+  title: string
+  httpVerb: string
+  show: boolean
+}
+
+/**
+ * Creates a sidebar entry for a single API operation.
+ * Each operation is uniquely identified by its tag, method, and path.
  */
 function createOperationEntry(
   titlesById: Record<string, string>,
@@ -31,25 +69,9 @@ function createOperationEntry(
   }
 }
 
-type TaggedEntry = {
-  id: string
-  title: string
-  displayTitle?: string
-  show: boolean
-  children: SidebarEntry[]
-}
-
-type TagGroup = {
-  name: string
-  tags: string[]
-}
-
-type ExtendedDocument = OpenAPIV3_1.Document & {
-  'x-tagGroups'?: TagGroup[]
-}
-
 /**
- * Creates sidebar entries for tag groups
+ * Creates sidebar entries for operations organized by tag groups.
+ * Tag groups provide a hierarchical organization of API operations.
  */
 function createTagGroupEntries(
   content: ExtendedDocument,
@@ -61,13 +83,12 @@ function createTagGroupEntries(
     return []
   }
 
-  // Create a map of tags by name for quick lookup
   const tagMap = new Map(tags.map((tag) => [tag.name, tag]))
 
   return content['x-tagGroups'].map((group) => {
     const children: SidebarEntry[] = []
 
-    // Handle regular tags
+    // Process regular tags
     const groupTags = group.tags
       .filter((tagName) => tagName !== 'webhooks')
       .map((tagName) => tagMap.get(tagName))
@@ -92,7 +113,7 @@ function createTagGroupEntries(
 
     children.push(...tagEntries)
 
-    // Handle webhooks if they're in the group
+    // Add webhooks if present in the group
     if (group.tags.includes('webhooks')) {
       const webhookEntry = createWebhookEntries(content, titlesById)
       if (webhookEntry) {
@@ -111,7 +132,8 @@ function createTagGroupEntries(
 }
 
 /**
- * Creates sidebar entries for tagged operations
+ * Creates sidebar entries for operations organized by tags.
+ * If tag groups are present, they are used instead of flat tags.
  */
 function createTaggedEntries(
   content: ExtendedDocument,
@@ -119,7 +141,6 @@ function createTaggedEntries(
   tags: OpenAPIV3_1.TagObject[],
   operationSort?: OperationSortOption['sort'],
 ): SidebarEntry[] {
-  // If we have tag groups, use those instead of flat tags
   if (content['x-tagGroups']?.length) {
     return createTagGroupEntries(content, titlesById, tags, operationSort)
   }
@@ -147,7 +168,8 @@ function createTaggedEntries(
 }
 
 /**
- * Creates sidebar entries for untagged operations
+ * Creates sidebar entries for operations that don't have tags.
+ * These operations are either grouped under a 'default' tag or shown individually.
  */
 function createUntaggedEntries(
   content: OpenAPIV3_1.Document,
@@ -184,15 +206,9 @@ function createUntaggedEntries(
   return untaggedOperations.map((item) => createOperationEntry(titlesById, { name: 'untagged' }, item))
 }
 
-type WebhookEntry = {
-  id: string
-  title: string
-  httpVerb: string
-  show: boolean
-}
-
 /**
- * Creates sidebar entries for webhooks
+ * Creates sidebar entries for webhooks.
+ * Webhooks are grouped under a single 'Webhooks' section.
  */
 function createWebhookEntries(content: OpenAPIV3_1.Document, titlesById: Record<string, string>): SidebarEntry | null {
   const webhooks = getWebhooks(content, {
@@ -203,8 +219,8 @@ function createWebhookEntries(content: OpenAPIV3_1.Document, titlesById: Record<
     return null
   }
 
-  const webhookEntries = Object.entries(webhooks).flatMap(([name, webhook]) => {
-    return Object.entries(webhook)
+  const webhookEntries = Object.entries(webhooks).flatMap(([name, webhook]) =>
+    Object.entries(webhook)
       .map(([method, operation]): WebhookEntry | null => {
         if (typeof operation !== 'object') {
           return null
@@ -220,8 +236,8 @@ function createWebhookEntries(content: OpenAPIV3_1.Document, titlesById: Record<
           show: true,
         }
       })
-      .filter((entry): entry is WebhookEntry => entry !== null)
-  })
+      .filter((entry): entry is WebhookEntry => entry !== null),
+  )
 
   return {
     id: 'webhooks',
@@ -232,7 +248,8 @@ function createWebhookEntries(content: OpenAPIV3_1.Document, titlesById: Record<
 }
 
 /**
- * Creates sidebar entries for schemas
+ * Creates sidebar entries for schema definitions.
+ * Schemas are grouped under a single 'Models' section.
  */
 function createSchemaEntries(content: OpenAPIV3_1.Document, titlesById: Record<string, string>): SidebarEntry | null {
   const schemas = getSchemas(content, {
@@ -267,11 +284,7 @@ function createSchemaEntries(content: OpenAPIV3_1.Document, titlesById: Record<s
 
 /**
  * Creates sidebar entries from markdown headings in the OpenAPI description.
- * Only includes the top two levels of headings (e.g. h1 and h2).
- *
- * @param description - The markdown description from the OpenAPI content
- * @param getHeadingId - Function to generate heading IDs
- * @returns Array of sidebar entries for the headings
+ * Only includes the top two levels of headings for a clean hierarchy.
  */
 function createHeadingEntries(
   description: string | undefined,
@@ -283,8 +296,6 @@ function createHeadingEntries(
 
   const headings = getHeadingsFromMarkdown(description)
   const lowestLevel = getLowestHeadingLevel(headings)
-
-  // Filter headings to only include top two levels
   const relevantHeadings = headings.filter(
     (heading) => heading.depth === lowestLevel || heading.depth === lowestLevel + 1,
   )
@@ -303,14 +314,11 @@ function createHeadingEntries(
       show: true,
     }
 
-    // If this is a top-level heading, add it as a parent
     if (heading.depth === lowestLevel) {
       entry.children = []
       entries.push(entry)
       currentParent = entry
-    }
-    // If this is a second-level heading and we have a parent, add it as a child
-    else if (currentParent) {
+    } else if (currentParent) {
       currentParent.children?.push(entry)
     }
   }
@@ -319,8 +327,8 @@ function createHeadingEntries(
 }
 
 /**
- * Creates a new instance of the sidebar hook with the given collection.
- * This allows multiple components to use the same computed state.
+ * Creates a new instance of the sidebar with the given OpenAPI specification.
+ * Returns a computed property that generates the sidebar structure.
  */
 export function createSidebar(options?: InputOption & SortOptions) {
   const items = computed(() => {
@@ -331,13 +339,13 @@ export function createSidebar(options?: InputOption & SortOptions) {
     const titlesById: Record<string, string> = {}
     const content = options.content as OpenAPIV3_1.Document
 
-    // Get sorted tags
+    // Get and filter tags
     const tags = getTags(content, {
       sort: options.tagSort,
       filter: (tag) => !tag['x-internal'] && !tag['x-scalar-ignore'],
     })
 
-    // Check if we have any tagged operations
+    // Check for tagged operations
     const hasTaggedOperations = tags.some(
       (tag) =>
         getOperationsByTag(content, tag, {
@@ -345,28 +353,25 @@ export function createSidebar(options?: InputOption & SortOptions) {
         }).length > 0,
     )
 
-    // Create heading entries from the description
-    const headingEntries = createHeadingEntries(content.info?.description, (heading) => `description/${heading.slug}`)
-
+    // Build sidebar entries
     const entries: SidebarEntry[] = [
-      // Add heading entries first
-      ...headingEntries,
-      // Then add tagged operations
+      // Add heading entries from description
+      ...createHeadingEntries(content.info?.description, (heading) => `description/${heading.slug}`),
+      // Add tagged operations
       ...createTaggedEntries(content, titlesById, tags, options.operationSort),
     ]
 
-    // Untagged operations
+    // Add untagged operations if no default tag exists
     if (!tags.some((tag) => tag.name === 'default')) {
       entries.push(...createUntaggedEntries(content, titlesById, hasTaggedOperations, options.operationSort))
     }
 
-    // Webhooks
+    // Add webhooks and schemas if they exist
     const webhookEntry = createWebhookEntries(content, titlesById)
     if (webhookEntry) {
       entries.push(webhookEntry)
     }
 
-    // Models
     const schemaEntry = createSchemaEntries(content, titlesById)
     if (schemaEntry) {
       entries.push(schemaEntry)
@@ -378,7 +383,5 @@ export function createSidebar(options?: InputOption & SortOptions) {
     }
   })
 
-  return {
-    items,
-  }
+  return { items }
 }
