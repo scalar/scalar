@@ -28,12 +28,17 @@ export function getWebhooks(
   if (filter) {
     // Filter each webhook's operations based on the filter function
     return Object.fromEntries(
-      Object.entries(webhooks).map(([name, webhook]) => {
-        const filteredOperations = Object.fromEntries(
-          Object.entries(webhook).filter(([_, operation]) => filter(operation as OpenAPIV3_1.PathItemObject)),
-        )
-        return [name, filteredOperations]
-      }),
+      Object.entries(webhooks)
+        .map(([name, webhook]) => {
+          const filteredOperations = Object.fromEntries(
+            Object.entries(webhook).filter(([_, operation]) => filter(operation as OpenAPIV3_1.PathItemObject)),
+          )
+          // Only include webhooks that have at least one matching operation
+          return Object.keys(filteredOperations).length > 0 ? [name, filteredOperations] : null
+        })
+        .filter(
+          (entry): entry is [string, Record<OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject>] => entry !== null,
+        ),
     )
   }
 
