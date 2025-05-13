@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import ScalarColorModeToggle from './ScalarColorModeToggle.vue'
 import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
 import ScalarColorModeToggleIcon from './ScalarColorModeToggleIcon.vue'
+import ScalarColorModeToggleSelect from './ScalarColorModeToggleSelect.vue'
 
 const meta: Meta<typeof ScalarColorModeToggle> = {
   component: ScalarColorModeToggle,
@@ -11,7 +12,7 @@ const meta: Meta<typeof ScalarColorModeToggle> = {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['switch', 'icon'],
+      options: ['switch', 'icon', 'buttons'],
     },
     class: { control: 'text' },
   },
@@ -50,5 +51,21 @@ export const IconOnly: Story = {
       return { args, mode }
     },
     template: `<ScalarColorModeToggleIcon :mode="mode" v-bind="args" @click="mode = mode === 'light' ? 'dark' : 'light'"  />`,
+  }),
+}
+
+export const ButtonsWithSystemSetting: Story = {
+  argTypes: {
+    class: {
+      control: 'text',
+    },
+  },
+  render: (args) => ({
+    components: { ScalarColorModeToggleSelect },
+    setup() {
+      const mode = ref<'light' | 'system' | 'dark'>('system')
+      return { args, mode }
+    },
+    template: `<ScalarColorModeToggleSelect :mode="mode" v-bind="args"  />`,
   }),
 }
