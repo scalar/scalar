@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using System.Net;
+using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -69,10 +71,10 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
     [Theory]
     [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]
-#if CI_RUN
+#if RELEASE
     [InlineData($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}", "@scalar/api-reference")]
 #endif
-    public async Task MapScalarApiReference_ShouldReturnStaticAssets_WhenRequested(string assetUrl, string expectedContent)
+    public async Task MapScalarApiReference_ShouldReturnUncompressedStaticAssets_WhenRequested(string assetUrl, string expectedContent)
     {
         // Arrange
         var client = factory.CreateClient();
@@ -87,6 +89,33 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         response.Headers.ETag.Should().NotBeNull();
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.Should().Contain(expectedContent);
+    }
+
+#if RELEASE
+    [Theory]
+    [InlineData("/scalar/scalar.aspnetcore.js", "getBasePath")]
+    [InlineData($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}", "@scalar/api-reference")]
+#endif
+#pragma warning disable xUnit1013
+    public async Task MapScalarApiReference_ShouldReturnCompressedStaticAssets_WhenAcceptEncodingContainsGzip(string assetUrl, string expectedContent)
+#pragma warning restore xUnit1013
+    {
+        // Arrange
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+
+        // Act
+        var response = await client.GetAsync(assetUrl, HttpCompletionOption.ResponseContentRead, TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.Content.Headers.ContentEncoding.Should().ContainSingle(x => x == "gzip");
+        var stream = await response.Content.ReadAsStreamAsync(TestContext.Current.CancellationToken);
+        var gZipStream = new GZipStream(stream, CompressionMode.Decompress);
+        using var reader = new StreamReader(gZipStream);
+        var decompressedContent = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        decompressedContent.Should().Contain(expectedContent);
+        response.Headers.Vary.Should().Contain("Accept-Encoding");
     }
 
     [Fact]

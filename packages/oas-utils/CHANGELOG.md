@@ -1,5 +1,19 @@
 # @scalar/oas-utils
 
+## 0.2.143
+
+### Patch Changes
+
+- 67aa0f4: fix: render correct queries with form data
+- Updated dependencies [f711ab5]
+- Updated dependencies [90b773e]
+- Updated dependencies [0222ad4]
+- Updated dependencies [cb9428c]
+- Updated dependencies [67aa0f4]
+  - @scalar/types@0.1.15
+  - @scalar/themes@0.11.2
+  - @scalar/openapi-types@0.2.3
+
 ## 0.2.142
 
 ### Patch Changes

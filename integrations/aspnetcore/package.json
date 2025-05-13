@@ -9,13 +9,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspnetcore"
   },
-  "version": "2.2.7",
+  "version": "2.3.0",
   "private": true,
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "copy:standalone": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
+    "compress": "cd ./src/Scalar.AspNetCore/StaticAssets && gzip --keep --verbose --force scalar.js scalar.aspnetcore.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",

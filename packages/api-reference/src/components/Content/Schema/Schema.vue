@@ -210,6 +210,7 @@ const handleClick = (e: MouseEvent) =>
             <SchemaProperty
               :compact="compact"
               :hideHeading="hideHeading"
+              :level="level"
               :name="(value as OpenAPIV2.SchemaObject).name"
               :schemas="schemas"
               :value="value" />
@@ -311,7 +312,14 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-card-title--compact {
   position: static;
 }
-.schema-card--compact.schema-card--level-0 > .schema-properties {
+:not(.discriminator-panel)
+  > .schema-card--compact.schema-card--level-0
+  > .schema-properties {
+  border: none;
+}
+.discriminator-panel
+  > .schema-card--level-0:not(.schema-card--compact)
+  > .schema-properties {
   border: none;
 }
 :deep(.schema-card-description) p {
