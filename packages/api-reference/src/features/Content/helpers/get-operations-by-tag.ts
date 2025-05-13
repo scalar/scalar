@@ -10,7 +10,7 @@ export type OperationSortOption = {
 export function getOperationsByTag(
   content: OpenAPIV3_1.Document,
   tag: OpenAPIV3_1.TagObject,
-  { sort }: OperationSortOption = {},
+  { sort, filter }: OperationSortOption & { filter?: (operation: OpenAPIV3_1.OperationObject) => boolean } = {},
 ) {
   const operations: {
     method: OpenAPIV3_1.HttpMethods
@@ -32,6 +32,11 @@ export function getOperationsByTag(
     Object.entries(pathItem).forEach(([method, operation]) => {
       // Skip if not an operation
       if (typeof operation === 'string') {
+        return
+      }
+
+      // Skip if the operation doesn't match the filter
+      if (filter && !filter(operation)) {
         return
       }
 
@@ -71,6 +76,8 @@ export function getOperationsByTag(
 
   // Sort operations by a custom function
   if (typeof sort === 'function') {
+    // TODO: We need the path and method
+    // TODO: Do we need to make sure we’re backwards compatible with the old sort function?
     return operations.sort((a, b) => sort(a.operation, b.operation))
   }
 

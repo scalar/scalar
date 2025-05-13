@@ -21,12 +21,13 @@ type ExtendedDocument = OpenAPIV3_1.Document & {
 
 export type TagSortOption = {
   sort?: 'alpha' | ((a: ExtendedTagObject, b: ExtendedTagObject) => number)
+  filter?: (tag: ExtendedTagObject) => boolean
 }
 
 /**
  * Takes an OpenAPI Document and returns an array of tags.
  */
-export function getTags(content: ExtendedDocument, { sort }: TagSortOption = {}): ExtendedTagObject[] {
+export function getTags(content: ExtendedDocument, { sort, filter }: TagSortOption = {}): ExtendedTagObject[] {
   // Start with top-level tags
   let tags = (content.tags ?? []) as ExtendedTagObject[]
 
@@ -34,15 +35,19 @@ export function getTags(content: ExtendedDocument, { sort }: TagSortOption = {})
   if (content.paths) {
     const pathTags = new Set<string>()
     let hasUntaggedOperations = false
+    let hasTaggedOperations = false
 
     // Loop through all paths and operations to collect unique tags
     Object.values(content.paths).forEach((pathItem) => {
-      if (!pathItem) return
+      if (!pathItem) {
+        return
+      }
 
       Object.values(pathItem).forEach((operation) => {
         if (typeof operation === 'object') {
-          if (operation?.tags) {
+          if (operation?.tags?.length) {
             operation.tags.forEach((tag: string) => pathTags.add(tag))
+            hasTaggedOperations = true
           } else {
             hasUntaggedOperations = true
           }
@@ -57,17 +62,15 @@ export function getTags(content: ExtendedDocument, { sort }: TagSortOption = {})
       }
     })
 
-    // Add default tag if there are untagged operations
-    if (hasUntaggedOperations && !tags.some((t) => t.name === 'default')) {
+    // Only add default tag if we have both tagged and untagged operations
+    if (hasTaggedOperations && hasUntaggedOperations && !tags.some((t) => t.name === 'default')) {
       tags.push({ name: 'default' })
     }
   }
 
-  // Filter out internal tags unless explicitly included
-  tags = tags.filter((tag) => !tag['x-internal'])
-
-  // Filter out ignored tags unless explicitly included
-  tags = tags.filter((tag) => !tag['x-scalar-ignore'])
+  if (filter) {
+    tags = tags.filter(filter)
+  }
 
   // Handle tag groups if present
   if (content['x-tagGroups']) {

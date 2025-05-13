@@ -56,4 +56,39 @@ describe('getOperationsByTag', () => {
     expect(operations[0].path).toBe('/hello')
     expect(operations[0].method).toBe('GET')
   })
+
+  it('filters operations based on the filter function', () => {
+    const tag: OpenAPIV3_1.TagObject = {
+      name: 'Hello',
+      description: 'Hello World',
+      operations: [],
+    }
+
+    // Add a new path with a deprecated operation
+    const testDocument = {
+      ...collection.document,
+      paths: {
+        ...collection.document.paths,
+        '/hello-deprecated': {
+          get: {
+            summary: 'Deprecated Hello',
+            tags: ['Hello'],
+            deprecated: true,
+          },
+        },
+      },
+    } as OpenAPIV3_1.Document
+
+    // Test without filter - should get all operations
+    const allOperations = getOperationsByTag(testDocument, tag)
+    expect(allOperations).toHaveLength(2)
+
+    // Test with filter to exclude deprecated operations
+    const filteredOperations = getOperationsByTag(testDocument, tag, {
+      filter: (operation) => !operation.deprecated,
+    })
+    expect(filteredOperations).toHaveLength(1)
+    expect(filteredOperations[0].path).toBe('/hello')
+    expect(filteredOperations[0].method).toBe('GET')
+  })
 })
