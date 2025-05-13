@@ -1,5 +1,16 @@
 # @scalar/types
 
+## 0.1.15
+
+### Patch Changes
+
+- f711ab5: feat: add auth persistance to references
+- 0222ad4: feat: render specification extensions with React
+- cb9428c: Support additional query parameters for the OAuth authorization request (prompt, audience, anything), and handle OAuth authorization denials
+- 67aa0f4: fix: render correct queries with form data
+- Updated dependencies [cb9428c]
+  - @scalar/openapi-types@0.2.3
+
 ## 0.1.14
 
 ### Patch Changes
