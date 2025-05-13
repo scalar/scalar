@@ -128,6 +128,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
       </template>
       <DataTableCell>
         <CodeInput
+          :aria-label="`${label} Key`"
           disableCloseBrackets
           :disabled="props.isReadOnly"
           disableEnter
@@ -148,6 +149,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
       </DataTableCell>
       <DataTableCell>
         <CodeInput
+          :aria-label="`${label} Value`"
           :class="
             hasItemProperties(item)
               ? 'pr-6 group-hover:pr-10 group-has-[.cm-focused]:pr-10'
