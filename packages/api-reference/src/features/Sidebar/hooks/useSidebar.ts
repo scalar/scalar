@@ -1,6 +1,7 @@
+import type { SortOptions } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type InjectionKey, inject, provide } from 'vue'
-import { type SortOptions, createSidebar } from '../helpers/create-sidebar'
+import { createSidebar } from '../helpers/create-sidebar'
 
 /**
  * Injection key for the sidebar instance.
