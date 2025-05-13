@@ -81,7 +81,7 @@ update(colorMode.value)
 
       <template v-else>
         <span
-          class="bg-b-3 font-bold rounded-full toggle-icon-dark size-4 flex items-center justify-center text-c-1 mx-auto">
+          class="bg-b-3 font-bold rounded-full toggle-icon-dark size-4 flex items-center justify-center text-c-1 mx-auto text-[13px]">
           <span class="-mt-px">A</span>
         </span>
       </template>
