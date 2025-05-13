@@ -138,89 +138,85 @@ describe('oauth2', () => {
     })
 
     // PKCE
-    // Could not get this test to work on node 18
-    it.skipIf(process.version.startsWith('v18'))(
-      'should generate valid PKCE code verifier and challenge using SHA-256 encryption',
-      async () => {
-        const _flow = {
-          ...flow,
-          'x-usePkce': 'SHA-256',
-          'x-scalar-security-query': {
+    it('should generate valid PKCE code verifier and challenge using SHA-256 encryption', async () => {
+      const _flow = {
+        ...flow,
+        'x-usePkce': 'SHA-256',
+        'x-scalar-security-query': {
+          prompt: 'login',
+          audience: 'scalar',
+        },
+      } as const
+
+      const accessToken = 'pkce_access_token_123'
+      const codeChallenge = 'AQIDBAUGCAkK'
+      const code = 'pkce_auth_code_123'
+
+      // Mock crypto.getRandomValues
+      vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
+        if (arr instanceof Uint8Array) {
+          for (let i = 0; i < arr.length; i++) {
+            arr[i] = i
+          }
+        }
+        return arr
+      })
+
+      // Mock crypto.subtle.digest
+      vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
+
+      const promise = authorizeOauth2(_flow, mockServer)
+      await flushPromises()
+
+      // Test the window.open call
+      expect(window.open).toHaveBeenCalledWith(
+        new URL(
+          `${_flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'code',
+            code_challenge: codeChallenge,
+            code_challenge_method: 'S256',
+            redirect_uri: _flow['x-scalar-redirect-uri'],
             prompt: 'login',
             audience: 'scalar',
-          },
-        } as const
-
-        const accessToken = 'pkce_access_token_123'
-        const codeChallenge = 'AQIDBAUGCAkK'
-        const code = 'pkce_auth_code_123'
-
-        // Mock crypto.getRandomValues
-        vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
-          if (arr instanceof Uint8Array) {
-            for (let i = 0; i < arr.length; i++) {
-              arr[i] = i
-            }
-          }
-          return arr
-        })
-
-        // Mock crypto.subtle.digest
-        vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
-
-        const promise = authorizeOauth2(_flow, mockServer)
-        await flushPromises()
-
-        // Test the window.open call
-        expect(window.open).toHaveBeenCalledWith(
-          new URL(
-            `${_flow.authorizationUrl}?${new URLSearchParams({
-              response_type: 'code',
-              code_challenge: codeChallenge,
-              code_challenge_method: 'S256',
-              redirect_uri: _flow['x-scalar-redirect-uri'],
-              prompt: 'login',
-              audience: 'scalar',
-              client_id: _flow['x-scalar-client-id'],
-              state: state,
-              scope: scope.join(' '),
-            }).toString()}`,
-          ),
-          windowTarget,
-          windowFeatures,
-        )
-        mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
-
-        global.fetch = vi.fn().mockResolvedValueOnce({
-          json: () => Promise.resolve({ access_token: accessToken }),
-        })
-
-        // Run setInterval
-        vi.advanceTimersByTime(200)
-
-        // Resolve
-        const [error, result] = await promise
-        expect(error).toBe(null)
-        expect(result).toBe(accessToken)
-
-        // Check fetch parameters
-        expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${secretAuth}`,
-          },
-          body: new URLSearchParams({
             client_id: _flow['x-scalar-client-id'],
-            client_secret: _flow.clientSecret,
-            redirect_uri: _flow['x-scalar-redirect-uri'],
-            code,
-            grant_type: 'authorization_code',
-            code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
-          }),
-        })
-      },
-    )
+            state: state,
+            scope: scope.join(' '),
+          }).toString()}`,
+        ),
+        windowTarget,
+        windowFeatures,
+      )
+      mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
+
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      // Run setInterval
+      vi.advanceTimersByTime(200)
+
+      // Resolve
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe(accessToken)
+
+      // Check fetch parameters
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+        body: new URLSearchParams({
+          client_id: _flow['x-scalar-client-id'],
+          client_secret: _flow.clientSecret,
+          redirect_uri: _flow['x-scalar-redirect-uri'],
+          code,
+          grant_type: 'authorization_code',
+          code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
+        }),
+      })
+    })
 
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
