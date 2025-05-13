@@ -33,6 +33,7 @@ export type SortOptions = {
  */
 export function createSidebar(options?: InputOption & SortOptions) {
   const items = computed(() => {
+    // Empty
     if (!options?.collection?.document) {
       return { entries: [], titles: {} }
     }
@@ -189,7 +190,7 @@ export function createSidebar(options?: InputOption & SortOptions) {
     })
 
     if (Object.keys(schemas).length > 0) {
-      const schemaEntries = Object.entries(schemas).map(([name, schema]) => {
+      const schemaEntries = Object.entries(schemas).map(([name]) => {
         const id = `schema-${name}`
         titlesById[id] = name
 
