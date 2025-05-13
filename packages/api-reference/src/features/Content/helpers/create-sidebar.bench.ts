@@ -3,7 +3,6 @@ import { computed, toValue } from 'vue'
 
 import { parse } from '@/helpers'
 import { useSidebar as useSidebarOld } from '@/hooks/old/useSidebar'
-import { createCollection } from '@scalar/store'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createSidebar } from './create-sidebar'
 
@@ -13,7 +12,6 @@ const EXAMPLE_DOCUMENT = await fetch(
 ).then((r) => r.json())
 
 const parsedSpec = await parse(EXAMPLE_DOCUMENT)
-const collection = createCollection(EXAMPLE_DOCUMENT)
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -49,7 +47,7 @@ describe('createSidebar', async () => {
 
   bench('new (stripe)', async () => {
     const { items } = createSidebar({
-      collection,
+      content: EXAMPLE_DOCUMENT,
     })
 
     expect(toValue(items)).toBeDefined()

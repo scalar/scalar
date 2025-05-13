@@ -1,8 +1,23 @@
-import type { Collection } from '@scalar/store'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, provide } from 'vue'
-import { type SortOptions, createSidebar } from '../helpers/create-sidebar'
+import { createSidebar } from '../helpers/create-sidebar'
 import { SIDEBAR_SYMBOL, useSidebar } from './useSidebar'
+
+const EXAMPLE_DOCUMENT = {
+  openapi: '3.1.1',
+  info: {
+    title: 'Example',
+    version: '1.0',
+  },
+  paths: {
+    '/hello': {
+      get: {
+        summary: 'Hello World',
+      },
+    },
+  },
+} as OpenAPIV3_1.Document
 
 // Mock Vue's provide and inject
 vi.mock('vue', async () => {
@@ -28,8 +43,6 @@ describe('useSidebar', () => {
   describe('when called with a collection', () => {
     it('creates and provides a new sidebar instance', () => {
       // Arrange
-      const mockCollection = {} as Collection
-      const mockSortOptions = { tagSort: 'alpha', operationSort: 'alpha' } as SortOptions
       const mockSidebar = {
         items: computed(() => ({
           entries: [],
@@ -39,12 +52,13 @@ describe('useSidebar', () => {
       vi.mocked(createSidebar).mockReturnValue(mockSidebar)
 
       // Act
-      const result = useSidebar(mockCollection, mockSortOptions)
+      const result = useSidebar(EXAMPLE_DOCUMENT, { tagSort: 'alpha', operationSort: 'alpha' })
 
       // Assert
       expect(createSidebar).toHaveBeenCalledWith({
-        collection: mockCollection,
-        ...mockSortOptions,
+        content: EXAMPLE_DOCUMENT,
+        tagSort: 'alpha',
+        operationSort: 'alpha',
       })
       expect(provide).toHaveBeenCalledWith(SIDEBAR_SYMBOL, mockSidebar)
       expect(result).toBe(mockSidebar)

@@ -1,5 +1,4 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { createCollection } from '@scalar/store'
 import { describe, expect, it } from 'vitest'
 import { getTags } from './get-tags'
 
@@ -11,7 +10,7 @@ type ExtendedTagObject = OpenAPIV3_1.TagObject & {
   operations?: any[]
 }
 
-const collection = createCollection({
+const EXAMPLE_DOCUMENT = {
   openapi: '3.1.0',
   info: {
     title: 'Hello World',
@@ -43,12 +42,12 @@ const collection = createCollection({
       },
     },
   },
-})
+} as const
 
 describe('getTags', () => {
   it('returns sorted tags when using a custom sorter', () => {
     const tagsSorter = (a: ExtendedTagObject, b: ExtendedTagObject) => a.name?.localeCompare(b.name ?? '') ?? 0
-    const tags = getTags(collection.document, { sort: tagsSorter })
+    const tags = getTags(EXAMPLE_DOCUMENT, { sort: tagsSorter })
 
     expect(tags).toHaveLength(2)
     expect(tags?.[0].name).toBe('Hello')
@@ -56,26 +55,27 @@ describe('getTags', () => {
   })
 
   it('returns empty array when no tags exist', () => {
-    const emptyCollection = createCollection({
+    const EMPTY_COLLECTION = {
       openapi: '3.1.0',
       info: {
         title: 'Empty API',
         version: '1.0.0',
       },
-    })
+      paths: {},
+    } as const
 
-    const tags = getTags(emptyCollection.document)
+    const tags = getTags(EMPTY_COLLECTION)
     expect(tags).toHaveLength(0)
   })
 
   it('returns unsorted tags when no sort option is provided', () => {
-    const tags = getTags(collection.document)
+    const tags = getTags(EXAMPLE_DOCUMENT)
     expect(tags).toHaveLength(2)
-    expect(tags).toEqual(collection.document.tags)
+    expect(tags).toEqual(EXAMPLE_DOCUMENT.tags)
   })
 
   it('sorts tags alphabetically when sort is alpha', () => {
-    const unsortedCollection = createCollection({
+    const UNSORTED_COLLECTION = {
       openapi: '3.1.0',
       info: {
         title: 'Unsorted API',
@@ -93,16 +93,16 @@ describe('getTags', () => {
           operations: [],
         },
       ],
-    })
+    } as const
 
-    const tags = getTags(unsortedCollection.document, { sort: 'alpha' })
+    const tags = getTags(UNSORTED_COLLECTION, { sort: 'alpha' })
     expect(tags).toHaveLength(2)
     expect(tags?.[0].name).toBe('Apple')
     expect(tags?.[1].name).toBe('Zebra')
   })
 
   it('handles tags with missing names', () => {
-    const collectionWithMissingNames = createCollection({
+    const COLLECTION_WITH_MISSING_NAMES = {
       openapi: '3.1.0',
       info: {
         title: 'API with Missing Names',
@@ -119,62 +119,62 @@ describe('getTags', () => {
           operations: [],
         },
       ],
-    })
+    } as const
 
-    const tags = getTags(collectionWithMissingNames.document, { sort: 'alpha' })
+    const tags = getTags(COLLECTION_WITH_MISSING_NAMES, { sort: 'alpha' })
     expect(tags).toHaveLength(2)
     expect(tags?.[0].name).toBe('Valid')
     expect(tags?.[1].name).toBeUndefined()
   })
 
   it('filters out internal tags', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_INTERNAL_TAG = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       tags: [
         { name: 'Public', operations: [] },
         { name: 'Internal', 'x-internal': true, operations: [] },
       ],
-    })
+    } as const
 
-    const tags = getTags(collection.document, { filter: (tag) => tag['x-internal'] !== true })
+    const tags = getTags(EXAMPLE_DOCUMENT_WITH_INTERNAL_TAG, { filter: (tag) => tag['x-internal'] !== true })
     expect(tags).toHaveLength(1)
     expect(tags[0].name).toBe('Public')
   })
 
   it('filters out ignored tags', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_IGNORED_TAG = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       tags: [
         { name: 'Public', operations: [] },
         { name: 'Ignored', 'x-scalar-ignore': true, operations: [] },
       ],
-    })
+    } as const
 
-    const tags = getTags(collection.document, { filter: (tag) => tag['x-scalar-ignore'] !== true })
+    const tags = getTags(EXAMPLE_DOCUMENT_WITH_IGNORED_TAG, { filter: (tag) => tag['x-scalar-ignore'] !== true })
     expect(tags).toHaveLength(1)
     expect(tags[0].name).toBe('Public')
   })
 
   it('uses x-displayName for sorting when available', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_DISPLAY_NAME = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       tags: [
         { name: 'b', 'x-displayName': 'Zebra', operations: [] },
         { name: 'a', 'x-displayName': 'Apple', operations: [] },
       ],
-    })
+    } as const
 
-    const tags = getTags(collection.document, { sort: 'alpha' })
+    const tags = getTags(EXAMPLE_DOCUMENT_WITH_DISPLAY_NAME, { sort: 'alpha' })
     expect(tags).toHaveLength(2)
     expect(tags[0].name).toBe('a')
     expect(tags[1].name).toBe('b')
   })
 
   it('returns empty array when no tags are defined', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_TAGS = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       paths: {
@@ -185,15 +185,15 @@ describe('getTags', () => {
           },
         },
       },
-    })
+    } as const
 
-    const tags = getTags(collection.document)
+    const tags = getTags(EXAMPLE_DOCUMENT_WITH_TAGS)
     expect(tags).toHaveLength(1)
     expect(tags[0].name).toBe('Tag1')
   })
 
   it('returns default tag for operations without tags', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_TAGS = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       paths: {
@@ -208,16 +208,16 @@ describe('getTags', () => {
           },
         },
       },
-    })
+    } as const
 
-    const tags = getTags(collection.document)
+    const tags = getTags(EXAMPLE_DOCUMENT_WITH_TAGS)
     expect(tags).toHaveLength(2)
     expect(tags[0].name).toBe('Tag1')
     expect(tags[1].name).toBe('default')
   })
 
   it('filters tags based on the filter function', () => {
-    const collection = createCollection({
+    const EXAMPLE_DOCUMENT_WITH_TAGS = {
       openapi: '3.1.0',
       info: { title: 'Test', version: '1.0.0' },
       tags: [
@@ -225,14 +225,14 @@ describe('getTags', () => {
         { name: 'Private', description: 'Private tag', operations: [] },
         { name: 'Admin', description: 'Admin tag', operations: [] },
       ],
-    })
+    } as const
 
     // Test without filter - should get all tags
-    const allTags = getTags(collection.document)
+    const allTags = getTags(EXAMPLE_DOCUMENT_WITH_TAGS)
     expect(allTags).toHaveLength(3)
 
     // Test with filter to only include tags with 'Public' in the name
-    const filteredTags = getTags(collection.document, {
+    const filteredTags = getTags(EXAMPLE_DOCUMENT_WITH_TAGS, {
       filter: (tag) => tag.name?.includes('Public') ?? false,
     })
     expect(filteredTags).toHaveLength(1)

@@ -1,9 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { createCollection } from '@scalar/store'
 import { describe, expect, it } from 'vitest'
 import { getOperationsByTag } from './get-operations-by-tag'
 
-const collection = createCollection({
+const EXAMPLE_DOCUMENT = {
   openapi: '3.1.0',
   info: {
     title: 'Hello World',
@@ -35,7 +34,7 @@ const collection = createCollection({
       },
     },
   },
-})
+} as const
 
 describe('getOperationsByTag', () => {
   it('returns operations for a specific tag', () => {
@@ -48,7 +47,7 @@ describe('getOperationsByTag', () => {
       operations: [],
     }
 
-    const operations = getOperationsByTag(collection.document as OpenAPIV3_1.Document, tag, {
+    const operations = getOperationsByTag(EXAMPLE_DOCUMENT, tag, {
       sort: operationsSorter,
     })
 
@@ -66,9 +65,9 @@ describe('getOperationsByTag', () => {
 
     // Add a new path with a deprecated operation
     const testDocument = {
-      ...collection.document,
+      ...EXAMPLE_DOCUMENT,
       paths: {
-        ...collection.document.paths,
+        ...EXAMPLE_DOCUMENT.paths,
         '/hello-deprecated': {
           get: {
             summary: 'Deprecated Hello',

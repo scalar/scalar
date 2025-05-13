@@ -1,22 +1,19 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
-
-import { createCollection } from '@scalar/store'
 import { type SortOptions, createSidebar } from './create-sidebar'
 
 /**
  * Parse the given OpenAPI document and return the items for the sidebar.
  */
 async function getItemsForDocument(content: Record<string, any>, options?: SortOptions) {
-  const collection = createCollection(content)
-
   const { items } = createSidebar({
     ...{
       tagSort: undefined,
       operationSort: undefined,
       ...options,
     },
-    collection,
+    content,
   })
 
   return toValue(items)
@@ -25,7 +22,7 @@ async function getItemsForDocument(content: Record<string, any>, options?: SortO
 describe('createSidebar', async () => {
   describe('instance', () => {
     it('creates a new instance every time', async () => {
-      const collection = createCollection({
+      const content = {
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -38,10 +35,10 @@ describe('createSidebar', async () => {
             },
           },
         },
-      })
+      } as OpenAPIV3_1.Document
 
-      const sidebar1 = createSidebar({ collection })
-      const sidebar2 = createSidebar({ collection })
+      const sidebar1 = createSidebar({ content })
+      const sidebar2 = createSidebar({ content })
 
       // Every call to createSidebar should return a new instance
       expect(toValue(sidebar1.items)).not.toBe(toValue(sidebar2.items))

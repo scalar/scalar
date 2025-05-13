@@ -1,4 +1,4 @@
-import type { Collection } from '@scalar/store'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type InjectionKey, inject, provide } from 'vue'
 import { type SortOptions, createSidebar } from '../helpers/create-sidebar'
 
@@ -14,11 +14,14 @@ export const SIDEBAR_SYMBOL: InjectionKey<ReturnType<typeof createSidebar>> = Sy
  * When called with a collection, it creates and provides a new sidebar instance.
  * When called without parameters, it returns the injected sidebar instance.
  */
-export function useSidebar(collection?: Collection, sortOptions?: SortOptions): ReturnType<typeof createSidebar> {
+export function useSidebar(
+  content?: OpenAPIV3_1.Document,
+  sortOptions?: SortOptions,
+): ReturnType<typeof createSidebar> {
   // If collection is provided, create and provide a new sidebar instance
-  if (collection) {
+  if (content) {
     const sidebar = createSidebar({
-      collection,
+      content,
       ...sortOptions,
     })
 
