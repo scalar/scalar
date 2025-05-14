@@ -10,7 +10,8 @@ import { watch } from 'vue'
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
-import { useNavState, useSidebar } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,

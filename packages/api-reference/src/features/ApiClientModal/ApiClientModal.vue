@@ -8,7 +8,7 @@ import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
 import { useExampleStore } from '@/legacy/stores'
 
 import { useApiClient } from './useApiClient'

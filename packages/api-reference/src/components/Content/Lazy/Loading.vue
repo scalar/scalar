@@ -25,7 +25,7 @@ import {
 } from '@/components/Section'
 import { Operation } from '@/features/Operation'
 import { scrollToId } from '@/helpers/scroll-to-id'
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
 import { getModels } from '@/libs/openapi'
 
 /**

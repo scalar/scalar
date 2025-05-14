@@ -5,7 +5,8 @@ import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
-import { useReactiveSpec } from '../hooks'
+import { useReactiveSpec } from '@/hooks/useReactiveSpec'
+
 import { Layouts } from './Layouts'
 
 const { configuration } = defineProps<{

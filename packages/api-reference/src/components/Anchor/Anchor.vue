@@ -2,7 +2,7 @@
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useId } from 'vue'
 
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
 
 import ScreenReader from '../ScreenReader.vue'
 
