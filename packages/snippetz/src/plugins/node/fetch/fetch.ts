@@ -1,4 +1,4 @@
-import { arrayToObject } from '@/utils/arrayToObject'
+import { createSearchParams } from '@/utils/create-search-params'
 import { objectToString } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
@@ -25,9 +25,7 @@ export const nodeFetch: Plugin = {
     }
 
     // Query
-    const searchParams = new URLSearchParams(
-      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
-    )
+    const searchParams = createSearchParams(normalizedRequest.queryString)
     const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
     // Headers

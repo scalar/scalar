@@ -1,4 +1,4 @@
-import { arrayToObject } from '@/utils/arrayToObject'
+import { createSearchParams } from '@/utils/create-search-params'
 import { objectToString } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
@@ -25,16 +25,8 @@ export const nodeOfetch: Plugin = {
     }
 
     // Query
-    const searchParams = new URLSearchParams(
-      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
-    )
-
-    if (searchParams.size) {
-      options.query = {}
-      searchParams.forEach((value, key) => {
-        options.query[key] = value
-      })
-    }
+    const searchParams = createSearchParams(normalizedRequest.queryString)
+    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
     // Headers
     if (normalizedRequest.headers?.length) {
@@ -80,6 +72,6 @@ export const nodeOfetch: Plugin = {
     // Code Template
     return `import { ofetch } from 'ofetch'
 
-ofetch('${normalizedRequest.url}'${jsonOptions})`
+ofetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
   },
 }

@@ -342,7 +342,7 @@ export default {
   </div>
   <div
     v-if="$slots.icon"
-    class="centered-y group-has-[.cm-focused]:z-1 -right-0.25 absolute flex h-full items-center p-1.5">
+    class="centered-y group-has-[.cm-focused]:z-1 absolute right-0 flex h-full items-center p-1.5">
     <slot name="icon" />
   </div>
   <div
