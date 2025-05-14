@@ -8,8 +8,8 @@ import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
-import { useSidebar } from '@/hooks/old/useSidebar'
 import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 import { isOperationDeprecated } from '@/libs/openapi'
 
 const { transformedOperation, tag, collection } = defineProps<{
