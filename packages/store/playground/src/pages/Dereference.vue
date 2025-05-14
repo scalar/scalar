@@ -3,6 +3,8 @@ import { dereference, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { onMounted, ref } from 'vue'
 
+import OpenApiDocument from '../components/OpenApiDocument.vue'
+
 const document = ref<OpenAPI.Document | undefined>(undefined)
 
 onMounted(async () => {
@@ -18,10 +20,20 @@ onMounted(async () => {
   })) as OpenAPI.Document
 
   document.value = (await measure(`dereference('stripe')`, async () => {
-    const { schema } = await dereference(specification)
+    const { paths, ...rest } = specification
+    const { schema } = await dereference(rest)
 
     return schema
   })) as OpenAPI.Document
+
+  document.value = (await measure(
+    `dereference('stripe', { paths: {…} })`,
+    async () => {
+      const { schema } = await dereference(specification)
+
+      return schema
+    },
+  )) as OpenAPI.Document
 })
 
 async function measure(name: string, fn: () => Promise<unknown>) {
@@ -41,6 +53,6 @@ async function measure(name: string, fn: () => Promise<unknown>) {
     <h1 class="mb-4 text-2xl font-bold">Dereference</h1>
   </div>
   <div>
-    {{ document?.info?.title }}
+    <OpenApiDocument :document="document" />
   </div>
 </template>

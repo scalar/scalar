@@ -163,7 +163,9 @@ function createProxyHandler(
 ): ProxyHandler<UnknownObject> {
   return {
     get(target, property, receiver) {
-      if (property === '__isProxy') return true
+      if (property === '__isProxy') {
+        return true
+      }
 
       const value = Reflect.get(target, property, receiver)
 

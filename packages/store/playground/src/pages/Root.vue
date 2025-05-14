@@ -7,6 +7,8 @@ import { onMounted } from 'vue'
 
 import { createWorkspace, localStoragePlugin } from '@/create-workspace'
 
+import OpenApiDocument from '../components/OpenApiDocument.vue'
+
 const EXAMPLE_URL =
   'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
 
@@ -136,45 +138,7 @@ async function measure(name: string, fn: () => Promise<unknown>) {
       v-if="Object.keys(collections).length">
       <h2 class="mb-2 text-xl font-semibold">{{ collection }}</h2>
       <template v-if="collections[collection]">
-        <table class="border text-sm text-gray-700">
-          <tbody>
-            <tr>
-              <td class="border px-2 py-1 font-bold">OpenAPI</td>
-              <td class="border px-2 py-1">
-                {{ collections[collection].document?.openapi }}
-              </td>
-            </tr>
-            <tr>
-              <td class="border px-2 py-1 font-bold">$.info.title</td>
-              <td class="border px-2 py-1">
-                {{ collections[collection].document?.info?.title }}
-              </td>
-            </tr>
-            <tr>
-              <td class="border px-2 py-1 font-bold">Paths</td>
-              <td class="border px-2 py-1">
-                {{
-                  Object.keys(collections[collection].document?.paths ?? {})
-                    .length
-                }}
-              </td>
-            </tr>
-            <tr>
-              <td class="border px-2 py-1 font-bold">
-                resolved $ref's in paths
-              </td>
-              <td class="border px-2 py-1">
-                {{
-                  !!collections[collection].document?.paths?.['/v1/accounts']
-                    ?.get?.responses?.['200']?.content?.['application/json']
-                    ?.schema?.type
-                    ? 'yes'
-                    : 'no'
-                }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <OpenApiDocument :document="collections[collection].document" />
       </template>
     </template>
     <p v-else>Loading workspace…</p>
