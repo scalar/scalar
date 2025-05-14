@@ -13,7 +13,8 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
-import { useNavState, useSidebar } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 
 import Webhook from './components/Webhook.vue'
 

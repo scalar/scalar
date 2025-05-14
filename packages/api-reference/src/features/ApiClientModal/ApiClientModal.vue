@@ -5,11 +5,11 @@ import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import type { Spec } from '@scalar/types/legacy'
 import { watchDebounced } from '@vueuse/core'
-import { useExampleStore } from '#legacy'
 import microdiff from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useExampleStore } from '@/legacy/stores'
 
 import { useApiClient } from './useApiClient'
 

@@ -12,21 +12,21 @@ import type {
 } from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
 
-import { Operation } from '@/features/Operation'
-
-import { getModels, scrollToId } from '../../../helpers'
-import { useNavState } from '../../../hooks'
-import { Anchor } from '../../Anchor'
+import { Anchor } from '@/components/Anchor'
+import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import { Schema } from '@/components/Content/Schema'
+import { TagSection } from '@/components/Content/Tag'
 import {
   Section,
   SectionContainer,
   SectionContent,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
-import { Schema } from '../Schema'
-import { TagSection } from '../Tag'
-import { lazyBus } from './lazyBus'
+} from '@/components/Section'
+import { Operation } from '@/features/Operation'
+import { scrollToId } from '@/helpers/scroll-to-id'
+import { useNavState } from '@/hooks/useNavState'
+import { getModels } from '@/libs/openapi'
 
 /**
  * Loads a "fake" tag/modal/operation if the user is deep linking

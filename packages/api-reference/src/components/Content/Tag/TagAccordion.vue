@@ -2,13 +2,13 @@
 import { ScalarMarkdown } from '@scalar/components'
 import type { Tag } from '@scalar/types/legacy'
 
-import { useNavState } from '../../../hooks'
-import { Anchor } from '../../Anchor'
+import { Anchor } from '@/components/Anchor'
 import {
   SectionContainerAccordion,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
+} from '@/components/Section'
+import { useNavState } from '@/hooks/useNavState'
 
 defineProps<{
   tag: Tag

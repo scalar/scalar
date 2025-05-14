@@ -14,16 +14,11 @@ export { Layouts } from '@/components/Layouts'
 
 // TODO: Ideally, we’d remove those exports or at least not export them through the root index.
 export { parse } from '@/helpers/parse'
-export { createEmptySpecification } from '@/helpers/createEmptySpecification'
+export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
 export { useSidebar } from '@/hooks/useSidebar'
 export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,
   ReferenceProps,
-  // TODO: Deprecated 2025-03-12
-  ReferenceConfiguration,
 } from '@/types'
-
-// TODO: Deprecated 2025-03-12
-export { createScalarReferences } from '@/esm'

@@ -1,5 +1,5 @@
-import vue from '@vitejs/plugin-vue'
 import { URL, fileURLToPath } from 'node:url'
+import vue from '@vitejs/plugin-vue'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
 import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
@@ -22,6 +22,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@test': fileURLToPath(new URL('./test', import.meta.url)),
     },
     dedupe: ['vue'],
   },
@@ -65,12 +66,6 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
       },
-    },
-  },
-  test: {
-    coverage: {
-      enabled: true,
-      reporter: 'text',
     },
   },
 })

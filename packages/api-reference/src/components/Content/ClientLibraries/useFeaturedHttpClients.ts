@@ -1,4 +1,4 @@
-import { useHttpClientStore, type HttpClientState } from '@/stores'
+import { type HttpClientState, useHttpClientStore } from '@/stores/useHttpClientStore'
 import type { ClientId, Target } from '@scalar/snippetz'
 
 export type FeaturedClient = { targetKey: Target['key']; clientKey: ClientId<Target['key']> }
