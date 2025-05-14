@@ -84,14 +84,18 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
-  // Disable CORS
+  // Allow cross-origin cookies
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
     const { requestHeaders } = details
 
-    upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
+    if (requestHeaders['X-Scalar-Cookie']) {
+      requestHeaders['Cookie'] = requestHeaders['X-Scalar-Cookie']
+    }
+
     callback({ requestHeaders })
   })
 
+  // Disable CORS
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const { responseHeaders } = details
 
