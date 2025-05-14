@@ -31,7 +31,7 @@ const { breadcrumb } = useSidebar()
   display: none;
   align-items: center;
   height: 100%;
-  width: 100%;
+  width: 100dvw;
   padding: 0 8px;
   background: var(--scalar-background-1);
   border-bottom: 1px solid var(--scalar-border-color);
