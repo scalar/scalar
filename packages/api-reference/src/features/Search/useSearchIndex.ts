@@ -5,8 +5,7 @@ import { type Ref, computed, ref, watch } from 'vue'
 
 import { type ParamMap, useNavState, useOperation, useSidebar } from '@/hooks'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
-import { getModels } from '@/libs/openapi'
-import { extractRequestBody } from '@/libs/openapi'
+import { extractRequestBody, getModels } from '@/libs/openapi'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 

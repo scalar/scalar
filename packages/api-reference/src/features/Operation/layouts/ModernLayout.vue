@@ -28,7 +28,7 @@ import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
-} from '@/libs/operation'
+} from '@/libs/openapi'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'

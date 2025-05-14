@@ -1,7 +1,7 @@
-import { deepMerge } from '@/helpers/deep-merge'
+import type { Operation } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Operation } from '@scalar/types/legacy'
-import type { Spec } from '@scalar/types/legacy'
+import type { Spec, TransformedOperation } from '@scalar/types/legacy'
+import { XScalarStability } from '@scalar/types/legacy'
 
 import type { ContentSchema } from '../types'
 
@@ -65,7 +65,7 @@ function recursiveLogger(obj: ContentSchema): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: Operation): string[] | boolean {
+export function extractRequestBody(operation: TransformedOperation): string[] | boolean {
   try {
     // Using optional chaining here as well
     const body = operation?.information?.requestBody?.content?.['application/json']
@@ -140,6 +140,22 @@ export const hasWebhooks = (content?: Spec) => {
 }
 
 /**
+ * Deep merge for objects
+ */
+export function deepMerge(source: Record<any, any>, target: Record<any, any>) {
+  for (const [key, val] of Object.entries(source)) {
+    if (val !== null && typeof val === 'object') {
+      target[key] ??= new val.__proto__.constructor()
+      deepMerge(val, target[key])
+    } else if (typeof val !== 'undefined') {
+      target[key] = val
+    }
+  }
+
+  return target
+}
+
+/**
  * Creates an empty specification object.
  * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
  */
@@ -165,4 +181,46 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
     servers: [],
     tags: [],
   }) as Spec
+}
+
+/**
+ * Returns if an operation is considered deprecated.
+ */
+export function isOperationDeprecated(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): boolean {
+  if (operation.deprecated !== undefined) {
+    return operation.deprecated
+  }
+  if (operation['x-scalar-stability'] && operation['x-scalar-stability'] === XScalarStability.Deprecated) {
+    return true
+  }
+  return false
+}
+
+/**
+ * Get operation stability.
+ */
+export function getOperationStability(
+  operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>,
+): XScalarStability | undefined {
+  if (operation.deprecated) {
+    return XScalarStability.Deprecated
+  }
+  return operation['x-scalar-stability']
+}
+
+/**
+ * Get Operation stability color
+ */
+export function getOperationStabilityColor(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): string {
+  const stability = getOperationStability(operation)
+  if (stability === XScalarStability.Deprecated) {
+    return 'text-red'
+  }
+  if (stability === XScalarStability.Experimental) {
+    return 'text-orange'
+  }
+  if (stability === XScalarStability.Stable) {
+    return 'text-green'
+  }
+  return ''
 }
