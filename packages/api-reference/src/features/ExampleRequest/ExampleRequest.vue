@@ -18,7 +18,10 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
 import { useExampleStore } from '@/legacy/stores'
-import { useHttpClientStore, type HttpClientState } from '@/stores'
+import {
+  useHttpClientStore,
+  type HttpClientState,
+} from '@/stores/useHttpClientStore'
 
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'

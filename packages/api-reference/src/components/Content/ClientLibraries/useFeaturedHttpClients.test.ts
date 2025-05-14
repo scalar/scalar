@@ -1,11 +1,11 @@
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
+import type { Plugin as Client, Target } from '@scalar/snippetz'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
-import { useHttpClientStore } from '@/stores'
 import { useFeaturedHttpClients } from './useFeaturedHttpClients'
-import type { Plugin as Client, Target } from '@scalar/snippetz'
 
 // Mock the store
-vi.mock('@/stores', () => ({
+vi.mock('@/stores/useHttpClientStore', () => ({
   useHttpClientStore: vi.fn(),
 }))
 

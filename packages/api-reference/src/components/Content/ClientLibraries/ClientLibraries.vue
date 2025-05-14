@@ -4,7 +4,8 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import { computed, ref, toRaw, useId, watch } from 'vue'
 
-import { useHttpClientStore } from '../../../stores'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
+
 import ClientSelector from './ClientSelector.vue'
 import { useFeaturedHttpClients } from './useFeaturedHttpClients'
 
