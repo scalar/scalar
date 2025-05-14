@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { toRef } from 'vue'
 
-import { createEmptySpecification } from '@/helpers/createEmptySpecification'
+import { createEmptySpecification } from '@/helpers/create-empty-specification'
 import { parse } from '@/helpers/parse'
 import { useSearchIndex } from './useSearchIndex'
 

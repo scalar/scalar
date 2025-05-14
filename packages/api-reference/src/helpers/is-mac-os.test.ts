@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isMacOs } from './isMacOs'
+import { isMacOs } from './is-mac-os'
 
 describe('isMacOs', () => {
   it('returns true on macOS', () => {

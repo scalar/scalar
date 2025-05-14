@@ -41,9 +41,10 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
-import { downloadSpecBus, downloadSpecFile, sleep } from '@/helpers'
+import { sleep } from '@/helpers/sleep'
 import { useNavState, useSidebar } from '@/hooks'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
+import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
@@ -154,8 +155,8 @@ onMounted(() => {
   history.scrollRestoration = 'manual'
 
   // Enable the spec download event bus
-  downloadSpecBus.on(({ specTitle }) => {
-    downloadSpecFile(props.rawSpec, specTitle)
+  downloadEventBus.on(({ filename }) => {
+    downloadDocument(props.rawSpec, filename)
   })
 
   // Find scalar Y offset to support users who have tried to add their own headers
@@ -199,7 +200,7 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 }))
 
 onUnmounted(() => {
-  downloadSpecBus.reset()
+  downloadEventBus.reset()
 })
 
 // Keep the parsed spec up to date

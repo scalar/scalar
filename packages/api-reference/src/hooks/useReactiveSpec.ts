@@ -2,7 +2,7 @@ import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
-import { createEmptySpecification } from '@/helpers/createEmptySpecification'
+import { createEmptySpecification } from '@/helpers/create-empty-specification'
 import { parse } from '@/helpers/parse'
 
 /**

@@ -14,7 +14,7 @@ export { Layouts } from '@/components/Layouts'
 
 // TODO: Ideally, we’d remove those exports or at least not export them through the root index.
 export { parse } from '@/helpers/parse'
-export { createEmptySpecification } from '@/helpers/createEmptySpecification'
+export { createEmptySpecification } from '@/helpers/create-empty-specification'
 export { useNavState } from '@/hooks/useNavState'
 export { useSidebar } from '@/hooks/useSidebar'
 export { useHttpClientStore } from '@/stores/useHttpClientStore'

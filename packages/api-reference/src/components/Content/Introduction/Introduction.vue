@@ -88,7 +88,7 @@ onMounted(() => config.value.onLoaded?.())
             {{ info.title }}
           </SectionHeaderTag>
         </SectionHeader>
-        <DownloadLink :specTitle="filenameFromTitle" />
+        <DownloadLink :filename="filenameFromTitle" />
         <SectionColumns>
           <SectionColumn>
             <Description :value="info.description" />

@@ -2,10 +2,11 @@
 import type { Spec } from '@scalar/types/legacy'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
-import { sleep } from '../../helpers'
-import { useNavState, useSidebar, type SorterOption } from '../../hooks'
-import SidebarElement from './SidebarElement.vue'
-import SidebarGroup from './SidebarGroup.vue'
+import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
+import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
+import { sleep } from '@/helpers/sleep'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 
 const props = defineProps<
   {

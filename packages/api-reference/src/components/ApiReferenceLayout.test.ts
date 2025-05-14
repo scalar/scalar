@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { parse } from '@/helpers'
+import { parse } from '@/helpers/parse'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, test, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'

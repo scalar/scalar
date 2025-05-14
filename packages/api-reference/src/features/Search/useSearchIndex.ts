@@ -3,9 +3,10 @@ import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
 
-import { getHeadingsFromMarkdown, getModels } from '../../helpers'
-import { extractRequestBody } from '../../helpers/specHelpers'
-import { type ParamMap, useNavState, useOperation, useSidebar } from '../../hooks'
+import { type ParamMap, useNavState, useOperation, useSidebar } from '@/hooks'
+import { getHeadingsFromMarkdown } from '@/libs/markdown'
+import { getModels } from '@/libs/openapi'
+import { extractRequestBody } from '@/libs/openapi'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 

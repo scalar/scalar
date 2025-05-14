@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mergeAllObjects } from './mergeAllObjects'
+import { mergeAllObjects } from './merge-all-objects'
 
 describe('mergeAllObjects', () => {
   it('merges two objects', () => {

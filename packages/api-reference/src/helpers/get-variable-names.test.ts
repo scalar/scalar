@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getVariableNames } from './getVariableNames'
+import { getVariableNames } from './get-variable-names'
 
 describe('getVariableNames', () => {
   it('replaces variables with a single bracket', () => {

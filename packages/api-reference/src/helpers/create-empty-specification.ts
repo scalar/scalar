@@ -1,7 +1,7 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 
-import { deepMerge } from './deepMerge'
+import { deepMerge } from './deep-merge'
 
 /**
  * Creates an empty specification object.
