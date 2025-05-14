@@ -23,6 +23,7 @@ catalogs:
     '@vueuse/core': ^10.10.0
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
+    '@sinclair/typebox': 0.34.3
     ansis: 3.16.0
     concurrently: 9.1.2
     esbuild: 0.25.2

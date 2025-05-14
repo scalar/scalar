@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
-    "@scalar/openapi-types": "workspace:*"
+    "@scalar/openapi-types": "workspace:*",
+    "@sinclair/typebox": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

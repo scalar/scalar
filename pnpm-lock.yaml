@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   '*':
+    '@sinclair/typebox':
+      specifier: 0.34.3
+      version: 0.34.3
     '@types/express':
       specifier: ^5.0.1
       version: 5.0.1
@@ -2220,6 +2223,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@sinclair/typebox':
+        specifier: catalog:*
+        version: 0.34.3
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -7349,6 +7355,9 @@ packages:
 
   '@sinclair/typebox@0.33.3':
     resolution: {integrity: sha512-2MputLKNw0OxPGWF8KWkLt8B/csTZUkK2tCtiZwJT3NtVOfYPVi6ZEchZAHEHre/qJ4skcS9fL7TuHG36Dk3WQ==}
+
+  '@sinclair/typebox@0.34.3':
+    resolution: {integrity: sha512-fEgncmnqn6WGibPn34deH5PwmMTuNCZ2clwlwevgFn8rP0l38zzWRg3KVYhoOZwkZ2Ew3yhZ/STdGDuMig66oQ==}
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -25271,6 +25280,8 @@ snapshots:
 
   '@sinclair/typebox@0.33.3': {}
 
+  '@sinclair/typebox@0.34.3': {}
+
   '@sindresorhus/is@0.14.0': {}
 
   '@sindresorhus/is@4.6.0': {}
@@ -27175,7 +27186,7 @@ snapshots:
       '@vue/compiler-ssr': 3.5.12
       '@vue/shared': 3.5.12
       estree-walker: 2.0.2
-      magic-string: 0.30.12
+      magic-string: 0.30.17
       postcss: 8.5.3
       source-map-js: 1.2.1
 
