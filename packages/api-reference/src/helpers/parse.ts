@@ -11,7 +11,7 @@ import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { createEmptySpecification } from '../helpers'
+import { createEmptySpecification } from '@/helpers/createEmptySpecification'
 
 type AnyObject = Record<string, any>
 

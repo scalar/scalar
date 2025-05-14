@@ -1,4 +1,3 @@
-export { createEmptySpecification } from './createEmptySpecification'
 export { deepMerge } from './deepMerge'
 export { getHeadingsFromMarkdown } from './getHeadingsFromMarkdown'
 export { getLowestHeadingLevel } from './getLowestHeadingLevel'
