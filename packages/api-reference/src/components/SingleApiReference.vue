@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { upgrade } from '@scalar/openapi-parser'
+import { createCollection } from '@scalar/store'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
@@ -31,6 +33,24 @@ if (configuration.metaData) {
   useSeoMeta(configuration.metaData)
 }
 
+const { parsedSpec, rawSpec } = useReactiveSpec({
+  proxyUrl: toRef(() => configuration.proxyUrl || ''),
+  specConfig: toRef(() => configuration || {}),
+})
+
+// New Store
+const collection = createCollection(rawSpec.value)
+
+// TODO: Woah, this should all be done in the store.
+watch(rawSpec, (rawSpec) => {
+  const { specification: content } = upgrade(rawSpec) as unknown as Record<
+    string,
+    unknown
+  >
+
+  collection.update(content as unknown as Record<string, unknown>)
+})
+
 // TODO: defineSlots
 
 const favicon = computed(() => configuration.favicon)
@@ -44,6 +64,10 @@ useFavicon(favicon)
     v-if="configuration?.customCss">
     {{ configuration.customCss }}
   </component>
+  <div style="color: white">
+    <h1>Hello from the new Store 👋 {{ collection.document.info?.title }}</h1>
+  </div>
+  <pre><code style="color: white">{{ collection.document.servers }}</code></pre>
   <Layouts
     :configuration="configuration"
     :isDark="isDarkMode"
