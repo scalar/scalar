@@ -1177,9 +1177,6 @@ importers:
       '@scalar/snippetz':
         specifier: workspace:*
         version: link:../snippetz
-      '@scalar/store':
-        specifier: workspace:*
-        version: link:../store
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -2201,6 +2198,9 @@ importers:
       vue:
         specifier: ^3.5.13
         version: 3.5.13(typescript@5.6.2)
+      vue-router:
+        specifier: ^4.3.0
+        version: 4.4.5(vue@3.5.13(typescript@5.6.2))
 
   packages/themes:
     dependencies:
