@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/swaggo/swag"
-	"github.com/yokeTH/gofiber-scalar/scalar"
+	scalar "github.com/yokeTH/gofiber-scalar"
 )
 
 // hello godoc
