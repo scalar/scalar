@@ -25,23 +25,21 @@
     "node": ">=18"
   },
   "scripts": {
-    "analyze:default": "pnpm dlx vite-bundle-visualizer",
-    "analyze:standalone": "pnpm dlx vite-bundle-visualizer -c vite.standalone.config.ts",
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "playground:components": "vite ./playground/components -c ./playground/components/vite.config.ts",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "playground:ssr": "cd ./playground/ssr && pnpm dev",
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "./dist/index.js",
