@@ -9,7 +9,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <ul
+  <div
     role="listbox"
     v-bind="cx('flex flex-col')">
     <slot
@@ -25,5 +25,5 @@ const { cx } = useBindCx()
       </div>
     </slot>
     <slot />
-  </ul>
+  </div>
 </template>

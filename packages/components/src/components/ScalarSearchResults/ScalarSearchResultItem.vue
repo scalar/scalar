@@ -12,9 +12,10 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li
+  <a
     :aria-selected="selected"
     role="option"
+    tabindex="-1"
     v-bind="
       cx(
         'group flex cursor-pointer gap-2.5 rounded px-3 py-1.5 no-underline hover:bg-b-2',
@@ -52,5 +53,5 @@ const { cx } = useBindCx()
         <slot name="description" />
       </div>
     </div>
-  </li>
+  </a>
 </template>
