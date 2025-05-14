@@ -90,7 +90,15 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
 
   const getHashedUrl = (replacementHash: string, url = window.location.href, search = window.location.search) => {
     const newUrl = new URL(url)
-    newUrl.hash = hashPrefix.value + replacementHash
+
+    // Path routing
+    if (config.value.pathRouting) {
+      newUrl.pathname = combineUrlAndPath(config.value.pathRouting.basePath, replacementHash)
+    }
+    // Hash routing
+    else {
+      newUrl.hash = hashPrefix.value + replacementHash
+    }
     newUrl.search = search
     return newUrl.toString()
   }
