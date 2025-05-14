@@ -1,4 +1,5 @@
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { deepMerge } from '@/helpers/deep-merge'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Operation } from '@scalar/types/legacy'
 import type { Spec } from '@scalar/types/legacy'
 
@@ -136,4 +137,32 @@ export const hasWebhooks = (content?: Spec) => {
   }
 
   return false
+}
+
+/**
+ * Creates an empty specification object.
+ * The returning object has the same structure as a valid OpenAPI specification, but everything is empty.
+ */
+export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.Document>) {
+  return deepMerge(partialSpecification ?? {}, {
+    info: {
+      title: '',
+      description: '',
+      termsOfService: '',
+      version: '',
+      license: {
+        name: '',
+        url: '',
+      },
+      contact: {
+        email: '',
+      },
+    },
+    externalDocs: {
+      description: '',
+      url: '',
+    },
+    servers: [],
+    tags: [],
+  }) as Spec
 }

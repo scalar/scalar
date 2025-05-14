@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { toRef } from 'vue'
 
-import { createEmptySpecification } from '@/helpers/create-empty-specification'
 import { parse } from '@/helpers/parse'
+import { createEmptySpecification } from '@/libs/openapi'
 import { useSearchIndex } from './useSearchIndex'
 
 // Mock the useConfig hook
