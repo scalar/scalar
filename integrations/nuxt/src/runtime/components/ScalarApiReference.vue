@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ModernLayout, parse } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import { useHead, useRequestURL, useSeoMeta } from '#imports'
+import { useFetch, useHead, useRequestURL, useSeoMeta } from '#imports'
 import type { Configuration } from '~/src/types'
 import { reactive, ref, toRaw } from 'vue'
 
@@ -23,8 +23,9 @@ const document =
     : content
       ? toRaw(content)
       : url
-        ? await $fetch<string>(url)
-        : await $fetch<string>('/_openapi.json')
+        ? (await useFetch<string>(url, { responseType: 'text' })).data.value
+        : (await useFetch<string>('/_openapi.json', { responseType: 'text' }))
+            .data.value
 
 // Check for empty spec
 if (!document) {
