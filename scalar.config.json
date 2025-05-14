@@ -12,8 +12,18 @@
       "name": "Scalar",
       "sidebar": [
         {
-          "path": "documentation/guides/introduction.md",
-          "type": "page"
+          "name": "Getting Started",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/getting-started/introduction.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/docs/github-sync.md",
+              "type": "page"
+            }
+          ]
         },
         {
           "name": "Scalar Docs",
