@@ -1,7 +1,0 @@
-{
-    "components": {},
-    "info": {"title":"","version":""},
-    "externalDocs": {"description":"","url":""},
-    "paths": {"/":{"get":{"responses":{"200":{"description":"OK"}},"summary":"hello"}}},
-    "openapi": "3.1.0"
-}
