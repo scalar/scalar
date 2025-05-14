@@ -18,6 +18,7 @@ export function useResponses(operation: TransformedOperation) {
       description: string
       content: RequestBodyMimeTypes
       headers?: { [key: string]: OpenAPI.HeaderObject }
+      schema?: OpenAPI.SchemaObject
     }[] = []
 
     if (!responses) {
@@ -30,6 +31,7 @@ export function useResponses(operation: TransformedOperation) {
         description: response.description,
         content: response.content,
         headers: response.headers,
+        schema: response.schema,
       })
     })
 

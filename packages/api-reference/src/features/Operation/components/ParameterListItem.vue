@@ -51,7 +51,9 @@ if (props.parameter.content) {
 const shouldCollapse = computed<boolean>(() => {
   return !!(
     props.collapsableItems &&
-    (props.parameter.content || props.parameter.headers)
+    (props.parameter.content ||
+      props.parameter.headers ||
+      props.parameter.schema)
   )
 })
 
