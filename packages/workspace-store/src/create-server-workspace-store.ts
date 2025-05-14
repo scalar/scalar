@@ -8,7 +8,7 @@ import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-work
 const DEFAULT_ASSETS_FOLDER = 'assets'
 const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
-type CreateServerWorkspace =
+type CreateServerWorkspaceStore =
   | {
       directory?: string
       mode: 'static'
@@ -164,7 +164,7 @@ export function externalizePathReferences(
 /**
  * Create server state workspace store
  */
-export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
+export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   const documents = workspaceProps.documents.map((el) => {
     const document = upgrade(el.document).specification
 

@@ -8,7 +8,7 @@ Create a new store in SSR mode
 
 ```ts
 // Create the store
-const store = createServerWorkspace({
+const store = createServerWorkspaceStore({
   baseUrl: 'example.com',
   mode: 'ssr',
   meta: { 'x-scalar-active-document': 'document-name' },
@@ -79,7 +79,7 @@ Create a new store in static mode
 
 ```ts
 // Create the store
-const store = createServerWorkspace({
+const store = createServerWorkspaceStore({
   directory: 'assets',
   mode: 'static',
   meta: { 'x-scalar-active-document': 'document-name' },

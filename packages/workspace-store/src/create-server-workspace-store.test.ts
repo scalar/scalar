@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest'
 import {
-  createServerWorkspace,
+  createServerWorkspaceStore,
   escapePaths,
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
-} from './create-server-workspace'
+} from './create-server-workspace-store'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { allFilesMatch } from '../test/helpers'
@@ -41,7 +41,7 @@ describe('create-server-store', () => {
 
   describe('ssr', () => {
     test('should be able to pass a list of documents and get the workspace', async () => {
-      const store = createServerWorkspace({
+      const store = createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'example.com',
         documents: [
@@ -93,7 +93,7 @@ describe('create-server-store', () => {
     })
 
     test('should be able to get the document chunks', async () => {
-      const store = createServerWorkspace({
+      const store = createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'example.com',
         documents: [
@@ -119,7 +119,7 @@ describe('create-server-store', () => {
     })
 
     test('should be able to add more documents on the workspace', async () => {
-      const store = createServerWorkspace({
+      const store = createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'example.com',
         documents: [
@@ -184,7 +184,7 @@ describe('create-server-store', () => {
     test('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
-      const store = createServerWorkspace({
+      const store = createServerWorkspaceStore({
         mode: 'static',
         directory: dir,
         documents: [

@@ -1,4 +1,4 @@
-export { createServerWorkspace } from './create-server-workspace'
+export { createServerWorkspaceStore } from './create-server-workspace-store'
 export {
   WorkspaceSchema,
   type Workspace,
