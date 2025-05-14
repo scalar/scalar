@@ -187,7 +187,7 @@ async function measure(name: string, fn: () => Promise<unknown>) {
     </template>
     <p v-else>Dereferencing...</p> -->
 
-    <h2 class="mb-2 mt-8 font-bold">Benchmarks</h2>
+    <h2 class="my-4 font-bold">Benchmarks</h2>
     <table class="min-w-full border text-sm">
       <thead>
         <tr>
@@ -291,5 +291,40 @@ async function measure(name: string, fn: () => Promise<unknown>) {
         </tr>
       </tbody>
     </table>
+
+    <template
+      v-for="collection in Object.keys(collections)"
+      v-if="Object.keys(collections).length">
+      <div class="mt-4">
+        <h3 class="mb-2 font-semibold">Operations</h3>
+        <table class="w-full border text-sm text-gray-700">
+          <thead>
+            <tr>
+              <th class="border px-2 py-1 text-left">Method</th>
+              <th class="border px-2 py-1 text-left">Path</th>
+              <th class="border px-2 py-1 text-left">Operation ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template
+              v-for="(pathItem, path) in collections[collection].document
+                ?.paths"
+              :key="path">
+              <template
+                v-for="(operation, method) in pathItem"
+                :key="`${path}-${method}`">
+                <tr v-if="typeof operation === 'object'">
+                  <td class="border px-2 py-1 uppercase">{{ method }}</td>
+                  <td class="border px-2 py-1">{{ path }}</td>
+                  <td class="border px-2 py-1">
+                    {{ operation.operationId || '-' }}
+                  </td>
+                </tr>
+              </template>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </template>
   </div>
 </template>

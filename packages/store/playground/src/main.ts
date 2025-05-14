@@ -2,8 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import { createRouter, createWebHistory } from 'vue-router'
-import CircularReference from './CircularReference.vue'
-import Root from './Root.vue'
+import CircularReference from './pages/CircularReference.vue'
+import Root from './pages/Root.vue'
 
 const routes = [
   { path: '/', component: Root, name: 'root' },
