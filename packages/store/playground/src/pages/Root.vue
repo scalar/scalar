@@ -200,7 +200,7 @@ async function measure(name: string, fn: () => Promise<unknown>) {
       </thead>
       <tbody>
         <tr
-          v-for="key in ['upgrade', 'fetch', 'load', 'merge']"
+          v-for="key in ['fetch', 'upgrade', 'load', 'merge']"
           :key="key">
           <td class="border px-2 py-1">
             <span v-if="key === 'upgrade'">upgrade('stripe')</span>

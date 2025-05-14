@@ -15,6 +15,13 @@
           Circular Reference
         </RouterLink>
       </li>
+      <li>
+        <RouterLink
+          :to="{ name: 'dereference' }"
+          class="underline">
+          Dereference
+        </RouterLink>
+      </li>
     </ul>
   </nav>
   <main class="m-4 border p-4">
