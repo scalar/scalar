@@ -11,10 +11,13 @@ onMounted(async () => {
 
   const content = await fetch(EXAMPLE_URL).then((res) => res.json())
 
-  const { specification } = upgrade(content)
+  const specification = (await measure('upgrade', async () => {
+    const { specification: upgraded } = upgrade(content)
+
+    return upgraded
+  })) as OpenAPI.Document
 
   document.value = (await measure(`dereference('stripe')`, async () => {
-    console.log('dereferencing', specification)
     const { schema } = await dereference(specification)
 
     return schema

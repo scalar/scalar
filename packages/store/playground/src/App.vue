@@ -10,16 +10,16 @@
       </li>
       <li>
         <RouterLink
-          :to="{ name: 'circular-reference' }"
+          :to="{ name: 'dereference' }"
           class="underline">
-          Circular Reference
+          Dereference
         </RouterLink>
       </li>
       <li>
         <RouterLink
-          :to="{ name: 'dereference' }"
+          :to="{ name: 'circular-reference' }"
           class="underline">
-          Dereference
+          Circular Reference
         </RouterLink>
       </li>
     </ul>
