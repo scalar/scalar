@@ -1,1 +1,1 @@
-export * from './normalizeRequestMethod'
+export { normalizeRequestMethod } from './normalizeRequestMethod'

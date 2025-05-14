@@ -10,7 +10,6 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { useExampleStore } from '#legacy'
 import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
@@ -18,6 +17,7 @@ import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
+import { useExampleStore } from '@/legacy/stores'
 import { useHttpClientStore, type HttpClientState } from '@/stores'
 
 import ExamplePicker from './ExamplePicker.vue'

@@ -56,9 +56,6 @@
     "!dist/webpack-stats.json",
     "CHANGELOG.md"
   ],
-  "imports": {
-    "#legacy": "./src/legacy/index.ts"
-  },
   "browser": "./dist/browser/standalone.js",
   "esm.sh": {
     "bundle": true

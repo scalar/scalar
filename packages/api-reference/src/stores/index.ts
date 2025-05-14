@@ -1,1 +1,1 @@
-export * from './useHttpClientStore'
+export { useHttpClientStore, type HttpClientState } from './useHttpClientStore'
