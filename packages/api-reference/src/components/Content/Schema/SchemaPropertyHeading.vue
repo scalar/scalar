@@ -7,6 +7,7 @@ import type {
   OpenAPIV3_1,
 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
+import { computed } from 'vue'
 
 import { discriminators } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
@@ -81,6 +82,28 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
 
   return null
 }
+
+/** Get the const value from the schema */
+const constValue = computed(() => {
+  if (isDefined(value?.const)) {
+    return value?.const
+  }
+
+  if (value?.enum?.length === 1) {
+    return value.enum[0]
+  }
+
+  if (value?.items) {
+    if (isDefined(value.items.const)) {
+      return value.items.const
+    }
+
+    if (value.items.enum?.length === 1) {
+      return value.items.enum[0]
+    }
+  }
+  return null
+})
 </script>
 <template>
   <div class="property-heading">
@@ -93,33 +116,7 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
         name="name" />
       <template v-else>&sol;<slot name="name" />&sol;</template>
     </div>
-    <div
-      v-if="additional"
-      class="property-additional">
-      <template v-if="value?.['x-additionalPropertiesName']">
-        {{ value['x-additionalPropertiesName'] }}
-      </template>
-      <template v-else>additional properties</template>
-    </div>
-    <div
-      v-if="pattern"
-      class="property-pattern">
-      <Badge>pattern</Badge>
-    </div>
-    <div
-      v-if="value?.deprecated"
-      class="property-deprecated">
-      <Badge>deprecated</Badge>
-    </div>
-    <div
-      v-if="isDefined(value?.const) || (value?.enum && value.enum.length === 1)"
-      class="property-const">
-      <SchemaPropertyDetail truncate>
-        <template #prefix>const:</template>
-        {{ value?.const ?? value?.enum?.[0] }}
-      </SchemaPropertyDetail>
-    </div>
-    <template v-else-if="value?.type">
+    <template v-if="value?.type">
       <SchemaPropertyDetail>
         <ScreenReader>Type:</ScreenReader>
         <template v-if="value?.items?.type">
@@ -184,6 +181,32 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
         {{ flattenDefaultValue(value) }}
       </SchemaPropertyDetail>
     </template>
+    <div
+      v-if="additional"
+      class="property-additional">
+      <template v-if="value?.['x-additionalPropertiesName']">
+        {{ value['x-additionalPropertiesName'] }}
+      </template>
+      <template v-else>additional properties</template>
+    </div>
+    <div
+      v-if="pattern"
+      class="property-pattern">
+      <Badge>pattern</Badge>
+    </div>
+    <div
+      v-if="value?.deprecated"
+      class="property-deprecated">
+      <Badge>deprecated</Badge>
+    </div>
+    <div
+      v-if="isDefined(constValue)"
+      class="property-const">
+      <SchemaPropertyDetail truncate>
+        <template #prefix>const:</template>
+        {{ constValue }}
+      </SchemaPropertyDetail>
+    </div>
     <template v-else>
       <!-- Shows only when a discriminator is used (so value?.type is undefined) -->
       <SchemaPropertyDetail v-if="value?.nullable === true">
