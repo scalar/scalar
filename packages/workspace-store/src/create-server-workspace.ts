@@ -3,18 +3,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
+import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
-
-type WorkspaceMeta = Partial<{
-  'x-scalar-dark-mode': boolean
-  'x-scalar-default-client': string
-  'x-scalar-active-document': string
-  'x-scalar-theme': string
-}>
-
-type DocumentMeta = Partial<{ 'x-scalar-active-auth': string; 'x-scalar-active-server': string }>
 
 type CreateServerWorkspace =
   | {
@@ -23,7 +15,7 @@ type CreateServerWorkspace =
       documents: {
         name: string
         document: Record<string, unknown> | string
-        meta?: DocumentMeta
+        meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
     }
@@ -33,7 +25,7 @@ type CreateServerWorkspace =
       documents: {
         name: string
         document: Record<string, unknown> | string
-        meta?: DocumentMeta
+        meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
     }
@@ -320,7 +312,7 @@ export function createServerWorkspace(workspaceProps: CreateServerWorkspace) {
      * @param document - The OpenAPI document to add
      * @param meta - Document metadata including required name and optional settings
      */
-    addDocument: (document: Record<string, unknown>, meta: { name: string } & DocumentMeta) => {
+    addDocument: (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
       const { name, ...documentMeta } = meta
 
       const documentV3 = upgrade(document).specification
