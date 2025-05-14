@@ -1,6 +1,6 @@
 {
   "name": "@scalar/api-reference",
-  "description": "generate beautiful API references from OpenAPI specs",
+  "description": "Generate beautiful API references from OpenAPI documents",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
