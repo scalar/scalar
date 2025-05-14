@@ -90,6 +90,7 @@ function createWindow(): void {
 
     if (requestHeaders['X-Scalar-Cookie']) {
       requestHeaders['Cookie'] = requestHeaders['X-Scalar-Cookie']
+      delete requestHeaders['X-Scalar-Cookie']
     }
 
     callback({ requestHeaders })
