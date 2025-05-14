@@ -1,7 +1,7 @@
 import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { ApiReferenceConfiguration } from '../api-reference/index'
-import type { HarRequest, TargetId } from '../snippetz/index'
+import type { TargetId } from '../snippetz/index'
 
 /**
  * This re-export is needed due to a typescript issue
@@ -84,10 +84,6 @@ export type CustomRequestExample = {
   lang: string
   label: string
   source: string
-}
-
-export type HarRequestWithPath = HarRequest & {
-  path: string
 }
 
 export type Header = {

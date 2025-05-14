@@ -21,9 +21,4 @@ export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,
   ReferenceProps,
-  // TODO: Deprecated 2025-03-12
-  ReferenceConfiguration,
 } from '@/types'
-
-// TODO: Deprecated 2025-03-12
-export { createScalarReferences } from '@/esm'
