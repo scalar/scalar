@@ -211,6 +211,16 @@
       "javascript": {
         "jsxRuntime": "reactClassic"
       }
+    },
+    {
+      "include": ["packages/api-reference/**/*.ts"],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noReExportAll": "error"
+          }
+        }
+      }
     }
   ]
 }
