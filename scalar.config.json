@@ -109,6 +109,46 @@
               "type": "page"
             }
           ]
+        },
+        {
+          "name": "Scalar SDKs",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/getting-started/introduction.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Scalar Registry",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/getting-started/introduction.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Scalar OpenAPI Rules",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/getting-started/introduction.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Scalar Assets",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/getting-started/introduction.md",
+              "type": "page"
+            }
+          ]
         }
       ]
     }
