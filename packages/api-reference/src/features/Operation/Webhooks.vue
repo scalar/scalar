@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Webhooks } from '@scalar/types/legacy'
 import { computed, useId } from 'vue'
@@ -8,6 +9,8 @@ import { Lazy } from '@/components/Content/Lazy'
 import {
   CompactSection,
   Section,
+  SectionColumn,
+  SectionColumns,
   SectionContainer,
   SectionHeader,
   SectionHeaderTag,
@@ -95,8 +98,25 @@ const webhooksFiltered = computed(() => {
                 :value="webhooks[name][httpVerb]?.description"
                 withImages />
 
-              <!-- Details -->
-              <Webhook :webhook="webhooks[name][httpVerb]" />
+              <SectionColumns>
+                <SectionColumn>
+                  <!-- Details -->
+                  <Webhook :webhook="webhooks[name][httpVerb]" />
+                </SectionColumn>
+                <SectionColumn>
+                  <div
+                    class="dark-mode bg-b-2 overflow-hidden rounded-lg text-sm">
+                    <ScalarCodeBlock
+                      :content="
+                        getExampleFromSchema(
+                          webhooks[name][httpVerb]?.information?.requestBody
+                            ?.content?.['application/json']?.schema,
+                        )
+                      "
+                      lang="json" />
+                  </div>
+                </SectionColumn>
+              </SectionColumns>
             </CompactSection>
           </Lazy>
         </template>
@@ -108,7 +128,12 @@ const webhooksFiltered = computed(() => {
     </Section>
   </SectionContainer>
 </template>
+
 <style scoped>
+.example-payload {
+  border-radius: var(--scalar-radius);
+}
+
 .webhooks-list {
   display: contents;
 }
