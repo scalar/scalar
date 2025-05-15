@@ -15,9 +15,10 @@ import {
 import { computed, provide, ref, toRaw, toRef, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
+import { createEmptySpecification } from '@/libs/openapi'
 import type { ReferenceLayoutProps } from '@/types'
 
-import { useDataSource } from './hooks/useReactiveSpec'
+import { useDataSource } from './hooks/useDataSource'
 
 const {
   originalDocument: providedOriginalDocument,
@@ -56,9 +57,14 @@ const dereferencedDocument = computed(() => {
   return manuallyDereferencedDocument.value
 })
 
-const manuallyDereferencedDocument = ref<OpenAPIV3_1.Document | undefined>(
-  undefined,
-)
+const manuallyDereferencedDocument = ref<OpenAPIV3_1.Document>({
+  openapi: '3.1.0',
+  info: {
+    title: '',
+    version: '',
+  },
+  paths: {},
+})
 
 // Dereference the original document.
 watch(
@@ -72,8 +78,6 @@ watch(
 
     const { specification: upgraded } = upgrade(toValue(newVal))
     const { schema } = await dereference(upgraded)
-
-    console.log('schema', originalDocument.value)
 
     manuallyDereferencedDocument.value = schema as OpenAPIV3_1.Document
   },
@@ -111,7 +115,7 @@ provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
 // Parse (Legacy)
 
-const parsedDocument = ref<Spec | undefined>(undefined)
+const parsedDocument = ref<Spec>(createEmptySpecification())
 
 watch(
   () => toValue(originalDocument),
@@ -131,19 +135,10 @@ watch(
 </script>
 
 <template>
-  <div style="color: white">
-    <div>originalDocument: {{ !!originalDocument }}</div>
-    <div>dereferencedDocument: {{ !!dereferencedDocument }}</div>
-    <div>workspaceStore: {{ !!workspaceStore }}</div>
-    <div>activeEntitiesStore: {{ !!activeEntitiesStore }}</div>
-    <!-- <div>parsed: {{ parsedSpec }}</div> -->
-    <div>parsedDocument: {{ !!parsedDocument }}</div>
-
-    <div>
-      {{ dereferencedDocument?.info?.title }} OpenAPI v{{
-        dereferencedDocument?.openapi
-      }}
-    </div>
-    <slot />
-  </div>
+  <slot
+    :originalDocument="originalDocument"
+    :dereferencedDocument="dereferencedDocument"
+    :parsedDocument="parsedDocument"
+    :workspaceStore="workspaceStore"
+    :activeEntitiesStore="activeEntitiesStore" />
 </template>

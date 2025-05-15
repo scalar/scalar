@@ -35,11 +35,11 @@ export type ReferenceLayoutProps = {
   /**
    * @deprecated We can’t use this anymore. Use `dereferencedDocument` instead.
    */
-  parsedSpec: Spec
+  parsedSpec?: Spec
   /**
    * @deprecated Use `originalDocument` instead.
    */
-  rawSpec: string
+  rawSpec?: string
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
