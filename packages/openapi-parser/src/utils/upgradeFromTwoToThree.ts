@@ -52,15 +52,19 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
         schema.$ref = schema.$ref.replace(/^#\/definitions\//, '#/components/schemas/')
       }
 
-      // Transform file type to string with binary format
-      if (schema.type === 'file') {
-        schema.type = 'string'
-        schema.format = 'binary'
-      }
-
       return schema
     })
   }
+
+  // Transform file type to string with binary format
+  specification = traverse(specification, (schema) => {
+    if (schema.type === 'file') {
+      schema.type = 'string'
+      schema.format = 'binary'
+    }
+
+    return schema
+  })
 
   // Paths
   if (typeof specification.paths === 'object') {
