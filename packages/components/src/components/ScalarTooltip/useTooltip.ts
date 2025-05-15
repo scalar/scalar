@@ -27,6 +27,9 @@ const ELEMENT_ID = 'scalar-tooltip' as const
 /** The class name of the tooltip element */
 const ELEMENT_CLASS = 'scalar-tooltip' as const
 
+/** The default delay for the tooltip */
+const DEFAULT_DELAY = 300 as const
+
 type Timer = ReturnType<typeof setTimeout>
 
 /** The delay timer for the tooltip */
@@ -95,20 +98,23 @@ function initialize() {
   })
 
   // Show or hide the tooltip when the config changes
-  watch(config, () => {
+  watch(config, (opts) => {
     if (!el.value) {
       return
     }
 
-    // Update the tooltip content
-    el.value.textContent = unref(config.value?.content) ?? null
+    if (opts) {
+      // Update the tooltip content
+      el.value.textContent = unref(opts?.content) ?? null
 
-    if (config.value) {
       // Show the tooltip
-      const offset = unref(config.value?.offset)
+      const offset = unref(opts?.offset)
       el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
       el.value.style.setProperty('display', 'block')
     } else {
+      // Clear the tooltip content
+      el.value.textContent = null
+
       // Hide the tooltip
       el.value.style.removeProperty('--scalar-tooltip-offset')
       el.value.style.setProperty('display', 'none')
@@ -117,46 +123,61 @@ function initialize() {
 }
 
 /**
- * Cleanup the tooltip element
- *
- * If the tooltip is not initialized it will be ignored
+ * Show the tooltip after the delay if configured
  */
-// function cleanup() {
-//   if (!el.value) {
-//     return
-//   }
-
-//   el.value.remove()
-//   el.value = undefined
-// }
-
-function showTooltip(opts: TooltipConfiguration) {
-  document.addEventListener('keydown', handleEscape)
-
-  const delay = unref(opts.delay) ?? 300
+function showTooltipAfterDelay(opts: TooltipConfiguration) {
+  const delay = unref(opts.delay) ?? DEFAULT_DELAY
 
   if (!timer.value) {
     // Show the tooltip after the delay
-    timer.value = setTimeout(() => {
-      timer.value = undefined
-      config.value = opts
-    }, delay)
+    timer.value = setTimeout(() => showTooltip(opts), delay)
   }
 }
 
+/**
+ * Show the tooltip
+ */
+function showTooltip(opts: TooltipConfiguration) {
+  // Clear any existing timer
+  if (timer.value) {
+    clearTimeout(timer.value)
+    timer.value = undefined
+  }
+
+  // Show the tooltip
+  document.addEventListener('keydown', handleEscape)
+  config.value = opts
+}
+
+/**
+ * Hide the tooltip
+ *
+ * If the mouse is moving between the tooltip and the target we don't hide the tooltip
+ */
 function hideTooltip(e: Event) {
   if (!isMovingOffElements(e)) {
     // Don't hide the tooltip if the mouse is moving onto the tooltip to back to the target
     return
   }
+
+  // Clear any existing timer
   if (timer.value) {
     clearTimeout(timer.value)
     timer.value = undefined
   }
+
+  // Hide the tooltip
   config.value = undefined
   document.removeEventListener('keydown', handleEscape)
 }
 
+/**
+ * Handle the escape key
+ *
+ * If the escape key is pressed we need to hide the tooltip
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/tooltip_role#keyboard_interactions
+ */
 function handleEscape(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     hideTooltip(e)
@@ -173,22 +194,27 @@ export function useTooltip(opts: TooltipConfiguration) {
     initialize()
   }
 
+  const showThisTooltipAfterDelay = () => showTooltipAfterDelay(opts)
   const showThisTooltip = () => showTooltip(opts)
 
   watch(
     () => unref(opts.targetRef),
     (newRef, oldRef) => {
       if (oldRef) {
-        oldRef.removeEventListener('mouseenter', showThisTooltip)
+        oldRef.removeEventListener('mouseenter', showThisTooltipAfterDelay)
         oldRef.removeEventListener('mouseleave', hideTooltip)
         oldRef.removeEventListener('focus', showThisTooltip)
         oldRef.removeEventListener('blur', hideTooltip)
+
+        oldRef.removeAttribute('aria-describedby')
       }
       if (newRef) {
-        newRef.addEventListener('mouseenter', showThisTooltip)
+        newRef.addEventListener('mouseenter', showThisTooltipAfterDelay)
         newRef.addEventListener('mouseleave', hideTooltip)
         newRef.addEventListener('focus', showThisTooltip)
         newRef.addEventListener('blur', hideTooltip)
+
+        newRef.setAttribute('aria-describedby', ELEMENT_ID)
       }
     },
   )
