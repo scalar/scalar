@@ -2,22 +2,26 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import { ScalarButton } from '../../'
 import ScalarTooltip from './ScalarTooltip.vue'
+import { placements } from '@floating-ui/utils'
 
 const meta = {
   component: ScalarTooltip,
   tags: ['autodocs'],
+  args: {
+    content: 'Tooltip Content',
+  },
   argTypes: {
+    content: {
+      control: 'text',
+    },
     delay: {
       control: 'number',
     },
-    skipDelay: {
-      control: 'number',
-    },
-    side: {
+    placement: {
       control: 'select',
-      options: ['top', 'right', 'bottom', 'left'],
+      options: placements,
     },
-    sideOffset: {
+    offset: {
       control: 'number',
     },
     class: {
@@ -35,12 +39,7 @@ const meta = {
     template: `
 <div class="flex items-center justify-center w-full h-screen">
   <ScalarTooltip v-bind="args">
-    <template #trigger>
       <ScalarButton>Hover Me</ScalarButton>
-    </template>
-    <template #content>
-      <div class="p-2">Tooltip Content</div>
-    </template>
   </ScalarTooltip>
 </div>
 `,

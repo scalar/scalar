@@ -9,7 +9,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, type Slot, computed, ref } from 'vue'
+import { type Ref, type Slot, computed, ref, watch } from 'vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
@@ -94,6 +94,10 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     }),
     ...middleware,
   ]),
+})
+
+watch(targetRef, () => {
+  console.log('targetRef', targetRef.value)
 })
 </script>
 <template>
