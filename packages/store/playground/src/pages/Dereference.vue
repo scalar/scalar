@@ -38,15 +38,18 @@ onMounted(async () => {
   const EXAMPLE_URL =
     'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
 
-  const fetchedContent = await measure('fetch', async () => {
-    return await fetch(EXAMPLE_URL).then((res) => res.json())
-  })
+  // const fetchedContent = await measure('fetch', async () => {
+  //   return await fetch(EXAMPLE_URL).then((res) => res.json())
+  // })
 
-  const specification = (await measure('upgrade', async () => {
-    const { specification: upgraded } = upgrade(fetchedContent)
+  const response = await fetch(EXAMPLE_URL)
+  const fetchedContent = await response.json()
+  // const specification = (await measure('upgrade', async () => {
+  //   const { specification: upgraded } = upgrade(fetchedContent)
 
-    return upgraded
-  })) as OpenAPI.Document
+  //   return upgraded
+  // })) as OpenAPI.Document
+  const { specification } = upgrade(fetchedContent)
 
   // Add everything but the paths
   const { paths, ...rest } = specification

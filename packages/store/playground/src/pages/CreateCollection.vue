@@ -26,15 +26,19 @@ const { timings, measure } = useTimings()
 
 // Heavy work
 onMounted(async () => {
-  const data = (await measure('fetch', async () => {
-    const response = await fetch(EXAMPLE_URL)
-    return JSON.parse(await response.text())
-  })) as Record<string, unknown>
+  // const data = (await measure('fetch', async () => {
+  //   const response = await fetch(EXAMPLE_URL)
+  //   return JSON.parse(await response.text())
+  // })) as Record<string, unknown>
 
-  await measure('upgrade', async () => {
-    const { specification } = upgrade(data)
-    content.value = specification
-  })
+  // no measure
+  const response = await fetch(EXAMPLE_URL)
+  const data = await response.json()
+
+  // await measure('upgrade', async () => {
+  const { specification } = upgrade(data)
+  content.value = specification
+  // })
 
   // Initial data load
   await measure('load', async () => {
