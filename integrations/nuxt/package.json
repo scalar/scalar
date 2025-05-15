@@ -22,7 +22,7 @@
   ],
   "version": "0.3.33",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",

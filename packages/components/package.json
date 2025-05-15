@@ -12,7 +12,7 @@
   },
   "version": "0.13.58",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "pnpm typegen:icons && scalar-build-vite",

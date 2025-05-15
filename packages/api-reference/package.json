@@ -22,7 +22,7 @@
   ],
   "version": "1.28.33",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",

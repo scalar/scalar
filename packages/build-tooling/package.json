@@ -13,7 +13,7 @@
   "keywords": [],
   "version": "0.1.19",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "bash scripts/build-esbuild.sh",

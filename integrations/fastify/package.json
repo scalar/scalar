@@ -19,7 +19,7 @@
   ],
   "version": "1.28.33",
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "scalar-build-rollup && pnpm copy:standalone",
