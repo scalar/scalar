@@ -21,6 +21,12 @@ export type CreateCollectionOptions = {
   cache?: boolean
 }
 
+// Add a cache for proxies at the module level
+const proxyCache = new WeakMap<object, unknown>()
+
+// Cache for proxies of objects that contain $refs
+const refProxyCache = new WeakMap<object, unknown>()
+
 /**
  * Creates a store with JSON reference resolution capabilities.
  *
@@ -31,13 +37,6 @@ export function createCollection(
   input: UnknownObject | string | Ref<UnknownObject | string>,
   options: CreateCollectionOptions = {},
 ) {
-  // The cache doesn't seem to be useful in the benchmarks.
-  // Looks like it's already fast without it, so we can default to false.
-  // But let's leave the flag for a while, to check whether it changes in the future.
-  //
-  //   with cache - src/create-collection.bench.ts > create-collection > cache
-  //   1.01x faster than without cache
-  //
   const { cache = false } = options
 
   // Unwrap Ref input if necessary
@@ -48,13 +47,6 @@ export function createCollection(
     unwrappedInput = normalize(unwrappedInput) as UnknownObject
   }
 
-  // TODO: Embed external references
-
-  // Upgrade
-  // const { specification: upgraded } = upgrade(unwrappedInput)
-
-  // TODO: OpenApiObjectSchema.parse is too strict
-  // const content = UnprocessedOpenApiObjectSchema.parse(upgraded)
   const content = unwrappedInput
 
   // Only create a cache if cache is true
@@ -62,21 +54,23 @@ export function createCollection(
 
   // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
+    // Make the root document reactive
+    const reactiveRoot = reactive(input.value)
     return {
-      document: createMagicProxy(input.value, input.value, resolvedProxyCache) as ProcessedOpenApiObject,
+      document: createRefProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
       export: () => exportRawDocument(unwrappedInput) as UnprocessedOpenApiObject,
       apply,
       merge: (partialDocument: UnknownObject) => {
-        mergeDocuments(input.value as UnknownObject, partialDocument)
+        mergeDocuments(reactiveRoot, partialDocument)
       },
       update: (newDocument: UnknownObject) => {
-        updateDocument(content, newDocument)
+        updateDocument(reactiveRoot, newDocument)
       },
     }
   }
 
-  // Make the source document reactive for Vue change tracking
-  const sourceDocument = reactive(content)
+  // Make the root document reactive
+  const reactiveRoot = reactive(content)
 
   // If input is a Ref<string>, watch for changes and update the reactive document
   if (isRef(input) && typeof input.value === 'string') {
@@ -85,14 +79,14 @@ export function createCollection(
       (newValue) => {
         const normalized = normalize(newValue) as UnknownObject
         // Update the document through merge to ensure proper reactivity
-        mergeDocuments(sourceDocument, normalized)
+        mergeDocuments(reactiveRoot, normalized)
       },
       { immediate: false },
     )
   }
 
-  // Create a proxy that only handles $ref resolution
-  const documentProxy = createRefProxy(sourceDocument)
+  // Create a proxy that only handles $ref resolution, using the reactive root
+  const documentProxy = createRefProxy(reactiveRoot, reactiveRoot)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -101,11 +95,11 @@ export function createCollection(
     if (Array.isArray(singleOrMultipleOverlays)) {
       singleOrMultipleOverlays.forEach((overlay) => {
         overlays.push(overlay)
-        applyOverlay(sourceDocument, overlay)
+        applyOverlay(reactiveRoot, overlay)
       })
     } else {
       overlays.push(singleOrMultipleOverlays)
-      applyOverlay(sourceDocument, singleOrMultipleOverlays)
+      applyOverlay(reactiveRoot, singleOrMultipleOverlays)
     }
   }
 
@@ -115,16 +109,14 @@ export function createCollection(
      * Exports the raw OpenAPI document with $ref's intact
      */
     export() {
-      return exportRawDocument(sourceDocument) as UnprocessedOpenApiObject
+      return exportRawDocument(reactiveRoot) as UnprocessedOpenApiObject
     },
     apply,
     merge(partialDocument: UnknownObject) {
-      // Use mergeDocuments to ensure proper reactivity
-      return mergeDocuments(sourceDocument, partialDocument)
+      return mergeDocuments(reactiveRoot, partialDocument)
     },
     update(newDocument: UnknownObject) {
-      // Use mergeDocuments for updates too to ensure proper reactivity
-      return mergeDocuments(sourceDocument, newDocument)
+      return mergeDocuments(reactiveRoot, newDocument)
     },
   }
 }
@@ -463,18 +455,40 @@ function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
 }
 
 /**
- * Creates a proxy that handles both $ref resolution and reactivity.
- * This proxy ensures that:
- * 1. $refs are resolved when accessed
- * 2. Changes to resolved references update the original object
- * 3. All objects are reactive
+ * Checks if an object or any of its nested objects contain a $ref
  */
-function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject = target): UnknownObject {
-  // First make the object reactive with Vue
-  const reactiveTarget = reactive(target)
+function hasRefs(obj: unknown): boolean {
+  if (!isObject(obj)) return false
 
-  // Create a proxy that handles both $ref resolution and reactivity
-  return new Proxy(reactiveTarget, {
+  // Quick check for direct $ref
+  if ('$ref' in obj) return true
+
+  // Check nested objects
+  for (const value of Object.values(obj)) {
+    if (isObject(value) && hasRefs(value)) {
+      return true
+    }
+  }
+
+  return false
+}
+
+/**
+ * Creates a proxy that handles $ref resolution while using the reactivity from the root document.
+ * Only creates proxies for objects that contain $refs to minimize traversal overhead.
+ */
+function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject): UnknownObject {
+  // Check cache first
+  if (refProxyCache.has(target)) {
+    return refProxyCache.get(target) as UnknownObject
+  }
+
+  // If the object doesn't contain any $refs, return it directly
+  if (!hasRefs(target)) {
+    return target
+  }
+
+  const proxy = new Proxy(target, {
     get(target, prop: string | symbol) {
       // Special property to check if this is a proxy
       if (prop === '__isProxy') return true
@@ -493,7 +507,7 @@ function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject = t
         }
       }
 
-      // For other objects, create a proxy to handle potential $refs
+      // For other objects, only create a proxy if they contain $refs
       return createRefProxy(value, sourceDocument)
     },
 
@@ -519,64 +533,78 @@ function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject = t
     },
 
     has(target: UnknownObject, key: string) {
+      // Quick path for direct property access
+      if (key in target) return true
+
+      // Only check $ref resolution if the key isn't found directly
       if (typeof key === 'string' && key !== '$ref' && '$ref' in target) {
         const ref = target.$ref as string
         const referencePath = parseJsonPointer(ref)
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
         return resolvedValue ? key in resolvedValue : false
       }
-      return key in target
+
+      return false
     },
 
     ownKeys(target: UnknownObject) {
-      if ('$ref' in target) {
-        const ref = target.$ref as string
-        const referencePath = parseJsonPointer(ref)
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
-        return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
+      // Quick path for direct property access
+      if (!('$ref' in target)) {
+        return Reflect.ownKeys(target)
       }
-      return Reflect.ownKeys(target)
+
+      // Only resolve $ref if the object has one
+      const ref = target.$ref as string
+      const referencePath = parseJsonPointer(ref)
+      const resolvedValue = getValueByPath(sourceDocument, referencePath)
+      return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
     },
 
     getOwnPropertyDescriptor(target: UnknownObject, key: string) {
-      if ('$ref' in target && key !== '$ref') {
-        const ref = target.$ref as string
-        const referencePath = parseJsonPointer(ref)
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
-        if (resolvedValue) {
-          return Object.getOwnPropertyDescriptor(resolvedValue, key)
-        }
+      // Quick path for direct property access
+      if (!('$ref' in target) || key === '$ref') {
+        return Object.getOwnPropertyDescriptor(target, key)
       }
+
+      // Only resolve $ref if the object has one and we're not looking for the $ref itself
+      const ref = target.$ref as string
+      const referencePath = parseJsonPointer(ref)
+      const resolvedValue = getValueByPath(sourceDocument, referencePath)
+      if (resolvedValue) {
+        return Object.getOwnPropertyDescriptor(resolvedValue, key)
+      }
+
       return Object.getOwnPropertyDescriptor(target, key)
     },
   })
+
+  // Cache the proxy
+  refProxyCache.set(target, proxy)
+  return proxy
 }
 
 /**
  * Deeply merges source into target, mutating target.
  * Only merges plain objects, not arrays.
- * Ensures proper reactivity for all objects.
+ * Uses the reactivity from the root document.
  */
 function mergeDocuments(target: UnknownObject, source: UnknownObject) {
-  // Make sure target is reactive
-  const reactiveTarget = isReactive(target) ? target : reactive(target)
-
   for (const key in source) {
     const sourceValue = source[key]
-    const targetValue = reactiveTarget[key]
+    const targetValue = target[key]
 
     if (isObject(sourceValue) && isObject(targetValue)) {
       // For objects, recursively merge
       mergeDocuments(targetValue as UnknownObject, sourceValue as UnknownObject)
     } else if (isObject(sourceValue)) {
       // If target doesn't have this key or it's not an object,
-      // create a new reactive object and assign it
-      reactiveTarget[key] = reactive({ ...sourceValue })
+      // just assign the new object directly
+      target[key] = { ...sourceValue }
     } else {
       // For primitive values, just assign
-      reactiveTarget[key] = sourceValue
+      target[key] = sourceValue
     }
   }
 
-  return reactiveTarget
+  return target
 }

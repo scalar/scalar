@@ -1,58 +1,76 @@
 <script setup lang="ts">
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import OpenApiDocument from '../components/OpenApiDocument.vue'
+import Timings from '../components/Timings.vue'
+import { useTimings } from '../hooks/useTimings'
 
+const content = ref<Record<string, unknown>>({})
 const document = ref<OpenAPI.Document | undefined>(undefined)
+
+const { timings, measure } = useTimings()
+
+let index = 0
+
+watch(
+  () => content.value,
+  async (value) => {
+    if (!value || Object.keys(value).length === 0) {
+      return
+    }
+
+    index++
+
+    document.value = (await measure(`dereference ${index}`, async () => {
+      const { schema } = await dereference(JSON.stringify(value))
+      return schema
+    })) as OpenAPI.Document
+  },
+  {
+    deep: true,
+    immediate: true,
+  },
+)
 
 onMounted(async () => {
   const EXAMPLE_URL =
     'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
 
-  const content = await fetch(EXAMPLE_URL).then((res) => res.json())
+  const fetchedContent = await measure('fetch', async () => {
+    return await fetch(EXAMPLE_URL).then((res) => res.json())
+  })
 
   const specification = (await measure('upgrade', async () => {
-    const { specification: upgraded } = upgrade(content)
+    const { specification: upgraded } = upgrade(fetchedContent)
 
     return upgraded
   })) as OpenAPI.Document
 
-  document.value = (await measure(`dereference('stripe')`, async () => {
-    const { paths, ...rest } = specification
-    const { schema } = await dereference(rest)
+  // Add everything but the paths
+  const { paths, ...rest } = specification
 
-    return schema
-  })) as OpenAPI.Document
+  content.value = {
+    ...rest,
+    paths: {},
+  }
 
-  document.value = (await measure(
-    `dereference('stripe', { paths: {…} })`,
-    async () => {
-      const { schema } = await dereference(specification)
+  // Simulate a slow network
+  await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      return schema
-    },
-  )) as OpenAPI.Document
+  // Add the paths back in
+  content.value = {
+    ...content.value,
+    paths: specification.paths,
+  }
 })
-
-async function measure(name: string, fn: () => Promise<unknown>) {
-  const start = performance.now()
-  const result = await fn()
-  const end = performance.now()
-  const duration = Math.round(end - start)
-
-  console.log(`${name} ${duration}ms`)
-
-  return result
-}
 </script>
 
 <template>
-  <div>
-    <h1 class="mb-4 text-2xl font-bold">Dereference</h1>
-  </div>
-  <div>
+  <div class="m-4 max-w-xl">
+    <h1 class="mb-4 text-2xl font-bold">dereference</h1>
     <OpenApiDocument :document="document" />
+    <Timings :timings="timings" />
   </div>
 </template>
