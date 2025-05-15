@@ -40,7 +40,6 @@ import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
-import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
@@ -94,7 +93,7 @@ const {
   setCollapsedSidebarItem,
   hideModels,
   defaultOpenAllTags,
-  setParsedSpec,
+  // setParsedSpec,
   scrollToOperation,
 } = useSidebar()
 
@@ -149,12 +148,6 @@ onBeforeMount(() => addScalarClassesToHeadless())
 onMounted(() => {
   // Prevent the browser from restoring scroll position on refresh
   history.scrollRestoration = 'manual'
-
-  // Enable the spec download event bus
-  // TODO: That won’t work, we don’t necessarily have a document here.
-  downloadEventBus.on(({ filename }) => {
-    downloadDocument(props.originalDocument || props.rawSpec || '', filename)
-  })
 
   // Find scalar Y offset to support users who have tried to add their own headers
   const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
