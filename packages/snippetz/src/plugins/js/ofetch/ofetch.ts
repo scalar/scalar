@@ -1,4 +1,3 @@
-import { createSearchParams } from '@/utils/create-search-params'
 import { objectToString } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
@@ -25,8 +24,7 @@ export const jsOfetch: Plugin = {
     }
 
     // Query
-    const searchParams = createSearchParams(normalizedRequest.queryString)
-    const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
+    options.query = normalizedRequest.queryString
 
     // Headers
     if (normalizedRequest.headers?.length) {
@@ -72,6 +70,6 @@ export const jsOfetch: Plugin = {
     // Code Template
     return `import { ofetch } from 'ofetch'
 
-ofetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
+ofetch('${normalizedRequest.url}'${jsonOptions})`
   },
 }
