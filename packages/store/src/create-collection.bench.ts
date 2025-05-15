@@ -120,13 +120,9 @@ describe('create-collection', async () => {
     })
   })
 
-  describe('regular', async () => {
+  describe.only('regular', async () => {
     bench('new', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
-
-      await waitFor(() => {
-        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
-      })
 
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
@@ -134,10 +130,6 @@ describe('create-collection', async () => {
 
     bench('old', async () => {
       const collection = createCollectionOld(EXAMPLE_DOCUMENT)
-
-      await waitFor(() => {
-        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
-      })
 
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
