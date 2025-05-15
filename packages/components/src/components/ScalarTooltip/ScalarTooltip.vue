@@ -8,7 +8,7 @@ const {
   delay = 600,
   content = '',
   placement = 'top',
-  offset = 10,
+  offset = 4,
 } = defineProps<{
   content?: string
   delay?: number
@@ -34,3 +34,9 @@ useTooltip({
     <slot />
   </div>
 </template>
+<style>
+/** Global styles for the tooltip */
+:where(body) > .scalar-tooltip {
+  @apply z-tooltip rounded bg-b-tooltip text-c-tooltip p-2 text-xs font-medium break-words;
+}
+</style>

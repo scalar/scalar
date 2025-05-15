@@ -21,9 +21,7 @@ const meta = {
       control: 'select',
       options: placements,
     },
-    offset: {
-      control: 'number',
-    },
+    offset: { control: { type: 'range', min: 0, max: 30, step: 1 } },
     class: {
       control: 'text',
     },

@@ -3,6 +3,7 @@ import { computed, ref, unref, watch, type MaybeRef } from 'vue'
 
 type MaybeElement = Element | undefined | null
 
+/** The configuration for the active tooltip */
 type TooltipConfiguration = {
   content: MaybeRef<string>
   placement?: MaybeRef<Placement>
@@ -10,8 +11,13 @@ type TooltipConfiguration = {
   targetRef: MaybeRef<MaybeElement>
 }
 
+/** The ID of the tooltip element used to locate it in the DOM */
 const ELEMENT_ID = 'scalar-tooltip' as const
 
+/** The class name of the tooltip element */
+const ELEMENT_CLASS = 'scalar-tooltip' as const
+
+/** A reference to the tooltip element */
 const el = ref<HTMLDivElement>()
 
 /**
@@ -38,6 +44,7 @@ function initialize() {
     el.value = document.createElement('div')
     el.value.role = 'tooltip'
     el.value.id = ELEMENT_ID
+    el.value.classList.add(ELEMENT_CLASS)
     document.body.appendChild(el.value)
   }
 
@@ -70,7 +77,14 @@ function initialize() {
     }
 
     console.log('config changed', config.value)
+
     el.value.textContent = unref(config.value?.content) ?? null
+
+    if (config.value) {
+      el.value.style.setProperty('display', 'block')
+    } else {
+      el.value.style.setProperty('display', 'none')
+    }
   })
 }
 
@@ -91,6 +105,7 @@ function initialize() {
 function showTooltip(opts: TooltipConfiguration) {
   console.log('showTooltip', opts)
   document.addEventListener('keydown', handleEscape)
+
   config.value = opts
 }
 
