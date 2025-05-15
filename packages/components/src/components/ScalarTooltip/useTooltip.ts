@@ -45,14 +45,64 @@ const el = ref<HTMLElement>()
  */
 const config = ref<TooltipConfiguration>()
 
+console.log('useTooltip File')
+
+// Set up floating UI
+const { floatingStyles } = useFloating(
+  computed(() => unref(config.value?.targetRef)),
+  el,
+  {
+    placement: computed(() => unref(config.value?.placement)),
+    whileElementsMounted: autoUpdate,
+    middleware: computed(() => [flip(), shift()]),
+  },
+)
+
+// Update the tooltip element's positioning when Floating UI updates the styles
+watch(floatingStyles, () => {
+  if (!el.value) {
+    return
+  }
+
+  el.value.style.position = floatingStyles.value.position
+  el.value.style.top = floatingStyles.value.top
+  el.value.style.left = floatingStyles.value.left
+  el.value.style.transform = floatingStyles.value.transform ?? ''
+  el.value.style.willChange = floatingStyles.value.willChange ?? ''
+})
+
+// Show or hide the tooltip when the config changes
+watch(config, (opts) => {
+  if (!el.value) {
+    return
+  }
+
+  if (opts) {
+    // Update the tooltip content
+    el.value.textContent = unref(opts?.content) ?? null
+
+    // Show the tooltip
+    const offset = unref(opts?.offset)
+    el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
+    el.value.style.setProperty('display', 'block')
+  } else {
+    // Clear the tooltip content
+    el.value.textContent = null
+
+    // Hide the tooltip
+    el.value.style.removeProperty('--scalar-tooltip-offset')
+    el.value.style.setProperty('display', 'none')
+  }
+})
+
 /**
  * Initialize the tooltip element
  *
  * If the tooltip is already initialized it will be ignored
  */
-function initialize() {
+function initializeTooltipElement() {
   if (el.value) {
-    console.warn('Tooltip already initialized')
+    // Tooltip already initialized
     return
   }
 
@@ -72,80 +122,34 @@ function initialize() {
     el.value.addEventListener('mouseleave', hideTooltip)
     document.body.appendChild(el.value)
   }
-
-  // Set up floating UI
-  const { floatingStyles } = useFloating(
-    computed(() => unref(config.value?.targetRef)),
-    el,
-    {
-      placement: computed(() => unref(config.value?.placement)),
-      whileElementsMounted: autoUpdate,
-      middleware: computed(() => [flip(), shift()]),
-    },
-  )
-
-  // Update the tooltip element's positioning when Floating UI updates the styles
-  watch(floatingStyles, () => {
-    if (!el.value) {
-      return
-    }
-
-    el.value.style.position = floatingStyles.value.position
-    el.value.style.top = floatingStyles.value.top
-    el.value.style.left = floatingStyles.value.left
-    el.value.style.transform = floatingStyles.value.transform ?? ''
-    el.value.style.willChange = floatingStyles.value.willChange ?? ''
-  })
-
-  // Show or hide the tooltip when the config changes
-  watch(config, (opts) => {
-    if (!el.value) {
-      return
-    }
-
-    if (opts) {
-      // Update the tooltip content
-      el.value.textContent = unref(opts?.content) ?? null
-
-      // Show the tooltip
-      const offset = unref(opts?.offset)
-      el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
-      el.value.style.setProperty('display', 'block')
-    } else {
-      // Clear the tooltip content
-      el.value.textContent = null
-
-      // Hide the tooltip
-      el.value.style.removeProperty('--scalar-tooltip-offset')
-      el.value.style.setProperty('display', 'none')
-    }
-  })
 }
 
 /**
  * Show the tooltip after the delay if configured
  */
-function showTooltipAfterDelay(opts: TooltipConfiguration) {
+function showTooltipAfterDelay(_e: Event, opts: TooltipConfiguration) {
   const delay = unref(opts.delay) ?? DEFAULT_DELAY
 
-  if (!timer.value) {
-    // Show the tooltip after the delay
-    timer.value = setTimeout(() => showTooltip(opts), delay)
+  clearTimer()
+
+  // Show the tooltip after the delay
+  if (delay > 0) {
+    timer.value = setTimeout(() => showTooltip(_e, opts), delay)
+  } else {
+    showTooltip(_e, opts)
   }
 }
 
 /**
  * Show the tooltip
  */
-function showTooltip(opts: TooltipConfiguration) {
-  // Clear any existing timer
-  if (timer.value) {
-    clearTimeout(timer.value)
-    timer.value = undefined
-  }
+function showTooltip(_e: Event, opts: TooltipConfiguration) {
+  clearTimer()
+
+  // Handle the escape key
+  document.addEventListener('keydown', handleEscape)
 
   // Show the tooltip
-  document.addEventListener('keydown', handleEscape)
   config.value = opts
 }
 
@@ -154,17 +158,14 @@ function showTooltip(opts: TooltipConfiguration) {
  *
  * If the mouse is moving between the tooltip and the target we don't hide the tooltip
  */
-function hideTooltip(e: Event) {
-  if (!isMovingOffElements(e)) {
-    // Don't hide the tooltip if the mouse is moving onto the tooltip to back to the target
+function hideTooltip(_e: Event) {
+  if (!isMovingOffElements(_e)) {
+    // Don't hide the tooltip if the mouse is moving between the tooltip and the target
     return
   }
 
   // Clear any existing timer
-  if (timer.value) {
-    clearTimeout(timer.value)
-    timer.value = undefined
-  }
+  clearTimer()
 
   // Hide the tooltip
   config.value = undefined
@@ -184,18 +185,24 @@ function handleEscape(e: KeyboardEvent) {
   }
 }
 
+/** Clears the current timer */
+function clearTimer() {
+  if (timer.value) {
+    clearTimeout(timer.value)
+    timer.value = undefined
+  }
+}
+
 /**
  * Use the tooltip
  *
  * If the tooltip is not initialized it will be initialized
  */
 export function useTooltip(opts: TooltipConfiguration) {
-  if (!el.value) {
-    initialize()
-  }
+  initializeTooltipElement()
 
-  const showThisTooltipAfterDelay = () => showTooltipAfterDelay(opts)
-  const showThisTooltip = () => showTooltip(opts)
+  const showThisTooltipAfterDelay = (e: Event) => showTooltipAfterDelay(e, opts)
+  const showThisTooltip = (e: Event) => showTooltip(e, opts)
 
   watch(
     () => unref(opts.targetRef),
