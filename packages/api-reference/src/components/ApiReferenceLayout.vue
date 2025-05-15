@@ -151,6 +151,7 @@ onMounted(() => {
   history.scrollRestoration = 'manual'
 
   // Enable the spec download event bus
+  // TODO: That won’t work, we don’t necessarily have a document here.
   downloadEventBus.on(({ filename }) => {
     downloadDocument(props.originalDocument || props.rawSpec || '', filename)
   })
@@ -225,7 +226,7 @@ onServerPrefetch(() => {
     if (id) {
       setCollapsedSidebarItem(getSectionId(id), true)
     } else {
-      // TODO: We need to bring this back
+      // TODO: We need to bring this back. But it’ll probably somewhere, we have the data.
       // const firstTag = props.parsedSpec.tags?.[0]
       // if (firstTag) {
       //   setCollapsedSidebarItem(getTagId(firstTag), true)
@@ -252,13 +253,9 @@ provide(CONFIGURATION_SYMBOL, configuration)
 provide(
   PLUGIN_MANAGER_SYMBOL,
   createPluginManager({
-    // TODO: Get plugins from the configuration
     plugins: configuration.value.plugins,
   }),
 )
-
-// ---------------------------------------------------------------------------/
-// HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
 function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
