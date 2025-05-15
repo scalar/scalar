@@ -269,7 +269,8 @@ const displayPropertyHeading = (
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="optimizedValue" />
+        :value="optimizedValue"
+        :schemas="schemas" />
     </div>
     <!-- Array of objects -->
     <template
