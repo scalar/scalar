@@ -29,7 +29,7 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
   // TODO: Run upgrade over the whole filesystem
   const result = upgraders.reduce(
     (currentSpecification, upgrader) => upgrader(currentSpecification as UnknownObject),
-    isFilesystem(value) ? getEntrypoint(value as Filesystem).specification : normalize(value),
+    isFilesystem(value) ? getEntrypoint(value).specification : normalize(value),
   ) as OpenAPIV3_1.Document
 
   return {

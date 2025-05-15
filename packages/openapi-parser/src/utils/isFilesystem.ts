@@ -1,3 +1,5 @@
+import type { Filesystem } from '../types'
+
 /**
  * Check if the value is a filesystem
  */
