@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.1.49",
+  "version": "0.1.50",
   "engines": {
     "node": ">=18"
   },

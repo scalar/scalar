@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.6.7
+
+### Patch Changes
+
+- Updated dependencies [be8a6ec]
+  - @scalar/types@0.1.16
+
 ## 0.6.6
 
 ### Patch Changes

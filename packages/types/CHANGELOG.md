@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.1.16
+
+### Patch Changes
+
+- be8a6ec: chore: remove unused HarRequestWithPath
+
 ## 0.1.15
 
 ### Patch Changes

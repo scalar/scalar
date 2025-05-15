@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.3.34
+
+### Patch Changes
+
+- 6b4a3c3: chore: export decodeBuffer
+- cd0722d: fix(api-client): add aria label to request table code inputs
+- Updated dependencies [be8a6ec]
+- Updated dependencies [1843cfe]
+  - @scalar/types@0.1.16
+  - @scalar/components@0.13.59
+  - @scalar/oas-utils@0.2.144
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/snippetz@0.2.20
+  - @scalar/themes@0.11.3
+  - @scalar/use-codemirror@0.11.104
+  - @scalar/import@0.3.27
+  - @scalar/postman-to-openapi@0.2.17
+  - @scalar/use-hooks@0.1.50
+  - @scalar/icons@0.3.7
+
 ## 2.3.33
 
 ### Patch Changes
