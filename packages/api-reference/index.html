@@ -21,6 +21,26 @@
       Scalar.createApiReference('#app', {
         sources: [
           {
+            title: 'Foobar',
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'Foobar',
+                version: '1.0.0',
+              },
+              paths: {
+                '/foo': {
+                  get: {
+                    summary: 'Get foo',
+                    responses: {
+                      200: { description: 'Foo' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
             title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
             slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
             url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',

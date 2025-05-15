@@ -29,6 +29,7 @@ export function importSpecFileFactory({
     options: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
+    console.log('import spec', spec)
     const workspaceEntities = await importSpecToWorkspace(spec, options)
 
     if (workspaceEntities.error) {

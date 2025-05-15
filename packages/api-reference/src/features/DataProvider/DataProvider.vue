@@ -12,9 +12,10 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
-import { computed, provide, ref, toRaw, toRef, toValue, watch } from 'vue'
+import { computed, provide, ref, toRef, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
+import { useSidebar } from '@/hooks/useSidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 import type { ReferenceLayoutProps } from '@/types'
 
@@ -32,8 +33,7 @@ const {
   >
 >()
 
-// Fetch
-
+/** Fetch what’s in the configuration */
 const { originalDocument: fetchedOriginalDocument } = useDataSource({
   configuration: toRef(() => configuration ?? {}),
   proxyUrl: toRef(() => configuration?.proxyUrl || ''),
@@ -47,8 +47,7 @@ const originalDocument = computed(() => {
   return toValue(fetchedOriginalDocument)
 })
 
-// Dereference
-
+/** Dereferenced document */
 const dereferencedDocument = computed(() => {
   if (providedDereferencedDocument) {
     return providedDereferencedDocument
@@ -74,10 +73,13 @@ watch(
       return
     }
 
-    // TODO: Skip if one was provided already.
+    // Skip if one was provided already.
+    if (providedDereferencedDocument) {
+      return
+    }
 
-    const { specification: upgraded } = upgrade(toValue(newVal))
-    const { schema } = await dereference(upgraded)
+    const { specification: upgraded } = upgrade(toValue(newVal) ?? {})
+    const { schema } = await dereference({ ...upgraded })
 
     manuallyDereferencedDocument.value = schema as OpenAPIV3_1.Document
   },
@@ -86,17 +88,19 @@ watch(
   },
 )
 
-// API Client Store
+/** API Client Store */
 const workspaceStore = createWorkspaceStore({
   useLocalStorage: false,
   ...(configuration ?? apiReferenceConfigurationSchema.parse({})),
 })
 
+console.log('configuration', configuration)
+
 watch(
   () => toValue(originalDocument),
-  (spec) =>
-    spec &&
-    workspaceStore.importSpecFile(spec, 'default', {
+  (newDocument) =>
+    newDocument &&
+    workspaceStore.importSpecFile(newDocument, 'default', {
       shouldLoad: false,
       documentUrl: configuration?.url,
       useCollectionSecurity: true,
@@ -107,15 +111,15 @@ watch(
 
 provide(WORKSPACE_SYMBOL, workspaceStore)
 
-// Active Entities Store
-
+/** Active Entities Store */
 const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
 
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
-// Parse (Legacy)
-
+/** “Parsed” document, super custom data structure (legacy) */
 const parsedDocument = ref<Spec>(createEmptySpecification())
+
+const { setParsedSpec } = useSidebar()
 
 watch(
   () => toValue(originalDocument),
@@ -124,9 +128,10 @@ watch(
       return
     }
 
-    const result = await parse(toValue(originalDocument.value))
+    const result = await parse(originalDocument.value)
 
     parsedDocument.value = result
+    setParsedSpec(result)
   },
   {
     immediate: true,
