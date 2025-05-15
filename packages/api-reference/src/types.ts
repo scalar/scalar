@@ -1,5 +1,5 @@
 import type { AnyApiReferenceConfiguration, ApiReferenceConfiguration } from '@scalar/types/api-reference'
-import type { Spec } from '@scalar/types/legacy'
+import type { OpenAPIV3_1, Spec } from '@scalar/types/legacy'
 
 export type { ApiReferenceConfiguration }
 
@@ -12,9 +12,34 @@ export type ReferenceProps = {
  */
 export type ReferenceLayoutProps = {
   configuration: Partial<ApiReferenceConfiguration>
-  parsedSpec: Spec
-  rawSpec: string
+  // TODO: Don’t make these optional.
+  /**
+   *
+   * The OpenAPI 3.1 document, but all $ref’s are resolved already.
+   *
+   * @remark You need to add the `originalDocument`, too.
+   *
+   * @example
+   *
+   * import { upgrade, dereference } from '@scalar/openapi-parser'
+   *
+   * const { specification: upgradedDocument } = upgrade(originalDocument)
+   * const { schema: dereferencedDocument } = await dereference(upgradedDocument)
+   */
+  dereferencedDocument?: OpenAPIV3_1.Document
+  /**
+   * The original document. Doesn’t have to be OpenAPI 3.1.
+   */
+  originalDocument?: string
   isDark: boolean
+  /**
+   * @deprecated We can’t use this anymore. Use `dereferencedDocument` instead.
+   */
+  parsedSpec: Spec
+  /**
+   * @deprecated Use `originalDocument` instead.
+   */
+  rawSpec: string
 }
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
