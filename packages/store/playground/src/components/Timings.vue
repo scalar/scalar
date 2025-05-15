@@ -21,13 +21,15 @@ defineProps<{
         <td class="border px-2 py-1 text-center">{{ duration }}ms</td>
       </tr>
     </tbody>
-    <tr class="font-bold">
-      <td class="border px-2 py-1">Total</td>
-      <td class="border px-2 py-1 text-center">
-        {{
-          Object.values(timings).reduce((sum, duration) => sum + duration, 0)
-        }}ms
-      </td>
-    </tr>
+    <tfoot>
+      <tr class="font-bold">
+        <td class="border px-2 py-1">Total</td>
+        <td class="border px-2 py-1 text-center">
+          {{
+            Object.values(timings).reduce((sum, duration) => sum + duration, 0)
+          }}ms
+        </td>
+      </tr>
+    </tfoot>
   </table>
 </template>
