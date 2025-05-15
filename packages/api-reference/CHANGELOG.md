@@ -1,5 +1,33 @@
 # @scalar/api-reference
 
+## 1.28.34
+
+### Patch Changes
+
+- 73ecfb0: fix: adds missing schemas to schema property
+- 2056005: fix(api-reference): improve handling of schema discriminators
+- 9946289: feat: show response schema in the response list
+- 40bad87: fix: copy correct path when pathRouting enabled
+- 3a88c94: fix(api-reference): restrict mobile header width
+- 96be9bd: fix(api-reference): handle really long property titles
+- ab0d3a3: fix(api-reference): render required for request body
+- 5129cdc: fix: adds max depth to merge all of schemas
+- be8a6ec: refactor: clean up helpers, remove barrel files
+- Updated dependencies [6b4a3c3]
+- Updated dependencies [be8a6ec]
+- Updated dependencies [1843cfe]
+- Updated dependencies [cd0722d]
+  - @scalar/api-client@2.3.34
+  - @scalar/types@0.1.16
+  - @scalar/components@0.13.59
+  - @scalar/oas-utils@0.2.144
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/snippetz@0.2.20
+  - @scalar/themes@0.11.3
+  - @scalar/code-highlight@0.0.29
+  - @scalar/use-hooks@0.1.50
+  - @scalar/icons@0.3.7
+
 ## 1.28.33
 
 ### Patch Changes

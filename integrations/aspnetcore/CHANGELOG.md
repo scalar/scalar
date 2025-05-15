@@ -1,5 +1,21 @@
 # @scalar/aspnetcore
 
+## 2.3.1
+
+### Patch Changes
+
+- 85e2a85: feat(Scalar.AspNetCore): Support GZip compression for embedded ressources
+- Updated dependencies [73ecfb0]
+- Updated dependencies [2056005]
+- Updated dependencies [9946289]
+- Updated dependencies [40bad87]
+- Updated dependencies [3a88c94]
+- Updated dependencies [96be9bd]
+- Updated dependencies [ab0d3a3]
+- Updated dependencies [5129cdc]
+- Updated dependencies [be8a6ec]
+  - @scalar/api-reference@1.28.34
+
 ## 2.3.0
 
 ### Minor Changes
