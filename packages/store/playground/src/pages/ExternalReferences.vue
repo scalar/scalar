@@ -11,9 +11,6 @@ import OpenApiDocument from '../components/OpenApiDocument.vue'
 import Timings from '../components/Timings.vue'
 import { useTimings } from '../hooks/useTimings'
 
-const EXAMPLE_URL =
-  'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
-
 const workspace = createWorkspace({
   plugins: [
     // localStoragePlugin()
@@ -26,43 +23,56 @@ const { timings, measure } = useTimings()
 
 // Heavy work
 onMounted(async () => {
-  const data = (await measure('fetch', async () => {
-    const response = await fetch(EXAMPLE_URL)
-    return JSON.parse(await response.text())
-  })) as Record<string, unknown>
-
-  await measure('upgrade', async () => {
-    const { specification } = upgrade(data)
-    content.value = specification
-  })
-
   // Initial data load
   await measure('load', async () => {
-    await workspace.load('stripe', async () => {
-      // Destructure to remove 'paths', then return the rest
-      const { paths, ...rest } = content.value
-      return { ...rest }
-    })
-
-    await waitFor(() => {
-      return !!workspace.state.collections.stripe?.document?.info?.title
+    await workspace.load('foobar', async () => {
+      return {
+        openapi: '3.1.1',
+        info: {
+          title: 'Foobar',
+          version: '1.0.0',
+        },
+        paths: {
+          '/foo': {
+            $ref: '#/components/pathItems/foobar',
+          },
+          '/foobar': {
+            $ref: '#/components/pathItems/foobar',
+          },
+          '/barfoo': {
+            $ref: '#/components/pathItems/foobar',
+          },
+        },
+      }
     })
   })
 
   // Simulate a slow network
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
-  // Ingest more data
   await measure('merge', async () => {
-    workspace.merge('stripe', {
-      paths: content.value.paths,
-    })
-
-    await waitFor(() => {
-      return (
-        Object.keys(workspace.state.collections.stripe?.document?.paths ?? {})
-          .length === 391
-      )
+    await workspace.merge('foobar', {
+      components: {
+        pathItems: {
+          foobar: {
+            get: {
+              summary: 'Get a foobar',
+              responses: {
+                '200': {
+                  description: 'A successful response',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     })
   })
 })
@@ -72,7 +82,9 @@ const collections = computed(() => workspace.state.collections)
 </script>
 <template>
   <div class="m-4 max-w-xl">
-    <h1 class="mb-4 text-2xl font-bold">createWorkspace</h1>
+    <h1 class="mb-4 text-2xl font-bold">
+      External References (Async fetching)
+    </h1>
     <template
       v-for="collection in Object.keys(collections)"
       v-if="Object.keys(collections).length">

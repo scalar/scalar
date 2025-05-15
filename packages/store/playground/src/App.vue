@@ -3,16 +3,23 @@
     <ul class="flex gap-4">
       <li>
         <RouterLink
-          :to="{ name: 'root' }"
+          :to="{ name: 'dereference' }"
           class="underline">
-          Root
+          Dereference
         </RouterLink>
       </li>
       <li>
         <RouterLink
-          :to="{ name: 'dereference' }"
+          :to="{ name: 'create-collection' }"
           class="underline">
-          Dereference
+          Create Collection
+        </RouterLink>
+      </li>
+      <li>
+        <RouterLink
+          :to="{ name: 'external-references' }"
+          class="underline">
+          External References
         </RouterLink>
       </li>
       <li>

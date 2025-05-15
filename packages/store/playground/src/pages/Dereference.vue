@@ -70,6 +70,10 @@ onMounted(async () => {
 <template>
   <div class="m-4 max-w-xl">
     <h1 class="mb-4 text-2xl font-bold">dereference</h1>
+    <div class="mb-4 flex flex-col gap-4">
+      <p>Dereferencing the document without the paths.</p>
+      <p>And then dereferencing the whole document with the paths.</p>
+    </div>
     <OpenApiDocument :document="document" />
     <Timings :timings="timings" />
   </div>

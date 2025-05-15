@@ -3,13 +3,15 @@ import App from './App.vue'
 
 import { createRouter, createWebHistory } from 'vue-router'
 import CircularReference from './pages/CircularReference.vue'
+import CreateCollection from './pages/CreateCollection.vue'
 import Dereference from './pages/Dereference.vue'
-import Root from './pages/Root.vue'
+import ExternalReferences from './pages/ExternalReferences.vue'
 
 const routes = [
-  { path: '/', component: Root, name: 'root' },
+  { path: '/', component: Dereference, name: 'dereference' },
+  { path: '/create-collection', component: CreateCollection, name: 'create-collection' },
+  { path: '/external-references', component: ExternalReferences, name: 'external-references' },
   { path: '/circular-reference', component: CircularReference, name: 'circular-reference' },
-  { path: '/dereference', component: Dereference, name: 'dereference' },
 ]
 
 const router = createRouter({
