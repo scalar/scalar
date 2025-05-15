@@ -41,6 +41,7 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
+import { DataProvider } from '@/features/DataProvider'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -157,7 +158,7 @@ onMounted(() => {
 
   // Enable the spec download event bus
   downloadEventBus.on(({ filename }) => {
-    downloadDocument(props.rawSpec, filename)
+    downloadDocument(props.originalDocument || props.rawSpec, filename)
   })
 
   // Find scalar Y offset to support users who have tried to add their own headers
@@ -253,6 +254,7 @@ onServerPrefetch(() => {
 provideUseId(() => useId())
 
 // Create the workspace store and provide it
+// TODO: Move this to the DataProvider
 const workspaceStore = createWorkspaceStore({
   useLocalStorage: false,
   ...configuration.value,
@@ -326,6 +328,12 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
+  <DataProvider
+    :originalDocument="originalDocument"
+    :dereferencedDocument="dereferencedDocument"
+    :configuration="configuration">
+    LET ME PROVIDE THE DATA
+  </DataProvider>
   <div v-html="themeStyleTag" />
   <div
     ref="documentEl"
