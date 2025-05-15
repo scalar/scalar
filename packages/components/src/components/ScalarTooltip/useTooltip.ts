@@ -1,4 +1,4 @@
-import { autoUpdate, flip, offset as offset, shift, useFloating, type Placement } from '@floating-ui/vue'
+import { autoUpdate, flip, shift, useFloating, type Placement } from '@floating-ui/vue'
 import { computed, ref, unref, watch, type MaybeRef } from 'vue'
 
 type MaybeElement = Element | undefined | null
@@ -7,8 +7,18 @@ type MaybeElement = Element | undefined | null
 type TooltipConfiguration = {
   content: MaybeRef<string>
   placement?: MaybeRef<Placement>
+  delay?: MaybeRef<number>
   offset?: MaybeRef<number>
   targetRef: MaybeRef<MaybeElement>
+}
+
+/** Check if mouse moved off the target but onto the tooltip */
+function isMovingOffElements(e: Event): boolean {
+  const target = unref(config.value?.targetRef)
+  if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
+    return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
+  }
+  return false
 }
 
 /** The ID of the tooltip element used to locate it in the DOM */
@@ -17,8 +27,13 @@ const ELEMENT_ID = 'scalar-tooltip' as const
 /** The class name of the tooltip element */
 const ELEMENT_CLASS = 'scalar-tooltip' as const
 
+type Timer = ReturnType<typeof setTimeout>
+
+/** The delay timer for the tooltip */
+const timer = ref<Timer>()
+
 /** A reference to the tooltip element */
-const el = ref<HTMLDivElement>()
+const el = ref<HTMLElement>()
 
 /**
  * The configuration for the active tooltip
@@ -38,27 +53,35 @@ function initialize() {
     return
   }
 
-  if (document.getElementById(ELEMENT_ID)) {
-    el.value = document.getElementById(ELEMENT_ID) as HTMLDivElement
+  // See if the tooltip element already exists
+  // (Sometimes this happens with HMR)
+  const existingTooltipElement = document.getElementById(ELEMENT_ID)
+
+  if (existingTooltipElement) {
+    el.value = existingTooltipElement
   } else {
+    // Create the tooltip element
     el.value = document.createElement('div')
     el.value.role = 'tooltip'
     el.value.id = ELEMENT_ID
     el.value.classList.add(ELEMENT_CLASS)
+    el.value.style.setProperty('display', 'none')
+    el.value.addEventListener('mouseleave', hideTooltip)
     document.body.appendChild(el.value)
   }
 
+  // Set up floating UI
   const { floatingStyles } = useFloating(
     computed(() => unref(config.value?.targetRef)),
     el,
     {
       placement: computed(() => unref(config.value?.placement)),
       whileElementsMounted: autoUpdate,
-      middleware: computed(() => [offset(unref(config.value?.offset)), flip(), shift()]),
+      middleware: computed(() => [flip(), shift()]),
     },
   )
 
-  // Update the tooltip element's positioning when the floating styles change
+  // Update the tooltip element's positioning when Floating UI updates the styles
   watch(floatingStyles, () => {
     if (!el.value) {
       return
@@ -71,18 +94,23 @@ function initialize() {
     el.value.style.willChange = floatingStyles.value.willChange ?? ''
   })
 
+  // Show or hide the tooltip when the config changes
   watch(config, () => {
     if (!el.value) {
       return
     }
 
-    console.log('config changed', config.value)
-
+    // Update the tooltip content
     el.value.textContent = unref(config.value?.content) ?? null
 
     if (config.value) {
+      // Show the tooltip
+      const offset = unref(config.value?.offset)
+      el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
       el.value.style.setProperty('display', 'block')
     } else {
+      // Hide the tooltip
+      el.value.style.removeProperty('--scalar-tooltip-offset')
       el.value.style.setProperty('display', 'none')
     }
   })
@@ -103,21 +131,35 @@ function initialize() {
 // }
 
 function showTooltip(opts: TooltipConfiguration) {
-  console.log('showTooltip', opts)
   document.addEventListener('keydown', handleEscape)
 
-  config.value = opts
+  const delay = unref(opts.delay) ?? 300
+
+  if (!timer.value) {
+    // Show the tooltip after the delay
+    timer.value = setTimeout(() => {
+      timer.value = undefined
+      config.value = opts
+    }, delay)
+  }
 }
 
-function hideTooltip() {
-  console.log('hideTooltip')
+function hideTooltip(e: Event) {
+  if (!isMovingOffElements(e)) {
+    // Don't hide the tooltip if the mouse is moving onto the tooltip to back to the target
+    return
+  }
+  if (timer.value) {
+    clearTimeout(timer.value)
+    timer.value = undefined
+  }
   config.value = undefined
   document.removeEventListener('keydown', handleEscape)
 }
 
 function handleEscape(e: KeyboardEvent) {
   if (e.key === 'Escape') {
-    hideTooltip()
+    hideTooltip(e)
   }
 }
 
@@ -131,20 +173,22 @@ export function useTooltip(opts: TooltipConfiguration) {
     initialize()
   }
 
+  const showThisTooltip = () => showTooltip(opts)
+
   watch(
     () => unref(opts.targetRef),
     (newRef, oldRef) => {
       if (oldRef) {
-        oldRef.removeEventListener('mouseenter', () => showTooltip(opts))
-        oldRef.removeEventListener('mouseleave', () => hideTooltip())
-        oldRef.removeEventListener('focus', () => showTooltip(opts))
-        oldRef.removeEventListener('blur', () => hideTooltip())
+        oldRef.removeEventListener('mouseenter', showThisTooltip)
+        oldRef.removeEventListener('mouseleave', hideTooltip)
+        oldRef.removeEventListener('focus', showThisTooltip)
+        oldRef.removeEventListener('blur', hideTooltip)
       }
       if (newRef) {
-        newRef.addEventListener('mouseenter', () => showTooltip(opts))
-        newRef.addEventListener('mouseleave', () => hideTooltip())
-        newRef.addEventListener('focus', () => showTooltip(opts))
-        newRef.addEventListener('blur', () => hideTooltip())
+        newRef.addEventListener('mouseenter', showThisTooltip)
+        newRef.addEventListener('mouseleave', hideTooltip)
+        newRef.addEventListener('focus', showThisTooltip)
+        newRef.addEventListener('blur', hideTooltip)
       }
     },
   )

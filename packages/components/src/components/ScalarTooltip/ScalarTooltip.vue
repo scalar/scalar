@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Placement } from '@floating-ui/vue'
-import { type Ref, computed, ref, useTemplateRef, watch } from 'vue'
+import { type Ref, computed, ref } from 'vue'
 
 import { useTooltip } from './useTooltip'
 
 const {
-  delay = 600,
+  delay = 300,
   content = '',
   placement = 'top',
   offset = 4,
@@ -20,6 +20,7 @@ const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
 useTooltip({
   content: computed(() => content),
+  delay: computed(() => delay),
   placement: computed(() => placement),
   offset: computed(() => offset),
   targetRef: computed(
@@ -37,6 +38,15 @@ useTooltip({
 <style>
 /** Global styles for the tooltip */
 :where(body) > .scalar-tooltip {
-  @apply z-tooltip rounded bg-b-tooltip text-c-tooltip p-2 text-xs font-medium break-words;
+  --scalar-tooltip-padding: 8px;
+
+  padding: calc(var(--scalar-tooltip-padding) + var(--scalar-tooltip-offset));
+
+  @apply z-tooltip text-c-tooltip text-xs font-medium break-words;
+}
+:where(body) > .scalar-tooltip:before {
+  content: '';
+  inset: var(--scalar-tooltip-offset);
+  @apply absolute rounded bg-b-tooltip -z-1;
 }
 </style>
