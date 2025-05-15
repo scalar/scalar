@@ -1,7 +1,7 @@
 import { bench, describe, expect } from 'vitest'
 
-import { upgrade as upgradeOld } from './slow/upgrade'
-import { upgradeFromTwoToThree as upgradeFromTwoToThreeOld } from './slow/upgradeFromTwoToThree'
+// import { upgrade as upgradeOld } from './slow/upgrade'
+// import { upgradeFromTwoToThree as upgradeFromTwoToThreeOld } from './slow/upgradeFromTwoToThree'
 import { upgrade } from './upgrade'
 import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 
@@ -22,13 +22,13 @@ describe('upgrade', () => {
       expect(result.openapi).toBe('3.0.4')
     })
 
-    bench('old', () => {
-      expect(PETSTORE.swagger).toBe('2.0')
+    // bench('old', () => {
+    //   expect(PETSTORE.swagger).toBe('2.0')
 
-      const result = upgradeFromTwoToThreeOld({ ...PETSTORE })
+    //   const result = upgradeFromTwoToThreeOld({ ...PETSTORE })
 
-      expect(result.openapi).toBe('3.0.4')
-    })
+    //   expect(result.openapi).toBe('3.0.4')
+    // })
   })
 
   describe('Stripe: OpenAPI 3.0 to 3.1', () => {
@@ -40,13 +40,13 @@ describe('upgrade', () => {
       expect(specification?.openapi).toBe('3.1.1')
     })
 
-    bench('old', () => {
-      expect(STRIPE.openapi).toBe('3.0.0')
+    // bench('old', () => {
+    //   expect(STRIPE.openapi).toBe('3.0.0')
 
-      const { specification } = upgradeOld(JSON.stringify(STRIPE))
+    //   const { specification } = upgradeOld(JSON.stringify(STRIPE))
 
-      expect(specification?.openapi).toBe('3.1.1')
-    })
+    //   expect(specification?.openapi).toBe('3.1.1')
+    // })
   })
 
   describe('Petstore: Swagger 2.0 to OpenAPI 3.1', () => {
@@ -58,12 +58,12 @@ describe('upgrade', () => {
       expect(specification?.openapi).toBe('3.1.1')
     })
 
-    bench('old', () => {
-      expect(PETSTORE.swagger).toBe('2.0')
+    // bench('old', () => {
+    //   expect(PETSTORE.swagger).toBe('2.0')
 
-      const { specification } = upgradeOld(JSON.stringify(PETSTORE))
+    //   const { specification } = upgradeOld(JSON.stringify(PETSTORE))
 
-      expect(specification?.openapi).toBe('3.1.1')
-    })
+    //   expect(specification?.openapi).toBe('3.1.1')
+    // })
   })
 })
