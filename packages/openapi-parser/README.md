@@ -132,25 +132,6 @@ const result = sanitize({
 console.log(result)
 ```
 
-### Pipeline syntax
-
-```ts
-import { openapi } from '@scalar/openapi-parser'
-
-const specification = …
-
-// New pipeline …
-const result = openapi()
-  // loads the specification …
-  .load(specification)
-  // upgrades to OpenAPI 3.1 …
-  .upgrade()
-  // removes all internal operations …
-  .filter((schema) => !schema?.['x-internal'])
-  // done!
-  .get()
-```
-
 ### Then/Catch syntax
 
 If you’re more the then/catch type of guy, that’s fine:
