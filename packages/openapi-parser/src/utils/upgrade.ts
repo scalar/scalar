@@ -2,7 +2,8 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { AnyObject, Filesystem, UpgradeResult } from '../types/index'
 import { getEntrypoint } from './getEntrypoint'
-import { makeFilesystem } from './makeFilesystem'
+import { isFilesystem } from './isFilesystem'
+import { normalize } from './normalize'
 import { upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne'
 import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 
@@ -21,7 +22,7 @@ export function upgrade(value: string | AnyObject | Filesystem): UpgradeResult<O
   // TODO: Run upgrade over the whole filesystem
   const result = upgraders.reduce(
     (currentSpecification, upgrader) => upgrader(currentSpecification),
-    getEntrypoint(makeFilesystem(value)).specification,
+    isFilesystem(value) ? getEntrypoint(value as Filesystem).specification : normalize(value),
   ) as OpenAPIV3_1.Document
 
   return {
