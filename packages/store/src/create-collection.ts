@@ -70,7 +70,7 @@ export function createCollection(
         mergeDocuments(input.value as UnknownObject, partialDocument)
       },
       update: (newDocument: UnknownObject) => {
-        updateDocument(sourceDocument, newDocument)
+        updateDocument(content, newDocument)
       },
     }
   }
@@ -80,26 +80,30 @@ export function createCollection(
 
   // If input is a Ref<string>, watch for changes and update the reactive document
   if (isRef(input) && typeof input.value === 'string') {
-    watch(input, (newValue) => updateReactiveDocument(sourceDocument, newValue), { immediate: false })
+    watch(
+      input,
+      (newValue) => {
+        const normalized = normalize(newValue) as UnknownObject
+        // Update the document through merge to ensure proper reactivity
+        mergeDocuments(sourceDocument, normalized)
+      },
+      { immediate: false },
+    )
   }
 
-  // Create the root proxy for the entire document using the top-level function
-  const documentProxy = createMagicProxy(sourceDocument, sourceDocument, resolvedProxyCache)
+  // Create a proxy that only handles $ref resolution
+  const documentProxy = createRefProxy(sourceDocument)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
 
-  // TODO: Can we move this outside?
   function apply(singleOrMultipleOverlays: UnknownObject | UnknownObject[]) {
-    // Multiple overlays
     if (Array.isArray(singleOrMultipleOverlays)) {
       singleOrMultipleOverlays.forEach((overlay) => {
         overlays.push(overlay)
         applyOverlay(sourceDocument, overlay)
       })
-    }
-    // Single overlay
-    else {
+    } else {
       overlays.push(singleOrMultipleOverlays)
       applyOverlay(sourceDocument, singleOrMultipleOverlays)
     }
@@ -115,10 +119,12 @@ export function createCollection(
     },
     apply,
     merge(partialDocument: UnknownObject) {
+      // Use mergeDocuments to ensure proper reactivity
       return mergeDocuments(sourceDocument, partialDocument)
     },
     update(newDocument: UnknownObject) {
-      return updateDocument(sourceDocument, newDocument)
+      // Use mergeDocuments for updates too to ensure proper reactivity
+      return mergeDocuments(sourceDocument, newDocument)
     },
   }
 }
@@ -265,23 +271,6 @@ export function createMagicProxy(
   }
 
   return proxy
-}
-
-/**
- * Updates a reactive document with the normalized content of a new string value.
- *
- * Removes all existing keys and adds new ones from the normalized object.
- */
-function updateReactiveDocument(sourceDocument: UnknownObject, newValue: string) {
-  const normalized = normalize(newValue)
-
-  // Remove all existing keys
-  Object.keys(sourceDocument).forEach((key) => {
-    delete sourceDocument[key as keyof typeof sourceDocument]
-  })
-
-  // Add new keys
-  Object.entries(normalized).forEach(([key, value]) => ((sourceDocument as UnknownObject)[key] = value))
 }
 
 /**
@@ -474,15 +463,120 @@ function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
 }
 
 /**
+ * Creates a proxy that handles both $ref resolution and reactivity.
+ * This proxy ensures that:
+ * 1. $refs are resolved when accessed
+ * 2. Changes to resolved references update the original object
+ * 3. All objects are reactive
+ */
+function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject = target): UnknownObject {
+  // First make the object reactive with Vue
+  const reactiveTarget = reactive(target)
+
+  // Create a proxy that handles both $ref resolution and reactivity
+  return new Proxy(reactiveTarget, {
+    get(target, prop: string | symbol) {
+      // Special property to check if this is a proxy
+      if (prop === '__isProxy') return true
+
+      const value = target[prop as keyof typeof target]
+      if (!isObject(value)) return value
+
+      // Handle $ref resolution
+      if ('$ref' in value) {
+        const ref = value.$ref as string
+        const referencePath = parseJsonPointer(ref)
+        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+        if (resolvedValue) {
+          // Create a proxy for the resolved value that points back to the original
+          return createRefProxy(resolvedValue, sourceDocument)
+        }
+      }
+
+      // For other objects, create a proxy to handle potential $refs
+      return createRefProxy(value, sourceDocument)
+    },
+
+    set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
+      const currentValue = target[property]
+
+      // If we're setting a property on a $ref object, update the referenced object
+      if (isObject(currentValue) && '$ref' in currentValue) {
+        const ref = currentValue.$ref as string
+        const referencePath = parseJsonPointer(ref)
+        const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
+        const lastPathSegment = referencePath[referencePath.length - 1]
+
+        if (targetObject && lastPathSegment) {
+          targetObject[lastPathSegment] = newValue
+          return true
+        }
+      }
+
+      // For normal properties, just set them
+      target[property] = newValue
+      return true
+    },
+
+    has(target: UnknownObject, key: string) {
+      if (typeof key === 'string' && key !== '$ref' && '$ref' in target) {
+        const ref = target.$ref as string
+        const referencePath = parseJsonPointer(ref)
+        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+        return resolvedValue ? key in resolvedValue : false
+      }
+      return key in target
+    },
+
+    ownKeys(target: UnknownObject) {
+      if ('$ref' in target) {
+        const ref = target.$ref as string
+        const referencePath = parseJsonPointer(ref)
+        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+        return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
+      }
+      return Reflect.ownKeys(target)
+    },
+
+    getOwnPropertyDescriptor(target: UnknownObject, key: string) {
+      if ('$ref' in target && key !== '$ref') {
+        const ref = target.$ref as string
+        const referencePath = parseJsonPointer(ref)
+        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+        if (resolvedValue) {
+          return Object.getOwnPropertyDescriptor(resolvedValue, key)
+        }
+      }
+      return Object.getOwnPropertyDescriptor(target, key)
+    },
+  })
+}
+
+/**
  * Deeply merges source into target, mutating target.
  * Only merges plain objects, not arrays.
+ * Ensures proper reactivity for all objects.
  */
 function mergeDocuments(target: UnknownObject, source: UnknownObject) {
+  // Make sure target is reactive
+  const reactiveTarget = isReactive(target) ? target : reactive(target)
+
   for (const key in source) {
-    if (isObject(source[key]) && isObject(target[key])) {
-      mergeDocuments(target[key] as UnknownObject, source[key] as UnknownObject)
+    const sourceValue = source[key]
+    const targetValue = reactiveTarget[key]
+
+    if (isObject(sourceValue) && isObject(targetValue)) {
+      // For objects, recursively merge
+      mergeDocuments(targetValue as UnknownObject, sourceValue as UnknownObject)
+    } else if (isObject(sourceValue)) {
+      // If target doesn't have this key or it's not an object,
+      // create a new reactive object and assign it
+      reactiveTarget[key] = reactive({ ...sourceValue })
     } else {
-      target[key] = source[key]
+      // For primitive values, just assign
+      reactiveTarget[key] = sourceValue
     }
   }
+
+  return reactiveTarget
 }
