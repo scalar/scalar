@@ -47,22 +47,20 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     // Rewrite $refs to definitions
     specification = traverse(specification, (schema) => {
-      if (schema.$ref?.startsWith('#/definitions/')) {
+      // Rewrite $refs to components
+      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/definitions/')) {
         schema.$ref = schema.$ref.replace(/^#\/definitions\//, '#/components/schemas/')
+      }
+
+      // Transform file type to string with binary format
+      if (schema.type === 'file') {
+        schema.type = 'string'
+        schema.format = 'binary'
       }
 
       return schema
     })
   }
-
-  specification = traverse(specification, (schema) => {
-    if (schema.type === 'file') {
-      schema.type = 'string'
-      schema.format = 'binary'
-    }
-
-    return schema
-  })
 
   // Paths
   if (typeof specification.paths === 'object') {
