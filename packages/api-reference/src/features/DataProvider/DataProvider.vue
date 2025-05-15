@@ -78,6 +78,8 @@ watch(
       return
     }
 
+    // TODO: Load external references
+
     const { specification: upgraded } = upgrade(toValue(newVal) ?? {})
     const { schema } = await dereference({ ...upgraded })
 
