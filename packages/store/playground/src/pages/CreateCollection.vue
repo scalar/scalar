@@ -41,34 +41,35 @@ onMounted(async () => {
   // })
 
   // Initial data load
+  const { paths, ...rest } = content.value
+
   await measure('load', async () => {
     await workspace.load('stripe', async () => {
       // Destructure to remove 'paths', then return the rest
-      const { paths, ...rest } = content.value
-      return { ...rest }
+      return content.value
     })
 
-    await waitFor(() => {
-      return !!workspace.state.collections.stripe?.document?.info?.title
-    })
+    // await waitFor(() => {
+    //   return !!workspace.state.collections.stripe?.document?.info?.title
+    // })
   })
 
   // Simulate a slow network
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
   // Ingest more data
-  await measure('merge', async () => {
-    workspace.merge('stripe', {
-      paths: content.value.paths,
-    })
+  // await measure('merge', async () => {
+  //   workspace.merge('stripe', {
+  //     paths: content.value.paths,
+  //   })
 
-    await waitFor(() => {
-      return (
-        Object.keys(workspace.state.collections.stripe?.document?.paths ?? {})
-          .length === 391
-      )
-    })
-  })
+  //   // await waitFor(() => {
+  //   //   return (
+  //   //     Object.keys(workspace.state.collections.stripe?.document?.paths ?? {})
+  //   //       .length === 391
+  //   //   )
+  //   // })
+  // })
 })
 
 // Alias

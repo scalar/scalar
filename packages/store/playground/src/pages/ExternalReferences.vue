@@ -48,7 +48,7 @@ onMounted(async () => {
   })
 
   // Simulate a slow network
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
   await measure('merge', async () => {
     await workspace.merge('foobar', {

@@ -60,7 +60,7 @@ onMounted(async () => {
   }
 
   // Simulate a slow network
-  await new Promise((resolve) => setTimeout(resolve, 1000))
+  // await new Promise((resolve) => setTimeout(resolve, 1000))
 
   // Add the paths back in
   content.value = {
