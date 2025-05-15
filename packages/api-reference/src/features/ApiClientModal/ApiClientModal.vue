@@ -2,8 +2,8 @@
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
-import type { Spec } from '@scalar/types/legacy'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -13,10 +13,10 @@ import { useExampleStore } from '@/legacy/stores'
 
 import { useApiClient } from './useApiClient'
 
-const { configuration, parsedSpec } = defineProps<{
+const { configuration, dereferencedDocument } = defineProps<{
   // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn’t have to be).
   configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>>
-  parsedSpec: Spec
+  dereferencedDocument: OpenAPIV3_1.Document
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
@@ -81,7 +81,7 @@ watchDebounced(
 
         // Now we either use the new servers or restore the ones from the spec
         const newServers = getServersFromOpenApiDocument(
-          newConfig.servers ?? parsedSpec.servers,
+          newConfig.servers ?? dereferencedDocument.servers,
           {
             baseServerURL: newConfig.baseServerURL,
           },
