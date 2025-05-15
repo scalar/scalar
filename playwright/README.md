@@ -46,6 +46,6 @@ In another terminal tab
 get the container id
 `docker ps -alq`
 
-copy the snapshots to your local filesystem
+copy the snapshots to your local filesystem, ensure you are in the packages/playwright folder
 
 `docker cp <CONTAINER_ID>:/app/playwright/tests/ ./`
