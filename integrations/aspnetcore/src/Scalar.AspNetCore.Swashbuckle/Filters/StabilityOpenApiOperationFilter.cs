@@ -12,10 +12,13 @@ internal sealed class StabilityOpenApiOperationFilter : IOperationFilter
         // We use LastOrDefault because this allows a specific endpoint to override the stability
         var stabilityAttribute = context.ApiDescription.ActionDescriptor.EndpointMetadata.OfType<StabilityAttribute>().LastOrDefault();
 
-        if (stabilityAttribute is not null)
+        if (stabilityAttribute is null)
         {
-            operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-            operation.Extensions.TryAdd(ScalarStability, new OpenApiString(stabilityAttribute.Stability.ToStringFast(true)));
+            return;
         }
+
+        operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+        var node = SerializeToNode(stabilityAttribute.Stability);
+        operation.Extensions.TryAdd(ScalarStability, new OpenApiAny(node));
     }
 }

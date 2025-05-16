@@ -36,6 +36,7 @@ internal static class ServiceCollectionExtensions
                         Name = "X-Api-Key"
                     };
                     document.Components ??= new OpenApiComponents();
+                    document.Components.SecuritySchemes ??= [];
                     document.Components.SecuritySchemes.Add(AuthConstants.ApiKeyScheme, securityScheme);
                     return Task.CompletedTask;
                 });
