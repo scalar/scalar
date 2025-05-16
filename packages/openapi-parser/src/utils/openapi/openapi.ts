@@ -4,6 +4,8 @@ import { loadCommand } from './commands/loadCommand'
 
 /**
  * Creates a fluent OpenAPI pipeline
+ *
+ * @deprecated We are about to drop the pipeline syntax. Use the individual utilities instead.
  */
 export function openapi(globalOptions?: OpenApiOptions) {
   // Create a new queue

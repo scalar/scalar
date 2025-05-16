@@ -7,14 +7,6 @@
 
 Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.1, OpenAPI 3.0 and Swagger 2.0.
 
-## Goals
-
-- [x] Written in TypeScript
-- [x] Runs in Node.js and in the browser (without any polyfills or configuration)
-- [x] Tested with hundreds of real world examples
-- [ ] Amazing error output
-- [ ] Support for OpenAPI 4.0 👀
-
 ## Installation
 
 ```bash
@@ -138,25 +130,6 @@ const result = sanitize({
 })
 
 console.log(result)
-```
-
-### Pipeline syntax
-
-```ts
-import { openapi } from '@scalar/openapi-parser'
-
-const specification = …
-
-// New pipeline …
-const result = openapi()
-  // loads the specification …
-  .load(specification)
-  // upgrades to OpenAPI 3.1 …
-  .upgrade()
-  // removes all internal operations …
-  .filter((schema) => !schema?.['x-internal'])
-  // done!
-  .get()
 ```
 
 ### Then/Catch syntax
