@@ -17,6 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
+import { isElectron } from '@/libs/electron'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -133,8 +134,14 @@ export const createRequestOperation = ({
     const cookieHeader = replaceTemplateVariables(getCookieHeader(cookieParams, headers['Cookie']), env)
 
     if (cookieHeader) {
+      /**
+       * If we are running in Electron, we need to add a custom header
+       * that’s then forwarded as a `Cookie` header.
+       */
+      const useCustomCookieHeader = isElectron() || shouldUseProxy(proxyUrl, url)
+
       // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
-      if (shouldUseProxy(proxyUrl, url)) {
+      if (useCustomCookieHeader) {
         console.warn(
           'We’re using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.',
         )
