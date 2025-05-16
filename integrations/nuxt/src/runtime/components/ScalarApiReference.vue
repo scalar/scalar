@@ -1,15 +1,22 @@
 <script lang="ts" setup>
 import { ModernLayout, parse } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useFetch, useHead, useRequestURL, useSeoMeta } from '#imports'
 import type { Configuration } from '~/src/types'
-import { reactive, ref, toRaw } from 'vue'
+import { onMounted, reactive, ref, toRaw, watch } from 'vue'
 
 const props = defineProps<{
   configuration: Configuration
 }>()
 
 const isDark = ref(props.configuration.darkMode)
+const forcedMode = props.configuration.forceDarkModeState
+
+const { colorMode, toggleColorMode } = useColorMode({
+  initialColorMode: props.configuration.darkMode ? 'dark' : 'light',
+  overrideColorMode: props.configuration.forceDarkModeState,
+})
 
 // @ts-expect-error support the old syntax for a bit
 const content = props.configuration.spec?.content ?? props.configuration.content
@@ -41,9 +48,34 @@ if (props.configuration?.metaData) {
 }
 
 useHead({
-  bodyAttrs: {
-    class: () => (isDark.value ? 'dark-mode' : 'light-mode'),
-  },
+  script: [
+    {
+      // Inject dark / light detection that runs before loading Nuxt to avoid flicker
+      // This is a bit of a hack inspired by @nuxtjs/color-mode, but it works
+      id: 'scalar-color-mode-script',
+      tagPosition: 'bodyClose',
+      innerHTML: `((isDark, forced) => {
+        try {
+          const stored = window.localStorage.getItem('colorMode');
+          const useDark = forced === 'dark' || !forced && (stored === 'dark' || !stored && isDark);
+          window.document.body.classList.add(useDark ? 'dark-mode' : 'light-mode');
+        } catch {}
+      })(${isDark.value}, ${JSON.stringify(forcedMode)});`
+        .replace(/[\n\r]/g, '')
+        .replace(/ +/g, ' '),
+    },
+  ],
+})
+
+watch(colorMode, () => {
+  isDark.value = colorMode.value === 'dark'
+})
+
+onMounted(() => {
+  // Adjust the color mode toggle switch
+  isDark.value = window.document.body.classList.contains('dark-mode')
+  // Remove scalar-color-mode-script
+  window.document.getElementById('scalar-color-mode-script')?.remove()
 })
 
 // Add baseServerURL and _integration
@@ -62,7 +94,7 @@ const config: Partial<ApiReferenceConfiguration> = {
     :isDark="!!isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
-    @toggleDarkMode="isDark = !isDark" />
+    @toggleDarkMode="() => toggleColorMode()" />
 </template>
 
 <style>
