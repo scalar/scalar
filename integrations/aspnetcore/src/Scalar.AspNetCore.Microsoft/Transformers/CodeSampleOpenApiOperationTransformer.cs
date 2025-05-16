@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.OpenApi;
+﻿#if NET9_0
 using Microsoft.OpenApi.Any;
+#else
+using Microsoft.OpenApi.Extensions;
+#endif
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Interfaces;
 using Microsoft.OpenApi.Models;
 
@@ -17,6 +21,31 @@ internal sealed class CodeSampleOpenApiOperationTransformer : IOpenApiOperationT
         }
 
         operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+#if NET10_0_OR_GREATER
+        List<CodeSample> samples = [];
+        foreach (var codeSampleAttribute in codeSampleAttributes)
+        {
+            var sample = new CodeSample
+            {
+                Source = codeSampleAttribute.Sample
+            };
+
+            if (codeSampleAttribute.Language.HasValue)
+            {
+                sample.Language = codeSampleAttribute.Language.Value.ToStringFast(true);
+            }
+
+            if (codeSampleAttribute.Label is not null)
+            {
+                sample.Label = codeSampleAttribute.Label;
+            }
+
+            samples.Add(sample);
+        }
+
+        var node = SerializeToNode(samples);
+        operation.Extensions.TryAdd(CodeSamples, new JsonNodeExtension(node));
+#elif NET9_0
         var samples = new OpenApiArray();
         foreach (var codeSampleAttribute in codeSampleAttributes)
         {
@@ -39,6 +68,7 @@ internal sealed class CodeSampleOpenApiOperationTransformer : IOpenApiOperationT
         }
 
         operation.Extensions.TryAdd(CodeSamples, samples);
+#endif
 
 
         return Task.CompletedTask;
