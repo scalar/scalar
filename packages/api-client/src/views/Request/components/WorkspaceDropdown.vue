@@ -153,13 +153,13 @@ const deleteWorkspace = async () => {
                 </ScalarDropdownItem>
                 <ScalarDropdownItem
                   v-if="!isLastWorkspace"
-                  class="flex !gap-2"
+                  class="flex gap-2"
                   @mousedown.prevent="openDeleteModal(workspace.uid)"
                   @touchend.prevent="openDeleteModal(workspace.uid)">
                   <ScalarIcon
                     class="inline-flex"
                     icon="Delete"
-                    size="sm"
+                    size="md"
                     thickness="1.5" />
                   <span>Delete</span>
                 </ScalarDropdownItem>
