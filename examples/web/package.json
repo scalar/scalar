@@ -12,7 +12,7 @@
   "version": "0.4.2",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "vue-tsc && vite build",

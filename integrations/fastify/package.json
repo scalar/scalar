@@ -19,13 +19,13 @@
   ],
   "version": "1.28.34",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-rollup && pnpm copy:standalone",
     "build:playground": "cd playground && pnpm build",
     "copy:standalone": "mkdir -p ./dist/js && cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
-    "dev": "cd playground && pnpm dev",
+    "dev:doesnt-work": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "format": "scalar-format",
