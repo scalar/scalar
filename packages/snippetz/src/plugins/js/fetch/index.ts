@@ -1,1 +1,1 @@
-export * from './fetch'
+export { jsFetch } from './fetch'

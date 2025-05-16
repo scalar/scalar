@@ -1,1 +1,1 @@
-export * from './axios'
+export { jsAxios } from './axios'
