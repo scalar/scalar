@@ -2,6 +2,8 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
+import TreeView from './TreeView.vue'
+
 const props = defineProps<{
   document?: OpenAPI.Document
 }>()
@@ -81,5 +83,8 @@ const getMethodColor = (method: string) => {
           :title="`${op.method.toUpperCase()} ${op.path}`" />
       </div>
     </div>
+
+    <h2 class="my-4 font-bold">Tree View</h2>
+    <TreeView :value="document" />
   </template>
 </template>

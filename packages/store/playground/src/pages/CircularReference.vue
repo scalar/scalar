@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Schema from '../components/Schema.vue'
+import TreeView from '../components/TreeView.vue'
 
 // Circular reference
 const schema = {
@@ -17,6 +17,6 @@ schema.properties.obj = schema
     <h1 class="mb-4 text-2xl font-bold">Circular Reference</h1>
   </div>
   <div>
-    <Schema :schema="schema" />
+    <TreeView :value="schema" />
   </div>
 </template>
