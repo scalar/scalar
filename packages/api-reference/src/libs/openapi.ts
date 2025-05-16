@@ -174,10 +174,6 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
         email: '',
       },
     },
-    externalDocs: {
-      description: '',
-      url: '',
-    },
     servers: [],
     tags: [],
   }) as Spec

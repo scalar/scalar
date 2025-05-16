@@ -61,7 +61,11 @@ watchDebounced(
     // If the content changes then we re-create the whole store
     // TODO: we can easily use live sync for this as well
     if (hasContentChanged) {
-      client.value?.updateConfig(newConfig)
+      client.value?.updateConfig({
+        ...newConfig,
+        // We don't need to update the url or content. We keep the store up to date in a another place.
+        skipContentUpdates: true,
+      })
     }
     // Or we handle the specific diff changes, just auth and servers for now
     else {

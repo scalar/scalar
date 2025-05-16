@@ -30,7 +30,6 @@ import {
   onUnmounted,
   provide,
   ref,
-  toRef,
   toValue,
   useId,
   useSSRContext,
@@ -84,6 +83,7 @@ defineOptions({
 
 const {
   originalDocument,
+  originalOpenApiVersion,
   dereferencedDocument,
   parsedDocument,
   workspaceStore,
@@ -94,6 +94,8 @@ const {
   originalDocument: providedOriginalDocument,
 })
 
+// TODO: Create a new symbol for this, use it in the content
+// provide(ORIGINAL_OPEN_API_VERSION_SYMBOL, originalOpenApiVersion)
 provide(WORKSPACE_SYMBOL, workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
@@ -256,6 +258,8 @@ onServerPrefetch(() => {
     if (id) {
       setCollapsedSidebarItem(getSectionId(id), true)
     } else {
+      // TODO: We probably need to wait for the parsedDocument?
+      // TODO: And can we use the dereferencedDocument instead?
       const firstTag = parsedDocument.value.tags?.[0]
 
       if (firstTag) {

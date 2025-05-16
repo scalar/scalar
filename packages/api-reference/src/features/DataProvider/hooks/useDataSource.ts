@@ -1,6 +1,6 @@
 import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
-import { dereference, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
@@ -10,6 +10,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 import type { ReferenceLayoutProps } from '@/types'
 
+import { measure } from '@/helpers/measure'
 import { useDocumentFetcher } from './useDocumentFetcher'
 
 /**
@@ -37,6 +38,9 @@ export function useDataSource({
     return toValue(fetchedOriginalDocument)
   })
 
+  /** Original OpenAPI version */
+  const originalOpenApiVersion = ref<string>('')
+
   /** Dereferenced document */
   const dereferencedDocument = computed(() => {
     if (providedDereferencedDocument) {
@@ -57,25 +61,47 @@ export function useDataSource({
 
   watch(
     () => toValue(originalDocument),
-    async (newVal) => {
-      if (!newVal) {
+    async (newDocument) => {
+      if (!newDocument) {
         return
       }
+
       if (providedDereferencedDocument) {
         return
       }
 
       // TODO: Load external references
 
-      const { specification: upgraded } = upgrade(toValue(newVal) ?? {})
+      // Make it an object
+      const content = normalize(newDocument) as OpenAPI.Document
 
-      const { schema } = await dereference(upgraded)
+      // Original OpenAPI version
+      originalOpenApiVersion.value = content.openapi || content.swagger || ''
+
+      // Upgrade
+      const outdatedVersion = !content.openapi?.startsWith('3.1')
+      const upgraded = outdatedVersion
+        ? // Upgrade needed
+          measure('upgrade', () => {
+            const { specification } = upgrade(content)
+
+            return specification
+          })
+        : // Skip the upgrade
+          content
+
+      // Dereference
+      const schema = await measure('dereference', async () => {
+        const { schema } = await dereference(upgraded)
+
+        return schema
+      })
+
       manuallyDereferencedDocument.value = schema as OpenAPIV3_1.Document
     },
     { immediate: true },
   )
 
-  // TODO: Performance logging
   // TODO: Load external references
   // TODO: Error handling
 
@@ -115,16 +141,19 @@ export function useDataSource({
   })
 
   watch(
-    () => toValue(originalDocument),
-    (newDocument) =>
-      newDocument &&
-      workspaceStore.importSpecFile(newDocument, 'default', {
-        shouldLoad: false,
-        documentUrl: toValue(configuration)?.url,
-        useCollectionSecurity: true,
-        ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
-      }),
-    { immediate: true },
+    () => toValue(dereferencedDocument),
+    (newDocument) => {
+      return (
+        newDocument &&
+        workspaceStore.importSpecFile(undefined, 'default', {
+          dereferencedDocument: newDocument,
+          shouldLoad: false,
+          documentUrl: toValue(configuration)?.url,
+          useCollectionSecurity: true,
+          ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
+        })
+      )
+    },
   )
 
   /** Active Entities Store */
@@ -136,11 +165,12 @@ export function useDataSource({
 
   watch(
     () => toValue(dereferencedDocument),
-    async (newVal) => {
-      if (!newVal) {
+    async (newDocument) => {
+      if (!newDocument) {
         return
       }
-      const result = await parse(newVal)
+
+      const result = await parse(newDocument)
       parsedDocument.value = result
       setParsedSpec(result)
     },
@@ -149,6 +179,7 @@ export function useDataSource({
 
   return {
     originalDocument,
+    originalOpenApiVersion,
     dereferencedDocument,
     parsedDocument,
     workspaceStore,
