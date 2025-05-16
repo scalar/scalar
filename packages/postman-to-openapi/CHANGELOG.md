@@ -1,5 +1,17 @@
 # @scalar/postman-to-openapi
 
+## 0.3.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/openapi-types@0.3.0
+  - @scalar/oas-utils@0.3.0
+
 ## 0.2.17
 
 ### Patch Changes

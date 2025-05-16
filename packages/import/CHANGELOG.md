@@ -1,5 +1,19 @@
 # @scalar/import
 
+## 0.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [bd602d3]
+- Updated dependencies [483ca93]
+- Updated dependencies [1d1470c]
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/oas-utils@0.3.0
+
 ## 0.3.27
 
 ### Patch Changes

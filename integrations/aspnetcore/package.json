@@ -9,7 +9,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspnetcore"
   },
-  "version": "2.3.1",
+  "version": "2.4.0",
   "private": true,
   "engines": {
     "node": ">=20"

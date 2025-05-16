@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 1.1.14
 
 ### Patch Changes

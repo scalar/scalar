@@ -1,5 +1,16 @@
 # @scalar/use-codemirror
 
+## 0.12.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/components@0.14.0
+
 ## 0.11.104
 
 ### Patch Changes

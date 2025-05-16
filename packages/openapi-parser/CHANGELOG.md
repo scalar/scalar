@@ -1,5 +1,16 @@
 # @scalar/openapi-parser
 
+## 0.11.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- bd602d3: chore: mark pipeline syntax as deprecated
+- 1d1470c: feat: speed up the upgrade utility
+
 ## 0.10.17
 
 ### Patch Changes
