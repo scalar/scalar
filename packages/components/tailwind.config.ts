@@ -69,6 +69,8 @@ export default {
         'context-plus': '1001',
         // Full screen overlays / modals
         overlay: '10000',
+        // Tooltip
+        tooltip: '99999',
       },
     },
   },

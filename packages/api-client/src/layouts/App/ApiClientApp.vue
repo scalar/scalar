@@ -1,7 +1,10 @@
 <script setup lang="ts">
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
-import { addScalarClassesToHeadless } from '@scalar/components'
+import {
+  addScalarClassesToHeadless,
+  ScalarTeleportRoot,
+} from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -88,28 +91,30 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  <div
-    id="scalar-client-app"
-    class="contents">
-    <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
-    <!-- <ImportCollectionListener> -->
-    <div v-html="themeStyleTag" />
-    <TopNav :openNewTab="newTab" />
+  <ScalarTeleportRoot>
+    <div
+      id="scalar-client-app"
+      class="contents">
+      <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
+      <!-- <ImportCollectionListener> -->
+      <div v-html="themeStyleTag" />
+      <TopNav :openNewTab="newTab" />
 
-    <!-- Ensure we have the workspace loaded from localStorage above -->
-    <MainLayout v-if="activeWorkspace?.uid">
-      <RouterView
-        v-slot="{ Component }"
-        @newTab="handleNewTab">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </RouterView>
-    </MainLayout>
+      <!-- Ensure we have the workspace loaded from localStorage above -->
+      <MainLayout v-if="activeWorkspace?.uid">
+        <RouterView
+          v-slot="{ Component }"
+          @newTab="handleNewTab">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </RouterView>
+      </MainLayout>
 
-    <ScalarToasts />
-    <!-- </ImportCollectionListener> -->
-  </div>
+      <ScalarToasts />
+      <!-- </ImportCollectionListener> -->
+    </div>
+  </ScalarTeleportRoot>
 </template>
 <style>
 @import '@scalar/components/style.css';

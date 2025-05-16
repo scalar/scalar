@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { addScalarClassesToHeadless } from '@scalar/components'
+import {
+  addScalarClassesToHeadless,
+  ScalarTeleportRoot,
+} from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -65,21 +68,23 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
-  <ImportCollectionListener>
-    <div v-html="themeStyleTag" />
+  <ScalarTeleportRoot>
+    <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
+    <ImportCollectionListener>
+      <div v-html="themeStyleTag" />
 
-    <!-- Ensure we have the workspace loaded from localStorage above -->
-    <MainLayout v-if="activeWorkspace?.uid">
-      <RouterView v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </RouterView>
-    </MainLayout>
+      <!-- Ensure we have the workspace loaded from localStorage above -->
+      <MainLayout v-if="activeWorkspace?.uid">
+        <RouterView v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </RouterView>
+      </MainLayout>
 
-    <ScalarToasts />
-  </ImportCollectionListener>
+      <ScalarToasts />
+    </ImportCollectionListener>
+  </ScalarTeleportRoot>
 </template>
 <style>
 @import '@scalar/components/style.css';

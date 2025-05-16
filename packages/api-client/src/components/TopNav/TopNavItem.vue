@@ -10,6 +10,7 @@ import {
   type Icon,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
+import { isMacOS } from '@scalar/use-tooltip'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 
@@ -34,46 +35,34 @@ defineEmits<{
   <ScalarContextMenu triggerClass="overflow-hidden w-full">
     <template #trigger>
       <ScalarTooltip
-        class="scalar-client"
-        :delay="500"
-        :disableClosingTrigger="true"
-        resize
-        :sideOffset="4">
-        <template #trigger>
+        :content="`${isMacOS() ? '⌘' : '^'} ${hotkey}`"
+        placement="bottom">
+        <div
+          class="nav-item app-no-drag-region"
+          :class="{ 'nav-item__active': active }"
+          @click="$emit('click')">
           <div
-            class="nav-item app-no-drag-region"
-            :class="{ 'nav-item__active': active }"
-            @click="$emit('click')">
-            <div
-              class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
-              <LibraryIcon
-                v-if="isCollection"
-                class="size-3.5 min-w-3.5 stroke-2"
-                :src="icon" />
-              <ScalarIcon
-                v-else
-                :icon="icon"
-                size="xs"
-                thickness="2.5" />
-              <span class="custom-scroll nav-item-copy text-xs">{{
-                label
-              }}</span>
-            </div>
-            <button
-              class="nav-item-close"
-              type="button"
-              @click="$emit('close')">
-              <ScalarIcon
-                icon="Close"
-                thickness="1.75" />
-            </button>
+            class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
+            <LibraryIcon
+              v-if="isCollection"
+              class="size-3.5 min-w-3.5 stroke-2"
+              :src="icon" />
+            <ScalarIcon
+              v-else
+              :icon="icon"
+              size="xs"
+              thickness="2.5" />
+            <span class="custom-scroll nav-item-copy text-xs">{{ label }}</span>
           </div>
-        </template>
-        <template #content>
-          <ScalarHotkey
-            v-if="hotkey"
-            :hotkey="hotkey" />
-        </template>
+          <button
+            class="nav-item-close"
+            type="button"
+            @click="$emit('close')">
+            <ScalarIcon
+              icon="Close"
+              thickness="1.75" />
+          </button>
+        </div>
       </ScalarTooltip>
     </template>
     <template #content>
