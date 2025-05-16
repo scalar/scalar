@@ -57,31 +57,35 @@ watch(floatingStyles, () => {
 })
 
 // Show or hide the tooltip when the config changes
-watch(config, (opts) => {
-  if (!el.value) {
-    return
-  }
+watch(
+  config,
+  (opts) => {
+    if (!el.value) {
+      return
+    }
 
-  if (opts) {
-    // Update the tooltip content
-    el.value.textContent = unref(opts?.content) ?? null
+    if (opts) {
+      // Update the tooltip content
+      el.value.textContent = unref(opts?.content) ?? null
 
-    // Show the tooltip
-    const offset = unref(opts?.offset)
-    el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
-    el.value.style.setProperty('display', 'block')
-  } else {
-    // Clear the tooltip content
-    el.value.textContent = null
+      // Show the tooltip
+      const offset = unref(opts?.offset)
+      el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
+      el.value.style.setProperty('display', 'block')
+    } else {
+      // Clear the tooltip content
+      el.value.textContent = null
 
-    // Hide the tooltip
-    el.value.style.removeProperty('--scalar-tooltip-offset')
-    el.value.style.setProperty('display', 'none')
-  }
-})
+      // Hide the tooltip
+      el.value.style.removeProperty('--scalar-tooltip-offset')
+      el.value.style.setProperty('display', 'none')
+    }
+  },
+  { deep: true },
+)
 
 // ---------------------------------------------------------------------------
-// Helper Functions
+// Lifecycle Functions
 // ---------------------------------------------------------------------------
 
 /**
@@ -89,7 +93,7 @@ watch(config, (opts) => {
  *
  * If the tooltip is already initialized it will be ignored
  */
-function initializeTooltipElement() {
+export function initializeTooltipElement() {
   if (el.value) {
     // Tooltip already initialized
     return
@@ -115,6 +119,18 @@ function initializeTooltipElement() {
 }
 
 /**
+ * Cleanup and reset the tooltip element
+ */
+export function cleanupTooltipElement() {
+  document.getElementById(ELEMENT_ID)?.remove()
+  el.value = undefined
+}
+
+// ---------------------------------------------------------------------------
+// Helper Functions
+// ---------------------------------------------------------------------------
+
+/**
  * Hide the tooltip
  *
  * If the mouse is moving between the tooltip and the target we don't hide the tooltip
@@ -130,7 +146,6 @@ function hideTooltip(_e: Event) {
 
   // Hide the tooltip
   config.value = undefined
-  document.removeEventListener('keydown', handleEscape)
 }
 
 /**
@@ -161,7 +176,7 @@ function isMovingOffElements(e: Event): boolean {
   if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
     return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
   }
-  return false
+  return true
 }
 
 // ---------------------------------------------------------------------------
@@ -181,7 +196,6 @@ export function useTooltip(opts: TooltipConfiguration) {
    */
   function showTooltipAfterDelay(_e: Event) {
     const delay = unref(opts.delay) ?? DEFAULT_DELAY
-
     clearTimer()
 
     // Show the tooltip after the delay
@@ -199,7 +213,7 @@ export function useTooltip(opts: TooltipConfiguration) {
     clearTimer()
 
     // Handle the escape key
-    document.addEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', handleEscape, { once: true, capture: true })
 
     // Show the tooltip
     config.value = opts
@@ -225,5 +239,6 @@ export function useTooltip(opts: TooltipConfiguration) {
         newRef.setAttribute('aria-describedby', ELEMENT_ID)
       }
     },
+    { immediate: true },
   )
 }
