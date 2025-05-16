@@ -312,13 +312,16 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-card-title--compact {
   position: static;
 }
-:not(.discriminator-panel)
-  > .schema-card--compact.schema-card--level-0
-  > .schema-properties {
+.property--level-0 .schema-card--level-0 .schema-properties {
   border: none;
 }
-.discriminator-panel
-  > .schema-card--level-0:not(.schema-card--compact)
+.property--level-0
+  .schema-card--level-0:not(.schema-card--compact)
+  .property--level-1 {
+  padding: 0 0 8px;
+}
+:not(.discriminator-panel)
+  > .schema-card--compact.schema-card--level-0
   > .schema-properties {
   border: none;
 }
