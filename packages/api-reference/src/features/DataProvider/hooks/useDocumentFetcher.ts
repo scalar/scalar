@@ -1,3 +1,4 @@
+import { measure } from '@/helpers/measure'
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
@@ -47,13 +48,9 @@ export function useDocumentFetcher({
 const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string): Promise<string | undefined> => {
   // Fetch from URL
   if (url) {
-    const start = performance.now()
-
     try {
-      const result = await fetchDocument(url, proxyUrl)
+      const result = await measure(`fetch(${url})`, async () => await fetchDocument(url, proxyUrl))
 
-      const end = performance.now()
-      console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
       console.log('size:', Math.round(result.length / 1024), 'kB')
 
       return result
