@@ -250,11 +250,7 @@ export const createApiClient = ({
      *
      * Deletes the current store before importing again for now, in the future will Diff and only update what is needed
      */
-    updateConfig: async (
-      _newConfig: Partial<ApiClientConfiguration> & {
-        skipContentUpdates?: boolean
-      },
-    ) => {
+    updateConfig: async (_newConfig: Partial<ApiClientConfiguration>) => {
       const newConfig = apiClientConfigurationSchema.parse(_newConfig)
 
       // When to rigger rebuilding the store (until we diff) this is just a temp hack BUT do not put anything that
@@ -287,11 +283,6 @@ export const createApiClient = ({
 
         // Update the config ref
         configuration.value = config
-
-        // If we get a store from the parent, we don’t need to keep it up to date here.
-        if (_newConfig?.skipContentUpdates === true) {
-          return
-        }
 
         if (newConfig.url) {
           await importSpecFromUrl(newConfig.url, activeWorkspace.value?.uid ?? 'default', config)
