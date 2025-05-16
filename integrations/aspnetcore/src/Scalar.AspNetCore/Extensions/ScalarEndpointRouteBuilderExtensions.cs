@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+#if RELEASE
+using System.IO.Compression;
+#endif
 
 namespace Scalar.AspNetCore;
 
