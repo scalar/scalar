@@ -111,6 +111,26 @@ describe('SchemaPropertyHeading', () => {
     expect(constElement.exists()).toBe(false)
   })
 
+  it('renders const value in array items', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: {
+            const: 'foo',
+          },
+        },
+      },
+    })
+
+    const typeElement = wrapper.find('.property-detail')
+    expect(typeElement.text()).toContain('array')
+
+    const constElement = wrapper.find('.property-const')
+    expect(constElement.text()).toContain('const:')
+    expect(constElement.text()).toContain('foo')
+  })
+
   it('renders pattern badge', async () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
