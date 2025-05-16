@@ -2,6 +2,10 @@
 import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
+  ACTIVE_ENTITIES_SYMBOL,
+  WORKSPACE_SYMBOL,
+} from '@scalar/api-client/store'
+import {
   addScalarClassesToHeadless,
   ScalarErrorBoundary,
 } from '@scalar/components'
@@ -35,11 +39,12 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
-import { DataProvider } from '@/features/DataProvider'
+import { useDataSource } from '@/features/DataProvider/hooks/useDataSource'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
+import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
@@ -48,7 +53,11 @@ import type {
   ReferenceSlotProps,
 } from '@/types'
 
-const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
+const {
+  configuration: providedConfiguration,
+  originalDocument: providedOriginalDocument,
+  dereferencedDocument: providedDereferencedDocument,
+} = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
@@ -59,7 +68,7 @@ defineEmits<{
 }>()
 
 const configuration = computed(() =>
-  apiReferenceConfigurationSchema.parse(props.configuration),
+  apiReferenceConfigurationSchema.parse(providedConfiguration),
 )
 
 // Configure Reference toasts to use vue-sonner
@@ -69,6 +78,21 @@ initializeToasts((message) => toast(message))
 defineOptions({
   inheritAttrs: false,
 })
+
+const {
+  originalDocument,
+  dereferencedDocument,
+  parsedDocument,
+  workspaceStore,
+  activeEntitiesStore,
+} = useDataSource({
+  configuration: configuration.value,
+  dereferencedDocument: providedDereferencedDocument,
+  originalDocument: providedOriginalDocument,
+})
+
+provide(WORKSPACE_SYMBOL, workspaceStore)
+provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
 defineSlots<{
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
@@ -184,17 +208,24 @@ const debouncedScroll = useDebounceFn((value) => {
 })
 
 /** This is passed into all of the slots so they have access to the references data */
-const referenceSlotProps = computed<Omit<ReferenceSlotProps, 'spec'>>(() => ({
+const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
+  spec: parsedDocument.value,
 }))
 
-onUnmounted(() => {
-  downloadEventBus.reset()
-})
+// Download documents
+onMounted(() =>
+  downloadEventBus.on(({ filename }) => {
+    downloadDocument(originalDocument.value, filename)
+  }),
+)
+
+onUnmounted(() => downloadEventBus.reset())
 
 // Initialize the server state
 onServerPrefetch(() => {
   const ctx = useSSRContext<SSRState>()
+
   if (!ctx) {
     return
   }
@@ -219,12 +250,13 @@ onServerPrefetch(() => {
     if (id) {
       setCollapsedSidebarItem(getSectionId(id), true)
     } else {
-      // TODO: We need to bring this back. But it’ll probably somewhere, we have the data.
-      // const firstTag = props.parsedSpec.tags?.[0]
-      // if (firstTag) {
-      //   setCollapsedSidebarItem(getTagId(firstTag), true)
-      // }
+      const firstTag = parsedDocument.value.tags?.[0]
+
+      if (firstTag) {
+        setCollapsedSidebarItem(getTagId(firstTag), true)
+      }
     }
+
     ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
       collapsedSidebarItems
   }
@@ -283,113 +315,107 @@ const themeStyleTag = computed(
 </script>
 <template>
   <div v-html="themeStyleTag" />
-  <DataProvider
-    :originalDocument="props.originalDocument"
-    :dereferencedDocument="props.dereferencedDocument"
-    :configuration="configuration"
-    v-slot="{ originalDocument, dereferencedDocument, parsedDocument }">
-    <div
-      ref="documentEl"
-      class="scalar-app scalar-api-reference references-layout"
-      :class="[
-        {
-          'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
-          'references-editable': configuration.isEditable,
-          'references-sidebar': configuration.showSidebar,
-          'references-sidebar-mobile-open': isSidebarOpen,
-          'references-classic': configuration.layout === 'classic',
-        },
-        $attrs.class,
-      ]"
-      :style="{
-        '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
-      }"
-      @scroll.passive="debouncedScroll">
-      <!-- Header -->
-      <div class="references-header">
-        <slot
-          v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-          name="header" />
-      </div>
-      <!-- Navigation (sidebar) wrapper -->
-      <aside
-        v-if="configuration.showSidebar"
-        :aria-label="`Sidebar for ${dereferencedDocument?.info?.title}`"
-        class="references-navigation t-doc__sidebar">
-        <!-- Navigation tree / Table of Contents -->
-        <div class="references-navigation-list">
-          <ScalarErrorBoundary>
-            <Sidebar
-              :operationsSorter="configuration.operationsSorter"
-              :parsedSpec="parsedDocument"
-              :tagsSorter="configuration.tagsSorter">
-              <template #sidebar-start>
-                <slot
-                  v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-                  name="sidebar-start" />
-              </template>
-              <template #sidebar-end>
-                <slot
-                  v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-                  name="sidebar-end" />
-              </template>
-            </Sidebar>
-          </ScalarErrorBoundary>
-        </div>
-      </aside>
-      <!-- Swagger file editing -->
-      <div
-        v-show="configuration.isEditable"
-        class="references-editor">
-        <div class="references-editor-textarea">
-          <slot
-            v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-            name="editor" />
-        </div>
-      </div>
-      <!-- Rendered reference -->
-      <template v-if="showRenderedContent">
-        <main
-          :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
-          class="references-rendered">
-          <Content
-            :layout="configuration.layout"
-            :parsedSpec="parsedDocument">
-            <template #start>
-              <slot
-                v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-                name="content-start" />
-            </template>
-            <template
-              v-if="configuration?.isEditable"
-              #empty-state>
-              <GettingStarted
-                :theme="configuration?.theme || 'default'"
-                @changeTheme="$emit('changeTheme', $event)"
-                @linkSwaggerFile="$emit('linkSwaggerFile')"
-                @loadSwaggerFile="$emit('loadSwaggerFile')"
-                @updateContent="$emit('updateContent', $event)" />
-            </template>
-            <template #end>
-              <slot
-                v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-                name="content-end" />
-            </template>
-          </Content>
-        </main>
-        <div
-          v-if="$slots.footer"
-          class="references-footer">
-          <slot
-            v-bind="{ ...referenceSlotProps, spec: parsedDocument }"
-            name="footer" />
-        </div>
-      </template>
-      <ApiClientModal
-        :configuration="configuration"
-        :dereferencedDocument="dereferencedDocument" />
+  <div
+    ref="documentEl"
+    class="scalar-app scalar-api-reference references-layout"
+    :class="[
+      {
+        'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
+        'references-editable': configuration.isEditable,
+        'references-sidebar': configuration.showSidebar,
+        'references-sidebar-mobile-open': isSidebarOpen,
+        'references-classic': configuration.layout === 'classic',
+      },
+      $attrs.class,
+    ]"
+    :style="{
+      '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
+    }"
+    @scroll.passive="debouncedScroll">
+    <!-- Header -->
+    <div class="references-header">
+      <slot
+        v-bind="{ ...referenceSlotProps }"
+        name="header" />
     </div>
-  </DataProvider>
+    <!-- Navigation (sidebar) wrapper -->
+    <aside
+      v-if="configuration.showSidebar"
+      :aria-label="`Sidebar for ${dereferencedDocument?.info?.title}`"
+      class="references-navigation t-doc__sidebar">
+      <!-- Navigation tree / Table of Contents -->
+      <div class="references-navigation-list">
+        <ScalarErrorBoundary>
+          <Sidebar
+            :operationsSorter="configuration.operationsSorter"
+            :parsedSpec="parsedDocument"
+            :tagsSorter="configuration.tagsSorter">
+            <template #sidebar-start>
+              <slot
+                v-bind="{ ...referenceSlotProps }"
+                name="sidebar-start" />
+            </template>
+            <template #sidebar-end>
+              <slot
+                v-bind="{ ...referenceSlotProps }"
+                name="sidebar-end" />
+            </template>
+          </Sidebar>
+        </ScalarErrorBoundary>
+      </div>
+    </aside>
+    <!-- Swagger file editing -->
+    <div
+      v-show="configuration.isEditable"
+      class="references-editor">
+      <div class="references-editor-textarea">
+        <slot
+          v-bind="{ ...referenceSlotProps }"
+          name="editor" />
+      </div>
+    </div>
+    <!-- Rendered reference -->
+    <template v-if="showRenderedContent">
+      <main
+        :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
+        class="references-rendered">
+        <Content
+          :layout="configuration.layout"
+          :parsedSpec="parsedDocument">
+          <template #start>
+            <slot
+              v-bind="{ ...referenceSlotProps }"
+              name="content-start" />
+          </template>
+          <template
+            v-if="configuration?.isEditable"
+            #empty-state>
+            <GettingStarted
+              :theme="configuration?.theme || 'default'"
+              @changeTheme="$emit('changeTheme', $event)"
+              @linkSwaggerFile="$emit('linkSwaggerFile')"
+              @loadSwaggerFile="$emit('loadSwaggerFile')"
+              @updateContent="$emit('updateContent', $event)" />
+          </template>
+          <template #end>
+            <slot
+              v-bind="{ ...referenceSlotProps }"
+              name="content-end" />
+          </template>
+        </Content>
+      </main>
+      <div
+        v-if="$slots.footer"
+        class="references-footer">
+        <slot
+          v-bind="{ ...referenceSlotProps }"
+          name="footer" />
+      </div>
+    </template>
+    <ApiClientModal
+      :configuration="configuration"
+      :dereferencedDocument="dereferencedDocument" />
+  </div>
   <ScalarToasts />
 </template>
 <style>

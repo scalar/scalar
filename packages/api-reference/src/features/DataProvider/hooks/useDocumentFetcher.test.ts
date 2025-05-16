@@ -3,7 +3,7 @@ import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, watch } from 'vue'
 
-import { useDataSource } from './useDataSource'
+import { useDocumentFetcher } from './useDocumentFetcher'
 
 const EXAMPLE_DOCUMENT = {
   openapi: '3.1.0',
@@ -15,14 +15,14 @@ const EXAMPLE_DOCUMENT_STRING = JSON.stringify(EXAMPLE_DOCUMENT, null, 2)
 
 global.fetch = vi.fn()
 
-describe('useDataSource', () => {
+describe('useDocumentFetcher', () => {
   beforeEach(() => {
     // @ts-expect-error
     global.fetch.mockReset()
   })
 
   it('returns the content from an object', async () => {
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         content: EXAMPLE_DOCUMENT,
       },
@@ -34,7 +34,7 @@ describe('useDataSource', () => {
   })
 
   it('returns an empty string for empty content', async () => {
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         content: '',
       },
@@ -46,7 +46,7 @@ describe('useDataSource', () => {
   })
 
   it('handles content callback', async () => {
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         content: () => EXAMPLE_DOCUMENT,
       },
@@ -58,7 +58,7 @@ describe('useDataSource', () => {
   })
 
   it('handles string content', async () => {
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         content: EXAMPLE_DOCUMENT_STRING,
       },
@@ -70,7 +70,7 @@ describe('useDataSource', () => {
   })
 
   it('handles string content from callback', async () => {
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         content: () => EXAMPLE_DOCUMENT_STRING,
       },
@@ -93,7 +93,7 @@ describe('useDataSource', () => {
     // @ts-expect-error
     fetch.mockResolvedValue(createFetchResponse(EXAMPLE_DOCUMENT_STRING))
 
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: {
         url: 'https://example.com/openapi.json',
       },
@@ -120,7 +120,7 @@ describe('useDataSource', () => {
       content: EXAMPLE_DOCUMENT,
     })
 
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: configurationRef,
     })
 
@@ -149,7 +149,7 @@ describe('useDataSource', () => {
       content: EXAMPLE_DOCUMENT,
     })
 
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: computed(() => configurationRef),
     })
 
@@ -178,7 +178,7 @@ describe('useDataSource', () => {
       content: EXAMPLE_DOCUMENT,
     })
 
-    const { originalDocument } = useDataSource({
+    const { originalDocument } = useDocumentFetcher({
       configuration: computed(() => configurationRef),
     })
 
@@ -198,7 +198,7 @@ describe('useDataSource', () => {
   })
 
   it('handles undefined configuration', async () => {
-    const { originalDocument } = useDataSource({})
+    const { originalDocument } = useDocumentFetcher({})
 
     await nextTick()
 

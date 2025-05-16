@@ -1,84 +1,125 @@
-import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types/api-reference'
-import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
+import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
+import { dereference, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { Spec } from '@scalar/types'
+import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { computed, ref, toRef, toValue, watch } from 'vue'
+
+import { parse } from '@/helpers/parse'
+import { useSidebar } from '@/hooks/useSidebar'
+import { createEmptySpecification } from '@/libs/openapi'
+import type { ReferenceLayoutProps } from '@/types'
+
+import { useDocumentFetcher } from './useDocumentFetcher'
 
 /**
- * Pass a configuration object containg content or an URL, and retrieve the OpenAPI document as a string.
+ * Composable for managing API reference data sources.
+ * Handles fetching, dereferencing, and parsing of OpenAPI documents.
  */
 export function useDataSource({
+  originalDocument: providedOriginalDocument,
+  dereferencedDocument: providedDereferencedDocument,
   configuration,
-  proxyUrl,
 }: {
-  configuration?: MaybeRefOrGetter<SpecConfiguration>
-  proxyUrl?: MaybeRefOrGetter<string>
+  originalDocument?: ReferenceLayoutProps['originalDocument']
+  dereferencedDocument?: ReferenceLayoutProps['dereferencedDocument']
+  configuration?: ApiReferenceConfiguration
 }) {
-  /** OpenAPI document as a string */
-  const originalDocument = ref<string>('')
+  /** Fetch document from configuration */
+  const { originalDocument: fetchedOriginalDocument } = useDocumentFetcher({
+    configuration: toRef(() => configuration ?? {}),
+    proxyUrl: toRef(() => configuration?.proxyUrl || ''),
+  })
+
+  const originalDocument = computed(() => {
+    if (providedOriginalDocument) {
+      return providedOriginalDocument
+    }
+
+    return toValue(fetchedOriginalDocument)
+  })
+
+  /** Dereferenced document */
+  const dereferencedDocument = computed(() => {
+    if (providedDereferencedDocument) {
+      return providedDereferencedDocument
+    }
+    return manuallyDereferencedDocument.value
+  })
+
+  const manuallyDereferencedDocument = ref<OpenAPIV3_1.Document>({
+    openapi: '3.1.0',
+    info: {
+      title: '',
+      version: '',
+    },
+    paths: {},
+  })
 
   watch(
-    () => toValue(configuration),
-    async (newConfig) => {
-      if (!newConfig) {
+    () => toValue(originalDocument),
+    async (newVal) => {
+      if (!newVal) {
+        return
+      }
+      if (providedDereferencedDocument) {
         return
       }
 
-      const content = await getContent(newConfig, toValue(proxyUrl))
+      // TODO: Load external references
 
-      if (typeof content === 'string') {
-        originalDocument.value = content.trim()
-      }
+      const { specification: upgraded } = upgrade(toValue(newVal) ?? {})
+
+      const { schema } = await dereference({ ...upgraded })
+      manuallyDereferencedDocument.value = schema as OpenAPIV3_1.Document
     },
-    { immediate: true, deep: true },
+    { immediate: true },
   )
 
-  // watch(originalDocument, () => {
-  //   //   parseInput(originalDocument.value)
-  // })
+  /** API Client Store */
+  const workspaceStore = createWorkspaceStore({
+    useLocalStorage: false,
+    ...(configuration ?? apiReferenceConfigurationSchema.parse({})),
+  })
+
+  watch(
+    () => toValue(originalDocument),
+    (newDocument) =>
+      newDocument &&
+      workspaceStore.importSpecFile(newDocument, 'default', {
+        shouldLoad: false,
+        documentUrl: configuration?.url,
+        useCollectionSecurity: true,
+        ...(configuration ?? apiReferenceConfigurationSchema.parse({})),
+      }),
+    { immediate: true },
+  )
+
+  /** Active Entities Store */
+  const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
+
+  /** Parsed document (legacy data structure) */
+  const parsedDocument = ref<Spec>(createEmptySpecification())
+  const { setParsedSpec } = useSidebar()
+
+  watch(
+    () => toValue(originalDocument),
+    async (newVal) => {
+      if (!newVal) {
+        return
+      }
+      const result = await parse(originalDocument.value)
+      parsedDocument.value = result
+      setParsedSpec(result)
+    },
+    { immediate: true },
+  )
 
   return {
     originalDocument,
+    dereferencedDocument,
+    parsedDocument,
+    workspaceStore,
+    activeEntitiesStore,
   }
-}
-
-/**
- * Get the content from the provided configuration:
- *
- * 1. If the URL is provided, fetch the spec from the URL.
- * 2. If the content is a string, return it.
- * 3. If the content is an object, stringify it.
- * 4. If the content is a function, call it and get the content.
- * 5. Otherwise, return an empty string.
- */
-const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string): Promise<string | undefined> => {
-  // Fetch from URL
-  if (url) {
-    const start = performance.now()
-
-    try {
-      const result = await fetchDocument(url, proxyUrl)
-
-      const end = performance.now()
-      console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
-      console.log('size:', Math.round(result.length / 1024), 'kB')
-
-      return result
-    } catch (error) {
-      console.error('Failed to fetch OpenAPI document from URL:', error)
-    }
-  }
-
-  // Use a callback
-  const result = typeof content === 'function' ? content() : content
-
-  // Strings are fine
-  if (typeof result === 'string') {
-    return result
-  }
-
-  // Pretty print objects
-  if (typeof result === 'object') {
-    return prettyPrintJson(result)
-  }
-
-  return undefined
 }
