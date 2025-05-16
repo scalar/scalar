@@ -13,6 +13,7 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
 <template>
   <ScalarPopover
     teleport
+    :offset="4"
     placement="left">
     <button
       type="button"
@@ -28,8 +29,7 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
     </button>
     <template #popover>
       <div
-        tabindex="0"
-        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded p-2 leading-5">
+        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pb-1.5 pt-2 leading-none">
         <div
           v-if="isInvalid"
           class="text-error-1">
