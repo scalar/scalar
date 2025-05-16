@@ -1,49 +1,36 @@
-import { autoUpdate, flip, shift, useFloating, type Placement } from '@floating-ui/vue'
-import { computed, ref, unref, watch, type MaybeRef } from 'vue'
+import type { Timer, TooltipConfiguration } from './types'
+import { autoUpdate, flip, shift, useFloating } from '@floating-ui/vue'
+import { computed, ref, unref, watch } from 'vue'
+import { ELEMENT_ID, ELEMENT_CLASS, DEFAULT_DELAY } from './constants'
 
-type MaybeElement = Element | undefined | null
+// ---------------------------------------------------------------------------
+// State
+// ---------------------------------------------------------------------------
 
-/** The configuration for the active tooltip */
-type TooltipConfiguration = {
-  content: MaybeRef<string>
-  placement?: MaybeRef<Placement>
-  delay?: MaybeRef<number>
-  offset?: MaybeRef<number>
-  targetRef: MaybeRef<MaybeElement>
-}
-
-/** Check if mouse moved off the target but onto the tooltip */
-function isMovingOffElements(e: Event): boolean {
-  const target = unref(config.value?.targetRef)
-  if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
-    return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
-  }
-  return false
-}
-
-/** The ID of the tooltip element used to locate it in the DOM */
-const ELEMENT_ID = 'scalar-tooltip' as const
-
-/** The class name of the tooltip element */
-const ELEMENT_CLASS = 'scalar-tooltip' as const
-
-/** The default delay for the tooltip */
-const DEFAULT_DELAY = 300 as const
-
-type Timer = ReturnType<typeof setTimeout>
-
-/** The delay timer for the tooltip */
+/**
+ * The delay timer for the tooltip
+ *
+ * If there's not a timer running it should be undefined
+ */
 const timer = ref<Timer>()
 
-/** A reference to the tooltip element */
+/**
+ * A reference to the tooltip element
+ *
+ * If the hook hasn't been initialized it should be undefined
+ */
 const el = ref<HTMLElement>()
 
 /**
  * The configuration for the active tooltip
  *
- * If no tooltip is active it's undefined
+ * If no tooltip is active it should be undefined
  */
 const config = ref<TooltipConfiguration>()
+
+// ---------------------------------------------------------------------------
+// Core watcher and floating UI setup
+// ---------------------------------------------------------------------------
 
 // Set up floating UI
 const { floatingStyles } = useFloating(
@@ -93,6 +80,10 @@ watch(config, (opts) => {
   }
 })
 
+// ---------------------------------------------------------------------------
+// Helper Functions
+// ---------------------------------------------------------------------------
+
 /**
  * Initialize the tooltip element
  *
@@ -122,6 +113,60 @@ function initializeTooltipElement() {
     document.body.appendChild(el.value)
   }
 }
+
+/**
+ * Hide the tooltip
+ *
+ * If the mouse is moving between the tooltip and the target we don't hide the tooltip
+ */
+function hideTooltip(_e: Event) {
+  if (!isMovingOffElements(_e)) {
+    // Don't hide the tooltip if the mouse is moving between the tooltip and the target
+    return
+  }
+
+  // Clear any existing timer
+  clearTimer()
+
+  // Hide the tooltip
+  config.value = undefined
+  document.removeEventListener('keydown', handleEscape)
+}
+
+/**
+ * Handle the escape key
+ *
+ * If the escape key is pressed we need to hide the tooltip
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/tooltip_role#keyboard_interactions
+ */
+function handleEscape(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    e.stopPropagation()
+    hideTooltip(e)
+  }
+}
+
+/** Clears the current timer */
+function clearTimer() {
+  if (timer.value) {
+    clearTimeout(timer.value)
+    timer.value = undefined
+  }
+}
+
+/** Check if mouse moved off the target but onto the tooltip */
+function isMovingOffElements(e: Event): boolean {
+  const target = unref(config.value?.targetRef)
+  if (e instanceof MouseEvent && e.relatedTarget instanceof Element && target) {
+    return e.relatedTarget.id !== ELEMENT_ID && e.relatedTarget !== target
+  }
+  return false
+}
+
+// ---------------------------------------------------------------------------
+// Tooltip Hook
+// ---------------------------------------------------------------------------
 
 /**
  * Create a tooltip
@@ -181,45 +226,4 @@ export function useTooltip(opts: TooltipConfiguration) {
       }
     },
   )
-}
-
-/**
- * Hide the tooltip
- *
- * If the mouse is moving between the tooltip and the target we don't hide the tooltip
- */
-function hideTooltip(_e: Event) {
-  if (!isMovingOffElements(_e)) {
-    // Don't hide the tooltip if the mouse is moving between the tooltip and the target
-    return
-  }
-
-  // Clear any existing timer
-  clearTimer()
-
-  // Hide the tooltip
-  config.value = undefined
-  document.removeEventListener('keydown', handleEscape)
-}
-
-/**
- * Handle the escape key
- *
- * If the escape key is pressed we need to hide the tooltip
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Roles/tooltip_role#keyboard_interactions
- */
-function handleEscape(e: KeyboardEvent) {
-  if (e.key === 'Escape') {
-    e.stopPropagation()
-    hideTooltip(e)
-  }
-}
-
-/** Clears the current timer */
-function clearTimer() {
-  if (timer.value) {
-    clearTimeout(timer.value)
-    timer.value = undefined
-  }
 }
