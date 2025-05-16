@@ -17,6 +17,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
+import { isElectron } from '@/libs/electron'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -137,9 +138,7 @@ export const createRequestOperation = ({
        * If we are running in Electron, we need to add a custom header
        * that’s then forwarded as a `Cookie` header.
        */
-      const isElectron = typeof window !== 'undefined' && 'electron' in window
-
-      const useCustomCookieHeader = isElectron || shouldUseProxy(proxyUrl, url)
+      const useCustomCookieHeader = isElectron() || shouldUseProxy(proxyUrl, url)
 
       // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
       if (useCustomCookieHeader) {
