@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.IO.Compression;
 using System.Net.Mime;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
@@ -214,7 +213,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
 #if RELEASE
-        if (httpContext.IsGZipAccepted())
+        if (httpContext.Request.IsGzipAccepted())
         {
             httpContext.Response.Headers.ContentEncoding = "gzip";
             return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
