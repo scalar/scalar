@@ -31,6 +31,7 @@ import {
   provide,
   ref,
   toRef,
+  toValue,
   useId,
   useSSRContext,
   watch,
@@ -55,6 +56,7 @@ import type {
 } from '@/types'
 
 const {
+  rawSpec,
   configuration: providedConfiguration,
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
@@ -217,7 +219,10 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 // Download documents
 onMounted(() =>
   downloadEventBus.on(({ filename }) => {
-    downloadDocument(originalDocument.value, filename)
+    downloadDocument(
+      toValue(originalDocument) || toValue(rawSpec) || '',
+      filename,
+    )
   }),
 )
 
