@@ -3,7 +3,7 @@ import { dereference, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { computed, ref, toRef, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
 import { useSidebar } from '@/hooks/useSidebar'
@@ -13,22 +13,20 @@ import type { ReferenceLayoutProps } from '@/types'
 import { useDocumentFetcher } from './useDocumentFetcher'
 
 /**
- * Composable for managing API reference data sources.
- * Handles fetching, dereferencing, and parsing of OpenAPI documents.
+ * Pass any data source, retrieve all the data stores and whatever we need to render the API reference.
  */
 export function useDataSource({
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
   configuration,
 }: {
-  originalDocument?: ReferenceLayoutProps['originalDocument']
-  dereferencedDocument?: ReferenceLayoutProps['dereferencedDocument']
-  configuration?: ApiReferenceConfiguration
+  originalDocument?: MaybeRefOrGetter<ReferenceLayoutProps['originalDocument']>
+  dereferencedDocument?: MaybeRefOrGetter<ReferenceLayoutProps['dereferencedDocument']>
+  configuration?: MaybeRefOrGetter<ApiReferenceConfiguration>
 }) {
   /** Fetch document from configuration */
   const { originalDocument: fetchedOriginalDocument } = useDocumentFetcher({
-    configuration: toRef(() => configuration ?? {}),
-    proxyUrl: toRef(() => configuration?.proxyUrl || ''),
+    configuration,
   })
 
   const originalDocument = computed(() => {
@@ -70,7 +68,7 @@ export function useDataSource({
 
       const { specification: upgraded } = upgrade(toValue(newVal) ?? {})
 
-      const { schema } = await dereference({ ...upgraded })
+      const { schema } = await dereference(upgraded)
       manuallyDereferencedDocument.value = schema as OpenAPIV3_1.Document
     },
     { immediate: true },
@@ -79,7 +77,7 @@ export function useDataSource({
   /** API Client Store */
   const workspaceStore = createWorkspaceStore({
     useLocalStorage: false,
-    ...(configuration ?? apiReferenceConfigurationSchema.parse({})),
+    ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
   })
 
   watch(
@@ -88,9 +86,9 @@ export function useDataSource({
       newDocument &&
       workspaceStore.importSpecFile(newDocument, 'default', {
         shouldLoad: false,
-        documentUrl: configuration?.url,
+        documentUrl: toValue(configuration)?.url,
         useCollectionSecurity: true,
-        ...(configuration ?? apiReferenceConfigurationSchema.parse({})),
+        ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
       }),
     { immediate: true },
   )
@@ -108,7 +106,7 @@ export function useDataSource({
       if (!newVal) {
         return
       }
-      const result = await parse(originalDocument.value)
+      const result = await parse(toValue(newVal))
       parsedDocument.value = result
       setParsedSpec(result)
     },

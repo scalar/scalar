@@ -55,7 +55,7 @@ export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = t
   }
 
   const { specification } = upgrade(filesystem)
-  const { schema, errors: derefErrors = [] } = await dereference(structuredClone(specification))
+  const { schema, errors: derefErrors = [] } = await dereference(specification)
 
   if (!schema) {
     console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')

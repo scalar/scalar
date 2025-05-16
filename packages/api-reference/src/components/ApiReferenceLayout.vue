@@ -30,6 +30,7 @@ import {
   onUnmounted,
   provide,
   ref,
+  toRef,
   useId,
   useSSRContext,
   watch,
@@ -39,7 +40,7 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
-import { useDataSource } from '@/features/DataProvider/hooks/useDataSource'
+import { useDataSource } from '@/features/DataProvider'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -86,7 +87,7 @@ const {
   workspaceStore,
   activeEntitiesStore,
 } = useDataSource({
-  configuration: configuration.value,
+  configuration,
   dereferencedDocument: providedDereferencedDocument,
   originalDocument: providedOriginalDocument,
 })
@@ -332,6 +333,7 @@ const themeStyleTag = computed(
       '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
     }"
     @scroll.passive="debouncedScroll">
+    <div>deref:{{ !!dereferencedDocument }}</div>
     <!-- Header -->
     <div class="references-header">
       <slot
