@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { OpenApiClientButton } from '@scalar/api-client/components'
 import {
-  ScalarColorModeToggleButton,
+  ScalarColorModeToggleSelect,
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
@@ -20,7 +20,7 @@ import type {
 
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
-  (e: 'toggleDarkMode'): void
+  (e: 'changedTheme', v: string): void
   (e: 'updateContent', v: string): void
 }>()
 
@@ -89,10 +89,12 @@ watch(hash, (newHash, oldHash) => {
           :url="configuration.url" />
         <!-- Override the dark mode toggle slot to hide it -->
         <template #toggle>
-          <ScalarColorModeToggleButton
+          <ScalarColorModeToggleSelect
             v-if="!props.configuration.hideDarkModeToggle"
-            :modelValue="isDark"
-            @update:modelValue="$emit('toggleDarkMode')" />
+            :modelValue="theme"
+            @update:modelValue="
+              $emit('changedTheme', theme ?? (isDark ? 'dark' : 'light'))
+            " />
           <span v-else />
         </template>
       </ScalarSidebarFooter>
