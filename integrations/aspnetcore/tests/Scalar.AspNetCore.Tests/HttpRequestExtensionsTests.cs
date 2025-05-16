@@ -6,6 +6,7 @@ public class HttpRequestExtensionsTests
 {
     [Theory]
     [InlineData("gzip, br", true)]
+    [InlineData("deflate, gZIP", true)]
     [InlineData("br", false)]
     public void IsGzipAccepted_ShouldReturnTrue_WhenGzipIsPresent(string acceptEncoding, bool expected)
     {
