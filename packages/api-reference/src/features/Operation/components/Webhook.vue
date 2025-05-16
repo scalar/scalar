@@ -19,6 +19,7 @@ defineProps<{
     <OperationResponses :operation="webhook" />
   </template>
 </template>
+
 <style scoped>
 .webhook-request-body {
   margin-top: -18px;
