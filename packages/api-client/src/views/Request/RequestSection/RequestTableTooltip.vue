@@ -17,11 +17,11 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
     <button
       type="button"
       :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
-      class="text-c-2 hover:text-c-1 hover:bg-b-2 rounded p-1 group-[.alert]:bg-transparent group-[.error]:bg-transparent"
+      class="text-c-2 hover:text-c-1 hover:bg-b-2 rounded p-1"
       :role="isInvalid ? 'alert' : 'none'">
       <ScalarIconWarning
         v-if="isInvalid"
-        class="text-orange size-3.5 brightness-[.9]" />
+        class="text-orange size-3.5 brightness-90 hover:brightness-75" />
       <ScalarIconInfo
         v-else
         class="text-c-2 hover:text-c-1 size-3.5" />
