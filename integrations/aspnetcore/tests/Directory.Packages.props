@@ -1,6 +1,8 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!--Todo: Remove the supression-->
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,5 +19,9 @@
 
   <ItemGroup Condition="$(TargetFrameWork) == 'net9.0'">
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.7" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFrameWork) == 'net10.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.5.25277.114" />
   </ItemGroup>
 </Project>

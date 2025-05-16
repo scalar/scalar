@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
     <IsAotCompatible>false</IsAotCompatible>
   </PropertyGroup>
 
@@ -11,8 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--Only allow compatible Swashbuckle version. There will be a breaking change in 10.x.x-->
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="[9.0.0,10.0.0)" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.0-pr.3283.1557" />
   </ItemGroup>
 
   <ItemGroup>

@@ -584,6 +584,7 @@ jobs:
         uses: actions/setup-dotnet@0f55b457d2a9ef0a7d0c7a2dd7cac6b1647730a4
         with:
           dotnet-version: |
+            10.x
             9.x
             8.x
 
@@ -702,6 +703,7 @@ jobs:
         uses: actions/setup-dotnet@0f55b457d2a9ef0a7d0c7a2dd7cac6b1647730a4
         with:
           dotnet-version: |
+            10.x
             9.x
             8.x
 
