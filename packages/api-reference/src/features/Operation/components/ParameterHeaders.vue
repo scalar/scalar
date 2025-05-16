@@ -1,18 +1,18 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import SchemaProperty from '@/components/Content/Schema/SchemaProperty.vue'
 
 defineProps<{
-  headers: { [key: string]: OpenAPI.HeaderObject }
+  headers: { [key: string]: OpenAPIV3_1.HeaderObject }
 }>()
 
 function hasSchema(
-  header: OpenAPI.HeaderObject,
-): header is OpenAPIV3.HeaderObject | OpenAPIV3_1.HeaderObject {
-  return (header as OpenAPIV3.HeaderObject).schema !== undefined
+  header: OpenAPIV3_1.HeaderObject,
+): header is OpenAPIV3_1.HeaderObject {
+  return (header as OpenAPIV3_1.HeaderObject).schema !== undefined
 }
 </script>
 <template>
