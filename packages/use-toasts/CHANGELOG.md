@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.8.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 0.7.10
 
 ### Patch Changes

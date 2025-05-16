@@ -1,5 +1,18 @@
 # @scalar/nextjs-openapi
 
+## 0.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/ts-to-openapi@0.1.0
+  - @scalar/nextjs-api-reference@0.8.0
+  - @scalar/types@0.2.0
+
 ## 0.1.19
 
 ### Patch Changes

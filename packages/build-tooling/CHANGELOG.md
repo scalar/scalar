@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 0.1.19
 
 ### Patch Changes

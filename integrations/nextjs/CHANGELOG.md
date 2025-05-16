@@ -1,5 +1,17 @@
 # @scalar/nextjs-api-reference
 
+## 0.8.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/types@0.2.0
+  - @scalar/core@0.3.0
+
 ## 0.7.17
 
 ### Patch Changes

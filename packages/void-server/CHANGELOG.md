@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 2.1.1
 
 ### Patch Changes
