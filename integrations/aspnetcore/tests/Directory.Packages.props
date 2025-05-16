@@ -18,4 +18,8 @@
   <ItemGroup Condition="$(TargetFrameWork) == 'net9.0'">
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.5" />
   </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFrameWork) == 'net10.0'">
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.4.25258.110" />
+  </ItemGroup>
 </Project>

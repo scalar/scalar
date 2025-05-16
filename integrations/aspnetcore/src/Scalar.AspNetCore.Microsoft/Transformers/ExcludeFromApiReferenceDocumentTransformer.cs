@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
-#if NET10_0_OR_GREATER
-using Microsoft.OpenApi.Models.References;
-#endif
 
 
 namespace Scalar.AspNetCore;
@@ -17,15 +14,21 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
         // Group operations by tag
         foreach (var path in document.Paths)
         {
+            if (path.Value.Operations is null)
+            {
+                continue;
+            }
+
             foreach (var (_, operation) in path.Value.Operations)
             {
-#if NET10_0_OR_GREATER
-                var tags = operation.Tags ?? new HashSet<OpenApiTagReference>();
-#elif NET9_0
                 var tags = operation.Tags ?? [];
-#endif
                 foreach (var tagName in tags.Select(tag => tag.Name))
                 {
+                    if (tagName is null)
+                    {
+                        continue;
+                    }
+
                     if (!tagOperations.TryGetValue(tagName, out var operations))
                     {
                         operations = [];
@@ -50,9 +53,10 @@ internal sealed class ExcludeFromApiReferenceOpenApiDocumentTransformer : IOpenA
                 continue;
             }
 #if NET10_0_OR_GREATER
-            tagToExclude?.Extensions.TryAdd(ScalarIgnore, new OpenApiAny(TrueNode));
+            tagToExclude.Extensions ??= [];
+            tagToExclude.Extensions.TryAdd(ScalarIgnore, new OpenApiAny(TrueNode));
 #elif NET9_0
-            tagToExclude?.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
+            tagToExclude.Extensions.TryAdd(ScalarIgnore, new OpenApiBoolean(true));
 #endif
 
             // Remove the ignore extension from all operations with this tag
