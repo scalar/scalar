@@ -9,7 +9,6 @@ import {
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import { SpecificationExtension } from '@/components/SpecificationExtension'
-import { usePluginManager } from '@/plugins'
 
 import Schema from './Schema.vue'
 import SchemaDiscriminator from './SchemaDiscriminator.vue'

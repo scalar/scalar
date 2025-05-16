@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Tab, TabGroup, TabList, TabPanel } from '@headlessui/vue'
 import {
   ScalarListbox,
   ScalarMarkdown,
@@ -12,10 +11,14 @@ import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
 
+import {
+  hasDiscriminator,
+  type DiscriminatorType,
+} from './helpers/schema-discriminator'
 import Schema from './Schema.vue'
 
 const { schemas, value, discriminator } = defineProps<{
-  discriminator: string
+  discriminator: DiscriminatorType
   schemas?:
     | OpenAPIV2.DefinitionsObject
     | Record<string, OpenAPIV3.SchemaObject>
@@ -46,11 +49,11 @@ const selectedOption = computed({
 })
 
 /** Check if the discriminator is oneOf or anyOf or allOf with nested discriminators */
-const hasDiscriminator = computed(() => {
-  const isOneOfOrAnyOf = discriminator === 'oneOf' || discriminator === 'anyOf'
+const hasNestedDiscriminator = computed(() => {
+  const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(discriminator)
   const hasNestedDiscriminator =
     discriminator === 'allOf' &&
-    value[discriminator]?.some((schema: any) => schema?.oneOf || schema?.anyOf)
+    value[discriminator]?.some((schema: any) => hasDiscriminator(schema))
 
   return isOneOfOrAnyOf || hasNestedDiscriminator
 })
@@ -99,7 +102,7 @@ const getModelNameFromSchema = (schema: any): string | null => {
 }
 
 const getSchemaWithDiscriminator = (schemas: any[]) => {
-  return schemas.find((schema: any) => schema.oneOf || schema.anyOf)
+  return schemas.find((schema: any) => hasDiscriminator(schema))
 }
 
 const schemaDiscriminators = computed(() => {
@@ -140,11 +143,10 @@ const schemaDiscriminators = computed(() => {
 })
 
 /** Humanizes discriminator type name e.g. oneOf -> One of */
-const humanizeType = (type: string) => {
-  // To do: add a map for the discriminator type names
+const humanizeType = (type: DiscriminatorType) => {
   if (type === 'allOf') {
-    const schemaWithDiscriminator = value?.[type]?.find(
-      (schema: any) => schema?.oneOf || schema?.anyOf,
+    const schemaWithDiscriminator = value?.[type]?.find((schema: any) =>
+      hasDiscriminator(schema),
     )
     if (schemaWithDiscriminator?.oneOf) {
       return 'One of'
@@ -167,7 +169,7 @@ const discriminatorSchema = computed(
 )
 
 /** Return current discriminator type */
-const discriminatorType = computed(() => {
+const discriminatorType = computed<DiscriminatorType>(() => {
   return discriminatorSchema.value?.oneOf ? 'oneOf' : 'anyOf'
 })
 
@@ -199,7 +201,7 @@ const discriminatorValue = computed(() => {
     </template>
 
     <!-- Tabs -->
-    <template v-if="hasDiscriminator">
+    <template v-if="hasNestedDiscriminator">
       <ScalarListbox
         v-model="selectedOption"
         :options="listboxOptions"
