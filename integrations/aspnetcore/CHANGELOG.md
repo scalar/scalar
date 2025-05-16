@@ -1,5 +1,19 @@
 # @scalar/aspnetcore
 
+## 2.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 0ed0415: refactor(Scalar.AspNetCore): Improve Gzip check
+- Updated dependencies [b899177]
+- Updated dependencies [cf922d4]
+- Updated dependencies [483ca93]
+  - @scalar/api-reference@1.29.0
+
 ## 2.3.1
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/components
 
+## 0.14.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/code-highlight@0.1.0
+  - @scalar/use-toasts@0.8.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/themes@0.12.0
+  - @scalar/icons@0.4.0
+
 ## 0.13.59
 
 ### Patch Changes

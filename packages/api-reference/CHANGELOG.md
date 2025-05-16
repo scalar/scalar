@@ -1,5 +1,33 @@
 # @scalar/api-reference
 
+## 1.29.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- b899177: fix: displays array item const in property
+- cf922d4: feat: adds nested discriminator schema support
+- Updated dependencies [26476ed]
+- Updated dependencies [bd602d3]
+- Updated dependencies [483ca93]
+- Updated dependencies [1d1470c]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/code-highlight@0.1.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/components@0.14.0
+  - @scalar/use-toasts@0.8.0
+  - @scalar/oas-utils@0.3.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/snippetz@0.3.0
+  - @scalar/themes@0.12.0
+  - @scalar/icons@0.4.0
+  - @scalar/types@0.2.0
+
 ## 1.28.34
 
 ### Patch Changes

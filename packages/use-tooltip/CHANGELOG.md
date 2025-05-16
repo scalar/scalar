@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.1.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 1.0.7
 
 ### Patch Changes
