@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
+import { ApiClientPluginSchema } from '../api-client'
+import type { TargetId } from '../snippetz'
 import { ApiReferencePluginSchema } from './api-reference-plugin'
-import type { TargetId } from '../snippetz/index'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 
 /** Available theme presets for the API reference */
@@ -214,6 +215,8 @@ export const apiClientConfigurationSchema = z.object({
   onRequestSent: z.function().args(z.string()).returns(z.void()).optional(),
   /** Whether to persist auth to local storage */
   persistAuth: z.boolean().optional().default(false).catch(false),
+  /** Plugins for the API client */
+  plugins: z.array(ApiClientPluginSchema).optional(),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>

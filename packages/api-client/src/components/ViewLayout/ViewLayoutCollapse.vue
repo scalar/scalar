@@ -57,7 +57,7 @@ const id = useId()
             </span>
             <span
               v-if="!open && itemCount"
-              class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full border font-semibold">
+              class="bg-b-2 text-c-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">
               {{ itemCount }}
               <span class="sr-only">Item{{ itemCount === 1 ? '' : 's' }}</span>
             </span>
