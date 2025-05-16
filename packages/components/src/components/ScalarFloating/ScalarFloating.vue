@@ -95,10 +95,6 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     ...middleware,
   ]),
 })
-
-watch(targetRef, () => {
-  console.log('targetRef', targetRef.value)
-})
 </script>
 <template>
   <div

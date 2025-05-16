@@ -118,6 +118,7 @@ function initializeTooltipElement() {
     el.value.role = 'tooltip'
     el.value.id = ELEMENT_ID
     el.value.classList.add(ELEMENT_CLASS)
+    el.value.classList.add('scalar-app')
     el.value.style.setProperty('display', 'none')
     el.value.addEventListener('mouseleave', hideTooltip)
     document.body.appendChild(el.value)
