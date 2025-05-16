@@ -1,5 +1,5 @@
 import type { Operation } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { XScalarStability } from '@scalar/types/legacy'
 
@@ -80,7 +80,7 @@ export function extractRequestBody(operation: TransformedOperation): string[] | 
 }
 
 /**
- * Returns all models from the specification, no matter if it’s Swagger 2.0 or OpenAPI 3.x.
+ * Returns all models from the specification, no matter if it’s OpenAPI 3.x.
  */
 export function getModels(spec?: Spec) {
   if (!spec) {
@@ -92,12 +92,9 @@ export function getModels(spec?: Spec) {
     (
       Object.keys(spec?.components?.schemas ?? {}).length
         ? spec?.components?.schemas
-        : // Swagger 2.0
-          Object.keys(spec?.definitions ?? {}).length
-          ? spec?.definitions
-          : // Fallback
-            {}
-    ) as OpenAPIV2.DefinitionsObject | Record<string, OpenAPIV3.SchemaObject> | Record<string, OpenAPIV3_1.SchemaObject>
+        : // Fallback
+          {}
+    ) as Record<string, OpenAPIV3_1.SchemaObject>
 
   // Filter out all schemas with `x-internal: true`
   Object.keys(models ?? {}).forEach((key) => {

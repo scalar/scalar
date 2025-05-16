@@ -1,6 +1,6 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-type SchemaObject = OpenAPI.SchemaObject
+type SchemaObject = OpenAPIV3_1.SchemaObject
 
 /**
  * This is a temporary limit to prevent infinite recursion

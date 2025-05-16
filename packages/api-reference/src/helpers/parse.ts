@@ -5,7 +5,7 @@
 import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
 import { normalizeRequestMethod } from '@/legacy/helpers'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
@@ -24,7 +24,7 @@ export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec>
     try {
       // Return an empty resolved dereferencedDocument if the given dereferencedDocument is empty
       if (!dereferencedDocument) {
-        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
+        return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
       }
 
       return resolve(transformResult(dereferencedDocument))
@@ -35,18 +35,18 @@ export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec>
       reject(error)
     }
 
-    return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
+    return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
   })
 }
 
-const transformResult = (originalSchema: OpenAPI.Document): Spec => {
+const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
   // Make it an object
   let schema = {} as AnyObject
 
   if (originalSchema && typeof originalSchema === 'object') {
     schema = originalSchema
   } else {
-    schema = createEmptySpecification() as OpenAPI.Document
+    schema = createEmptySpecification() as OpenAPIV3_1.Document
   }
 
   // Create empty tags array
@@ -77,11 +77,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   // Security
   if (!schema.security) {
     schema.security = []
-  }
-
-  // External docs
-  if (!schema.externalDocs) {
-    schema.externalDocs = {}
   }
 
   // Webhooks
@@ -176,7 +171,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       // If there are no tags, we’ll create a default one.
       if (!operation.tags || operation.tags.length === 0) {
         // Create the default tag.
-        if (!schema.tags?.find((tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default')) {
+        if (!schema.tags?.find((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')) {
           schema.tags?.push({
             name: 'default',
             description: '',
@@ -185,9 +180,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         }
 
         // find the index of the default tag
-        const indexOfDefaultTag = schema.tags?.findIndex(
-          (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default',
-        )
+        const indexOfDefaultTag = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')
 
         // Add the new operation to the default tag.
         if (indexOfDefaultTag >= 0) {

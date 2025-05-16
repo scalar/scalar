@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -19,11 +19,7 @@ const { collection, tags, spec, layout, server } = defineProps<{
   spec: Spec
   layout?: 'modern' | 'classic'
   server?: Server
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, type Component } from 'vue'
 
 import {
@@ -34,11 +34,7 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
-    schemas?:
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
-      | unknown
+    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     hideHeading?: boolean
   }>(),
   {

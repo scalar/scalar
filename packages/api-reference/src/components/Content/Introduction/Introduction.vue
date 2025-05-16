@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
@@ -23,9 +23,7 @@ import {
 import Description from './Description.vue'
 
 const props = defineProps<{
-  info: Partial<
-    OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
-  >
+  info: Partial<OpenAPIV3_1.InfoObject>
   parsedSpec: Spec
 }>()
 
