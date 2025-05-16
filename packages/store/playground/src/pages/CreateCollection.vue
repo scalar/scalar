@@ -12,7 +12,7 @@ import Timings from '../components/Timings.vue'
 import { useTimings } from '../hooks/useTimings'
 
 const EXAMPLE_URL =
-  'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
+  'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml'
 
 const workspace = createWorkspace({
   plugins: [
@@ -33,7 +33,7 @@ onMounted(async () => {
 
   // no measure
   const response = await fetch(EXAMPLE_URL)
-  const data = await response.json()
+  const data = await response.text()
 
   // await measure('upgrade', async () => {
   const { specification } = upgrade(data)
@@ -80,7 +80,6 @@ const collections = computed(() => workspace.state.collections)
     <h1 class="mb-4 text-2xl font-bold">createCollection</h1>
     <div class="mb-4 flex flex-col gap-4">
       <p>Loading the whole document in a magic proxy.</p>
-      <p>Adding everything but the paths, and then adding the paths.</p>
     </div>
     <template
       v-for="collection in Object.keys(collections)"

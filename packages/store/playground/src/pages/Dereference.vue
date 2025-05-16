@@ -36,14 +36,14 @@ watch(
 
 onMounted(async () => {
   const EXAMPLE_URL =
-    'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json'
+    'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml'
 
   // const fetchedContent = await measure('fetch', async () => {
   //   return await fetch(EXAMPLE_URL).then((res) => res.json())
   // })
 
   const response = await fetch(EXAMPLE_URL)
-  const fetchedContent = await response.json()
+  const fetchedContent = await response.text()
   // const specification = (await measure('upgrade', async () => {
   //   const { specification: upgraded } = upgrade(fetchedContent)
 
