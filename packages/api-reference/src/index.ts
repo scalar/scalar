@@ -5,7 +5,6 @@ export { SearchButton, SearchModal } from '@/features/Search'
 // TODO: This component shouldn’t live in @scalar/api-reference. If it needs to live in scalar/scalar, it should be in @scalar/api-reference-editor
 export { default as GettingStarted } from '@/components/GettingStarted.vue'
 
-export { useReactiveSpec } from '@/hooks/useReactiveSpec'
 export { createApiReference } from '@/standalone/lib/html-api'
 
 export { Sidebar } from '@/components/Sidebar'

@@ -1,11 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/oas-utils/helpers'
-import type {
-  OpenAPI,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { computed } from 'vue'
 
@@ -28,11 +23,7 @@ const {
   additional?: boolean
   pattern?: boolean
   withExamples?: boolean
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const discriminatorType = discriminators.find((r) => {
@@ -63,7 +54,9 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 // Get model name from schema
-const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
+const getModelNameFromSchema = (
+  schema: OpenAPIV3_1.Document,
+): string | null => {
   if (!schema) {
     return null
   }

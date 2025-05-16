@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -12,10 +12,6 @@ import SchemaProperty from './SchemaProperty.vue'
 const props = withDefaults(
   defineProps<{
     value?:
-      | OpenAPIV2.DefinitionsObject
-      | OpenAPIV3.SchemaObject
-      | OpenAPIV3.ArraySchemaObject
-      | OpenAPIV3.NonArraySchemaObject
       | OpenAPIV3_1.SchemaObject
       | OpenAPIV3_1.ArraySchemaObject
       | OpenAPIV3_1.NonArraySchemaObject
@@ -30,11 +26,7 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Show a special one way toggle for additional properties, also has a top border when open */
     additionalProperties?: boolean
-    schemas?:
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
-      | unknown
+    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   }>(),
   { level: 0, showAdditionalProperties: false, noncollapsible: false },
 )
@@ -211,7 +203,7 @@ const handleClick = (e: MouseEvent) =>
               :compact="compact"
               :hideHeading="hideHeading"
               :level="level"
-              :name="(value as OpenAPIV2.SchemaObject).name"
+              :name="(value as OpenAPIV3_1.SchemaObject).name"
               :schemas="schemas"
               :value="value" />
           </template>

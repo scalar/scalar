@@ -1,16 +1,9 @@
 <script setup lang="ts">
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
-import GitHubSlugger from 'github-slugger'
-import { computed, onMounted } from 'vue'
+import { computed, inject, onMounted } from 'vue'
 
-import { SpecificationExtension } from '@/components/SpecificationExtension'
-import { useConfig } from '@/hooks/useConfig'
-import { useNavState } from '@/hooks/useNavState'
-import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
-
-import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
-import { Badge } from '../../Badge'
+import { Badge } from '@/components/Badge'
 import {
   Section,
   SectionColumn,
@@ -19,32 +12,26 @@ import {
   SectionContent,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
+} from '@/components/Section'
+import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { DownloadLink, OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
+
 import Description from './Description.vue'
 
 const props = defineProps<{
-  info: Partial<
-    OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
-  >
+  info: Partial<OpenAPIV3_1.InfoObject>
   parsedSpec: Spec
 }>()
 
 const { getHeadingId } = useNavState()
 
 /**
- * Get the OpenAPI/Swagger specification version from the API definition.
+ * Get the OpenAPI/Swagger specification version.
  */
-const oasVersion = computed(
-  () => props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? '',
-)
-
-/**
- * Format the title to be displayed in the badge.
- *
- * TODO: We should move this logic to the DownloadLink component
- */
-const slugger = new GitHubSlugger()
-const filenameFromTitle = computed(() => slugger.slug(props.info?.title ?? ''))
+const oasVersion = computed(() => inject(OPENAPI_VERSION_SYMBOL, ''))
 
 /** Format the version number to be displayed in the badge */
 const version = computed(() => {
@@ -61,6 +48,7 @@ const version = computed(() => {
 
 /** Trigger the onLoaded event when the component is mounted */
 const config = useConfig()
+
 onMounted(() => config.value.onLoaded?.())
 </script>
 <template>
@@ -88,7 +76,7 @@ onMounted(() => config.value.onLoaded?.())
             {{ info.title }}
           </SectionHeaderTag>
         </SectionHeader>
-        <DownloadLink :filename="filenameFromTitle" />
+        <DownloadLink :title="info.title" />
         <SectionColumns>
           <SectionColumn>
             <Description :value="info.description" />

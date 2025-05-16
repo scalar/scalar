@@ -21,13 +21,38 @@
       Scalar.createApiReference('#app', {
         sources: [
           {
+            title: 'Foobar',
+            // TODO: Make it work with objects
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'Foobar',
+                version: '1.0.0',
+              },
+              paths: {
+                '/foo': {
+                  get: {
+                    summary: 'Get foo',
+                    responses: {
+                      200: { description: 'Foo' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          {
             title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
             slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
             url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
           },
           {
-            title: 'Swagger Petstore',
+            title: 'Swagger Petstore 2.0',
             url: 'https://petstore.swagger.io/v2/swagger.json',
+          },
+          {
+            title: 'Stripe',
+            url: 'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
           },
         ],
         persistAuth: true,
