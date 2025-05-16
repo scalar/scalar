@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta12" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
+    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta13" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>
 
   <ItemGroup>
