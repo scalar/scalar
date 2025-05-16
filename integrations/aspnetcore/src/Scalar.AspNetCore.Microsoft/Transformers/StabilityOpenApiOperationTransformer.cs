@@ -12,16 +12,18 @@ internal sealed class StabilityOpenApiOperationTransformer : IOpenApiOperationTr
         // We use LastOrDefault because this allows a specific endpoint to override the stability
         var stabilityAttribute = context.Description.ActionDescriptor.EndpointMetadata.OfType<StabilityAttribute>().LastOrDefault();
 
-        if (stabilityAttribute is not null)
+        if (stabilityAttribute is null)
         {
-            operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
-#if NET10_0_OR_GREATER
-            var node = SerializeToNode(stabilityAttribute.Stability);
-            operation.Extensions.TryAdd(ScalarStability, new OpenApiAny(node));
-#elif NET9_0
-            operation.Extensions.TryAdd(ScalarStability, new OpenApiString(stabilityAttribute.Stability.ToStringFast(true)));
-#endif
+            return Task.CompletedTask;
         }
+
+        operation.Extensions ??= new Dictionary<string, IOpenApiExtension>();
+#if NET10_0_OR_GREATER
+        var node = SerializeToNode(stabilityAttribute.Stability);
+        operation.Extensions.TryAdd(ScalarStability, new OpenApiAny(node));
+#elif NET9_0
+        operation.Extensions.TryAdd(ScalarStability, new OpenApiString(stabilityAttribute.Stability.ToStringFast(true)));
+#endif
 
         return Task.CompletedTask;
     }
