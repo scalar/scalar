@@ -55,8 +55,7 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                           "200": {
                                             "description": "OK"
                                           }
-                                        },
-                                        "x-scalar-ignore": true
+                                        }
                                       }
                                     },
                                     "/full-exclude/bar": {
@@ -68,8 +67,7 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                           "200": {
                                             "description": "OK"
                                           }
-                                        },
-                                        "x-scalar-ignore": true
+                                        }
                                       }
                                     },
                                     "/foo/exclude": {
@@ -98,7 +96,16 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                       }
                                     }
                                   },
-                                  *
+                                  "components": { },
+                                  "tags": [
+                                    {
+                                      "name": "exclude",
+                                      "x-scalar-ignore": true
+                                    },
+                                    {
+                                      "name": "foo"
+                                    }
+                                  ]
                                 }
                                 """;
         content.Should().Match(expected);

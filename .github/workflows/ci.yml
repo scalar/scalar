@@ -594,6 +594,7 @@ jobs:
         uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
         with:
           dotnet-version: |
+            10.x
             9.x
             8.x
 
@@ -719,6 +720,7 @@ jobs:
         uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
         with:
           dotnet-version: |
+            10.x
             9.x
             8.x
 
