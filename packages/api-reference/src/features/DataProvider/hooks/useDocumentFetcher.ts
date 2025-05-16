@@ -1,4 +1,5 @@
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
+import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
@@ -7,10 +8,8 @@ import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
  */
 export function useDocumentFetcher({
   configuration,
-  proxyUrl,
 }: {
-  configuration?: MaybeRefOrGetter<SpecConfiguration>
-  proxyUrl?: MaybeRefOrGetter<string>
+  configuration?: MaybeRefOrGetter<Pick<ApiReferenceConfiguration, 'url' | 'content' | 'proxyUrl'>>
 }) {
   /** OpenAPI document as a string */
   const originalDocument = ref<string>('')
@@ -22,7 +21,7 @@ export function useDocumentFetcher({
         return
       }
 
-      const content = await getContent(newConfig, toValue(proxyUrl))
+      const content = await getContent(newConfig, toValue(configuration)?.proxyUrl)
 
       if (typeof content === 'string') {
         originalDocument.value = content.trim()

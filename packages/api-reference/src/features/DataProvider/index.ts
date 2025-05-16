@@ -1,1 +1,1 @@
-export { default as DataProvider } from './DataProvider.vue'
+export { useDataSource } from './hooks/useDataSource'
