@@ -45,8 +45,6 @@ const el = ref<HTMLElement>()
  */
 const config = ref<TooltipConfiguration>()
 
-console.log('useTooltip File')
-
 // Set up floating UI
 const { floatingStyles } = useFloating(
   computed(() => unref(config.value?.targetRef)),
