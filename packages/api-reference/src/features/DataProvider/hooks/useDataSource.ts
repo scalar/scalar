@@ -31,7 +31,7 @@ export function useDataSource({
 
   const originalDocument = computed(() => {
     if (providedOriginalDocument) {
-      return providedOriginalDocument
+      return toValue(providedOriginalDocument)
     }
 
     return toValue(fetchedOriginalDocument)
@@ -40,9 +40,10 @@ export function useDataSource({
   /** Dereferenced document */
   const dereferencedDocument = computed(() => {
     if (providedDereferencedDocument) {
-      return providedDereferencedDocument
+      return toValue(providedDereferencedDocument)
     }
-    return manuallyDereferencedDocument.value
+
+    return toValue(manuallyDereferencedDocument)
   })
 
   const manuallyDereferencedDocument = ref<OpenAPIV3_1.Document>({
@@ -74,6 +75,39 @@ export function useDataSource({
     { immediate: true },
   )
 
+  // TODO: Performance logging
+  // TODO: Load external references
+  // TODO: Error handling
+
+  // const start = performance.now()
+
+  // const { filesystem } = await load(dereferencedDocument, {
+  //   plugins: [
+  //     fetchUrls({
+  //       fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
+  //     }),
+  //   ],
+  // })
+
+  // const { schema, errors } = await dereference(filesystem)
+
+  // const end = performance.now()
+  // console.log(`dereference: ${Math.round(end - start)} ms`)
+
+  // if (errors?.length) {
+  //   console.warn(
+  //     'Please open an issue on https://github.com/scalar/scalar\n',
+  //     'Scalar OpenAPI Parser Warning:\n',
+  //     errors,
+  //   )
+  // }
+
+  // if (schema === undefined) {
+  //   reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
+
+  //   return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
+  // }
+
   /** API Client Store */
   const workspaceStore = createWorkspaceStore({
     useLocalStorage: false,
@@ -101,12 +135,12 @@ export function useDataSource({
   const { setParsedSpec } = useSidebar()
 
   watch(
-    () => toValue(originalDocument),
+    () => toValue(dereferencedDocument),
     async (newVal) => {
       if (!newVal) {
         return
       }
-      const result = await parse(toValue(newVal))
+      const result = await parse(newVal)
       parsedDocument.value = result
       setParsedSpec(result)
     },

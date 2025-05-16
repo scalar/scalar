@@ -4,10 +4,8 @@
  */
 import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
 import { normalizeRequestMethod } from '@/legacy/helpers'
-import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
+import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
@@ -16,56 +14,20 @@ import { createEmptySpecification } from '@/libs/openapi'
 type AnyObject = Record<string, any>
 
 /**
- * Parse the given specification and return a super custom transformed specification.
+ * Parse the given dereferencedDocument and return a super custom transformed dereferencedDocument.
  *
  * @deprecated Try to use a store instead.
  */
-export const parse = (
-  specification: UnknownObject | string | undefined,
-  {
-    proxyUrl,
-  }: {
-    proxyUrl?: string
-  } = {},
-): Promise<Spec> => {
+export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec> => {
   // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
   return new Promise(async (resolve, reject) => {
     try {
-      // Return an empty resolved specification if the given specification is empty
-      if (!specification) {
+      // Return an empty resolved dereferencedDocument if the given dereferencedDocument is empty
+      if (!dereferencedDocument) {
         return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
       }
 
-      const start = performance.now()
-
-      const { filesystem } = await load(specification, {
-        plugins: [
-          fetchUrls({
-            fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
-          }),
-        ],
-      })
-
-      const { schema, errors } = await dereference(filesystem)
-
-      const end = performance.now()
-      console.log(`dereference: ${Math.round(end - start)} ms`)
-
-      if (errors?.length) {
-        console.warn(
-          'Please open an issue on https://github.com/scalar/scalar\n',
-          'Scalar OpenAPI Parser Warning:\n',
-          errors,
-        )
-      }
-
-      if (schema === undefined) {
-        reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
-
-        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
-      }
-
-      return resolve(transformResult(schema))
+      return resolve(transformResult(dereferencedDocument))
     } catch (error) {
       console.error('[@scalar/api-reference]', 'Failed to parse the OpenAPI document. It might be invalid?')
       console.error(error)
@@ -82,7 +44,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   let schema = {} as AnyObject
 
   if (originalSchema && typeof originalSchema === 'object') {
-    schema = structuredClone(originalSchema)
+    schema = originalSchema
   } else {
     schema = createEmptySpecification() as OpenAPI.Document
   }

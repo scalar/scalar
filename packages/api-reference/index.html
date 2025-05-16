@@ -22,7 +22,8 @@
         sources: [
           {
             title: 'Foobar',
-            content: {
+            // TODO: Make it work with objects
+            content: JSON.stringify({
               openapi: '3.1.0',
               info: {
                 title: 'Foobar',
@@ -38,7 +39,7 @@
                   },
                 },
               },
-            },
+            }),
           },
           {
             title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
