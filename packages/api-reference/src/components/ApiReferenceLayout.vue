@@ -41,6 +41,7 @@ import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDataSource } from '@/features/DataProvider'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -94,8 +95,7 @@ const {
   originalDocument: providedOriginalDocument,
 })
 
-// TODO: Create a new symbol for this, use it in the content
-// provide(ORIGINAL_OPEN_API_VERSION_SYMBOL, originalOpenApiVersion)
+provide(OPENAPI_VERSION_SYMBOL, originalOpenApiVersion)
 provide(WORKSPACE_SYMBOL, workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
