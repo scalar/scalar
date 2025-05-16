@@ -124,32 +124,63 @@ function initializeTooltipElement() {
 }
 
 /**
- * Show the tooltip after the delay if configured
+ * Create a tooltip
+ *
+ * If there isn't a tooltip element it will be created
  */
-function showTooltipAfterDelay(_e: Event, opts: TooltipConfiguration) {
-  const delay = unref(opts.delay) ?? DEFAULT_DELAY
+export function useTooltip(opts: TooltipConfiguration) {
+  initializeTooltipElement()
 
-  clearTimer()
+  /**
+   * Show the tooltip after the delay if configured
+   */
+  function showTooltipAfterDelay(_e: Event) {
+    const delay = unref(opts.delay) ?? DEFAULT_DELAY
 
-  // Show the tooltip after the delay
-  if (delay > 0) {
-    timer.value = setTimeout(() => showTooltip(_e, opts), delay)
-  } else {
-    showTooltip(_e, opts)
+    clearTimer()
+
+    // Show the tooltip after the delay
+    if (delay > 0) {
+      timer.value = setTimeout(() => showTooltip(_e), delay)
+    } else {
+      showTooltip(_e)
+    }
   }
-}
 
-/**
- * Show the tooltip
- */
-function showTooltip(_e: Event, opts: TooltipConfiguration) {
-  clearTimer()
+  /**
+   * Show the tooltip
+   */
+  function showTooltip(_e: Event) {
+    clearTimer()
 
-  // Handle the escape key
-  document.addEventListener('keydown', handleEscape)
+    // Handle the escape key
+    document.addEventListener('keydown', handleEscape)
 
-  // Show the tooltip
-  config.value = opts
+    // Show the tooltip
+    config.value = opts
+  }
+
+  watch(
+    () => unref(opts.targetRef),
+    (newRef, oldRef) => {
+      if (oldRef) {
+        oldRef.removeEventListener('mouseenter', showTooltipAfterDelay)
+        oldRef.removeEventListener('mouseleave', hideTooltip)
+        oldRef.removeEventListener('focus', showTooltip)
+        oldRef.removeEventListener('blur', hideTooltip)
+
+        oldRef.removeAttribute('aria-describedby')
+      }
+      if (newRef) {
+        newRef.addEventListener('mouseenter', showTooltipAfterDelay)
+        newRef.addEventListener('mouseleave', hideTooltip)
+        newRef.addEventListener('focus', showTooltip)
+        newRef.addEventListener('blur', hideTooltip)
+
+        newRef.setAttribute('aria-describedby', ELEMENT_ID)
+      }
+    },
+  )
 }
 
 /**
@@ -180,6 +211,7 @@ function hideTooltip(_e: Event) {
  */
 function handleEscape(e: KeyboardEvent) {
   if (e.key === 'Escape') {
+    e.stopPropagation()
     hideTooltip(e)
   }
 }
@@ -190,38 +222,4 @@ function clearTimer() {
     clearTimeout(timer.value)
     timer.value = undefined
   }
-}
-
-/**
- * Use the tooltip
- *
- * If the tooltip is not initialized it will be initialized
- */
-export function useTooltip(opts: TooltipConfiguration) {
-  initializeTooltipElement()
-
-  const showThisTooltipAfterDelay = (e: Event) => showTooltipAfterDelay(e, opts)
-  const showThisTooltip = (e: Event) => showTooltip(e, opts)
-
-  watch(
-    () => unref(opts.targetRef),
-    (newRef, oldRef) => {
-      if (oldRef) {
-        oldRef.removeEventListener('mouseenter', showThisTooltipAfterDelay)
-        oldRef.removeEventListener('mouseleave', hideTooltip)
-        oldRef.removeEventListener('focus', showThisTooltip)
-        oldRef.removeEventListener('blur', hideTooltip)
-
-        oldRef.removeAttribute('aria-describedby')
-      }
-      if (newRef) {
-        newRef.addEventListener('mouseenter', showThisTooltipAfterDelay)
-        newRef.addEventListener('mouseleave', hideTooltip)
-        newRef.addEventListener('focus', showThisTooltip)
-        newRef.addEventListener('blur', hideTooltip)
-
-        newRef.setAttribute('aria-describedby', ELEMENT_ID)
-      }
-    },
-  )
 }
