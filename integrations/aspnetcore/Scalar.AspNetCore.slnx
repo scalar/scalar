@@ -10,11 +10,12 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Scalar.AspNetCore.Microsoft.Tests/Scalar.AspNetCore.Microsoft.Tests.csproj" />
-    <Project Path="tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" />
     <Project Path="tests/Scalar.AspNetCore.Swashbuckle.Tests/Scalar.AspNetCore.Swashbuckle.Tests.csproj" />
+    <Project Path="tests/Scalar.AspNetCore.Tests/Scalar.AspNetCore.Tests.csproj" />
     <File Path="tests/.editorconfig" />
     <File Path="tests/xunit.runner.json" />
     <File Path="tests/Directory.Build.props" />
+    <File Path="tests/Directory.Packages.props" />
   </Folder>
   <Folder Name="/tests/apis/">
     <Project Path="tests/apis/Scalar.AspNetCore.Tests.Api/Scalar.AspNetCore.Tests.Api.csproj" />
