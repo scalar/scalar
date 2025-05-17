@@ -14,37 +14,31 @@ const handleDownloadClick = () => {
 }
 </script>
 <template>
-  <div class="download">
-    <template v-if="!config?.hideDownloadButton">
-      <!-- Direct URL -->
-      <template v-if="config?.url">
-        <a
-          class="download-button"
-          download
-          :href="config?.url"
-          target="_blank">
-          Download OpenAPI Document
-        </a>
-      </template>
-      <!-- Generate download from document -->
-      <template v-else>
-        <button
-          class="download-button"
-          role="link"
-          type="button"
-          @click="handleDownloadClick">
-          Download OpenAPI Document
-        </button>
-      </template>
+  <template v-if="!config?.hideDownloadButton">
+    <!-- Direct URL -->
+    <template v-if="config?.url">
+      <a
+        class="download-button"
+        download
+        :href="config?.url"
+        target="_blank">
+        Download OpenAPI Document
+      </a>
     </template>
-  </div>
+    <!-- Generate download from document -->
+    <template v-else>
+      <button
+        class="download-button"
+        role="link"
+        type="button"
+        @click="handleDownloadClick">
+        Download OpenAPI Document
+      </button>
+    </template>
+  </template>
 </template>
 
 <style scoped>
-.download {
-  margin-bottom: 24px;
-}
-
 .download-button {
   color: var(--scalar-link-color, var(--scalar-color-accent));
   font-weight: var(--scalar-link-font-weight, inherit);
