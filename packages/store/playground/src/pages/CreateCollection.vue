@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { dereference, upgrade } from '@scalar/openapi-parser'
-import { waitFor } from '@test/utils/waitFor'
+import { upgrade } from '@scalar/openapi-parser'
 import { computed, ref, toRaw } from '@vue/reactivity'
-import { computedAsync } from '@vueuse/core'
 import { onMounted } from 'vue'
 
 import { createWorkspace, localStoragePlugin } from '@/create-workspace'
 
 import OpenApiDocument from '../components/OpenApiDocument.vue'
-import Timings from '../components/Timings.vue'
 import { useTimings } from '../hooks/useTimings'
 
 const EXAMPLE_URL =
@@ -44,8 +41,7 @@ onMounted(async () => {
   const { paths, ...rest } = content.value
 
   await measure('load', async () => {
-    await workspace.load('stripe', async () => {
-      // Destructure to remove 'paths', then return the rest
+    return workspace.load('stripe', async () => {
       return content.value
     })
 
@@ -97,7 +93,5 @@ const collections = computed(() => workspace.state.collections)
       <p>{{ Object.keys(dereferencedCollection.paths ?? {}).length }} paths</p>
     </template>
     <p v-else>Dereferencing...</p> -->
-
-    <Timings :timings="timings" />
   </div>
 </template>

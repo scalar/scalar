@@ -4,7 +4,7 @@ import type {
   OpenApiObject as UnprocessedOpenApiObject,
   // OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
 } from '@scalar/openapi-types/schemas/3.1/unprocessed'
-import { type Ref, isReactive, isRef, reactive, toRaw, watch } from '@vue/reactivity'
+import { type Ref, isRef, reactive, toRaw, watch } from '@vue/reactivity'
 
 export type Collection = ReturnType<typeof createCollection>
 
@@ -50,14 +50,14 @@ export function createCollection(
   const content = unwrappedInput
 
   // Only create a cache if cache is true
-  const resolvedProxyCache = cache ? new WeakMap() : undefined
+  // const resolvedProxyCache = cache ? new WeakMap() : undefined
 
   // If input is a Ref<UnknownObject>, use its value directly as the source document
   if (isRef(input) && isObject(input.value)) {
     // Make the root document reactive
     const reactiveRoot = reactive(input.value)
     return {
-      document: createRefProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
+      document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
       export: () => exportRawDocument(unwrappedInput) as UnprocessedOpenApiObject,
       apply,
       merge: (partialDocument: UnknownObject) => {
@@ -86,7 +86,7 @@ export function createCollection(
   }
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createRefProxy(reactiveRoot, reactiveRoot)
+  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -155,115 +155,116 @@ function exportRawDocument(document: UnknownObject): UnknownObject {
   return raw
 }
 
-function createProxyHandler(
-  sourceDocument: UnknownObject,
-  resolvedProxyCache?: WeakMap<object, unknown>,
-): ProxyHandler<UnknownObject> {
-  return {
-    get(target, property, receiver) {
-      if (property === '__isProxy') {
-        return true
-      }
+// function createProxyHandler(
+//   sourceDocument: UnknownObject,
+//   resolvedProxyCache?: WeakMap<object, unknown>,
+// ): ProxyHandler<UnknownObject> {
+//   return {
+//     get(target, property, receiver) {
+//       if (property === '__isProxy') {
+//         return true
+//       }
 
-      const value = Reflect.get(target, property, receiver)
+//       const value = Reflect.get(target, property, receiver)
 
-      if (isObject(value)) {
-        if ('$ref' in value) {
-          const ref = value.$ref as string
-          const referencePath = parseJsonPointer(ref)
-          const resolvedValue = getValueByPath(sourceDocument, referencePath)
-          if (resolvedValue) {
-            return createMagicProxy(resolvedValue, sourceDocument, resolvedProxyCache)
-          }
-        }
-        // Only pass required arguments
-        return createMagicProxy(value, sourceDocument, resolvedProxyCache)
-      }
+//       if (isObject(value)) {
+//         if ('$ref' in value) {
+//           const ref = value.$ref as string
+//           console.log('createProxyHandler get $ref', ref)
+//           const referencePath = parseJsonPointer(ref)
+//           const resolvedValue = getValueByPath(sourceDocument, referencePath)
+//           if (resolvedValue) {
+//             return createMagicProxy(resolvedValue, sourceDocument, resolvedProxyCache)
+//           }
+//         }
+//         // Only pass required arguments
+//         return createMagicProxy(value, sourceDocument, resolvedProxyCache)
+//       }
 
-      return value
-    },
+//       return value
+//     },
 
-    set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
-      const rawTarget = isReactive(target) ? toRaw(target) : target
-      const currentValue = rawTarget[property]
+//     set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
+//       const rawTarget = isReactive(target) ? toRaw(target) : target
+//       const currentValue = rawTarget[property]
 
-      if (isObject(currentValue) && '$ref' in currentValue && typeof currentValue.$ref === 'string') {
-        const referencePath = parseJsonPointer(currentValue.$ref)
-        const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
-        const lastPathSegment = referencePath[referencePath.length - 1]
+//       if (isObject(currentValue) && '$ref' in currentValue && typeof currentValue.$ref === 'string') {
+//         const referencePath = parseJsonPointer(currentValue.$ref)
+//         const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
+//         const lastPathSegment = referencePath[referencePath.length - 1]
 
-        if (targetObject && lastPathSegment) {
-          targetObject[lastPathSegment] = newValue
-        }
-      } else {
-        Reflect.set(rawTarget, property, newValue, receiver)
-      }
-      return true
-    },
+//         if (targetObject && lastPathSegment) {
+//           targetObject[lastPathSegment] = newValue
+//         }
+//       } else {
+//         Reflect.set(rawTarget, property, newValue, receiver)
+//       }
+//       return true
+//     },
 
-    has(target: UnknownObject, key: string) {
-      if (typeof key === 'string' && key !== '$ref' && typeof target.$ref === 'string') {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+//     has(target: UnknownObject, key: string) {
+//       if (typeof key === 'string' && key !== '$ref' && typeof target.$ref === 'string') {
+//         const referencePath = parseJsonPointer(target['$ref'])
+//         const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-        return resolvedValue ? key in resolvedValue : false
-      }
+//         return resolvedValue ? key in resolvedValue : false
+//       }
 
-      return key in target
-    },
+//       return key in target
+//     },
 
-    ownKeys(target: UnknownObject) {
-      if ('$ref' in target && typeof target.$ref === 'string') {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+//     ownKeys(target: UnknownObject) {
+//       if ('$ref' in target && typeof target.$ref === 'string') {
+//         const referencePath = parseJsonPointer(target['$ref'])
+//         const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-        return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
-      }
+//         return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
+//       }
 
-      return Reflect.ownKeys(target)
-    },
+//       return Reflect.ownKeys(target)
+//     },
 
-    getOwnPropertyDescriptor(target: UnknownObject, key: string) {
-      if ('$ref' in target && key !== '$ref' && typeof target.$ref === 'string') {
-        const referencePath = parseJsonPointer(target['$ref'])
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+//     getOwnPropertyDescriptor(target: UnknownObject, key: string) {
+//       if ('$ref' in target && key !== '$ref' && typeof target.$ref === 'string') {
+//         const referencePath = parseJsonPointer(target['$ref'])
+//         const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-        if (resolvedValue) {
-          return Object.getOwnPropertyDescriptor(resolvedValue, key)
-        }
-      }
+//         if (resolvedValue) {
+//           return Object.getOwnPropertyDescriptor(resolvedValue, key)
+//         }
+//       }
 
-      return Object.getOwnPropertyDescriptor(target, key)
-    },
-  }
-}
+//       return Object.getOwnPropertyDescriptor(target, key)
+//     },
+//   }
+// }
 
 /**
  * Creates a proxy that automatically resolves JSON references.
  */
-export function createMagicProxy(
-  targetObject: UnknownObject,
-  sourceDocument: UnknownObject,
-  resolvedProxyCache?: WeakMap<object, unknown>,
-) {
-  if (!isObject(targetObject)) return targetObject
+// export function createMagicProxy(
+//   targetObject: UnknownObject,
+//   sourceDocument: UnknownObject,
+//   resolvedProxyCache?: WeakMap<object, unknown>,
+// ) {
+//   if (!isObject(targetObject)) return targetObject
 
-  const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
+//   const rawTarget = isReactive(targetObject) ? toRaw(targetObject) : targetObject
 
-  if (resolvedProxyCache?.has(rawTarget)) {
-    return resolvedProxyCache.get(rawTarget)
-  }
+//   if (resolvedProxyCache?.has(rawTarget)) {
+//     return resolvedProxyCache.get(rawTarget)
+//   }
 
-  // Create a handler with the correct context
-  const handler = createProxyHandler(sourceDocument, resolvedProxyCache)
-  const proxy = new Proxy(rawTarget, handler)
+//   // Create a handler with the correct context
+//   const handler = createProxyHandler(sourceDocument, resolvedProxyCache)
+//   const proxy = new Proxy(rawTarget, handler)
 
-  if (resolvedProxyCache) {
-    resolvedProxyCache.set(rawTarget, proxy)
-  }
+//   if (resolvedProxyCache) {
+//     resolvedProxyCache.set(rawTarget, proxy)
+//   }
 
-  return proxy
-}
+//   return proxy
+// }
 
 /**
  * Retrieves a nested value from the source document using a path array
@@ -477,7 +478,7 @@ function hasRefs(obj: unknown): boolean {
  * Creates a proxy that handles $ref resolution while using the reactivity from the root document.
  * Only creates proxies for objects that contain $refs to minimize traversal overhead.
  */
-function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject): UnknownObject {
+function createMagicProxy(target: UnknownObject, sourceDocument: UnknownObject): UnknownObject {
   // Check cache first
   if (refProxyCache.has(target)) {
     return refProxyCache.get(target) as UnknownObject
@@ -491,24 +492,30 @@ function createRefProxy(target: UnknownObject, sourceDocument: UnknownObject): U
   const proxy = new Proxy(target, {
     get(target, prop: string | symbol) {
       // Special property to check if this is a proxy
-      if (prop === '__isProxy') return true
+      if (prop === '__isProxy') {
+        return true
+      }
 
       const value = target[prop as keyof typeof target]
-      if (!isObject(value)) return value
+
+      if (!isObject(value)) {
+        return value
+      }
 
       // Handle $ref resolution
       if ('$ref' in value) {
         const ref = value.$ref as string
+        console.log('createMagicProxy get $ref', ref, prop)
         const referencePath = parseJsonPointer(ref)
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
         if (resolvedValue) {
           // Create a proxy for the resolved value that points back to the original
-          return createRefProxy(resolvedValue, sourceDocument)
+          return createMagicProxy(resolvedValue, sourceDocument)
         }
       }
 
       // For other objects, only create a proxy if they contain $refs
-      return createRefProxy(value, sourceDocument)
+      return createMagicProxy(value, sourceDocument)
     },
 
     set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {

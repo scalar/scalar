@@ -8,16 +8,29 @@ const props = defineProps<{
   document?: OpenAPI.Document
 }>()
 
+const operationCount = computed(() => {
+  if (!props.document?.paths) {
+    return 0
+  }
+
+  return Object.values(props.document.paths).reduce((count, pathItem) => {
+    return count + Object.keys(pathItem).length
+  }, 0)
+})
+
+/**
+ * Transforms the paths object into an array of operations with path and method.
+ * Each operation is represented as a small dot in the grid view.
+ */
 const operations = computed(() => {
   if (!props.document?.paths) {
     return []
   }
 
   return Object.entries(props.document.paths).flatMap(([path, pathItem]) => {
-    return Object.entries(pathItem).map(([method, operation]) => ({
+    return Object.keys(pathItem).map((method) => ({
       path,
       method,
-      operation,
     }))
   })
 })
@@ -66,13 +79,19 @@ const getMethodColor = (method: string) => {
             {{ Object.keys(document?.paths ?? {}).length }}
           </td>
         </tr>
+        <tr>
+          <td class="border px-2 py-1 font-bold">Operations</td>
+          <td class="border px-2 py-1">
+            {{ operationCount }}
+          </td>
+        </tr>
       </tbody>
     </table>
 
     <h2 class="my-4 font-bold">Operations</h2>
-    <p v-if="!operations.length">Loading … (simulating a slow network)</p>
+    <p v-if="!operationCount">Loading … (simulating a slow network)</p>
     <div
-      v-if="operations.length"
+      v-if="operationCount"
       class="my-4 px-2 py-1">
       <div class="grid-cols-32 grid gap-1">
         <div
