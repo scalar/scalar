@@ -16,7 +16,7 @@ export { Layouts } from '@/components/Layouts'
 export { parse } from '@/helpers/parse'
 export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
-export { useSidebar } from '@/hooks/useSidebar'
+export { useSidebar } from '@/hooks/old/useSidebar'
 export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,
