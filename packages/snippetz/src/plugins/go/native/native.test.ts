@@ -13,12 +13,11 @@ describe('goNative', () => {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -46,12 +45,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	req, _ := http.NewRequest("POST", url, nil)
@@ -83,12 +81,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -107,7 +104,7 @@ func main() {
     )
   })
 
-  it.skip('handles multipart form data with files', () => {
+  it('handles multipart form data with files', () => {
     const result = goNative.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -130,41 +127,45 @@ func main() {
       `package main
 
 import (
-	"fmt"
-	"net/http"
-	"io"
 	"bytes"
+	"fmt"
+	"io"
 	"mime/multipart"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
-	body := &bytes.Buffer{}
-	writer := multipart.NewWriter(body)
+	payload := &bytes.Buffer{}
+	writer := multipart.NewWriter(payload)
 
-	// Add file field
-	writer.WriteField("file", "test.txt")
-	// Add form field
-	writer.WriteField("field", "value")
+	part, _ := writer.CreateFormFile("file", "test.txt")
+
+	f, _ := os.Open("test.txt")
+	defer f.Close()
+
+	_, _ = io.Copy(part, f)
+
+	_ = writer.WriteField("field", "value")
 	writer.Close()
 
-	req, _ := http.NewRequest("POST", url, body)
-	req.Header.Set("Content-Type", writer.FormDataContentType())
+	req, _ := http.NewRequest("POST", url, payload)
 
+	req.Header.Set("Content-Type", writer.FormDataContentType())
 	res, _ := http.DefaultClient.Do(req)
 
 	defer res.Body.Close()
-	responseBody, _ := io.ReadAll(res.Body)
+	body, _ := io.ReadAll(res.Body)
 
 	fmt.Println(res)
-	fmt.Println(string(responseBody))
+	fmt.Println(string(body))
+
 }`,
     )
   })
 
-  it.skip('handles url-encoded form data with special characters', () => {
+  it('handles url-encoded form data with special characters', () => {
     const result = goNative.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -184,16 +185,19 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
+	"net/url"
+	"strings"
 )
 
 func main() {
-
 	url := "https://example.com"
 
-	req, _ := http.NewRequest("POST", url, nil)
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	postData := url.Values{}
+	postData.Set("special chars!@#", "value")
+
+	req, _ := http.NewRequest("POST", url, strings.NewReader(postData.Encode()))
 
 	res, _ := http.DefaultClient.Do(req)
 
@@ -222,13 +226,12 @@ func main() {
 
 import (
 	"fmt"
-	"strings"
-	"net/http"
 	"io"
+	"net/http"
+	"strings"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	payload := strings.NewReader("binary content")
@@ -257,12 +260,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com/path%20with%20spaces/[brackets]"
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -293,12 +295,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -328,12 +329,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com"
 
 	req, _ := http.NewRequest("GET", url, nil)
@@ -362,12 +362,11 @@ func main() {
 
 import (
 	"fmt"
-	"net/http"
 	"io"
+	"net/http"
 )
 
 func main() {
-
 	url := "https://example.com/api?param1=value1&param2=special%20value&param3=123"
 
 	req, _ := http.NewRequest("GET", url, nil)

@@ -167,10 +167,39 @@ describe('pythonRequests', () => {
     })
 
     expect(result).toBe(`requests.post("https://example.com",
-    files={"file": open("test.txt", "rb")},
+    files=[
+      ("file", open("test.txt", "rb"))
+    ],
     data={
       "field": "value"
     }
+)`)
+  })
+
+  it('handles multipart form data with multiple files', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+          },
+          {
+            name: 'file',
+            fileName: 'another.txt',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    files=[
+      ("file", open("test.txt", "rb")),
+      ("file", open("another.txt", "rb"))
+    ]
 )`)
   })
 
@@ -333,7 +362,9 @@ describe('pythonRequests', () => {
     })
 
     expect(result).toBe(`requests.post("https://example.com",
-    files={"file": open("", "rb")}
+    files=[
+      ("file", open("", "rb"))
+    ]
 )`)
   })
 

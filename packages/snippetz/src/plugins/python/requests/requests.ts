@@ -64,12 +64,12 @@ export const pythonRequests: Plugin = {
       } else if (mimeType === 'application/octet-stream' && text) {
         options.data = text // Store raw text, we'll handle the b"..." formatting later
       } else if (mimeType === 'multipart/form-data' && params) {
-        const files: Record<string, string> = {}
+        const files: { key: string; file: string }[] = []
         const formData: Record<string, string> = {}
 
         params.forEach((param) => {
           if (param.fileName !== undefined) {
-            files[param.name] = `open("${param.fileName}", "rb")`
+            files.push({ key: param.name, file: `open("${param.fileName}", "rb")` })
           } else if (param.value !== undefined) {
             formData[param.name] = param.value
           }
@@ -103,10 +103,8 @@ export const pythonRequests: Plugin = {
       if (key === 'auth') {
         formattedParams.push(`${key}=(${JSON.stringify(value[0])}, ${JSON.stringify(value[1])})`)
       } else if (key === 'files') {
-        const filesStr = JSON.stringify(value)
-          .replace(/"open\((.*?)\)"/g, 'open($1)')
-          .replace(/":open/g, '": open')
-          .replace(/\\"/g, '"')
+        const filesTuples = value.map(({ key, file }: { key: string; file: string }) => `      ("${key}", ${file})`)
+        const filesStr = '[\n' + filesTuples.join(',\n') + '\n    ]'
         formattedParams.push(`${key}=${filesStr}`)
       } else if (key === 'json') {
         const jsonString = JSON.stringify(value, null, 2)

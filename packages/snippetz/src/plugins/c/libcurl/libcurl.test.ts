@@ -58,7 +58,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
     )
   })
 
-  it.skip('handles multipart form data with files', () => {
+  it('handles multipart form data with files', () => {
     const result = cLibcurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -83,16 +83,27 @@ CURLcode ret = curl_easy_perform(hnd);`,
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com");
 
-struct curl_httppost *formpost = NULL;
-struct curl_httppost *lastptr = NULL;
+curl_mime *mime = curl_mime_init(hnd);
 
-curl_easy_setopt(hnd, CURLOPT_HTTPPOST, formpost);
+{
+  curl_mimepart *part = curl_mime_addpart(mime);
+  curl_mime_name(part, "file");
+  curl_mime_filedata(part, "test.txt");
+}
+
+{
+  curl_mimepart *part = curl_mime_addpart(mime);
+  curl_mime_name(part, "field");
+  curl_mime_data(part, "value", CURL_ZERO_TERMINATED);
+}
+
+curl_easy_setopt(hnd, CURLOPT_MIMEPOST, mime);
 
 CURLcode ret = curl_easy_perform(hnd);`,
     )
   })
 
-  it.skip('handles url-encoded form data with special characters', () => {
+  it('handles url-encoded form data with special characters', () => {
     const result = cLibcurl.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -113,10 +124,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "POST");
 curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com");
 
-struct curl_httppost *formpost = NULL;
-struct curl_httppost *lastptr = NULL;
-
-curl_easy_setopt(hnd, CURLOPT_HTTPPOST, formpost);
+curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "special+chars%21%40%23=value");
 
 CURLcode ret = curl_easy_perform(hnd);`,
     )
@@ -182,7 +190,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
     )
   })
 
-  it.skip('handles headers with empty values', () => {
+  it('handles headers with empty values', () => {
     const result = cLibcurl.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
@@ -195,7 +203,7 @@ curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
 curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com");
 
 struct curl_slist *headers = NULL;
-headers = curl_slist_append(headers, "X-Empty: ''");
+headers = curl_slist_append(headers, "X-Empty;");
 curl_easy_setopt(hnd, CURLOPT_HTTPHEADER, headers);
 
 CURLcode ret = curl_easy_perform(hnd);`,
