@@ -64,7 +64,7 @@
     "@nuxt/test-utils": "^3.13.1",
     "@types/node": "catalog:*",
     "changelogen": "^0.5.5",
-    "nuxt": "^3.12.4",
+    "nuxt": "^3.16.0",
     "vitest": "catalog:*"
   }
 }
