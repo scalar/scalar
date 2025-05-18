@@ -2,11 +2,11 @@
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { useId } from 'vue'
 
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
 
 import ScreenReader from '../ScreenReader.vue'
 
-defineProps<{
+const { id } = defineProps<{
   id: string
 }>()
 
@@ -14,8 +14,10 @@ const labelId = useId()
 
 const { copyToClipboard } = useClipboard()
 const { getHashedUrl } = useNavState()
-const getUrlWithId = (id: string) => {
-  return getHashedUrl(id)
+
+/** Ensure we copy the hash OR path if pathRouting is enabled */
+const handleCopy = () => {
+  copyToClipboard(getHashedUrl(id))
 }
 </script>
 <template>
@@ -32,7 +34,7 @@ const getUrlWithId = (id: string) => {
         :aria-describedby="labelId"
         class="anchor-copy"
         type="button"
-        @click.stop="copyToClipboard(getUrlWithId(id))">
+        @click.stop="handleCopy">
         <span aria-hidden="true">#</span>
         <ScreenReader>Copy link</ScreenReader>
       </button>

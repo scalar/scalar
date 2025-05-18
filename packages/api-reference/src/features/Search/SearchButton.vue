@@ -4,9 +4,9 @@ import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { isMacOs } from '../../helpers'
-import { useApiClient } from '../ApiClientModal'
-import SearchModal from './SearchModal.vue'
+import { useApiClient } from '@/features/ApiClientModal'
+import SearchModal from '@/features/Search/SearchModal.vue'
+import { isMacOs } from '@/helpers/is-mac-os'
 
 const props = withDefaults(
   defineProps<{

@@ -1,5 +1,12 @@
 # @scalar/hono-api-reference
 
+## 0.8.10
+
+### Patch Changes
+
+- 382b510: docs: add an example for /llms.txt
+  - @scalar/core@0.2.16
+
 ## 0.8.9
 
 ### Patch Changes

@@ -51,7 +51,9 @@ if (props.parameter.content) {
 const shouldCollapse = computed<boolean>(() => {
   return !!(
     props.collapsableItems &&
-    (props.parameter.content || props.parameter.headers)
+    (props.parameter.content ||
+      props.parameter.headers ||
+      props.parameter.schema)
   )
 })
 
@@ -174,7 +176,7 @@ const shouldShowParameter = computed(() => {
 .parameter-item-trigger
   + .parameter-item-container
   :deep(.property--level-0 > .property-heading .property-detail-value) {
-  font-size: var(--scalar-font-size-3);
+  font-size: var(--scalar-micro);
 }
 .parameter-item-required-optional {
   color: var(--scalar-color-2);

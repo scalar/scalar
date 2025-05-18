@@ -1,16 +1,17 @@
+/**
+ * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
+ * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
+ */
+import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
+import { normalizeRequestMethod } from '@/legacy/helpers'
 import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
-/**
- * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
- * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
- */
-import { type RequestMethod, normalizeRequestMethod, validRequestMethods } from '#legacy'
 
-import { createEmptySpecification } from '../helpers'
+import { createEmptySpecification } from '@/libs/openapi'
 
 type AnyObject = Record<string, any>
 

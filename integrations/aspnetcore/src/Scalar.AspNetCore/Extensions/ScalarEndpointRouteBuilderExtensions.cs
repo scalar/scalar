@@ -8,6 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
+#if RELEASE
+using System.IO.Compression;
+#endif
 
 namespace Scalar.AspNetCore;
 
@@ -202,10 +205,29 @@ public static class ScalarEndpointRouteBuilderExtensions
             return Results.NotFound();
         }
 
+        httpContext.Response.Headers.Append(HeaderNames.Vary, HeaderNames.AcceptEncoding);
+
         var etag = $"\"{resourceFile.LastModified.Ticks}\"";
 
         var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
-        return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        if (ifNoneMatch == etag)
+        {
+            return Results.StatusCode(StatusCodes.Status304NotModified);
+        }
+
+#if RELEASE
+        if (httpContext.Request.IsGzipAccepted())
+        {
+            httpContext.Response.Headers.ContentEncoding = "gzip";
+            return Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+        }
+
+        var stream = new GZipStream(resourceFile.CreateReadStream(), CompressionMode.Decompress);
+#else
+        var stream = resourceFile.CreateReadStream();
+#endif
+
+        return Results.Stream(stream, MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
     }
 
     private static bool ShouldRedirectToTrailingSlash(HttpContext httpContext, string? documentName, [NotNullWhen(true)] out string? redirectUrl)

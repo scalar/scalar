@@ -1,4 +1,3 @@
-import { arrayToObject } from '@/utils/arrayToObject'
 import { objectToString } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
@@ -25,16 +24,7 @@ export const nodeOfetch: Plugin = {
     }
 
     // Query
-    const searchParams = new URLSearchParams(
-      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
-    )
-
-    if (searchParams.size) {
-      options.query = {}
-      searchParams.forEach((value, key) => {
-        options.query[key] = value
-      })
-    }
+    options.query = normalizedRequest.queryString
 
     // Headers
     if (normalizedRequest.headers?.length) {

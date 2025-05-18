@@ -1,6 +1,7 @@
 import type { UnknownObject } from '@scalar/types/utils'
+import type { DiscriminatorType } from './schema-discriminator'
 
-export const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
+export const discriminators: DiscriminatorType[] = ['oneOf', 'anyOf', 'allOf', 'not']
 
 /**
  * Optimize the value by removing nulls from discriminators.

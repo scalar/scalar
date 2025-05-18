@@ -13,7 +13,7 @@
   "keywords": [],
   "version": "0.1.19",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "vite-node scripts/build-esbuild.ts",

@@ -18,9 +18,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.7.16",
+  "version": "0.7.17",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",

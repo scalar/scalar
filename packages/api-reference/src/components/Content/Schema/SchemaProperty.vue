@@ -9,7 +9,6 @@ import {
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import { SpecificationExtension } from '@/components/SpecificationExtension'
-import { usePluginManager } from '@/plugins'
 
 import Schema from './Schema.vue'
 import SchemaDiscriminator from './SchemaDiscriminator.vue'
@@ -269,7 +268,8 @@ const displayPropertyHeading = (
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="optimizedValue" />
+        :value="optimizedValue"
+        :schemas="schemas" />
     </div>
     <!-- Array of objects -->
     <template
@@ -313,6 +313,7 @@ const displayPropertyHeading = (
           optimizedValue?.items &&
           typeof discriminator === 'string' &&
           typeof optimizedValue.items === 'object' &&
+          !('type' in optimizedValue.items) &&
           discriminator in optimizedValue.items
         ">
         <SchemaDiscriminator
@@ -339,20 +340,18 @@ const displayPropertyHeading = (
   font-size: var(--scalar-mini);
   position: relative;
 }
-
 /* increase z-index for example hovers */
 .property:hover {
   z-index: 1;
 }
-
 .property--compact.property--level-0,
 .property--compact.property--level-1 {
   padding: 8px 0;
 }
-/*  if a property doesn't have a heading, remove the top padding */
-.property:has(> .property-rule:nth-of-type(1)):not(.property--compact) {
-  padding-top: 8px;
-  padding-bottom: 8px;
+.property--compact.property--level-0
+  .discriminator-panel
+  .property--compact.property--level-1 {
+  padding: 8px;
 }
 .property--deprecated {
   background: repeating-linear-gradient(
@@ -364,11 +363,9 @@ const displayPropertyHeading = (
   );
   background-size: 100%;
 }
-
 .property--deprecated > * {
   opacity: 0.75;
 }
-
 .property-description {
   margin-top: 6px;
   line-height: 1.4;
@@ -405,22 +402,31 @@ const displayPropertyHeading = (
   padding: 6px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.property-rule,
-.property-rule:has(> .discriminator-tab-list)
-  :deep(.property-rule .schema-properties.schema-properties-open) {
+.property-rule {
   border-radius: var(--scalar-radius-lg);
   display: flex;
   flex-direction: column;
 }
-.property-rule:has(.discriminator-tab-list)
-  :deep(.schema-card .schema-properties.schema-properties-open) {
+.property-rule
+  :deep(
+    .discriminator-panel .schema-card .schema-properties.schema-properties-open
+  ) {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.property-rule:has(.discriminator-tab-list)
-  :deep(.children .schema-card .schema-properties.schema-properties-open) {
-  border-top-left-radius: var(--scalar-radius-lg);
-  border-top-right-radius: var(--scalar-radius-lg);
+.property-rule :deep(.discriminator-panel .discriminator-selector) {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+.property-rule
+  :deep(
+    .discriminator-panel:has(.property-rule)
+      > .schema-card
+      .schema-properties.schema-properties-open
+  ) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .property-enum-value {
   color: var(--scalar-color-3);
@@ -465,7 +471,6 @@ const displayPropertyHeading = (
   margin-top: 8px;
   list-style: none;
 }
-
 .property-example {
   background: transparent;
   border: none;

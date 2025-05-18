@@ -300,4 +300,91 @@ describe('SchemaProperty sub-schema', () => {
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
   })
+
+  it('renders discriminators for object of array items', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          type: 'array',
+          items: {
+            type: 'object',
+            oneOf: [
+              {
+                description: 'foobar',
+                properties: { test: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // Check that the discriminator is not rendered
+    expect(wrapper.html().match(/foobar/g)).toBeNull()
+    expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
+
+    // Open the schema card
+    await wrapper.find('.schema-card-title').trigger('click')
+
+    // Find 'foobar' only once
+    const foobar = wrapper.html().match(/foobar/g)
+    expect(foobar).toHaveLength(1)
+  })
+
+  it('renders nested discriminators correctly', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                customerComment: {
+                  type: 'string',
+                },
+              },
+            },
+            {
+              oneOf: [
+                {
+                  allOf: [
+                    {
+                      title: 'foo (1)',
+                      type: 'object',
+                    },
+                    {
+                      oneOf: [
+                        {
+                          title: 'bar (1)',
+                          type: 'object',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    })
+
+    // Check that the first level discriminator is rendered
+    const firstLevelSelector = wrapper.find('.discriminator-selector')
+    expect(firstLevelSelector.exists()).toBe(true)
+    expect(firstLevelSelector.text()).toContain('One of')
+
+    // Open the first level
+    await firstLevelSelector.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Check that the nested discriminator is rendered
+    const nestedSelector = wrapper.find('.discriminator-panel .discriminator-selector')
+    expect(nestedSelector.exists()).toBe(true)
+    expect(nestedSelector.text()).toContain('One of')
+
+    // Check that the titles are displayed correctly
+    expect(wrapper.html()).toContain('foo (1)')
+    expect(wrapper.html()).toContain('bar (1)')
+  })
 })

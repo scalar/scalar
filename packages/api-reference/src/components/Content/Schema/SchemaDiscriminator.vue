@@ -1,22 +1,24 @@
 <script lang="ts" setup>
-import { Tab, TabGroup, TabList, TabPanel } from '@headlessui/vue'
 import {
-  cva,
-  cx,
   ScalarListbox,
+  ScalarMarkdown,
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
 
+import {
+  hasDiscriminator,
+  type DiscriminatorType,
+} from './helpers/schema-discriminator'
 import Schema from './Schema.vue'
 
 const { schemas, value, discriminator } = defineProps<{
-  discriminator: string
+  discriminator: DiscriminatorType
   schemas?:
     | OpenAPIV2.DefinitionsObject
     | Record<string, OpenAPIV3.SchemaObject>
@@ -30,30 +32,9 @@ const { schemas, value, discriminator } = defineProps<{
 }>()
 
 const selectedIndex = ref(0)
-const tabsContainer = ref<HTMLElement | null>(null)
-const isOverflowing = ref(false)
-
-onMounted(async () => {
-  await nextTick()
-  // Check if the tabs container is overflowing
-  if (tabsContainer.value) {
-    const container = tabsContainer.value
-    isOverflowing.value = container.scrollWidth > container.clientWidth
-  }
-})
-
-const buttonVariants = cva({
-  base: 'schema-tab',
-  variants: {
-    selected: {
-      true: 'schema-tab-selected',
-      false: 'text-c-3',
-    },
-  },
-})
 
 const listboxOptions = computed(() =>
-  value[discriminator].map((schema: any, index: number) => ({
+  schemaDiscriminators.value.map((schema: any, index: number) => ({
     id: String(index),
     label: getModelNameFromSchema(schema) || 'Schema',
   })),
@@ -67,7 +48,17 @@ const selectedOption = computed({
   set: (opt: ScalarListboxOption) => (selectedIndex.value = Number(opt.id)),
 })
 
-// Get model name from schema
+/** Check if the discriminator is oneOf or anyOf or allOf with nested discriminators */
+const hasNestedDiscriminator = computed(() => {
+  const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(discriminator)
+  const hasNestedDiscriminator =
+    discriminator === 'allOf' &&
+    value[discriminator]?.some((schema: any) => hasDiscriminator(schema))
+
+  return isOneOfOrAnyOf || hasNestedDiscriminator
+})
+
+/** Get model name from schema */
 const getModelNameFromSchema = (schema: any): string | null => {
   if (!schema) {
     return null
@@ -88,7 +79,6 @@ const getModelNameFromSchema = (schema: any): string | null => {
         return schemaName
       }
     }
-    return Object.keys(schema)[0]
   }
 
   // Handle array types with items
@@ -111,85 +101,155 @@ const getModelNameFromSchema = (schema: any): string | null => {
   return null
 }
 
-// Humanizes discriminator type name e.g. oneOf -> One of
-const humanizeType = (type: string) => {
+const getSchemaWithDiscriminator = (schemas: any[]) => {
+  return schemas.find((schema: any) => hasDiscriminator(schema))
+}
+
+const schemaDiscriminators = computed(() => {
+  const schemaDiscriminator = getSchemaWithDiscriminator(value[discriminator])
+
+  if (!schemaDiscriminator) {
+    return value[discriminator]
+  }
+
+  // Get schema with nested discriminators
+  const schemaNestedDiscriminators =
+    schemaDiscriminator.oneOf || schemaDiscriminator.anyOf
+
+  return schemaNestedDiscriminators.map((schema: any) => {
+    if (schema.allOf) {
+      const titledSchema = schema.allOf.find((s: any) => s.title)
+      const referencedSchema = schema.allOf.find((s: any) => !s.title)
+
+      if (titledSchema && referencedSchema) {
+        return {
+          ...titledSchema,
+          properties: {
+            ...titledSchema.properties,
+            ...referencedSchema.properties,
+          },
+          required: [
+            ...(titledSchema.required || []),
+            ...(referencedSchema.required || []),
+          ],
+          oneOf: referencedSchema.oneOf,
+          anyOf: referencedSchema.anyOf,
+        }
+      }
+      return titledSchema || schema
+    }
+    return schema
+  })
+})
+
+/** Humanizes discriminator type name e.g. oneOf -> One of */
+const humanizeType = (type: DiscriminatorType) => {
+  if (type === 'allOf') {
+    const schemaWithDiscriminator = value?.[type]?.find((schema: any) =>
+      hasDiscriminator(schema),
+    )
+    if (schemaWithDiscriminator?.oneOf) {
+      return 'One of'
+    }
+    if (schemaWithDiscriminator?.anyOf) {
+      return 'Any of'
+    }
+  }
+
   return type
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (str) => str.toUpperCase())
     .toLowerCase()
     .replace(/^(\w)/, (c) => c.toUpperCase())
 }
+
+/** Get current schema */
+const discriminatorSchema = computed(
+  () => schemaDiscriminators.value[selectedIndex.value],
+)
+
+/** Return current discriminator type */
+const discriminatorType = computed<DiscriminatorType>(() => {
+  return discriminatorSchema.value?.oneOf ? 'oneOf' : 'anyOf'
+})
+
+/** Return current schema's discriminator value */
+const discriminatorValue = computed(() => {
+  const type = discriminatorType.value
+  return discriminatorSchema.value?.[type]
+})
 </script>
 
 <template>
   <div class="property-rule">
-    <template v-if="discriminator === 'oneOf' || discriminator === 'anyOf'">
-      <!-- Tabs -->
-      <TabGroup
-        v-model="selectedIndex"
-        as="div">
-        <TabList
-          class="discriminator-tab-list py-1.25 flex flex-col gap-1 rounded-t-lg border border-b-0 px-2 pr-3">
-          <span class="text-c-3">{{ humanizeType(discriminator) }}</span>
-          <div
-            ref="tabsContainer"
-            class="flex items-center gap-1.5">
-            <template v-if="!isOverflowing">
-              <Tab
-                v-for="(schema, index) in value[discriminator]"
-                :key="index"
-                :class="
-                  cx(buttonVariants({ selected: selectedIndex === index }))
-                "
-                @click="selectedIndex = index">
-                <span class="schema-tab-label z-1 relative">
-                  {{ getModelNameFromSchema(schema) || 'Schema' }}
-                </span>
-              </Tab>
-            </template>
-            <template v-else>
-              <ScalarListbox
-                v-model="selectedOption"
-                :options="listboxOptions"
-                resize>
-                <div
-                  class="flex cursor-pointer items-center gap-1"
-                  :class="cx(buttonVariants({ selected: true }))">
-                  <span class="schema-tab-label z-1 text-c-1 relative">
-                    {{ selectedOption?.label || 'Schema' }}
-                  </span>
-                  <ScalarIconCaretDown class="z-1" />
-                </div>
-              </ScalarListbox>
-            </template>
-          </div>
-        </TabList>
-        <template v-if="!isOverflowing">
-          <TabPanel
-            v-for="(schema, index) in value[discriminator]"
-            :key="index"
-            class="discriminator-panel">
-            <Schema
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :name="name"
-              :noncollapsible="true"
-              :schemas="schemas"
-              :value="schema" />
-          </TabPanel>
+    <template
+      v-if="
+        discriminator === 'allOf' &&
+        value[discriminator].some((schema: any) => schema.oneOf || schema.anyOf)
+      ">
+      <Schema
+        v-for="(schema, index) in value[discriminator].filter(
+          (s: any) => !s.oneOf && !s.anyOf,
+        )"
+        :key="index"
+        :compact="compact"
+        :level="level"
+        :name="name"
+        :noncollapsible="level != 0 ? false : true"
+        :schemas="schemas"
+        :value="schema" />
+    </template>
+
+    <!-- Tabs -->
+    <template v-if="hasNestedDiscriminator">
+      <ScalarListbox
+        v-model="selectedOption"
+        :options="listboxOptions"
+        resize>
+        <button
+          class="discriminator-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
+          type="button">
+          <span class="text-c-2">{{ humanizeType(discriminator) }}</span>
+          <span class="discriminator-selector-label text-c-1 relative">
+            {{ selectedOption?.label || 'Schema' }}
+          </span>
+          <ScalarIconCaretDown class="z-1" />
+        </button>
+      </ScalarListbox>
+      <div class="discriminator-panel">
+        <div
+          v-if="discriminatorSchema?.description"
+          class="property-description border-x border-t p-2">
+          <ScalarMarkdown :value="discriminatorSchema.description" />
+        </div>
+        <Schema
+          v-if="discriminatorSchema?.properties"
+          :compact="compact"
+          :level="level + 1"
+          :hideHeading="hideHeading"
+          :name="name"
+          :noncollapsible="true"
+          :schemas="schemas"
+          :value="{
+            type: 'object',
+            properties: discriminatorSchema.properties,
+          }" />
+        <!-- Nested tabs -->
+        <template
+          v-if="discriminatorSchema?.oneOf || discriminatorSchema?.anyOf">
+          <SchemaDiscriminator
+            :compact="compact"
+            :discriminator="discriminatorType"
+            :hideHeading="hideHeading"
+            :level="level + 1"
+            :name="name"
+            :noncollapsible="true"
+            :schemas="schemas"
+            :value="{
+              [discriminatorType]: discriminatorValue,
+            }" />
         </template>
-        <template v-else>
-          <TabPanel class="discriminator-panel">
-            <Schema
-              :compact="compact"
-              :hideHeading="hideHeading"
-              :name="name"
-              :noncollapsible="true"
-              :schemas="schemas"
-              :value="value[discriminator][selectedIndex]" />
-          </TabPanel>
-        </template>
-      </TabGroup>
+      </div>
     </template>
     <template v-else>
       <Schema
@@ -202,60 +262,3 @@ const humanizeType = (type: string) => {
     </template>
   </div>
 </template>
-<style scoped>
-.discriminator-panel:has(.property--compact) {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-bottom-left-radius: var(--scalar-radius-lg);
-  border-bottom-right-radius: var(--scalar-radius-lg);
-}
-.discriminator-panel :deep(.schema-properties .schema-properties-open) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.discriminator-panel :deep(.property--level-0),
-.discriminator-panel :deep(.property--compact.property--level-1) {
-  padding: 8px;
-}
-.discriminator-panel
-  :deep(.property--compact.property--level-0):not(:has(.property--level-1)) {
-  padding: 8px;
-}
-.discriminator-panel :deep(.property--compact.property--level-0) {
-  padding: 0;
-}
-.schema-tab {
-  background: none;
-  border: none;
-  font-size: var(--scalar-mini);
-  font-family: var(--scalar-font);
-  color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold);
-  line-height: calc(var(--scalar-mini) + 2px);
-  white-space: nowrap;
-  cursor: pointer;
-  padding: 0;
-  position: relative;
-  line-height: 1.35;
-  position: relative;
-}
-.schema-tab:before {
-  content: '';
-  position: absolute;
-  z-index: 0;
-  left: -4px;
-  top: -4px;
-  width: calc(100% + 8px);
-  height: calc(100% + 8px);
-  border-radius: var(--scalar-radius);
-  background: var(--scalar-background-2);
-  opacity: 0;
-}
-.schema-tab:hover:before {
-  opacity: 1;
-}
-.schema-tab-selected:not([aria-haspopup='listbox']) {
-  color: var(--scalar-color-1);
-  text-decoration: underline;
-  text-underline-offset: 8px;
-}
-</style>

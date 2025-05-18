@@ -2,8 +2,8 @@ import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, ref, toValue, watch } from 'vue'
 
-import { createEmptySpecification } from '../helpers'
-import { parse } from '../helpers/parse'
+import { parse } from '@/helpers/parse'
+import { createEmptySpecification } from '@/libs/openapi'
 
 /**
  * Get the content from the provided configuration:

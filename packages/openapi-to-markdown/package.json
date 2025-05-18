@@ -1,0 +1,85 @@
+{
+  "name": "@scalar/openapi-to-markdown",
+  "description": "Create plain Markdown from OpenAPI documents (for LLMs)",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/openapi-to-markdown"
+  },
+  "keywords": [
+    "openapi",
+    "markdown",
+    "llm",
+    "swagger"
+  ],
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts,vue --quiet --watch ./",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*.css": {
+      "import": "./dist/*.css",
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
+    },
+    "./css/*.css": {
+      "import": "./dist/css/*.css",
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {
+    "@scalar/components": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
+    "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
+    "@scalar/types": "workspace:*",
+    "html-minifier-terser": "^7.2.0",
+    "object-to-xml": "^2.0.0",
+    "rehype-parse": "^9.0.0",
+    "rehype-remark": "^10.0.1",
+    "rehype-sanitize": "^6.0.0",
+    "rehype-stringify": "^10.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-stringify": "^11.0.0",
+    "unified": "^11.0.4",
+    "vue": "catalog:*"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.11.0",
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/galaxy": "^0.3.2",
+    "@types/html-minifier-terser": "^7.0.2",
+    "@vitejs/plugin-vue": "catalog:*",
+    "@vue/test-utils": "^2.4.1",
+    "hono": "^4.6.5",
+    "vite": "catalog:*",
+    "vue": "catalog:*"
+  }
+}

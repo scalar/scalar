@@ -2,8 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 
 import { useConfig } from '@/hooks/useConfig'
-
-import { useSidebar } from '../hooks'
+import { useSidebar } from '@/hooks/useSidebar'
 
 const { id } = defineProps<{
   id: string

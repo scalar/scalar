@@ -16,9 +16,9 @@
     "scalar",
     "references"
   ],
-  "version": "0.1.15",
+  "version": "0.1.16",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

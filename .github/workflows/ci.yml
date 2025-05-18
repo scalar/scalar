@@ -575,6 +575,10 @@ jobs:
         working-directory: integrations/aspnetcore
         run: pnpm copy:standalone
 
+      - name: Compress static assets
+        working-directory: integrations/aspnetcore
+        run: pnpm compress
+
       - name: Restore dependencies
         working-directory: integrations/aspnetcore
         run: dotnet restore
@@ -651,6 +655,11 @@ jobs:
         name: Copy JavaScript asset from @scalar/api-reference
         working-directory: integrations/aspnetcore
         run: pnpm copy:standalone
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Compress static assets
+        working-directory: integrations/aspnetcore
+        run: pnpm compress
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies

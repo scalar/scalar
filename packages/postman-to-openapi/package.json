@@ -19,9 +19,9 @@
     "export",
     "scalar"
   ],
-  "version": "0.2.16",
+  "version": "0.2.17",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

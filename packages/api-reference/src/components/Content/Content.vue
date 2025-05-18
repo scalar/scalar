@@ -7,9 +7,9 @@ import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/BaseUrl'
-import { getModels, hasModels } from '@/helpers'
-import { useSidebar } from '@/hooks'
 import { useConfig } from '@/hooks/useConfig'
+import { useSidebar } from '@/hooks/useSidebar'
+import { getModels, hasModels } from '@/libs/openapi'
 
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'

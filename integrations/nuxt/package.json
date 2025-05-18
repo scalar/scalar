@@ -20,9 +20,9 @@
     "testing",
     "vue"
   ],
-  "version": "0.3.33",
+  "version": "0.3.34",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "cross-env NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",
@@ -53,7 +53,8 @@
     "@nuxt/kit": "^3.12.3",
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*"
   },
   "devDependencies": {
     "@nuxt/devtools": "^1.3.9",

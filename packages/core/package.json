@@ -11,9 +11,9 @@
     "directory": "packages/core"
   },
   "keywords": [],
-  "version": "0.2.15",
+  "version": "0.2.16",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-rollup",

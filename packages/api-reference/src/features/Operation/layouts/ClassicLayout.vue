@@ -27,7 +27,7 @@ import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
-} from '@/libs/operation'
+} from '@/libs/openapi'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
@@ -305,10 +305,5 @@ const title = computed(() => operation.summary || operation.path)
   line-height: 1.33;
   padding: 9px;
   margin: 0;
-}
-.operation-details-card :deep(.request-body-title-select) {
-  text-transform: initial;
-  font-weight: initial;
-  margin-left: auto;
 }
 </style>

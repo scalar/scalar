@@ -94,6 +94,24 @@ describe('jsFetch', () => {
     expect(result).toBe(`fetch('https://example.com?foo=bar&bar=foo')`)
   })
 
+  it('has query string with array values', () => {
+    const result = jsFetch.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'foo',
+          value: 'bar',
+        },
+        {
+          name: 'foo',
+          value: 'baz',
+        },
+      ],
+    })
+
+    expect(result).toBe(`fetch('https://example.com?foo=bar&foo=baz')`)
+  })
+
   it('has cookies', () => {
     const result = jsFetch.generate({
       url: 'https://example.com',

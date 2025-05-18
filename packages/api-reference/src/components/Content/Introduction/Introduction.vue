@@ -5,9 +5,9 @@ import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
-import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
@@ -88,7 +88,7 @@ onMounted(() => config.value.onLoaded?.())
             {{ info.title }}
           </SectionHeaderTag>
         </SectionHeader>
-        <DownloadLink :specTitle="filenameFromTitle" />
+        <DownloadLink :filename="filenameFromTitle" />
         <SectionColumns>
           <SectionColumn>
             <Description :value="info.description" />
