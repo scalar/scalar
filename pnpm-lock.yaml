@@ -2226,6 +2226,9 @@ importers:
       '@sinclair/typebox':
         specifier: catalog:*
         version: 0.34.3
+      vue:
+        specifier: catalog:*
+        version: 3.5.12(typescript@5.6.2)
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

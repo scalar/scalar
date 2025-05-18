@@ -21,6 +21,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "dev": "vite-node ./src/index.ts",
     "build": "scalar-build-esbuild",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
@@ -41,6 +42,7 @@
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "vue": "catalog:*",
     "@sinclair/typebox": "catalog:*"
   },
   "devDependencies": {

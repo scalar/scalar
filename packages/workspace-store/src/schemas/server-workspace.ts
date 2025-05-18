@@ -28,7 +28,7 @@ export type WorkspaceMeta = Static<typeof WorkspaceMetaSchema>
 export const WorkspaceSchema = Type.Intersect([
   WorkspaceMetaSchema,
   Type.Object({
-    documents: Type.Record(Type.String(), WorkspaceDocumentSchema),
+    documents: Type.Record(Type.String(), Type.Partial(WorkspaceDocumentSchema)),
   }),
 ])
 
