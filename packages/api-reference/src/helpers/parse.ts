@@ -174,6 +174,31 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
     // Delete all schemas where `shouldIgnoreEntity` returns true
     if (shouldIgnoreEntity(schema.components?.schemas?.[name])) {
       delete schema.components?.schemas?.[name]
+      return
+    }
+
+    if (Array.isArray(schema.components?.schemas[name]?.['x-tags'])) {
+      const component = schema.components?.schemas[name]
+
+      component['x-tags'].forEach((componentTag: string) => {
+        let tag = schema.tags?.find((tag: UnknownObject) => tag.name === componentTag)
+
+        if (!tag) {
+          tag = {
+            name: componentTag,
+            description: '',
+            components: [],
+          }
+
+          schema.tags?.push(tag)
+        }
+
+        if (!tag.components) {
+          tag.components = []
+        }
+
+        tag.components.push({ schema: component, name })
+      })
     }
   })
 

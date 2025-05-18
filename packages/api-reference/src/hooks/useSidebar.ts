@@ -2,8 +2,7 @@ import { lazyBus } from '@/components/Content/Lazy/lazyBus'
 import { scrollToId } from '@/helpers/scroll-to-id'
 import { useNavState } from '@/hooks/useNavState'
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
-import { getModels, hasModels, hasWebhooks } from '@/libs/openapi'
-import { isOperationDeprecated } from '@/libs/openapi'
+import { getModels, hasModels, hasWebhooks, isOperationDeprecated } from '@/libs/openapi'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
@@ -150,6 +149,38 @@ const items = computed(() => {
     }
   })
 
+  // Models
+  const modelsTagsGrouped: Record<string, SidebarEntry[]> = {}
+
+  let modelEntries: SidebarEntry[] =
+    hasModels(parsedSpec.value) && !hideModels.value
+      ? [
+          {
+            id: getModelId(),
+            title: 'Models',
+            show: true,
+            children: Object.keys(getModels(parsedSpec.value) ?? {}).map((name) => {
+              const id = getModelId({ name })
+              const model = getModels(parsedSpec.value)?.[name]
+              titlesById[id] = name
+
+              const entry: SidebarEntry = {
+                id,
+                title: (model as any).title ?? name,
+                show: true,
+              }
+
+              for (const tagName of model['x-tags'] ?? []) {
+                modelsTagsGrouped[tagName] = modelsTagsGrouped[tagName] || []
+                modelsTagsGrouped[tagName].push(entry)
+              }
+
+              return entry
+            }),
+          },
+        ]
+      : []
+
   // Tags & Operations
   const firstTag = parsedSpec.value?.tags?.[0]
 
@@ -163,31 +194,44 @@ const items = computed(() => {
           // Filter out tags without operations
           ?.filter((tag: Tag) => tag.operations?.length > 0)
           .map((tag: Tag) => {
+            const children: SidebarEntry[] = tag.operations?.map((operation: TransformedOperation) => {
+              const id = getOperationId(operation, tag)
+              const title = operation.name ?? operation.path
+              titlesById[id] = title
+
+              return {
+                id,
+                title,
+                httpVerb: operation.httpVerb,
+                // TODO: Workaround until we’re using the store directly
+                deprecated: operation.information
+                  ? isOperationDeprecated({
+                      deprecated: operation.information?.deprecated,
+                      'x-scalar-stability': operation.information?.['x-scalar-stability'],
+                    })
+                  : false,
+                show: true,
+                select: () => {},
+              }
+            })
+
+            if (modelsTagsGrouped[tag.name]) {
+              children.unshift(
+                ...modelsTagsGrouped[tag.name].map((entry) => {
+                  return {
+                    ...entry,
+                    id: getModelId({ name: titlesById[entry.id] }, tag),
+                  }
+                }),
+              )
+            }
+
             return {
               id: getTagId(tag),
               title: tag.name,
               displayTitle: tag['x-displayName'] ?? tag.name,
               show: true,
-              children: tag.operations?.map((operation: TransformedOperation) => {
-                const id = getOperationId(operation, tag)
-                const title = operation.name ?? operation.path
-                titlesById[id] = title
-
-                return {
-                  id,
-                  title,
-                  httpVerb: operation.httpVerb,
-                  // TODO: Workaround until we’re using the store directly
-                  deprecated: operation.information
-                    ? isOperationDeprecated({
-                        deprecated: operation.information?.deprecated,
-                        'x-scalar-stability': operation.information?.['x-scalar-stability'],
-                      })
-                    : false,
-                  show: true,
-                  select: () => {},
-                }
-              }),
+              children,
             }
           })
       : firstTag?.operations?.map((operation) => {
@@ -210,28 +254,6 @@ const items = computed(() => {
             select: () => {},
           }
         })
-
-  // Models
-  let modelEntries: SidebarEntry[] =
-    hasModels(parsedSpec.value) && !hideModels.value
-      ? [
-          {
-            id: getModelId(),
-            title: 'Models',
-            show: true,
-            children: Object.keys(getModels(parsedSpec.value) ?? {}).map((name) => {
-              const id = getModelId({ name })
-              titlesById[id] = name
-
-              return {
-                id,
-                title: (getModels(parsedSpec.value)?.[name] as any).title ?? name,
-                show: true,
-              }
-            }),
-          },
-        ]
-      : []
 
   // Webhooks
   let webhookEntries: SidebarEntry[] = hasWebhooks(parsedSpec.value)
