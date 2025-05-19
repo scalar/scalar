@@ -58,7 +58,6 @@ export function createWorkspaceStore(workspaceProps?: {
     update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
       Object.assign(workspace, { [key]: value })
     },
-
     /**
      * Updates a specific metadata field in a document
      * @param name - The name of the document to update ('active' or a specific document name)
@@ -108,11 +107,6 @@ export function createWorkspaceStore(workspaceProps?: {
       }
 
       if (isObject(target) && '$ref' in target) {
-        // Clear all current properties
-        Object.keys(target).forEach((key) => {
-          delete target[key]
-        })
-
         const ref = target['$ref']
 
         // Set the status to loading while we resolve the ref
@@ -121,6 +115,11 @@ export function createWorkspaceStore(workspaceProps?: {
         const result = await resolveRef(ref)
 
         if (result.ok) {
+          // Clear all current properties
+          Object.keys(target).forEach((key) => {
+            delete target[key]
+          })
+
           Object.assign(target, result.data)
         } else {
           Object.assign(target, { status: 'error' })

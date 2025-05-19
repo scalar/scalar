@@ -9,6 +9,8 @@ import { Type } from '@sinclair/typebox'
 export const ReferenceObject = Type.Object({
   /** REQUIRED. The reference identifier. This MUST be in the form of a URI. */
   '$ref': Type.String(),
+  /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */
+  status: Type.Optional(Type.Union([Type.Literal('loading'), Type.Literal('error')])),
   /** A short summary which by default SHOULD override that of the referenced component. If the referenced object-type does not allow a summary field, then this field has no effect. */
   summary: Type.Optional(Type.String()),
   /** A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a description field, then this field has no effect. */
