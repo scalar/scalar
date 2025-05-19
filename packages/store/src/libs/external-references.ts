@@ -197,7 +197,9 @@ export const createExternalReferenceFetcher = ({
     // TODO: Use @vue/reactivity to track file status changes
     while (true) {
       const hasPendingFiles = Array.from(files.values()).some(
-        (file) => file.status === 'pending' || file.status === 'idle',
+        (file) => file.status === 'pending',
+        // idle is fine, we’ll fetch them later
+        //  || file.status === 'idle',
       )
 
       if (!hasPendingFiles) {

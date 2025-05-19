@@ -1,5 +1,5 @@
 import { type Ref, isRef, reactive, watch } from '@vue/reactivity'
-import { type Collection, createCollection } from './create-collection'
+import { type Collection, createCollectionWithExternalReferences } from './create-collection-with-external-references'
 
 type State = {
   collections: Record<string, Collection>
@@ -49,23 +49,23 @@ export function createWorkspace(options?: { plugins?: WorkspacePlugin[] }): Work
       // TODO: Validate content
 
       if (typeof workspace.state.collections[collectionId] === 'undefined') {
-        workspace.state.collections[collectionId] = createCollection(content)
+        workspace.state.collections[collectionId] = await createCollectionWithExternalReferences(content)
 
         // If content is a Ref, watch for changes and reload the collection
         if (isRef(content)) {
           watch(
             content,
-            () => {
-              workspace.state.collections[collectionId] = createCollection(content)
+            async () => {
+              workspace.state.collections[collectionId] = await createCollectionWithExternalReferences(content)
             },
             { deep: true },
           )
         }
       } else {
-        // If content is a Ref, pass it directly to createCollection
+        // If content is a Ref, pass it directly to createCollectionWithExternalReferences
         // Otherwise wrap the content in an object assignment
         if (isRef(content)) {
-          workspace.state.collections[collectionId] = createCollection(content)
+          workspace.state.collections[collectionId] = await createCollectionWithExternalReferences(content)
         } else {
           Object.assign(workspace.state.collections[collectionId], content)
         }
