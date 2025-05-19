@@ -23,7 +23,10 @@ export function normalize(content: string | UnknownObject | Filesystem): Unknown
       return JSON.parse(content)
     } catch (_error) {
       // Does it look like YAML?
-      if (!/^[^:]+:/.test(content)) {
+      const hasColon = /^[^:]+:/.test(content)
+      const isMultiLine = content.includes('\n')
+
+      if (!hasColon || !isMultiLine) {
         return {}
       }
 

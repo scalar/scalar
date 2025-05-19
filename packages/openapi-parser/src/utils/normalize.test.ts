@@ -26,8 +26,8 @@ describe('normalize', () => {
   })
 
   it('should parse YAML string specifications', () => {
-    const yamlString = 'foo: bar'
-    expect(normalize(yamlString)).toEqual({ foo: 'bar' })
+    const yamlString = 'foo: bar\nbar: foo'
+    expect(normalize(yamlString)).toEqual({ foo: 'bar', bar: 'foo' })
   })
 
   it('should handle invalid YAML with custom maxAliasCount', () => {
@@ -45,9 +45,10 @@ describe('normalize', () => {
     expect(normalize(obj)).toBe(obj)
   })
 
-  it('should handle malformed JSON strings by falling back to YAML parsing', () => {
-    const malformedJson = '{ foo: "bar" }' // Missing quotes around property name
-    expect(normalize(malformedJson)).toEqual({ foo: 'bar' })
+  it('doesn’t freak out on invalid JSON strings ', () => {
+    // Missing quotes around property name
+    const malformedJson = '{ foo: "bar" }'
+    expect(normalize(malformedJson)).toEqual({})
   })
 
   it('should handle empty string input', () => {
