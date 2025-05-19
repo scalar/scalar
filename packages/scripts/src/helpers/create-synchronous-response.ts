@@ -18,10 +18,6 @@ export async function createSynchronousResponse(response: Response): Promise<Syn
     // Store the body as string
     body: responseText,
 
-    bytes: () => {
-      throw new Error('Not implemented')
-    },
-
     // Synchronous methods
     text: () => responseText,
     json: () => {
