@@ -30,12 +30,7 @@ const refProxyCache = new WeakMap<object, unknown>()
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export function createCollection(
-  input: UnknownObject | string | Ref<UnknownObject | string>,
-  options: CreateCollectionOptions = {},
-) {
-  const { cache = false } = options
-
+export function createCollection(input: UnknownObject | string | Ref<UnknownObject | string>) {
   // Unwrap Ref input if necessary
   let unwrappedInput = isRef(input) ? input.value : input
 
