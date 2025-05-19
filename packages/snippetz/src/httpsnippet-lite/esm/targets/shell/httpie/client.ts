@@ -102,6 +102,22 @@ export const httpie = {
           push(`${param.name}=${quote(param.value)}`)
         })
       }
+    } else if (
+      (postData === null || postData === void 0
+        ? void 0
+        : postData.mimeType) === 'multipart/form-data'
+    ) {
+      // construct multipart form data
+      if (postData.params?.length) {
+        flags.push('--multipart')
+        postData.params.forEach((param) => {
+          if (param.fileName) {
+            push(`${param.name}@${quote(param.fileName)}`)
+          } else {
+            push(`${param.name}='${quote(param.value)}'`)
+          }
+        })
+      }
     } else {
       raw = true
     }
