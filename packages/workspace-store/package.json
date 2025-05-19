@@ -42,12 +42,13 @@
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "vue": "catalog:*",
-    "@sinclair/typebox": "catalog:*"
+    "@sinclair/typebox": "catalog:*",
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "vite": "catalog:*",
     "vitest": "catalog:*",
-    "vite": "catalog:*"
+    "fastify": "catalog:*"
   }
 }

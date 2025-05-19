@@ -1,5 +1,5 @@
 import { reactive, toRaw } from 'vue'
-import type { WorkspaceMeta, Workspace, WorkspaceDocumentMeta } from './schemas/server-workspace'
+import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
 import { isObject } from '@scalar/openapi-parser'
 import { createMagicProxy } from './helpers/proxy'
 import { resolveRef } from '@/helpers/general'
@@ -15,14 +15,18 @@ import { resolveRef } from '@/helpers/general'
  */
 export function createWorkspaceStore(workspaceProps?: {
   meta?: WorkspaceMeta
-  documents?: Record<string, Record<string, unknown>>
+  documents?: { document: Record<string, unknown>; meta?: WorkspaceDocumentMeta; name: string }[]
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive({
     ...workspaceProps?.meta,
-    documents: Object.fromEntries(
-      Object.entries(workspaceProps?.documents || {}).map(([key, doc]) => [key, createMagicProxy(doc)]),
+    documents: (workspaceProps?.documents ?? []).reduce<Record<string, Record<string, unknown>>>(
+      (acc, { document, meta = {}, name }) => {
+        acc[name] = createMagicProxy({ ...document, ...meta })
+        return acc
+      },
+      {},
     ),
   }) as Workspace
 
@@ -33,20 +37,25 @@ export function createWorkspaceStore(workspaceProps?: {
     get rawWorkspace() {
       return toRaw(workspace)
     },
-
     /**
      * Returns the reactive workspace object with an additional activeDocument getter
      */
     get workspace() {
       return {
         ...workspace,
+        /**
+         * Returns the currently active document from the workspace.
+         * The active document is determined by the 'x-scalar-active-document' metadata field,
+         * falling back to the first document in the workspace if no active document is specified.
+         *
+         * @returns The active document or undefined if no document is found
+         */
         get activeDocument(): (typeof workspace.documents)[number] | undefined {
-          const activeDocumentKey = workspaceProps?.meta?.['x-scalar-active-document'] ?? ''
+          const activeDocumentKey = workspace['x-scalar-active-document'] ?? workspaceProps?.documents?.[0].name ?? ''
           return workspace.documents[activeDocumentKey]
         },
       }
     },
-
     /**
      * Updates a specific metadata field in the workspace
      * @param key - The metadata field to update
@@ -76,7 +85,11 @@ export function createWorkspaceStore(workspaceProps?: {
       value: WorkspaceDocumentMeta[K],
     ) {
       const currentDocument =
-        workspace.documents[name === 'active' ? (workspace['x-scalar-active-document'] ?? '') : name]
+        workspace.documents[
+          name === 'active'
+            ? (workspace['x-scalar-active-document'] ?? workspaceProps?.documents?.[0].name ?? '')
+            : name
+        ]
 
       if (!currentDocument) {
         throw 'Please select a valid document'

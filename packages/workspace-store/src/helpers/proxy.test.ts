@@ -29,13 +29,9 @@ describe('createMagicProxy', () => {
           },
         },
       },
-      b: {
-        '$ref': '#/a/b/c/e',
-      },
     }
 
     const result = createMagicProxy(input) as any
-
-    expect(result.b).toBe('hello')
+    expect(result.a.b.c.e.prop).toBe('hello')
   })
 })

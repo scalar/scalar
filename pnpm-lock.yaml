@@ -39,6 +39,9 @@ catalogs:
     express:
       specifier: ^5.1.0
       version: 5.1.0
+    fastify:
+      specifier: ^4.26.2
+      version: 4.28.0
     nanoid:
       specifier: ^5.1.5
       version: 5.1.5
@@ -2233,6 +2236,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      fastify:
+        specifier: catalog:*
+        version: 4.28.0
       vite:
         specifier: catalog:*
         version: 5.4.19(@types/node@20.17.10)(terser@5.31.2)
@@ -30653,7 +30659,7 @@ snapshots:
       proxy-addr: 2.0.7
       rfdc: 1.4.1
       secure-json-parse: 2.7.0
-      semver: 7.6.2
+      semver: 7.6.3
       toad-cache: 3.7.0
 
   fastq@1.17.1:

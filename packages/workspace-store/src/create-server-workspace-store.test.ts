@@ -43,7 +43,7 @@ describe('create-server-store', () => {
     test('should be able to pass a list of documents and get the workspace', async () => {
       const store = createServerWorkspaceStore({
         mode: 'ssr',
-        baseUrl: 'example.com',
+        baseUrl: 'https://example.com',
         documents: [
           {
             name: 'api-1',
@@ -69,14 +69,14 @@ describe('create-server-store', () => {
         'paths': {
           '/planets': {
             get: {
-              '$ref': `https://example.com#/${name}/operations/~1planets/get`,
+              '$ref': `https://example.com?path=${encodeURIComponent(`#/${name}/operations/~1planets/get`)}`,
             },
           },
         },
         'components': {
           parameters: {
             planetId: {
-              '$ref': `https://example.com#/${name}/components/parameters/planetId`,
+              '$ref': `https://example.com?path=${encodeURIComponent(`#/${name}/components/parameters/planetId`)}`,
             },
           },
         },
@@ -95,7 +95,7 @@ describe('create-server-store', () => {
     test('should be able to get the document chunks', async () => {
       const store = createServerWorkspaceStore({
         mode: 'ssr',
-        baseUrl: 'example.com',
+        baseUrl: 'https://example.com',
         documents: [
           {
             name: 'doc-1',
@@ -121,7 +121,7 @@ describe('create-server-store', () => {
     test('should be able to add more documents on the workspace', async () => {
       const store = createServerWorkspaceStore({
         mode: 'ssr',
-        baseUrl: 'example.com',
+        baseUrl: 'https://example.com',
         documents: [
           {
             name: 'doc-1',
@@ -148,12 +148,14 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': 'https://example.com#/doc-1/operations/~1planets/get' },
+            get: { '$ref': `https://example.com?path=${encodeURIComponent('#/doc-1/operations/~1planets/get')}` },
           },
         },
         'components': {
           'parameters': {
-            planetId: { '$ref': 'https://example.com#/doc-1/components/parameters/planetId' },
+            planetId: {
+              '$ref': `https://example.com?path=${encodeURIComponent('#/doc-1/components/parameters/planetId')}`,
+            },
           },
         },
         'x-scalar-active-auth': 'test',
@@ -167,12 +169,14 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': 'https://example.com#/doc-3/operations/~1planets/get' },
+            get: { '$ref': `https://example.com?path=${encodeURIComponent('#/doc-3/operations/~1planets/get')}` },
           },
         },
         'components': {
           'parameters': {
-            planetId: { '$ref': 'https://example.com#/doc-3/components/parameters/planetId' },
+            planetId: {
+              '$ref': `https://example.com?path=${encodeURIComponent('#/doc-3/components/parameters/planetId')}`,
+            },
           },
         },
         'x-scalar-active-auth': 'test',
@@ -339,11 +343,13 @@ describe('externalize-component-references', () => {
       {
         mode: 'ssr',
         name: 'name',
-        baseUrl: 'example.com',
+        baseUrl: 'https://example.com',
       },
     )
 
-    expect(result).toEqual({ schemas: { User: { '$ref': 'https://example.com#/name/components/schemas/User' } } })
+    expect(result).toEqual({
+      schemas: { User: { '$ref': `https://example.com?path=${encodeURIComponent('#/name/components/schemas/User')}` } },
+    })
   })
 
   test('should convert the components with refs correctly for ssg mode', () => {
@@ -390,12 +396,14 @@ describe('externalize-path-references', () => {
       },
       {
         mode: 'ssr',
-        baseUrl: 'example.com',
+        baseUrl: 'https://example.com',
         name: 'name',
       },
     )
 
-    expect(result).toEqual({ '/test': { get: { '$ref': 'https://example.com#/name/operations/~1test/get' } } })
+    expect(result).toEqual({
+      '/test': { get: { '$ref': `https://example.com?path=${encodeURIComponent('#/name/operations/~1test/get')}` } },
+    })
   })
 
   test('should correctly replace the contents with a ref for ssg mode', () => {
