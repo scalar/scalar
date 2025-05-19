@@ -2,7 +2,11 @@ import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { type ZodSchema, z } from 'zod'
 
-import { XCodeSamplesSchema } from '@scalar/openapi-types/schemas/extensions'
+import {
+  type PostResponseSchema,
+  XCodeSamplesSchema,
+  XPostResponseSchema,
+} from '@scalar/openapi-types/schemas/extensions'
 import { XScalarStability } from '@scalar/types'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { oasParameterSchema } from './parameters'
@@ -147,30 +151,8 @@ const extendedRequestSchema = z.object({
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
-/** The code to execute */
-export const PostResponseSchema = z.string()
-
-/**
- * Post response scripts allow to execute arbitrary code after a response is received
- *
- * This is useful for:
- * - Extracting data from the response, or
- * - Testing the response
- *
- * @example
- * ```yaml
- * x-post-response: |
- *   pm.test("Status code is 200", () => {
- *     pm.response.to.have.status(200)
- *   })
- * ```
- */
-export const xPostResponseSchema = z.object({
-  'x-post-response': PostResponseSchema.optional(),
-})
-
 export type PostResponseScript = z.infer<typeof PostResponseSchema>
-export type PostResponseScripts = z.infer<typeof xPostResponseSchema>['x-post-response']
+export type PostResponseScripts = z.infer<typeof XPostResponseSchema>['x-post-response']
 
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
@@ -178,7 +160,7 @@ export const requestSchema = oasRequestSchema
   .merge(XCodeSamplesSchema)
   .merge(ScalarStabilitySchema)
   .merge(extendedRequestSchema)
-  .merge(xPostResponseSchema)
+  .merge(XPostResponseSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>
