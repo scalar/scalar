@@ -8,7 +8,7 @@ import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
-import { useSidebar } from '@/hooks/old/useSidebar'
+import { useSidebar } from '@/features/Sidebar'
 import { useNavState } from '@/hooks/useNavState'
 import { isOperationDeprecated } from '@/libs/openapi'
 

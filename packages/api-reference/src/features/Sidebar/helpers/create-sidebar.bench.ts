@@ -1,7 +1,7 @@
 import { bench, describe, expect, vi } from 'vitest'
 import { computed, toValue } from 'vue'
 
-import { parse } from '@/helpers'
+import { parse } from '@/helpers/parse'
 import { useSidebar as useSidebarOld } from '@/hooks/old/useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createSidebar } from './create-sidebar'
