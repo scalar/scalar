@@ -1053,9 +1053,6 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
-      '@scalar/scripts':
-        specifier: workspace:*
-        version: link:../scripts
       '@types/shell-quote':
         specifier: ^1.7.5
         version: 1.7.5
@@ -2404,9 +2401,6 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
-      '@scalar/scripts':
-        specifier: workspace:*
-        version: link:../../packages/scripts
       '@vitejs/plugin-vue':
         specifier: catalog:*
         version: 5.2.0(vite@5.4.19(@types/node@22.15.3)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -2446,9 +2440,6 @@ importers:
       '@scalar/import':
         specifier: workspace:*
         version: link:../../packages/import
-      '@scalar/scripts':
-        specifier: workspace:*
-        version: link:../../packages/scripts
       '@scalar/themes':
         specifier: workspace:*
         version: link:../../packages/themes

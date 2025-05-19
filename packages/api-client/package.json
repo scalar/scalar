@@ -237,7 +237,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
-    "@scalar/scripts": "workspace:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "catalog:*",

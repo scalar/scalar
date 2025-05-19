@@ -1,21 +1,13 @@
 import { createWebHashRouter } from '@scalar/api-client'
 import { createApiClientApp } from '@scalar/api-client/layouts/App'
 import '@scalar/api-client/style.css'
-import { postResponseScriptsPlugin } from '@scalar/scripts'
 import type { IpcRendererEvent } from 'electron'
 import { load, trackEvent, trackPageview } from 'fathom-client'
 
 // Initialize
 const router = createWebHashRouter()
 
-const client = await createApiClientApp(
-  document.getElementById('scalar-client'),
-  {
-    plugins: [postResponseScriptsPlugin()],
-  },
-  true,
-  router,
-)
+const client = await createApiClientApp(document.getElementById('scalar-client'), {}, true, router)
 
 // Anonymous tracking
 if (window.electron) {
