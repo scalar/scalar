@@ -3,12 +3,11 @@ import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { type MaybeRefOrGetter, computed, ref, toValue, watch } from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
 import { useSidebar } from '@/hooks/useSidebar'
 import { createEmptySpecification } from '@/libs/openapi'
-import type { ReferenceLayoutProps } from '@/types'
 
 import { measure } from '@/helpers/measure'
 import { useDocumentFetcher } from './useDocumentFetcher'
@@ -21,10 +20,17 @@ export function useDataSource({
   dereferencedDocument: providedDereferencedDocument,
   configuration,
 }: {
-  originalDocument?: MaybeRefOrGetter<ReferenceLayoutProps['originalDocument']>
-  dereferencedDocument?: MaybeRefOrGetter<ReferenceLayoutProps['dereferencedDocument']>
+  originalDocument?: MaybeRefOrGetter<string>
+  dereferencedDocument?: MaybeRefOrGetter<OpenAPIV3_1.Document>
   configuration?: MaybeRefOrGetter<ApiReferenceConfiguration>
-}) {
+}): {
+  originalDocument: Ref<string>
+  originalOpenApiVersion: Ref<string>
+  dereferencedDocument: Ref<OpenAPIV3_1.Document>
+  parsedDocument: Ref<Spec>
+  workspaceStore: ReturnType<typeof createWorkspaceStore>
+  activeEntitiesStore: ReturnType<typeof createActiveEntitiesStore>
+} {
   /** Fetch document from configuration */
   const { originalDocument: fetchedOriginalDocument } = useDocumentFetcher({
     configuration,
@@ -71,6 +77,13 @@ export function useDataSource({
       }
 
       // TODO: Load external references
+      // const { filesystem } = await load(dereferencedDocument, {
+      //   plugins: [
+      //     fetchUrls({
+      //       fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
+      //     }),
+      //   ],
+      // })
 
       // Make it an object
       const content = normalize(newDocument) as OpenAPI.Document
@@ -92,7 +105,20 @@ export function useDataSource({
 
       // Dereference
       const schema = await measure('dereference', async () => {
-        const { schema } = await dereference(upgraded)
+        const { schema, errors } = await dereference(upgraded)
+
+        // Error handling
+        if (errors?.length) {
+          console.warn(
+            'Please open an issue on https://github.com/scalar/scalar\n',
+            'Scalar OpenAPI Parser Warning:\n',
+            errors,
+          )
+        }
+
+        if (schema === undefined) {
+          console.error('Failed to dereference the OpenAPI document', errors)
+        }
 
         return schema
       })
@@ -101,38 +127,6 @@ export function useDataSource({
     },
     { immediate: true },
   )
-
-  // TODO: Load external references
-  // TODO: Error handling
-
-  // const start = performance.now()
-
-  // const { filesystem } = await load(dereferencedDocument, {
-  //   plugins: [
-  //     fetchUrls({
-  //       fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
-  //     }),
-  //   ],
-  // })
-
-  // const { schema, errors } = await dereference(filesystem)
-
-  // const end = performance.now()
-  // console.log(`dereference: ${Math.round(end - start)} ms`)
-
-  // if (errors?.length) {
-  //   console.warn(
-  //     'Please open an issue on https://github.com/scalar/scalar\n',
-  //     'Scalar OpenAPI Parser Warning:\n',
-  //     errors,
-  //   )
-  // }
-
-  // if (schema === undefined) {
-  //   reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
-
-  //   return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
-  // }
 
   /** API Client Store */
   const workspaceStore = createWorkspaceStore({
