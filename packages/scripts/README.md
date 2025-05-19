@@ -17,8 +17,23 @@ npm install @scalar/scripts
 
 ## Usage
 
+> ⚠️ This is not published yet, it’s still work in progress.
+
 ```ts
-// TODO
+import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
+import { postResponseScriptsPlugin } from '@scalar/scripts'
+import '@scalar/api-client/style.css'
+
+createApiClientWeb(
+  document.getElementById('app'),
+  {
+    proxyUrl: 'https://proxy.scalar.com',
+    // Load the plugin
+    plugins: [
+      postResponseScriptsPlugin()
+    ],
+  },
+)
 ```
 
 ## Community

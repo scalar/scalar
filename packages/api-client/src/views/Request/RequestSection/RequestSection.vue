@@ -297,6 +297,7 @@ const updateOperationHandler = (key: keyof Operation, value: string) =>
       <!-- Spacer -->
       <div class="flex flex-grow" />
 
+      <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
           class="request-section-content-code-example -mt-1/2 border-t"

@@ -108,8 +108,6 @@ export const oasRequestSchema = z.object({
   'x-internal': z.boolean().optional(),
   /** Ignore operations */
   'x-scalar-ignore': z.boolean().optional(),
-  /** Post response scripts */
-  'x-post-response': z.string().optional(),
 })
 
 /**

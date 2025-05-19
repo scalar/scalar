@@ -12,16 +12,16 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
 import { usePluginManager } from '@/plugins'
-import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
-import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
-import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
-import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 
 import RequestHeaders from './RequestHeaders.vue'
+import ResponseBody from './ResponseBody.vue'
 import ResponseBodyStreaming from './ResponseBodyStreaming.vue'
 import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
+import ResponseEmpty from './ResponseEmpty.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
+import ResponseLoadingOverlay from './ResponseLoadingOverlay.vue'
+import ResponseMetaInformation from './ResponseMetaInformation.vue'
 
 const { numWorkspaceRequests, response, requestResult } = defineProps<{
   collection: Collection

@@ -1,10 +1,5 @@
 import { createApiClientApp } from '@/layouts/App'
 
-createApiClientApp(
-  document.getElementById('scalar-client'),
-  {
-    proxyUrl: 'https://proxy.scalar.com',
-  },
-  true,
-  undefined,
-)
+createApiClientApp(document.getElementById('scalar-client'), {
+  proxyUrl: 'https://proxy.scalar.com',
+})
