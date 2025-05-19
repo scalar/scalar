@@ -26,14 +26,12 @@ export function useSidebar(
       ...sortOptions,
     })
 
-    console.log('PROVIDE SIDEBAR')
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar
   }
 
   // Otherwise, try to inject the existing sidebar instance
-  console.log('INJECT SIDEBAR')
   const sidebar = inject(SIDEBAR_SYMBOL)
 
   if (!sidebar) {

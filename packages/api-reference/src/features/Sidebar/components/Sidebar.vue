@@ -12,19 +12,19 @@ import SidebarGroup from './SidebarGroup.vue'
 const { content, tagSort, operationSort } = defineProps<
   {
     // TODO: Make sure to upgrade it to OpenAPIV3_1.Document
-    content: OpenAPIV3_1.Document
+    // content: OpenAPIV3_1.Document
   } & SortOptions
 >()
 
 const { hash, isIntersectionEnabled } = useNavState()
 
-const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
-  {
-    content,
-    tagSort,
-    operationSort,
-  },
-)
+const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
+  useSidebar()
+// {
+//   content,
+//   tagSort,
+//   operationSort,
+// },
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -109,9 +109,10 @@ onMounted(() => {
 <template>
   <div class="sidebar">
     <slot name="sidebar-start" />
+    <!-- TODO: Bring back title -->
+    <!-- :aria-label="`Table of contents for ${content.info?.title}`" -->
     <nav
       ref="scrollerEl"
-      :aria-label="`Table of contents for ${content.info?.title}`"
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template

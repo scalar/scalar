@@ -115,7 +115,6 @@ useResizeObserver(documentEl, (entries) => {
 // Check for Obtrusive Scrollbars
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
-console.log('CREATE SIDEBAR')
 const {
   breadcrumb,
   collapsedSidebarItems,
@@ -178,7 +177,8 @@ onBeforeMount(() => updateHash())
 
 // Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
-  isIntersectionEnabled.value = false
+  // TODO: Bring back
+  // isIntersectionEnabled.value = false
   updateHash()
 
   if (id) {
@@ -188,7 +188,8 @@ const scrollToSection = async (id?: string) => {
   }
 
   await sleep(100)
-  isIntersectionEnabled.value = true
+  // TODO: Bring back
+  // isIntersectionEnabled.value = true
 }
 
 const yPosition = ref(0)
@@ -344,7 +345,6 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  FOOBAR: {{ rawSpec }}
   <div v-html="themeStyleTag" />
   <div
     ref="documentEl"

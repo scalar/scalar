@@ -6,7 +6,7 @@ import {
 } from '@scalar/components'
 import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
@@ -29,7 +29,8 @@ const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
 // TODO: Wait, we don’t have the sidebar yet.
-const { isSidebarOpen } = useSidebar()
+// const { isSidebarOpen } = useSidebar()
+const isSidebarOpen = ref(true)
 const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(mediaQueries.lg, (newValue, oldValue) => {

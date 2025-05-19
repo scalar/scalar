@@ -387,5 +387,19 @@ export function createSidebar(options?: InputOption & SortOptions) {
     items,
     // TODO: Implement this
     isSidebarOpen: ref(true),
+    // TODO: Implement this
+    hideModels: ref(false),
+    // TODO: Implement this
+    defaultOpenAllTags: ref(false),
+    // TODO: Implement this
+    breadcrumb: ref([]),
+    // TODO: Implement this
+    collapsedSidebarItems: ref({
+      'default': true,
+    }),
+    // TODO: Implement this
+    setCollapsedSidebarItem: () => {},
+    // TODO: Implement this
+    scrollToOperation: () => {},
   }
 }
