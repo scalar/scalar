@@ -20,16 +20,17 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
       body: { success: true },
     },
   },
-  {
-    title: 'Check response time',
-    script: `pm.test("Response time is acceptable", () => {
-  pm.expect(pm.response.responseTime).to.be.below(200)
-})`,
-    mockResponse: {
-      status: 200,
-      body: { success: true },
-    },
-  },
+  // TODO: We didn’t add the proper response duration yet.
+  //   {
+  //     title: 'Check response time',
+  //     script: `pm.test("Response time is acceptable", () => {
+  //   pm.expect(pm.response.responseTime).to.be.below(200)
+  // })`,
+  //     mockResponse: {
+  //       status: 200,
+  //       body: { success: true },
+  //     },
+  //   },
   {
     title: 'Check JSON response',
     script: `pm.test("Response is valid JSON", () => {
