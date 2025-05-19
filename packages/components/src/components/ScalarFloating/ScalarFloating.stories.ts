@@ -29,7 +29,7 @@ const meta: Meta = {
         Floating
       </div>
     </template>
-  </ScalarDropdown>
+  </ScalarFloating>
 </div>
 `,
   }),
