@@ -8,7 +8,7 @@ import type { UnknownObject } from './general'
  */
 function createProxyHandler(
   sourceDocument: UnknownObject,
-  resolvedProxyCache?: WeakMap<object, unknown>,
+  resolvedProxyCache?: WeakMap<object, UnknownObject>,
 ): ProxyHandler<UnknownObject> {
   return {
     get(target, property, receiver) {

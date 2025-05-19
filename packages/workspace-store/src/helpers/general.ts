@@ -37,7 +37,20 @@ export function isFileSystemRef(value: string) {
   return !isRemoteRef(value) && !isLocalRef(value)
 }
 
-async function resolveRemoteRef(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+/**
+ * Fetches and parses JSON data from a remote URL.
+ *
+ * @param value - The URL to fetch data from
+ * @returns A result object containing either the parsed JSON data or an error indicator
+ * @example
+ * ```ts
+ * const result = await fetchUrl('https://api.example.com/data')
+ * if (result.ok) {
+ *   console.log(result.data) // The parsed JSON data
+ * }
+ * ```
+ */
+async function fetchUrl(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
   const response = await fetch(value)
 
   if (response.ok) {
@@ -48,7 +61,20 @@ async function resolveRemoteRef(value: string): Promise<{ ok: true; data: unknow
   return { ok: false }
 }
 
-async function resolveFilesystemRef(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+/**
+ * Reads and parses a local JSON file from the filesystem.
+ *
+ * @param value - The file path to read from
+ * @returns A result object containing either the parsed JSON data or an error indicator
+ * @example
+ * ```ts
+ * const result = await readLocalFile('./data.json')
+ * if (result.ok) {
+ *   console.log(result.data) // The parsed JSON data
+ * }
+ * ```
+ */
+async function readLocalFile(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
   try {
     const contents = await fs.readFile(value, 'utf-8')
 
@@ -58,13 +84,26 @@ async function resolveFilesystemRef(value: string): Promise<{ ok: true; data: un
   }
 }
 
+/**
+ * Resolves a reference by attempting to fetch data from either a remote URL or local filesystem.
+ *
+ * @param value - The reference string to resolve (URL or file path)
+ * @returns A result object containing either the resolved data or an error indicator
+ * @example
+ * ```ts
+ * const result = await resolveRef('https://api.example.com/data')
+ * if (result.ok) {
+ *   console.log(result.data) // The resolved data
+ * }
+ * ```
+ */
 export async function resolveRef(value: string) {
   if (isRemoteRef(value)) {
-    return resolveRemoteRef(value)
+    return fetchUrl(value)
   }
 
   if (isFileSystemRef(value)) {
-    return resolveFilesystemRef(value)
+    return readLocalFile(value)
   }
 
   return { ok: false } as const

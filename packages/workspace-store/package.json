@@ -47,6 +47,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vitest": "catalog:*"
+    "vitest": "catalog:*",
+    "vite": "catalog:*"
   }
 }
