@@ -61,7 +61,7 @@ paths: {}
     }`)
 
     expect(result.errors).toHaveLength(1)
-    expect(result.errors[0].message).toContain('Can’t find supported Swagger/OpenAPI version in specification')
+    expect(result.errors[0].message).toContain('Can’t find supported Swagger/OpenAPI version in the provided document')
   })
 
   it('throws an error', async () => {
