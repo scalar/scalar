@@ -1,17 +1,12 @@
-import { isOperationDeprecated } from '@/libs/operation'
+import { scrollToId } from '@/helpers/scroll-to-id'
+import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
+import { isOperationDeprecated } from '@/libs/openapi'
+import { getModels, hasModels, hasWebhooks } from '@/libs/openapi'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed, reactive, ref, watch } from 'vue'
 import { lazyBus } from '../../components/Content/Lazy/lazyBus'
-import {
-  getHeadingsFromMarkdown,
-  getLowestHeadingLevel,
-  getModels,
-  hasModels,
-  hasWebhooks,
-  scrollToId,
-} from '../../helpers'
 import { useNavState } from '../useNavState'
 
 export type SidebarEntry = {
