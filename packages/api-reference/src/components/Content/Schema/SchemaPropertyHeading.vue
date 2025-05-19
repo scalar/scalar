@@ -68,6 +68,10 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
     return null
   }
 
+  if (schema.title) {
+    return schema.title
+  }
+
   if (schema.name) {
     return schema.name
   }
@@ -124,7 +128,11 @@ const constValue = computed(() => {
           {{ getModelNameFromSchema(value.items) || value.items.type }}[]
         </template>
         <template v-else>
-          {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
+          {{
+            Array.isArray(value.type)
+              ? value.type.join(' | ')
+              : (value?.title ?? value.name ?? value.type)
+          }}
           {{ value?.nullable ? ' | nullable' : '' }}
         </template>
         <template v-if="value.minItems || value.maxItems">
