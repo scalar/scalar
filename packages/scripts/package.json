@@ -19,6 +19,7 @@
     "post-response scripts",
     "api client"
   ],
+  "private": true,
   "version": "0.0.0",
   "engines": {
     "node": ">=18"
