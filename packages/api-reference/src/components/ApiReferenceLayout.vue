@@ -34,14 +34,18 @@ import {
 
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
-import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import {
+  createSidebar,
+  Sidebar,
+  SIDEBAR_SYMBOL,
+  useSidebar,
+} from '@/features/Sidebar'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
@@ -111,6 +115,7 @@ useResizeObserver(documentEl, (entries) => {
 // Check for Obtrusive Scrollbars
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
+console.log('CREAATE SIDEBAR')
 const {
   breadcrumb,
   collapsedSidebarItems,
@@ -120,7 +125,27 @@ const {
   defaultOpenAllTags,
   // setParsedSpec,
   scrollToOperation,
-} = useSidebar()
+} = useSidebar({
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'API Reference',
+      version: '1.0.0',
+    },
+    paths: {
+      '/': {
+        get: {
+          summary: 'Get the root',
+          responses: {
+            '200': { description: 'OK' },
+          },
+        },
+      },
+    },
+    components: {},
+    tags: [],
+  },
+})
 
 const {
   getReferenceId,
@@ -225,6 +250,42 @@ onMounted(() =>
 )
 
 onUnmounted(() => downloadEventBus.reset())
+// Initialize the server state
+onServerPrefetch(() => {
+  const ctx = useSSRContext<SSRState>()
+  if (!ctx) {
+    return
+  }
+
+  ctx.payload ||= { data: defaultStateFactory() }
+  ctx.payload.data ||= defaultStateFactory()
+
+  // Set initial hash value
+  if (configuration.value.pathRouting) {
+    const id = getPathRoutingId(ctx.url)
+    hash.value = id
+    ctx.payload.data.hash = id
+
+    // For sidebar items we need to reset the state as it persists between requests
+    // This is a temp hack, need to come up with a better solution
+    for (const key in collapsedSidebarItems) {
+      if (Object.hasOwn(collapsedSidebarItems, key)) {
+        delete collapsedSidebarItems[key]
+      }
+    }
+
+    if (id) {
+      setCollapsedSidebarItem(getSectionId(id), true)
+    } else {
+      const firstTag = props.parsedSpec.tags?.[0]
+      if (firstTag) {
+        setCollapsedSidebarItem(getTagId(firstTag), true)
+      }
+    }
+    ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
+      collapsedSidebarItems
+  }
+})
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -278,6 +339,7 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
+  FOOBAR: {{ rawSpec }}
   <div v-html="themeStyleTag" />
   <div
     ref="documentEl"

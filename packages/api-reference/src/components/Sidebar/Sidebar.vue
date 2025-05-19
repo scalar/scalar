@@ -4,14 +4,14 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
+import { useSidebar, type SortOptions } from '@/features/Sidebar'
 import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 
 const props = defineProps<
   {
     parsedSpec: Spec
-  } & SorterOption
+  } & SortOptions
 >()
 
 const { hash, isIntersectionEnabled } = useNavState()
@@ -19,8 +19,8 @@ const { hash, isIntersectionEnabled } = useNavState()
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
     parsedSpec: props.parsedSpec,
-    tagsSorter: props.tagsSorter,
-    operationsSorter: props.operationsSorter,
+    tagSort: props.tagSort,
+    operationSort: props.operationSort,
   },
 )
 

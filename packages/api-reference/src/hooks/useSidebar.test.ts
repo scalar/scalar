@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { computed, toValue } from 'vue'
 
+import { type SortOptions, useSidebar } from '@/features/Sidebar'
 import { parse } from '@/helpers/parse'
-import { type SorterOption, useSidebar } from '@/hooks/useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 
 // Mock the useConfig hook
@@ -30,7 +30,7 @@ vi.mock('vue', () => {
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
  */
-async function getItemsForDocument(definition: Record<string, any>, options?: SorterOption) {
+async function getItemsForDocument(definition: Record<string, any>, options?: SortOptions) {
   const parsedSpec = await parse(definition)
 
   const { items } = useSidebar({

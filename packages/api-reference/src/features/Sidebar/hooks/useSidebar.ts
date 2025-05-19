@@ -20,7 +20,9 @@ export function useSidebar(
   sortOptions?: SortOptions,
 ): ReturnType<typeof createSidebar> {
   // If collection is provided, create and provide a new sidebar instance
+  console.log('USESIDEBAR')
   if (content) {
+    console.log('WITH CONTENT')
     const sidebar = createSidebar({
       content,
       ...sortOptions,
@@ -31,14 +33,18 @@ export function useSidebar(
     return sidebar
   }
 
+  console.log('WITHOUT CONTENT')
+
   // Otherwise, try to inject the existing sidebar instance
   const sidebar = inject(SIDEBAR_SYMBOL)
 
   if (!sidebar) {
-    throw new Error(
-      'useSidebar() was called without a collection and no sidebar instance was found. ' +
-        'Make sure to call useSidebar(collection) in a parent component first.',
-    )
+    return null
+    // TODO: BRING BRACK
+    // throw new Error(
+    //   'useSidebar() was called without a collection and no sidebar instance was found. ' +
+    //     'Make sure to call useSidebar(collection) in a parent component first.',
+    // )
   }
 
   return sidebar

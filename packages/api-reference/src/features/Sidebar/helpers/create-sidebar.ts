@@ -1,6 +1,6 @@
 import { getWebhooks } from '@/features/Sidebar/helpers/get-webhooks'
 import type { InputOption, OperationSortOption, SidebarEntry, SortOptions } from '@/features/Sidebar/types'
-import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/helpers'
+import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Heading } from '@scalar/types/legacy'
 import { computed } from 'vue'

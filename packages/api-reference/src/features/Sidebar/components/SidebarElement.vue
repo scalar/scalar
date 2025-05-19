@@ -6,10 +6,11 @@ import {
 } from '@scalar/components'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 
-import { scrollToId, sleep } from '@/helpers'
+import { scrollToId } from '@/helpers/scroll-to-id'
+import { sleep } from '@/helpers/sleep'
 import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
 
-import { useNavState } from '../../hooks'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
 const props = defineProps<{
