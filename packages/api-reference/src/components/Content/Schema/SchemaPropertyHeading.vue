@@ -108,6 +108,20 @@ const constValue = computed(() => {
   }
   return null
 })
+
+/** Computes the human-readable type for a schema property. */
+const displayType = computed(() => {
+  if (Array.isArray(value?.type)) {
+    return value.type.join(' | ')
+  }
+  if (value?.title) {
+    return value.title
+  }
+  if (value?.name) {
+    return value.name
+  }
+  return value?.type ?? ''
+})
 </script>
 <template>
   <div class="property-heading">
@@ -128,11 +142,7 @@ const constValue = computed(() => {
           {{ getModelNameFromSchema(value.items) || value.items.type }}[]
         </template>
         <template v-else>
-          {{
-            Array.isArray(value.type)
-              ? value.type.join(' | ')
-              : (value?.title ?? value.name ?? value.type)
-          }}
+          {{ displayType }}
           {{ value?.nullable ? ' | nullable' : '' }}
         </template>
         <template v-if="value.minItems || value.maxItems">
