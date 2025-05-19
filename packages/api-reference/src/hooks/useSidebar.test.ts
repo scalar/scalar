@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { computed, toValue } from 'vue'
 
+import { parse } from '@/helpers/parse'
+import { type SorterOption, useSidebar } from '@/hooks/useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
-import { parse } from '../helpers'
-import { type SorterOption, useSidebar } from './useSidebar'
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
