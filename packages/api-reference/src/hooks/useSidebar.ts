@@ -367,6 +367,7 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
   const { hash, getSectionId, getTagId } = _navState
 
   if (options?.parsedSpec) {
+    console.trace('CREATE WITH PARSED SPEC')
     setParsedSpec(options.parsedSpec)
 
     // Open the first tag section by default OR specific section from hash

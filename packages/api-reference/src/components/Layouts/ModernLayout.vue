@@ -28,6 +28,7 @@ defineEmits<{
 const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
+// TODO: Wait, we don’t have the sidebar yet.
 const { isSidebarOpen } = useSidebar()
 const isDevelopment = import.meta.env.MODE === 'development'
 

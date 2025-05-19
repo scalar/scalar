@@ -12,6 +12,8 @@ const { configuration } = defineProps<{
   configuration: Partial<ApiReferenceConfiguration>
 }>()
 
+console.log('SINGLE API REFERENCE')
+
 // If content changes it is emitted to the parent component to be handed back in as a spec string
 defineEmits<{
   (e: 'updateContent', value: string): void

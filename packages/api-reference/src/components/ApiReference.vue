@@ -15,6 +15,8 @@ const props = defineProps<{
   configuration?: AnyApiReferenceConfiguration
 }>()
 
+console.log('API REFERENCE')
+
 const {
   availableDocuments,
   selectedConfiguration,

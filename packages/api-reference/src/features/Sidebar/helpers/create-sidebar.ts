@@ -3,7 +3,7 @@ import type { InputOption, OperationSortOption, SidebarEntry, SortOptions } from
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Heading } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { getOperationsByTag } from './get-operations-by-tag'
 import { getSchemas } from './get-schemas'
 import { getTags } from './get-tags'
@@ -383,5 +383,9 @@ export function createSidebar(options?: InputOption & SortOptions) {
     }
   })
 
-  return { items }
+  return {
+    items,
+    // TODO: Implement this
+    isSidebarOpen: ref(true),
+  }
 }
