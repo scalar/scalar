@@ -243,34 +243,15 @@ const handleInput = (value: string) => {
 
         <!-- Watch -->
         <ScalarTooltip
-          as="div"
-          class="z-[10001]"
-          side="bottom"
-          :sideOffset="5">
-          <template #trigger>
-            <WatchModeToggle
-              v-model="watchMode"
-              :disabled="!isInputUrl" />
-          </template>
-          <template #content>
-            <div
-              class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none z-10 grid max-w-[320px] gap-1.5 rounded p-2 leading-5 shadow-lg">
-              <div class="text-c-2 flex items-center">
-                <span
-                  v-if="isInputUrl"
-                  class="text-pretty">
-                  Automatically updates the API client when the OpenAPI URL
-                  content changes, ensuring your client remains up-to-date.
-                </span>
-                <span
-                  v-else
-                  class="text-pretty">
-                  Watch Mode is only available for URL imports. It automatically
-                  updates the API client when the OpenAPI URL content changes.
-                </span>
-              </div>
-            </div>
-          </template>
+          :content="
+            isInputUrl
+              ? 'Watch mode automatically updates the API client when the OpenAPI URL content changes, ensuring your client remains up-to-date.'
+              : 'Watch mode is only available for URL imports. When enabled it automatically updates the API client when the OpenAPI URL content changes.'
+          "
+          placement="bottom">
+          <WatchModeToggle
+            v-model="watchMode"
+            :disabled="!isInputUrl" />
         </ScalarTooltip>
       </div>
     </template>

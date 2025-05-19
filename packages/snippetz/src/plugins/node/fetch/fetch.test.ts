@@ -52,6 +52,7 @@ describe('nodeFetch', () => {
   it('has JSON body', () => {
     const result = nodeFetch.generate({
       url: 'https://example.com',
+      method: 'POST',
       headers: [
         {
           name: 'Content-Type',
@@ -67,12 +68,38 @@ describe('nodeFetch', () => {
     })
 
     expect(result).toBe(`fetch('https://example.com', {
+  method: 'POST',
   headers: {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
     hello: 'world'
   })
+})`)
+  })
+
+  it('has raw body', () => {
+    const result = nodeFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/octet-stream',
+        },
+      ],
+      postData: {
+        mimeType: 'application/octet-stream',
+        text: 'hello world',
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/octet-stream'
+  },
+  body: 'hello world'
 })`)
   })
 
@@ -123,5 +150,73 @@ describe('nodeFetch', () => {
     })
 
     expect(result).toBe(`fetch('https://example.com')`)
+  })
+
+  it('has urlencoded body', () => {
+    const result = nodeFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/x-www-form-urlencoded',
+        },
+      ],
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'foo',
+            value: 'bar',
+          },
+          {
+            name: 'baz',
+            value: 'foo',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`fetch('https://example.com', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: new URLSearchParams({
+    foo: 'bar',
+    baz: 'foo'
+  })
+})`)
+  })
+
+  it('has multipart body', () => {
+    const result = nodeFetch.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'foo',
+            value: 'bar',
+          },
+          {
+            name: 'file',
+            fileName: 'baz.txt',
+          },
+        ],
+      },
+    })
+
+    expect(result).toBe(`import fs from 'node:fs'
+
+const formData = new FormData()
+formData.append('foo', 'bar')
+formData.append('file', new Blob([fs.readFileSync('baz.txt')]), 'baz.txt')
+
+fetch('https://example.com', {
+  method: 'POST',
+  body: formData
+})`)
   })
 })

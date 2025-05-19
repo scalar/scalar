@@ -547,26 +547,19 @@ const shouldShowItem = computed(() => {
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
-              side="right"
-              :sideOffset="12">
-              <template #trigger>
+              placement="right"
+              :offset="12"
+              :content="`Watching: ${item.documentUrl}`">
+              <button
+                class="flex items-center justify-center"
+                type="button">
                 <ScalarIcon
                   class="ml-0.5 text-sm"
                   :class="watchIconColor"
                   icon="Watch"
                   size="md"
                   thickness="2" />
-              </template>
-              <template #content>
-                <div
-                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-10 gap-1.5 rounded p-2 leading-5 shadow-lg">
-                  <div class="text-c-2 flex items-center">
-                    <p class="text-pretty break-all">
-                      Watching: {{ item.documentUrl }}
-                    </p>
-                  </div>
-                </div>
-              </template>
+              </button>
             </ScalarTooltip>
             <span>&hairsp;</span>
           </div>
@@ -637,26 +630,19 @@ const shouldShowItem = computed(() => {
             </div>
             <ScalarTooltip
               v-if="item.watchMode"
-              side="right"
-              :sideOffset="12">
-              <template #trigger>
+              content="Watching: {{ item.documentUrl }}"
+              placement="right"
+              :offset="12">
+              <button
+                class="flex items-center justify-center"
+                type="button">
                 <ScalarIcon
                   class="ml-0.5 text-sm"
                   :class="watchIconColor"
                   icon="Watch"
                   size="md"
                   thickness="2" />
-              </template>
-              <template #content>
-                <div
-                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-10 gap-1.5 rounded p-2 leading-5 shadow-lg">
-                  <div class="text-c-2 flex items-center">
-                    <p class="text-pretty break-all">
-                      Watching: {{ item.documentUrl }}
-                    </p>
-                  </div>
-                </div>
-              </template>
+              </button>
             </ScalarTooltip>
             <span>&hairsp;</span>
           </div>

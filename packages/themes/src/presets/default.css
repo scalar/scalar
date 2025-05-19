@@ -61,6 +61,9 @@
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
   --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 
+  --scalar-tooltip-background: color-mix(in srgb, #1a1a1a, transparent 10%);
+  --scalar-tooltip-color: color-mix(in srgb, #fff, transparent 15%);
+
   --scalar-color-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-color-1) 20%);
 
   --scalar-background-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-background-1) 95%);
@@ -77,6 +80,9 @@
   --scalar-button-1: rgba(255, 255, 255, 1);
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
+
+  --scalar-tooltip-background: color-mix(in srgb, var(--scalar-background-1), #fff 10%);
+  --scalar-tooltip-color: color-mix(in srgb, #fff, transparent 5%);
 
   --scalar-color-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-background-1) 20%);
 

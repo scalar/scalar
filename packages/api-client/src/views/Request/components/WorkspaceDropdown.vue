@@ -7,7 +7,6 @@ import {
   ScalarIcon,
   ScalarListboxCheckbox,
   ScalarModal,
-  ScalarTooltip,
   useModal,
 } from '@scalar/components'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -152,42 +151,15 @@ const deleteWorkspace = async () => {
                     thickness="1.5" />
                   <span>Rename</span>
                 </ScalarDropdownItem>
-                <ScalarTooltip
-                  v-if="isLastWorkspace"
-                  class="z-overlay"
-                  side="bottom">
-                  <template #trigger>
-                    <ScalarDropdownItem
-                      class="flex w-full gap-2"
-                      disabled
-                      @mousedown.prevent
-                      @touchend.prevent>
-                      <ScalarIcon
-                        class="inline-flex"
-                        icon="Delete"
-                        size="md"
-                        thickness="1.5" />
-                      <span>Delete</span>
-                    </ScalarDropdownItem>
-                  </template>
-                  <template #content>
-                    <div
-                      class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none z-10 grid min-w-48 gap-1.5 rounded p-2 leading-5 shadow-lg">
-                      <div class="text-c-2 flex items-center">
-                        <span>Only workspace cannot be deleted.</span>
-                      </div>
-                    </div>
-                  </template>
-                </ScalarTooltip>
                 <ScalarDropdownItem
-                  v-else
-                  class="flex !gap-2"
+                  v-if="!isLastWorkspace"
+                  class="flex gap-2"
                   @mousedown.prevent="openDeleteModal(workspace.uid)"
                   @touchend.prevent="openDeleteModal(workspace.uid)">
                   <ScalarIcon
                     class="inline-flex"
                     icon="Delete"
-                    size="sm"
+                    size="md"
                     thickness="1.5" />
                   <span>Delete</span>
                 </ScalarDropdownItem>
