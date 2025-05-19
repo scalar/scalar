@@ -1,8 +1,8 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
-import type { OpenAPI } from '@scalar/openapi-types'
 
-type SchemaObject = OpenAPI.SchemaObject
+type SchemaObject = OpenAPIV3_1.SchemaObject
 
 describe('mergeAllOfSchemas', () => {
   it('returns empty object for empty or invalid input', () => {
@@ -13,7 +13,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges basic properties from multiple schemas', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         type: 'object',
         properties: {
@@ -25,7 +25,7 @@ describe('mergeAllOfSchemas', () => {
           age: { type: 'number' },
         },
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -37,7 +37,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('handles nested allOf schemas', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         allOf: [
           {
@@ -65,7 +65,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('combines required fields from multiple schemas', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         required: ['name'],
       },
@@ -80,7 +80,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('preserves first type and description when duplicates exist', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         type: 'object',
         description: 'First description',
@@ -89,7 +89,7 @@ describe('mergeAllOfSchemas', () => {
         type: 'array', // Should be ignored
         description: 'Second description', // Should be ignored
       },
-    ]
+    ] satisfies SchemaObject[]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -98,7 +98,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges deeply nested schema structures', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         type: 'object',
         properties: {
@@ -122,7 +122,7 @@ describe('mergeAllOfSchemas', () => {
         },
         required: ['metadata'],
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -141,7 +141,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('skips non-object schemas during merge', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       null,
       undefined,
       {
@@ -168,7 +168,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges allOf schemas within object items', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         type: 'object',
         items: {
@@ -190,7 +190,7 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'object',
@@ -204,7 +204,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges allOf schemas within array items', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         type: 'array',
         items: {
@@ -227,7 +227,7 @@ describe('mergeAllOfSchemas', () => {
           ],
         },
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       type: 'array',
@@ -245,7 +245,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('properly merges multiple top-level objects with array items containing allOf', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         'type': 'object',
         'properties': {
@@ -299,7 +299,7 @@ describe('mergeAllOfSchemas', () => {
           },
         },
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       'type': 'object',
@@ -505,7 +505,7 @@ describe('mergeAllOfSchemas', () => {
   })
 
   it('merges properties from oneOf/anyOf subschemas within allOf', () => {
-    const schemas = [
+    const schemas: SchemaObject[] = [
       {
         allOf: [
           {
@@ -543,7 +543,7 @@ describe('mergeAllOfSchemas', () => {
           },
         ],
       },
-    ] as SchemaObject[]
+    ]
 
     expect(mergeAllOfSchemas(schemas)).toEqual({
       properties: {

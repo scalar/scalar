@@ -100,7 +100,7 @@ describe('Introduction', () => {
     })
 
     const downloadLink = wrapper.findComponent(DownloadLink)
-    expect(downloadLink.props('filename')).toBe('hello-world-api')
+    expect(downloadLink.props('title')).toBe('hello-world-api')
   })
 
   it('shows version badge when version exists', () => {
