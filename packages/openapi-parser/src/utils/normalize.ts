@@ -11,12 +11,12 @@ import { isFilesystem } from './is-filesystem'
  */
 export function normalize(content: string | UnknownObject | Filesystem): UnknownObject | Filesystem {
   if (content === null) {
-    return {}
+    return undefined
   }
 
   if (typeof content === 'string') {
     if (content.trim() === '') {
-      return {}
+      return undefined
     }
 
     try {
@@ -27,7 +27,7 @@ export function normalize(content: string | UnknownObject | Filesystem): Unknown
       const isMultiLine = content.includes('\n')
 
       if (!hasColon || !isMultiLine) {
-        return {}
+        return undefined
       }
 
       return parse(content, {
