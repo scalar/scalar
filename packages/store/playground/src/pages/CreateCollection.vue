@@ -13,7 +13,7 @@ const { timings, measure } = useTimings()
 const collection = ref<Collection | undefined>(undefined)
 
 onMounted(async () => {
-  await measure('fetch + load', async () => {
+  await measure('fetch + upgrade + load', async () => {
     collection.value = await createCollection({
       url: 'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
       strategy: 'lazy',
