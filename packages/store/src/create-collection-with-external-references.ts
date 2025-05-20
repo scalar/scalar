@@ -1,4 +1,5 @@
 import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-references'
+import type { UnknownObject } from '@/types'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 // import type {
@@ -8,8 +9,6 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import { reactive, toRaw } from '@vue/reactivity'
 
 export type Collection = Awaited<ReturnType<typeof createCollectionWithExternalReferences>>
-
-type UnknownObject = Record<string, unknown>
 
 export type CreateCollectionOptions = {
   /**
@@ -42,7 +41,7 @@ export async function createCollectionWithExternalReferences(url: string) {
   await externalReferences.isReady()
 
   // TODO: Don't force the type, check if the file exists
-  const { content } = externalReferences.files.value.get(url)!
+  const { content } = externalReferences.getReference(url)!
 
   // TODO: Make this work with
   // // Unwrap Ref input if necessary
@@ -384,15 +383,19 @@ function resolveRef(
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
   origin?: string,
 ): UnknownObject | undefined {
-  // Handle internal references (starting with #)
+  // Internal references
+  // @example #/components/schemas/User
   if (ref.startsWith('#')) {
     const referencePath = parseJsonPointer(ref)
     return getValueByPath(sourceDocument, referencePath)
   }
 
-  // Handle external references
+  // External references
+  // @example ./externalRef.json#/components/schemas/User
   if (!origin || !externalReferences) {
+    // TODO: Actually, an origin isn’t necessary if it’s an absolute URL
     console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
+
     return undefined
   }
 
@@ -404,10 +407,10 @@ function resolveRef(
   externalReferences.addUrl(absoluteUrl)
 
   // Get the file if it's already loaded
-  const file = externalReferences.files.value.get(absoluteUrl)
+  const file = externalReferences.getReference(absoluteUrl)
 
   if (!file) {
-    // File not loaded yet - will be resolved when the file loads due to reactivity
+    // File wasn’t added added (how could that even happen? but this will help TypeScript)
     // TODO: We might want to add an error here?
     return undefined
   }
@@ -540,6 +543,7 @@ function createMagicProxy(
 
   // Cache the proxy
   refProxyCache.set(target, proxy)
+
   return proxy
 }
 

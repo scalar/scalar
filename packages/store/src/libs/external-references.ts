@@ -1,3 +1,4 @@
+import type { UnknownObject } from '@/types'
 import { normalize, traverse } from '@scalar/openapi-parser'
 import { type Ref, ref } from '@vue/reactivity'
 
@@ -13,14 +14,19 @@ const POLL_INTERVAL = 1
 type ExternalReference = {
   /** The URL of the external reference */
   url: string
-  /** Current loading status of the reference */
+  /**
+   * Current loading status of the reference
+   *
+   * - `idle`: it is there, but nothing happens yet
+   * - `pending`: it is being fetched right now
+   * - `fetched`: it was fetched successfully
+   * - `failed`: it failed to be fetched
+   **/
   status: 'idle' | 'pending' | 'fetched' | 'failed'
   /** Any errors that occurred during fetching */
   errors: Error[]
-  /** The parsed content of the reference */
-  content: Record<string, unknown>
-  /** URLs of other references found within this file */
-  references: string[]
+  /** The content of the reference */
+  content: UnknownObject
 }
 
 /**
@@ -53,27 +59,26 @@ export const createExternalReferenceFetcher = ({
   concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT,
 }: CreateExternalReferenceFetcherOptions) => {
   let numberOfRequests = 0
-  const files: Ref<Map<string, ExternalReference>> = ref(new Map())
+  const references: Ref<Map<string, ExternalReference>> = ref(new Map())
 
   // Initialize with the first URL
-  files.value.set(url, {
+  references.value.set(url, {
     content: {},
     status: 'idle',
-    references: [],
     url,
     errors: [],
   })
 
   /**
-   * Updates the status and optional properties of a file in the files map.
+   * Updates the status and optional properties of a file in the references map.
    */
   const updateFileStatus = (
     url: string,
     status: ExternalReference['status'],
     updates: Partial<ExternalReference> = {},
   ) => {
-    const entry = files.value.get(url)!
-    files.value.set(url, { ...entry, status, ...updates })
+    const entry = references.value.get(url)!
+    references.value.set(url, { ...entry, status, ...updates })
   }
 
   /**
@@ -108,7 +113,7 @@ export const createExternalReferenceFetcher = ({
   }
 
   /**
-   * Fetches a URL and updates its state in the files map.
+   * Fetches a URL and updates its state in the references map.
    * Handles errors and recursively fetches references.
    */
   const fetchUrl = async (url: string): Promise<void> => {
@@ -123,31 +128,29 @@ export const createExternalReferenceFetcher = ({
       const text = await response.text()
       const content = normalize(text) as Record<string, unknown>
 
-      let references: string[] = []
-
-      if (strategy === 'eager') {
-        console.log('findExternalReferences', url)
-        references = findExternalReferences(content)
-
-        // Fetch references in chunks
-        const chunks = chunkArray(references, concurrencyLimit)
-        for (const chunk of chunks) {
-          await Promise.all(chunk.map((reference) => addUrl(reference)))
-        }
-      }
-
       updateFileStatus(url, 'fetched', {
         content,
-        references,
         errors: [],
       })
 
       numberOfRequests++
       console.log(`✅ fetched #${numberOfRequests}: ${url}`)
+
+      if (strategy === 'eager') {
+        const references = findExternalReferences(content)
+
+        // Fetch references in chunks
+        const chunks = chunkArray(references, concurrencyLimit)
+
+        for (const chunk of chunks) {
+          await Promise.all(chunk.map((reference) => addUrl(reference)))
+        }
+      }
     } catch (error) {
       updateFileStatus(url, 'failed', {
         errors: [error instanceof Error ? error : new Error(String(error))],
       })
+
       console.error(`❌ Failed to fetch ${url}:`, error)
     }
   }
@@ -156,8 +159,8 @@ export const createExternalReferenceFetcher = ({
    * Adds a new URL to be tracked and optionally fetches it immediately.
    */
   const addUrl = async (url: string): Promise<void> => {
-    if (files.value.has(url)) {
-      const entry = files.value.get(url)!
+    if (references.value.has(url)) {
+      const entry = references.value.get(url)!
 
       if (entry.status === 'idle') {
         await fetchUrl(url)
@@ -166,10 +169,9 @@ export const createExternalReferenceFetcher = ({
       return
     }
 
-    files.value.set(url, {
+    references.value.set(url, {
       content: {},
       status: 'idle',
-      references: [],
       url,
       errors: [],
     })
@@ -183,15 +185,6 @@ export const createExternalReferenceFetcher = ({
   const startFetching = async (): Promise<void> => {
     // Always fetch the initial URL immediately, regardless of strategy
     await fetchUrl(url)
-
-    // If strategy is eager, fetch all references as well
-    if (strategy === 'eager') {
-      const entry = files.value.get(url)!
-      const chunks = chunkArray(entry.references, concurrencyLimit)
-      for (const chunk of chunks) {
-        await Promise.all(chunk.map((reference) => addUrl(reference)))
-      }
-    }
   }
 
   // Start fetching immediately
@@ -202,7 +195,7 @@ export const createExternalReferenceFetcher = ({
    */
   const isReady = async (): Promise<void> => {
     while (true) {
-      const hasPendingFiles = Array.from(files.value.values()).some((file) => file.status === 'pending')
+      const hasPendingFiles = Array.from(references.value.values()).some((file) => file.status === 'pending')
 
       if (!hasPendingFiles) {
         break
@@ -212,7 +205,14 @@ export const createExternalReferenceFetcher = ({
     }
   }
 
-  return { isReady, files, addUrl }
+  /**
+   * Alias to access an entry in the references map.
+   */
+  function getReference(url: string) {
+    return references.value.get(url)
+  }
+
+  return { isReady, references, addUrl, getReference }
 }
 
 /**
