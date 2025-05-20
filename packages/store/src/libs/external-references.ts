@@ -105,7 +105,7 @@ export const createExternalReferenceFetcher = ({
       }
 
       const text = await response.text()
-      const content = normalize(text) as Record<string, UNKNOWN_URL>
+      const content = normalize(text) as UnknownObject
 
       // Add validation to ensure we got a proper OpenAPI document
       if (!content || typeof content !== 'object' || Object.keys(content).length === 0) {
@@ -135,9 +135,9 @@ export const createExternalReferenceFetcher = ({
   /**
    * Fetches all references in a parsed OpenAPI document.
    */
-  const fetchReferences = async (content: Record<string, UNKNOWN_URL>, origin?: string): Promise<void> => {
+  const fetchReferences = async (content: UnknownObject, origin?: string): Promise<void> => {
     if (strategy === 'eager') {
-      const references = findExternalReferences(content, origin)
+      const references = findReferences(content, origin)
 
       // Fetch references in chunks
       const chunks = chunkArray(references, concurrencyLimit)
@@ -260,7 +260,7 @@ export function getAbsoluteUrl(origin: string | undefined, url: string) {
 /**
  * Finds all external references in a parsed OpenAPI document.
  */
-const findExternalReferences = (content: Record<string, UNKNOWN_URL>, origin?: string): string[] => {
+const findReferences = (content: UnknownObject, origin?: string): string[] => {
   const references: string[] = []
 
   traverse(content, (value: any) => {

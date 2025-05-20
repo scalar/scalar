@@ -252,7 +252,7 @@ describe('external-references', () => {
         await isReady()
 
         expect(references.value.size).toBe(1)
-        expect(references.value.get('unknown')?.status).toBe('fetched')
+        expect(references.value.get('UNKNOWN_URL')?.status).toBe('fetched')
       })
 
       it('handles eager loading strategy with directly provided content (string)', async () => {
@@ -301,7 +301,7 @@ describe('external-references', () => {
         await isReady()
 
         expect(references.value.size).toBe(2)
-        expect(references.value.get('unknown')?.status).toBe('fetched')
+        expect(references.value.get('UNKNOWN_URL')?.status).toBe('fetched')
         expect(references.value.get('https://example.com/components.yaml')?.status).toBe('fetched')
       })
 
@@ -327,7 +327,7 @@ describe('external-references', () => {
         await isReady()
 
         expect(references.value.size).toBe(1)
-        expect(references.value.get('unknown')?.status).toBe('fetched')
+        expect(references.value.get('UNKNOWN_URL')?.status).toBe('fetched')
       })
 
       it('handles eager loading strategy with directly provided content (object)', async () => {
@@ -376,7 +376,7 @@ describe('external-references', () => {
         await isReady()
 
         expect(references.value.size).toBe(2)
-        expect(references.value.get('unknown')?.status).toBe('fetched')
+        expect(references.value.get('UNKNOWN_URL')?.status).toBe('fetched')
         expect(references.value.get('https://example.com/components.yaml')?.status).toBe('fetched')
       })
     })
