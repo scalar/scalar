@@ -440,7 +440,6 @@ describe('create-collection', () => {
     })
 
     it('fetches the description', async () => {
-      // Mock fetch to return a static OpenAPI document with external references
       global.fetch = vi.fn().mockImplementation((url: string) => {
         if (url === 'https://example.com/openapi.yaml') {
           return Promise.resolve({
@@ -479,6 +478,10 @@ describe('create-collection', () => {
 
       const collection = await createCollection({
         url: 'https://example.com/openapi.yaml',
+      })
+
+      expect(collection.document.info).toMatchObject({
+        description: 'This is a test description',
       })
 
       expect(collection.document.info?.description).toBe('This is a test description')

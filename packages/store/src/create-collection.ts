@@ -160,7 +160,7 @@ function parseJsonPointer(pointer: string): string[] {
       // Split on '/'
       .split('/')
       // Remove the leading '#' if present
-      .filter((segment, index) => index !== 0 || segment !== '#')
+      .filter((segment, index) => index !== 0 || (segment !== '#' && segment !== ''))
       // Unescape the segments (e.g. ~1 -> /, ~0 -> ~, %20 -> space)
       .map(unescapeJsonPointer)
   )
@@ -404,6 +404,7 @@ function createMagicProxy(
           // Pass the new origin for nested references
           return createMagicProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
+
         return item
       }
       return isObject(item) || Array.isArray(item)
