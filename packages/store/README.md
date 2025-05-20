@@ -25,24 +25,26 @@ import { createCollection } from '@scalar/store'
 
 // Create a collection from an OpenAPI document containing $ref's
 const collection = createCollection({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0',
-  },
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+        User: {
+          $ref: '#/components/schemas/Person',
         },
       },
-      User: {
-        $ref: '#/components/schemas/Person',
-      },
     },
-  },
+  }
 })
 
 // Access the data without caring about $ref's
@@ -57,19 +59,21 @@ The store automatically resolves JSON References (`$ref`) when accessing propert
 
 ```ts
 const collection = createCollection({
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+  content: {
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+        User: {
+          $ref: '#/components/schemas/Person',
         },
       },
-      User: {
-        $ref: '#/components/schemas/Person',
-      },
     },
-  },
+  }
 })
 
 // Both paths access the same data
@@ -90,19 +94,21 @@ import { watch } from 'vue'
 import { createCollection } from '@scalar/store'
 
 const collection = createCollection({
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+  content: {
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+        User: {
+          $ref: '#/components/schemas/Person',
         },
       },
-      User: {
-        $ref: '#/components/schemas/Person',
-      },
     },
-  },
+  }
 })
 
 // Vue reactivity works through references
@@ -120,16 +126,18 @@ Collections support temporary data using properties prefixed with `_`. These pro
 
 ```ts
 const collection = createCollection({
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+  content: {
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
         },
-      },
-      User: {
-        $ref: '#/components/schemas/Person',
+        User: {
+          $ref: '#/components/schemas/Person',
+        },
       },
     },
   },
@@ -145,35 +153,39 @@ Export the raw document with references intact:
 
 ```ts
 const collection = createCollection({
-  components: {
-    schemas: {
-      Person: {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
+  content: {
+    components: {
+      schemas: {
+        Person: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+        User: {
+          $ref: '#/components/schemas/Person',
         },
       },
-      User: {
-        $ref: '#/components/schemas/Person',
-      },
     },
-  },
+  }
 })
 
 // Get the raw document with $refs preserved
 const raw = collection.export()
 ```
 
-## Update an OpenAPI Document
+<!-- ## Update an OpenAPI Document
 
 ```ts
 const collection = createCollection({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0'
-  },
-  paths: {}
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0'
+    },
+    paths: {}
+  }
 })
 
 // Replace the original content with a new document
@@ -185,7 +197,7 @@ collection.update({
   },
   paths: {}
 })
-```
+``` -->
 
 ## Merge Unrelated Documents
 
@@ -193,15 +205,17 @@ Add data to an existing OpenAPI document:
 
 ```ts
 const collection = createCollection({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0'
-  },
-  paths: {
-    '/planets': {
-      get: { summary: 'List planets' },
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0'
     },
+    paths: {
+      '/planets': {
+        get: { summary: 'List planets' },
+      },
+    }
   }
 })
 
@@ -224,14 +238,16 @@ collection.merge({
 
 ```ts
 const collection = createCollection({
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0.0'
-  },
-  paths: {
-    '/planets': {
-      get: { summary: 'List planets' },
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0'
+    },
+    paths: {
+      '/planets': {
+        get: { summary: 'List planets' },
+      },
     },
   },
 })
@@ -259,7 +275,7 @@ collection.apply({
 collection.apply([overlay1, overlay2])
 ```
 
-## Workspaces
+<!-- ## Workspaces
 
 Create a new worksapce instance and manage collections:
 
@@ -329,4 +345,4 @@ workspace.merge('myCollection', { … })
 
 // Apply OpenAPI overlays
 workspace.apply('myCollection', { … })
-```
+``` -->
