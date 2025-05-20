@@ -1,10 +1,10 @@
-import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+import type { RequestExample, RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { createFetchQueryParams } from './create-fetch-query-params'
 
 describe('createFetchQueryParams', () => {
-  it('creates query paramer from an example', () => {
+  it('serializes query paramer from an example', () => {
     const requestExample: Pick<RequestExample, 'parameters'> = {
       parameters: {
         headers: [],
@@ -23,7 +23,7 @@ describe('createFetchQueryParams', () => {
     expect(result.toString()).toEqual('page=1&limit=10&search=John')
   })
 
-  it('handles array parameters (same name multiple times)', () => {
+  it('serializes array parameters (same name multiple times)', () => {
     const requestExample: Pick<RequestExample, 'parameters'> = {
       parameters: {
         headers: [],
@@ -59,7 +59,7 @@ describe('createFetchQueryParams', () => {
     expect([...result.entries()]).toHaveLength(0)
   })
 
-  it('handles query parameters for array type value', () => {
+  it('serializes exploded query parameters for array type value', () => {
     const requestExample: Pick<RequestExample, 'parameters'> = {
       parameters: {
         headers: [],
@@ -72,5 +72,40 @@ describe('createFetchQueryParams', () => {
     const result = createFetchQueryParams(requestExample, {})
 
     expect(result.toString()).toEqual('key=one&key=two')
+  })
+
+  it('serializes unexploded query parameters for array type value', () => {
+    const requestExample: Pick<RequestExample, 'parameters'> = {
+      parameters: {
+        headers: [],
+        path: [],
+        cookies: [],
+        query: [{ key: 'key', value: 'one, two, three', enabled: true, type: 'array' }],
+      },
+    }
+
+    const request = {
+      type: 'request',
+      parameters: [
+        {
+          in: 'query',
+          name: 'key',
+          style: 'form',
+          explode: false,
+          required: false,
+          deprecated: false,
+          schema: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+        },
+      ],
+    } satisfies RequestPayload
+
+    const result = createFetchQueryParams(requestExample, {}, request)
+
+    expect(result.toString()).toEqual('key=one,two,three')
   })
 })
