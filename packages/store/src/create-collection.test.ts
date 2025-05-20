@@ -39,7 +39,7 @@ describe('create-collection', () => {
 
     it('throws if it’s not an OpenAPI document', async () => {
       await expect(createCollection({ content: {} })).rejects.toThrow(
-        'Invalid OpenAPI/Swagger document, can’t find a specification version.',
+        'Invalid OpenAPI/Swagger document, failed to find a specification version.',
       )
     })
 
@@ -309,6 +309,67 @@ describe('create-collection', () => {
           name: { type: 'string' },
         },
       })
+    })
+
+    it('resolves references inside arrays with anyOf', async () => {
+      const EXAMPLE_DOCUMENT = {
+        openapi: '3.1.1',
+        info: {
+          title: 'Example',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            Dog: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                breed: { type: 'string' },
+              },
+            },
+            Cat: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                lives: { type: 'number' },
+              },
+            },
+            Person: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                pets: {
+                  type: 'array',
+                  items: {
+                    anyOf: [{ $ref: '#/components/schemas/Dog' }, { $ref: '#/components/schemas/Cat' }],
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+
+      // Check that both references in anyOf are resolved
+      expect(collection.document.components?.schemas?.Person?.properties?.pets?.items?.anyOf).toMatchObject([
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            breed: { type: 'string' },
+          },
+        },
+        {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            lives: { type: 'number' },
+          },
+        },
+      ])
     })
   })
 

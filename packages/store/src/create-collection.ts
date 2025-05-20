@@ -49,11 +49,11 @@ export async function createCollection({
     }
   }
 
-  // Normalized and upgraded content, doesn’t matter where it came from.
+  // Normalized and upgraded content, doesn't matter where it came from.
   const content = externalReferences.getReference(url)?.content || {}
 
   if (!isObject(content) || (typeof content.openapi !== 'string' && typeof content.swagger !== 'string')) {
-    throw new Error('Invalid OpenAPI/Swagger document, can’t find a specification version.')
+    throw new Error('Invalid OpenAPI/Swagger document, failed to find a specification version.')
   }
 
   // Make the root document reactive
@@ -319,18 +319,19 @@ function applyOverlay(document: UnknownObject, overlay: UnknownObject) {
  * Checks if an object or any of its nested objects contain a $ref
  */
 function hasRefs(obj: unknown): boolean {
-  if (!isObject(obj)) {
+  if (!isObject(obj) && !Array.isArray(obj)) {
     return false
   }
 
   // Quick check for direct $ref
-  if ('$ref' in obj) {
+  if (isObject(obj) && '$ref' in obj) {
     return true
   }
 
-  // Check nested objects
-  for (const value of Object.values(obj)) {
-    if (isObject(value) && hasRefs(value)) {
+  // Check nested objects and arrays
+  const values = Array.isArray(obj) ? obj : Object.values(obj)
+  for (const value of values) {
+    if ((isObject(value) || Array.isArray(value)) && hasRefs(value)) {
       return true
     }
   }
@@ -359,7 +360,7 @@ function resolveRef(
   // External references
   // @example ./externalRef.json#/components/schemas/User
   if (!origin || !externalReferences) {
-    // TODO: Actually, an origin isn’t necessary if it’s an absolute URL
+    // TODO: Actually, an origin isn't necessary if it's an absolute URL
     console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
 
     return undefined
@@ -376,7 +377,7 @@ function resolveRef(
   const file = externalReferences.getReference(absoluteUrl)
 
   if (!file) {
-    // File wasn’t added added (how could that even happen? but this will help TypeScript)
+    // File wasn't added added (how could that even happen? but this will help TypeScript)
     // TODO: We might want to add an error here?
     return undefined
   }
@@ -392,14 +393,38 @@ function resolveRef(
  * Only creates proxies for objects that contain $refs to minimize traversal overhead.
  */
 function createMagicProxy(
-  target: UnknownObject,
+  target: unknown,
   sourceDocument: UnknownObject,
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
   origin?: string,
-): UnknownObject {
+): unknown {
+  // Handle arrays
+  if (Array.isArray(target)) {
+    return target.map((item) => {
+      // If the item is an object with a $ref, resolve it first
+      if (isObject(item) && '$ref' in item) {
+        const ref = item.$ref as string
+        const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
+        if (resolvedValue) {
+          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, origin)
+        }
+        return item
+      }
+      // For other objects and arrays, create a proxy if they contain $refs
+      return isObject(item) || Array.isArray(item)
+        ? createMagicProxy(item, sourceDocument, externalReferences, origin)
+        : item
+    })
+  }
+
+  // Handle non-objects
+  if (!isObject(target)) {
+    return target
+  }
+
   // Check cache first
   if (refProxyCache.has(target)) {
-    return refProxyCache.get(target) as UnknownObject
+    return refProxyCache.get(target)
   }
 
   // If the object doesn't contain any $refs, return it directly
@@ -416,12 +441,12 @@ function createMagicProxy(
 
       const value = target[prop as keyof typeof target]
 
-      if (!isObject(value)) {
+      if (!isObject(value) && !Array.isArray(value)) {
         return value
       }
 
       // Handle $ref resolution
-      if ('$ref' in value) {
+      if (isObject(value) && '$ref' in value) {
         const ref = value.$ref as string
         const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
 
@@ -434,7 +459,7 @@ function createMagicProxy(
         return value
       }
 
-      // For other objects, only create a proxy if they contain $refs
+      // For other objects and arrays, create a proxy if they contain $refs
       return createMagicProxy(value, sourceDocument, externalReferences, origin)
     },
 
