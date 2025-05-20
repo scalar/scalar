@@ -68,6 +68,10 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
     return null
   }
 
+  if (schema.title) {
+    return schema.title
+  }
+
   if (schema.name) {
     return schema.name
   }
@@ -104,6 +108,20 @@ const constValue = computed(() => {
   }
   return null
 })
+
+/** Computes the human-readable type for a schema property. */
+const displayType = computed(() => {
+  if (Array.isArray(value?.type)) {
+    return value.type.join(' | ')
+  }
+  if (value?.title) {
+    return value.title
+  }
+  if (value?.name) {
+    return value.name
+  }
+  return value?.type ?? ''
+})
 </script>
 <template>
   <div class="property-heading">
@@ -124,7 +142,7 @@ const constValue = computed(() => {
           {{ getModelNameFromSchema(value.items) || value.items.type }}[]
         </template>
         <template v-else>
-          {{ Array.isArray(value.type) ? value.type.join(' | ') : value.type }}
+          {{ displayType }}
           {{ value?.nullable ? ' | nullable' : '' }}
         </template>
         <template v-if="value.minItems || value.maxItems">

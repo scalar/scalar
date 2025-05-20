@@ -1,5 +1,5 @@
 import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
-import type { Env, MiddlewareHandler } from 'hono'
+import type { Context, Env, MiddlewareHandler } from 'hono'
 
 import type { ApiReferenceConfiguration } from './types'
 
@@ -115,18 +115,32 @@ export const customTheme = `
 }
 `
 
+type Configuration<E extends Env> =
+  | Partial<ApiReferenceConfiguration>
+  | ((c: Context<E>) => Partial<ApiReferenceConfiguration> | Promise<Partial<ApiReferenceConfiguration>>)
+
 /**
  * The Hono middleware for the Scalar API Reference.
  */
-export const Scalar = <E extends Env>(givenConfiguration: Partial<ApiReferenceConfiguration>): MiddlewareHandler<E> => {
-  // Merge the defaults
-  const configuration = {
-    ...DEFAULT_CONFIGURATION,
-    ...givenConfiguration,
-  }
+export const Scalar = <E extends Env>(configOrResolver: Configuration<E>): MiddlewareHandler<E> => {
+  return async (c) => {
+    let resolvedConfig: Partial<ApiReferenceConfiguration> = {}
 
-  // Respond with the HTML document
-  return async (c) => c.html(/* html */ `${getHtmlDocument(configuration, customTheme)}`)
+    if (typeof configOrResolver === 'function') {
+      resolvedConfig = await configOrResolver(c)
+    } else {
+      resolvedConfig = configOrResolver
+    }
+
+    // Merge the defaults
+    const configuration = {
+      ...DEFAULT_CONFIGURATION,
+      ...resolvedConfig,
+    }
+
+    // Respond with the HTML document
+    return c.html(getHtmlDocument(configuration, customTheme))
+  }
 }
 
 /**

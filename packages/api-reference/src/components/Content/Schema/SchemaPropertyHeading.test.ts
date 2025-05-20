@@ -186,4 +186,18 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('default:')
     expect(defaultValueElement.text()).toContain('""')
   })
+
+  it('prefers title over name for non-array schemas', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'object',
+          name: 'ModelName',
+          title: 'PrettyModel',
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('PrettyModel')
+  })
 })

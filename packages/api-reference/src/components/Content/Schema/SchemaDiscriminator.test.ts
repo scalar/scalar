@@ -5,7 +5,28 @@ import SchemaDiscriminator from './SchemaDiscriminator.vue'
 
 describe('SchemaDiscriminator', () => {
   describe('getModelNameFromSchema', () => {
-    it('displays schema name when present', () => {
+    it('displays schema title when both title and name are present', () => {
+      const wrapper = mount(SchemaDiscriminator, {
+        props: {
+          discriminator: 'oneOf',
+          value: {
+            oneOf: [
+              {
+                name: 'OneModel',
+                title: 'One',
+                type: 'object',
+              },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const tab = wrapper.find('.discriminator-selector-label')
+      expect(tab.text()).toBe('One')
+    })
+
+    it('displays schema name when title is not present', () => {
       const wrapper = mount(SchemaDiscriminator, {
         props: {
           discriminator: 'oneOf',
@@ -45,7 +66,7 @@ describe('SchemaDiscriminator', () => {
       expect(tab.text()).toBe('Any')
     })
 
-    it('displays type when name and title are not present', () => {
+    it('displays type when neither name nor title are present', () => {
       const wrapper = mount(SchemaDiscriminator, {
         props: {
           discriminator: 'oneOf',
