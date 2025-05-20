@@ -1,13 +1,13 @@
-import { createExternalReferenceFetcher } from '@/libs/external-references'
-import { normalize, unescapeJsonPointer } from '@scalar/openapi-parser'
+import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-references'
+import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
 import type {
   OpenApiObject as UnprocessedOpenApiObject,
   // OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
 } from '@scalar/openapi-types/schemas/3.1/unprocessed'
-import { type Ref, isRef, reactive, toRaw, watch } from '@vue/reactivity'
+import { reactive, toRaw } from '@vue/reactivity'
 
-export type Collection = ReturnType<typeof createCollectionWithExternalReferences>
+export type Collection = Awaited<ReturnType<typeof createCollectionWithExternalReferences>>
 
 type UnknownObject = Record<string, unknown>
 
@@ -31,20 +31,18 @@ const refProxyCache = new WeakMap<object, unknown>()
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
  */
-export async function createCollectionWithExternalReferences(
-  input: UnknownObject | string | Ref<UnknownObject | string>,
-) {
-  const { isReady, files } = createExternalReferenceFetcher({
-    url: 'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
+export async function createCollectionWithExternalReferences(url: string) {
+  const externalReferences = createExternalReferenceFetcher({
+    url,
+    // Only load the base document, everything else only when needed
     strategy: 'lazy',
   })
 
-  await isReady()
+  // Wait until the first file is loaded
+  await externalReferences.isReady()
 
   // TODO: Don’t force the type, check if the file exists
-  const { content } = files.get(
-    'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
-  )!
+  const { content } = externalReferences.files.get(url)!
 
   // TODO: Make this work with
   // // Unwrap Ref input if necessary
@@ -61,42 +59,40 @@ export async function createCollectionWithExternalReferences(
   // const resolvedProxyCache = cache ? new WeakMap() : undefined
 
   // If input is a Ref<UnknownObject>, use its value directly as the source document
-  if (isRef(input) && isObject(input.value)) {
-    // Make the root document reactive
-    const reactiveRoot = reactive(input.value)
-    return {
-      document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
-      export: () => exportRawDocument(content) as UnprocessedOpenApiObject,
-      apply,
-      merge: (partialDocument: UnknownObject) => {
-        mergeDocuments(reactiveRoot, partialDocument)
-      },
-      update: (newDocument: UnknownObject) => {
-        updateDocument(reactiveRoot, newDocument)
-      },
-    }
-  }
+  // if (isRef(input) && isObject(input.value)) {
+  //   // Make the root document reactive
+  //   const reactiveRoot = reactive(input.value)
+  //   return {
+  //     document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
+  //     export: () => exportRawDocument(content) as UnprocessedOpenApiObject,
+  //     apply,
+  //     merge: (partialDocument: UnknownObject) => {
+  //       mergeDocuments(reactiveRoot, partialDocument)
+  //     },
+  //     update: (newDocument: UnknownObject) => {
+  //       updateDocument(reactiveRoot, newDocument)
+  //     },
+  //   }
+  // }
 
   // Make the root document reactive
   const reactiveRoot = reactive(content)
 
   // If input is a Ref<string>, watch for changes and update the reactive document
-  if (isRef(input) && typeof input.value === 'string') {
-    watch(
-      input,
-      (newValue) => {
-        const normalized = normalize(newValue) as UnknownObject
-        // Update the document through merge to ensure proper reactivity
-        mergeDocuments(reactiveRoot, normalized)
-      },
-      { immediate: false },
-    )
-  }
-
-  console.log('we go here')
+  // if (isRef(input) && typeof input.value === 'string') {
+  //   watch(
+  //     input,
+  //     (newValue) => {
+  //       const normalized = normalize(newValue) as UnknownObject
+  //       // Update the document through merge to ensure proper reactivity
+  //       mergeDocuments(reactiveRoot, normalized)
+  //     },
+  //     { immediate: false },
+  //   )
+  // }
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot, externalReferences)
+  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot, externalReferences, url)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -136,21 +132,21 @@ export async function createCollectionWithExternalReferences(
  * only changing top-level keys that are different.
  * This avoids unnecessary deletes/adds for unchanged keys.
  */
-function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
-  // Remove keys that are no longer present
-  for (const key of Object.keys(sourceDocument)) {
-    if (!(key in newDocument)) {
-      delete sourceDocument[key]
-    }
-  }
+// function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
+//   // Remove keys that are no longer present
+//   for (const key of Object.keys(sourceDocument)) {
+//     if (!(key in newDocument)) {
+//       delete sourceDocument[key]
+//     }
+//   }
 
-  // Add or update changed keys
-  for (const [key, value] of Object.entries(newDocument)) {
-    if (sourceDocument[key] !== value) {
-      sourceDocument[key] = value
-    }
-  }
-}
+//   // Add or update changed keys
+//   for (const [key, value] of Object.entries(newDocument)) {
+//     if (sourceDocument[key] !== value) {
+//       sourceDocument[key] = value
+//     }
+//   }
+// }
 
 /**
  * Exports a raw document with internal properties (starting with "_") removed.
@@ -385,6 +381,7 @@ function createMagicProxy(
   target: UnknownObject,
   sourceDocument: UnknownObject,
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
+  origin?: string,
 ): UnknownObject {
   // Check cache first
   if (refProxyCache.has(target)) {
@@ -412,19 +409,35 @@ function createMagicProxy(
       // Handle $ref resolution
       if ('$ref' in value) {
         const ref = value.$ref as string
-        console.log('createMagicProxy get $ref', ref, prop)
+
         // TODO: Trigger fetch
+        // TODO: Check whether it’s an external reference
+
+        console.log('createMagicProxy get $ref', ref, prop)
+        if (!ref.startsWith('#')) {
+          if (origin) {
+            const absoluteUrl = getAbsoluteUrl(origin, ref)
+
+            if (externalReferences) {
+              externalReferences.addUrl(absoluteUrl)
+            }
+          } else {
+            console.log('no origin')
+          }
+        }
 
         const referencePath = parseJsonPointer(ref)
         const resolvedValue = getValueByPath(sourceDocument, referencePath)
         if (resolvedValue) {
           // Create a proxy for the resolved value that points back to the original
-          return createMagicProxy(resolvedValue, sourceDocument, externalReferences)
+          // TODO: Probably need to be the origin of the resolved value
+          // Not relevant as long as we only go one level deep
+          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, origin)
         }
       }
 
       // For other objects, only create a proxy if they contain $refs
-      return createMagicProxy(value, sourceDocument, externalReferences)
+      return createMagicProxy(value, sourceDocument, externalReferences, origin)
     },
 
     set(target: UnknownObject, property: string, newValue: unknown) {

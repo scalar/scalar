@@ -121,7 +121,19 @@ export const createExternalReferenceFetcher = ({
 
       const text = await response.text()
       const content = normalize(text) as Record<string, unknown>
-      const references = findExternalReferences(content)
+
+      let references: string[] = []
+
+      if (strategy === 'eager') {
+        console.log('findExternalReferences', url)
+        references = findExternalReferences(content)
+
+        // Fetch references in chunks
+        const chunks = chunkArray(references, concurrencyLimit)
+        for (const chunk of chunks) {
+          await Promise.all(chunk.map((reference) => addUrl(reference)))
+        }
+      }
 
       updateFileStatus(url, 'fetched', {
         content,
@@ -131,12 +143,6 @@ export const createExternalReferenceFetcher = ({
 
       numberOfRequests++
       console.log(`✅ #${numberOfRequests} ${url}`)
-
-      // Fetch references in chunks
-      const chunks = chunkArray(references, concurrencyLimit)
-      for (const chunk of chunks) {
-        await Promise.all(chunk.map((reference) => addUrl(reference)))
-      }
     } catch (error) {
       updateFileStatus(url, 'failed', {
         errors: [error instanceof Error ? error : new Error(String(error))],
@@ -151,9 +157,11 @@ export const createExternalReferenceFetcher = ({
   const addUrl = async (url: string): Promise<void> => {
     if (files.has(url)) {
       const entry = files.get(url)!
+
       if (entry.status === 'idle') {
         await fetchUrl(url)
       }
+
       return
     }
 
@@ -165,9 +173,9 @@ export const createExternalReferenceFetcher = ({
       errors: [],
     })
 
-    if (strategy === 'eager') {
-      await fetchUrl(url)
-    }
+    // if (strategy === 'eager') {
+    await fetchUrl(url)
+    // }
   }
 
   /**
@@ -210,7 +218,7 @@ export const createExternalReferenceFetcher = ({
     }
   }
 
-  return { isReady, files }
+  return { isReady, files, addUrl }
 }
 
 /**
