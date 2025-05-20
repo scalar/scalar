@@ -21,9 +21,10 @@ const refProxyCache = new WeakMap<object, unknown>()
  *
  * TODO: Make it work with not just URLs
  */
-export async function createCollection(url: string) {
+export async function createCollection({ url, content: providedContent }: { url: string; content: string }) {
   const externalReferences = createExternalReferenceFetcher({
     url,
+    content: providedContent,
     // Only load the base document, load external references only when needed
     strategy: 'lazy',
   })

@@ -5,6 +5,7 @@ import { type Ref, ref, watchEffect } from 'vue'
 // Defaults
 const DEFAULT_CONCURRENCY_LIMIT = 5
 const DEFAULT_STRATEGY = 'eager'
+const NO_URL_PROVIDED = 'UNKNOWN_URL'
 
 /**
  * Represents the state of an external reference file.
@@ -33,7 +34,9 @@ type ExternalReference = {
  */
 type CreateExternalReferenceFetcherOptions = {
   /** The initial URL to fetch */
-  url: string
+  url?: string
+  /** Directly pass the content of the OpenAPI document */
+  content?: string | UnknownObject
   /**
    * Whether to load external references right-away or only when they are accessed.
    *
@@ -54,19 +57,12 @@ type CreateExternalReferenceFetcherOptions = {
  */
 export const createExternalReferenceFetcher = ({
   url,
+  content: providedContent,
   strategy = DEFAULT_STRATEGY,
   concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT,
 }: CreateExternalReferenceFetcherOptions) => {
   let numberOfRequests = 0
   const references: Ref<Map<string, ExternalReference>> = ref(new Map())
-
-  // Initialize with the first URL
-  references.value.set(url, {
-    url,
-    status: 'pending',
-    errors: [],
-    content: {},
-  })
 
   /**
    * Updates the status and optional properties of a reference in the references map.
@@ -86,30 +82,12 @@ export const createExternalReferenceFetcher = ({
    */
   const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
     const chunks: T[][] = []
+
     for (let i = 0; i < array.length; i += chunkSize) {
       chunks.push(array.slice(i, i + chunkSize))
     }
+
     return chunks
-  }
-
-  /**
-   * Finds all external references in a parsed OpenAPI document.
-   */
-  const findExternalReferences = (content: Record<string, unknown>): string[] => {
-    const references: string[] = []
-
-    traverse(content, (value: any) => {
-      if (!value.$ref || typeof value.$ref !== 'string' || value.$ref.startsWith('#')) {
-        return value
-      }
-
-      const reference = value.$ref.split('#')[0]
-      const absoluteUrl = getAbsoluteUrl(url, reference)
-      references.push(absoluteUrl)
-      return value
-    })
-
-    return references
   }
 
   /**
@@ -121,12 +99,18 @@ export const createExternalReferenceFetcher = ({
 
     try {
       const response = await fetch(url)
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const text = await response.text()
-      const content = normalize(text) as Record<string, unknown>
+      const content = normalize(text) as Record<string, UNKNOWN_URL>
+
+      // Add validation to ensure we got a proper OpenAPI document
+      if (!content || typeof content !== 'object' || Object.keys(content).length === 0) {
+        throw new Error('Invalid OpenAPI document: Failed to parse the content')
+      }
 
       updateReference(url, {
         content,
@@ -137,16 +121,7 @@ export const createExternalReferenceFetcher = ({
       numberOfRequests++
       console.log(`✅ fetched #${numberOfRequests}: ${url}`)
 
-      if (strategy === 'eager') {
-        const references = findExternalReferences(content)
-
-        // Fetch references in chunks
-        const chunks = chunkArray(references, concurrencyLimit)
-
-        for (const chunk of chunks) {
-          await Promise.all(chunk.map((reference) => addReference(reference)))
-        }
-      }
+      fetchReferences(content, url)
     } catch (error) {
       updateReference(url, {
         status: 'failed',
@@ -154,6 +129,22 @@ export const createExternalReferenceFetcher = ({
       })
 
       console.error(`❌ Failed to fetch ${url}:`, error)
+    }
+  }
+
+  /**
+   * Fetches all references in a parsed OpenAPI document.
+   */
+  const fetchReferences = async (content: Record<string, UNKNOWN_URL>, origin?: string): Promise<void> => {
+    if (strategy === 'eager') {
+      const references = findExternalReferences(content, origin)
+
+      // Fetch references in chunks
+      const chunks = chunkArray(references, concurrencyLimit)
+
+      for (const chunk of chunks) {
+        await Promise.all(chunk.map((reference) => addReference(reference)))
+      }
     }
   }
 
@@ -181,9 +172,6 @@ export const createExternalReferenceFetcher = ({
     await fetchUrl(url)
   }
 
-  // Start fetching immediately
-  fetchUrl(url)
-
   /**
    * Resolves when all pending fetches are complete.
    */
@@ -208,6 +196,30 @@ export const createExternalReferenceFetcher = ({
     return references.value.get(url)
   }
 
+  // Initialize with the base document
+  if (url) {
+    references.value.set(url, {
+      url,
+      status: 'pending',
+      errors: [],
+      content: {},
+    })
+
+    // Start fetching immediately
+    fetchUrl(url)
+  } else if (providedContent) {
+    const content = normalize(providedContent) as UnknownObject
+
+    references.value.set(NO_URL_PROVIDED, {
+      url: NO_URL_PROVIDED,
+      status: 'fetched',
+      errors: [],
+      content,
+    })
+
+    fetchReferences(content)
+  }
+
   return { isReady, references, addReference, getReference }
 }
 
@@ -224,10 +236,14 @@ export const createExternalReferenceFetcher = ({
  * getAbsoluteUrl('/foobar/openapi.yaml', '/components.yaml')
  * // => '/components.yaml'
  */
-export function getAbsoluteUrl(source: string, url: string) {
-  // If source is an absolute URL, use URL constructor
-  if (source.startsWith('http://') || source.startsWith('https://')) {
-    return new URL(url, source).toString()
+export function getAbsoluteUrl(origin: string | undefined, url: string) {
+  if (!origin) {
+    return url
+  }
+
+  // If origin is an absolute URL, use URL constructor
+  if (origin.startsWith('http://') || origin.startsWith('https://')) {
+    return new URL(url, origin).toString()
   }
 
   // If url starts with '/', treat it as absolute path relative to root
@@ -236,7 +252,27 @@ export function getAbsoluteUrl(source: string, url: string) {
   }
 
   // For relative paths, handle path joining manually
-  const base = source.substring(0, source.lastIndexOf('/') + 1)
+  const base = origin.substring(0, origin.lastIndexOf('/') + 1)
 
   return `${base}${url}`
+}
+
+/**
+ * Finds all external references in a parsed OpenAPI document.
+ */
+const findExternalReferences = (content: Record<string, UNKNOWN_URL>, origin?: string): string[] => {
+  const references: string[] = []
+
+  traverse(content, (value: any) => {
+    if (!value.$ref || typeof value.$ref !== 'string' || value.$ref.startsWith('#')) {
+      return value
+    }
+
+    const reference = value.$ref.split('#')[0]
+    const absoluteUrl = getAbsoluteUrl(origin, reference)
+    references.push(absoluteUrl)
+    return value
+  })
+
+  return references
 }
