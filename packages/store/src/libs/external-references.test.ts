@@ -55,16 +55,19 @@ describe('external-references', () => {
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
       })
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references, getReference } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
       // Output all URLs
-      console.log(Array.from(files.keys()))
-      console.log(JSON.stringify(Array.from(files.values()), null, 2))
-    }, 30000)
+      console.log(Array.from(references.value.keys()))
+      console.log(JSON.stringify(Array.from(references.value.values()), null, 2))
+
+      expect(getReference('https://example.com/openapi.yaml')?.status).toBe('fetched')
+      expect(getReference('https://example.com/components.yaml')?.status).toBe('fetched')
+    })
 
     it('handles lazy loading strategy', async () => {
       const mockFetch = vi.fn().mockImplementation((url: string) => {
@@ -78,31 +81,31 @@ describe('external-references', () => {
       })
       global.fetch = mockFetch
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
         strategy: 'lazy',
       })
 
       // Initial state should be idle
-      expect(files.get('https://example.com/openapi.yaml')?.status).toBe('pending')
+      expect(references.value.get('https://example.com/openapi.yaml')?.status).toBe('pending')
 
       await isReady()
 
       // After isReady, should be fetched
-      expect(files.get('https://example.com/openapi.yaml')?.status).toBe('fetched')
+      expect(references.value.get('https://example.com/openapi.yaml')?.status).toBe('fetched')
       expect(mockFetch).toHaveBeenCalledTimes(1)
     })
 
     it('handles fetch errors gracefully', async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error('Network error'))
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
-      const entry = files.get('https://example.com/openapi.yaml')
+      const entry = references.value.get('https://example.com/openapi.yaml')
       expect(entry?.status).toBe('failed')
       expect(entry?.errors[0].message).toBe('Network error')
     })
@@ -113,13 +116,13 @@ describe('external-references', () => {
         status: 404,
       })
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
-      const entry = files.get('https://example.com/openapi.yaml')
+      const entry = references.value.get('https://example.com/openapi.yaml')
       expect(entry?.status).toBe('failed')
       expect(entry?.errors[0].message).toContain('HTTP error! status: 404')
     })
@@ -163,17 +166,17 @@ describe('external-references', () => {
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
       })
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
-      // Should have fetched all three files
-      expect(files.size).toBe(3)
-      expect(files.get('https://example.com/openapi.yaml')?.status).toBe('fetched')
-      expect(files.get('https://example.com/paths.yaml')?.status).toBe('fetched')
-      expect(files.get('https://example.com/components.yaml')?.status).toBe('fetched')
+      // Should have fetched all three references.value
+      expect(references.value.size).toBe(3)
+      expect(references.value.get('https://example.com/openapi.yaml')?.status).toBe('fetched')
+      expect(references.value.get('https://example.com/paths.yaml')?.status).toBe('fetched')
+      expect(references.value.get('https://example.com/components.yaml')?.status).toBe('fetched')
     })
 
     it('handles circular references without infinite loops', async () => {
@@ -198,16 +201,16 @@ describe('external-references', () => {
         return Promise.reject(new Error(`Unexpected URL: ${url}`))
       })
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references, getReference } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
       // Should only fetch each file once
-      expect(files.size).toBe(2)
-      expect(files.get('https://example.com/openapi.yaml')?.status).toBe('fetched')
-      expect(files.get('https://example.com/circular.yaml')?.status).toBe('fetched')
+      expect(references.value.size).toBe(2)
+      expect(getReference('https://example.com/openapi.yaml')?.status).toBe('fetched')
+      expect(getReference('https://example.com/circular.yaml')?.status).toBe('fetched')
     })
 
     it('handles invalid JSON responses', async () => {
@@ -216,13 +219,13 @@ describe('external-references', () => {
         text: () => Promise.resolve('invalid json'),
       })
 
-      const { isReady, files } = createExternalReferenceFetcher({
+      const { isReady, references } = createExternalReferenceFetcher({
         url: 'https://example.com/openapi.yaml',
       })
 
       await isReady()
 
-      const entry = files.get('https://example.com/openapi.yaml')
+      const entry = references.value.get('https://example.com/openapi.yaml')
       expect(entry?.status).toBe('failed')
       expect(entry?.errors[0].message).toContain('Cannot convert undefined or null to object')
       expect(entry?.errors.length).toBe(1)

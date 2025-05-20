@@ -1,11 +1,10 @@
 import type { UnknownObject } from '@/types'
 import { normalize, traverse } from '@scalar/openapi-parser'
-import { type Ref, ref } from '@vue/reactivity'
+import { type Ref, ref, watchEffect } from 'vue'
 
 // Defaults
 const DEFAULT_CONCURRENCY_LIMIT = 5
 const DEFAULT_STRATEGY = 'eager'
-const POLL_INTERVAL = 1
 
 /**
  * Represents the state of an external reference file.
@@ -63,22 +62,23 @@ export const createExternalReferenceFetcher = ({
 
   // Initialize with the first URL
   references.value.set(url, {
-    content: {},
-    status: 'idle',
     url,
+    status: 'pending',
     errors: [],
+    content: {},
   })
 
   /**
-   * Updates the status and optional properties of a file in the references map.
+   * Updates the status and optional properties of a reference in the references map.
    */
-  const updateFileStatus = (
-    url: string,
-    status: ExternalReference['status'],
-    updates: Partial<ExternalReference> = {},
-  ) => {
+  const updateReference = (url: string, updates: Partial<ExternalReference> = {}) => {
+    if (!references.value.has(url)) {
+      throw new Error(`Reference ${url} not found`)
+    }
+
     const entry = references.value.get(url)!
-    references.value.set(url, { ...entry, status, ...updates })
+
+    references.value.set(url, { ...entry, ...updates })
   }
 
   /**
@@ -117,7 +117,7 @@ export const createExternalReferenceFetcher = ({
    * Handles errors and recursively fetches references.
    */
   const fetchUrl = async (url: string): Promise<void> => {
-    updateFileStatus(url, 'pending')
+    updateReference(url, { status: 'pending' })
 
     try {
       const response = await fetch(url)
@@ -128,9 +128,10 @@ export const createExternalReferenceFetcher = ({
       const text = await response.text()
       const content = normalize(text) as Record<string, unknown>
 
-      updateFileStatus(url, 'fetched', {
+      updateReference(url, {
         content,
         errors: [],
+        status: 'fetched',
       })
 
       numberOfRequests++
@@ -143,11 +144,12 @@ export const createExternalReferenceFetcher = ({
         const chunks = chunkArray(references, concurrencyLimit)
 
         for (const chunk of chunks) {
-          await Promise.all(chunk.map((reference) => addUrl(reference)))
+          await Promise.all(chunk.map((reference) => addReference(reference)))
         }
       }
     } catch (error) {
-      updateFileStatus(url, 'failed', {
+      updateReference(url, {
+        status: 'failed',
         errors: [error instanceof Error ? error : new Error(String(error))],
       })
 
@@ -158,7 +160,7 @@ export const createExternalReferenceFetcher = ({
   /**
    * Adds a new URL to be tracked and optionally fetches it immediately.
    */
-  const addUrl = async (url: string): Promise<void> => {
+  const addReference = async (url: string): Promise<void> => {
     if (references.value.has(url)) {
       const entry = references.value.get(url)!
 
@@ -170,39 +172,33 @@ export const createExternalReferenceFetcher = ({
     }
 
     references.value.set(url, {
-      content: {},
-      status: 'idle',
       url,
+      status: 'idle',
       errors: [],
+      content: {},
     })
 
     await fetchUrl(url)
   }
 
-  /**
-   * Starts the initial fetch and handles eager loading if configured.
-   */
-  const startFetching = async (): Promise<void> => {
-    // Always fetch the initial URL immediately, regardless of strategy
-    await fetchUrl(url)
-  }
-
   // Start fetching immediately
-  startFetching()
+  fetchUrl(url)
 
   /**
-   * Returns a promise that resolves when all pending fetches are complete.
+   * Resolves when all pending fetches are complete.
    */
   const isReady = async (): Promise<void> => {
-    while (true) {
-      const hasPendingFiles = Array.from(references.value.values()).some((file) => file.status === 'pending')
+    return new Promise((resolve) => {
+      watchEffect(() => {
+        const hasPendingRequests = Array.from(references.value.values()).some(
+          (reference) => reference.status === 'pending',
+        )
 
-      if (!hasPendingFiles) {
-        break
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL))
-    }
+        if (!hasPendingRequests) {
+          resolve()
+        }
+      })
+    })
   }
 
   /**
@@ -212,7 +208,7 @@ export const createExternalReferenceFetcher = ({
     return references.value.get(url)
   }
 
-  return { isReady, references, addUrl, getReference }
+  return { isReady, references, addReference, getReference }
 }
 
 /**

@@ -404,7 +404,7 @@ function resolveRef(
   const absoluteUrl = getAbsoluteUrl(origin, filePath)
 
   // Add the URL to be fetched if not already present
-  externalReferences.addUrl(absoluteUrl)
+  externalReferences.addReference(absoluteUrl)
 
   // Get the file if it's already loaded
   const file = externalReferences.getReference(absoluteUrl)
