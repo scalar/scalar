@@ -34,4 +34,28 @@ describe('createMagicProxy', () => {
     const result = createMagicProxy(input) as any
     expect(result.a.b.c.e.prop).toBe('hello')
   })
+
+  test('should correctly proxy multi refs', () => {
+    const input = {
+      a: {
+        b: {
+          c: {
+            prop: 'hello',
+          },
+        },
+      },
+      e: {
+        f: {
+          $ref: '#/a/b/c/prop',
+        },
+      },
+      d: {
+        $ref: '#/e/f',
+      },
+    }
+
+    const result = createMagicProxy(input)
+
+    expect(result.d).toBe('hello')
+  })
 })

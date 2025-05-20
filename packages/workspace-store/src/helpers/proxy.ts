@@ -18,24 +18,33 @@ function createProxyHandler(
 
       const value = Reflect.get(target, property, receiver)
 
-      if (isObject(value)) {
+      /**
+       * Recursively resolves nested references in an object.
+       * If the value is not an object, returns it as is.
+       * If the value has a $ref property:
+       *   - For local references: resolves the reference and continues resolving nested refs
+       *   - For all other objects: creates a proxy for lazy resolution
+       */
+      const deepResolveNestedRefs = (value: unknown) => {
+        if (!isObject(value)) {
+          return value
+        }
+
         if ('$ref' in value) {
           const ref = value.$ref as string
 
-          // We skip resolving refs when they are chunks that needs to be resolved manually
           if (isLocalRef(ref)) {
             const referencePath = parseJsonPointer(ref)
             const resolvedValue = getValueByPath(sourceDocument, referencePath)
-            if (resolvedValue) {
-              return createMagicProxy(resolvedValue as UnknownObject, sourceDocument, resolvedProxyCache)
-            }
+
+            return deepResolveNestedRefs(resolvedValue)
           }
         }
-        // Only pass required arguments
+
         return createMagicProxy(value, sourceDocument, resolvedProxyCache)
       }
 
-      return value
+      return deepResolveNestedRefs(value)
     },
 
     set(target: UnknownObject, property: string, newValue: unknown, receiver: UnknownObject) {
