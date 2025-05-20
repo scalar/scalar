@@ -1,4 +1,5 @@
 import { normalize, traverse } from '@scalar/openapi-parser'
+import { type Ref, ref } from '@vue/reactivity'
 
 // Defaults
 const DEFAULT_CONCURRENCY_LIMIT = 5
@@ -52,10 +53,10 @@ export const createExternalReferenceFetcher = ({
   concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT,
 }: CreateExternalReferenceFetcherOptions) => {
   let numberOfRequests = 0
-  const files = new Map<string, ExternalReference>()
+  const files: Ref<Map<string, ExternalReference>> = ref(new Map())
 
   // Initialize with the first URL
-  files.set(url, {
+  files.value.set(url, {
     content: {},
     status: 'idle',
     references: [],
@@ -71,8 +72,8 @@ export const createExternalReferenceFetcher = ({
     status: ExternalReference['status'],
     updates: Partial<ExternalReference> = {},
   ) => {
-    const entry = files.get(url)!
-    files.set(url, { ...entry, status, ...updates })
+    const entry = files.value.get(url)!
+    files.value.set(url, { ...entry, status, ...updates })
   }
 
   /**
@@ -142,7 +143,7 @@ export const createExternalReferenceFetcher = ({
       })
 
       numberOfRequests++
-      console.log(`✅ #${numberOfRequests} ${url}`)
+      console.log(`✅ fetched #${numberOfRequests}: ${url}`)
     } catch (error) {
       updateFileStatus(url, 'failed', {
         errors: [error instanceof Error ? error : new Error(String(error))],
@@ -155,8 +156,8 @@ export const createExternalReferenceFetcher = ({
    * Adds a new URL to be tracked and optionally fetches it immediately.
    */
   const addUrl = async (url: string): Promise<void> => {
-    if (files.has(url)) {
-      const entry = files.get(url)!
+    if (files.value.has(url)) {
+      const entry = files.value.get(url)!
 
       if (entry.status === 'idle') {
         await fetchUrl(url)
@@ -165,7 +166,7 @@ export const createExternalReferenceFetcher = ({
       return
     }
 
-    files.set(url, {
+    files.value.set(url, {
       content: {},
       status: 'idle',
       references: [],
@@ -173,9 +174,7 @@ export const createExternalReferenceFetcher = ({
       errors: [],
     })
 
-    // if (strategy === 'eager') {
     await fetchUrl(url)
-    // }
   }
 
   /**
@@ -187,7 +186,7 @@ export const createExternalReferenceFetcher = ({
 
     // If strategy is eager, fetch all references as well
     if (strategy === 'eager') {
-      const entry = files.get(url)!
+      const entry = files.value.get(url)!
       const chunks = chunkArray(entry.references, concurrencyLimit)
       for (const chunk of chunks) {
         await Promise.all(chunk.map((reference) => addUrl(reference)))
@@ -202,13 +201,8 @@ export const createExternalReferenceFetcher = ({
    * Returns a promise that resolves when all pending fetches are complete.
    */
   const isReady = async (): Promise<void> => {
-    // TODO: Use @vue/reactivity to track file status changes
     while (true) {
-      const hasPendingFiles = Array.from(files.values()).some(
-        (file) => file.status === 'pending',
-        // idle is fine, we’ll fetch them later
-        //  || file.status === 'idle',
-      )
+      const hasPendingFiles = Array.from(files.value.values()).some((file) => file.status === 'pending')
 
       if (!hasPendingFiles) {
         break

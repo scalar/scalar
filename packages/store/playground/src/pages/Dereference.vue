@@ -23,7 +23,7 @@ watch(
 
     index++
 
-    document.value = (await measure(`dereference ${index}`, async () => {
+    document.value = (await measure('dereference', async () => {
       const { schema } = await dereference(JSON.stringify(value))
       return schema
     })) as OpenAPI.Document
@@ -42,8 +42,11 @@ onMounted(async () => {
   //   return await fetch(EXAMPLE_URL).then((res) => res.json())
   // })
 
-  const response = await fetch(EXAMPLE_URL)
-  const fetchedContent = await response.text()
+  const fetchedContent = await measure('fetch', async () => {
+    const response = await fetch(EXAMPLE_URL)
+    return await response.text()
+  })
+
   // const specification = (await measure('upgrade', async () => {
   //   const { specification: upgraded } = upgrade(fetchedContent)
 
@@ -74,8 +77,8 @@ onMounted(async () => {
   <div class="m-4 max-w-xl">
     <h1 class="mb-4 text-2xl font-bold">dereference</h1>
     <div class="mb-4 flex flex-col gap-4">
-      <p>Dereferencing the document without the paths.</p>
-      <p>And then dereferencing the whole document with the paths.</p>
+      <p>Dereferencing the whole document.</p>
+      <p>Doesn’t support external references.</p>
     </div>
     <OpenApiDocument :document="document" />
     <Timings :timings="timings" />

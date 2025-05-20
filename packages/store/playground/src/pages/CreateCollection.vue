@@ -9,6 +9,7 @@ import {
 } from '@/create-collection-with-external-references'
 
 import OpenApiDocument from '../components/OpenApiDocument.vue'
+import Timings from '../components/Timings.vue'
 import { useTimings } from '../hooks/useTimings'
 
 const EXAMPLE_URL =
@@ -20,7 +21,7 @@ const { timings, measure } = useTimings()
 
 // Heavy work
 onMounted(async () => {
-  await measure('load', async () => {
+  await measure('fetch + load', async () => {
     collection.value = await createCollectionWithExternalReferences(EXAMPLE_URL)
   })
 })
@@ -30,6 +31,7 @@ onMounted(async () => {
     <h1 class="mb-4 text-2xl font-bold">createCollection</h1>
     <div class="mb-4 flex flex-col gap-4">
       <p>Loading the whole document in a magic proxy.</p>
+      <p>Supports external references.</p>
     </div>
 
     <template v-if="collection">
@@ -37,12 +39,6 @@ onMounted(async () => {
     </template>
     <p v-else>Loading workspace…</p>
 
-    <!-- <h2>Stripe (dereferenced)</h2>
-    <template v-if="dereferencedCollection?.openapi">
-      <p>{{ dereferencedCollection.openapi }}</p>
-      <p>{{ dereferencedCollection.info?.title }}</p>
-      <p>{{ Object.keys(dereferencedCollection.paths ?? {}).length }} paths</p>
-    </template>
-    <p v-else>Dereferencing...</p> -->
+    <Timings :timings="timings" />
   </div>
 </template>
