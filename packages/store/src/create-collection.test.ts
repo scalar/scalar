@@ -438,6 +438,51 @@ describe('create-collection', () => {
       expect(externalReferences.getReference('https://example.com/foobar/components.yaml')?.status).toBe('fetched')
       expect(externalReferences.getReference('https://example.com/barfoo.yaml')?.status).toBe('fetched')
     })
+
+    it('fetches the description', async () => {
+      // Mock fetch to return a static OpenAPI document with external references
+      global.fetch = vi.fn().mockImplementation((url: string) => {
+        if (url === 'https://example.com/openapi.yaml') {
+          return Promise.resolve({
+            ok: true,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  openapi: '3.1.1',
+                  info: {
+                    title: 'Test API',
+                    version: '1.0.0',
+                    description: {
+                      $ref: 'description.yml#/introduction',
+                    },
+                  },
+                  paths: {},
+                }),
+              ),
+          })
+        }
+
+        if (url === 'https://example.com/description.yml') {
+          return Promise.resolve({
+            ok: true,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  introduction: 'This is a test description',
+                }),
+              ),
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+
+      const collection = await createCollection({
+        url: 'https://example.com/openapi.yaml',
+      })
+
+      expect(collection.document.info?.description).toBe('This is a test description')
+    })
   })
 
   describe('write', () => {
