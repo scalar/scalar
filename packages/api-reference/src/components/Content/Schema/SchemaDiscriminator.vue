@@ -64,12 +64,12 @@ const getModelNameFromSchema = (schema: any): string | null => {
     return null
   }
 
-  if (schema.name) {
-    return schema.name
-  }
-
   if (schema.title) {
     return schema.title
+  }
+
+  if (schema.name) {
+    return schema.name
   }
 
   // returns a matching schema name based on the schema object

@@ -2,6 +2,11 @@ import { Scalar, apiReference } from './scalar'
 import { Hono } from 'hono'
 import { describe, expect, it } from 'vitest'
 
+type Bindings = {
+  SOME_VAR: string
+  ENVIRONMENT: string
+}
+
 describe('apiReference', () => {
   it('returns HTML with default theme CSS when theme is not provided', async () => {
     const app = new Hono()
@@ -188,5 +193,74 @@ describe('apiReference', () => {
     expect(text).toContain('https://cdn.example.com')
     expect(text).toContain('Test API')
     expect(text).toContain('--scalar-color-1: #2a2f45;')
+  })
+
+  it('works with config resolver', async () => {
+    const app = new Hono<{ Bindings: Bindings }>()
+    // mock env
+    app.use('*', (c, next) => {
+      c.env = { SOME_VAR: 'SOME_VAR', ENVIRONMENT: 'development' }
+      return next()
+    })
+
+    const config = { content: { info: { title: 'Test API' } } }
+
+    app.get(
+      '/',
+      Scalar<{ Bindings: Bindings }>((c) => {
+        expect(c.env.SOME_VAR).toBe('SOME_VAR')
+        expect(c.env.ENVIRONMENT).toBe('development')
+        return {
+          ...config,
+          proxyUrl: c.env.ENVIRONMENT === 'development' ? 'https://proxy.scalar.com' : undefined,
+        }
+      }),
+    )
+
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    const text = await response.text()
+    expect(text).toContain('<title>Scalar API Reference</title>')
+    expect(text).toContain('Test API')
+    expect(text).toContain('https://proxy.scalar.com')
+  })
+
+  it('works with config resolver (async)', async () => {
+    const app = new Hono<{ Bindings: Bindings }>()
+    // mock env
+    app.use('*', (c, next) => {
+      c.env = { SOME_VAR: 'SOME_VAR', ENVIRONMENT: 'development' }
+      return next()
+    })
+
+    const config = { content: { info: { title: 'Test API' } } }
+
+    const getTheme = async (): Promise<'deepSpace' | 'laserwave'> => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve('deepSpace')
+        }, 100)
+      })
+    }
+
+    app.get(
+      '/',
+      Scalar<{ Bindings: Bindings }>(async (c) => {
+        expect(c.env.SOME_VAR).toBe('SOME_VAR')
+        expect(c.env.ENVIRONMENT).toBe('development')
+
+        const theme = await getTheme()
+        return { ...config, theme }
+      }),
+    )
+
+    const response = await app.request('/')
+    expect(response.status).toBe(200)
+    expect(response.headers.get('content-type')).toContain('text/html')
+    const text = await response.text()
+    expect(text).toContain('<title>Scalar API Reference</title>')
+    expect(text).toContain('Test API')
+    expect(text).toContain('deepSpace')
   })
 })
