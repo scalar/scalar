@@ -95,7 +95,7 @@ export const createRequestOperation = ({
       })
     })
 
-    const _urlParams = createFetchQueryParams(example, env)
+    const _urlParams = createFetchQueryParams(example, env, request)
     const _headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
     const { cookieParams: _cookieParams } = setRequestCookies({
