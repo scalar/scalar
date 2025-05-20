@@ -14,7 +14,7 @@ export function parseJsonPointer(pointer: string): string[] {
       // Split on '/'
       .split('/')
       // Remove the leading '#' if present
-      .filter((segment, index) => index !== 0 || segment !== '#')
+      .filter((segment, index) => (index !== 0 || segment !== '#') && segment)
   )
 }
 

@@ -1,8 +1,61 @@
-import { createServerWorkspaceStore } from '@/create-server-workspace-store'
+import { createServerWorkspaceStore, WORKSPACE_FILE_NAME } from '@/create-server-workspace-store'
 import { createWorkspaceStore } from '@/create-workspace-store'
 import { beforeEach, describe, expect, test } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach } from 'node:test'
+import { cwd } from 'node:process'
+import fs from 'node:fs/promises'
+import type { Workspace } from '@/schemas/server-workspace'
+
+// Test document
+const document = {
+  openapi: '3.0.0',
+  info: { title: 'My API' },
+  components: {
+    schemas: {
+      User: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            description: 'The user ID',
+          },
+          name: {
+            type: 'string',
+            description: 'The user name',
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            description: 'The user email',
+          },
+        },
+      },
+    },
+  },
+  paths: {
+    '/users': {
+      get: {
+        summary: 'Get all users',
+        responses: {
+          '200': {
+            description: 'Successful response',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/components/schemas/User',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
 
 describe('create-workspace-store', () => {
   let server: FastifyInstance
@@ -186,56 +239,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  test('should correctly resolve chunks', async () => {
-    const document = {
-      openapi: '3.0.0',
-      info: { title: 'My API' },
-      components: {
-        schemas: {
-          User: {
-            type: 'object',
-            properties: {
-              id: {
-                type: 'string',
-                description: 'The user ID',
-              },
-              name: {
-                type: 'string',
-                description: 'The user name',
-              },
-              email: {
-                type: 'string',
-                format: 'email',
-                description: 'The user email',
-              },
-            },
-          },
-        },
-      },
-      paths: {
-        '/users': {
-          get: {
-            summary: 'Get all users',
-            responses: {
-              '200': {
-                description: 'Successful response',
-                content: {
-                  'application/json': {
-                    schema: {
-                      type: 'array',
-                      items: {
-                        $ref: '#/components/schemas/User',
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    }
-
+  test('should correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
       const path = (req.query as { path: string }).path
       const contents = serverStore.get(path)
@@ -284,5 +288,61 @@ describe('create-workspace-store', () => {
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
         .items,
     ).toEqual(document.components.schemas.User)
+  })
+
+  test('should correctly resolve chunks from the file system', { timeout: 500000 }, async () => {
+    const randomSeed = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
+    const path = `temp-${randomSeed()}`
+
+    const serverStore = createServerWorkspaceStore({
+      mode: 'static',
+      directory: path,
+      documents: [
+        {
+          name: 'default',
+          document: document,
+        },
+      ],
+    })
+
+    await serverStore.generateWorkspaceChunks()
+
+    const buildPath = `${cwd()}/${path}`
+
+    // Read the workspace file to get the sparse document
+    const workspace = JSON.parse(
+      await fs.readFile(`${buildPath}/${WORKSPACE_FILE_NAME}`, { encoding: 'utf-8' }),
+    ) as Workspace
+
+    const store = createWorkspaceStore({
+      documents: [
+        {
+          name: 'default',
+          document: workspace.documents['default'],
+        },
+      ],
+    })
+
+    // The operation should not be resolved on the fly
+    expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
+      '$ref': `${path}/chunks/default/operations/~1users/get.json/#`,
+    })
+
+    // We resolve the ref
+    await store.resolve(['paths', '/users', 'get'])
+
+    // We expect the ref to have been resolved with the correct contents
+    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
+
+    // We should resolve the user component chunk
+    await store.resolve(['components', 'schemas', 'User'])
+
+    expect(
+      (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
+        .items,
+    ).toEqual(document.components.schemas.User)
+
+    // clean up generated files
+    await fs.rm(`${cwd()}/${path}`, { recursive: true })
   })
 })

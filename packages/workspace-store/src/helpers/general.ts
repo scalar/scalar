@@ -1,3 +1,4 @@
+import { getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
 import fs from 'node:fs/promises'
 
 export type UnknownObject = Record<string, unknown>
@@ -103,7 +104,16 @@ export async function resolveRef(value: string) {
   }
 
   if (isFileSystemRef(value)) {
-    return readLocalFile(value)
+    const [path, pointer] = value.split('/#')
+    const result = await readLocalFile(path)
+
+    if (result.ok) {
+      return {
+        ok: true,
+        data: getValueByPath(result.data, parseJsonPointer(pointer)),
+      }
+    }
+    return result
   }
 
   return { ok: false } as const

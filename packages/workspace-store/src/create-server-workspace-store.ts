@@ -6,7 +6,7 @@ import { cwd } from 'node:process'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
-const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
+export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
 type CreateServerWorkspaceStore =
   | {
