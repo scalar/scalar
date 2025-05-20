@@ -64,6 +64,7 @@ useFavicon(favicon)
     <template #document-selector>
       <slot name="document-selector" />
     </template>
+    <template #sidebar-start><slot name="sidebar-start" /></template>
   </Layouts>
 </template>
 <style>

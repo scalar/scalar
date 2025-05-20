@@ -49,6 +49,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",

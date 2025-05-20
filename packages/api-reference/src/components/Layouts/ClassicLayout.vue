@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarColorModeToggleIcon } from '@scalar/components'
+import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
@@ -31,7 +32,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
     @updateContent="$emit('updateContent', $event)">
     <!-- Expose all layout slots upwards -->
     <template
-      v-for="(_, name) in slots"
+      v-for="name in getObjectKeys(slots)"
       #[name]="slotProps">
       <slot
         :name="name"

@@ -3,8 +3,6 @@ import { htmlFromMarkdown } from '@scalar/code-highlight'
 import { cx } from '@scalar/use-hooks/useBindCx'
 import { computed, onServerPrefetch } from 'vue'
 
-import { sleep } from '../../helpers/oas-utils'
-
 const props = withDefaults(
   defineProps<{
     value?: string
@@ -28,7 +26,7 @@ const html = computed(() =>
 )
 
 // SSR hack - waits for the watch to complete
-onServerPrefetch(async () => await sleep(1))
+onServerPrefetch(async () => await new Promise((r) => setTimeout(r, 1)))
 </script>
 <template>
   <div
