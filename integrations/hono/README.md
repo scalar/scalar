@@ -28,6 +28,14 @@ const app = new Hono()
 // Use the middleware to serve the Scalar API Reference at /scalar
 app.get('/scalar', Scalar({ url: '/doc' }))
 
+// Or with dynamic configuration
+app.get('/scalar', Scalar((c) => {
+  return {
+    url: '/doc',
+    proxyUrl: c.env.ENVIRONMENT === 'development' ? 'https://proxy.scalar.com' : undefined,
+  }
+}))
+
 export default app
 ```
 
