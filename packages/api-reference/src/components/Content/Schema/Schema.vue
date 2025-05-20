@@ -320,7 +320,7 @@ button.schema-card-title:hover {
   .property--level-1 {
   padding: 0 0 8px;
 }
-:not(.discriminator-panel)
+:not(.composition-panel)
   > .schema-card--compact.schema-card--level-0
   > .schema-properties {
   border: none;

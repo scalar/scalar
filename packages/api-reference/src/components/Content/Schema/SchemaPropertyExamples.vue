@@ -7,7 +7,6 @@ import { formatExample } from '@/components/Content/Schema/helpers/formatExample
 defineProps<{
   examples?: Record<string, unknown>
   example?: unknown
-  discriminatorType?: string
 }>()
 
 const { copyToClipboard } = useClipboard()

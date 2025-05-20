@@ -12,13 +12,13 @@ import { computed, ref } from 'vue'
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
 
 import {
-  hasDiscriminator,
-  type DiscriminatorType,
-} from './helpers/schema-discriminator'
+  hasComposition,
+  type CompositionKeyword,
+} from './helpers/schema-composition'
 import Schema from './Schema.vue'
 
-const { schemas, value, discriminator } = defineProps<{
-  discriminator: DiscriminatorType
+const { schemas, value, composition } = defineProps<{
+  composition: CompositionKeyword
   schemas?:
     | OpenAPIV2.DefinitionsObject
     | Record<string, OpenAPIV3.SchemaObject>
@@ -34,7 +34,7 @@ const { schemas, value, discriminator } = defineProps<{
 const selectedIndex = ref(0)
 
 const listboxOptions = computed(() =>
-  schemaDiscriminators.value.map((schema: any, index: number) => ({
+  schemaComposition.value.map((schema: any, index: number) => ({
     id: String(index),
     label: getModelNameFromSchema(schema) || 'Schema',
   })),
@@ -48,14 +48,14 @@ const selectedOption = computed({
   set: (opt: ScalarListboxOption) => (selectedIndex.value = Number(opt.id)),
 })
 
-/** Check if the discriminator is oneOf or anyOf or allOf with nested discriminators */
-const hasNestedDiscriminator = computed(() => {
-  const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(discriminator)
-  const hasNestedDiscriminator =
-    discriminator === 'allOf' &&
-    value[discriminator]?.some((schema: any) => hasDiscriminator(schema))
+/** Check if the composition keyword is oneOf or anyOf or allOf with nested composition keywords */
+const hasNestedComposition = computed(() => {
+  const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(composition)
+  const hasNestedComposition =
+    composition === 'allOf' &&
+    value[composition]?.some((schema: any) => hasComposition(schema))
 
-  return isOneOfOrAnyOf || hasNestedDiscriminator
+  return isOneOfOrAnyOf || hasNestedComposition
 })
 
 /** Get model name from schema */
@@ -101,22 +101,22 @@ const getModelNameFromSchema = (schema: any): string | null => {
   return null
 }
 
-const getSchemaWithDiscriminator = (schemas: any[]) => {
-  return schemas.find((schema: any) => hasDiscriminator(schema))
+const getSchemaWithComposition = (schemas: any[]) => {
+  return schemas.find((schema: any) => hasComposition(schema))
 }
 
-const schemaDiscriminators = computed(() => {
-  const schemaDiscriminator = getSchemaWithDiscriminator(value[discriminator])
+const schemaComposition = computed(() => {
+  const schemaComposition = getSchemaWithComposition(value[composition])
 
-  if (!schemaDiscriminator) {
-    return value[discriminator]
+  if (!schemaComposition) {
+    return value[composition]
   }
 
-  // Get schema with nested discriminators
-  const schemaNestedDiscriminators =
-    schemaDiscriminator.oneOf || schemaDiscriminator.anyOf
+  // Get schema with nested composition
+  const schemaNestedComposition =
+    schemaComposition.oneOf || schemaComposition.anyOf
 
-  return schemaNestedDiscriminators.map((schema: any) => {
+  return schemaNestedComposition.map((schema: any) => {
     if (schema.allOf) {
       const titledSchema = schema.allOf.find((s: any) => s.title)
       const referencedSchema = schema.allOf.find((s: any) => !s.title)
@@ -142,16 +142,16 @@ const schemaDiscriminators = computed(() => {
   })
 })
 
-/** Humanizes discriminator type name e.g. oneOf -> One of */
-const humanizeType = (type: DiscriminatorType) => {
+/** Humanizes composition keyword name e.g. oneOf -> One of */
+const humanizeType = (type: CompositionKeyword) => {
   if (type === 'allOf') {
-    const schemaWithDiscriminator = value?.[type]?.find((schema: any) =>
-      hasDiscriminator(schema),
+    const schemaWithComposition = value?.[type]?.find((schema: any) =>
+      hasComposition(schema),
     )
-    if (schemaWithDiscriminator?.oneOf) {
+    if (schemaWithComposition?.oneOf) {
       return 'One of'
     }
-    if (schemaWithDiscriminator?.anyOf) {
+    if (schemaWithComposition?.anyOf) {
       return 'Any of'
     }
   }
@@ -163,20 +163,20 @@ const humanizeType = (type: DiscriminatorType) => {
     .replace(/^(\w)/, (c) => c.toUpperCase())
 }
 
-/** Get current schema */
-const discriminatorSchema = computed(
-  () => schemaDiscriminators.value[selectedIndex.value],
+/** Get current composition schema */
+const compositionSchema = computed(
+  () => schemaComposition.value[selectedIndex.value],
 )
 
-/** Return current discriminator type */
-const discriminatorType = computed<DiscriminatorType>(() => {
-  return discriminatorSchema.value?.oneOf ? 'oneOf' : 'anyOf'
+/** Return current composition keyword */
+const compositionType = computed<CompositionKeyword>(() => {
+  return compositionSchema.value?.oneOf ? 'oneOf' : 'anyOf'
 })
 
-/** Return current schema's discriminator value */
-const discriminatorValue = computed(() => {
-  const type = discriminatorType.value
-  return discriminatorSchema.value?.[type]
+/** Return current schema's composition value */
+const compositionValue = computed(() => {
+  const type = compositionType.value
+  return compositionSchema.value?.[type]
 })
 </script>
 
@@ -184,11 +184,11 @@ const discriminatorValue = computed(() => {
   <div class="property-rule">
     <template
       v-if="
-        discriminator === 'allOf' &&
-        value[discriminator].some((schema: any) => schema.oneOf || schema.anyOf)
+        composition === 'allOf' &&
+        value[composition].some((schema: any) => schema.oneOf || schema.anyOf)
       ">
       <Schema
-        v-for="(schema, index) in value[discriminator].filter(
+        v-for="(schema, index) in value[composition].filter(
           (s: any) => !s.oneOf && !s.anyOf,
         )"
         :key="index"
@@ -201,29 +201,29 @@ const discriminatorValue = computed(() => {
     </template>
 
     <!-- Tabs -->
-    <template v-if="hasNestedDiscriminator">
+    <template v-if="hasNestedComposition">
       <ScalarListbox
         v-model="selectedOption"
         :options="listboxOptions"
         resize>
         <button
-          class="discriminator-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
+          class="composition-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
           type="button">
-          <span class="text-c-2">{{ humanizeType(discriminator) }}</span>
-          <span class="discriminator-selector-label text-c-1 relative">
+          <span class="text-c-2">{{ humanizeType(composition) }}</span>
+          <span class="composition-selector-label text-c-1 relative">
             {{ selectedOption?.label || 'Schema' }}
           </span>
           <ScalarIconCaretDown class="z-1" />
         </button>
       </ScalarListbox>
-      <div class="discriminator-panel">
+      <div class="composition-panel">
         <div
-          v-if="discriminatorSchema?.description"
+          v-if="compositionSchema?.description"
           class="property-description border-x border-t p-2">
-          <ScalarMarkdown :value="discriminatorSchema.description" />
+          <ScalarMarkdown :value="compositionSchema.description" />
         </div>
         <Schema
-          v-if="discriminatorSchema?.properties"
+          v-if="compositionSchema?.properties"
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
@@ -232,21 +232,20 @@ const discriminatorValue = computed(() => {
           :schemas="schemas"
           :value="{
             type: 'object',
-            properties: discriminatorSchema.properties,
+            properties: compositionSchema.properties,
           }" />
         <!-- Nested tabs -->
-        <template
-          v-if="discriminatorSchema?.oneOf || discriminatorSchema?.anyOf">
-          <SchemaDiscriminator
+        <template v-if="compositionSchema?.oneOf || compositionSchema?.anyOf">
+          <SchemaComposition
             :compact="compact"
-            :discriminator="discriminatorType"
+            :composition="compositionType"
             :hideHeading="hideHeading"
             :level="level + 1"
             :name="name"
             :noncollapsible="true"
             :schemas="schemas"
             :value="{
-              [discriminatorType]: discriminatorValue,
+              [compositionType]: compositionValue,
             }" />
         </template>
       </div>
@@ -258,7 +257,7 @@ const discriminatorValue = computed(() => {
         :name="name"
         :noncollapsible="level != 0 ? false : true"
         :schemas="schemas"
-        :value="mergeAllOfSchemas(value[discriminator])" />
+        :value="mergeAllOfSchemas(value[composition])" />
     </template>
   </div>
 </template>
