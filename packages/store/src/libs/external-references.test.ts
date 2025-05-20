@@ -66,6 +66,71 @@ describe('external-references', () => {
         expect(getReference('https://example.com/components.yaml')?.status).toBe('fetched')
       })
 
+      it('fetches references in references', async () => {
+        // Mock fetch to return a static OpenAPI document with external references
+        global.fetch = vi.fn().mockImplementation((url: string) => {
+          if (url === 'https://example.com/foobar/openapi.yaml') {
+            return Promise.resolve({
+              ok: true,
+              text: () =>
+                Promise.resolve(
+                  JSON.stringify({
+                    openapi: '3.1.1',
+                    info: {
+                      title: 'Test API',
+                      version: '1.0.0',
+                    },
+                    paths: {
+                      '/test': {
+                        get: {
+                          $ref: 'components.yaml#/components/schemas/Test',
+                        },
+                      },
+                    },
+                  }),
+                ),
+            })
+          }
+
+          if (url === 'https://example.com/foobar/components.yaml') {
+            return Promise.resolve({
+              ok: true,
+              text: () =>
+                Promise.resolve(
+                  JSON.stringify({
+                    components: {
+                      schemas: {
+                        Test: {
+                          $ref: '../barfoo.yaml#/components/schemas/Test',
+                        },
+                      },
+                    },
+                  }),
+                ),
+            })
+          }
+
+          if (url === 'https://example.com/barfoo.yaml') {
+            return Promise.resolve({
+              ok: true,
+              text: () => Promise.resolve(JSON.stringify({ components: { schemas: { Test: { type: 'object' } } } })),
+            })
+          }
+
+          return Promise.reject(new Error(`Unexpected URL: ${url}`))
+        })
+
+        const { isReady, getReference } = createExternalReferenceFetcher({
+          url: 'https://example.com/foobar/openapi.yaml',
+        })
+
+        await isReady()
+
+        expect(getReference('https://example.com/foobar/openapi.yaml')?.status).toBe('fetched')
+        expect(getReference('https://example.com/foobar/components.yaml')?.status).toBe('fetched')
+        expect(getReference('https://example.com/barfoo.yaml')?.status).toBe('fetched')
+      })
+
       it('handles lazy loading strategy', async () => {
         const mockFetch = vi.fn().mockImplementation((url: string) => {
           if (url === 'https://example.com/openapi.yaml') {

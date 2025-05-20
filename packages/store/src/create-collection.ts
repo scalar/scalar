@@ -351,18 +351,14 @@ function resolveRef(
   origin?: string,
 ): UnknownObject | undefined {
   // Internal references
-  // @example #/components/schemas/User
   if (ref.startsWith('#')) {
     const referencePath = parseJsonPointer(ref)
     return getValueByPath(sourceDocument, referencePath)
   }
 
   // External references
-  // @example ./externalRef.json#/components/schemas/User
   if (!origin || !externalReferences) {
-    // TODO: Actually, an origin isn't necessary if it's an absolute URL
     console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
-
     return undefined
   }
 
@@ -377,14 +373,11 @@ function resolveRef(
   const file = externalReferences.getReference(absoluteUrl)
 
   if (!file) {
-    // File wasn't added added (how could that even happen? but this will help TypeScript)
-    // TODO: We might want to add an error here?
     return undefined
   }
 
   // Resolve the pointer within the external file
   const referencePath = parseJsonPointer(pointer)
-
   return getValueByPath(file.content, referencePath)
 }
 
@@ -401,16 +394,18 @@ function createMagicProxy(
   // Handle arrays
   if (Array.isArray(target)) {
     return target.map((item) => {
-      // If the item is an object with a $ref, resolve it first
       if (isObject(item) && '$ref' in item) {
         const ref = item.$ref as string
         const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
         if (resolvedValue) {
-          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, origin)
+          // Calculate the new origin based on the resolved reference
+          const [filePath] = ref.split('#')
+          const newOrigin = getAbsoluteUrl(origin || '', filePath)
+          // Pass the new origin for nested references
+          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
         return item
       }
-      // For other objects and arrays, create a proxy if they contain $refs
       return isObject(item) || Array.isArray(item)
         ? createMagicProxy(item, sourceDocument, externalReferences, origin)
         : item
@@ -451,8 +446,11 @@ function createMagicProxy(
         const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
 
         if (resolvedValue) {
-          // Create a proxy for the resolved value
-          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, origin)
+          // Calculate the new origin based on the resolved reference
+          const [filePath] = ref.split('#')
+          const newOrigin = getAbsoluteUrl(origin || '', filePath)
+          // Pass the new origin for nested references
+          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
         // If resolvedValue is undefined (external file not loaded yet),
         // return the original value with $ref - it will be re-evaluated when the file loads

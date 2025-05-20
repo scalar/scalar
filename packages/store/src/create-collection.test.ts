@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createCollection } from './create-collection'
 
 describe('create-collection', () => {
@@ -370,6 +370,73 @@ describe('create-collection', () => {
           },
         },
       ])
+    })
+  })
+
+  describe('external references', () => {
+    it('fetches references in references', async () => {
+      // Mock fetch to return a static OpenAPI document with external references
+      global.fetch = vi.fn().mockImplementation((url: string) => {
+        if (url === 'https://example.com/foobar/openapi.yaml') {
+          return Promise.resolve({
+            ok: true,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  openapi: '3.1.1',
+                  info: {
+                    title: 'Test API',
+                    version: '1.0.0',
+                  },
+                  paths: {
+                    '/test': {
+                      get: {
+                        $ref: 'components.yaml#/components/schemas/Test',
+                      },
+                    },
+                  },
+                }),
+              ),
+          })
+        }
+
+        if (url === 'https://example.com/foobar/components.yaml') {
+          return Promise.resolve({
+            ok: true,
+            text: () =>
+              Promise.resolve(
+                JSON.stringify({
+                  components: {
+                    schemas: {
+                      Test: {
+                        $ref: '../barfoo.yaml#/components/schemas/Test',
+                      },
+                    },
+                  },
+                }),
+              ),
+          })
+        }
+
+        if (url === 'https://example.com/barfoo.yaml') {
+          return Promise.resolve({
+            ok: true,
+            text: () => Promise.resolve(JSON.stringify({ components: { schemas: { Test: { type: 'object' } } } })),
+          })
+        }
+
+        return Promise.reject(new Error(`Unexpected URL: ${url}`))
+      })
+
+      const collection = await createCollection({
+        url: 'https://example.com/foobar/openapi.yaml',
+      })
+
+      const { externalReferences } = collection
+
+      expect(externalReferences.getReference('https://example.com/foobar/openapi.yaml')?.status).toBe('fetched')
+      expect(externalReferences.getReference('https://example.com/foobar/components.yaml')?.status).toBe('fetched')
+      expect(externalReferences.getReference('https://example.com/barfoo.yaml')?.status).toBe('fetched')
     })
   })
 
