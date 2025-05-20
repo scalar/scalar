@@ -7,7 +7,7 @@ import { LicenseObject } from './license'
  */
 export const InfoObject = Type.Object({
   /** REQUIRED. The title of the API. */
-  title: Type.String(),
+  title: Type.String({ default: 'API' }),
   /** A short summary of the API. */
   summary: Type.Optional(Type.String()),
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
