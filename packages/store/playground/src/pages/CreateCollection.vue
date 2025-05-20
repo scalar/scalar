@@ -14,9 +14,9 @@ const collection = ref<Collection | undefined>(undefined)
 
 onMounted(async () => {
   await measure('fetch + load', async () => {
-    collection.value = await createCollection(
-      'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
-    )
+    collection.value = await createCollection({
+      url: 'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
+    })
   })
 })
 </script>

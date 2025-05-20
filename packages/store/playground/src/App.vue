@@ -17,13 +17,6 @@
       </li>
       <li>
         <RouterLink
-          :to="{ name: 'external-references' }"
-          class="underline">
-          External References
-        </RouterLink>
-      </li>
-      <li>
-        <RouterLink
           :to="{ name: 'circular-reference' }"
           class="underline">
           Circular Reference

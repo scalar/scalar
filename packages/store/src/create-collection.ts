@@ -21,7 +21,7 @@ const refProxyCache = new WeakMap<object, unknown>()
  *
  * TODO: Make it work with not just URLs
  */
-export async function createCollection({ url, content: providedContent }: { url: string; content: string }) {
+export async function createCollection({ url, content: providedContent }: { url?: string; content?: string }) {
   const externalReferences = createExternalReferenceFetcher({
     url,
     content: providedContent,
@@ -118,6 +118,7 @@ export async function createCollection({ url, content: providedContent }: { url:
     update(newDocument: UnknownObject) {
       return mergeDocuments(reactiveRoot, newDocument)
     },
+    externalReferences,
   }
 }
 

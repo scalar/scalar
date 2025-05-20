@@ -1,8 +1,16 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: JSONValue }
+  | JSONValue[]
+
 const props = defineProps<{
-  value: unknown
+  value: JSONValue
   path?: string
   depth?: number
 }>()
@@ -11,29 +19,46 @@ const isExpanded = ref(false)
 const seen = new WeakSet()
 
 const type = computed(() => {
-  if (props.value === null) return 'null'
-  if (Array.isArray(props.value)) return 'array'
+  if (props.value === null) {
+    return 'null'
+  }
+  if (Array.isArray(props.value)) {
+    return 'array'
+  }
   return typeof props.value
 })
 
 const isExpandable = computed(() => {
-  if (props.value === null) return false
-  if (Array.isArray(props.value)) return props.value.length > 0
+  if (props.value === null) {
+    return false
+  }
+  if (Array.isArray(props.value)) {
+    return props.value.length > 0
+  }
   return (
     type.value === 'object' && Object.keys(props.value as object).length > 0
   )
 })
 
 const toggleExpand = () => {
-  if (!isExpandable.value) return
+  if (!isExpandable.value) {
+    return
+  }
   isExpanded.value = !isExpanded.value
 }
 
-const getValueDisplay = (value: unknown): string => {
-  if (value === null) return 'null'
-  if (typeof value === 'string') return `"${value}"`
+const getValueDisplay = (value: JSONValue): string => {
+  if (value === null) {
+    return 'null'
+  }
+  if (typeof value === 'string') {
+    return `"${value}"`
+  }
   if (typeof value === 'object') {
-    if (Array.isArray(value)) return `[${value.length} items]`
+    if (Array.isArray(value)) {
+      return `[${value.length} items]`
+    }
+
     return `{${Object.keys(value as object).length} keys}`
   }
   return String(value)

@@ -38,38 +38,14 @@ onMounted(async () => {
   const EXAMPLE_URL =
     'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml'
 
-  // const fetchedContent = await measure('fetch', async () => {
-  //   return await fetch(EXAMPLE_URL).then((res) => res.json())
-  // })
-
   const fetchedContent = await measure('fetch', async () => {
     const response = await fetch(EXAMPLE_URL)
     return await response.text()
   })
 
-  // const specification = (await measure('upgrade', async () => {
-  //   const { specification: upgraded } = upgrade(fetchedContent)
+  const { specification: document } = upgrade(fetchedContent)
 
-  //   return upgraded
-  // })) as OpenAPI.Document
-  const { specification } = upgrade(fetchedContent)
-
-  // Add everything but the paths
-  const { paths, ...rest } = specification
-
-  content.value = {
-    ...rest,
-    paths: {},
-  }
-
-  // Simulate a slow network
-  // await new Promise((resolve) => setTimeout(resolve, 1000))
-
-  // Add the paths back in
-  content.value = {
-    ...content.value,
-    paths: specification.paths,
-  }
+  content.value = document
 })
 </script>
 
