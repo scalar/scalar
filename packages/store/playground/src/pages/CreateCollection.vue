@@ -1,28 +1,22 @@
 <script setup lang="ts">
-import { upgrade } from '@scalar/openapi-parser'
-import { computed, ref, toRaw } from '@vue/reactivity'
+import { ref } from '@vue/reactivity'
 import { onMounted } from 'vue'
 
-import {
-  createCollectionWithExternalReferences,
-  type Collection,
-} from '@/create-collection-with-external-references'
+import { createCollection, type Collection } from '@/create-collection'
 
 import OpenApiDocument from '../components/OpenApiDocument.vue'
 import Timings from '../components/Timings.vue'
 import { useTimings } from '../hooks/useTimings'
 
-const EXAMPLE_URL =
-  'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml'
+const { timings, measure } = useTimings()
 
 const collection = ref<Collection | undefined>(undefined)
 
-const { timings, measure } = useTimings()
-
-// Heavy work
 onMounted(async () => {
   await measure('fetch + load', async () => {
-    collection.value = await createCollectionWithExternalReferences(EXAMPLE_URL)
+    collection.value = await createCollection(
+      'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
+    )
   })
 })
 </script>

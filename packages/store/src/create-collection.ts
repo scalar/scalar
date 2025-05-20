@@ -1,25 +1,14 @@
-import { normalize, unescapeJsonPointer } from '@scalar/openapi-parser'
-import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
-import type {
-  OpenApiObject as UnprocessedOpenApiObject,
-  // OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
-} from '@scalar/openapi-types/schemas/3.1/unprocessed'
-import { type Ref, isRef, reactive, toRaw, watch } from '@vue/reactivity'
+import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-references'
+import type { UnknownObject } from '@/types'
+import { unescapeJsonPointer } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
+// import type {
+//   OpenApiObject as UnprocessedOpenApiObject,
+//   OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
+// } from '@scalar/openapi-types/schemas/3.1/unprocessed'
+import { reactive, toRaw } from '@vue/reactivity'
 
-export type Collection = ReturnType<typeof createCollection>
-
-type UnknownObject = Record<string, unknown>
-
-export type CreateCollectionOptions = {
-  /**
-   * Whether to cache the resolved references
-   *
-   * @default false
-   *
-   * @deprecated This will probably be removed in the future.
-   */
-  cache?: boolean
-}
+export type Collection = Awaited<ReturnType<typeof createCollection>>
 
 // Cache for proxies of objects that contain $refs
 const refProxyCache = new WeakMap<object, unknown>()
@@ -29,56 +18,74 @@ const refProxyCache = new WeakMap<object, unknown>()
  *
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
+ *
+ * TODO: Make it work with not just URLs
  */
-export function createCollection(input: UnknownObject | string | Ref<UnknownObject | string>) {
-  // Unwrap Ref input if necessary
-  let unwrappedInput = isRef(input) ? input.value : input
+export async function createCollection(url: string) {
+  const externalReferences = createExternalReferenceFetcher({
+    url,
+    // Only load the base document, load external references only when needed
+    strategy: 'lazy',
+  })
 
-  // If input is a string (from Ref or direct), normalize it
-  if (typeof unwrappedInput === 'string') {
-    unwrappedInput = normalize(unwrappedInput) as UnknownObject
+  // Wait until the first file is loaded
+  await externalReferences.isReady()
+
+  if (externalReferences.getReference(url)?.status !== 'fetched') {
+    throw new Error('Failed to fetch OpenAPI document', { cause: externalReferences.getReference(url)?.errors })
   }
 
-  const content = unwrappedInput
+  const { content } = externalReferences.getReference(url)!
+
+  // TODO: Make this work with
+  // // Unwrap Ref input if necessary
+  // let unwrappedInput = isRef(input) ? input.value : input
+
+  // // If input is a string (from Ref or direct), normalize it
+  // if (typeof unwrappedInput === 'string') {
+  //   unwrappedInput = normalize(unwrappedInput) as UnknownObject
+  // }
+
+  // const content = unwrappedInput
 
   // Only create a cache if cache is true
   // const resolvedProxyCache = cache ? new WeakMap() : undefined
 
   // If input is a Ref<UnknownObject>, use its value directly as the source document
-  if (isRef(input) && isObject(input.value)) {
-    // Make the root document reactive
-    const reactiveRoot = reactive(input.value)
-    return {
-      document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
-      export: () => exportRawDocument(unwrappedInput) as UnprocessedOpenApiObject,
-      apply,
-      merge: (partialDocument: UnknownObject) => {
-        mergeDocuments(reactiveRoot, partialDocument)
-      },
-      update: (newDocument: UnknownObject) => {
-        updateDocument(reactiveRoot, newDocument)
-      },
-    }
-  }
+  // if (isRef(input) && isObject(input.value)) {
+  //   // Make the root document reactive
+  //   const reactiveRoot = reactive(input.value)
+  //   return {
+  //     document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
+  //     export: () => exportRawDocument(content) as UnprocessedOpenApiObject,
+  //     apply,
+  //     merge: (partialDocument: UnknownObject) => {
+  //       mergeDocuments(reactiveRoot, partialDocument)
+  //     },
+  //     update: (newDocument: UnknownObject) => {
+  //       updateDocument(reactiveRoot, newDocument)
+  //     },
+  //   }
+  // }
 
   // Make the root document reactive
   const reactiveRoot = reactive(content)
 
   // If input is a Ref<string>, watch for changes and update the reactive document
-  if (isRef(input) && typeof input.value === 'string') {
-    watch(
-      input,
-      (newValue) => {
-        const normalized = normalize(newValue) as UnknownObject
-        // Update the document through merge to ensure proper reactivity
-        mergeDocuments(reactiveRoot, normalized)
-      },
-      { immediate: false },
-    )
-  }
+  // if (isRef(input) && typeof input.value === 'string') {
+  //   watch(
+  //     input,
+  //     (newValue) => {
+  //       const normalized = normalize(newValue) as UnknownObject
+  //       // Update the document through merge to ensure proper reactivity
+  //       mergeDocuments(reactiveRoot, normalized)
+  //     },
+  //     { immediate: false },
+  //   )
+  // }
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot)
+  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot, externalReferences, url)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -96,12 +103,12 @@ export function createCollection(input: UnknownObject | string | Ref<UnknownObje
   }
 
   return {
-    document: documentProxy as ProcessedOpenApiObject,
+    document: documentProxy as OpenAPI.Document, //ProcessedOpenApiObject,
     /**
      * Exports the raw OpenAPI document with $ref's intact
      */
     export() {
-      return exportRawDocument(reactiveRoot) as UnprocessedOpenApiObject
+      return exportRawDocument(reactiveRoot) as OpenAPI.Document //UnprocessedOpenApiObject
     },
     apply,
     merge(partialDocument: UnknownObject) {
@@ -118,21 +125,21 @@ export function createCollection(input: UnknownObject | string | Ref<UnknownObje
  * only changing top-level keys that are different.
  * This avoids unnecessary deletes/adds for unchanged keys.
  */
-function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
-  // Remove keys that are no longer present
-  for (const key of Object.keys(sourceDocument)) {
-    if (!(key in newDocument)) {
-      delete sourceDocument[key]
-    }
-  }
+// function updateDocument(sourceDocument: UnknownObject, newDocument: UnknownObject) {
+//   // Remove keys that are no longer present
+//   for (const key of Object.keys(sourceDocument)) {
+//     if (!(key in newDocument)) {
+//       delete sourceDocument[key]
+//     }
+//   }
 
-  // Add or update changed keys
-  for (const [key, value] of Object.entries(newDocument)) {
-    if (sourceDocument[key] !== value) {
-      sourceDocument[key] = value
-    }
-  }
-}
+//   // Add or update changed keys
+//   for (const [key, value] of Object.entries(newDocument)) {
+//     if (sourceDocument[key] !== value) {
+//       sourceDocument[key] = value
+//     }
+//   }
+// }
 
 /**
  * Exports a raw document with internal properties (starting with "_") removed.
@@ -360,10 +367,64 @@ function hasRefs(obj: unknown): boolean {
 }
 
 /**
+ * Resolves a $ref value by either looking up internal references in the current file
+ * or fetching external references through the externalReferences system.
+ * Returns undefined if the external reference is not yet loaded.
+ */
+function resolveRef(
+  ref: string,
+  sourceDocument: UnknownObject,
+  externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
+  origin?: string,
+): UnknownObject | undefined {
+  // Internal references
+  // @example #/components/schemas/User
+  if (ref.startsWith('#')) {
+    const referencePath = parseJsonPointer(ref)
+    return getValueByPath(sourceDocument, referencePath)
+  }
+
+  // External references
+  // @example ./externalRef.json#/components/schemas/User
+  if (!origin || !externalReferences) {
+    // TODO: Actually, an origin isn’t necessary if it’s an absolute URL
+    console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
+
+    return undefined
+  }
+
+  // Split the reference into file path and JSON pointer
+  const [filePath, pointer = '#'] = ref.split('#')
+  const absoluteUrl = getAbsoluteUrl(origin, filePath)
+
+  // Add the URL to be fetched if not already present
+  externalReferences.addReference(absoluteUrl)
+
+  // Get the file if it's already loaded
+  const file = externalReferences.getReference(absoluteUrl)
+
+  if (!file) {
+    // File wasn’t added added (how could that even happen? but this will help TypeScript)
+    // TODO: We might want to add an error here?
+    return undefined
+  }
+
+  // Resolve the pointer within the external file
+  const referencePath = parseJsonPointer(pointer)
+
+  return getValueByPath(file.content, referencePath)
+}
+
+/**
  * Creates a proxy that handles $ref resolution while using the reactivity from the root document.
  * Only creates proxies for objects that contain $refs to minimize traversal overhead.
  */
-function createMagicProxy(target: UnknownObject, sourceDocument: UnknownObject): UnknownObject {
+function createMagicProxy(
+  target: UnknownObject,
+  sourceDocument: UnknownObject,
+  externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
+  origin?: string,
+): UnknownObject {
   // Check cache first
   if (refProxyCache.has(target)) {
     return refProxyCache.get(target) as UnknownObject
@@ -390,17 +451,19 @@ function createMagicProxy(target: UnknownObject, sourceDocument: UnknownObject):
       // Handle $ref resolution
       if ('$ref' in value) {
         const ref = value.$ref as string
-        console.log('createMagicProxy get $ref', ref, prop)
-        const referencePath = parseJsonPointer(ref)
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
+        const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
+
         if (resolvedValue) {
-          // Create a proxy for the resolved value that points back to the original
-          return createMagicProxy(resolvedValue, sourceDocument)
+          // Create a proxy for the resolved value
+          return createMagicProxy(resolvedValue, sourceDocument, externalReferences, origin)
         }
+        // If resolvedValue is undefined (external file not loaded yet),
+        // return the original value with $ref - it will be re-evaluated when the file loads
+        return value
       }
 
       // For other objects, only create a proxy if they contain $refs
-      return createMagicProxy(value, sourceDocument)
+      return createMagicProxy(value, sourceDocument, externalReferences, origin)
     },
 
     set(target: UnknownObject, property: string, newValue: unknown) {
@@ -474,6 +537,7 @@ function createMagicProxy(target: UnknownObject, sourceDocument: UnknownObject):
 
   // Cache the proxy
   refProxyCache.set(target, proxy)
+
   return proxy
 }
 

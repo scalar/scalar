@@ -2,7 +2,7 @@ import { createWorkspaceStore } from '@scalar/api-client/store'
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import { waitFor } from '@test/utils/waitFor'
 import { bench, describe, expect } from 'vitest'
-import { createCollection } from './create-collection'
+import { createCollection } from './create-collection.BAK'
 import { createCollection as createCollectionOld } from './slow/create-collection'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks

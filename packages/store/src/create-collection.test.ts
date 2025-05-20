@@ -1,6 +1,6 @@
 import { ref } from '@vue/reactivity'
 import { describe, expect, it } from 'vitest'
-import { createCollection } from './create-collection.ts'
+import { createCollection } from './create-collection'
 
 describe('create-collection', () => {
   describe('create', () => {
