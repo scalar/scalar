@@ -8,7 +8,16 @@ import type { OpenAPI } from '@scalar/openapi-types'
 // } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { reactive, toRaw } from '@vue/reactivity'
 
+// Defaults
+const DEFAULT_STRATEGY = 'eager'
+
 export type Collection = Awaited<ReturnType<typeof createCollection>>
+
+export type CreateCollectionOptions = {
+  url?: string
+  content?: string | UnknownObject
+  strategy?: 'lazy' | 'eager'
+}
 
 // Cache for proxies of objects that contain $refs
 const refProxyCache = new WeakMap<object, unknown>()
@@ -18,75 +27,40 @@ const refProxyCache = new WeakMap<object, unknown>()
  *
  * This store allows working with JSON documents that contain $ref pointers,
  * automatically resolving them when accessed.
- *
- * TODO: Make it work with not just URLs
  */
-export async function createCollection({ url, content: providedContent }: { url?: string; content?: string }) {
+export async function createCollection({
+  url,
+  content: providedContent,
+  strategy = DEFAULT_STRATEGY,
+}: CreateCollectionOptions) {
   const externalReferences = createExternalReferenceFetcher({
     url,
     content: providedContent,
     // Only load the base document, load external references only when needed
-    strategy: 'lazy',
+    strategy,
   })
 
   // Wait until the first file is loaded
   await externalReferences.isReady()
 
-  if (externalReferences.getReference(url)?.status !== 'fetched') {
-    throw new Error('Failed to fetch OpenAPI document', { cause: externalReferences.getReference(url)?.errors })
+  if (url) {
+    if (externalReferences.getReference(url)?.status !== 'fetched') {
+      throw new Error('Failed to fetch OpenAPI document', { cause: externalReferences.getReference(url)?.errors })
+    }
   }
 
-  const { content } = externalReferences.getReference(url)!
+  // Normalized and upgraded content, doesn’t matter where it came from.
+  const content = externalReferences.getReference(url)?.content || {}
 
-  // TODO: Make this work with
-  // // Unwrap Ref input if necessary
-  // let unwrappedInput = isRef(input) ? input.value : input
-
-  // // If input is a string (from Ref or direct), normalize it
-  // if (typeof unwrappedInput === 'string') {
-  //   unwrappedInput = normalize(unwrappedInput) as UnknownObject
-  // }
-
-  // const content = unwrappedInput
-
-  // Only create a cache if cache is true
-  // const resolvedProxyCache = cache ? new WeakMap() : undefined
-
-  // If input is a Ref<UnknownObject>, use its value directly as the source document
-  // if (isRef(input) && isObject(input.value)) {
-  //   // Make the root document reactive
-  //   const reactiveRoot = reactive(input.value)
-  //   return {
-  //     document: createMagicProxy(reactiveRoot, reactiveRoot) as ProcessedOpenApiObject,
-  //     export: () => exportRawDocument(content) as UnprocessedOpenApiObject,
-  //     apply,
-  //     merge: (partialDocument: UnknownObject) => {
-  //       mergeDocuments(reactiveRoot, partialDocument)
-  //     },
-  //     update: (newDocument: UnknownObject) => {
-  //       updateDocument(reactiveRoot, newDocument)
-  //     },
-  //   }
-  // }
+  if (!isObject(content) || (typeof content.openapi !== 'string' && typeof content.swagger !== 'string')) {
+    throw new Error('Invalid OpenAPI/Swagger document, can’t find a specification version.')
+  }
 
   // Make the root document reactive
-  const reactiveRoot = reactive(content)
-
-  // If input is a Ref<string>, watch for changes and update the reactive document
-  // if (isRef(input) && typeof input.value === 'string') {
-  //   watch(
-  //     input,
-  //     (newValue) => {
-  //       const normalized = normalize(newValue) as UnknownObject
-  //       // Update the document through merge to ensure proper reactivity
-  //       mergeDocuments(reactiveRoot, normalized)
-  //     },
-  //     { immediate: false },
-  //   )
-  // }
+  const root = reactive(content)
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createMagicProxy(reactiveRoot, reactiveRoot, externalReferences, url)
+  const documentProxy = createMagicProxy(root, root, externalReferences, url)
 
   // Store overlays for possible re-application
   const overlays: UnknownObject[] = []
@@ -95,11 +69,13 @@ export async function createCollection({ url, content: providedContent }: { url?
     if (Array.isArray(singleOrMultipleOverlays)) {
       singleOrMultipleOverlays.forEach((overlay) => {
         overlays.push(overlay)
-        applyOverlay(reactiveRoot, overlay)
+
+        applyOverlay(root, overlay)
       })
     } else {
       overlays.push(singleOrMultipleOverlays)
-      applyOverlay(reactiveRoot, singleOrMultipleOverlays)
+
+      applyOverlay(root, singleOrMultipleOverlays)
     }
   }
 
@@ -108,16 +84,10 @@ export async function createCollection({ url, content: providedContent }: { url?
     /**
      * Exports the raw OpenAPI document with $ref's intact
      */
-    export() {
-      return exportRawDocument(reactiveRoot) as OpenAPI.Document //UnprocessedOpenApiObject
-    },
+    export: () => exportRawDocument(root) as OpenAPI.Document, //UnprocessedOpenApiObject
     apply,
-    merge(partialDocument: UnknownObject) {
-      return mergeDocuments(reactiveRoot, partialDocument)
-    },
-    update(newDocument: UnknownObject) {
-      return mergeDocuments(reactiveRoot, newDocument)
-    },
+    merge: (partialDocument: UnknownObject) => mergeDocuments(root, partialDocument),
+    update: (newDocument: UnknownObject) => mergeDocuments(root, newDocument),
     externalReferences,
   }
 }

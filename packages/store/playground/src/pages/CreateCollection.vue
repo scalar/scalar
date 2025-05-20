@@ -16,6 +16,7 @@ onMounted(async () => {
   await measure('fetch + load', async () => {
     collection.value = await createCollection({
       url: 'https://raw.githubusercontent.com/digitalocean/openapi/refs/heads/main/specification/DigitalOcean-public.v2.yaml',
+      strategy: 'lazy',
     })
   })
 })

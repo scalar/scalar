@@ -1,5 +1,6 @@
 import type { UnknownObject } from '@/types'
-import { normalize, traverse } from '@scalar/openapi-parser'
+import { traverse, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Ref, ref, watchEffect } from 'vue'
 
 // Defaults
@@ -26,7 +27,7 @@ type ExternalReference = {
   /** Any errors that occurred during fetching */
   errors: Error[]
   /** The content of the reference */
-  content: UnknownObject
+  content: OpenAPIV3_1.Document
 }
 
 /**
@@ -105,7 +106,7 @@ export const createExternalReferenceFetcher = ({
       }
 
       const text = await response.text()
-      const content = normalize(text) as UnknownObject
+      const { specification: content } = upgrade(text)
 
       // Add validation to ensure we got a proper OpenAPI document
       if (!content || typeof content !== 'object' || Object.keys(content).length === 0) {
@@ -192,7 +193,11 @@ export const createExternalReferenceFetcher = ({
   /**
    * Alias to access an entry in the references map.
    */
-  function getReference(url: string) {
+  function getReference(url?: string) {
+    if (!url) {
+      return references.value.get(NO_URL_PROVIDED)
+    }
+
     return references.value.get(url)
   }
 
@@ -208,7 +213,7 @@ export const createExternalReferenceFetcher = ({
     // Start fetching immediately
     fetchUrl(url)
   } else if (providedContent) {
-    const content = normalize(providedContent) as UnknownObject
+    const { specification: content } = upgrade(providedContent)
 
     references.value.set(NO_URL_PROVIDED, {
       url: NO_URL_PROVIDED,
@@ -260,7 +265,7 @@ export function getAbsoluteUrl(origin: string | undefined, url: string) {
 /**
  * Finds all external references in a parsed OpenAPI document.
  */
-const findReferences = (content: UnknownObject, origin?: string): string[] => {
+const findReferences = (content: OpenAPIV3_1.Document, origin?: string): string[] => {
   const references: string[] = []
 
   traverse(content, (value: any) => {

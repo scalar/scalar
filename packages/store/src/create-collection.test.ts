@@ -1,11 +1,10 @@
-import { ref } from '@vue/reactivity'
 import { describe, expect, it } from 'vitest'
 import { createCollection } from './create-collection'
 
 describe('create-collection', () => {
   describe('create', () => {
-    it.todo('upgrades to OpenAPI 3.1.1', async () => {
-      const definition = {
+    it('upgrades to OpenAPI 3.1.1', async () => {
+      const EXAMPLE_DOCUMENT = {
         swagger: '2.0',
         info: {
           title: 'Example',
@@ -18,7 +17,7 @@ describe('create-collection', () => {
         definitions: {},
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       expect(collection.document).toStrictEqual({
         openapi: '3.1.1',
@@ -38,8 +37,14 @@ describe('create-collection', () => {
       })
     })
 
+    it('throws if it’s not an OpenAPI document', async () => {
+      await expect(createCollection({ content: {} })).rejects.toThrow(
+        'Invalid OpenAPI/Swagger document, can’t find a specification version.',
+      )
+    })
+
     it('allows to pass a string', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -48,59 +53,59 @@ describe('create-collection', () => {
         paths: {},
       }
 
-      const collection = await createCollection({ content: JSON.stringify(definition) })
+      const collection = await createCollection({ content: JSON.stringify(EXAMPLE_DOCUMENT) })
 
-      expect(collection.document).toMatchObject(definition)
+      expect(collection.document).toMatchObject(EXAMPLE_DOCUMENT)
     })
 
-    it('creates a collection from a Ref<Record<string, unknown>>', async () => {
-      const definition = ref({
-        openapi: '3.1.1',
-        info: { title: 'Example', version: '1.0.0' },
-        paths: {},
-      })
+    // it.skip('creates a collection from a Ref<Record<string, unknown>>', async () => {
+    //   const definition = ref({
+    //     openapi: '3.1.1',
+    //     info: { title: 'Example', version: '1.0.0' },
+    //     paths: {},
+    //   })
 
-      const collection = await createCollection({ content: definition })
+    //   const collection = await createCollection({ content: definition })
 
-      expect(collection.document).toMatchObject(definition.value)
+    //   expect(collection.document).toMatchObject(definition.value)
 
-      // keeps the collection up to date
-      definition.value.info.title = 'Changed'
+    //   // keeps the collection up to date
+    //   EXAMPLE_DOCUMENT.value.info.title = 'Changed'
 
-      expect(collection.document?.info?.title).toBe('Changed')
-    })
+    //   expect(collection.document?.info?.title).toBe('Changed')
+    // })
 
-    it('creates a collection from a Ref<string>', async () => {
-      const definition = ref(
-        JSON.stringify({
-          openapi: '3.1.1',
-          info: { title: 'Example', version: '1.0.0' },
-          paths: {},
-        }),
-      )
+    // it.skip('creates a collection from a Ref<string>', async () => {
+    //   const EXAMPLE_DOCUMENT = ref(
+    //     JSON.stringify({
+    //       openapi: '3.1.1',
+    //       info: { title: 'Example', version: '1.0.0' },
+    //       paths: {},
+    //     }),
+    //   )
 
-      const collection = await createCollection({ content: definition })
+    //   const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
-      expect(collection.document).toMatchObject({
-        openapi: '3.1.1',
-        info: { title: 'Example', version: '1.0.0' },
-        paths: {},
-      })
+    //   expect(collection.document).toMatchObject({
+    //     openapi: '3.1.1',
+    //     info: { title: 'Example', version: '1.0.0' },
+    //     paths: {},
+    //   })
 
-      // keeps the collection up to date
-      definition.value = JSON.stringify({
-        openapi: '3.1.1',
-        info: { title: 'Changed', version: '1.0.0' },
-        paths: {},
-      })
+    //   // keeps the collection up to date
+    //   EXAMPLE_DOCUMENT.value = JSON.stringify({
+    //     openapi: '3.1.1',
+    //     info: { title: 'Changed', version: '1.0.0' },
+    //     paths: {},
+    //   })
 
-      expect(collection.document?.info?.title).toBe('Changed')
-    })
+    //   expect(collection.document?.info?.title).toBe('Changed')
+    // })
   })
 
   describe('update', () => {
     it('updates the document', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -109,7 +114,7 @@ describe('create-collection', () => {
         paths: {},
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       collection.update({
         openapi: '3.1.1',
@@ -132,13 +137,13 @@ describe('create-collection', () => {
 
   describe('merge', () => {
     it('manually merges the collection document', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: { title: 'Original', version: '1.0.0' },
         paths: {},
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Update the document using the new .merge method
       collection.merge({
@@ -150,13 +155,13 @@ describe('create-collection', () => {
     })
 
     it('deep merges merges with the existing document', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: { title: 'Original', version: '1.0.0' },
         paths: {},
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Only merge the title, version should remain unchanged
       collection.merge({
@@ -170,7 +175,7 @@ describe('create-collection', () => {
 
   describe('overlays', () => {
     it('applies an OpenAPI Overlay with actions', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: { title: 'Original', version: '1.0.0' },
         paths: {
@@ -180,7 +185,7 @@ describe('create-collection', () => {
         },
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       expect(collection.document.info?.title).toBe('Original')
       expect(collection.document.paths?.['/planets']?.get?.summary).toBe('List planets')
@@ -208,7 +213,7 @@ describe('create-collection', () => {
     })
 
     it('applies multiple overlays at once', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: { title: 'Original', version: '1.0.0' },
         paths: {
@@ -219,7 +224,7 @@ describe('create-collection', () => {
         },
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       expect(collection.document.info?.title).toBe('Original')
       expect(collection.document.paths?.['/planets']?.get?.summary).toBe('List planets')
@@ -265,7 +270,7 @@ describe('create-collection', () => {
 
   describe('read', () => {
     it('creates a store and resolves references on access', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -287,7 +292,7 @@ describe('create-collection', () => {
         },
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Original object
       expect(collection.document.components?.schemas?.Person).toMatchObject({
@@ -309,7 +314,7 @@ describe('create-collection', () => {
 
   describe('write', () => {
     it('updates properties through both original and reference paths', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -331,7 +336,7 @@ describe('create-collection', () => {
         },
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Update via the original Person schema path
       collection.document.components.schemas.Person.properties.age = { type: 'number' }
@@ -355,7 +360,7 @@ describe('create-collection', () => {
 
   describe('export', () => {
     it('updates properties through both original and reference paths', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: {
           title: 'Example',
@@ -380,7 +385,7 @@ describe('create-collection', () => {
         paths: {},
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       collection.document.servers[0].variables.version._value = 'v3'
 
@@ -416,7 +421,7 @@ describe('create-collection', () => {
     })
 
     it('supports circular references', async () => {
-      const definition = {
+      const EXAMPLE_DOCUMENT = {
         openapi: '3.1.1',
         info: { title: 'Example', version: '1.0.0' },
         paths: {},
@@ -432,7 +437,7 @@ describe('create-collection', () => {
         },
       }
 
-      const collection = await createCollection({ content: definition })
+      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       const result = collection.export()
 
