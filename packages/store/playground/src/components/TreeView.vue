@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onUpdated, ref } from 'vue'
 
 type JSONValue =
   | string
@@ -17,6 +17,7 @@ const props = defineProps<{
 
 const isExpanded = ref(false)
 const seen = new WeakSet()
+const rootRef = ref<HTMLElement | null>(null)
 
 const type = computed(() => {
   if (props.value === null) {
@@ -68,10 +69,26 @@ const getValueDisplay = (value: JSONValue): string => {
 if (props.value !== null && typeof props.value === 'object') {
   seen.add(props.value as object)
 }
+
+onUpdated(() => {
+  if (rootRef.value) {
+    rootRef.value.style.backgroundColor = 'rgba(255, 0, 0, 0.1)'
+    rootRef.value.style.outline = '3px solid red'
+    rootRef.value.style.transition = 'all 0.1s ease'
+    setTimeout(() => {
+      if (rootRef.value) {
+        rootRef.value.style.backgroundColor = 'transparent'
+        rootRef.value.style.outline = 'none'
+      }
+    }, 100)
+  }
+})
 </script>
 
 <template>
-  <div class="relative mb-2 rounded-md border px-2 py-2 text-xs">
+  <div
+    ref="rootRef"
+    class="relative mb-2 rounded-md border px-2 py-2 text-xs">
     <div class="flex items-center gap-2">
       <button
         v-if="isExpandable"
