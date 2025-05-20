@@ -1,4 +1,5 @@
 export { default as ApiReference } from '@/components/ApiReference.vue'
+export { default as SingleApiReference } from '@/components/SingleApiReference.vue'
 export { default as ApiReferenceLayout } from '@/components/ApiReferenceLayout.vue'
 export { default as ModernLayout } from '@/components/Layouts/ModernLayout.vue'
 export { SearchButton, SearchModal } from '@/features/Search'
