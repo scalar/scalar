@@ -2,8 +2,6 @@
 /**
  * This component allows dynamic selection of various layout configurations
  */
-import { getObjectKeys } from '@scalar/oas-utils/helpers'
-
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,
@@ -34,7 +32,7 @@ const layouts = {
     @updateContent="$emit('updateContent', $event)">
     <!-- Expose all layout slots upwards -->
     <template
-      v-for="name in getObjectKeys(slots)"
+      v-for="(_, name) in slots"
       #[name]="slotProps">
       <slot
         :name="name"
