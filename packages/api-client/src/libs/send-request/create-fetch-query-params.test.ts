@@ -106,6 +106,6 @@ describe('createFetchQueryParams', () => {
 
     const result = createFetchQueryParams(requestExample, {}, request)
 
-    expect(result.toString()).toEqual('key=one,two,three')
+    expect(result.toString()).toEqual('key=one%2Ctwo%2Cthree')
   })
 })
