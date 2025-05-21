@@ -1,5 +1,13 @@
 # @scalar/api-client-react
 
+## 1.3.1
+
+### Patch Changes
+
+- Updated dependencies [4440949]
+  - @scalar/types@0.2.1
+  - @scalar/api-client@2.4.1
+
 ## 1.3.0
 
 ### Minor Changes

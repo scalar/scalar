@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+
 ## 0.3.0
 
 ### Minor Changes

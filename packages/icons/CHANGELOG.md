@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.4.1
+
+### Patch Changes
+
+- @scalar/use-hooks@0.2.1
+
 ## 0.4.0
 
 ### Minor Changes
