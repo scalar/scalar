@@ -1,14 +1,14 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import SchemaDiscriminator from './SchemaDiscriminator.vue'
+import SchemaComposition from './SchemaComposition.vue'
 
-describe('SchemaDiscriminator', () => {
+describe('SchemaComposition', () => {
   describe('getModelNameFromSchema', () => {
     it('displays schema title when both title and name are present', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'oneOf',
+          composition: 'oneOf',
           value: {
             oneOf: [
               {
@@ -22,14 +22,14 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('One')
     })
 
     it('displays schema name when title is not present', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'oneOf',
+          composition: 'oneOf',
           value: {
             oneOf: [
               {
@@ -42,14 +42,14 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('One')
     })
 
     it('displays schema title when name is not present', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'anyOf',
+          composition: 'anyOf',
           value: {
             anyOf: [
               {
@@ -62,14 +62,14 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('Any')
     })
 
     it('displays type when neither name nor title are present', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'oneOf',
+          composition: 'oneOf',
           value: {
             oneOf: [
               {
@@ -81,14 +81,14 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('object')
     })
 
     it('displays schema name from components when matching schema is found', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'oneOf',
+          composition: 'oneOf',
           schemas: {
             User: {
               type: 'object',
@@ -111,14 +111,14 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('User')
     })
 
     it('humanizes array types with item type', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'anyOf',
+          composition: 'anyOf',
           value: {
             anyOf: [
               {
@@ -133,16 +133,16 @@ describe('SchemaDiscriminator', () => {
         },
       })
 
-      const tab = wrapper.find('.discriminator-selector-label')
+      const tab = wrapper.find('.composition-selector-label')
       expect(tab.text()).toBe('Array of string')
     })
   })
 
-  describe('discriminator type display', () => {
-    it('humanizes discriminator type', () => {
-      const wrapper = mount(SchemaDiscriminator, {
+  describe('composition display', () => {
+    it('humanizes composition', () => {
+      const wrapper = mount(SchemaComposition, {
         props: {
-          discriminator: 'oneOf',
+          composition: 'oneOf',
           value: {
             oneOf: [{ type: 'object' }],
           },

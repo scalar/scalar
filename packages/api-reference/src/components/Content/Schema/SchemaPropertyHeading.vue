@@ -9,7 +9,10 @@ import type {
 import { stringify } from 'flatted'
 import { computed } from 'vue'
 
-import { discriminators } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
+import {
+  compositions,
+  type CompositionKeyword,
+} from '@/components/Content/Schema/helpers/schema-composition'
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
@@ -35,14 +38,16 @@ const {
     | unknown
 }>()
 
-const discriminatorType = discriminators.find((r) => {
+const composition = compositions.find((composition: CompositionKeyword) => {
   if (!value || typeof value !== 'object') {
     return false
   }
 
   return (
-    r in value ||
-    (value.items && typeof value.items === 'object' && r in value.items)
+    composition in value ||
+    (value.items &&
+      typeof value.items === 'object' &&
+      composition in value.items)
   )
 })
 
@@ -229,7 +234,7 @@ const displayType = computed(() => {
       </SchemaPropertyDetail>
     </div>
     <template v-else>
-      <!-- Shows only when a discriminator is used (so value?.type is undefined) -->
+      <!-- Shows only when a composition is used (so value?.type is undefined) -->
       <SchemaPropertyDetail v-if="value?.nullable === true">
         nullable
       </SchemaPropertyDetail>
@@ -253,8 +258,7 @@ const displayType = computed(() => {
     <SchemaPropertyExamples
       v-if="withExamples"
       :examples="value?.examples"
-      :example="value?.example || value?.items?.example"
-      :discriminator-type="discriminatorType" />
+      :example="value?.example || value?.items?.example" />
   </div>
 </template>
 <style scoped>

@@ -265,7 +265,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(badge.exists()).toBe(true)
   })
 
-  it('shows enums in discriminators', () => {
+  it('shows enums in compositions', () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -278,7 +278,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(enumValues).toHaveLength(3)
   })
 
-  it('renders discriminators for array items', () => {
+  it('renders compositions for array items', () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -301,7 +301,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(foobar).toHaveLength(1)
   })
 
-  it('renders discriminators for object of array items', async () => {
+  it('renders compositions for object of array items', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -319,7 +319,7 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    // Check that the discriminator is not rendered
+    // Check that the composition is not rendered
     expect(wrapper.html().match(/foobar/g)).toBeNull()
     expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
 
@@ -331,7 +331,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(foobar).toHaveLength(1)
   })
 
-  it('renders nested discriminators correctly', async () => {
+  it('renders nested composition correctly', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -369,8 +369,8 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    // Check that the first level discriminator is rendered
-    const firstLevelSelector = wrapper.find('.discriminator-selector')
+    // Check that the first level composition is rendered
+    const firstLevelSelector = wrapper.find('.composition-selector')
     expect(firstLevelSelector.exists()).toBe(true)
     expect(firstLevelSelector.text()).toContain('One of')
 
@@ -378,8 +378,8 @@ describe('SchemaProperty sub-schema', () => {
     await firstLevelSelector.trigger('click')
     await wrapper.vm.$nextTick()
 
-    // Check that the nested discriminator is rendered
-    const nestedSelector = wrapper.find('.discriminator-panel .discriminator-selector')
+    // Check that the nested composition is rendered
+    const nestedSelector = wrapper.find('.composition-panel .composition-selector')
     expect(nestedSelector.exists()).toBe(true)
     expect(nestedSelector.text()).toContain('One of')
 
