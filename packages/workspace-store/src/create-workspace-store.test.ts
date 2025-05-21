@@ -288,7 +288,7 @@ describe('create-workspace-store', () => {
     ).toEqual(document.components.schemas.User)
   })
 
-  test('should correctly resolve chunks from the file system', { timeout: 500000 }, async () => {
+  test('should correctly resolve chunks from the file system', async () => {
     const randomSeed = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
     const path = `temp-${randomSeed()}`
 
@@ -342,5 +342,61 @@ describe('create-workspace-store', () => {
 
     // clean up generated files
     await fs.rm(`${cwd()}/${path}`, { recursive: true })
+  })
+
+  test('should load files form the remote url', async () => {
+    const PORT = 9989
+    const url = `http://localhost:${PORT}`
+
+    // Send the default document
+    server.get('/', (_, reply) => {
+      reply.send(document)
+    })
+
+    await server.listen({ port: PORT })
+
+    const store = await createWorkspaceStore({
+      documents: [
+        {
+          url: url,
+          name: 'default',
+        },
+      ],
+    })
+
+    expect(Object.keys(store.workspace.documents)).toEqual(['default'])
+    expect(store.workspace.documents['default'].info?.title).toEqual(document.info.title)
+
+    // Add a new remote file
+    await store.addDocument({ name: 'new', url: url })
+
+    expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
+    expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
+  })
+
+  test('should load files from the local file system', async () => {
+    const fileName = 'temp.json'
+
+    // write the document to a local file
+    await fs.writeFile(fileName, JSON.stringify(document))
+
+    const store = await createWorkspaceStore({
+      documents: [
+        {
+          path: fileName,
+          name: 'default',
+        },
+      ],
+    })
+
+    expect(Object.keys(store.workspace.documents)).toEqual(['default'])
+    expect(store.workspace.documents['default'].info?.title).toEqual(document.info.title)
+
+    await store.addDocument({ name: 'new', path: fileName })
+
+    expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
+    expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
+
+    await fs.rm(fileName)
   })
 })
