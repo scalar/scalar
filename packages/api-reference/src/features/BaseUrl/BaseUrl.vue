@@ -55,6 +55,7 @@ const updateServer = (newServer: string) => {
   </div>
   <ServerVariablesForm
     :variables="server?.variables"
+    layout="reference"
     @update:variable="updateServerVariable" />
   <!-- Description -->
   <ScalarMarkdown
