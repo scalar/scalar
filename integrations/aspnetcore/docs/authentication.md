@@ -92,11 +92,12 @@ app.MapScalarApiReference(options => options
     .AddHttpAuthentication("BearerAuth", auth =>
     {
         auth.Token = "ey...";
-    });
+    })
+    .WithPersistentAuthentication() // Optional: persists authentication between page refreshes
 );
 ```
 
-This configuration preselects the `Bearer` authentication scheme in the API Reference and pre-fills the token with a given value.
+This configuration preselects the `Bearer` authentication scheme in the API Reference and pre-fills the token with a given value. Additionally, with `WithPersistentAuthentication()`, the authentication state will be persisted in the browser's local storage and restored when the user returns to the page.
 
 ### HTTP Basic Authentication
 

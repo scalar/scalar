@@ -65,6 +65,8 @@ internal sealed class ScalarConfiguration
 
     [JsonPropertyName("baseServerURL")]
     public required string? BaseServerUrl { get; init; }
+
+    public required bool PersistAuth { get; set; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

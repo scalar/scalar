@@ -265,4 +265,13 @@ public sealed class ScalarOptions
     /// </remarks>
     [StringSyntax(StringSyntaxAttribute.Uri)]
     public string? JavaScriptConfiguration { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether authentication state should be persisted in local storage.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When set to <c>true</c>, the authentication state will be stored in the browser's local storage and restored when the user returns to the page.
+    /// </remarks>
+    public bool PersistentAuthentication { get; set; }
 }
