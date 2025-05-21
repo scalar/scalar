@@ -1517,6 +1517,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

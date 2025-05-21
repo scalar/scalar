@@ -2,8 +2,6 @@
 /**
  * This component allows dynamic selection of various layout configurations
  */
-import { computed } from 'vue'
-
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,
@@ -20,13 +18,6 @@ defineEmits<{
 
 const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
-const referenceLayoutSlots = computed(
-  (): ReferenceLayoutSlots =>
-    Object.keys(slots).filter(
-      (key) => key !== 'document-selector',
-    ) as unknown as ReferenceLayoutSlots,
-)
-
 const layouts = {
   modern: ModernLayout,
   classic: ClassicLayout,
@@ -41,14 +32,11 @@ const layouts = {
     @updateContent="$emit('updateContent', $event)">
     <!-- Expose all layout slots upwards -->
     <template
-      v-for="(_, name) in referenceLayoutSlots"
+      v-for="(_, name) in slots"
       #[name]="slotProps">
       <slot
         :name="name"
         v-bind="slotProps || {}" />
-    </template>
-    <template #document-selector>
-      <slot name="document-selector" />
     </template>
   </component>
 </template>
