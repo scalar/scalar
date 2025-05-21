@@ -1,5 +1,22 @@
 # @scalar/api-client-react
 
+## 1.3.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [26476ed]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [fe696ab]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/types@0.2.0
+
 ## 1.2.34
 
 ### Patch Changes

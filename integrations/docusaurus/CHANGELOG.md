@@ -1,5 +1,16 @@
 # @scalar/docusaurus
 
+## 0.7.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/types@0.2.0
+
 ## 0.6.7
 
 ### Patch Changes

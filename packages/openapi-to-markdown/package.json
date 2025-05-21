@@ -16,7 +16,7 @@
     "llm",
     "swagger"
   ],
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "node": ">=20"
   },
@@ -74,7 +74,7 @@
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/galaxy": "^0.3.2",
+    "@scalar/galaxy": "^0.4.0",
     "@types/html-minifier-terser": "^7.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",

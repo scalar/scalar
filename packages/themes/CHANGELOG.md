@@ -1,5 +1,17 @@
 # @scalar/themes
 
+## 0.12.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 5613e40: feat(components): scalar tooltip overhaul
+- Updated dependencies [483ca93]
+  - @scalar/types@0.2.0
+
 ## 0.11.3
 
 ### Patch Changes

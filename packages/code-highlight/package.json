@@ -16,7 +16,7 @@
     "lowlight",
     "highlightjs"
   ],
-  "version": "0.0.29",
+  "version": "0.1.0",
   "engines": {
     "node": ">=20"
   },
