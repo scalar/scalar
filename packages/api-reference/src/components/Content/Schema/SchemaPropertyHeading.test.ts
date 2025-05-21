@@ -163,7 +163,6 @@ describe('SchemaPropertyHeading', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
-          type: 'string',
           default: null,
         },
       },
@@ -173,11 +172,10 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('null')
   })
 
-  it('renders default value: empty string', async () => {
+  it('renders default value: empty', async () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
-          type: 'string',
           default: '',
         },
       },
@@ -199,5 +197,19 @@ describe('SchemaPropertyHeading', () => {
     })
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('PrettyModel')
+  })
+
+  it('renders default value without type being present', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          enum: ['bar', 'foo'],
+          default: 'foo',
+        },
+      },
+    })
+    const defaultValueElement = wrapper.find('.property-heading')
+    expect(defaultValueElement.text()).toContain('default:')
+    expect(defaultValueElement.text()).toContain('"foo"')
   })
 })

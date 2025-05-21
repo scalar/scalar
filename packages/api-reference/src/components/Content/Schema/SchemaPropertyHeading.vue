@@ -114,12 +114,15 @@ const displayType = computed(() => {
   if (Array.isArray(value?.type)) {
     return value.type.join(' | ')
   }
+
   if (value?.title) {
     return value.title
   }
+
   if (value?.name) {
     return value.name
   }
+
   return value?.type ?? ''
 })
 </script>
@@ -134,8 +137,8 @@ const displayType = computed(() => {
         name="name" />
       <template v-else>&sol;<slot name="name" />&sol;</template>
     </div>
-    <template v-if="value?.type">
-      <SchemaPropertyDetail>
+    <template v-if="value">
+      <SchemaPropertyDetail v-if="value?.type">
         <ScreenReader>Type:</ScreenReader>
         <template v-if="value?.items?.type">
           {{ value.type }}
@@ -145,9 +148,9 @@ const displayType = computed(() => {
           {{ displayType }}
           {{ value?.nullable ? ' | nullable' : '' }}
         </template>
-        <template v-if="value.minItems || value.maxItems">
-          {{ value.minItems }}&hellip;{{ value.maxItems }}
-        </template>
+      </SchemaPropertyDetail>
+      <SchemaPropertyDetail v-if="value.minItems || value.maxItems">
+        {{ value.minItems }}&hellip;{{ value.maxItems }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.minLength">
         <template #prefix>min:</template>
