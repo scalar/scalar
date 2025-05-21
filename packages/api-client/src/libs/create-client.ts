@@ -3,6 +3,7 @@ import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { SIDEBAR_SYMBOL, createSidebarState } from '@/hooks/useSidebar'
 import { getRequestUidByPathMethod } from '@/libs/get-request-uid-by-path-method'
 import { loadAllResources } from '@/libs/local-storage'
+import { PLUGIN_MANAGER_SYMBOL, createPluginManager } from '@/plugins'
 import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/active-entities'
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
@@ -110,6 +111,11 @@ export const createApiClient = ({
   // Create the sidebar state
   const sidebarState = createSidebarState({ layout })
 
+  // Create the plugin manager
+  const pluginManager = createPluginManager({
+    plugins: configuration.value.plugins ?? [],
+  })
+
   // Safely check for localStorage availability
   const hasLocalStorage = () => {
     try {
@@ -182,6 +188,8 @@ export const createApiClient = ({
   app.provide(SIDEBAR_SYMBOL, sidebarState)
   // Provide the client config
   app.provide(CLIENT_CONFIGURATION_SYMBOL, configuration)
+  // Provide the plugin manager
+  app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
 
   const {
     collectionMutators,

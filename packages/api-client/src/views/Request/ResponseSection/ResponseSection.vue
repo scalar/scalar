@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary } from '@scalar/components'
 import type {
   Collection,
   Operation,
@@ -10,6 +11,7 @@ import { computed, ref, useId } from 'vue'
 import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import type { SendRequestResult } from '@/libs/send-request/create-request-operation'
+import { usePluginManager } from '@/plugins'
 
 import RequestHeaders from './RequestHeaders.vue'
 import ResponseBody from './ResponseBody.vue'
@@ -29,6 +31,9 @@ const { numWorkspaceRequests, response, requestResult } = defineProps<{
   response: ResponseInstance | undefined
   requestResult: SendRequestResult | null | undefined
 }>()
+
+const pluginManager = usePluginManager()
+const responseSectionViews = pluginManager.getViewComponents('response.section')
 
 // Headers
 const responseHeaders = computed(() => {
@@ -195,6 +200,17 @@ const requestHeaders = computed(
           :id="filterIds.Headers"
           :headers="responseHeaders"
           :role="activeFilter === 'All' ? 'none' : 'tabpanel'" />
+
+        <template
+          v-for="view in responseSectionViews"
+          :key="view.component">
+          <ScalarErrorBoundary>
+            <component
+              :is="view.component"
+              v-show="activeFilter === 'All' || activeFilter === view.title"
+              v-bind="view.props ?? {}" />
+          </ScalarErrorBoundary>
+        </template>
 
         <template v-if="activeFilter === 'All' || activeFilter === 'Body'">
           <!-- Streaming response body -->

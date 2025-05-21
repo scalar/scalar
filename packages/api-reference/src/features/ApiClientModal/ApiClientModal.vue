@@ -14,7 +14,8 @@ import { useExampleStore } from '@/legacy/stores'
 import { useApiClient } from './useApiClient'
 
 const { configuration, parsedSpec } = defineProps<{
-  configuration: Partial<ApiClientConfiguration>
+  // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn’t have to be).
+  configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>>
   parsedSpec: Spec
 }>()
 

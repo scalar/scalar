@@ -16,6 +16,7 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { usePluginManager } from '@/plugins'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
@@ -53,6 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
+  'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -143,6 +145,14 @@ const handleRequestNamePlaceholder = () => {
 }
 
 const labelRequestNameId = useId()
+
+// Plugins
+const pluginManager = usePluginManager()
+
+const requestSectionViews = pluginManager.getViewComponents('request.section')
+
+const updateOperationHandler = (key: keyof Operation, value: string) =>
+  requestMutators.edit(operation.uid, key, value)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -271,6 +281,18 @@ const labelRequestNameId = useId()
         :role="selectedFilter === 'All' ? 'none' : 'tabpanel'"
         title="Body"
         :workspace="workspace" />
+
+      <template
+        v-for="view in requestSectionViews"
+        :key="view.component">
+        <ScalarErrorBoundary>
+          <component
+            :is="view.component"
+            v-show="selectedFilter === 'All' || selectedFilter === view.title"
+            @update:operation="updateOperationHandler"
+            :operation="operation" />
+        </ScalarErrorBoundary>
+      </template>
 
       <!-- Spacer -->
       <div class="flex flex-grow" />
