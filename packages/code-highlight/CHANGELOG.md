@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 0.0.29
 
 ### Patch Changes

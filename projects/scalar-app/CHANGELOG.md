@@ -1,5 +1,22 @@
 # scalar-app
 
+## 0.1.193
+
+### Patch Changes
+
+- 26476ed: feat: send cross-origin cookies in scalar app
+- Updated dependencies [26476ed]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [fe696ab]
+- Updated dependencies [0efcab4]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/components@0.14.0
+  - @scalar/themes@0.12.0
+  - @scalar/import@0.4.0
+
 ## 0.1.192
 
 ### Patch Changes

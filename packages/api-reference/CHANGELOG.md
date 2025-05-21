@@ -1,5 +1,43 @@
 # @scalar/api-reference
 
+## 1.29.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- fce282f: fix: updates schema property heading logic
+- ca403fe: feat(api-reference): reorder getModelNameFromSchema to prefer schema.title over name; extract displayType helper for type rendering; update tests accordingly
+- 3af1364: feat: separates composition from discriminator
+- b899177: fix: displays array item const in property
+- cf922d4: feat: adds nested discriminator schema support
+- 0efcab4: fix: layout slot propogation
+- fe696ab: fix: adds server variable form border for api reference
+- Updated dependencies [26476ed]
+- Updated dependencies [bd602d3]
+- Updated dependencies [b77f67a]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [fe696ab]
+- Updated dependencies [1d1470c]
+- Updated dependencies [0efcab4]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/snippetz@0.3.0
+  - @scalar/oas-utils@0.3.0
+  - @scalar/components@0.14.0
+  - @scalar/themes@0.12.0
+  - @scalar/code-highlight@0.1.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/use-toasts@0.8.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/icons@0.4.0
+  - @scalar/types@0.2.0
+
 ## 1.28.34
 
 ### Patch Changes

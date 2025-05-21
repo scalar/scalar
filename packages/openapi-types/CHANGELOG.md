@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 0.2.3
 
 ### Patch Changes

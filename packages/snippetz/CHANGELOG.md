@@ -1,5 +1,16 @@
 # @scalar/snippetz
 
+## 0.3.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- b77f67a: feat(snippetz): add multipart/form-data support for several converters
+- 20cf550: fix: array query params showing on code snippet
+
 ## 0.2.20
 
 ### Patch Changes

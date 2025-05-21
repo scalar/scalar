@@ -1,5 +1,25 @@
 # @scalar/api-reference-react
 
+## 0.7.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- dada855: Add default export
+- Updated dependencies [fce282f]
+- Updated dependencies [ca403fe]
+- Updated dependencies [3af1364]
+- Updated dependencies [b899177]
+- Updated dependencies [cf922d4]
+- Updated dependencies [483ca93]
+- Updated dependencies [0efcab4]
+- Updated dependencies [fe696ab]
+  - @scalar/api-reference@1.29.0
+  - @scalar/types@0.2.0
+
 ## 0.6.31
 
 ### Patch Changes

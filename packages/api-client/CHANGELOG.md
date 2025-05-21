@@ -1,5 +1,43 @@
 # @scalar/api-client
 
+## 2.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 26476ed: feat: send cross-origin cookies in scalar app
+- 30bab1d: support unexploded serialization of array query params
+- 5613e40: feat(components): scalar tooltip overhaul
+- fe696ab: fix: adds server variable form border for api reference
+- 20cf550: fix: array query params showing on code snippet
+- Updated dependencies [bd602d3]
+- Updated dependencies [b77f67a]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [1d1470c]
+- Updated dependencies [0efcab4]
+- Updated dependencies [20cf550]
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/snippetz@0.3.0
+  - @scalar/oas-utils@0.3.0
+  - @scalar/components@0.14.0
+  - @scalar/themes@0.12.0
+  - @scalar/postman-to-openapi@0.3.0
+  - @scalar/use-codemirror@0.12.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/object-utils@1.2.0
+  - @scalar/use-tooltip@1.1.0
+  - @scalar/use-toasts@0.8.0
+  - @scalar/draggable@0.2.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/import@0.4.0
+  - @scalar/icons@0.4.0
+  - @scalar/types@0.2.0
+
 ## 2.3.34
 
 ### Patch Changes

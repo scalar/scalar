@@ -1,5 +1,31 @@
 # @scalar/nuxt
 
+## 0.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 3113a01: feat(nuxt): ssr-friendly color mode preference implementation
+- Updated dependencies [26476ed]
+- Updated dependencies [fce282f]
+- Updated dependencies [ca403fe]
+- Updated dependencies [3af1364]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [b899177]
+- Updated dependencies [cf922d4]
+- Updated dependencies [483ca93]
+- Updated dependencies [0efcab4]
+- Updated dependencies [fe696ab]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/api-reference@1.29.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/types@0.2.0
+
 ## 0.3.34
 
 ### Patch Changes
