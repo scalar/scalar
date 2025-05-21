@@ -24,7 +24,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
+    "build": "shx rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
     "dev:doesnt-work": "cd ./playground && pnpm dev",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
@@ -48,7 +48,8 @@
     "postcss": "catalog:*",
     "postcss-cli": "^11.0.0",
     "postcss-nesting": "^12.1.5",
-    "react": "^19.0.0"
+    "react": "^19.0.0",
+    "shx": "^0.4.0"
   },
   "peerDependencies": {
     "react": "^18.0.0"

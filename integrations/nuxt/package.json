@@ -25,7 +25,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",
+    "build": "cross-env NUXT_TELEMETRY_DISABLED=false pnpm dev:prepare && nuxt-module-build build",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
@@ -64,6 +64,7 @@
     "@nuxt/test-utils": "^3.13.1",
     "@types/node": "catalog:*",
     "changelogen": "^0.5.5",
+    "cross-env": "^7.0.3",
     "nuxt": "^3.12.4",
     "vitest": "catalog:*"
   }
