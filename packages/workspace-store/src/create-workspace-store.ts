@@ -110,14 +110,18 @@ export function createWorkspaceStore(workspaceProps?: {
         throw 'Please provide a valid path'
       }
 
+      const lastPathSegment = path.pop()! // We are sure there is at least an element on the array
+
       const activeDocument =
         workspace.documents[workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '']
 
-      let target = activeDocument as Record<string, any>
+      let parent = activeDocument as Record<string, any>
 
       for (const p of path) {
-        target = target[p]
+        parent = parent[p]
       }
+
+      const target = parent[lastPathSegment]
 
       if (isObject(target) && '$ref' in target) {
         const ref = target['$ref']
@@ -128,12 +132,7 @@ export function createWorkspaceStore(workspaceProps?: {
         const result = await resolveRef(ref)
 
         if (result.ok) {
-          // Clear all current properties
-          Object.keys(target).forEach((key) => {
-            delete target[key]
-          })
-
-          Object.assign(target, result.data)
+          Object.assign(parent, { [lastPathSegment]: result.data })
         } else {
           Object.assign(target, { status: 'error' })
         }
