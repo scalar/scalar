@@ -71,16 +71,16 @@ const handleLabelClick = () => {
 </script>
 <template>
   <DataTableCell
-    class="row relative"
+    class="relative flex"
     :class="containerClass">
     <div
       v-if="$slots.default"
-      class="text-c-1 flex items-center pl-3 pr-0"
+      class="text-c-1 flex items-center pr-0 pl-3"
       :for="id ?? ''"
       @click="handleLabelClick">
       <slot />:
     </div>
-    <div class="row-1 relative min-w-0">
+    <div class="relative flex min-w-0 flex-1">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
           :canAddCustomValue="props.canAddCustomEnumValue"
@@ -93,7 +93,7 @@ const handleLabelClick = () => {
           v-if="mask && type === 'password'"
           v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
-          class="text-c-1 disabled:text-c-2 py-1.25 peer w-full min-w-0 border-none px-2 -outline-offset-1"
+          class="text-c-1 disabled:text-c-2 peer w-full min-w-0 border-none px-2 py-1.25 -outline-offset-1"
           :class="{ 'scalar-password-input': type === 'password' }"
           data-1p-ignore
           :readOnly="readOnly"
@@ -144,7 +144,7 @@ const handleLabelClick = () => {
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="-ml-.5 mr-1.25 p-1.25 h-6 w-6 self-center"
+      class="-ml-.5 mr-1.25 h-6 w-6 self-center p-1.25"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

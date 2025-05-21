@@ -8,7 +8,7 @@ const { layout } = useLayout()
 <template>
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
-    class="flex min-h-0 flex-1 flex-col sm:flex-row"
+    class="flex min-h-0 flex-1 flex-col"
     :class="layout === 'web' ? 'sm:flex-col' : 'sm:flex-row'">
     <SideNav class="sidenav order-last sm:order-none" />
 
@@ -18,7 +18,7 @@ const { layout } = useLayout()
     <div
       class="flex min-h-0 min-w-0 flex-1 flex-col"
       :class="{
-        'border sm:mb-1.5 sm:mr-1.5 sm:rounded-lg sm:*:rounded-lg':
+        'border sm:mr-1.5 sm:mb-1.5 sm:rounded-lg sm:*:rounded-lg':
           layout === 'desktop',
       }">
       <slot />

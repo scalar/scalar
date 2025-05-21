@@ -36,6 +36,8 @@ useTooltip({
   </div>
 </template>
 <style>
+@reference "../../style.css";
+
 /** Global styles for the tooltip */
 :where(body) > .scalar-tooltip {
   --scalar-tooltip-padding: 8px;
@@ -47,6 +49,6 @@ useTooltip({
 :where(body) > .scalar-tooltip:before {
   content: '';
   inset: var(--scalar-tooltip-offset);
-  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur dark:shadow-border-1/2;
+  @apply absolute rounded bg-b-tooltip -z-1 backdrop-blur dark:shadow-border;
 }
 </style>

@@ -24,9 +24,9 @@ const meta = {
       return { args, loadingState }
     },
     template: `
-      <div className="row gap-16 items-center">
+      <div class="flex gap-16 items-center">
         <ScalarLoading :loadingState="loadingState" v-bind="args" />
-        <div className="row gap-4 items-center">
+        <div class="flex gap-4 items-center">
           <ScalarButton @click="loadingState.validate()">Validate</ScalarButton>
           <ScalarButton variant="danger" @click="loadingState.invalidate()">Invalidate</ScalarButton>
           <ScalarButton variant="outlined" @click="loadingState.clear() && loadingState.startLoading()">Clear</ScalarButton>

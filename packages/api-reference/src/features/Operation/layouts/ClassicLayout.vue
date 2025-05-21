@@ -135,6 +135,8 @@ const title = computed(() => operation.summary || operation.path)
 </template>
 
 <style scoped>
+@reference "@/style.css";
+
 .operation-title {
   display: flex;
   justify-content: space-between;
@@ -246,7 +248,7 @@ const title = computed(() => operation.summary || operation.path)
   padding: 9px;
 }
 
-@screen lg {
+@variant lg {
   .endpoint-content {
     grid-auto-flow: column;
   }

@@ -39,7 +39,7 @@ const { currentRoute } = useRouter()
 </script>
 <template>
   <div
-    class="lg:min-h-client-header t-app__top-container border-b-1/2 flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
+    class="lg:min-h-header t-app__top-container flex w-full flex-wrap items-center justify-center border-b p-2 pt-2 lg:p-1 lg:pt-1">
     <div
       class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <!-- Holds space for the sidebar toggle -->
@@ -70,7 +70,7 @@ const { currentRoute } = useRouter()
         :url="collection.documentUrl" />
       <button
         v-if="layout === 'modal'"
-        class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed right-2 top-2 rounded-full p-2"
+        class="app-exit-button gitbook-hidden zoomed:static zoomed:p-1 fixed top-2 right-2 rounded-full p-2"
         type="button"
         @click="$emit('hideModal')">
         <ScalarIcon

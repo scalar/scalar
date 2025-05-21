@@ -327,7 +327,7 @@ onBeforeUnmount(() => {
         v-if="!activeCommand"
         class="custom-scroll max-h-[50dvh] min-h-0 flex-1 rounded-lg p-1.5">
         <div
-          class="bg-b-2 focus-within:bg-b-1 focus-within:border-b-3 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)]">
+          class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--color-b-3)">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
@@ -358,7 +358,7 @@ onBeforeUnmount(() => {
                 command.name.toLowerCase().includes(commandQuery.toLowerCase()),
               ).length > 0
             "
-            class="text-c-3 mb-1 mt-2 px-2 text-xs font-medium">
+            class="text-c-3 mt-2 mb-1 px-2 text-xs font-medium">
             {{ group.label }}
           </div>
           <div
@@ -400,7 +400,7 @@ onBeforeUnmount(() => {
         v-else
         class="flex-1 p-1.5">
         <button
-          class="hover:bg-b-3 text-c-3 active:text-c-1 z-1 my-1.25 p-0.75 absolute mr-1.5 rounded"
+          class="hover:bg-b-3 text-c-3 active:text-c-1 absolute z-1 my-1.25 mr-1.5 rounded p-0.75"
           type="button"
           @click="activeCommand = null">
           <ScalarIcon

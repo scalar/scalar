@@ -51,7 +51,7 @@ const data = computed(() => {
 <template>
   <div
     :aria-label="`Collection: ${data.title}`"
-    class="mx-auto flex h-fit w-full flex-col gap-2 pb-3 pt-6 md:mx-auto md:max-w-[720px]">
+    class="mx-auto flex h-fit w-full flex-col gap-2 pt-6 pb-3 md:mx-auto md:max-w-[720px]">
     <IconSelector
       :modelValue="icon"
       placement="bottom-start"
@@ -65,7 +65,7 @@ const data = computed(() => {
           stroke-width="2" />
       </ScalarButton>
     </IconSelector>
-    <div class="ml-1.25 group relative">
+    <div class="group relative ml-1.25">
       <LabelInput
         class="text-xl font-bold"
         inputId="collectionName"
@@ -77,6 +77,8 @@ const data = computed(() => {
 </template>
 
 <style scoped>
+@reference "@/style.css";
+
 :deep(.markdown) h2 {
   @apply text-lg;
 }

@@ -1,0 +1,10 @@
+/**
+ * Components Specific Tailwind Utilities
+ */
+
+@utility max-w-radix-popper {
+  max-width: calc(var(--radix-popper-available-width) - 8px);
+}
+@utility max-h-radix-popper {
+  max-height: calc(var(--radix-popper-available-height) - 8px);
+}

@@ -68,8 +68,7 @@
   "cSpell.enabledFileTypes": {
     "*": true
   },
-  "html-css-class-completion.CSSLanguages": ["css"],
-  "cssPeek.peekToExclude": ["**/node_modules/**", "**/bower_components/**", "**/dist/**"],
+  "css.customData": [".vscode/tailwind.json"],
   "git.pullTags": false,
   "vue.complete.casing.props": "camel",
   "vue.complete.casing.tags": "pascal",
@@ -78,9 +77,9 @@
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "tailwindCSS.experimental.configFile": {
-    "packages/api-client/tailwind.config.ts": "packages/api-client/**",
-    "packages/api-reference/tailwind.config.ts": "packages/api-reference/**",
-    "packages/components/tailwind.config.ts": "packages/components/**"
+    "packages/api-client/src/tailwind.css": "packages/api-client/**",
+    "packages/api-reference/src/tailwind.css": "packages/api-reference/**",
+    "packages/components/src/tailwind.css": "packages/components/**"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",

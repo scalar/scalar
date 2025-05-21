@@ -50,7 +50,7 @@ const { cx } = useBindCx()
     <slot v-else />
     <div
       v-if="loading?.isLoading"
-      class="centered-x absolute">
+      class="centered">
       <ScalarLoading
         :loadingState="loading"
         size="xl" />

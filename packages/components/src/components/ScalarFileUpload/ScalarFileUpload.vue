@@ -118,7 +118,7 @@ const { cx } = useBindCx()
   <div
     v-bind="
       cx(
-        'flex flex-col relative border-dashed border-2 has-[input:focus-visible]:outline outline-offset-1 rounded',
+        'flex flex-col relative border-dashed border-1 has-[input:focus-visible]:outline outline-offset-1 rounded',
       )
     "
     @dragenter="dragover = true"

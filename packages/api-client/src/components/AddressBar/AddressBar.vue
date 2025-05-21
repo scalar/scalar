@@ -165,89 +165,87 @@ function updateRequestPath(url: string) {
 <template>
   <div
     :id="id"
-    class="scalar-address-bar order-last h-[--scalar-address-bar-height] w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
-    <div class="m-auto flex flex-row items-center">
-      <!-- Address Bar -->
+    class="scalar-address-bar order-last flex h-(--scalar-address-bar-height) w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
+    <!-- Address Bar -->
+    <div
+      class="address-bar-bg-states text-xxs group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg p-0.75 lg:order-none lg:max-w-[580px] lg:min-w-[580px] xl:max-w-[720px] xl:min-w-[720px]">
       <div
-        class="address-bar-bg-states text-xxs p-0.75 group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg lg:order-none lg:min-w-[580px] lg:max-w-[580px] xl:min-w-[720px] xl:max-w-[720px]">
+        class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
-          class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden rounded-lg border">
-          <div
-            class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 z-[1002] h-full w-full"
-            :class="getBackgroundColor()"
-            :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
-        </div>
-        <div class="z-context-plus flex gap-1">
-          <HttpMethod
-            :isEditable="layout !== 'modal'"
-            isSquare
-            :method="operation.method"
-            teleport
-            @change="updateRequestMethod" />
-        </div>
-
-        <div
-          class="scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full bg-blend-normal">
-          <!-- Servers -->
-          <ServerDropdown
-            v-if="collection.servers.length"
-            :collection="collection"
-            layout="client"
-            :operation="operation"
-            :server="server"
-            :target="id" />
-
-          <div class="fade-left" />
-          <!-- Path + URL + env vars -->
-          <CodeInput
-            ref="addressBarRef"
-            aria-label="Path"
-            class="min-w-fit outline-none"
-            disableCloseBrackets
-            :disabled="layout === 'modal'"
-            disableEnter
-            disableTabIndent
-            :emitOnBlur="false"
-            :envVariables="envVariables"
-            :environment="environment"
-            importCurl
-            :modelValue="operation.path"
-            :placeholder="
-              server?.uid && collection.servers.includes(server.uid)
-                ? ''
-                : 'Enter a URL or cURL command'
-            "
-            server
-            :workspace="workspace"
-            @curl="$emit('importCurl', $event)"
-            @submit="handleExecuteRequest"
-            @update:modelValue="updateRequestPath" />
-          <div class="fade-right" />
-        </div>
-
-        <AddressBarHistory
-          :operation="operation"
-          :target="id" />
-        <ScalarButton
-          ref="sendButtonRef"
-          class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pl-2 pr-2.5 font-bold"
-          :disabled="isRequesting"
-          @click="handleExecuteRequest">
-          <span
-            aria-hidden="true"
-            class="inline-flex items-center gap-1">
-            <ScalarIcon
-              class="relative shrink-0 fill-current"
-              icon="Play"
-              size="xs" />
-            <span class="text-xxs hidden lg:flex">Send</span>
-          </span>
-          <span class="sr-only">
-            Send {{ operation.method }} request to {{ server?.url ?? ''
-            }}{{ operation.path }}
-          </span>
-        </ScalarButton>
+          class="bg-mix-transparent bg-mix-amount-90 absolute top-0 left-0 z-[1002] h-full w-full"
+          :class="getBackgroundColor()"
+          :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
       </div>
+      <div class="z-context-plus flex gap-1">
+        <HttpMethod
+          :isEditable="layout !== 'modal'"
+          isSquare
+          :method="operation.method"
+          teleport
+          @change="updateRequestMethod" />
+      </div>
+
+      <div
+        class="scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full bg-blend-normal">
+        <!-- Servers -->
+        <ServerDropdown
+          v-if="collection.servers.length"
+          :collection="collection"
+          layout="client"
+          :operation="operation"
+          :server="server"
+          :target="id" />
+
+        <div class="fade-left" />
+        <!-- Path + URL + env vars -->
+        <CodeInput
+          ref="addressBarRef"
+          aria-label="Path"
+          class="min-w-fit outline-none"
+          disableCloseBrackets
+          :disabled="layout === 'modal'"
+          disableEnter
+          disableTabIndent
+          :emitOnBlur="false"
+          :envVariables="envVariables"
+          :environment="environment"
+          importCurl
+          :modelValue="operation.path"
+          :placeholder="
+            server?.uid && collection.servers.includes(server.uid)
+              ? ''
+              : 'Enter a URL or cURL command'
+          "
+          server
+          :workspace="workspace"
+          @curl="$emit('importCurl', $event)"
+          @submit="handleExecuteRequest"
+          @update:modelValue="updateRequestPath" />
+        <div class="fade-right" />
+      </div>
+
+      <AddressBarHistory
+        :operation="operation"
+        :target="id" />
+      <ScalarButton
+        ref="sendButtonRef"
+        class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pr-2.5 pl-2 font-bold"
+        :disabled="isRequesting"
+        @click="handleExecuteRequest">
+        <span
+          aria-hidden="true"
+          class="inline-flex items-center gap-1">
+          <ScalarIcon
+            class="relative shrink-0 fill-current"
+            icon="Play"
+            size="xs" />
+          <span class="text-xxs hidden lg:flex">Send</span>
+        </span>
+        <span class="sr-only">
+          Send {{ operation.method }} request to {{ server?.url ?? ''
+          }}{{ operation.path }}
+        </span>
+      </ScalarButton>
     </div>
   </div>
 </template>
