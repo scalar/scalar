@@ -68,8 +68,8 @@ describe('create-workspace-store', () => {
     await server.close()
   })
 
-  test('should correctly update workspace metadata', () => {
-    const store = createWorkspaceStore({
+  test('should correctly update workspace metadata', async () => {
+    const store = await createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
         'x-scalar-dark-mode': false,
@@ -83,8 +83,8 @@ describe('create-workspace-store', () => {
     expect(store.rawWorkspace['x-scalar-theme']).toBe('saturn')
   })
 
-  test('should correctly update document metadata', () => {
-    const store = createWorkspaceStore({
+  test('should correctly update document metadata', async () => {
+    const store = await createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -113,8 +113,8 @@ describe('create-workspace-store', () => {
     expect(store.rawWorkspace.documents['default']['x-scalar-active-server']).toBe('server-3')
   })
 
-  test('should correctly get the correct document', () => {
-    const store = createWorkspaceStore({
+  test('should correctly get the correct document', async () => {
+    const store = await createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -154,27 +154,25 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default'].info?.title).toBe('My API')
   })
 
-  test('should correctly add new documents', () => {
-    const store = createWorkspaceStore({
+  test('should correctly add new documents', async () => {
+    const store = await createWorkspaceStore({
       documents: [],
     })
 
-    store.addDocument(
-      {
+    await store.addDocument({
+      document: {
         openapi: '3.0.0',
         info: { title: 'My API' },
       },
-      {
-        name: 'default',
-      },
-    )
+      name: 'default',
+    })
 
     store.update('x-scalar-active-document', 'default')
     expect(store.workspace.activeDocument?.info?.title).toBe('My API')
   })
 
-  test('should correctly resolve refs on the fly', () => {
-    const store = createWorkspaceStore({
+  test('should correctly resolve refs on the fly', async () => {
+    const store = await createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -261,7 +259,7 @@ describe('create-workspace-store', () => {
       ],
     })
 
-    const store = createWorkspaceStore({
+    const store = await createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -314,7 +312,7 @@ describe('create-workspace-store', () => {
       await fs.readFile(`${buildPath}/${WORKSPACE_FILE_NAME}`, { encoding: 'utf-8' }),
     ) as Workspace
 
-    const store = createWorkspaceStore({
+    const store = await createWorkspaceStore({
       documents: [
         {
           name: 'default',

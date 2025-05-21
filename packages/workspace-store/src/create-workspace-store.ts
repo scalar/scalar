@@ -2,7 +2,28 @@ import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
 import { isObject } from '@scalar/openapi-parser'
 import { createMagicProxy } from './helpers/proxy'
-import { resolveRef } from '@/helpers/general'
+import { fetchUrl, readLocalFile, resolveRef } from '@/helpers/general'
+
+type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
+type WorkspaceDocumentInput =
+  | ({ document: Record<string, unknown> } & WorkspaceDocumentMetaInput)
+  | ({ url: string } & WorkspaceDocumentMetaInput)
+  | ({ path: string } & WorkspaceDocumentMetaInput)
+
+async function resolveDocument(workspaceDocument: WorkspaceDocumentInput) {
+  if ('url' in workspaceDocument) {
+    return fetchUrl(workspaceDocument.url)
+  }
+
+  if ('path' in workspaceDocument) {
+    return readLocalFile(workspaceDocument.path)
+  }
+
+  return {
+    ok: true as const,
+    data: workspaceDocument.document,
+  }
+}
 
 /**
  * Creates a reactive workspace store that manages documents and their metadata.
@@ -13,21 +34,41 @@ import { resolveRef } from '@/helpers/general'
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
  * @returns An object containing methods and getters for managing the workspace
  */
-export function createWorkspaceStore(workspaceProps?: {
+export async function createWorkspaceStore(workspaceProps?: {
   meta?: WorkspaceMeta
-  documents?: { document: Record<string, unknown>; meta?: WorkspaceDocumentMeta; name: string }[]
+  documents?: WorkspaceDocumentInput[]
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive({
     ...workspaceProps?.meta,
-    documents: (workspaceProps?.documents ?? []).reduce<Record<string, Record<string, unknown>>>(
-      (acc, { document, meta = {}, name }) => {
-        acc[name] = createMagicProxy({ ...document, ...meta })
-        return acc
-      },
-      {},
-    ),
+    documents: (
+      await Promise.all(
+        (workspaceProps?.documents ?? []).map<
+          Promise<{ name: string; meta?: WorkspaceDocumentMeta; document: Record<string, unknown> }>
+        >(async (data) => {
+          const resolved = await resolveDocument(data)
+
+          if (!resolved.ok) {
+            console.error(`Can not load the document '${data.name}'`)
+            return {
+              name: data.name,
+              meta: data.meta,
+              document: {},
+            }
+          }
+
+          return {
+            name: data.name,
+            meta: data.meta,
+            document: isObject(resolved.data) ? (resolved.data as Record<string, unknown>) : {},
+          }
+        }),
+      )
+    ).reduce<Record<string, Record<string, unknown>>>((acc, { name, meta, document }) => {
+      acc[name] = createMagicProxy({ ...document, ...meta })
+      return acc
+    }, {}),
   }) as Workspace
 
   return {
@@ -51,7 +92,7 @@ export function createWorkspaceStore(workspaceProps?: {
          * @returns The active document or undefined if no document is found
          */
         get activeDocument(): (typeof workspace.documents)[number] | undefined {
-          const activeDocumentKey = workspace['x-scalar-active-document'] ?? workspaceProps?.documents?.[0].name ?? ''
+          const activeDocumentKey = workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? ''
           return workspace.documents[activeDocumentKey]
         },
       }
@@ -142,18 +183,31 @@ export function createWorkspaceStore(workspaceProps?: {
      * Adds a new document to the workspace
      * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
      * @param meta - Metadata for the document, including its name and other properties defined in WorkspaceDocumentMeta
-     * @throws Error if a document with the same name already exists
      * @example
-     * // Add a new OpenAPI document
-     * addDocument({
-     *   openapi: '3.0.0',
-     *   info: { title: 'My API' }
-     * }, { name: 'api' })
+     * // Add a new OpenAPI document to the workspace
+     * store.addDocument({
+     *   name: 'name',
+     *   document: {
+     *     openapi: '3.0.0',
+     *     info: { title: 'title' },
+     *   },
+     *   meta: {
+     *     'x-scalar-active-auth': 'Bearer',
+     *     'x-scalar-active-server': 'production'
+     *   }
+     * })
      */
-    addDocument: (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
-      const { name, ...documentMeta } = meta
+    addDocument: async (input: WorkspaceDocumentInput) => {
+      const { name, meta } = input
 
-      workspace.documents[name] = createMagicProxy({ ...document, ...documentMeta })
+      const resolve = await resolveDocument(input)
+
+      if (!resolve.ok || !isObject(resolve.data)) {
+        console.error(`Can not load the document '${name}'`)
+        return
+      }
+
+      workspace.documents[name] = createMagicProxy({ ...(resolve.data as Record<string, unknown>), ...meta })
     },
   }
 }

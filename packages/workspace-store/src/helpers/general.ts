@@ -51,7 +51,7 @@ export function isFileSystemRef(value: string) {
  * }
  * ```
  */
-async function fetchUrl(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+export async function fetchUrl(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
   const response = await fetch(value)
 
   if (response.ok) {
@@ -75,7 +75,7 @@ async function fetchUrl(value: string): Promise<{ ok: true; data: unknown } | { 
  * }
  * ```
  */
-async function readLocalFile(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+export async function readLocalFile(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
   try {
     const contents = await fs.readFile(value, 'utf-8')
 
