@@ -15,6 +15,7 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { ExternalDocs } from '@/features/ExternalDocs'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -51,6 +52,11 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
     <SectionContent :loading="config.isLoading">
       <SectionColumns>
         <SectionColumn>
+          <div
+            class="links"
+            v-if="tag.externalDocs">
+            <ExternalDocs :value="tag.externalDocs" />
+          </div>
           <ScalarMarkdown
             :clamp="isCollapsed ? '7' : false"
             :value="tag.description"
@@ -66,3 +72,11 @@ const title = computed(() => props.tag['x-displayName'] ?? props.tag.name)
     <SpecificationExtension :value="tag" />
   </Section>
 </template>
+
+<style scoped>
+.links {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+</style>

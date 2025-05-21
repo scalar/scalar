@@ -23,7 +23,40 @@
           {
             title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
             slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+            // TODO: Remove example before merging
+            // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+            content: {
+              openapi: '3.1.0',
+              info: {
+                title: 'Scalar Galaxy',
+                version: '1.0.0',
+                description:
+                  'The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It’s a fictional universe with fictional planets and fictional data.',
+                externalDocs: {
+                  description: 'External Docs',
+                  url: 'https://scalar.com',
+                },
+              },
+              tags: [
+                {
+                  name: 'Authentication',
+                  description:
+                    'Some endpoints are public, but some require authentication. We provide all the required endpoints to create an account and authorize yourself.',
+                  externalDocs: {
+                    description: 'External Docs',
+                    url: 'https://scalar.com',
+                  },
+                },
+              ],
+              paths: {
+                '/users': {
+                  get: {
+                    tags: ['Authentication'],
+                    summary: 'Get all users',
+                  },
+                },
+              },
+            },
           },
           {
             title: 'Swagger Petstore',

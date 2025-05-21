@@ -5,11 +5,12 @@ import GitHubSlugger from 'github-slugger'
 import { computed, onMounted } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
+import DownloadLink from '@/features/DownloadLink/DownloadLink.vue'
+import { ExternalDocs } from '@/features/ExternalDocs'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
 
-import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
 import {
   Section,
@@ -23,9 +24,7 @@ import {
 import Description from './Description.vue'
 
 const props = defineProps<{
-  info: Partial<
-    OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
-  >
+  info: OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
   parsedSpec: Spec
 }>()
 
@@ -88,7 +87,11 @@ onMounted(() => config.value.onLoaded?.())
             {{ info.title }}
           </SectionHeaderTag>
         </SectionHeader>
-        <DownloadLink :filename="filenameFromTitle" />
+        <!-- TODO: Only render when download button or external docs are shown -->
+        <div class="links">
+          <DownloadLink :filename="filenameFromTitle" />
+          <ExternalDocs :value="info.externalDocs" />
+        </div>
         <SectionColumns>
           <SectionColumn>
             <Description :value="info.description" />
@@ -112,5 +115,11 @@ onMounted(() => config.value.onLoaded?.())
   flex-direction: column;
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
+}
+
+.links {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
 }
 </style>
