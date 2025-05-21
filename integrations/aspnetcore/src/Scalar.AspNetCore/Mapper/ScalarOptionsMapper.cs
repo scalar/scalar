@@ -61,7 +61,8 @@ internal static class ScalarOptionsMapper
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
             Sources = sources,
-            BaseServerUrl = options.BaseServerUrl
+            BaseServerUrl = options.BaseServerUrl,
+            PersistAuth = options.PersistentAuthentication
         };
     }
 

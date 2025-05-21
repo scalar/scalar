@@ -820,4 +820,15 @@ public static class ScalarOptionsExtensions
         options.JavaScriptConfiguration = javaScriptConfiguration;
         return options;
     }
+
+    /// <summary>
+    /// Sets whether authentication state should be persisted in local storage.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="persistAuth">Whether to persist authentication between page refreshes.</param>
+    public static ScalarOptions WithPersistentAuthentication(this ScalarOptions options, bool persistAuth = true)
+    {
+        options.PersistentAuthentication = persistAuth;
+        return options;
+    }
 }

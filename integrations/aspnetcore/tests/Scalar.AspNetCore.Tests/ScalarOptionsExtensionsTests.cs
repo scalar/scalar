@@ -61,7 +61,8 @@ public class ScalarOptionsExtensionsTests
             .AddDocuments(new ScalarDocument("v4"))
             .WithBaseServerUrl("https://example.com")
             .WithDynamicBaseServerUrl()
-            .WithJavaScriptConfiguration("/scalar/config.js");
+            .WithJavaScriptConfiguration("/scalar/config.js")
+            .WithPersistentAuthentication();
 
         // Assert
         options.Title.Should().Be("My title");
@@ -108,6 +109,7 @@ public class ScalarOptionsExtensionsTests
         options.BaseServerUrl.Should().Be("https://example.com");
         options.DynamicBaseServerUrl.Should().BeTrue();
         options.JavaScriptConfiguration.Should().Be("/scalar/config.js");
+        options.PersistentAuthentication.Should().BeTrue();
 
 #pragma warning restore CS0618 // Type or member is obsolete
     }
