@@ -69,14 +69,14 @@ describe('create-server-store', () => {
         'paths': {
           '/planets': {
             get: {
-              '$ref': `https://example.com?path=${encodeURIComponent(`#/${name}/operations/~1planets/get`)}`,
+              '$ref': `https://example.com/${name}/operations/~1planets/get/#`,
             },
           },
         },
         'components': {
           parameters: {
             planetId: {
-              '$ref': `https://example.com?path=${encodeURIComponent(`#/${name}/components/parameters/planetId`)}`,
+              '$ref': `https://example.com/${name}/components/parameters/planetId/#`,
             },
           },
         },
@@ -148,13 +148,13 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': `https://example.com?path=${encodeURIComponent('#/doc-1/operations/~1planets/get')}` },
+            get: { '$ref': 'https://example.com/doc-1/operations/~1planets/get/#' },
           },
         },
         'components': {
           'parameters': {
             planetId: {
-              '$ref': `https://example.com?path=${encodeURIComponent('#/doc-1/components/parameters/planetId')}`,
+              '$ref': 'https://example.com/doc-1/components/parameters/planetId/#',
             },
           },
         },
@@ -169,13 +169,13 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': `https://example.com?path=${encodeURIComponent('#/doc-3/operations/~1planets/get')}` },
+            get: { '$ref': 'https://example.com/doc-3/operations/~1planets/get/#' },
           },
         },
         'components': {
           'parameters': {
             planetId: {
-              '$ref': `https://example.com?path=${encodeURIComponent('#/doc-3/components/parameters/planetId')}`,
+              '$ref': 'https://example.com/doc-3/components/parameters/planetId/#',
             },
           },
         },
@@ -348,7 +348,7 @@ describe('externalize-component-references', () => {
     )
 
     expect(result).toEqual({
-      schemas: { User: { '$ref': `https://example.com?path=${encodeURIComponent('#/name/components/schemas/User')}` } },
+      schemas: { User: { '$ref': 'https://example.com/name/components/schemas/User/#' } },
     })
   })
 
@@ -402,7 +402,7 @@ describe('externalize-path-references', () => {
     )
 
     expect(result).toEqual({
-      '/test': { get: { '$ref': `https://example.com?path=${encodeURIComponent('#/name/operations/~1test/get')}` } },
+      '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get/#' } },
     })
   })
 

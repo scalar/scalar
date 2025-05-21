@@ -241,7 +241,7 @@ describe('create-workspace-store', () => {
 
   test('should correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
-      const path = (req.query as { path: string }).path
+      const path = req.url
       const contents = serverStore.get(path)
 
       res.send(contents)
@@ -272,7 +272,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
-      '$ref': `http://localhost:9988?path=${encodeURIComponent('#/default/operations/~1users/get')}`,
+      '$ref': 'http://localhost:9988/default/operations/~1users/get/#',
     })
 
     // We resolve the ref

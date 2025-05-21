@@ -99,22 +99,18 @@ async function readLocalFile(value: string): Promise<{ ok: true; data: unknown }
  * ```
  */
 export async function resolveRef(value: string) {
-  if (isRemoteRef(value)) {
-    return fetchUrl(value)
+  const [path, pointer] = value.split('/#')
+
+  if (!isRemoteRef(value) && !isFileSystemRef(value)) {
+    return { ok: false } as const
   }
 
-  if (isFileSystemRef(value)) {
-    const [path, pointer] = value.split('/#')
-    const result = await readLocalFile(path)
-
-    if (result.ok) {
-      return {
-        ok: true,
-        data: getValueByPath(result.data, parseJsonPointer(pointer)),
-      }
+  const result = isRemoteRef(value) ? await fetchUrl(path) : await readLocalFile(path)
+  if (result.ok) {
+    return {
+      ok: true,
+      data: getValueByPath(result.data, parseJsonPointer(pointer)),
     }
-    return result
   }
-
-  return { ok: false } as const
+  return result
 }
