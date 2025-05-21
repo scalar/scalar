@@ -151,6 +151,10 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
   }
 
+  /** Just a temp ID, we can fix this later, issue is the URL will have slashes etc */
+  const getCallbackId = (callback: TransformedOperation, name: string, parentId: string) =>
+    `${parentId}/callbacks/${name}${callback.httpVerb}`
+
   const getWebhookId = (webhook?: { name: string; method?: string }) => {
     if (!webhook?.name) {
       return 'webhooks'
@@ -194,6 +198,7 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     getPathRoutingId,
     getSectionId,
     getTagId,
+    getCallbackId,
     isIntersectionEnabled,
     updateHash,
   }

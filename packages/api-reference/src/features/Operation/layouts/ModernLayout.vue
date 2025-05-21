@@ -22,6 +22,7 @@ import {
 } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -30,21 +31,19 @@ import {
   isOperationDeprecated,
 } from '@/libs/openapi'
 
+import Callbacks from '../components/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation } = defineProps<{
+const { operation, transformedOperation, callbackName } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
   operation: Operation
+  callbackName?: string
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Schemas
 }>()
 
 const labelId = useId()
@@ -75,6 +74,7 @@ const title = computed(() => operation.summary || operation.path)
               {{ title }}
             </SectionHeaderTag>
           </Anchor>
+          <h4 v-if="callbackName">{{ callbackName }} [callback tag]</h4>
         </SectionHeader>
       </div>
       <SectionColumns>
@@ -120,6 +120,16 @@ const title = computed(() => operation.summary || operation.path)
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
+
+    <!-- Callbacks -->
+    <Callbacks
+      v-if="operation.callbacks"
+      :callbacks="operation.callbacks"
+      :collection="collection"
+      :parentId="id ?? ''"
+      :schemas="schemas"
+      :server="server"
+      layout="modern" />
   </Section>
 </template>
 
