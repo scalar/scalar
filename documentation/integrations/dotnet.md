@@ -347,7 +347,8 @@ app.MapScalarApiReference(options => options
     .AddHttpAuthentication("BearerAuth", auth =>
     {
         auth.Token = "ey...";
-    });
+    })
+    .WithPersistentAuthentication() // Persists authentication between page refreshes
 );
 ```
 
@@ -396,6 +397,23 @@ app.MapScalarApiReference(options => options
 
 > [!NOTE]
 > For more detailed information about authentication, including how to configure security schemes in your OpenAPI document, refer to the [authentication documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/authentication.md).
+
+#### Persisting Authentication
+
+By default, authentication information is not persisted when the page is refreshed. To enable persistence of authentication data in the browser's local storage, use the `WithPersistentAuthentication` method:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
+    // Configure your authentication schemes here
+    .WithPersistentAuthentication() // Enable persistence (default is true)
+);
+```
+
+With this configuration, users won't need to re-enter their authentication credentials after refreshing the page.
+
+> [!WARNING]
+> Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
 
 ### Custom HTTP Client
 
