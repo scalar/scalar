@@ -88,9 +88,9 @@ onMounted(() => config.value.onLoaded?.())
             {{ info.title }}
           </SectionHeaderTag>
         </SectionHeader>
-        <DownloadLink :filename="filenameFromTitle" />
         <SectionColumns>
           <SectionColumn>
+            <DownloadLink :filename="filenameFromTitle" />
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
