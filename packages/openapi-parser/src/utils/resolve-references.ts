@@ -62,11 +62,6 @@ export function resolveReferences(
       throw new Error(ERRORS.NO_CONTENT)
     }
 
-    errors.push({
-      code: 'NO_CONTENT',
-      message: ERRORS.NO_CONTENT,
-    })
-
     return {
       valid: false,
       errors,
