@@ -10,6 +10,8 @@ export type Merge<A, B> = A & Omit<B, keyof A>
 
 export type AnyObject = Record<string, any>
 
+export type UnknownObject = Record<string, unknown>
+
 /**
  * JSON, YAML or object representation of an OpenAPI API definition
  */

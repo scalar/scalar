@@ -1,7 +1,7 @@
-import type { AnyObject } from '../types'
+import fs from 'node:fs/promises'
+import type { UnknownObject } from '../types'
 import { getSegmentsFromPath } from './getSegmentsFromPath'
 import { isObject } from './isObject'
-import fs from 'node:fs/promises'
 
 /**
  * Checks if a JSON pointer is a remote reference (starts with http:// or https://)
@@ -169,7 +169,7 @@ export function getNestedValue(target: Record<string, any>, segments: string[]) 
  * @param input - The OpenAPI specification object to bundle
  * @returns A promise that resolves when all references have been resolved
  */
-export function bundle(input: AnyObject) {
+export function bundle(input: UnknownObject) {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
