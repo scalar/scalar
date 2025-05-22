@@ -1,1 +1,1 @@
-export { useDataSource } from './hooks/useDataSource'
+export { useDocumentSource } from './hooks/useDocumentSource'

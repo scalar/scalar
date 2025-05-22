@@ -40,7 +40,7 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
-import { useDataSource } from '@/features/DataProvider'
+import { useDocumentSource } from '@/features/DataProvider'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
@@ -89,7 +89,7 @@ const {
   parsedDocument,
   workspaceStore,
   activeEntitiesStore,
-} = useDataSource({
+} = useDocumentSource({
   configuration,
   dereferencedDocument: providedDereferencedDocument,
   originalDocument: providedOriginalDocument,

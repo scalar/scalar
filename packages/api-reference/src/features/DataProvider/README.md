@@ -35,7 +35,7 @@ const { originalDocument } = useDocumentFetcher({
 })
 ```
 
-### useDataSource
+### useDocumentSource
 
 The main composable that orchestrates document processing and state management. It:
 
@@ -53,7 +53,7 @@ const {
   parsedDocument,
   workspaceStore,
   activeEntitiesStore
-} = useDataSource({
+} = useDocumentSource({
   configuration: ApiReferenceConfiguration
   // or
   originalDocument: string,
@@ -78,7 +78,7 @@ const {
 ## Usage Example
 
 ```typescript
-import { useDataSource } from '@/features/DataProvider/hooks/useDataSource'
+import { useDocumentSource } from '@/features/DataProvider/hooks/useDocumentSource'
 
 // In your component
 const {
@@ -86,7 +86,7 @@ const {
   dereferencedDocument,
   parsedDocument,
   workspaceStore
-} = useDataSource({
+} = useDocumentSource({
   configuration: {
     url: 'https://api.example.com/openapi.json',
     proxyUrl: 'https://proxy.example.com'

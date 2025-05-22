@@ -6,7 +6,7 @@ import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick, ref } from 'vue'
 import { inject } from 'vue'
-import { useDataSource } from './useDataSource'
+import { useDocumentSource } from './useDocumentSource'
 
 vi.mock('vue', () => {
   const actual = require('vue')
@@ -22,7 +22,7 @@ vi.mock('@/hooks/useSidebar', () => ({
   }),
 }))
 
-describe('useDataSource', () => {
+describe('useDocumentSource', () => {
   const mockOpenApiDocument: OpenAPIV3_1.Document = {
     openapi: '3.1.0',
     info: {
@@ -64,7 +64,7 @@ describe('useDataSource', () => {
 
   describe('document handling', () => {
     it('uses provided original document when available', async () => {
-      const { originalDocument } = useDataSource({
+      const { originalDocument } = useDocumentSource({
         originalDocument: JSON.stringify(mockOpenApiDocument),
       })
 
@@ -73,7 +73,7 @@ describe('useDataSource', () => {
     })
 
     it('falls back to fetched document when no original document is provided', async () => {
-      const { originalDocument } = useDataSource({
+      const { originalDocument } = useDocumentSource({
         configuration: mockConfiguration,
       })
 
@@ -83,7 +83,7 @@ describe('useDataSource', () => {
     })
 
     it('creates empty document when no document is provided', () => {
-      const { dereferencedDocument, parsedDocument } = useDataSource({})
+      const { dereferencedDocument, parsedDocument } = useDocumentSource({})
 
       expect(dereferencedDocument.value).toMatchObject({
         openapi: '3.1.0',
@@ -107,7 +107,7 @@ describe('useDataSource', () => {
         paths: {},
       }
 
-      const { dereferencedDocument } = useDataSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: JSON.stringify(outdatedDocument),
       })
 
@@ -116,7 +116,7 @@ describe('useDataSource', () => {
     })
 
     it('tracks original OpenAPI version', async () => {
-      const { originalOpenApiVersion } = useDataSource({
+      const { originalOpenApiVersion } = useDocumentSource({
         originalDocument: JSON.stringify(mockOpenApiDocument),
       })
 
@@ -128,7 +128,7 @@ describe('useDataSource', () => {
 
   describe('configuration handling', () => {
     it('applies provided configuration to workspace store', () => {
-      const { workspaceStore } = useDataSource({
+      const { workspaceStore } = useDocumentSource({
         configuration: mockConfiguration,
       })
 
@@ -138,7 +138,7 @@ describe('useDataSource', () => {
     })
 
     it('uses default configuration when none is provided', () => {
-      const { workspaceStore } = useDataSource({})
+      const { workspaceStore } = useDocumentSource({})
 
       expect(workspaceStore).toBeDefined()
       // Verify default configuration is applied
@@ -148,14 +148,14 @@ describe('useDataSource', () => {
 
   describe('store management', () => {
     it('creates workspace and active entities stores', () => {
-      const { workspaceStore, activeEntitiesStore } = useDataSource({})
+      const { workspaceStore, activeEntitiesStore } = useDocumentSource({})
 
       expect(workspaceStore).toBeDefined()
       expect(activeEntitiesStore).toBeDefined()
     })
 
     it('creates active entities store with workspace store', () => {
-      const { activeEntitiesStore } = useDataSource({})
+      const { activeEntitiesStore } = useDocumentSource({})
 
       expect(activeEntitiesStore).toBeDefined()
       // Verify active entities store is connected to workspace store
@@ -165,7 +165,7 @@ describe('useDataSource', () => {
 
   describe.only('document processing', () => {
     it('updates parsed document when dereferenced document changes', async () => {
-      const { parsedDocument } = useDataSource({
+      const { parsedDocument } = useDocumentSource({
         dereferencedDocument: ref(mockOpenApiDocument),
       })
 
@@ -176,7 +176,7 @@ describe('useDataSource', () => {
     })
 
     it('handles document normalization', async () => {
-      const { dereferencedDocument } = useDataSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: JSON.stringify(mockOpenApiDocument),
       })
 
@@ -186,7 +186,7 @@ describe('useDataSource', () => {
 
     it('updates sidebar when parsed document changes', async () => {
       const { setParsedSpec } = useSidebar()
-      useDataSource({
+      useDocumentSource({
         dereferencedDocument: ref(mockOpenApiDocument),
       })
 
@@ -198,7 +198,7 @@ describe('useDataSource', () => {
 
   describe('error handling', () => {
     it('handles invalid JSON in original document', async () => {
-      const { dereferencedDocument } = useDataSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: 'invalid json',
       })
 
@@ -215,7 +215,7 @@ describe('useDataSource', () => {
     })
 
     it('handles missing document gracefully', async () => {
-      const { dereferencedDocument, parsedDocument } = useDataSource({
+      const { dereferencedDocument, parsedDocument } = useDocumentSource({
         originalDocument: undefined,
       })
 
@@ -226,7 +226,7 @@ describe('useDataSource', () => {
     })
 
     it('handles empty document gracefully', async () => {
-      const { dereferencedDocument, parsedDocument } = useDataSource({
+      const { dereferencedDocument, parsedDocument } = useDocumentSource({
         originalDocument: '',
       })
 
@@ -240,7 +240,7 @@ describe('useDataSource', () => {
   describe('reactive behavior', () => {
     it('reacts to changes in original document', async () => {
       const originalDoc = ref(JSON.stringify(mockOpenApiDocument))
-      const { dereferencedDocument } = useDataSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: originalDoc,
       })
 
@@ -260,7 +260,7 @@ describe('useDataSource', () => {
     it('reacts to changes in dereferenced document', async () => {
       const providedDereferencedDocument = ref(mockOpenApiDocument)
 
-      const { parsedDocument } = useDataSource({
+      const { parsedDocument } = useDocumentSource({
         dereferencedDocument: providedDereferencedDocument,
       })
 
