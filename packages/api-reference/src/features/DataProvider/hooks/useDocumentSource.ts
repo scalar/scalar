@@ -89,10 +89,11 @@ export function useDocumentSource({
       const content = normalize(newDocument) as OpenAPI.Document
 
       // Original OpenAPI version
-      originalOpenApiVersion.value = content.openapi || content.swagger || ''
+      originalOpenApiVersion.value = (typeof content === 'object' && (content.openapi || content.swagger)) || ''
 
       // Upgrade
-      const outdatedVersion = !content.openapi?.startsWith('3.1')
+      const outdatedVersion = !originalOpenApiVersion.value.startsWith('3.1')
+
       const upgraded = outdatedVersion
         ? // Upgrade needed
           measure('upgrade', () => {
@@ -105,6 +106,7 @@ export function useDocumentSource({
 
       // Dereference
       const schema = await measure('dereference', async () => {
+        console.log('dereferencing', upgraded)
         const { schema, errors } = await dereference(upgraded)
 
         // Error handling
