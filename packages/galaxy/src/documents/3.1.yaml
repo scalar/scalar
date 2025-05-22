@@ -776,13 +776,13 @@ components:
         successCallbackUrl:
           type: string
           format: uri
-          description: URL which gets hit upon a successful operation
+          description: URL which gets invoked upon a successful operation
           examples:
             - https://example.com/webhook
         failureCallbackUrl:
           type: string
           format: uri
-          description: URL which gets hit upon a successful operation
+          description: URL which gets invoked upon a failed operation
           examples:
             - https://example.com/webhook
     PaginatedResource:
