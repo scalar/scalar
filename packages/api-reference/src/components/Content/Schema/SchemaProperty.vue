@@ -287,7 +287,8 @@ const displayPropertyHeading = (
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
-          :value="optimizedValue.items" />
+          :value="optimizedValue.items"
+          :schemas="schemas" />
       </div>
     </template>
     <!-- Compositions -->
