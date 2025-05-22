@@ -28,7 +28,7 @@
     "lint:fix": "eslint .  --fix",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
-    "test:unit": "vite-node scripts/load-files.ts && vitest",
+    "test:unit": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -76,6 +76,7 @@
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
-    "tinybench": "^2.8.0"
+    "tinybench": "^2.8.0",
+    "fastify": "catalog:*"
   }
 }

@@ -36,6 +36,9 @@ catalogs:
     express:
       specifier: ^5.1.0
       version: 5.1.0
+    fastify:
+      specifier: ^4.26.2
+      version: 4.28.0
     nanoid:
       specifier: ^5.1.5
       version: 5.1.5
@@ -1939,6 +1942,9 @@ importers:
       '@types/node':
         specifier: catalog:*
         version: 20.17.10
+      fastify:
+        specifier: catalog:*
+        version: 4.28.0
       glob:
         specifier: ^10.3.10
         version: 10.4.5
