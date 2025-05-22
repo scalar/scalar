@@ -1,10 +1,10 @@
-import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest'
-import fastify, { type FastifyInstance } from 'fastify'
-import { bundle, fetchJson, getNestedValue, isExternalRef, isLocalFileRef, isRemoteRef, readFile } from './bundle'
-import { afterEach } from 'node:test'
 import assert from 'node:assert'
-import fs from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
+import fs from 'node:fs/promises'
+import { afterEach } from 'node:test'
+import fastify, { type FastifyInstance } from 'fastify'
+import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { bundle, fetchJson, getNestedValue, isExternalRef, isLocalFileRef, isRemoteRef, readFile } from './bundle'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -18,7 +18,7 @@ describe('bundle', () => {
       await server.close()
     })
 
-    test('should bundle external urls', async () => {
+    it('should bundle external urls', async () => {
       const PORT = 7789
 
       const external = {
@@ -44,7 +44,7 @@ describe('bundle', () => {
       expect(input.d).toBe(external.prop)
     })
 
-    test('should bundle external urls from the resolved external piece', async () => {
+    it('should bundle external urls from the resolved external piece', async () => {
       const PORT = 8890
       const url = `http://localhost:${PORT}`
       const chunk2 = {
@@ -86,7 +86,7 @@ describe('bundle', () => {
       expect(input.a.b.c).toEqual({ ...chunk1, b: chunk2 })
     })
 
-    test('should not fetch from the same resource twice', async () => {
+    it('should not fetch from the same resource twice', async () => {
       const fn = vi.fn()
       const PORT = 4402
       const url = `http://localhost:${PORT}`
@@ -121,7 +121,7 @@ describe('bundle', () => {
   })
 
   describe('local files', () => {
-    test('should correctly resolve from local files', async () => {
+    it('should correctly resolve from local files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
@@ -140,7 +140,7 @@ describe('bundle', () => {
       await fs.rm(chunk1Path)
     })
 
-    test('should correctly resolve external refs from the resolved files', async () => {
+    it('should correctly resolve external refs from the resolved files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
@@ -166,7 +166,7 @@ describe('bundle', () => {
 })
 
 describe('isRemoteRef', () => {
-  test.each([
+  it.each([
     ['https://example.com/schema.json', true],
     ['http://api.example.com/schemas/user.json', true],
     ['#/components/schemas/User', false],
@@ -177,7 +177,7 @@ describe('isRemoteRef', () => {
 })
 
 describe('isLocalFileRef', () => {
-  test.each([
+  it.each([
     ['./schemas/user.json', true],
     ['../models/pet.json', true],
     ['/absolute/path/schema.json', true],
@@ -189,7 +189,7 @@ describe('isLocalFileRef', () => {
 })
 
 describe('isExternalRef', () => {
-  test.each([
+  it.each([
     ['https://example.com/schema.json', true],
     ['./schemas/user.json', true],
     ['../models/pet.json', true],
@@ -211,7 +211,7 @@ describe('fetchJson', () => {
     await server.close()
   })
 
-  test('should correctly return json response', async () => {
+  it('should correctly return json response', async () => {
     const PORT = 6677
     const url = `http://localhost:${PORT}`
 
@@ -232,7 +232,7 @@ describe('fetchJson', () => {
     expect(result.data).toEqual(response)
   })
 
-  test('should return ok false on error response code', async () => {
+  it('should return ok false on error response code', async () => {
     const PORT = 6678
     const url = `http://localhost:${PORT}`
 
@@ -247,7 +247,7 @@ describe('fetchJson', () => {
     expect(result.ok).toBe(false)
   })
 
-  test('should return ok false on non json response', async () => {
+  it('should return ok false on non json response', async () => {
     const PORT = 6680
     const url = `http://localhost:${PORT}`
 
@@ -264,7 +264,7 @@ describe('fetchJson', () => {
 })
 
 describe('readFile', () => {
-  test('should read json contents of a file', async () => {
+  it('should read json contents of a file', async () => {
     const contents = { message: 'ok' }
     const path = randomUUID()
     await fs.writeFile(path, JSON.stringify(contents))
@@ -279,7 +279,7 @@ describe('readFile', () => {
     await fs.rm(path)
   })
 
-  test('should return ok false when file does not contain JSON data', async () => {
+  it('should return ok false when file does not contain JSON data', async () => {
     const path = randomUUID()
     await fs.writeFile(path, '<Non JSON content>')
 
@@ -290,7 +290,7 @@ describe('readFile', () => {
     await fs.rm(path)
   })
 
-  test('should return ok false when file does not exists', async () => {
+  it('should return ok false when file does not exists', async () => {
     const result = await readFile(randomUUID())
 
     expect(result.ok).toBe(false)
@@ -298,7 +298,7 @@ describe('readFile', () => {
 })
 
 describe('getNestedValue', () => {
-  test.each([
+  it.each([
     [{ a: { b: { c: 'hello' } } }, ['a', 'b', 'c'], 'hello'],
     [{ a: { b: { c: 'hello' } } }, [], { a: { b: { c: 'hello' } } }],
     [{ foo: { bar: { baz: 42 } } }, ['foo', 'bar', 'baz'], 42],
