@@ -38,7 +38,6 @@
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk
-/packages/cli @hanspagel
 /integrations/express @hanspagel
 /integrations/nextjs @amritk
 /integrations/django-ninja @marclave
