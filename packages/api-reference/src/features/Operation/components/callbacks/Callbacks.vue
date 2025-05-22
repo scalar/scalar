@@ -7,7 +7,7 @@ import type {
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
-import CallbackName from './CallbackName.vue'
+import Callback from './Callback.vue'
 
 const { callbacks, collection, parentId, schemas, server } = defineProps<{
   callbacks: Operation['callbacks']
@@ -24,15 +24,29 @@ const { callbacks, collection, parentId, schemas, server } = defineProps<{
 
     <!-- Loop over names -->
     <div class="mt-4 flex flex-col gap-4">
-      <CallbackName
-        v-for="(urlMap, name) in callbacks"
-        :key="name"
-        :parentId="parentId"
-        :collection="collection"
-        :schemas="schemas"
-        :server="server"
-        :callbackUrls="urlMap"
-        :name="name" />
+      <div
+        v-for="(callbackUrls, name) in callbacks"
+        class="flex flex-col gap-2"
+        :key="name">
+        <div class="text-c-1 text-lg font-medium">
+          {{ name }}
+        </div>
+
+        <!-- Loop over methods -->
+        <div class="flex flex-col gap-3">
+          <template v-for="(methods, url) in callbackUrls">
+            <Callback
+              v-for="(callback, method) in methods"
+              :callback="callback"
+              :collection="collection"
+              :method="method"
+              :parentId="parentId"
+              :schemas="schemas"
+              :server="server"
+              :url="url" />
+          </template>
+        </div>
+      </div>
     </div>
   </div>
 </template>

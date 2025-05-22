@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
+import { ScalarIconCaretRight, ScalarIconTagChevron } from '@scalar/icons'
 import {
   requestSchema,
   type Collection,
@@ -9,11 +10,13 @@ import { schemaModel } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
+import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionColumn, SectionColumns } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
-import Webhook from '@/features/Operation/components/Webhook.vue'
+import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
+import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 const { callback, collection, method, parentId, schemas, server, url } =
@@ -38,13 +41,11 @@ const transformedOperation = computed(
       ...callback,
       httpVerb: method as TransformedOperation['httpVerb'],
       path: url,
+      information: {
+        responses: callback.responses,
+      },
     }) satisfies TransformedOperation,
 )
-
-console.log('============')
-console.log(transformedOperation.value)
-console.log(operation.value)
-console.log(callback)
 
 const open = ref(false)
 </script>
@@ -54,29 +55,37 @@ const open = ref(false)
     <!-- Title -->
     <div
       @click.stop="open = !open"
-      class="text-c-1 text-md cursor-pointer font-medium">
-      {{ url }} [{{ method }}]
+      class="font-code text-c-1 text-md group flex cursor-pointer flex-row items-center gap-2 font-medium">
+      <ScalarIconCaretRight
+        class="text-c-3 group-hover:text-c-1 absolute -left-5 transition-transform"
+        :class="{ 'rotate-90': open }" />
+      {{ url }}
+      <HttpMethod
+        as="span"
+        class="request-method"
+        :method="method" />
     </div>
 
     <!-- Body -->
     <div
       class="flex flex-col gap-2"
       v-if="open">
-      <div
-        v-for="item in operation.parameters"
-        :key="item.name">
-        {{ item.name }}
-      </div>
-
       <SectionColumns>
         <SectionColumn>
-          <Webhook :webhook="transformedOperation" />
+          <!-- Body -->
+          <OperationParameters
+            :operation="operation"
+            :schemas="schemas" />
+
+          <!-- Responses -->
+          <OperationResponses
+            :operation="transformedOperation"
+            :schemas="schemas" />
         </SectionColumn>
 
         <!-- Examples -->
         <SectionColumn>
-          <div class="examples">
-            <!-- Request -->
+          <!-- <div class="examples">
             <ScalarErrorBoundary>
               <ExampleRequest
                 :collection="collection"
@@ -92,13 +101,12 @@ const open = ref(false)
               </ExampleRequest>
             </ScalarErrorBoundary>
 
-            <!-- Responses -->
             <ScalarErrorBoundary>
               <ExampleResponses
                 :responses="operation.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
-          </div>
+          </div> -->
         </SectionColumn>
       </SectionColumns>
     </div>
