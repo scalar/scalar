@@ -106,6 +106,10 @@ export async function createWorkspaceStore(workspaceProps?: {
      * update('x-scalar-active-document', 'document-name')
      */
     update<K extends keyof WorkspaceMeta>(key: K, value: WorkspaceMeta[K]) {
+      // @ts-ignore
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        throw new Error('Invalid key: cannot modify prototype')
+      }
       Object.assign(workspace, { [key]: value })
     },
     /**
@@ -168,14 +172,18 @@ export async function createWorkspaceStore(workspaceProps?: {
         const ref = target['$ref']
 
         // Set the status to loading while we resolve the ref
-        Object.assign(target, { status: 'loading' })
+        Object.assign(target, { '$status': 'loading' })
 
         const result = await resolveRef(ref)
 
         if (result.ok) {
+          if (lastPathSegment === '__proto__' || lastPathSegment === 'constructor' || lastPathSegment === 'prototype') {
+            throw new Error('Invalid key: cannot modify prototype')
+          }
+
           Object.assign(parent, { [lastPathSegment]: result.data })
         } else {
-          Object.assign(target, { status: 'error' })
+          Object.assign(target, { '$status': 'error' })
         }
       }
     },
