@@ -12,7 +12,12 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   let specification = originalSpecification
 
   // Version
-  if (specification !== null && typeof specification.swagger === 'string' && specification.swagger?.startsWith('2.0')) {
+  if (
+    specification !== null &&
+    typeof specification === 'object' &&
+    typeof specification.swagger === 'string' &&
+    specification.swagger?.startsWith('2.0')
+  ) {
     specification.openapi = '3.0.4'
     delete specification.swagger
   } else {
