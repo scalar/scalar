@@ -49,5 +49,3 @@
 /integrations/fastapi @marclave
 /packages/void-server @hanspagel
 
-# Testing
-/playwright @tmastrom
