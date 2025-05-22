@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.11.1
+
+### Patch Changes
+
+- ea20eb4: fix: swagger upgrade fails if you pass something that is not an object
+
 ## 0.11.0
 
 ### Minor Changes
