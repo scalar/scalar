@@ -130,6 +130,33 @@ const displayType = computed(() => {
 
   return value?.type ?? ''
 })
+
+/** Format the type and model name with array suffix */
+const formatTypeWithModel = (type: string, modelName: string) => {
+  return `${type} ${modelName}[]`
+}
+
+/** Gets the model name */
+const modelName = computed(() => {
+  if (!value?.type) {
+    return null
+  }
+
+  // Handle array types with item references
+  if (value.items?.type) {
+    const itemModelName =
+      getModelNameFromSchema(value.items) || value.items.type
+    return formatTypeWithModel(value.type, itemModelName)
+  }
+
+  // Handle direct object references
+  const objectModelName = getModelNameFromSchema(value)
+  if (objectModelName) {
+    return formatTypeWithModel(value.type, objectModelName)
+  }
+
+  return null
+})
 </script>
 <template>
   <div class="property-heading">
@@ -145,9 +172,8 @@ const displayType = computed(() => {
     <template v-if="value">
       <SchemaPropertyDetail v-if="value?.type">
         <ScreenReader>Type:</ScreenReader>
-        <template v-if="value?.items?.type">
-          {{ value.type }}
-          {{ getModelNameFromSchema(value.items) || value.items.type }}[]
+        <template v-if="modelName">
+          {{ modelName }}
         </template>
         <template v-else>
           {{ displayType }}

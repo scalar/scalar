@@ -212,4 +212,43 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('default:')
     expect(defaultValueElement.text()).toContain('"foo"')
   })
+
+  it('formats array type with model reference', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'FooModel' },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array FooModel[]')
+  })
+
+  it('formats object type with direct model reference', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'object',
+          name: 'BarModel',
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('object BarModel[]')
+  })
+
+  it('displays plain type when no model name is present', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'string',
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('string')
+    expect(detailsElement.text()).not.toContain('[]')
+  })
 })
