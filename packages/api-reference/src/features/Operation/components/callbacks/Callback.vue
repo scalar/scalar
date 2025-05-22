@@ -13,6 +13,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionColumn, SectionColumns } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import Webhook from '@/features/Operation/components/Webhook.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 const { callback, collection, method, parentId, schemas, server, url } =
