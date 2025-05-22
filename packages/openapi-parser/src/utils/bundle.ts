@@ -210,7 +210,7 @@ export function bundle(input: UnknownObject) {
           }
         }
 
-        await bundle(root[key])
+        await bundler(root[key])
       }),
     )
   }
