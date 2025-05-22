@@ -11,7 +11,4 @@ import { ResponseObject } from './response'
  *
  * The Responses Object MUST contain at least one response code, and if only one response code is provided it SHOULD be the response for a successful operation call.
  */
-export const ResponsesObject = Type.Record(
-  Type.String(),
-  Type.Union([ResponseObject, ReferenceObject]),
-)
+export const ResponsesObject = Type.Record(Type.String(), Type.Union([ResponseObject, ReferenceObject]))

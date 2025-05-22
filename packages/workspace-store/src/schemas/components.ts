@@ -16,43 +16,21 @@ export const ComponentsObject = Type.Object({
   /** An object to hold reusable Schema Objects. */
   schemas: Type.Optional(Type.Record(Type.String(), SchemaObject)),
   /** An object to hold reusable Response Objects. */
-  responses: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ResponseObject, ReferenceObject])),
-  ),
+  responses: Type.Optional(Type.Record(Type.String(), Type.Union([ResponseObject, ReferenceObject]))),
   /** An object to hold reusable Parameter Objects. */
-  parameters: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ParameterObject, ReferenceObject])),
-  ),
+  parameters: Type.Optional(Type.Record(Type.String(), Type.Union([ParameterObject, ReferenceObject]))),
   /** An object to hold reusable Example Objects. */
-  examples: Type.Optional(
-    Type.Record(Type.String(), Type.Union([ExampleObject, ReferenceObject])),
-  ),
+  examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObject, ReferenceObject]))),
   /** An object to hold reusable Request Body Objects. */
-  requestBodies: Type.Optional(
-    Type.Record(
-      Type.String(),
-      Type.Union([RequestBodyObject, ReferenceObject]),
-    ),
-  ),
+  requestBodies: Type.Optional(Type.Record(Type.String(), Type.Union([RequestBodyObject, ReferenceObject]))),
   /** An object to hold reusable Header Objects. */
-  headers: Type.Optional(
-    Type.Record(Type.String(), Type.Union([HeaderObject, ReferenceObject])),
-  ),
+  headers: Type.Optional(Type.Record(Type.String(), Type.Union([HeaderObject, ReferenceObject]))),
   /** An object to hold reusable Security Scheme Objects. */
-  securitySchemes: Type.Optional(
-    Type.Record(
-      Type.String(),
-      Type.Union([SecuritySchemeObject, ReferenceObject]),
-    ),
-  ),
+  securitySchemes: Type.Optional(Type.Record(Type.String(), Type.Union([SecuritySchemeObject, ReferenceObject]))),
   /** An object to hold reusable Link Objects. */
-  links: Type.Optional(
-    Type.Record(Type.String(), Type.Union([LinkObject, ReferenceObject])),
-  ),
+  links: Type.Optional(Type.Record(Type.String(), Type.Union([LinkObject, ReferenceObject]))),
   /** An object to hold reusable Callback Objects. */
-  callbacks: Type.Optional(
-    Type.Record(Type.String(), Type.Union([CallbackObject, ReferenceObject])),
-  ),
+  callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([CallbackObject, ReferenceObject]))),
   /** An object to hold reusable Path Item Objects. */
   pathItems: Type.Optional(Type.Record(Type.String(), PathItemObject)),
 })
