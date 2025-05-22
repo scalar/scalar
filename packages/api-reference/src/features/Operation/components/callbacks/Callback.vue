@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { ScalarErrorBoundary } from '@scalar/components'
-import { ScalarIconCaretRight, ScalarIconTagChevron } from '@scalar/icons'
-import {
-  requestSchema,
-  type Collection,
-  type Server,
-} from '@scalar/oas-utils/entities/spec'
+import { ScalarIconCaretRight } from '@scalar/icons'
+import { requestSchema, type Collection } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
@@ -51,7 +46,8 @@ const open = ref(false)
     <!-- Title -->
     <div
       @click.stop="open = !open"
-      class="font-code text-c-1 text-md group flex cursor-pointer flex-row items-center gap-2 text-sm">
+      class="font-code group flex cursor-pointer flex-row items-center gap-2 text-sm"
+      :class="open ? 'flex-wrap' : ''">
       <ScalarIconCaretRight
         class="text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform"
         :class="{ 'rotate-90': open }" />
@@ -59,7 +55,14 @@ const open = ref(false)
         as="span"
         class="request-method"
         :method="method" />
-      {{ url }}
+      <div
+        class="text-c-1 leading-3"
+        :class="{ truncate: !open }">
+        {{ name }}
+        <span class="text-c-2">
+          {{ url }}
+        </span>
+      </div>
     </div>
 
     <!-- Body -->
