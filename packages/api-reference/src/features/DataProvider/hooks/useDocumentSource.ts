@@ -15,7 +15,7 @@ import { useDocumentFetcher } from './useDocumentFetcher'
 /**
  * Pass any data source, retrieve all the data stores and whatever we need to render the API reference.
  */
-export function useDataSource({
+export function useDocumentSource({
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
   configuration,
