@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.29.2
+
+### Patch Changes
+
+- 2efdf8e: fix: updates introduction card and auth style
+- Updated dependencies [ea20eb4]
+- Updated dependencies [2efdf8e]
+  - @scalar/openapi-parser@0.11.1
+  - @scalar/api-client@2.4.2
+  - @scalar/oas-utils@0.3.1
+
 ## 1.29.1
 
 ### Patch Changes

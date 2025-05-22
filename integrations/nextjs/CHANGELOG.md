@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.8.3
+
+### Patch Changes
+
+- e660779: chore: bump version
+
 ## 0.8.1
 
 ### Patch Changes
