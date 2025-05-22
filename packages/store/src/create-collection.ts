@@ -114,16 +114,10 @@ export async function createCollection({
 // }
 
 /**
- * Exports a raw document with internal properties (starting with "_") removed.
+ * Exports a raw OpenAPI document (containing $ref's)
  */
 function exportRawDocument(document: UnknownObject): UnknownObject {
-  const raw = toRaw(document)
-
-  removeProperties(raw, {
-    test: (key) => key.startsWith('_'),
-  })
-
-  return raw
+  return toRaw(document)
 }
 
 /**
@@ -460,27 +454,6 @@ function createMagicProxy(
 
       // For other objects and arrays, create a proxy if they contain $refs
       return createMagicProxy(value, sourceDocument, externalReferences, origin)
-    },
-
-    set(target: UnknownObject, property: string, newValue: unknown) {
-      const currentValue = target[property]
-
-      // If we're setting a property on a $ref object, update the referenced object
-      if (isObject(currentValue) && '$ref' in currentValue) {
-        const ref = currentValue.$ref as string
-        const referencePath = parseJsonPointer(ref)
-        const targetObject = getValueByPath(sourceDocument, referencePath.slice(0, -1))
-        const lastPathSegment = referencePath[referencePath.length - 1]
-
-        if (targetObject && lastPathSegment) {
-          targetObject[lastPathSegment] = newValue
-          return true
-        }
-      }
-
-      // For normal properties, just set them
-      target[property] = newValue
-      return true
     },
 
     has(target: UnknownObject, key: string) {

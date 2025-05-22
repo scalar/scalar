@@ -488,52 +488,6 @@ describe('create-collection', () => {
     })
   })
 
-  describe('write', () => {
-    it('updates properties through both original and reference paths', async () => {
-      const EXAMPLE_DOCUMENT = {
-        openapi: '3.1.1',
-        info: {
-          title: 'Example',
-          version: '1.0.0',
-        },
-        paths: {},
-        components: {
-          schemas: {
-            Person: {
-              type: 'object',
-              properties: {
-                name: { type: 'string' },
-              },
-            },
-            User: {
-              $ref: '#/components/schemas/Person',
-            },
-          },
-        },
-      }
-
-      const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-
-      // Update via the original Person schema path
-      collection.document.components.schemas.Person.properties.age = { type: 'number' }
-
-      // Update via the User schema reference path
-      collection.document.components.schemas.User.properties.gender = { type: 'string' }
-
-      expect(collection.document.components?.schemas?.Person?.properties).toMatchObject({
-        name: { type: 'string' },
-        age: { type: 'number' },
-        gender: { type: 'string' },
-      })
-
-      expect(collection.document.components?.schemas?.User?.properties).toMatchObject({
-        name: { type: 'string' },
-        age: { type: 'number' },
-        gender: { type: 'string' },
-      })
-    })
-  })
-
   describe('export', () => {
     it('updates properties through both original and reference paths', async () => {
       const EXAMPLE_DOCUMENT = {
