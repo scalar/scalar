@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type {
-  Collection,
-  Operation,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Operation } from '@scalar/oas-utils/entities/spec'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
