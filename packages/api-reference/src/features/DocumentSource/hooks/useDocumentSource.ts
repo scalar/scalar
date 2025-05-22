@@ -1,7 +1,6 @@
 import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
 import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
@@ -10,6 +9,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 
 import { measure } from '@/helpers/measure'
+import type { Spec } from '@scalar/types/legacy'
 import { useDocumentFetcher } from './useDocumentFetcher'
 
 /**

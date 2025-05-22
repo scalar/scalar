@@ -1,6 +1,8 @@
-# DataProvider
+# DocumentSource
 
-The DataProvider feature is responsible for managing OpenAPI/Swagger document loading, parsing, and state management in the Scalar API Reference. It provides composables that handle document fetching, dereferencing, and workspace state management.
+The DocumentSource feature is responsible for managing OpenAPI/Swagger document loading, parsing, and state management in the Scalar API Reference.
+
+It provides composables that handle document fetching, dereferencing, and workspace state management.
 
 ## Notes
 
@@ -78,7 +80,7 @@ const {
 ## Usage Example
 
 ```typescript
-import { useDocumentSource } from '@/features/DataProvider/hooks/useDocumentSource'
+import { useDocumentSource } from '@/features/DocumentSource'
 
 // In your component
 const {
