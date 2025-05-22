@@ -86,6 +86,15 @@ const title = computed(() => operation.summary || operation.path)
             <OperationResponses
               :operation="transformedOperation"
               :schemas="schemas" />
+
+            <!-- Callbacks -->
+            <ScalarErrorBoundary>
+              <Callbacks
+                v-if="operation.callbacks"
+                :callbacks="operation.callbacks"
+                :collection="collection"
+                :schemas="schemas" />
+            </ScalarErrorBoundary>
           </div>
         </SectionColumn>
         <SectionColumn>
@@ -117,17 +126,6 @@ const title = computed(() => operation.summary || operation.path)
         </SectionColumn>
       </SectionColumns>
     </SectionContent>
-
-    <!-- Callbacks -->
-    <ScalarErrorBoundary>
-      <Callbacks
-        v-if="operation.callbacks"
-        :callbacks="operation.callbacks"
-        :collection="collection"
-        :parentId="id ?? ''"
-        :schemas="schemas"
-        :server="server" />
-    </ScalarErrorBoundary>
   </Section>
 </template>
 

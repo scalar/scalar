@@ -11,24 +11,18 @@ import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
-import OperationPath from '@/components/OperationPath.vue'
-import { SectionColumn, SectionColumns } from '@/components/Section'
-import { ExampleRequest } from '@/features/ExampleRequest'
-import { ExampleResponses } from '@/features/ExampleResponses'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
 import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
-const { callback, collection, method, parentId, schemas, server, url } =
-  defineProps<{
-    callback: OpenAPIV3_1.OperationObject
-    collection: Collection
-    method: string
-    parentId: string
-    schemas?: Schemas
-    server: Server | undefined
-    url: string
-  }>()
+const { callback, collection, method, name, schemas, url } = defineProps<{
+  callback: OpenAPIV3_1.OperationObject
+  collection: Collection
+  method: string
+  name: string
+  schemas?: Schemas
+  url: string
+}>()
 
 /** This should get us 90% of the way there, will fix the rest on new store */
 const operation = computed(() =>
@@ -51,64 +45,36 @@ const open = ref(false)
 </script>
 
 <template>
-  <div v-if="collection && operation">
+  <div
+    v-if="collection && operation"
+    class="py-3">
     <!-- Title -->
     <div
       @click.stop="open = !open"
-      class="font-code text-c-1 text-md group flex cursor-pointer flex-row items-center gap-2 font-medium">
+      class="font-code text-c-1 text-md group flex cursor-pointer flex-row items-center gap-2 text-sm">
       <ScalarIconCaretRight
-        class="text-c-3 group-hover:text-c-1 absolute -left-5 transition-transform"
+        class="text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform"
         :class="{ 'rotate-90': open }" />
-      {{ url }}
       <HttpMethod
         as="span"
         class="request-method"
         :method="method" />
+      {{ url }}
     </div>
 
     <!-- Body -->
     <div
       class="flex flex-col gap-2"
       v-if="open">
-      <SectionColumns>
-        <SectionColumn>
-          <!-- Body -->
-          <OperationParameters
-            :operation="operation"
-            :schemas="schemas" />
+      <!-- Body -->
+      <OperationParameters
+        :operation="operation"
+        :schemas="schemas" />
 
-          <!-- Responses -->
-          <OperationResponses
-            :operation="transformedOperation"
-            :schemas="schemas" />
-        </SectionColumn>
-
-        <!-- Examples -->
-        <SectionColumn>
-          <!-- <div class="examples">
-            <ScalarErrorBoundary>
-              <ExampleRequest
-                :collection="collection"
-                fallback
-                :operation="operation"
-                :server="server"
-                :transformedOperation="transformedOperation">
-                <template #header>
-                  <OperationPath
-                    class="example-path"
-                    :path="transformedOperation.path" />
-                </template>
-              </ExampleRequest>
-            </ScalarErrorBoundary>
-
-            <ScalarErrorBoundary>
-              <ExampleResponses
-                :responses="operation.responses"
-                style="margin-top: 12px" />
-            </ScalarErrorBoundary>
-          </div> -->
-        </SectionColumn>
-      </SectionColumns>
+      <!-- Responses -->
+      <OperationResponses
+        :operation="transformedOperation"
+        :schemas="schemas" />
     </div>
   </div>
 </template>
