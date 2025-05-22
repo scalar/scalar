@@ -89,10 +89,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="gap-0.75 text-c-1 h-6.5 w-full justify-start whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs font-normal -outline-offset-1 lg:text-sm"
+      class="gap-0.75 text-c-1 h-6.5 w-full justify-start overflow-x-auto whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs font-normal -outline-offset-1 lg:text-sm"
       variant="ghost">
       <span class="sr-only">Server:</span>
-      {{ serverUrlWithoutTrailingSlash }}
+      <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
       <ScalarIcon
         class="text-c-2"
         icon="ChevronDown"
@@ -103,6 +103,6 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     v-else
     class="gap-0.75 text-c-1 h-6.5 flex w-full items-center whitespace-nowrap rounded-b-lg px-3 py-1.5 text-xs lg:text-sm">
     <span class="sr-only">Server:</span>
-    {{ serverUrlWithoutTrailingSlash }}
+    <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>
   </div>
 </template>
