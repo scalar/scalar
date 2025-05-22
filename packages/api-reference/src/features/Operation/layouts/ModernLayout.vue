@@ -5,7 +5,6 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, useId } from 'vue'
 
@@ -31,16 +30,15 @@ import {
   isOperationDeprecated,
 } from '@/libs/openapi'
 
-import Callbacks from '../components/Callbacks.vue'
+import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation, transformedOperation, callbackName } = defineProps<{
+const { operation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
   operation: Operation
-  callbackName?: string
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
   schemas?: Schemas
@@ -74,7 +72,6 @@ const title = computed(() => operation.summary || operation.path)
               {{ title }}
             </SectionHeaderTag>
           </Anchor>
-          <h4 v-if="callbackName">{{ callbackName }} [callback tag]</h4>
         </SectionHeader>
       </div>
       <SectionColumns>
@@ -122,14 +119,15 @@ const title = computed(() => operation.summary || operation.path)
     </SectionContent>
 
     <!-- Callbacks -->
-    <Callbacks
-      v-if="operation.callbacks"
-      :callbacks="operation.callbacks"
-      :collection="collection"
-      :parentId="id ?? ''"
-      :schemas="schemas"
-      :server="server"
-      layout="modern" />
+    <ScalarErrorBoundary>
+      <Callbacks
+        v-if="operation.callbacks"
+        :callbacks="operation.callbacks"
+        :collection="collection"
+        :parentId="id ?? ''"
+        :schemas="schemas"
+        :server="server" />
+    </ScalarErrorBoundary>
   </Section>
 </template>
 

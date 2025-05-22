@@ -19,19 +19,9 @@
     <!-- Initialize the Scalar API Reference -->
     <script type="module">
       Scalar.createApiReference('#app', {
-        sources: [
-          {
-            title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
-            slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
-            url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-          },
-          {
-            title: 'Swagger Petstore',
-            url: 'https://petstore.swagger.io/v2/swagger.json',
-          },
-        ],
-        persistAuth: true,
-        // Avoid CORS issues
+        title: 'Scalar Galaxy', // optional, would fallback to 'API #1'
+        slug: 'scalar-galaxy', // optional, would be auto-generated from the title or the index
+        url: 'https://gist.githubusercontent.com/amritk/3c1ea110f4b32400df499f711487a20e/raw/2d6a26830ba447df63dfa389186eadedce368521/galaxy.yaml',
         proxyUrl: 'https://proxy.scalar.com',
       })
     </script>

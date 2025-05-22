@@ -131,16 +131,6 @@ const title = computed(() => operation.summary || operation.path)
         :server="server"
         :transformedOperation="transformedOperation" />
     </div>
-
-    <!-- Callbacks -->
-    <Callbacks
-      v-if="operation.callbacks"
-      :callbacks="operation.callbacks"
-      :collection="collection"
-      :parentId="id"
-      :schemas="schemas"
-      :server="server"
-      layout="classic" />
   </SectionAccordion>
 </template>
 
