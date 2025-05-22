@@ -1,7 +1,7 @@
 ---
-'@scalar/api-reference': patch
-'@scalar/api-client': patch
-'@scalar/oas-utils': patch
+'@scalar/api-reference': minor
+'@scalar/api-client': minor
+'@scalar/oas-utils': minor
 ---
 
 refactor!: use dereferenced documents as a content source
