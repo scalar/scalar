@@ -50,7 +50,7 @@ watchDebounced(
     const collection = activeEntities.activeCollection.value
 
     const diff = microdiff(oldConfig, newConfig)
-    const hasContentChanged = diff.some(
+    const documentSourceHasChanged = diff.some(
       (d) =>
         d.path[0] === 'url' ||
         d.path[0] === 'content' ||
@@ -58,10 +58,9 @@ watchDebounced(
         d.path[1] === 'content',
     )
 
-    // If the content changes then we re-create the whole store
-    // TODO: we can easily use live sync for this as well
-    if (hasContentChanged) {
-      client.value?.updateConfig(newConfig)
+    // If the document source has changed, we re-create the whole store anyway.
+    if (documentSourceHasChanged) {
+      // Do nothing.
     }
     // Or we handle the specific diff changes, just auth and servers for now
     else {
