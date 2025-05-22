@@ -163,7 +163,7 @@ describe('useDocumentSource', () => {
     })
   })
 
-  describe.only('document processing', () => {
+  describe('document processing', () => {
     it('updates parsed document when dereferenced document changes', async () => {
       const { parsedDocument } = useDocumentSource({
         dereferencedDocument: ref(mockOpenApiDocument),
