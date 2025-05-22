@@ -10,6 +10,7 @@ import { isDefined } from '@scalar/oas-utils/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import { computed } from 'vue'
 
+import type { EnvVariables } from '@/libs/env-helpers'
 import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 
 const {
@@ -19,6 +20,7 @@ const {
   server,
   example,
   securitySchemes = [],
+  environment,
 } = defineProps<{
   target: TargetId
   client: ClientId<TargetId>
@@ -26,6 +28,7 @@ const {
   server?: Server | undefined
   example?: RequestExample | undefined
   securitySchemes?: SecurityScheme[]
+  environment?: EnvVariables | undefined
 }>()
 
 /**  Block secrets from being shown in the code block */
@@ -58,6 +61,7 @@ const content = computed(() => {
     example,
     server,
     securitySchemes,
+    environment,
   })
   return { error, payload }
 })

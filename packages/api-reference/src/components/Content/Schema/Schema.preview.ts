@@ -90,21 +90,76 @@ export const discriminatorsSchema = {
     name: 'CustomDiscriminator',
     noncollapsible: true,
     value: {
-      anyOf: [
-        {
-          name: 'Foo',
+      type: 'object',
+      properties: {
+        foobar: {
           type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['foo'] },
-            fooProperty: { type: 'string' },
+          anyOf: [
+            {
+              name: 'Foo',
+              type: 'object',
+              properties: {
+                type: { type: 'string', enum: ['foo'] },
+                fooProperty: { type: 'string' },
+              },
+            },
+            {
+              name: 'Bar',
+              type: 'object',
+              properties: {
+                type: { type: 'string', enum: ['bar'] },
+                barProperty: { type: 'number' },
+              },
+            },
+          ],
+        },
+      },
+    },
+  },
+}
+
+export const complexArrayDiscriminatorSchema = {
+  component: Schema,
+  props: {
+    name: 'ComplexArrayDiscriminator',
+    noncollapsible: true,
+    value: {
+      allOf: [
+        {
+          'type': 'object',
+          'properties': {
+            'top-level-property': {
+              'type': 'string',
+            },
           },
         },
         {
-          name: 'Bar',
-          type: 'object',
-          properties: {
-            type: { type: 'string', enum: ['bar'] },
-            barProperty: { type: 'number' },
+          'type': 'object',
+          'properties': {
+            'top-level-array': {
+              'type': 'array',
+              'items': {
+                'type': 'object',
+                oneOf: [
+                  {
+                    name: 'Foo',
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string', enum: ['foo'] },
+                      fooProperty: { type: 'string' },
+                    },
+                  },
+                  {
+                    name: 'Bar',
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string', enum: ['bar'] },
+                      barProperty: { type: 'number' },
+                    },
+                  },
+                ],
+              },
+            },
           },
         },
       ],

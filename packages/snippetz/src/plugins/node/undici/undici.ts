@@ -1,5 +1,5 @@
-import { arrayToObject } from '@/utils/arrayToObject'
-import { objectToString } from '@/utils/objectToString'
+import { createSearchParams } from '@/utils/create-search-params'
+import { objectToString, Unquoted } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
@@ -25,9 +25,7 @@ export const nodeUndici: Plugin = {
     }
 
     // Query
-    const searchParams = new URLSearchParams(
-      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
-    )
+    const searchParams = createSearchParams(normalizedRequest.queryString)
     const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
     // Headers
@@ -64,7 +62,7 @@ export const nodeUndici: Plugin = {
 
       // JSON
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        options.body = `JSON.stringify(${objectToString(JSON.parse(options.body))})`
+        options.body = new Unquoted(`JSON.stringify(${objectToString(JSON.parse(options.body))})`)
       }
     }
 

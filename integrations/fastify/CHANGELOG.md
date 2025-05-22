@@ -1,5 +1,55 @@
 # @scalar/fastify-api-reference
 
+## 1.29.1
+
+### Patch Changes
+
+- Updated dependencies [4440949]
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/core@0.3.1
+
+## 1.29.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [bd602d3]
+- Updated dependencies [483ca93]
+- Updated dependencies [1d1470c]
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/types@0.2.0
+  - @scalar/core@0.3.0
+
+## 1.28.34
+
+### Patch Changes
+
+- Updated dependencies [be8a6ec]
+  - @scalar/types@0.1.16
+  - @scalar/core@0.2.16
+  - @scalar/openapi-parser@0.10.17
+
+## 1.28.33
+
+### Patch Changes
+
+- Updated dependencies [f711ab5]
+- Updated dependencies [0222ad4]
+- Updated dependencies [cb9428c]
+- Updated dependencies [67aa0f4]
+  - @scalar/types@0.1.15
+  - @scalar/openapi-types@0.2.3
+  - @scalar/core@0.2.15
+  - @scalar/openapi-parser@0.10.17
+
+## 1.28.32
+
 ## 1.28.31
 
 ### Patch Changes

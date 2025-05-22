@@ -34,7 +34,7 @@ describe('shellHttpie', () => {
   Content-Type:application/json`)
   })
 
-  it.skip('handles multipart form data with files', () => {
+  it('handles multipart form data with files', () => {
     const result = shellHttpie.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -53,9 +53,9 @@ describe('shellHttpie', () => {
       },
     })
 
-    expect(result).toBe(`http POST https://example.com \\
+    expect(result).toBe(`http --multipart POST https://example.com \\
   file@test.txt \\
-  field=value`)
+  field='value'`)
   })
 
   it.skip('handles url-encoded form data with special characters', () => {

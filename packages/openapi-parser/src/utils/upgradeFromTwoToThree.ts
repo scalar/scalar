@@ -47,7 +47,8 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
 
     // Rewrite $refs to definitions
     specification = traverse(specification, (schema) => {
-      if (schema.$ref?.startsWith('#/definitions/')) {
+      // Rewrite $refs to components
+      if (typeof schema.$ref === 'string' && schema.$ref.startsWith('#/definitions/')) {
         schema.$ref = schema.$ref.replace(/^#\/definitions\//, '#/components/schemas/')
       }
 
@@ -55,6 +56,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     })
   }
 
+  // Transform file type to string with binary format
   specification = traverse(specification, (schema) => {
     if (schema.type === 'file') {
       schema.type = 'string'

@@ -1,5 +1,34 @@
 # @scalar/express-api-reference
 
+## 0.8.1
+
+### Patch Changes
+
+- @scalar/core@0.3.1
+
+## 0.8.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/core@0.3.0
+
+## 0.7.6
+
+### Patch Changes
+
+- @scalar/core@0.2.16
+
+## 0.7.5
+
+### Patch Changes
+
+- @scalar/core@0.2.15
+
 ## 0.7.4
 
 ### Patch Changes

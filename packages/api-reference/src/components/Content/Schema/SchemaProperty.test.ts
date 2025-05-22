@@ -265,7 +265,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(badge.exists()).toBe(true)
   })
 
-  it('shows enums in discriminators', () => {
+  it('shows enums in compositions', () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -278,7 +278,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(enumValues).toHaveLength(3)
   })
 
-  it('renders discriminators for array items', () => {
+  it('renders compositions for array items', () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -299,5 +299,92 @@ describe('SchemaProperty sub-schema', () => {
     // Find 'foobar' only once
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
+  })
+
+  it('renders compositions for object of array items', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          type: 'array',
+          items: {
+            type: 'object',
+            oneOf: [
+              {
+                description: 'foobar',
+                properties: { test: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // Check that the composition is not rendered
+    expect(wrapper.html().match(/foobar/g)).toBeNull()
+    expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
+
+    // Open the schema card
+    await wrapper.find('.schema-card-title').trigger('click')
+
+    // Find 'foobar' only once
+    const foobar = wrapper.html().match(/foobar/g)
+    expect(foobar).toHaveLength(1)
+  })
+
+  it('renders nested composition correctly', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                customerComment: {
+                  type: 'string',
+                },
+              },
+            },
+            {
+              oneOf: [
+                {
+                  allOf: [
+                    {
+                      title: 'foo (1)',
+                      type: 'object',
+                    },
+                    {
+                      oneOf: [
+                        {
+                          title: 'bar (1)',
+                          type: 'object',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+    })
+
+    // Check that the first level composition is rendered
+    const firstLevelSelector = wrapper.find('.composition-selector')
+    expect(firstLevelSelector.exists()).toBe(true)
+    expect(firstLevelSelector.text()).toContain('One of')
+
+    // Open the first level
+    await firstLevelSelector.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    // Check that the nested composition is rendered
+    const nestedSelector = wrapper.find('.composition-panel .composition-selector')
+    expect(nestedSelector.exists()).toBe(true)
+    expect(nestedSelector.text()).toContain('One of')
+
+    // Check that the titles are displayed correctly
+    expect(wrapper.html()).toContain('foo (1)')
+    expect(wrapper.html()).toContain('bar (1)')
   })
 })

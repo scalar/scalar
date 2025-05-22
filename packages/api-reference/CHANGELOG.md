@@ -1,5 +1,135 @@
 # @scalar/api-reference
 
+## 1.29.1
+
+### Patch Changes
+
+- Updated dependencies [4440949]
+  - @scalar/components@0.14.1
+  - @scalar/oas-utils@0.3.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+  - @scalar/api-client@2.4.1
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/snippetz@0.3.0
+  - @scalar/themes@0.12.1
+  - @scalar/code-highlight@0.1.0
+  - @scalar/use-hooks@0.2.1
+  - @scalar/icons@0.4.1
+
+## 1.29.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- fce282f: fix: updates schema property heading logic
+- ca403fe: feat(api-reference): reorder getModelNameFromSchema to prefer schema.title over name; extract displayType helper for type rendering; update tests accordingly
+- 3af1364: feat: separates composition from discriminator
+- b899177: fix: displays array item const in property
+- cf922d4: feat: adds nested discriminator schema support
+- 0efcab4: fix: layout slot propogation
+- fe696ab: fix: adds server variable form border for api reference
+- Updated dependencies [26476ed]
+- Updated dependencies [bd602d3]
+- Updated dependencies [b77f67a]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [fe696ab]
+- Updated dependencies [1d1470c]
+- Updated dependencies [0efcab4]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/openapi-parser@0.11.0
+  - @scalar/snippetz@0.3.0
+  - @scalar/oas-utils@0.3.0
+  - @scalar/components@0.14.0
+  - @scalar/themes@0.12.0
+  - @scalar/code-highlight@0.1.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/use-toasts@0.8.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/icons@0.4.0
+  - @scalar/types@0.2.0
+
+## 1.28.34
+
+### Patch Changes
+
+- 73ecfb0: fix: adds missing schemas to schema property
+- 2056005: fix(api-reference): improve handling of schema discriminators
+- 9946289: feat: show response schema in the response list
+- 40bad87: fix: copy correct path when pathRouting enabled
+- 3a88c94: fix(api-reference): restrict mobile header width
+- 96be9bd: fix(api-reference): handle really long property titles
+- ab0d3a3: fix(api-reference): render required for request body
+- 5129cdc: fix: adds max depth to merge all of schemas
+- be8a6ec: refactor: clean up helpers, remove barrel files
+- Updated dependencies [6b4a3c3]
+- Updated dependencies [be8a6ec]
+- Updated dependencies [1843cfe]
+- Updated dependencies [cd0722d]
+  - @scalar/api-client@2.3.34
+  - @scalar/types@0.1.16
+  - @scalar/components@0.13.59
+  - @scalar/oas-utils@0.2.144
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/snippetz@0.2.20
+  - @scalar/themes@0.11.3
+  - @scalar/code-highlight@0.0.29
+  - @scalar/use-hooks@0.1.50
+  - @scalar/icons@0.3.7
+
+## 1.28.33
+
+### Patch Changes
+
+- f711ab5: feat: add auth persistance to references
+- 90b773e: feat: updates heading variables
+- 52dd8a1: fix: displays wrapped auth description on hover
+- 0222ad4: feat: render specification extensions with React
+- ffe6338: fix: displays null and empty default value in property heading
+- 2dadcfb: fix: displays const falsy values
+- Updated dependencies [f711ab5]
+- Updated dependencies [ec30edd]
+- Updated dependencies [90b773e]
+- Updated dependencies [e7f61ce]
+- Updated dependencies [52dd8a1]
+- Updated dependencies [0222ad4]
+- Updated dependencies [cb9428c]
+- Updated dependencies [af38fa6]
+- Updated dependencies [67aa0f4]
+- Updated dependencies [ac16fca]
+- Updated dependencies [1966c5a]
+- Updated dependencies [ac16fca]
+  - @scalar/api-client@2.3.33
+  - @scalar/types@0.1.15
+  - @scalar/themes@0.11.2
+  - @scalar/openapi-types@0.2.3
+  - @scalar/components@0.13.58
+  - @scalar/oas-utils@0.2.143
+  - @scalar/openapi-parser@0.10.17
+  - @scalar/snippetz@0.2.20
+  - @scalar/code-highlight@0.0.29
+  - @scalar/use-hooks@0.1.49
+  - @scalar/icons@0.3.6
+
+## 1.28.32
+
+### Patch Changes
+
+- 902f58b: fix: updates prop destructuring defaults in schema property heading
+- cd6cf24: fix: remove old servers then re-add new ones on config.servers change
+- Updated dependencies [e42dfc0]
+- Updated dependencies [4483ac4]
+- Updated dependencies [cd6cf24]
+- Updated dependencies [4483ac4]
+  - @scalar/api-client@2.3.32
+  - @scalar/oas-utils@0.2.142
+
 ## 1.28.31
 
 ### Patch Changes

@@ -220,7 +220,10 @@ describe('convertToHarRequest', () => {
     })
 
     expect(harRequest.postData?.mimeType).toContain('multipart/form-data')
-    expect(harRequest.postData?.text).toEqual('{"name":"John Doe","occupation":"Engineer"}')
+    expect(harRequest.postData?.params).toMatchObject([
+      { name: 'name', value: 'John Doe' },
+      { name: 'occupation', value: 'Engineer' },
+    ])
   })
 
   it('converts a request with multiple of the same key in form-data as an array', () => {
@@ -251,7 +254,11 @@ describe('convertToHarRequest', () => {
     })
 
     expect(harRequest.postData?.mimeType).toContain('multipart/form-data')
-    expect(harRequest.postData?.text).toEqual('{"name":["John Doe","Jane Doe","Jimmy Doe"]}')
+    expect(harRequest.postData?.params).toMatchObject([
+      { name: 'name', value: 'John Doe' },
+      { name: 'name', value: 'Jane Doe' },
+      { name: 'name', value: 'Jimmy Doe' },
+    ])
   })
 
   it('converts a request with form-data body with a file', () => {
@@ -274,8 +281,8 @@ describe('convertToHarRequest', () => {
           value: [
             {
               key: 'file',
-              value: 'test.txt',
-              file: new Blob(['test content'], { type: 'text/plain' }),
+              value: 'ignore this',
+              file: new File(['test content'], 'test.txt', { type: 'text/plain' }),
               enabled: true,
             },
           ],
@@ -285,9 +292,14 @@ describe('convertToHarRequest', () => {
     })
 
     expect(harRequest.postData?.mimeType).toContain('multipart/form-data')
-    expect(harRequest.postData?.text).equal(
-      '{"file":{"type":"file","text":"BINARY","name":"file","size":12,"mimeType":"text/plain"}}',
-    )
+    expect(harRequest.postData?.params).toMatchObject([
+      {
+        name: 'file',
+        fileName: 'test.txt',
+        contentType: 'text/plain',
+        value: 'BINARY',
+      },
+    ])
   })
 
   it('converts a request with URL-encoded body', () => {
@@ -318,7 +330,10 @@ describe('convertToHarRequest', () => {
 
     expect(harRequest.postData).toEqual({
       mimeType: 'application/x-www-form-urlencoded',
-      text: 'name=John+Doe&age=30',
+      params: [
+        { name: 'name', value: 'John Doe' },
+        { name: 'age', value: '30' },
+      ],
     })
   })
 

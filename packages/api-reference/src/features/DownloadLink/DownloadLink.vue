@@ -1,17 +1,16 @@
 <script lang="ts" setup>
 import { useConfig } from '@/hooks/useConfig'
+import { downloadEventBus } from '@/libs/download'
 
-import { downloadSpecBus } from '../../helpers'
-
-const props = defineProps<{
-  specTitle?: string
+const { filename } = defineProps<{
+  filename?: string
 }>()
 
 const config = useConfig()
 
 // id is retrieved at the layout level
 const handleDownloadClick = () => {
-  downloadSpecBus.emit({ id: '', specTitle: props.specTitle })
+  downloadEventBus.emit({ id: '', filename })
 }
 </script>
 <template>

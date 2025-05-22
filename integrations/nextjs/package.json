@@ -18,9 +18,9 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.7.15",
+  "version": "0.8.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
@@ -53,14 +53,14 @@
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
-    "next": "^15.0.0",
+    "next": "^15.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite": "catalog:*",
     "vite-plugin-dts": "^4.3.0"
   },
   "peerDependencies": {
-    "next": "^15.0.0",
+    "next": "^15.2.4",
     "react": "^19.0.0"
   }
 }

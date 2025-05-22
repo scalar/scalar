@@ -255,4 +255,23 @@ public sealed class ScalarOptions
     /// adjusted based on the request context. This only works for relative server URLs.
     /// </remarks>
     public bool DynamicBaseServerUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the path to a custom configuration JS module.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    /// <remarks>
+    /// If the path is relative, it will be normalized relative to the base path.
+    /// </remarks>
+    [StringSyntax(StringSyntaxAttribute.Uri)]
+    public string? JavaScriptConfiguration { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether authentication state should be persisted in local storage.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>
+    /// When set to <c>true</c>, the authentication state will be stored in the browser's local storage and restored when the user returns to the page.
+    /// </remarks>
+    public bool PersistentAuthentication { get; set; }
 }

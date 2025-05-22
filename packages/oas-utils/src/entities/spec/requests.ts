@@ -2,7 +2,11 @@ import { selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { type ZodSchema, z } from 'zod'
 
-import { XCodeSamplesSchema } from '@scalar/openapi-types/schemas/extensions'
+import {
+  type PostResponseSchema,
+  XCodeSamplesSchema,
+  XPostResponseSchema,
+} from '@scalar/openapi-types/schemas/extensions'
 import { XScalarStability } from '@scalar/types'
 import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { oasParameterSchema } from './parameters'
@@ -23,6 +27,8 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   duration: number
   /** The response status */
   status: number
+  /** The response status text */
+  statusText: string
   /** The response method */
   method: RequestMethod
   /** The request path */
@@ -100,6 +106,7 @@ export const oasRequestSchema = z.object({
   'x-scalar-examples': z.record(z.string(), xScalarExampleSchema).optional(),
   /** Hide operations */
   'x-internal': z.boolean().optional(),
+  /** Ignore operations */
   'x-scalar-ignore': z.boolean().optional(),
 })
 
@@ -142,12 +149,16 @@ const extendedRequestSchema = z.object({
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
+export type PostResponseScript = z.infer<typeof PostResponseSchema>
+export type PostResponseScripts = z.infer<typeof XPostResponseSchema>['x-post-response']
+
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema
   .omit({ 'x-scalar-examples': true })
   .merge(XCodeSamplesSchema)
   .merge(ScalarStabilitySchema)
   .merge(extendedRequestSchema)
+  .merge(XPostResponseSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

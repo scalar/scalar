@@ -65,6 +65,25 @@ const availableEnvironments = computed(() => {
     : []
 })
 
+const selectLatestEnvironment = () => {
+  const environments = availableEnvironments.value
+  if (environments.length > 0) {
+    // Get the latest created collection environment
+    const latestEnvironment = environments[environments.length - 1]
+
+    if (latestEnvironment?.uid) {
+      updateSelected(latestEnvironment.uid)
+    }
+  }
+}
+
+// Select for the collection its latest environment on creation
+watch(availableEnvironments, (newEnvs, oldEnvs) => {
+  if (newEnvs.length > oldEnvs.length) {
+    selectLatestEnvironment()
+  }
+})
+
 const setInitialEnvironment = (collection: Collection) => {
   const activeEnv = collection['x-scalar-active-environment']
   if (activeEnv && activeCollection.value && activeWorkspace.value) {

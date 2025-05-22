@@ -10,9 +10,9 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/use-hooks"
   },
-  "version": "0.1.48",
+  "version": "0.2.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",

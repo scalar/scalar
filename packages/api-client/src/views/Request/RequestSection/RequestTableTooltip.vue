@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarTooltip } from '@scalar/components'
+import { ScalarPopover } from '@scalar/components'
 import { ScalarIconInfo, ScalarIconWarning } from '@scalar/icons'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
@@ -11,28 +11,25 @@ const { item } = defineProps<{ item: RequestExampleParameter }>()
 const isInvalid = computed(() => !!parameterIsInvalid(item).value)
 </script>
 <template>
-  <ScalarTooltip
-    align="start"
-    class="w-full pr-px"
-    :delay="0"
-    side="left"
-    triggerClass="py-1">
-    <template #trigger>
+  <ScalarPopover
+    teleport
+    :offset="4"
+    placement="left">
+    <button
+      type="button"
+      :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
+      class="text-c-2 hover:text-c-1 hover:bg-b-2 rounded p-1"
+      :role="isInvalid ? 'alert' : 'none'">
+      <ScalarIconWarning
+        v-if="isInvalid"
+        class="text-orange size-3.5 brightness-90 hover:brightness-75" />
+      <ScalarIconInfo
+        v-else
+        class="text-c-2 hover:text-c-1 size-3.5" />
+    </button>
+    <template #popover>
       <div
-        :aria-label="isInvalid ? 'Input is invalid' : 'More Information'"
-        class="bg-b-1 px-1 group-[.alert]:bg-transparent group-[.error]:bg-transparent"
-        :role="isInvalid ? 'alert' : 'none'">
-        <ScalarIconWarning
-          v-if="isInvalid"
-          class="text-orange size-3.5 brightness-[.9]" />
-        <ScalarIconInfo
-          v-else
-          class="text-c-2 hover:text-c-1 size-3.5" />
-      </div>
-    </template>
-    <template #content>
-      <div
-        class="w-content bg-b-1 text-xxs text-c-1 pointer-events-none grid min-w-48 gap-1.5 rounded p-2 leading-5 shadow-lg">
+        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pb-1.5 pt-2 leading-none">
         <div
           v-if="isInvalid"
           class="text-error-1">
@@ -61,7 +58,7 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
         </span>
       </div>
     </template>
-  </ScalarTooltip>
+  </ScalarPopover>
 </template>
 <style scoped>
 .schema > span:not(:first-child)::before {

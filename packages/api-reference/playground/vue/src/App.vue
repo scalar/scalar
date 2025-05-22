@@ -7,22 +7,20 @@ import type { ApiReferenceConfigurationWithSources } from '@scalar/types/api-ref
 import { onMounted, reactive, ref } from 'vue'
 
 import DebugBar from './components/DebugBar.vue'
-import { XCustomExtensionPlugin } from './x-custom-extension-plugin/x-custom-extension-plugin'
+import { sources } from './content/sources'
+import { MyCustomPlugin } from './x-custom-extension-plugin/my-custom-plugin'
 
 const containerRef = ref<HTMLDivElement>()
+
+const plugins = [MyCustomPlugin()]
 
 const configuration = reactive({
   layout: 'modern' as const,
   theme: 'default' as const,
-  sources: [
-    {
-      title: 'Scalar Galaxy',
-      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    },
-  ],
+  sources: sources,
   showSidebar: true,
   withDefaultFonts: true,
-  plugins: [XCustomExtensionPlugin()],
+  plugins,
 })
 
 let app: ReturnType<typeof createApiReference> | null = null
@@ -37,7 +35,7 @@ const updateConfiguration = (
   Object.assign(configuration, newConfiguration)
   app?.updateConfiguration({
     ...newConfiguration,
-    plugins: [XCustomExtensionPlugin()],
+    plugins,
   })
 }
 </script>

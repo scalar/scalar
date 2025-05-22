@@ -7,6 +7,7 @@ import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-p
 import { decodeBuffer } from '@/libs/send-request/decode-buffer'
 import { getCookieHeader, setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
+import type { PluginManager } from '@/plugins'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,
@@ -15,8 +16,9 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
+import { isElectron } from '@/libs/electron'
+import { httpStatusCodes, isDefined, mergeUrls, redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -43,6 +45,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids = [],
   server,
   status,
+  pluginManager,
 }: {
   environment: object | undefined
   example: RequestExample
@@ -53,6 +56,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
   server?: Server | undefined
   status?: EventBus<RequestStatus>
+  pluginManager?: PluginManager
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -94,7 +98,7 @@ export const createRequestOperation = ({
       })
     })
 
-    const _urlParams = createFetchQueryParams(example, env)
+    const _urlParams = createFetchQueryParams(example, env, request)
     const _headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
     const { cookieParams: _cookieParams } = setRequestCookies({
@@ -133,8 +137,14 @@ export const createRequestOperation = ({
     const cookieHeader = replaceTemplateVariables(getCookieHeader(cookieParams, headers['Cookie']), env)
 
     if (cookieHeader) {
+      /**
+       * If we are running in Electron, we need to add a custom header
+       * that’s then forwarded as a `Cookie` header.
+       */
+      const useCustomCookieHeader = isElectron() || shouldUseProxy(proxyUrl, url)
+
       // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
-      if (shouldUseProxy(proxyUrl, url)) {
+      if (useCustomCookieHeader) {
         console.warn(
           'We’re using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.',
         )
@@ -172,6 +182,10 @@ export const createRequestOperation = ({
     > => {
       status?.emit('start')
 
+      if (pluginManager) {
+        pluginManager.executeHook('onBeforeRequest')
+      }
+
       // Start timer to get response duration
       const startTime = Date.now()
 
@@ -184,19 +198,44 @@ export const createRequestOperation = ({
          * Checks if the response is streaming
          * Unfortunately we cannot check the transfer-encoding header as it is not set by the browser so not quite sure how to test when
          * content-type === 'text/plain' and transfer-encoding === 'chunked'
+         *
+         * Currently we are only checking for server sent events. In OpenApi 3.2.0 streams will be added to the spec
          */
-        const isStreaming = response.headers.get('content-type')?.includes('stream')
-
+        const isStreaming = response.headers.get('content-type')?.startsWith('text/event-stream')
         status?.emit('stop')
+
+        const duration = Date.now() - startTime
+
+        // Clone the response before reading it
+        const responseToRead = response.clone()
 
         const responseHeaders = normalizeHeaders(response.headers, shouldUseProxy(proxyUrl, url))
         const responseType = response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
+        const arrayBuffer = await responseToRead.arrayBuffer()
+        const responseData = decodeBuffer(arrayBuffer, responseType)
+
+        // Create a new response with the statusText
+        const clonedResponse = response.clone()
+
+        // This is missing in HTTP/2 requests. But we need it for the post-clonedResponse scripts.
+        const statusText = clonedResponse.statusText || httpStatusCodes[clonedResponse.status]?.name || ''
+
+        const normalizedResponse = new Response(clonedResponse.body, {
+          status: clonedResponse.status,
+          statusText,
+          headers: clonedResponse.headers,
+        })
+
+        if (pluginManager) {
+          pluginManager.executeHook('onResponseReceived', { response: normalizedResponse, operation: request })
+        }
+
         // Safely check for cookie headers
         // TODO: polyfill
         const cookieHeaderKeys =
-          'getSetCookie' in response.headers && typeof response.headers.getSetCookie === 'function'
-            ? response.headers.getSetCookie()
+          'getSetCookie' in normalizedResponse.headers && typeof normalizedResponse.headers.getSetCookie === 'function'
+            ? normalizedResponse.headers.getSetCookie()
             : []
 
         // We want to return the response so that it can be streamed
@@ -207,21 +246,17 @@ export const createRequestOperation = ({
               timestamp: Date.now(),
               request: example,
               response: {
-                ...response,
+                ...normalizedResponse,
                 headers: responseHeaders,
                 cookieHeaderKeys,
                 reader: response.body?.getReader(),
-                duration: Date.now() - startTime,
+                duration,
                 method: request.method,
-                status: response.status,
                 path: pathString,
               },
             },
           ]
         }
-
-        const arrayBuffer = await response.arrayBuffer()
-        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         return [
           null,

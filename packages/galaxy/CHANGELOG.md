@@ -1,5 +1,17 @@
 # @scalar/galaxy
 
+## 0.4.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+
+## 0.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 0.3.2
 
 ### Patch Changes

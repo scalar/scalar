@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { createMarkdownFromOpenApi } from '@scalar/openapi-to-markdown'
 import { cors } from 'hono/cors'
 import { Scalar } from '../src/index'
 
@@ -194,6 +195,18 @@ app.get(
     pageTitle: 'Hono API Reference Demo',
   }),
 )
+
+// Markdown for LLMs
+const content = app.getOpenAPI31Document({
+  openapi: '3.1.0',
+  info: { title: 'Example', version: 'v1' },
+})
+
+const markdown = await createMarkdownFromOpenApi(JSON.stringify(content))
+
+app.get('/llms.txt', async (c) => {
+  return c.text(markdown)
+})
 
 // Listen
 serve(

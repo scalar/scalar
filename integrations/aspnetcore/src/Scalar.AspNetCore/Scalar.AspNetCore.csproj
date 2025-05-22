@@ -14,18 +14,29 @@
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Microsoft.AspNetCore.Http.Generated</InterceptorsPreviewNamespaces>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <StaticAssetsLogicalNamePrefix>ScalarStaticAssets</StaticAssetsLogicalNamePrefix>
+  </PropertyGroup>
+
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Microsoft" />
     <InternalsVisibleTo Include="$(AssemblyName).Swashbuckle" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta12" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
+    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta13" PrivateAssets="all" ExcludeAssets="runtime" NoWarn="NU5104" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="StaticAssets/*" Exclude="StaticAssets/*test.js">
-      <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
+    <!-- Include compressed files for Release -->
+    <!-- Import .gz files without extension so the original filename is used "scalar.js.gz" -> "scalar.js" -->
+    <EmbeddedResource Include="StaticAssets/*.gz" Condition="'$(Configuration)' == 'Release'">
+      <LogicalName>$(StaticAssetsLogicalNamePrefix).%(Filename)</LogicalName>
+    </EmbeddedResource>
+
+    <!-- Include uncompressed files for Debug -->
+    <EmbeddedResource Include="StaticAssets/*.js" Exclude="StaticAssets/*test.js" Condition="'$(Configuration)' == 'Debug'">
+      <LogicalName>$(StaticAssetsLogicalNamePrefix).%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 

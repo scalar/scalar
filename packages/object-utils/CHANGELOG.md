@@ -1,5 +1,17 @@
 # @scalar/object-utils
 
+## 1.2.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+
+## 1.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
 ## 1.1.14
 
 ### Patch Changes

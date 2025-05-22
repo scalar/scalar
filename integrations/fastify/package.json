@@ -17,15 +17,15 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.28.31",
+  "version": "1.29.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-rollup && pnpm copy:standalone",
     "build:playground": "cd playground && pnpm build",
-    "copy:standalone": "mkdir -p ./dist/js && cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
-    "dev": "cd playground && pnpm dev",
+    "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
+    "dev:doesnt-work": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "format": "scalar-format",
@@ -68,6 +68,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
     "rollup-plugin-node-externals": "^7.1.2",
+    "shx": "^0.4.0",
     "terser": "^5.30.0",
     "vite": "catalog:*",
     "vite-plugin-static-copy": "^1.0.2",

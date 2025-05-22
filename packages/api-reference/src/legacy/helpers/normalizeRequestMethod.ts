@@ -1,6 +1,6 @@
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 
-import { isRequestMethod } from '../fixtures'
+import { isRequestMethod } from '../fixtures/httpRequestMethods'
 
 const DEFAULT_REQUEST_METHOD = 'get'
 

@@ -14,19 +14,25 @@ type AnyObject = Record<string, any>
  */
 function getParamsFromObject(
   obj: AnyObject,
-  prefix = '',
+  nested = false,
+  field?: string,
 ): {
   name: string
   value: any
 }[] {
   return Object.entries(obj).flatMap(([key, value]) => {
-    const newKey = prefix ? `${prefix}[${key}]` : key
+    const name = field ?? key
 
-    if (typeof value === 'object' && value !== null) {
-      return getParamsFromObject(value, newKey)
+    if (Array.isArray(value) && !nested) {
+      return getParamsFromObject(value, true, key)
     }
 
-    return [{ name: newKey, value }]
+    if (typeof value === 'object' && !(value instanceof File) && value !== null) {
+      // Nested object inside formData field: no way to represent it, so just serialize to JSON string
+      value = JSON.stringify(value)
+    }
+
+    return [{ name, value }]
   })
 }
 // Define preferred standard mime types (order indicates preference)
@@ -51,7 +57,7 @@ export function getRequestBodyFromOperation(
   text?: string | undefined
   params?: {
     name: string
-    value?: string
+    value?: string | File
   }[]
 } | null {
   const originalContent = operation.information?.requestBody?.content

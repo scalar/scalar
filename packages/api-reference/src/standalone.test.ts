@@ -1,7 +1,7 @@
 import galaxyContent from '@scalar/galaxy/latest.yaml?raw'
 import { describe, expect, it } from 'vitest'
 
-import { waitFor } from './helpers/waitFor'
+import { waitFor } from '@test/utils/wait-for'
 import type { ReferenceProps } from './types'
 
 describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {

@@ -11,9 +11,9 @@
     "directory": "packages/config"
   },
   "keywords": [],
-  "version": "0.1.3",
+  "version": "0.2.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-rollup",

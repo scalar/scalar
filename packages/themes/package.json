@@ -15,9 +15,9 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.11.1",
+  "version": "0.12.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",

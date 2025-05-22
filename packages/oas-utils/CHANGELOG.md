@@ -1,5 +1,60 @@
 # @scalar/oas-utils
 
+## 0.3.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+- Updated dependencies [4440949]
+  - @scalar/object-utils@1.2.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+  - @scalar/themes@0.12.1
+
+## 0.3.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 30bab1d: support unexploded serialization of array query params
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+  - @scalar/themes@0.12.0
+  - @scalar/openapi-types@0.3.0
+  - @scalar/object-utils@1.2.0
+  - @scalar/types@0.2.0
+
+## 0.2.144
+
+### Patch Changes
+
+- Updated dependencies [be8a6ec]
+  - @scalar/types@0.1.16
+  - @scalar/themes@0.11.3
+
+## 0.2.143
+
+### Patch Changes
+
+- 67aa0f4: fix: render correct queries with form data
+- Updated dependencies [f711ab5]
+- Updated dependencies [90b773e]
+- Updated dependencies [0222ad4]
+- Updated dependencies [cb9428c]
+- Updated dependencies [67aa0f4]
+  - @scalar/types@0.1.15
+  - @scalar/themes@0.11.2
+  - @scalar/openapi-types@0.2.3
+
+## 0.2.142
+
+### Patch Changes
+
+- cd6cf24: chore: export getServersFromOpenapi function
+
 ## 0.2.141
 
 ### Patch Changes

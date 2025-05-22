@@ -10,6 +10,7 @@ import type {
   Collection,
   Operation,
   RequestExample,
+  SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -19,10 +20,9 @@ import { computed, ref } from 'vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import type { EnvVariables } from '@/libs/env-helpers'
 import { useWorkspace } from '@/store'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
-
-import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
 const { collection, example, operation, server, workspace } = defineProps<{
   collection: Collection
@@ -30,6 +30,7 @@ const { collection, example, operation, server, workspace } = defineProps<{
   operation: Operation
   server: Server | undefined
   workspace: Workspace
+  environment: EnvVariables
 }>()
 
 const { securitySchemes, workspaceMutators } = useWorkspace()
@@ -76,16 +77,18 @@ const localSelectedClientState = ref(
 )
 
 /**
- * Just the relevant security schemes for the selected request
+ * Returns selected security schemes for the request
  */
-const selectedSecuritySchemes = computed(() =>
-  filterSecurityRequirements(
-    operation.security || collection.security || [],
+const selectedSecuritySchemes = computed(() => {
+  const uids =
     operation.selectedSecuritySchemeUids ||
-      collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  ),
-)
+    collection.selectedSecuritySchemeUids ||
+    []
+  return uids
+    .flat()
+    .map((uid) => securitySchemes[uid])
+    .filter((scheme): scheme is SecurityScheme => Boolean(scheme))
+})
 
 /**
  * Group plugins by target/language to show in a dropdown, also build a dictionary in the same loop
@@ -258,7 +261,8 @@ const customCodeContent = computed(() => {
                 :operation="operation"
                 :securitySchemes="selectedSecuritySchemes"
                 :server="server"
-                :target="selectedTarget" />
+                :target="selectedTarget"
+                :environment="environment" />
             </template>
           </div>
         </DataTableRow>

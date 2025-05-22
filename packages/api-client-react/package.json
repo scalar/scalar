@@ -19,9 +19,9 @@
     "testing",
     "react"
   ],
-  "version": "1.2.31",
+  "version": "1.3.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",

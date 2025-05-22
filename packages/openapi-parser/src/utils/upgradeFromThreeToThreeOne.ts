@@ -3,169 +3,151 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from './traverse'
 
+// Create Sets for faster schema path lookups
+const SCHEMA_SEGMENTS = new Set([
+  'properties',
+  'items',
+  'allOf',
+  'anyOf',
+  'oneOf',
+  'not',
+  'additionalProperties',
+  'schema',
+])
+
+const SCHEMA_PATHS = new Set(['components/schemas'])
+
+/** Determine if the current path is within a schema - optimized version */
+export function isSchemaPath(path: string[]): boolean {
+  // Check for schema segments first (most common case)
+  if (path.some((segment) => SCHEMA_SEGMENTS.has(segment))) {
+    return true
+  }
+
+  // Check for schema suffix
+  if (path.some((segment) => segment.endsWith('Schema'))) {
+    return true
+  }
+
+  // Check for components/schemas path
+  if (path.length >= 2 && path[0] === 'components' && path[1] === 'schemas') {
+    return true
+  }
+
+  return false
+}
+
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
  */
-export function upgradeFromThreeToThreeOne(originalSpecification: UnknownObject) {
-  let specification = originalSpecification
+export function upgradeFromThreeToThreeOne(originalContent: UnknownObject) {
+  let content = originalContent
 
-  // Version
-  if (specification !== null && typeof specification.openapi === 'string' && specification.openapi.startsWith('3.0')) {
-    specification.openapi = '3.1.1'
-  } else {
-    // Skip if it’s something else than 3.0.x
-    return specification
+  // Version check - early return if not 3.0.x
+  if (content === null || typeof content.openapi !== 'string' || !content.openapi.startsWith('3.0')) {
+    return content
   }
 
-  // Nullable types
-  specification = traverse(specification, (schema) => {
-    if (schema.type !== 'undefined' && schema.nullable === true) {
-      schema.type = [schema.type, 'null']
-      delete schema.nullable
-    }
+  content.openapi = '3.1.1'
 
-    return schema
-  })
+  // Single traversal that handles all transformations
+  content = traverse(content, applyChangesToDocument)
 
-  // exclusiveMinimum and exclusiveMaximum
-  specification = traverse(specification, (schema) => {
-    if (schema.exclusiveMinimum === true) {
-      schema.exclusiveMinimum = schema.minimum
-      delete schema.minimum
-    } else if (schema.exclusiveMinimum === false) {
-      delete schema.exclusiveMinimum
-    }
+  return content as OpenAPIV3_1.Document
+}
 
-    if (schema.exclusiveMaximum === true) {
-      schema.exclusiveMaximum = schema.maximum
-      delete schema.maximum
-    } else if (schema.exclusiveMaximum === false) {
-      delete schema.exclusiveMaximum
-    }
+const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
+  // 1. Handle nullable types
+  if (schema.type !== 'undefined' && schema.nullable === true) {
+    schema.type = [schema.type, 'null']
+    delete schema.nullable
+  }
 
-    return schema
-  })
+  // 2. Handle exclusiveMinimum and exclusiveMaximum
+  if (schema.exclusiveMinimum === true) {
+    schema.exclusiveMinimum = schema.minimum
+    delete schema.minimum
+  } else if (schema.exclusiveMinimum === false) {
+    delete schema.exclusiveMinimum
+  }
 
-  // Use examples not example
-  specification = traverse(specification, (schema, path) => {
-    if (schema.example !== undefined) {
-      // Arrays in schemas
-      if (isSchemaPath(path)) {
-        schema.examples = [schema.example]
+  if (schema.exclusiveMaximum === true) {
+    schema.exclusiveMaximum = schema.maximum
+    delete schema.maximum
+  } else if (schema.exclusiveMaximum === false) {
+    delete schema.exclusiveMaximum
+  }
+
+  // 3. Handle examples
+  if (schema.example !== undefined) {
+    if (isSchemaPath(path)) {
+      schema.examples = [schema.example]
+    } else {
+      schema.examples = {
+        default: {
+          value: schema.example,
+        },
       }
-      // Objects everywhere else
-      else {
-        schema.examples = {
-          default: {
-            value: schema.example,
-          },
-        }
-      }
-      delete schema.example
     }
+    delete schema.example
+  }
 
-    return schema
-  })
+  // 4. Handle multipart file uploads
+  if (schema.type === 'object' && schema.properties !== undefined) {
+    const parentPath = path.slice(0, -1)
+    const isMultipart = parentPath.some((segment, index) => {
+      return segment === 'content' && path[index + 1] === 'multipart/form-data'
+    })
 
-  // Multipart file uploads with a binary file
-  specification = traverse(specification, (schema, path) => {
-    if (schema.type === 'object' && schema.properties !== undefined) {
-      // Check if this is a multipart request body schema
-      const parentPath = path.slice(0, -1)
-      const isMultipart = parentPath.some((segment, index) => {
-        return segment === 'content' && path[index + 1] === 'multipart/form-data'
-      })
-
-      if (isMultipart) {
-        // Types
-        const entries: [string, any][] = Object.entries(schema.properties)
-
-        for (const [_, value] of entries) {
-          if (typeof value === 'object' && value.type === 'string' && value.format === 'binary') {
-            value.contentMediaType = 'application/octet-stream'
-            delete value.format
-          }
+    if (isMultipart) {
+      for (const value of Object.values(schema.properties)) {
+        if (
+          typeof value === 'object' &&
+          value !== null &&
+          'type' in value &&
+          'format' in value &&
+          value.type === 'string' &&
+          value.format === 'binary'
+        ) {
+          ;(value as any).contentMediaType = 'application/octet-stream'
+          delete (value as any).format
         }
       }
     }
+  }
 
-    return schema
-  })
+  // 5. Handle binary file uploads
+  if (path.includes('content') && path.includes('application/octet-stream')) {
+    return {}
+  }
 
-  // Uploading a binary file in a POST request
-  specification = traverse(specification, (schema, path) => {
-    if (path.includes('content') && path.includes('application/octet-stream')) {
-      return {}
-    }
-
-    if (schema.type === 'string' && schema.format === 'binary') {
+  if (schema.type === 'string') {
+    if (schema.format === 'binary') {
       return {
         type: 'string',
         contentMediaType: 'application/octet-stream',
       }
     }
 
-    return schema
-  })
-
-  // Uploading an image with base64 encoding
-  specification = traverse(specification, (schema) => {
-    if (schema.type === 'string' && schema.format === 'base64') {
+    if (schema.format === 'base64') {
       return {
         type: 'string',
         contentEncoding: 'base64',
       }
     }
 
-    return schema
-  })
-
-  specification = traverse(specification, (schema, path) => {
-    if (schema.type === 'string' && schema.format === 'byte') {
+    if (schema.format === 'byte') {
       const parentPath = path.slice(0, -1)
       const contentMediaType = parentPath.find((_, index) => path[index - 1] === 'content')
-
       return {
         type: 'string',
         contentEncoding: 'base64',
         contentMediaType,
       }
     }
+  }
 
-    return schema
-  })
-
-  // Declaring $schema Dialects to protect against change
-  // if (typeof specification.$schema === 'undefined') {
-  //   specification.$schema = 'http://json-schema.org/draft-07/schema#'
-  // }
-
-  return specification as OpenAPIV3_1.Document
-}
-
-/** Determine if the current path is within a schema */
-export function isSchemaPath(path: string[]): boolean {
-  const schemaLocations = [
-    ['components', 'schemas'],
-    'properties',
-    'items',
-    'allOf',
-    'anyOf',
-    'oneOf',
-    'not',
-    'additionalProperties',
-  ]
-
-  return (
-    schemaLocations.some((location) => {
-      if (Array.isArray(location)) {
-        return location.every((segment, index) => path[index] === segment)
-      }
-      return path.includes(location)
-    }) ||
-    path.includes('schema') ||
-    path.some((segment) => segment.endsWith('Schema'))
-  )
+  return schema
 }

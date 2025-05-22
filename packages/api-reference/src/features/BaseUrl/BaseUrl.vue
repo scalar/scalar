@@ -36,10 +36,16 @@ const updateServer = (newServer: string) => {
 }
 </script>
 <template>
-  <label class="bg-b-2 flex h-8 items-center px-3 py-2.5 text-sm font-medium">
+  <label
+    class="bg-b-2 flex h-8 items-center rounded-t-lg border border-b-0 px-3 py-2.5 text-sm font-medium">
     Server
   </label>
-  <div :id="id">
+  <div
+    :id="id"
+    class="border"
+    :class="{
+      'rounded-b-lg': !server?.description,
+    }">
     <ServerSelector
       v-if="collection?.servers?.length"
       :collection="collection"
@@ -49,10 +55,11 @@ const updateServer = (newServer: string) => {
   </div>
   <ServerVariablesForm
     :variables="server?.variables"
+    layout="reference"
     @update:variable="updateServerVariable" />
   <!-- Description -->
   <ScalarMarkdown
     v-if="server?.description"
-    class="text-c-3 px-3 py-1.5"
+    class="text-c-3 rounded-b-lg border border-t-0 px-3 py-1.5"
     :value="server.description" />
 </template>

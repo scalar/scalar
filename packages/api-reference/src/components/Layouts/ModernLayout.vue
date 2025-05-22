@@ -4,13 +4,15 @@ import {
   ScalarColorModeToggleButton,
   ScalarSidebarFooter,
 } from '@scalar/components'
+import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
-import { useNavState, useSidebar } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,
@@ -42,6 +44,11 @@ watch(hash, (newHash, oldHash) => {
     isSidebarOpen.value = false
   }
 })
+
+/** So we do not override the sidebar-start slot */
+const otherSlots = computed(() =>
+  getObjectKeys(slots).filter((name) => name !== 'sidebar-start'),
+)
 </script>
 <template>
   <ApiReferenceLayout
@@ -54,30 +61,40 @@ watch(hash, (newHash, oldHash) => {
     :rawSpec="rawSpec"
     @updateContent="$emit('updateContent', $event)">
     <template
-      v-for="(_, name) in slots"
+      v-for="name in otherSlots"
       #[name]="slotProps">
       <slot
         :name="name"
         v-bind="slotProps || {}" />
     </template>
+
     <template #header>
       <MobileHeader
         v-if="configuration.showSidebar ?? true"
         v-model:open="isSidebarOpen" />
     </template>
-    <template #sidebar-start="{ spec }">
+
+    <template #sidebar-start="sidebarStartProps">
       <!-- Wrap in a div when slot is filled -->
       <div v-if="$slots['document-selector']">
         <slot name="document-selector" />
       </div>
+
+      <!-- Search -->
       <div
         v-if="!props.configuration.hideSearch"
         class="scalar-api-references-standalone-search">
         <SearchButton
           :searchHotKey="props.configuration?.searchHotKey"
-          :spec="spec" />
+          :spec="sidebarStartProps.spec" />
       </div>
+
+      <!-- Sidebar Start -->
+      <slot
+        name="sidebar-start"
+        v-bind="sidebarStartProps" />
     </template>
+
     <template #sidebar-end>
       <ScalarSidebarFooter class="darklight-reference">
         <OpenApiClientButton

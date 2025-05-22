@@ -1,17 +1,19 @@
+import type { UnknownObject } from '@scalar/types/utils'
 import type { AnyObject } from '../types/index'
 
 /**
- * Recursively traverses the specification and applies the transform function to each node.
+ * Recursively traverses the content and applies the transform function to each node.
  */
 export function traverse(
-  specification: AnyObject,
-  transform: (specification: AnyObject, path?: string[]) => AnyObject,
+  content: UnknownObject,
+  transform: (content: UnknownObject, path?: string[]) => UnknownObject,
   path: string[] = [],
 ) {
   const result: AnyObject = {}
 
-  for (const [key, value] of Object.entries(specification)) {
+  for (const [key, value] of Object.entries(content)) {
     const currentPath = [...path, key]
+
     if (Array.isArray(value)) {
       result[key] = value.map((item, index) => {
         if (typeof item === 'object' && !Array.isArray(item) && item !== null) {
@@ -20,11 +22,17 @@ export function traverse(
 
         return item
       })
-    } else if (typeof value === 'object' && !Array.isArray(value) && value !== null) {
-      result[key] = traverse(value, transform, currentPath)
-    } else {
-      result[key] = value
+
+      continue
     }
+
+    if (typeof value === 'object' && value !== null) {
+      result[key] = traverse(value as UnknownObject, transform, currentPath)
+
+      continue
+    }
+
+    result[key] = value
   }
 
   return transform(result, path)

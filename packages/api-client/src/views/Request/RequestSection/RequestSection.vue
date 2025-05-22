@@ -16,6 +16,7 @@ import SectionFilter from '@/components/SectionFilter.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
+import { usePluginManager } from '@/plugins'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
@@ -53,6 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
+  'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -143,6 +145,14 @@ const handleRequestNamePlaceholder = () => {
 }
 
 const labelRequestNameId = useId()
+
+// Plugins
+const pluginManager = usePluginManager()
+
+const requestSectionViews = pluginManager.getViewComponents('request.section')
+
+const updateOperationHandler = (key: keyof Operation, value: string) =>
+  requestMutators.edit(operation.uid, key, value)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -173,7 +183,7 @@ const labelRequestNameId = useId()
     </template>
     <div
       :id="filterIds.All"
-      class="request-section-content custom-scroll relative flex flex-1 flex-col divide-y"
+      class="request-section-content custom-scroll relative flex flex-1 flex-col"
       :role="selectedFilter === 'All' ? 'tabpanel' : 'none'">
       <RequestAuth
         v-if="
@@ -186,7 +196,7 @@ const labelRequestNameId = useId()
           (selectedFilter === 'All' || selectedFilter === 'Auth')
         "
         :id="filterIds.Auth"
-        class="request-section-content-auth border-b-0"
+        class="request-section-content-auth"
         :collection="collection"
         :envVariables="envVariables"
         :environment="environment"
@@ -272,18 +282,31 @@ const labelRequestNameId = useId()
         title="Body"
         :workspace="workspace" />
 
+      <template
+        v-for="view in requestSectionViews"
+        :key="view.component">
+        <ScalarErrorBoundary>
+          <component
+            :is="view.component"
+            v-show="selectedFilter === 'All' || selectedFilter === view.title"
+            @update:operation="updateOperationHandler"
+            :operation="operation" />
+        </ScalarErrorBoundary>
+      </template>
+
       <!-- Spacer -->
-      <div class="-my-0.25 flex flex-grow" />
+      <div class="flex flex-grow" />
 
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample
-          class="request-section-content-code-example"
+          class="request-section-content-code-example -mt-1/2 border-t"
           :collection="collection"
           :example="example"
           :operation="operation"
           :server="server"
-          :workspace="workspace" />
+          :workspace="workspace"
+          :environment="envVariables" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>

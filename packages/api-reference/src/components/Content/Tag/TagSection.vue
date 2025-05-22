@@ -3,10 +3,11 @@ import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type { Spec, Tag as TagType } from '@scalar/types/legacy'
 import { computed, nextTick, ref, useId } from 'vue'
 
-import { useNavState, useSidebar } from '../../../hooks'
-import { SectionContainer } from '../../Section'
-import ShowMoreButton from '../../ShowMoreButton.vue'
-import Tag from './Tag.vue'
+import Tag from '@/components/Content/Tag/Tag.vue'
+import { SectionContainer } from '@/components/Section'
+import ShowMoreButton from '@/components/ShowMoreButton.vue'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 
 const props = defineProps<{
   id?: string

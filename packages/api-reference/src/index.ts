@@ -1,4 +1,5 @@
 export { default as ApiReference } from '@/components/ApiReference.vue'
+export { default as SingleApiReference } from '@/components/SingleApiReference.vue'
 export { default as ApiReferenceLayout } from '@/components/ApiReferenceLayout.vue'
 export { default as ModernLayout } from '@/components/Layouts/ModernLayout.vue'
 export { SearchButton, SearchModal } from '@/features/Search'
@@ -14,16 +15,11 @@ export { Layouts } from '@/components/Layouts'
 
 // TODO: Ideally, we’d remove those exports or at least not export them through the root index.
 export { parse } from '@/helpers/parse'
-export { createEmptySpecification } from '@/helpers/createEmptySpecification'
+export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
 export { useSidebar } from '@/hooks/useSidebar'
 export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,
   ReferenceProps,
-  // TODO: Deprecated 2025-03-12
-  ReferenceConfiguration,
 } from '@/types'
-
-// TODO: Deprecated 2025-03-12
-export { createScalarReferences } from '@/esm'

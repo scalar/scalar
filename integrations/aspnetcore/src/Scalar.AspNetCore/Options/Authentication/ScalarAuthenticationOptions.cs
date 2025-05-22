@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Scalar.AspNetCore;
 
 /// <summary>
@@ -9,7 +11,21 @@ public sealed class ScalarAuthenticationOptions
     /// Gets or sets the preferred security scheme.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
-    public string? PreferredSecurityScheme { get; set; }
+    [JsonIgnore]
+    [Obsolete("This property is obsolete and will be removed in a future release. Use PreferredSecuritySchemes property to configure the preferred security scheme instead.")]
+    public string? PreferredSecurityScheme
+    {
+        get => PreferredSecuritySchemes?.FirstOrDefault();
+        set => PreferredSecuritySchemes = value is null ? null : [value];
+    }
+
+
+    /// <summary>
+    /// Gets or sets the preferred security schemes.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    [JsonPropertyName("preferredSecurityScheme")]
+    public IList<string>? PreferredSecuritySchemes { get; set; }
 
     /// <summary>
     /// Gets or sets the API key options.

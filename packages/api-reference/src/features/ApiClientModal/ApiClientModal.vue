@@ -1,23 +1,22 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import {
-  mutateSecuritySchemeDiff,
-  mutateServerDiff,
-  parseDiff,
-} from '@scalar/api-client/views/Request/libs'
-import { serverSchema } from '@scalar/oas-utils/entities/spec'
+import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
+import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type { Spec } from '@scalar/types/legacy'
 import { watchDebounced } from '@vueuse/core'
-import { useExampleStore } from '#legacy'
-import microdiff, { type Difference } from 'microdiff'
+import microdiff from 'microdiff'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useNavState } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useExampleStore } from '@/legacy/stores'
 
 import { useApiClient } from './useApiClient'
 
-const { configuration } = defineProps<{
-  configuration: Partial<ApiClientConfiguration>
+const { configuration, parsedSpec } = defineProps<{
+  // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn’t have to be).
+  configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>>
+  parsedSpec: Spec
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
@@ -45,9 +44,10 @@ onMounted(() => {
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
-    if (!oldConfig) {
+    if (!oldConfig || !activeEntities.activeCollection.value) {
       return
     }
+    const collection = activeEntities.activeCollection.value
 
     const diff = microdiff(oldConfig, newConfig)
     const hasContentChanged = diff.some(
@@ -66,16 +66,41 @@ watchDebounced(
     // Or we handle the specific diff changes, just auth and servers for now
     else {
       diff.forEach((diff) => {
-        // Servers
-        if (diff.path[0] === 'servers') {
-          mutateServerDiff(diff, activeEntities, store)
-        }
         // Auth - TODO preferredSecurityScheme
-        else if (diff.path[0] === 'authentication') {
+        if (diff.path[0] === 'authentication') {
           mutateSecuritySchemeDiff(diff, activeEntities, store)
         }
-        // TODO: baseServerURL
       })
+
+      // Servers
+      if (newConfig.servers || oldConfig.servers) {
+        // Delete all the old servers first
+        collection.servers.forEach((serverUid) => {
+          store.serverMutators.delete(serverUid, collection.uid)
+        })
+
+        // Now we either use the new servers or restore the ones from the spec
+        const newServers = getServersFromOpenApiDocument(
+          newConfig.servers ?? parsedSpec.servers,
+          {
+            baseServerURL: newConfig.baseServerURL,
+          },
+        )
+
+        // Add the new ones
+        newServers.forEach((server) => {
+          store.serverMutators.add(server, collection.uid)
+        })
+
+        // Select the last server
+        if (newServers.length) {
+          store.collectionMutators.edit(
+            collection.uid,
+            'selectedServerUid',
+            newServers[newServers.length - 1].uid,
+          )
+        }
+      }
     }
 
     // Disable intersection observer in case there's some jumpiness

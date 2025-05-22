@@ -1,5 +1,5 @@
-import { arrayToObject } from '@/utils/arrayToObject'
-import { objectToString } from '@/utils/objectToString'
+import { createSearchParams } from '@/utils/create-search-params'
+import { objectToString, Unquoted } from '@/utils/objectToString'
 import type { Plugin } from '@scalar/types/snippetz'
 
 /**
@@ -16,6 +16,8 @@ export const nodeFetch: Plugin = {
       ...request,
     }
 
+    let prefix = ''
+
     // Normalization
     normalizedRequest.method = normalizedRequest.method.toUpperCase()
 
@@ -25,9 +27,7 @@ export const nodeFetch: Plugin = {
     }
 
     // Query
-    const searchParams = new URLSearchParams(
-      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
-    )
+    const searchParams = createSearchParams(normalizedRequest.queryString)
     const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
     // Headers
@@ -59,12 +59,35 @@ export const nodeFetch: Plugin = {
 
     // Add body
     if (normalizedRequest.postData) {
-      // Plain text
-      options.body = normalizedRequest.postData.text
+      const { mimeType, text, params } = normalizedRequest.postData
+      let hasFsImport = false
 
-      // JSON
-      if (normalizedRequest.postData.mimeType === 'application/json') {
-        options.body = `JSON.stringify(${objectToString(JSON.parse(options.body))})`
+      if (mimeType === 'application/json' && text) {
+        try {
+          options.body = new Unquoted(`JSON.stringify(${objectToString(JSON.parse(text))})`)
+        } catch (e) {
+          options.body = text
+        }
+      } else if (mimeType === 'multipart/form-data' && params) {
+        prefix = 'const formData = new FormData()\n'
+        params.forEach((param) => {
+          if (param.fileName !== undefined) {
+            if (!hasFsImport) {
+              prefix = `import fs from 'node:fs'\n\n${prefix}`
+              hasFsImport = true
+            }
+            prefix += `formData.append('${param.name}', new Blob([fs.readFileSync('${param.fileName}')]), '${param.fileName}')\n`
+          } else if (param.value !== undefined) {
+            prefix += `formData.append('${param.name}', '${param.value}')\n`
+          }
+        })
+        prefix += '\n'
+        options.body = new Unquoted('formData')
+      } else if (mimeType === 'application/x-www-form-urlencoded' && params) {
+        const form = Object.fromEntries(params.map((p) => [p.name, p.value]))
+        options.body = new Unquoted(`new URLSearchParams(${objectToString(form)})`)
+      } else {
+        options.body = normalizedRequest.postData.text
       }
     }
 
@@ -72,6 +95,6 @@ export const nodeFetch: Plugin = {
     const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
-    return `fetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
+    return `${prefix}fetch('${normalizedRequest.url}${queryString}'${jsonOptions})`
   },
 }

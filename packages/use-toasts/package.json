@@ -17,9 +17,9 @@
     "vue",
     "vue3"
   ],
-  "version": "0.7.10",
+  "version": "0.8.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",

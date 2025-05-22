@@ -18,7 +18,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "0.1.2",
+  "version": "0.1.6",
   "engines": {
     "node": ">=20"
   },
@@ -53,14 +53,14 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@sveltejs/kit": "^2.16.0",
+    "@sveltejs/kit": "^2.20.6",
     "@sveltejs/package": "^2.0.0",
     "publint": "^0.3.2",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0"
   },
   "peerDependencies": {
-    "@sveltejs/kit": "^2.16.0",
+    "@sveltejs/kit": "^2.20.6",
     "svelte": "^5.0.0"
   }
 }

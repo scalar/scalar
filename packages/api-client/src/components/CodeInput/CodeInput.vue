@@ -237,6 +237,14 @@ const defaultType = computed(() => {
       props.type
 })
 
+const displayVariablesDropdown = computed(
+  () =>
+    showDropdown.value &&
+    props.withVariables &&
+    layout !== 'modal' &&
+    props.environment,
+)
+
 defineExpose({
   /** Expose focus method */
   focus: () => {
@@ -343,7 +351,7 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="showDropdown && withVariables && layout !== 'modal' && environment"
+    v-if="displayVariablesDropdown"
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :envVariables="envVariables"

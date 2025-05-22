@@ -1,4 +1,4 @@
-import { textMediaTypes } from '@/views/Request/consts'
+import { isTextMediaType } from '@/views/Request/consts'
 import MimeTypeParser from 'whatwg-mimetype'
 
 // TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
@@ -6,7 +6,7 @@ import MimeTypeParser from 'whatwg-mimetype'
 export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
   const mimeType = new MimeTypeParser(contentType)
 
-  if (textMediaTypes.includes(mimeType.essence)) {
+  if (isTextMediaType(mimeType.essence)) {
     const decoder = new TextDecoder(mimeType.parameters.get('charset'))
     const string = decoder.decode(buffer)
 

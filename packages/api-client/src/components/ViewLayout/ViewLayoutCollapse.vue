@@ -26,7 +26,9 @@ const id = useId()
     <section
       :aria-labelledby="id"
       class="contents">
-      <div class="bg-b-2 flex items-center">
+      <div
+        class="bg-b-2 flex items-center"
+        :class="layout === 'reference' && 'rounded-t-lg border border-b-0'">
         <DisclosureButton
           :class="[
             'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',
@@ -55,7 +57,7 @@ const id = useId()
             </span>
             <span
               v-if="!open && itemCount"
-              class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full border font-semibold">
+              class="bg-b-2 text-c-2 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs font-semibold">
               {{ itemCount }}
               <span class="sr-only">Item{{ itemCount === 1 ? '' : 's' }}</span>
             </span>

@@ -18,9 +18,9 @@
     "rest",
     "testing"
   ],
-  "version": "2.3.31",
+  "version": "2.4.1",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-vite",
@@ -137,6 +137,11 @@
       "import": "./dist/libs/send-request/index.js",
       "types": "./dist/libs/send-request/index.d.ts",
       "default": "./dist/libs/send-request/index.js"
+    },
+    "./plugins": {
+      "import": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
     },
     "./store": {
       "import": "./dist/store/index.js",

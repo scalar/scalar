@@ -1,6 +1,6 @@
 FROM node:20
 
-FROM mcr.microsoft.com/playwright:v1.44.1-jammy
+FROM mcr.microsoft.com/playwright:v1.52.0-noble
 
 # Set the work directory for the application
 WORKDIR /app

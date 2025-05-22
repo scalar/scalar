@@ -81,4 +81,15 @@ describe('oasParameterSchema', () => {
 
     expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
   })
+
+  it('should validate examples with the explode property', () => {
+    const validParameter = {
+      in: 'query',
+      name: 'galaxy',
+      examples: ['Milky Way', 'Andromeda'],
+      explode: true,
+    }
+
+    expect(() => oasParameterSchema.parse(validParameter)).not.toThrow()
+  })
 })

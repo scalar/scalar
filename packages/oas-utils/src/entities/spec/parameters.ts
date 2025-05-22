@@ -41,6 +41,7 @@ export const oasParameterSchema = z.object({
   content: z.unknown().optional(),
   /** Defaulted according to @url https://spec.openapis.org/oas/v3.1.0#parameter-object */
   style: parameterStyleSchema.optional(),
+  explode: z.boolean().optional(),
   example: z.unknown().optional(),
   examples: z
     .union([

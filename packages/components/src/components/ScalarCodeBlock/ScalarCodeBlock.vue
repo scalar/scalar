@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
-import { prettyPrintJson } from '../../helpers/oas-utils'
 import { ScalarIcon } from '../ScalarIcon'
 
 /**

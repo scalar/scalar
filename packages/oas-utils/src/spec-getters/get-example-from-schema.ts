@@ -38,8 +38,11 @@ const genericExampleValues: Record<string, string> = {
 /**
  * We can use the `format` to generate some random values.
  */
-function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
-  return genericExampleValues[schema.format] ?? fallback
+function guessFromFormat(schema: Record<string, any>, makeUpRandomData: boolean = false, fallback: string = '') {
+  if (schema.format === 'binary') {
+    return new File([''], 'filename')
+  }
+  return makeUpRandomData ? (genericExampleValues[schema.format] ?? fallback) : ''
 }
 
 /** Map of all the results */
@@ -305,7 +308,7 @@ export const getExampleFromSchema = (
   }
 
   const exampleValues: Record<any, any> = {
-    string: makeUpRandomData ? guessFromFormat(schema, options?.emptyString) : '',
+    string: guessFromFormat(schema, makeUpRandomData, options?.emptyString),
     boolean: true,
     integer: schema.min ?? 1,
     number: schema.min ?? 1,

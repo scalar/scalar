@@ -1,5 +1,34 @@
 # @scalar/icons
 
+## 0.4.1
+
+### Patch Changes
+
+- @scalar/use-hooks@0.2.1
+
+## 0.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/use-hooks@0.2.0
+
+## 0.3.7
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.50
+
+## 0.3.6
+
+### Patch Changes
+
+- @scalar/use-hooks@0.1.49
+
 ## 0.3.5
 
 ### Patch Changes

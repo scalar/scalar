@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/scripts",
+  "name": "@scalar-internal/build-scripts",
   "version": "1.0.0",
   "description": "Scalar OSS Scripts. Packaged for easy dependency installation.",
   "scripts": {

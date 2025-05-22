@@ -1,5 +1,41 @@
 # @scalar/types
 
+## 0.2.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+- Updated dependencies [4440949]
+  - @scalar/openapi-types@0.3.1
+
+## 0.2.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- Updated dependencies [483ca93]
+  - @scalar/openapi-types@0.3.0
+
+## 0.1.16
+
+### Patch Changes
+
+- be8a6ec: chore: remove unused HarRequestWithPath
+
+## 0.1.15
+
+### Patch Changes
+
+- f711ab5: feat: add auth persistance to references
+- 0222ad4: feat: render specification extensions with React
+- cb9428c: Support additional query parameters for the OAuth authorization request (prompt, audience, anything), and handle OAuth authorization denials
+- 67aa0f4: fix: render correct queries with form data
+- Updated dependencies [cb9428c]
+  - @scalar/openapi-types@0.2.3
+
 ## 0.1.14
 
 ### Patch Changes

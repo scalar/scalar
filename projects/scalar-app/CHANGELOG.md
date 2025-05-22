@@ -1,5 +1,74 @@
 # scalar-app
 
+## 0.1.194
+
+### Patch Changes
+
+- Updated dependencies [4440949]
+  - @scalar/components@0.14.1
+  - @scalar/api-client@2.4.1
+  - @scalar/import@0.4.1
+  - @scalar/themes@0.12.1
+
+## 0.1.193
+
+### Patch Changes
+
+- 26476ed: feat: send cross-origin cookies in scalar app
+- Updated dependencies [26476ed]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [483ca93]
+- Updated dependencies [fe696ab]
+- Updated dependencies [0efcab4]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/components@0.14.0
+  - @scalar/themes@0.12.0
+  - @scalar/import@0.4.0
+
+## 0.1.192
+
+### Patch Changes
+
+- Updated dependencies [6b4a3c3]
+- Updated dependencies [1843cfe]
+- Updated dependencies [cd0722d]
+  - @scalar/api-client@2.3.34
+  - @scalar/components@0.13.59
+  - @scalar/themes@0.11.3
+  - @scalar/import@0.3.27
+
+## 0.1.191
+
+### Patch Changes
+
+- Updated dependencies [f711ab5]
+- Updated dependencies [ec30edd]
+- Updated dependencies [90b773e]
+- Updated dependencies [e7f61ce]
+- Updated dependencies [52dd8a1]
+- Updated dependencies [cb9428c]
+- Updated dependencies [af38fa6]
+- Updated dependencies [67aa0f4]
+- Updated dependencies [ac16fca]
+- Updated dependencies [1966c5a]
+- Updated dependencies [ac16fca]
+  - @scalar/api-client@2.3.33
+  - @scalar/themes@0.11.2
+  - @scalar/components@0.13.58
+  - @scalar/import@0.3.26
+
+## 0.1.190
+
+### Patch Changes
+
+- Updated dependencies [e42dfc0]
+- Updated dependencies [4483ac4]
+- Updated dependencies [4483ac4]
+  - @scalar/api-client@2.3.32
+  - @scalar/import@0.3.25
+
 ## 0.1.189
 
 ### Patch Changes

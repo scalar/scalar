@@ -11,6 +11,7 @@ import type { ClientId, TargetId } from '@scalar/snippetz'
 import { mount } from '@vue/test-utils'
 import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { useActiveEntities } from '@/store/active-entities'
 
 import RequestCodeExample from './RequestCodeExample.vue'
 
@@ -78,12 +79,22 @@ const mockWorkspaceMutators = {
   edit: vi.fn(),
 }
 
+vi.mock('@/store/active-entities', () => ({
+  useActiveEntities: vi.fn(),
+}))
+const mockUseActiveEntities = useActiveEntities as Mock
+const mockActiveEntities = {
+  setActiveRequest: vi.fn(),
+  setActiveExample: vi.fn(),
+}
+
 describe('RequestCodeExample.vue', () => {
   beforeEach(() => {
     ;(useWorkspace as Mock).mockReturnValue({
       securitySchemes: {},
       workspaceMutators: mockWorkspaceMutators,
     })
+    mockUseActiveEntities.mockReturnValue(mockActiveEntities)
   })
 
   afterEach(() => {
@@ -96,6 +107,8 @@ describe('RequestCodeExample.vue', () => {
     operation: mockOperation,
     server: mockServer,
     workspace: mockWorkspace,
+    selectedClient: { targetKey: 'js' as TargetId, clientKey: 'fetch' as ClientId<'js'> },
+    environment: [],
   }
 
   it('renders correctly with default props', async () => {
@@ -148,6 +161,48 @@ describe('RequestCodeExample.vue', () => {
 
     expect((wrapper.vm as any).selectedSecuritySchemes.length).toBe(1)
     expect((wrapper.vm as any).selectedSecuritySchemes[0]).toEqual(securitySchemes[scheme.uid])
+
+    wrapper.unmount()
+  })
+
+  it('includes optional selected security schemes', async () => {
+    const requiredScheme = securitySchemeSchema.parse({
+      uid: 'requiredUid',
+      type: 'apiKey',
+      nameKey: 'required',
+      value: 'required-key',
+      in: 'header',
+    })
+    const optionalScheme = securitySchemeSchema.parse({
+      uid: 'optionalUid',
+      type: 'apiKey',
+      nameKey: 'optional',
+      value: 'optional-key',
+      in: 'header',
+    })
+    const securitySchemes = {
+      [requiredScheme.uid]: requiredScheme,
+      [optionalScheme.uid]: optionalScheme,
+    }
+
+    // Only 'required' is required by operation.security
+    mockOperation.security = [{ [requiredScheme.nameKey]: [] }]
+    // Both are selected
+    mockOperation.selectedSecuritySchemeUids = [requiredScheme.uid, optionalScheme.uid]
+    ;(useWorkspace as Mock).mockReturnValue({
+      securitySchemes,
+      workspaceMutators: mockWorkspaceMutators,
+    })
+
+    const wrapper = mount(RequestCodeExample, {
+      props,
+    })
+
+    // Should include both required and optional because both are selected
+    const selected = (wrapper.vm as any).selectedSecuritySchemes
+    expect(selected.length).toBe(2)
+    expect(selected).toContain(securitySchemes[requiredScheme.uid])
+    expect(selected).toContain(securitySchemes[optionalScheme.uid])
 
     wrapper.unmount()
   })

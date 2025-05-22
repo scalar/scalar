@@ -9,6 +9,7 @@ export type ModuleOptions = {
    * configurations. These configurations will extend over the base config
    */
   configurations: Omit<Configuration, 'devtools'>[]
+  layout: string | false
 } & Configuration
 
 export default defineNuxtModule<ModuleOptions>({
@@ -28,6 +29,7 @@ export default defineNuxtModule<ModuleOptions>({
     showSidebar: true,
     devtools: true,
     configurations: [],
+    layout: false,
   },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url)
@@ -95,6 +97,7 @@ export default defineNuxtModule<ModuleOptions>({
             name: 'scalar-' + index,
             path: configuration.pathRouting?.basePath + ':pathMatch(.*)*',
             meta: {
+              layout: _options.layout,
               configuration,
               isOpenApiEnabled,
             },
@@ -108,6 +111,7 @@ export default defineNuxtModule<ModuleOptions>({
           name: 'scalar',
           path: _options.pathRouting?.basePath + ':pathMatch(.*)*',
           meta: {
+            layout: _options.layout,
             configuration: _options,
             isOpenApiEnabled,
           },

@@ -2,7 +2,7 @@ import type { NuxtConfig } from 'nuxt/schema'
 
 export default defineNuxtConfig({
   modules: ['@scalar/nuxt'],
-
+  telemetry: false,
   scalar: {
     configurations: [
       {

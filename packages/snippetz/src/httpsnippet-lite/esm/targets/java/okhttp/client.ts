@@ -28,17 +28,33 @@ export const okhttp = {
     const methodsWithBody = ['POST', 'PUT', 'DELETE', 'PATCH']
     push('OkHttpClient client = new OkHttpClient();')
     blank()
-    if (postData === null || postData === void 0 ? void 0 : postData.text) {
-      if (postData.boundary) {
-        push(
-          `MediaType mediaType = MediaType.parse("${postData.mimeType}; boundary=${postData.boundary}");`,
-        )
+    if (postData !== null && postData !== void 0) {
+      if (postData.mimeType === 'application/x-www-form-urlencoded' && postData.params) {
+        push('FormBody formBody = new FormBody.Builder()')
+        postData.params.forEach((param) => {
+          push(`.addEncoded("${param.name}", "${param.value}")`, 1)
+        })
+        push('.build();', 1)
+        blank()
+      } else if (postData.mimeType === 'multipart/form-data' && postData.params) {
+        push(`MultipartBody body = new MultipartBody.Builder()`)
+        push(`.setType(MultipartBody.FORM)`, 1)
+        postData.params.forEach((param) => {
+          if (param.fileName !== undefined) {
+            push(
+              `.addFormDataPart("${param.name}", "${param.fileName}", RequestBody.create(MediaType.parse("application/octet-stream"), new File("${param.fileName}")))`,
+              1,
+            )
+          } else if (param.value !== undefined) {
+            push(`.addFormDataPart("${param.name}", "${param.value}")`, 1)
+          }
+        })
+        push('.build();', 1)
+        blank()
       } else {
         push(`MediaType mediaType = MediaType.parse("${postData.mimeType}");`)
+        push(`RequestBody body = RequestBody.create(mediaType, ${JSON.stringify(postData.text)});`)
       }
-      push(
-        `RequestBody body = RequestBody.create(mediaType, ${JSON.stringify(postData.text)});`,
-      )
     }
     push('Request request = new Request.Builder()')
     push(`.url("${fullUrl}")`, 1)
@@ -49,7 +65,7 @@ export const okhttp = {
         push(`.method("${method.toUpperCase()}", null)`, 1)
       }
     } else if (methodsWithBody.includes(method.toUpperCase())) {
-      if (postData === null || postData === void 0 ? void 0 : postData.text) {
+      if (postData === null || postData === void 0 ? void 0 : postData.text || postData.params) {
         push(`.${method.toLowerCase()}(body)`, 1)
       } else {
         push(`.${method.toLowerCase()}(null)`, 1)

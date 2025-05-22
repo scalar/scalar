@@ -130,4 +130,31 @@ describe('getHarRequest', () => {
       url: 'https://api.example.com/users',
     })
   })
+
+  it('replaces {variable} in server.url and {{variable}} in path with environment and path parameter values', () => {
+    const operation = operationSchema.parse({
+      method: 'get',
+      path: '/users/{{userId}}',
+    })
+    const server = serverSchema.parse({
+      url: 'https://api.{{env}}.com/{version}',
+      variables: {
+        version: { default: 'v1' },
+      },
+    })
+    const example = requestExampleSchema.parse({
+      parameters: {
+        path: [
+          { key: 'userId', value: '42', enabled: true },
+          { key: 'version', value: 'v2', enabled: true },
+        ],
+        headers: [],
+        cookies: [],
+        query: [],
+      },
+    })
+    const environment = [{ key: 'env', value: 'prod', source: 'global' as const }]
+    const result = getHarRequest({ operation, server, example, environment })
+    expect(result.url).toBe('https://api.prod.com/v2/users/42')
+  })
 })

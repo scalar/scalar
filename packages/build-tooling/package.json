@@ -11,19 +11,19 @@
     "directory": "packages/build-tooling"
   },
   "keywords": [],
-  "version": "0.1.19",
+  "version": "0.2.0",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
-    "build": "bash scripts/build-esbuild.sh",
+    "build": "vite-node scripts/build-esbuild.ts",
     "dev": "vite",
-    "format": "bash scripts/format.sh",
-    "lint:check": "bash scripts/lint-check.sh",
-    "lint:fix": "bash scripts/lint-fix.sh",
+    "format": "vite-node scripts/format.ts",
+    "lint:check": "vite-node scripts/lint-check.ts",
+    "lint:fix": "vite-node scripts/lint-fix.ts",
     "preview": "dotenv -o -- vite preview",
-    "types:build": "bash scripts/types-build.sh",
-    "types:check": "bash scripts/types-check.sh"
+    "types:build": "vite-node scripts/types-build.ts",
+    "types:check": "vite-node scripts/types-check.ts"
   },
   "type": "module",
   "exports": {
@@ -69,17 +69,17 @@
     }
   },
   "bin": {
-    "scalar-build-esbuild": "scripts/build-esbuild.sh",
-    "scalar-build-rollup": "scripts/build-rollup.sh",
-    "scalar-build-vite": "scripts/build-vite.sh",
-    "scalar-format-check": "scripts/format-check.sh",
-    "scalar-format": "scripts/format.sh",
-    "scalar-lint-check": "scripts/lint-check.sh",
-    "scalar-lint-fix": "scripts/lint-fix.sh",
-    "scalar-types-build-vue": "scripts/types-build-vue.sh",
-    "scalar-types-build": "scripts/types-build.sh",
-    "scalar-types-check-vue": "scripts/types-check-vue.sh",
-    "scalar-types-check": "scripts/types-check.sh"
+    "scalar-build-esbuild": "scripts/build-esbuild.ts",
+    "scalar-build-rollup": "scripts/build-rollup.ts",
+    "scalar-build-vite": "scripts/build-vite.ts",
+    "scalar-format-check": "scripts/format-check.ts",
+    "scalar-format": "scripts/format.ts",
+    "scalar-lint-check": "scripts/lint-check.ts",
+    "scalar-lint-fix": "scripts/lint-fix.ts",
+    "scalar-types-build-vue": "scripts/types-build-vue.ts",
+    "scalar-types-build": "scripts/types-build.ts",
+    "scalar-types-check-vue": "scripts/types-check-vue.ts",
+    "scalar-types-check": "scripts/types-check.ts"
   },
   "dependencies": {
     "@rollup/plugin-alias": "^5.1.0",
@@ -100,6 +100,7 @@
   },
   "devDependencies": {
     "@types/node": "catalog:*",
-    "@types/picomatch": "^2.3.3"
+    "@types/picomatch": "^2.3.3",
+    "vite-node": "^2.1.1"
   }
 }

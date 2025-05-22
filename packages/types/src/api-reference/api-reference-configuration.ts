@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
+import { ApiClientPluginSchema } from '../api-client'
+import type { TargetId } from '../snippetz'
 import { ApiReferencePluginSchema } from './api-reference-plugin'
-import type { TargetId } from '../snippetz/index'
 import type { AuthenticationConfiguration } from './authentication-configuration'
 
 /** Available theme presets for the API reference */
@@ -212,6 +213,10 @@ export const apiClientConfigurationSchema = z.object({
   _integration: integrationEnum.optional(),
   /** onRequestSent is fired when a request is sent */
   onRequestSent: z.function().args(z.string()).returns(z.void()).optional(),
+  /** Whether to persist auth to local storage */
+  persistAuth: z.boolean().optional().default(false).catch(false),
+  /** Plugins for the API client */
+  plugins: z.array(ApiClientPluginSchema).optional(),
 })
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
@@ -234,7 +239,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     plugins: z.array(ApiReferencePluginSchema).optional(),
     /**
-     * Whether the spec input should show
+     * Allows the user to inject an editor for the spec
      * @default false
      */
     isEditable: z.boolean().optional().default(false).catch(false),

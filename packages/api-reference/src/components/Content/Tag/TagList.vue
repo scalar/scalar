@@ -7,7 +7,8 @@ import { computed } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
-import { useNavState, useSidebar } from '@/hooks'
+import { useNavState } from '@/hooks/useNavState'
+import { useSidebar } from '@/hooks/useSidebar'
 
 import TagAccordion from './TagAccordion.vue'
 import TagSection from './TagSection.vue'

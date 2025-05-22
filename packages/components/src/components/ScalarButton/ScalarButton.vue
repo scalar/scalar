@@ -53,7 +53,7 @@ const { cx } = useBindCx()
       class="centered-x absolute">
       <ScalarLoading
         :loadingState="loading"
-        size="xs" />
+        size="xl" />
     </div>
   </button>
 </template>

@@ -10,7 +10,7 @@ import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
-import { isOperationDeprecated } from '@/libs/operation'
+import { isOperationDeprecated } from '@/libs/openapi'
 
 const { transformedOperation, tag, collection } = defineProps<{
   transformedOperation: TransformedOperation

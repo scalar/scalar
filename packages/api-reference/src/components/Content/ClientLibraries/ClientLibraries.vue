@@ -4,7 +4,8 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
 import { computed, ref, toRaw, useId, watch } from 'vue'
 
-import { useHttpClientStore } from '../../../stores'
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
+
 import ClientSelector from './ClientSelector.vue'
 import { useFeaturedHttpClients } from './useFeaturedHttpClients'
 
@@ -156,7 +157,9 @@ const installationInstructions = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   background: var(--scalar-background-1);
-  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-bottom-left-radius: var(--scalar-radius-lg);
+  border-bottom-right-radius: var(--scalar-radius-lg);
   min-height: fit-content;
 }
 .client-libraries-heading {
@@ -168,5 +171,8 @@ const installationInstructions = computed(() => {
   display: flex;
   align-items: center;
   max-height: 32px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-top-left-radius: var(--scalar-radius-lg);
+  border-top-right-radius: var(--scalar-radius-lg);
 }
 </style>

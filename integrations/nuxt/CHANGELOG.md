@@ -1,5 +1,96 @@
 # @scalar/nuxt
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [4440949]
+  - @scalar/types@0.2.1
+  - @scalar/api-client@2.4.1
+  - @scalar/api-reference@1.29.1
+  - @scalar/use-hooks@0.2.1
+
+## 0.4.0
+
+### Minor Changes
+
+- 483ca93: chore: require Node 20 (or above)
+
+### Patch Changes
+
+- 3113a01: feat(nuxt): ssr-friendly color mode preference implementation
+- Updated dependencies [26476ed]
+- Updated dependencies [fce282f]
+- Updated dependencies [ca403fe]
+- Updated dependencies [3af1364]
+- Updated dependencies [30bab1d]
+- Updated dependencies [5613e40]
+- Updated dependencies [b899177]
+- Updated dependencies [cf922d4]
+- Updated dependencies [483ca93]
+- Updated dependencies [0efcab4]
+- Updated dependencies [fe696ab]
+- Updated dependencies [20cf550]
+  - @scalar/api-client@2.4.0
+  - @scalar/api-reference@1.29.0
+  - @scalar/use-hooks@0.2.0
+  - @scalar/types@0.2.0
+
+## 0.3.34
+
+### Patch Changes
+
+- 4e4d329: don't inherit the default layout
+- 57ee3af: perf: replace $fetch with useFetch in component setup
+- Updated dependencies [73ecfb0]
+- Updated dependencies [6b4a3c3]
+- Updated dependencies [be8a6ec]
+- Updated dependencies [2056005]
+- Updated dependencies [9946289]
+- Updated dependencies [40bad87]
+- Updated dependencies [3a88c94]
+- Updated dependencies [96be9bd]
+- Updated dependencies [ab0d3a3]
+- Updated dependencies [cd0722d]
+- Updated dependencies [5129cdc]
+- Updated dependencies [be8a6ec]
+  - @scalar/api-reference@1.28.34
+  - @scalar/api-client@2.3.34
+  - @scalar/types@0.1.16
+
+## 0.3.33
+
+### Patch Changes
+
+- Updated dependencies [f711ab5]
+- Updated dependencies [ec30edd]
+- Updated dependencies [90b773e]
+- Updated dependencies [e7f61ce]
+- Updated dependencies [52dd8a1]
+- Updated dependencies [0222ad4]
+- Updated dependencies [cb9428c]
+- Updated dependencies [ffe6338]
+- Updated dependencies [2dadcfb]
+- Updated dependencies [67aa0f4]
+- Updated dependencies [ac16fca]
+- Updated dependencies [1966c5a]
+- Updated dependencies [ac16fca]
+  - @scalar/api-reference@1.28.33
+  - @scalar/api-client@2.3.33
+  - @scalar/types@0.1.15
+
+## 0.3.32
+
+### Patch Changes
+
+- Updated dependencies [e42dfc0]
+- Updated dependencies [4483ac4]
+- Updated dependencies [902f58b]
+- Updated dependencies [4483ac4]
+- Updated dependencies [cd6cf24]
+  - @scalar/api-client@2.3.32
+  - @scalar/api-reference@1.28.32
+
 ## 0.3.31
 
 ### Patch Changes
