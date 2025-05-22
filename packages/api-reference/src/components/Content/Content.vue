@@ -199,11 +199,6 @@ const introCardsSlot = computed(() =>
   flex-direction: column;
   justify-content: start;
 }
-@container narrow-references-container (max-width: 900px) {
-  .introduction-card-item {
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-  }
-}
 .introduction-card-item:has(.description) :deep(.server-form-container) {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
