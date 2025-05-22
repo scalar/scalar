@@ -55,6 +55,30 @@ const specification = `{
 const { schema, errors } = await dereference(specification)
 ```
 
+### Bundle external references
+
+The OpenAPI specification allows to point to external files (URLs or files). But sometimes, you just want to combine all files into one.
+
+```ts
+import { bundle } from '@scalar/openapi-parser'
+
+const document = {
+  openapi: '3.1.0',
+  info: { title: 'Bundled API', version: '1.0.0' },
+  paths: {},
+  components: {
+    schemas: {
+      User: { $ref: './user-schema.json#' }
+    }
+  }
+}
+
+// This will resolve and inline all external $refs (like user-schema.json)
+await bundle(document)
+
+console.log(document)
+```
+
 ### Track references
 
 The `dereference` function accepts an `onDereference` callback option that gets called whenever a reference is resolved. This can be useful for tracking which schemas are being dereferenced:
