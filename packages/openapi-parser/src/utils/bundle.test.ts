@@ -1,4 +1,4 @@
-import { afterAll, beforeEach, describe, expect, test } from 'vitest'
+import { afterAll, beforeEach, describe, expect, test, vi } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { bundle, fetchJson, getNestedValue, isExternalRef, isLocalFileRef, isRemoteRef, readFile } from './bundle'
 import { afterEach } from 'node:test'
@@ -6,7 +6,7 @@ import assert from 'node:assert'
 import fs from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 
-describe.skip('bundle', () => {
+describe('bundle', () => {
   describe('external urls', () => {
     let server: FastifyInstance
 
@@ -84,6 +84,83 @@ describe.skip('bundle', () => {
 
       await bundle(input)
       expect(input.a.b.c).toEqual({ ...chunk1, b: chunk2 })
+    })
+
+    test('should not fetch from the same resource twice', async () => {
+      const fn = vi.fn()
+      const PORT = 4402
+      const url = `http://localhost:${PORT}`
+
+      server.get('/', (_, reply) => {
+        fn()
+        reply.send({
+          a: 'a',
+          b: 'b',
+        })
+      })
+
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          '$ref': `${url}/#/a`,
+        },
+        b: {
+          '$ref': `${url}/#/b`,
+        },
+      }
+
+      await bundle(input)
+
+      expect(input.a).toBe('a')
+      expect(input.b).toBe('b')
+
+      // We expect the bundler to cache the result for the same url
+      expect(fn.mock.calls.length).toBe(1)
+    })
+  })
+
+  describe('local files', () => {
+    test('should correctly resolve from local files', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = randomUUID()
+
+      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk1Path}/#/a`,
+        },
+      }
+
+      await bundle(input)
+
+      expect(input.a).toBe('a')
+
+      await fs.rm(chunk1Path)
+    })
+
+    test('should correctly resolve external refs from the resolved files', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = randomUUID()
+
+      const chunk2 = { a: { '$ref': `./${chunk1Path}/#` } }
+      const chunk2Path = randomUUID()
+
+      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+      await fs.writeFile(chunk2Path, JSON.stringify(chunk2))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk2Path}/#`,
+        },
+      }
+
+      await bundle(input)
+      expect(input.a).toEqual({ a: chunk1 })
+
+      await fs.rm(chunk1Path)
+      await fs.rm(chunk2Path)
     })
   })
 })
