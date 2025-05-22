@@ -73,10 +73,8 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
-    "glob": "^10.3.10",
+    "fastify": "catalog:*",
     "json-to-ast": "^2.1.0",
-    "just-diff": "^6.0.2",
-    "tinybench": "^2.8.0",
-    "fastify": "catalog:*"
+    "just-diff": "^6.0.2"
   }
 }
