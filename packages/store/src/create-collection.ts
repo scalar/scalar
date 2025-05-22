@@ -6,7 +6,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 //   OpenApiObject as UnprocessedOpenApiObject,
 //   OpenApiObjectSchema as UnprocessedOpenApiObjectSchema,
 // } from '@scalar/openapi-types/schemas/3.1/unprocessed'
-import { reactive, toRaw } from '@vue/reactivity'
+import { reactive, toRaw } from 'vue'
 
 // Defaults
 const DEFAULT_STRATEGY = 'eager'

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from '@vue/reactivity'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 import { createCollection, type Collection } from '@/create-collection'
 

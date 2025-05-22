@@ -55,17 +55,15 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
-    "@vue/reactivity": "^3.5.13"
+    "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
-    "@vueuse/core": "^13.1.0",
-    "vite": "^5.1.1",
-    "vite-svg-loader": "^5.1.0",
-    "vue": "^3.5.13",
+    "@vueuse/core": "catalog:*",
+    "vite": "catalog:*",
     "vue-router": "^4.3.0"
   }
 }

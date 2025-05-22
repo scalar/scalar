@@ -1,4 +1,4 @@
-import { reactive } from '@vue/reactivity'
+import { reactive } from 'vue'
 
 /**
  * Composable for measuring and recording performance timings of async operations.
