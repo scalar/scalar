@@ -2,8 +2,7 @@ import { createWorkspaceStore } from '@scalar/api-client/store'
 import { dereference, upgrade } from '@scalar/openapi-parser'
 import { waitFor } from '@test/utils/waitFor'
 import { bench, describe, expect } from 'vitest'
-import { createCollection } from './create-collection.BAK'
-import { createCollection as createCollectionOld } from './slow/create-collection'
+import { createCollection } from './create-collection'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks
 const EXAMPLE_DOCUMENT = await fetch(
@@ -127,13 +126,6 @@ describe('create-collection', async () => {
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
-
-    bench('old', async () => {
-      const collection = createCollectionOld(EXAMPLE_DOCUMENT)
-
-      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
-      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
-    })
   })
 
   describe('first render', async () => {
@@ -148,41 +140,12 @@ describe('create-collection', async () => {
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
       expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
     })
-
-    bench('old', async () => {
-      const { paths, ...rest } = EXAMPLE_DOCUMENT
-      const collection = createCollectionOld({ ...rest, paths: {} })
-
-      await waitFor(() => {
-        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
-      })
-    })
   })
 
   describe('chunking, full load', async () => {
     bench('new', async () => {
       const { paths, ...rest } = EXAMPLE_DOCUMENT
       const collection = createCollection({ ...rest, paths: {} })
-
-      await waitFor(() => {
-        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
-      })
-
-      expect(collection.document?.components?.schemas?.account?.properties?.capabilities).toBeDefined()
-      expect(collection.document?.components?.schemas?.account?.properties?.capabilities.$ref).toBeUndefined()
-
-      collection.merge({ paths })
-
-      await waitFor(() => {
-        return !!Object.keys(collection.document?.paths ?? {}).length
-      })
-
-      expect(Object.keys(collection.document?.paths ?? {}).length).toBeGreaterThan(0)
-    })
-
-    bench('old', async () => {
-      const { paths, ...rest } = EXAMPLE_DOCUMENT
-      const collection = createCollectionOld({ ...rest, paths: {} })
 
       await waitFor(() => {
         return !!collection.document?.components?.schemas?.account?.properties?.capabilities
@@ -215,22 +178,6 @@ describe('create-collection', async () => {
 
     bench('new', async () => {
       const collection = createCollection(EXAMPLE_DOCUMENT)
-
-      await waitFor(() => {
-        return !!collection.document?.components?.schemas?.account?.properties?.capabilities
-      })
-
-      collection.update(NEW_DOCUMENT)
-
-      await waitFor(() => {
-        return collection.document?.paths?.['/v1/account']?.get?.summary === 'Updated Foobar'
-      })
-
-      expect(collection.document?.paths?.['/v1/account']?.get?.summary).toBe('Updated Foobar')
-    })
-
-    bench('old', async () => {
-      const collection = createCollectionOld(EXAMPLE_DOCUMENT)
 
       await waitFor(() => {
         return !!collection.document?.components?.schemas?.account?.properties?.capabilities
