@@ -12,7 +12,6 @@ export type ReferenceProps = {
  */
 export type ReferenceLayoutProps = {
   configuration: Partial<ApiReferenceConfiguration>
-  // TODO: Don’t make these optional.
   /**
    *
    * The OpenAPI 3.1 document, but all $ref’s are resolved already.
@@ -28,7 +27,7 @@ export type ReferenceLayoutProps = {
    */
   dereferencedDocument?: OpenAPIV3_1.Document
   /**
-   * The original document. Doesn’t have to be OpenAPI 3.1.
+   * The raw OpenAPI document. Doesn’t have to be OpenAPI 3.1.
    */
   originalDocument?: string
   isDark: boolean
