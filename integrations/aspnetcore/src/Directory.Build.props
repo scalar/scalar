@@ -11,11 +11,10 @@
 
   <PropertyGroup>
     <Authors>Scalar</Authors>
-    <LicenseUrl>https://github.com/scalar/scalar/blob/main/LICENSE</LicenseUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/scalar/scalar</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <PackageTags>Scalar;OpenAPI;Swagger</PackageTags>
+    <PackageTags>Scalar;OpenAPI;Swagger;API Reference</PackageTags>
     <PackageProjectUrl>https://scalar.com</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
