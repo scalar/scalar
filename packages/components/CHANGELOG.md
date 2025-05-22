@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.14.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+- Updated dependencies [4440949]
+  - @scalar/oas-utils@0.3.1
+  - @scalar/themes@0.12.1
+  - @scalar/code-highlight@0.1.0
+  - @scalar/use-hooks@0.2.1
+  - @scalar/icons@0.4.1
+
 ## 0.14.0
 
 ### Minor Changes

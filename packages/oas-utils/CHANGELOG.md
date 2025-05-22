@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.3.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+- Updated dependencies [4440949]
+  - @scalar/object-utils@1.2.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+  - @scalar/themes@0.12.1
+
 ## 0.3.0
 
 ### Minor Changes

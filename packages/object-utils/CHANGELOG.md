@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.2.1
+
+### Patch Changes
+
+- 4440949: chore: bumping packages
+
 ## 1.2.0
 
 ### Minor Changes
