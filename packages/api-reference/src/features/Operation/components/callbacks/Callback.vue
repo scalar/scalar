@@ -13,8 +13,6 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionColumn, SectionColumns } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
-import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
-import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 const { callback, collection, method, parentId, schemas, server, url } =
@@ -71,15 +69,7 @@ const open = ref(false)
 
       <SectionColumns>
         <SectionColumn>
-          <!-- Body -->
-          <OperationParameters
-            :operation="operation"
-            :schemas="schemas" />
-
-          <!-- Responses -->
-          <OperationResponses
-            :operation="transformedOperation"
-            :schemas="schemas" />
+          <Webhook :webhook="transformedOperation" />
         </SectionColumn>
 
         <!-- Examples -->
