@@ -1,19 +1,4 @@
-/* Tailwind Base Theme */
-@import "tailwindcss/theme.css" layer(scalar-base);
-
-/* Scalar Base Theme */
-@import "@scalar/themes/tailwind/theme.css" layer(scalar-base);
-@import "@scalar/themes/tailwind/variants.css";
-@import "@scalar/themes/tailwind/utilities.css";
-
-.scalar-client {
-  line-height: 1.5;
-  color: var(--scalar-color-1);
-
-  /* Utilities need to exist outside a layer */
-  @import "tailwindcss/utilities.css";
-}
-
+/* Source client files */
 @source "./";
 
 /** Client Specific Utilities */

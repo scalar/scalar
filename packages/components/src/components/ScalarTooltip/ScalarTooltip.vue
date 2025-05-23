@@ -36,7 +36,7 @@ useTooltip({
   </div>
 </template>
 <style>
-@reference "../../tailwind.css";
+@reference "../../style.css";
 
 /** Global styles for the tooltip */
 :where(body) > .scalar-tooltip {

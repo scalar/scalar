@@ -1,4 +1,4 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
+import { createViteBuildOptions } from '@scalar/build-tooling/vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'

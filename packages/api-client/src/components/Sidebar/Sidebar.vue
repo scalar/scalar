@@ -96,7 +96,7 @@ const startDrag = (event: MouseEvent) => {
   </aside>
 </template>
 <style scoped>
-@reference "@/tailwind.css";
+@reference "@/style.css";
 
 .sidebar-height {
   min-height: 100%;

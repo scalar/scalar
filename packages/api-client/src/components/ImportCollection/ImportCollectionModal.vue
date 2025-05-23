@@ -344,7 +344,7 @@ function handleImportFinished() {
   </ScalarModal>
 </template>
 <style>
-@reference "@/tailwind.css";
+@reference "@/style.css";
 
 @variant md {
   .has-no-import-url,

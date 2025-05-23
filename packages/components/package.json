@@ -37,10 +37,12 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./tailwind.css": "./src/tailwind.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/tailwind.css"
   ],
   "module": "./dist/index.js",
   "dependencies": {

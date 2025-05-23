@@ -119,7 +119,7 @@ export function useModal() {
   </Dialog>
 </template>
 <style scoped>
-@reference '../../tailwind.css';
+@reference '../../style.css';
 
 .scalar-modal-layout {
   animation: fadein-layout ease-in-out 0.3s forwards;

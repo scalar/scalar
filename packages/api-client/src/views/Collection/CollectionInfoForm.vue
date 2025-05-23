@@ -77,7 +77,7 @@ const data = computed(() => {
 </template>
 
 <style scoped>
-@reference "@/tailwind.css";
+@reference "@/style.css";
 
 :deep(.markdown) h2 {
   @apply text-lg;
