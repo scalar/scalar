@@ -1,4 +1,4 @@
-import type { AnyObject } from '../types/index'
+import type { AnyObject } from '@/types/index'
 import { traverse } from './traverse'
 
 /**

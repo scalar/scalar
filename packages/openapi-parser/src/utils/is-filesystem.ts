@@ -1,4 +1,4 @@
-import type { Filesystem } from '../types'
+import type { Filesystem } from '@/types'
 
 /**
  * Check if the value is a filesystem

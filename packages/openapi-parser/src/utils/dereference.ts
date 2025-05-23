@@ -1,4 +1,4 @@
-import type { AnyApiDefinitionFormat, DereferenceResult, Filesystem } from '../types/index'
+import type { AnyApiDefinitionFormat, DereferenceResult, Filesystem } from '@/types/index'
 import { details } from './details'
 import { getEntrypoint } from './get-entrypoint'
 import { makeFilesystem } from './make-filesystem'

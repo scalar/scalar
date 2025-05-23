@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import type { AnyObject, Filesystem, UpgradeResult } from '@/types/index'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { AnyObject, Filesystem, UpgradeResult } from '../types/index'
 import { getEntrypoint } from './get-entrypoint'
 import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'

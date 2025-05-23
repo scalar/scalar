@@ -1,4 +1,4 @@
-import type { AnyApiDefinitionFormat, AnyObject, FilterResult } from '../types/index'
+import type { AnyApiDefinitionFormat, AnyObject, FilterResult } from '@/types/index'
 import { getEntrypoint } from './get-entrypoint'
 import { makeFilesystem } from './make-filesystem'
 import { traverse } from './traverse'

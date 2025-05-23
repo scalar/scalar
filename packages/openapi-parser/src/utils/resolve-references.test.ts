@@ -6,8 +6,8 @@ import path from 'node:path'
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { describe, expect, it } from 'vitest'
 
-import { readFiles } from '../plugins/read-files/read-files'
-import type { AnyObject } from '../types/index'
+import { readFiles } from '@/plugins/read-files/read-files'
+import type { AnyObject } from '@/types/index'
 import { load } from './load/load'
 import { resolveReferences } from './resolve-references'
 

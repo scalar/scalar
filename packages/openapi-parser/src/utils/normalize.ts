@@ -1,7 +1,7 @@
 import type { UnknownObject } from '@scalar/types/utils'
 import { parse } from 'yaml'
 
-import type { Filesystem } from '../types/index'
+import type { Filesystem } from '@/types/index'
 import { isFilesystem } from './is-filesystem'
 
 /**

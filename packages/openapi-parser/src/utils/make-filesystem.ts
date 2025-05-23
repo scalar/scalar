@@ -1,4 +1,4 @@
-import type { AnyObject, Filesystem, FilesystemEntry } from '../types/index'
+import type { AnyObject, Filesystem, FilesystemEntry } from '@/types/index'
 import { getListOfReferences } from './get-list-of-references'
 import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'

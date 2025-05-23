@@ -75,6 +75,7 @@
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
-    "tinybench": "^2.8.0"
+    "tinybench": "^2.8.0",
+    "vite": "catalog:*"
   }
 }

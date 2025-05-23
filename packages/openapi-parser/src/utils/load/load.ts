@@ -1,4 +1,4 @@
-import { ERRORS } from '../../configuration/index'
+import { ERRORS } from '@/configuration'
 import type {
   AnyApiDefinitionFormat,
   AnyObject,
@@ -6,11 +6,11 @@ import type {
   Filesystem,
   LoadResult,
   ThrowOnErrorOption,
-} from '../../types/index'
-import { getEntrypoint } from '../get-entrypoint'
-import { getListOfReferences } from '../get-list-of-references'
-import { makeFilesystem } from '../make-filesystem'
-import { normalize } from '../normalize'
+} from '@/types/index'
+import { getEntrypoint } from '@/utils/get-entrypoint'
+import { getListOfReferences } from '@/utils/get-list-of-references'
+import { makeFilesystem } from '@/utils/make-filesystem'
+import { normalize } from '@/utils/normalize'
 
 export type LoadPlugin = {
   check: (value?: any) => boolean

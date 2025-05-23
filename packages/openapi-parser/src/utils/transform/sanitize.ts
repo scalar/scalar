@@ -1,6 +1,6 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import type { AnyObject } from '../../types/index'
+import type { AnyObject } from '@/types/index'
 import { addInfoObject } from './utils/addInfoObject'
 import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion'
 import { addMissingTags } from './utils/addMissingTags'
