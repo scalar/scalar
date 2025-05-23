@@ -1,5 +1,15 @@
 # @scalar/nuxt
 
+## 0.4.4
+
+### Patch Changes
+
+- Updated dependencies [edb5490]
+- Updated dependencies [442c0a3]
+- Updated dependencies [edb5490]
+  - @scalar/api-reference@1.29.4
+  - @scalar/api-client@2.4.4
+
 ## 0.4.3
 
 ### Patch Changes

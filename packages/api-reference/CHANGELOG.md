@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.29.4
+
+### Patch Changes
+
+- edb5490: feat: adds schema discriminator helper functions
+- 442c0a3: feat: added support for callbacks
+- edb5490: feat: adds schema discriminator support
+- Updated dependencies [442c0a3]
+  - @scalar/oas-utils@0.3.2
+  - @scalar/api-client@2.4.4
+  - @scalar/components@0.14.2
+
 ## 1.29.3
 
 ### Patch Changes
