@@ -1,5 +1,3 @@
-import { openapi } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { FastifyBaseLogger, FastifyTypeProviderDefault, RawServerDefault } from 'fastify'
 import fp from 'fastify-plugin'
@@ -8,6 +6,7 @@ import { slug } from 'github-slugger'
 import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from './types'
 import { getJavaScriptFile } from './utils/getJavaScriptFile'
 
+import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
 import { getHtmlDocument } from '../../../packages/core/dist/libs/html-rendering/index.js'
 import type { ApiReferenceConfiguration } from './types'
 
@@ -197,10 +196,7 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getLoadedSpecIfAvailable = () => {
-      return openapi().load(specSource.get(), { plugins: [fetchUrls()] })
-    }
-    const getSpecFilenameSlug = async (loadedSpec: ReturnType<typeof getLoadedSpecIfAvailable>) => {
+    const getSpecFilenameSlug = async (loadedSpec: OpenAPI.Document) => {
       const spec = await loadedSpec?.get()
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
       return slug(spec?.specification?.info?.title ?? 'spec')
@@ -215,9 +211,9 @@ const fastifyApiReference = fp<
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
-        const spec = getLoadedSpecIfAvailable()
+        const spec = normalize(specSource.get())
         const filename: string = await getSpecFilenameSlug(spec)
-        const json = JSON.parse(await spec.toJson()) // parsing minifies the JSON
+        const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
 
         return reply
           .header('Content-Type', 'application/json')
@@ -237,9 +233,9 @@ const fastifyApiReference = fp<
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
-        const spec = getLoadedSpecIfAvailable()
+        const spec = normalize(specSource.get())
         const filename: string = await getSpecFilenameSlug(spec)
-        const yaml = await spec.toYaml()
+        const yaml = toYaml(spec)
         return reply
           .header('Content-Type', 'application/yaml')
           .header('Content-Disposition', `filename=${filename}.yaml`)
