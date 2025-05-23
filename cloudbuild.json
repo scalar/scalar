@@ -65,5 +65,5 @@
       }
     ],
   "options":
-    { "machineType": "E2_STANDARD_8", "logging": "CLOUD_LOGGING_ONLY" }
+    { "machineType": "E2_HIGHCPU_8", "logging": "CLOUD_LOGGING_ONLY" }
 }
