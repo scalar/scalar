@@ -236,7 +236,21 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('object BarModel[]')
+    expect(detailsElement.text()).toContain('object BarModel')
+    expect(detailsElement.text()).not.toContain('[]')
+  })
+
+  it('formats array type with model reference correctly', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'BarModel' },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array BarModel[]')
   })
 
   it('displays plain type when no model name is present', () => {
