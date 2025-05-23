@@ -5,8 +5,8 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import { ERRORS, OpenApiSpecifications, type OpenApiVersion, OpenApiVersions } from '../../configuration/index'
 import type { AnyObject, Filesystem, ThrowOnErrorOption, ValidateResult } from '../../types/index'
 import { details as getOpenApiVersion } from '../../utils/details'
-import { resolveReferences } from '../../utils/resolveReferences'
-import { transformErrors } from '../../utils/transformErrors'
+import { resolveReferences } from '../../utils/resolve-references'
+import { transformErrors } from '../../utils/transform-errors'
 
 /**
  * Configure available JSON Schema versions

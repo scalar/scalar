@@ -1,1 +1,1 @@
-export * from './readFiles'
+export { readFiles } from './read-files'

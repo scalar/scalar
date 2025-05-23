@@ -15,8 +15,6 @@ const SCHEMA_SEGMENTS = new Set([
   'schema',
 ])
 
-const SCHEMA_PATHS = new Set(['components/schemas'])
-
 /** Determine if the current path is within a schema - optimized version */
 export function isSchemaPath(path: string[]): boolean {
   // Check for schema segments first (most common case)

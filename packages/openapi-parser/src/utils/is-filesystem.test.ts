@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { isFilesystem } from './isFilesystem'
-import { makeFilesystem } from './makeFilesystem'
+import { isFilesystem } from './is-filesystem'
+import { makeFilesystem } from './make-filesystem'
 
 describe('isFilesystem', () => {
   it('transforms an object to a filesystem', () => {

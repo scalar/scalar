@@ -7,9 +7,9 @@ import type {
   LoadResult,
   ThrowOnErrorOption,
 } from '../../types/index'
-import { getEntrypoint } from '../getEntrypoint'
-import { getListOfReferences } from '../getListOfReferences'
-import { makeFilesystem } from '../makeFilesystem'
+import { getEntrypoint } from '../get-entrypoint'
+import { getListOfReferences } from '../get-list-of-references'
+import { makeFilesystem } from '../make-filesystem'
 import { normalize } from '../normalize'
 
 export type LoadPlugin = {

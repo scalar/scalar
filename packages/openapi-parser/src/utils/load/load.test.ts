@@ -2,9 +2,9 @@ import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { stringify } from 'yaml'
 
-import { fetchUrls } from '../../plugins/fetch-urls/fetchUrls'
-import { readFiles } from '../../plugins/read-files/readFiles'
-import { getEntrypoint } from '../getEntrypoint'
+import { fetchUrls } from '../../plugins/fetch-urls/fetch-urls'
+import { readFiles } from '../../plugins/read-files/read-files'
+import { getEntrypoint } from '../get-entrypoint'
 import { load } from './load'
 
 global.fetch = vi.fn()

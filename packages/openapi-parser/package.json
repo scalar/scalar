@@ -68,7 +68,6 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@babel/code-frame": "^7.24.7",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",

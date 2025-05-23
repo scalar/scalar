@@ -2,7 +2,7 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { parse } from 'yaml'
 
 import type { Filesystem } from '../types/index'
-import { isFilesystem } from './isFilesystem'
+import { isFilesystem } from './is-filesystem'
 
 /**
  * Normalize the OpenAPI document (YAML, JSON, object) to a JavaScript object.

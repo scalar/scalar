@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { escapeJsonPointer } from './escapeJsonPointer'
+import { escapeJsonPointer } from './escape-json-pointer'
 
 describe('escapeJsonPointer', async () => {
   it('should escape a slash', () => {
