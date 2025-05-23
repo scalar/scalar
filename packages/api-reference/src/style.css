@@ -14,6 +14,7 @@
   @import "tailwindcss/utilities.css";
 }
 
-@import "@scalar/components/tailwind.css";
+@import "@scalar/components/style.css"; /* Components Scoped Styles */
+@import "@scalar/components/tailwind.config.css"; /* Components Tailwind Config */
 @import "@scalar/api-client/tailwind.css";
 @import "./tailwind.css";

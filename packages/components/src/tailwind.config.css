@@ -1,0 +1,23 @@
+/**
+ * Components Tailwind Configuration
+ *
+ * This file defines the custom utilities and plugins for the components package.
+ * It can be imported by other Tailwind projects that consume this package.
+ *
+ * @see https://tailwindcss.com/docs/configuration
+ */
+
+/* Source all the components for Tailwind */
+@source "./";
+
+/* Components Utilities */
+
+@utility max-w-radix-popper {
+  max-width: calc(var(--radix-popper-available-width) - 8px);
+}
+@utility max-h-radix-popper {
+  max-height: calc(var(--radix-popper-available-height) - 8px);
+}
+
+/* Plugins */
+@plugin "@headlessui/tailwindcss";

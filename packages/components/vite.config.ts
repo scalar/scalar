@@ -30,9 +30,12 @@ export default defineConfig({
       },
     }),
   ],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  build: {
+    ...createViteBuildOptions({
+      entry: ['src/index.ts'],
+    }),
+    emptyOutDir: false,
+  },
   test: {
     environment: 'jsdom',
     exclude: [...configDefaults.exclude, 'e2e/*'],

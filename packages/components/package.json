@@ -15,7 +15,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm typegen:icons && scalar-build-vite",
+    "build": "pnpm typegen:icons && scalar-build-vite && pnpm build:tw",
+    "build:tw": "vite build -c vite.tw.config.ts",
     "build:storybook": "storybook build",
     "dev": "storybook dev -p 5100 --ci",
     "format": "pnpm prettier --write .",
@@ -37,8 +38,9 @@
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     },
-    "./style.css": "./dist/style.css",
-    "./tailwind.css": "./src/tailwind.css"
+    "./bundled.css": "./dist/style.css",
+    "./tailwind.css": "./dist/tailwind.css",
+    "./tailwind.config.css": "./src/tailwind.config.css"
   },
   "files": [
     "dist",

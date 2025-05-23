@@ -1,12 +1,23 @@
-@source "./";
+/**
+ * Components Tailwind Styles
+ *
+ * This file is used to compile the tailwind styles for the components package.
+ * It should be imported by projects that consume this package that *don't* use
+ * the `tailwind.config.css` file.
+ */
 
-/* Radix Popper */
-@utility max-w-radix-popper {
-  max-width: calc(var(--radix-popper-available-width) - 8px);
-}
-@utility max-h-radix-popper {
-  max-height: calc(var(--radix-popper-available-height) - 8px);
+/* Tailwind Base Theme */
+@import "tailwindcss/theme.css" layer(scalar-base);
+
+/* Scalar Base Theme */
+@import "@scalar/themes/tailwind/theme.css" layer(scalar-base);
+@import "@scalar/themes/tailwind/variants.css";
+@import "@scalar/themes/tailwind/utilities.css";
+
+/* Tailwind Utilities */
+.scalar-app {
+  @import "tailwindcss/utilities.css";
 }
 
-/* Plugins */
-@plugin "@headlessui/tailwindcss";
+/* Components Tailwind Configuration */
+@import "./tailwind.config.css";
