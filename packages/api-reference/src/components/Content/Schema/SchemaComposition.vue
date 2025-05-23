@@ -106,11 +106,12 @@ const getSchemaWithComposition = (schemas: any[]) => {
 }
 
 const schemaComposition = computed(() => {
-  const schemaComposition = getSchemaWithComposition(value[composition])
-
-  if (!schemaComposition) {
+  // If there's no nested composition, return the direct composition array
+  if (!getSchemaWithComposition(value[composition])) {
     return value[composition]
   }
+
+  const schemaComposition = getSchemaWithComposition(value[composition])
 
   // Get schema with nested composition
   const schemaNestedComposition =
@@ -223,17 +224,25 @@ const compositionValue = computed(() => {
           <ScalarMarkdown :value="compositionSchema.description" />
         </div>
         <Schema
-          v-if="compositionSchema?.properties"
+          v-if="
+            compositionSchema?.properties ||
+            compositionSchema?.type ||
+            compositionSchema?.nullable
+          "
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
           :name="name"
           :noncollapsible="true"
           :schemas="schemas"
-          :value="{
-            type: 'object',
-            properties: compositionSchema.properties,
-          }" />
+          :value="
+            compositionSchema?.properties
+              ? {
+                  type: 'object',
+                  properties: compositionSchema.properties,
+                }
+              : compositionSchema
+          " />
         <!-- Nested tabs -->
         <template v-if="compositionSchema?.oneOf || compositionSchema?.anyOf">
           <SchemaComposition
