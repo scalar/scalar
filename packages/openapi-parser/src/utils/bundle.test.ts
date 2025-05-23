@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 import { afterEach } from 'node:test'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { bundle, fetchJson, getNestedValue, isExternalRef, isLocalFileRef, isRemoteRef, readFile } from './bundle'
+import { bundle, fetchUrl, getNestedValue, isUrlOrFilePath, isLocalFilePath, isRemoteUrl, readFile } from './bundle'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -187,42 +187,42 @@ describe('bundle', () => {
   })
 })
 
-describe('isRemoteRef', () => {
+describe('isRemoteUrl', () => {
   it.each([
     ['https://example.com/schema.json', true],
     ['http://api.example.com/schemas/user.json', true],
     ['#/components/schemas/User', false],
     ['./local-schema.json', false],
-  ])('detects remote refs', (a, b) => {
-    expect(isRemoteRef(a)).toBe(b)
+  ])('detects remote urls', (a, b) => {
+    expect(isRemoteUrl(a)).toBe(b)
   })
 })
 
-describe('isLocalFileRef', () => {
+describe('isLocalFilePath', () => {
   it.each([
     ['./schemas/user.json', true],
     ['../models/pet.json', true],
     ['/absolute/path/schema.json', true],
     ['#/components/schemas/User', false],
     ['https://example.com/schema.json', false],
-  ])('detects local file refs', (a, b) => {
-    expect(isLocalFileRef(a)).toBe(b)
+  ])('detects local file paths', (a, b) => {
+    expect(isLocalFilePath(a)).toBe(b)
   })
 })
 
-describe('isExternalRef', () => {
+describe('isUrlOrFilePath', () => {
   it.each([
     ['https://example.com/schema.json', true],
     ['./schemas/user.json', true],
     ['../models/pet.json', true],
     ['/absolute/path/schema.json', true],
     ['#/components/schemas/User', false],
-  ])('detects external refs', (a, b) => {
-    expect(isExternalRef(a)).toBe(b)
+  ])('detects url and file paths', (a, b) => {
+    expect(isUrlOrFilePath(a)).toBe(b)
   })
 })
 
-describe('fetchJson', () => {
+describe('fetchUrl', () => {
   let server: FastifyInstance
 
   beforeEach(() => {
@@ -233,7 +233,7 @@ describe('fetchJson', () => {
     await server.close()
   })
 
-  it('returns json response', async () => {
+  it('reads json response', async () => {
     const PORT = 6677
     const url = `http://localhost:${PORT}`
 
@@ -247,11 +247,28 @@ describe('fetchJson', () => {
 
     await server.listen({ port: PORT })
 
-    const result = await fetchJson(url)
+    const result = await fetchUrl(url)
 
     expect(result.ok).toBe(true)
     assert(result.ok === true)
     expect(result.data).toEqual(response)
+  })
+
+  it('reads yaml response', async () => {
+    const PORT = 5726
+    const url = `http://localhost:${PORT}`
+
+    server.get('/', (_, reply) => {
+      reply.header('content-type', 'application/yml').send('a: a')
+    })
+
+    await server.listen({ port: PORT })
+
+    const result = await fetchUrl(url)
+
+    expect(result.ok).toBe(true)
+    assert(result.ok === true)
+    expect(result.data).toEqual({ a: 'a' })
   })
 
   it('returns error on non-200 response', async () => {
@@ -264,22 +281,7 @@ describe('fetchJson', () => {
 
     await server.listen({ port: PORT })
 
-    const result = await fetchJson(url)
-
-    expect(result.ok).toBe(false)
-  })
-
-  it('returns error on non-json response', async () => {
-    const PORT = 6680
-    const url = `http://localhost:${PORT}`
-
-    server.get('/', (_, reply) => {
-      reply.header('content-type', 'text/html').send('<html>Hello World</html>')
-    })
-
-    await server.listen({ port: PORT })
-
-    const result = await fetchJson(url)
+    const result = await fetchUrl(url)
 
     expect(result.ok).toBe(false)
   })
@@ -300,20 +302,18 @@ describe('readFile', () => {
     expect(result.data).toEqual(contents)
   })
 
-  it('returns error for non-json content', async () => {
+  it('reads yml contents of a file', async () => {
+    const contents = 'a: a'
     const path = randomUUID()
-    await fs.writeFile(path, '<Non JSON content>')
+    await fs.writeFile(path, contents)
 
     const result = await readFile(path)
     await fs.rm(path)
 
-    expect(result.ok).toBe(false)
-  })
+    expect(result.ok).toBe(true)
+    assert(result.ok === true)
 
-  it('returns error for non-existent file', async () => {
-    const result = await readFile(randomUUID())
-
-    expect(result.ok).toBe(false)
+    expect(result.data).toEqual({ a: 'a' })
   })
 })
 

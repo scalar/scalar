@@ -2,82 +2,83 @@ import fs from 'node:fs/promises'
 import type { UnknownObject } from '../types'
 import { getSegmentsFromPath } from './getSegmentsFromPath'
 import { isObject } from './isObject'
+import { normalize } from './normalize'
 
 /**
- * Checks if a JSON pointer is a remote reference (starts with http:// or https://)
- * @param ref - The JSON pointer string to check
- * @returns true if the ref is a remote reference, false otherwise
+ * Checks if a string is a remote URL (starts with http:// or https://)
+ * @param value - The URL string to check
+ * @returns true if the string is a remote URL, false otherwise
  * @example
  * ```ts
- * isRemoteRef('https://example.com/schema.json') // true
- * isRemoteRef('http://api.example.com/schemas/user.json') // true
- * isRemoteRef('#/components/schemas/User') // false
- * isRemoteRef('./local-schema.json') // false
+ * isRemoteUrl('https://example.com/schema.json') // true
+ * isRemoteUrl('http://api.example.com/schemas/user.json') // true
+ * isRemoteUrl('#/components/schemas/User') // false
+ * isRemoteUrl('./local-schema.json') // false
  * ```
  */
-export function isRemoteRef(ref: string): boolean {
-  return ref.startsWith('http://') || ref.startsWith('https://')
+export function isRemoteUrl(value: string): boolean {
+  return value.startsWith('http://') || value.startsWith('https://')
 }
 
 /**
- * Checks if a JSON reference points to a local file
- * @param ref - The JSON reference string to check
- * @returns true if the reference points to a local file, false otherwise
+ * Checks if a string represents a local file path in the filesystem
+ * @param value - The string to check
+ * @returns true if the string is a local file path, false otherwise
  * @example
  * ```ts
- * isLocalFileRef('./schemas/user.json') // true
- * isLocalFileRef('../models/pet.json') // true
- * isLocalFileRef('/absolute/path/schema.json') // true
- * isLocalFileRef('#/components/schemas/User') // false
- * isLocalFileRef('https://example.com/schema.json') // false
+ * isLocalFilePath('./schemas/user.json') // true
+ * isLocalFilePath('../models/pet.json') // true
+ * isLocalFilePath('/absolute/path/schema.json') // true
+ * isLocalFilePath('#/components/schemas/User') // false
+ * isLocalFilePath('https://example.com/schema.json') // false
  * ```
  */
-export function isLocalFileRef(ref: string): boolean {
+export function isLocalFilePath(value: string): boolean {
   // Check if it starts with ./ or ../ or /
-  return ref.startsWith('./') || ref.startsWith('../') || ref.startsWith('/')
+  return value.startsWith('./') || value.startsWith('../') || value.startsWith('/')
 }
 
 /**
- * Checks if a reference is external (either remote or local file)
- * @param ref - The reference string to check
- * @returns true if the reference is external, false otherwise
+ * Checks if a string represents an external reference (either a remote URL or local file path)
+ * @param value - The string to check
+ * @returns true if the string is an external reference (URL or file path), false otherwise
  * @example
  * ```ts
- * isExternalRef('https://example.com/schema.json') // true
- * isExternalRef('./local-schema.json') // true
- * isExternalRef('#/components/schemas/User') // false
+ * isUrlOrFilePath('https://example.com/schema.json') // true
+ * isUrlOrFilePath('./local-schema.json') // true
+ * isUrlOrFilePath('#/components/schemas/User') // false
  * ```
  */
-export function isExternalRef(ref: string) {
-  return isRemoteRef(ref) || isLocalFileRef(ref)
+export function isUrlOrFilePath(value: string) {
+  return isRemoteUrl(value) || isLocalFilePath(value)
 }
 
 type ResolveResult = { ok: true; data: unknown } | { ok: false }
 
 /**
- * Fetches JSON data from a remote URL
- * @param url - The URL to fetch JSON data from
- * @returns A promise that resolves to either the JSON data or an error result
+ * Fetches and normalizes data from a remote URL
+ * @param url - The URL to fetch data from
+ * @returns A promise that resolves to either the normalized data or an error result
  * @example
  * ```ts
- * const result = await fetchJson('https://api.example.com/data.json')
+ * const result = await fetchUrl('https://api.example.com/data.json')
  * if (result.ok) {
- *   console.log(result.data) // The JSON data
+ *   console.log(result.data) // The normalized data
  * } else {
- *   console.log('Failed to fetch JSON')
+ *   console.log('Failed to fetch data')
  * }
  * ```
  */
-export async function fetchJson(url: string): Promise<ResolveResult> {
+export async function fetchUrl(url: string): Promise<ResolveResult> {
   try {
     const result = await fetch(url)
 
     if (result.ok) {
-      const body = await result.json()
+      const body = await result.text()
 
       return {
         ok: true,
-        data: body,
+        data: normalize(body),
       }
     }
 
@@ -92,14 +93,14 @@ export async function fetchJson(url: string): Promise<ResolveResult> {
 }
 
 /**
- * Reads and parses a JSON file from the local filesystem
- * @param path - The path to the JSON file to read
- * @returns A promise that resolves to either the parsed JSON data or an error result
+ * Reads and normalizes data from a local file
+ * @param path - The file path to read from
+ * @returns A promise that resolves to either the normalized data or an error result
  * @example
  * ```ts
- * const result = await readFile('./config.json')
+ * const result = await readFile('./schemas/user.json')
  * if (result.ok) {
- *   console.log(result.data) // The parsed JSON data
+ *   console.log(result.data) // The normalized data
  * } else {
  *   console.log('Failed to read file')
  * }
@@ -111,7 +112,7 @@ export async function readFile(path: string): Promise<ResolveResult> {
 
     return {
       ok: true,
-      data: JSON.parse(fileContents),
+      data: normalize(fileContents),
     }
   } catch {
     return {
@@ -133,11 +134,11 @@ export async function readFile(path: string): Promise<ResolveResult> {
  * await resolveRef('#/components/schemas/User')
  */
 async function resolveRef(ref: string): Promise<ResolveResult> {
-  if (isRemoteRef(ref)) {
-    return fetchJson(ref)
+  if (isRemoteUrl(ref)) {
+    return fetchUrl(ref)
   }
 
-  if (isLocalFileRef(ref)) {
+  if (isLocalFilePath(ref)) {
     return readFile(ref)
   }
 
@@ -188,7 +189,7 @@ export function bundle(input: UnknownObject) {
         if (typeof value === 'object' && '$ref' in value && typeof value['$ref'] === 'string') {
           const ref = value['$ref']
 
-          if (!isExternalRef(ref)) {
+          if (!isUrlOrFilePath(ref)) {
             return
           }
 
