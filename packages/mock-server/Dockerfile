@@ -19,6 +19,6 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/integrations/hono /app/integrations/hono
 COPY --from=builder /app/packages /app/packages
 
-WORKDIR /app/packages/mock-server/playground
+WORKDIR /app/packages/mock-server
 
-CMD ["dumb-init", "node", "dist/index.js"]
+CMD ["dumb-init", "node", "playground/dist/index.js"]

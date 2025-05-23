@@ -23,7 +23,6 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "vite-node src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
