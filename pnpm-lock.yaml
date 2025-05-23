@@ -2278,9 +2278,6 @@ importers:
       '@lezer/highlight':
         specifier: ^1.2.1
         version: 1.2.1
-      '@lezer/lr':
-        specifier: ^1.4.2
-        version: 1.4.2
       '@replit/codemirror-css-color-picker':
         specifier: ^6.3.0
         version: 6.3.0(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)
@@ -2290,9 +2287,6 @@ importers:
       codemirror:
         specifier: ^6.0.0
         version: 6.0.1(@lezer/common@1.2.3)
-      style-mod:
-        specifier: ^4.1.2
-        version: 4.1.2
       vue:
         specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)

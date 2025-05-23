@@ -8,7 +8,10 @@
 import { HighlightStyle, type TagStyle, syntaxHighlighting } from '@codemirror/language'
 import type { Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
-import type { StyleSpec } from 'style-mod'
+
+type StyleSpec = {
+  [propOrSelector: string]: string | number | StyleSpec | null
+}
 
 export type CreateThemeOptions = {
   /**
