@@ -22,36 +22,18 @@ export function isRemoteUrl(value: string): boolean {
 }
 
 /**
- * Checks if a string represents a local file path in the filesystem
- * @param value - The string to check
- * @returns true if the string is a local file path, false otherwise
+ * Checks if a string is a local reference (starts with #)
+ * @param value - The reference string to check
+ * @returns true if the string is a local reference, false otherwise
  * @example
  * ```ts
- * isLocalFilePath('./schemas/user.json') // true
- * isLocalFilePath('../models/pet.json') // true
- * isLocalFilePath('/absolute/path/schema.json') // true
- * isLocalFilePath('#/components/schemas/User') // false
- * isLocalFilePath('https://example.com/schema.json') // false
+ * isLocalRef('#/components/schemas/User') // true
+ * isLocalRef('https://example.com/schema.json') // false
+ * isLocalRef('./local-schema.json') // false
  * ```
  */
-export function isLocalFilePath(value: string): boolean {
-  // Check if it starts with ./ or ../ or /
-  return value.startsWith('./') || value.startsWith('../') || value.startsWith('/')
-}
-
-/**
- * Checks if a string represents an external reference (either a remote URL or local file path)
- * @param value - The string to check
- * @returns true if the string is an external reference (URL or file path), false otherwise
- * @example
- * ```ts
- * isUrlOrFilePath('https://example.com/schema.json') // true
- * isUrlOrFilePath('./local-schema.json') // true
- * isUrlOrFilePath('#/components/schemas/User') // false
- * ```
- */
-export function isUrlOrFilePath(value: string) {
-  return isRemoteUrl(value) || isLocalFilePath(value)
+export function isLocalRef(value: string): boolean {
+  return value.startsWith('#')
 }
 
 type ResolveResult = { ok: true; data: unknown } | { ok: false }
@@ -139,13 +121,7 @@ async function resolveRef(ref: string): Promise<ResolveResult> {
     return fetchUrl(ref)
   }
 
-  if (isLocalFilePath(ref)) {
-    return readFile(ref)
-  }
-
-  return {
-    ok: false,
-  }
+  return readFile(ref)
 }
 
 /**
@@ -200,7 +176,7 @@ export function bundle(input: UnknownObject) {
         if (typeof value === 'object' && '$ref' in value && typeof value['$ref'] === 'string') {
           const ref = value['$ref']
 
-          if (!isUrlOrFilePath(ref)) {
+          if (isLocalRef(ref)) {
             return
           }
 

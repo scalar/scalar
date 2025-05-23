@@ -4,7 +4,7 @@ import fs from 'node:fs/promises'
 import { afterEach } from 'node:test'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { bundle, fetchUrl, getNestedValue, isUrlOrFilePath, isLocalFilePath, isRemoteUrl, readFile } from './bundle'
+import { bundle, fetchUrl, getNestedValue, isLocalRef, isRemoteUrl, readFile } from './bundle'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -247,27 +247,13 @@ describe('isRemoteUrl', () => {
   })
 })
 
-describe('isLocalFilePath', () => {
+describe('isLocalRef', () => {
   it.each([
-    ['./schemas/user.json', true],
-    ['../models/pet.json', true],
-    ['/absolute/path/schema.json', true],
-    ['#/components/schemas/User', false],
+    ['#/components/schemas/User', true],
     ['https://example.com/schema.json', false],
-  ])('detects local file paths', (a, b) => {
-    expect(isLocalFilePath(a)).toBe(b)
-  })
-})
-
-describe('isUrlOrFilePath', () => {
-  it.each([
-    ['https://example.com/schema.json', true],
-    ['./schemas/user.json', true],
-    ['../models/pet.json', true],
-    ['/absolute/path/schema.json', true],
-    ['#/components/schemas/User', false],
-  ])('detects url and file paths', (a, b) => {
-    expect(isUrlOrFilePath(a)).toBe(b)
+    ['./local-schema.json', false],
+  ])('detects local refs', (a, b) => {
+    expect(isLocalRef(a)).toBe(b)
   })
 })
 
