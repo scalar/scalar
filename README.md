@@ -173,7 +173,7 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | Project                                                     | Description            |
 | ----------------------------------------------------------- | ---------------------- |
 | [Scalar API Client](packages/api-client/README.md)          | API client             |
-| [Scalar CLI](packages/cli/README.md)                        | Command-line interface |
+| [Scalar CLI](https://www.npmjs.com/package/@scalar/cli)     | Command-line interface |
 | [Scalar Galaxy](packages/galaxy/README.md)                  | OpenAPI Example        |
 | [Scalar Mock Server](packages/mock-server/README.md)        | OpenAPI Mock Server    |
 | [Scalar Void Server](packages/void-server/README.md)        | HTTP Request Mirror    |

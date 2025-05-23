@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
+    "dev": "npx @scalar/cli document serve ./src/documents/3.1.yaml --watch",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",

@@ -20,11 +20,11 @@ A powerful Node.js mock server that automatically generates realistic API respon
 
 ## Quickstart
 
-The easiest way to get started is through [our Scalar CLI](https://github.com/scalar/scalar/tree/main/packages/cli).
+The easiest way to get started is through [our Scalar CLI](https://www.npmjs.com/package/@scalar/cli).
 You can have a mock server up and running in seconds:
 
 ```bash
-npx @scalar/cli mock openapi.json --watch
+npx @scalar/cli document mock openapi.json --watch
 ```
 
 ## Installation
