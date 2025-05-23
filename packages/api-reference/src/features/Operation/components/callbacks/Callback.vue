@@ -3,7 +3,7 @@ import { ScalarIconCaretRight } from '@scalar/icons'
 import { requestSchema, type Collection } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
@@ -35,41 +35,31 @@ const transformedOperation = computed(
       },
     }) satisfies TransformedOperation,
 )
-
-const open = ref(false)
 </script>
 
 <template>
-  <div
+  <details
     v-if="collection && operation"
-    class="py-3">
+    class="group py-3">
     <!-- Title -->
-    <div
-      @click.stop="open = !open"
-      class="font-code group flex cursor-pointer flex-row items-center gap-2 text-sm"
-      :class="open ? 'flex-wrap' : ''">
+    <summary
+      class="font-code flex cursor-pointer flex-row items-center gap-2 text-sm group-open:flex-wrap">
       <ScalarIconCaretRight
-        class="text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform"
-        :class="{ 'rotate-90': open }" />
+        class="text-c-3 group-hover:text-c-1 absolute -left-5 size-4 transition-transform group-open:rotate-90" />
       <HttpMethod
         as="span"
         class="request-method"
         :method="method" />
-      <div
-        class="text-c-1 leading-3"
-        :class="{ truncate: !open }">
+      <div class="text-c-1 truncate leading-3 group-open:whitespace-normal">
         {{ name }}
         <span class="text-c-2">
           {{ url }}
         </span>
       </div>
-    </div>
+    </summary>
 
     <!-- Body -->
-    <div
-      class="flex flex-col gap-2"
-      v-if="open">
-      <!-- Body -->
+    <div class="open:bg-blue flex flex-col gap-2">
       <OperationParameters
         :operation="operation"
         :schemas="schemas" />
@@ -79,5 +69,5 @@ const open = ref(false)
         :operation="transformedOperation"
         :schemas="schemas" />
     </div>
-  </div>
+  </details>
 </template>
