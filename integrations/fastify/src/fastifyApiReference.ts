@@ -196,8 +196,7 @@ const fastifyApiReference = fp<
       }
     }
 
-    const getSpecFilenameSlug = async (loadedSpec: OpenAPI.Document) => {
-      const spec = await loadedSpec?.get()
+    const getSpecFilenameSlug = async (spec: OpenAPI.Document) => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
