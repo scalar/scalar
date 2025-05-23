@@ -156,8 +156,8 @@ onMounted(() => {
   history.scrollRestoration = 'manual'
 
   // Enable the spec download event bus
-  downloadEventBus.on(({ filename }) => {
-    downloadDocument(props.rawSpec, filename)
+  downloadEventBus.on(({ filename, format }) => {
+    downloadDocument(props.rawSpec, filename, format)
   })
 
   // Find scalar Y offset to support users who have tried to add their own headers

@@ -1,14 +1,15 @@
 import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
+import { isDefined } from '@scalar/oas-utils/helpers'
 
-const downloadEventBusKey: EventBusKey<{ id: string; filename?: string }> = Symbol('download')
+const downloadEventBusKey: EventBusKey<{ id: string; filename?: string; format?: 'json' | 'yaml' }> = Symbol('download')
 export const downloadEventBus = useEventBus(downloadEventBusKey)
 
 /**
  * Trigger the download of the OpenAPI document
  */
-export function downloadDocument(content: string, filename?: string) {
-  const isJson = isJsonString(content)
+export function downloadDocument(content: string, filename?: string, format?: 'json' | 'yaml') {
+  const isJson = format === 'json' || (!isDefined(format) && isJsonString(content))
 
   const blob = isJson
     ? new Blob([content], { type: 'application/json' })
