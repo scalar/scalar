@@ -158,6 +158,9 @@ async function resolveRef(ref: string): Promise<ResolveResult> {
  */
 export function getNestedValue(target: Record<string, any>, segments: string[]) {
   return segments.reduce<any>((acc, key) => {
+    if (acc === undefined) {
+      return undefined
+    }
     return acc[key]
   }, target)
 }

@@ -322,6 +322,7 @@ describe('getNestedValue', () => {
     [{ a: { b: { c: 'hello' } } }, ['a', 'b', 'c'], 'hello'],
     [{ a: { b: { c: 'hello' } } }, [], { a: { b: { c: 'hello' } } }],
     [{ foo: { bar: { baz: 42 } } }, ['foo', 'bar', 'baz'], 42],
+    [{ foo: { bar: { baz: 42 } } }, ['foo', 'non-existing', 'baz'], undefined],
   ])('gets nested value', (a, b, c) => {
     expect(getNestedValue(a, b)).toEqual(c)
   })
