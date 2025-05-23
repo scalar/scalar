@@ -275,8 +275,6 @@ describe('useDocumentSource', () => {
 
       await nextTick()
 
-      console.log(parsedDocument.value)
-
       expect(parsedDocument.value).not.toMatchObject(initialValue)
     })
   })
