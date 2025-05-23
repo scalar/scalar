@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.4.2
+
+### Patch Changes
+
+- 442c0a3: feat: added support for callbacks
+
 ## 0.4.1
 
 ### Patch Changes
