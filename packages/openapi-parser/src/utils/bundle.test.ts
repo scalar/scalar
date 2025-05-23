@@ -141,6 +141,31 @@ describe('bundle', () => {
       // We expect the bundler to cache the result for the same url
       expect(fn.mock.calls.length).toBe(1)
     })
+
+    it('dereference the resolved documents before merging with the original document', async () => {
+      const PORT = 5627
+      const url = `http://localhost:${PORT}`
+      server.get('/', (_, reply) => {
+        reply.send({
+          a: {
+            '$ref': '#/b',
+          },
+          b: {
+            c: 'c',
+          },
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          '$ref': url,
+        },
+      }
+      await bundle(input)
+
+      expect(input.a).toEqual({ a: { c: 'c' }, b: { c: 'c' } })
+    })
   })
 
   describe('local files', () => {

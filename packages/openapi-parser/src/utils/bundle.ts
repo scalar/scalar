@@ -3,6 +3,7 @@ import type { UnknownObject } from '../types'
 import { getSegmentsFromPath } from './getSegmentsFromPath'
 import { isObject } from './isObject'
 import { normalize } from './normalize'
+import { dereference } from './dereference'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -206,7 +207,11 @@ export function bundle(input: UnknownObject) {
           const result = await cache.get(prefix)
 
           if (result.ok) {
-            root[key] = getNestedValue(result.data as any, getSegmentsFromPath(path))
+            // Dereference the remote document to resolve any internal references before extracting the target segment.
+            // This is necessary because local references within the remote document would become invalid
+            // when merged into the final bundled document.
+            const dereferencedResult = await dereference(result.data)
+            root[key] = getNestedValue(dereferencedResult.schema, getSegmentsFromPath(path))
           } else {
             console.warn(
               `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
