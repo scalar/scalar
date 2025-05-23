@@ -33,7 +33,7 @@
             "-t",
             "gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}",
             "-f",
-            "./packages/galaxy/Dockerfile",
+            "./packages/mock-server/Dockerfile",
             "."
           ]
       },
