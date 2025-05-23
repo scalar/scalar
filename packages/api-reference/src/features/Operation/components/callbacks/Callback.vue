@@ -73,7 +73,7 @@ const transformedOperation = computed(
 </template>
 <style scoped>
 .callback-sticky-offset {
-  top: var(--scalar-header-height, 0px);
+  top: var(--refs-header-height, 0px);
   z-index: 100;
 }
 .callback-operation-container :deep(.request-body-header) {
