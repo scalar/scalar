@@ -14,7 +14,7 @@ const actualMatchMedia = window.matchMedia
 describe('useColorMode', () => {
   beforeEach(() => {
     // Reset the DOM
-    document.documentElement.classList.remove('dark-mode', 'light-mode')
+    document.body.classList.remove('dark-mode', 'light-mode')
 
     // Clear localStorage
     localStorage.clear()
@@ -121,18 +121,18 @@ describe('useColorMode', () => {
     expect(darkLightMode.value).toBe(mode)
   })
 
-  it('applies correct classes to the document element', async () => {
+  it('applies correct classes to body', async () => {
     const { setColorMode } = useColorMode()
 
     setColorMode('dark')
     await nextTick()
-    expect(document.documentElement.classList.contains('dark-mode')).toBe(true)
-    expect(document.documentElement.classList.contains('light-mode')).toBe(false)
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+    expect(document.body.classList.contains('light-mode')).toBe(false)
 
     setColorMode('light')
     await nextTick()
-    expect(document.documentElement.classList.contains('light-mode')).toBe(true)
-    expect(document.documentElement.classList.contains('dark-mode')).toBe(false)
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+    expect(document.body.classList.contains('dark-mode')).toBe(false)
   })
 
   it('listens to system preference changes', async () => {
@@ -155,16 +155,16 @@ describe('useColorMode', () => {
 
     await nextTick()
 
-    expect(document.documentElement.classList.contains('light-mode')).toBe(true)
-    expect(document.documentElement.classList.contains('dark-mode')).toBe(false)
+    expect(document.body.classList.contains('light-mode')).toBe(true)
+    expect(document.body.classList.contains('dark-mode')).toBe(false)
 
     // Simulate system preference change
     if (mediaQueryCallback) {
       window.matchMedia = vi.fn().mockReturnValue(mockMediaQuery(true))
       mediaQueryCallback()
       await nextTick()
-      expect(document.documentElement.classList.contains('light-mode')).toBe(false)
-      expect(document.documentElement.classList.contains('dark-mode')).toBe(true)
+      expect(document.body.classList.contains('light-mode')).toBe(false)
+      expect(document.body.classList.contains('dark-mode')).toBe(true)
     }
   })
 
@@ -185,8 +185,8 @@ describe('useColorMode', () => {
     // Even when setting to light mode, it should stay dark due to override
     setColorMode('light')
     await nextTick()
-    expect(document.documentElement.classList.contains('dark-mode')).toBe(true)
-    expect(document.documentElement.classList.contains('light-mode')).toBe(false)
+    expect(document.body.classList.contains('dark-mode')).toBe(true)
+    expect(document.body.classList.contains('light-mode')).toBe(false)
 
     // Should stay dark even when system preference is light
     window.matchMedia = vi.fn().mockImplementation((query) => ({

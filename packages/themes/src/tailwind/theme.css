@@ -1,5 +1,5 @@
 /** Scalar Tailwind Base Theme */
-@theme {
+@theme inline {
   /* Border Radius */
   --radius-\*: initial;
   --radius: var(--scalar-radius);
