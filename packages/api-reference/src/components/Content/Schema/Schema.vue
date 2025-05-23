@@ -2,8 +2,14 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
+import {
+  getDiscriminatorMapping,
+  getDiscriminatorPropertyName,
+  mergeDiscriminatorSchemas,
+} from '@/components/Content/Schema/helpers/schema-discriminator'
+import SchemaDiscriminator from '@/components/Content/Schema/SchemaDiscriminator.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
 
 import SchemaHeading from './SchemaHeading.vue'
@@ -36,8 +42,57 @@ const props = withDefaults(
       | Record<string, OpenAPIV3_1.SchemaObject>
       | unknown
   }>(),
-  { level: 0, showAdditionalProperties: false, noncollapsible: false },
+  { level: 0, noncollapsible: false },
 )
+
+const selectedDiscriminatorType = ref<string>('')
+
+/** Returns the discriminator mapping */
+const discriminatorMapping = computed(() => {
+  if (!props.value) {
+    return undefined
+  }
+
+  return getDiscriminatorMapping(props.value)
+})
+
+const defaultDiscriminatorType = computed(() => {
+  if (!discriminatorMapping.value) {
+    return ''
+  }
+
+  return Object.keys(discriminatorMapping.value)[0] || ''
+})
+
+/** Returns the name of the discriminator property */
+const discriminatorPropertyName = computed(() => {
+  if (!props.value) {
+    return undefined
+  }
+
+  return getDiscriminatorPropertyName(props.value)
+})
+
+/** Returns merged schema */
+const resolvedSchema = computed(() => {
+  if (!props.value) {
+    return undefined
+  }
+
+  // If no discriminator or no selected type, return original value
+  if (!discriminatorMapping.value || !selectedDiscriminatorType.value) {
+    return props.value
+  }
+
+  // Merge schemas based on discriminator
+  return (
+    mergeDiscriminatorSchemas(
+      props.value as OpenAPIV3_1.SchemaObject,
+      selectedDiscriminatorType.value,
+      props.schemas as Record<string, OpenAPIV3_1.SchemaObject>,
+    ) || props.value
+  )
+})
 
 const shouldShowToggle = computed(() => {
   if (props.noncollapsible || props.level === 0) {
@@ -50,6 +105,17 @@ const shouldShowToggle = computed(() => {
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
   props.noncollapsible && e.stopPropagation()
+
+// Watch for changes in discriminator mapping and update selected type if needed
+watch(
+  discriminatorMapping,
+  (newMapping) => {
+    if (newMapping && !selectedDiscriminatorType.value) {
+      selectedDiscriminatorType.value = defaultDiscriminatorType.value
+    }
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <Disclosure
@@ -63,18 +129,19 @@ const handleClick = (e: MouseEvent) =>
         { 'schema-card--compact': compact, 'schema-card--open': open },
         { 'border-t-1/2': additionalProperties && open },
       ]">
+      <!-- Schema description -->
       <div
         v-if="
-          value?.description &&
-          typeof value.description === 'string' &&
-          !value.allOf &&
-          !value.oneOf &&
-          !value.anyOf &&
+          resolvedSchema?.description &&
+          typeof resolvedSchema.description === 'string' &&
+          !resolvedSchema.allOf &&
+          !resolvedSchema.oneOf &&
+          !resolvedSchema.anyOf &&
           !compact
         "
         class="schema-card-description">
-        <template v-if="!value.enum">
-          <ScalarMarkdown :value="value.description" />
+        <template v-if="!resolvedSchema.enum">
+          <ScalarMarkdown :value="resolvedSchema.description" />
         </template>
       </div>
       <div
@@ -138,30 +205,48 @@ const handleClick = (e: MouseEvent) =>
         <DisclosurePanel
           as="ul"
           :static="!shouldShowToggle">
+          <!-- Discriminator selector -->
+          <SchemaDiscriminator
+            v-if="discriminatorMapping && resolvedSchema?.properties"
+            v-model="selectedDiscriminatorType"
+            :discriminatorMapping="discriminatorMapping"
+            :discriminatorPropertyName="discriminatorPropertyName" />
+
+          <!-- Schema properties -->
           <template
             v-if="
-              value.properties ||
-              value.additionalProperties ||
-              value.patternProperties
+              resolvedSchema &&
+              ('properties' in resolvedSchema ||
+                'additionalProperties' in resolvedSchema ||
+                'patternProperties' in resolvedSchema)
             ">
-            <template v-if="value.properties">
+            <!-- Regular properties -->
+            <template v-if="resolvedSchema.properties">
               <SchemaProperty
-                v-for="property in Object.keys(value?.properties)"
+                v-for="property in Object.keys(resolvedSchema.properties)"
                 :key="property"
                 :compact="compact"
                 :hideHeading="hideHeading"
                 :level="level + 1"
                 :name="property"
                 :required="
-                  value.required?.includes(property) ||
-                  value.properties?.[property]?.required === true
+                  resolvedSchema.required?.includes(property) ||
+                  resolvedSchema.properties[property]?.required === true
                 "
                 :schemas="schemas"
-                :value="value.properties?.[property]" />
+                :value="{
+                  ...resolvedSchema.properties[property],
+                  parent: resolvedSchema,
+                  isDiscriminator: property === discriminatorPropertyName,
+                }" />
             </template>
-            <template v-if="value.patternProperties">
+
+            <!-- Pattern properties -->
+            <template v-if="resolvedSchema.patternProperties">
               <SchemaProperty
-                v-for="property in Object.keys(value?.patternProperties)"
+                v-for="property in Object.keys(
+                  resolvedSchema.patternProperties,
+                )"
                 :key="property"
                 :compact="compact"
                 :hideHeading="hideHeading"
@@ -169,18 +254,25 @@ const handleClick = (e: MouseEvent) =>
                 :name="property"
                 pattern
                 :schemas="schemas"
-                :value="value.patternProperties?.[property]" />
+                :value="
+                  value.discriminator?.propertyName === property
+                    ? value
+                    : resolvedSchema.patternProperties[property]
+                " />
             </template>
-            <template v-if="value.additionalProperties">
+
+            <!-- Additional properties -->
+            <template v-if="resolvedSchema.additionalProperties">
               <!--
                 Allows any type of additional property value
                 @see https://swagger.io/docs/specification/data-models/dictionaries/#free-form
                -->
               <SchemaProperty
                 v-if="
-                  value.additionalProperties === true ||
-                  Object.keys(value.additionalProperties).length === 0 ||
-                  !value.additionalProperties.type
+                  resolvedSchema.additionalProperties === true ||
+                  Object.keys(resolvedSchema.additionalProperties).length ===
+                    0 ||
+                  !('type' in resolvedSchema.additionalProperties)
                 "
                 additional
                 :compact="compact"
@@ -190,11 +282,10 @@ const handleClick = (e: MouseEvent) =>
                 :schemas="schemas"
                 :value="{
                   type: 'anything',
-                  ...(typeof value.additionalProperties === 'object'
-                    ? value.additionalProperties
+                  ...(typeof resolvedSchema.additionalProperties === 'object'
+                    ? resolvedSchema.additionalProperties
                     : {}),
                 }" />
-              <!-- Allows a specific type of additional property value -->
               <SchemaProperty
                 v-else
                 additional
@@ -203,17 +294,27 @@ const handleClick = (e: MouseEvent) =>
                 :level="level"
                 noncollapsible
                 :schemas="schemas"
-                :value="value.additionalProperties" />
+                :value="
+                  value.discriminator?.propertyName === name
+                    ? value
+                    : resolvedSchema.additionalProperties
+                " />
             </template>
           </template>
+
+          <!-- Single property -->
           <template v-else>
             <SchemaProperty
               :compact="compact"
               :hideHeading="hideHeading"
-              :level="level"
-              :name="(value as OpenAPIV2.SchemaObject).name"
+              :level="level + 1"
+              :name="(resolvedSchema as OpenAPIV3_1.SchemaObject).name"
               :schemas="schemas"
-              :value="value" />
+              :value="
+                value.discriminator?.propertyName === name
+                  ? value
+                  : resolvedSchema
+              " />
           </template>
         </DisclosurePanel>
       </div>
@@ -277,6 +378,7 @@ button.schema-card-title:hover {
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
+  overflow: hidden;
   width: fit-content;
 }
 .schema-properties-name {
@@ -299,7 +401,7 @@ button.schema-card-title:hover {
 }
 .schema-card-title--compact {
   color: var(--scalar-color-2);
-  padding: 6px 8px;
+  padding: 6px;
   height: auto;
   border-bottom: none;
 }
