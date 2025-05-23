@@ -9,7 +9,6 @@ import {
   addScalarClassesToHeadless,
   ScalarErrorBoundary,
 } from '@scalar/components'
-import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   getThemeStyles,
   hasObtrusiveScrollbars,
@@ -19,20 +18,17 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
-import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
   onMounted,
-  onServerPrefetch,
   onUnmounted,
   provide,
   ref,
   toValue,
   useId,
-  useSSRContext,
   watch,
 } from 'vue'
 
@@ -229,48 +225,6 @@ onMounted(() =>
 )
 
 onUnmounted(() => downloadEventBus.reset())
-
-// Initialize the server state
-onServerPrefetch(() => {
-  const ctx = useSSRContext<SSRState>()
-
-  if (!ctx) {
-    return
-  }
-
-  ctx.payload ||= { data: defaultStateFactory() }
-  ctx.payload.data ||= defaultStateFactory()
-
-  // Set initial hash value
-  if (configuration.value.pathRouting) {
-    const id = getPathRoutingId(ctx.url)
-    hash.value = id
-    ctx.payload.data.hash = id
-
-    // For sidebar items we need to reset the state as it persists between requests
-    // This is a temp hack, need to come up with a better solution
-    for (const key in collapsedSidebarItems) {
-      if (Object.hasOwn(collapsedSidebarItems, key)) {
-        delete collapsedSidebarItems[key]
-      }
-    }
-
-    if (id) {
-      setCollapsedSidebarItem(getSectionId(id), true)
-    } else {
-      // TODO: We probably need to wait for the parsedDocument?
-      // TODO: And can we use the dereferencedDocument instead?
-      const firstTag = parsedDocument.value.tags?.[0]
-
-      if (firstTag) {
-        setCollapsedSidebarItem(getTagId(firstTag), true)
-      }
-    }
-
-    ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
-      collapsedSidebarItems
-  }
-})
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
