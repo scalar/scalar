@@ -121,7 +121,11 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     return ''
   }
 
-  const getModelId = (model?: { name: string }) => {
+  const getModelId = (model?: { name: string }, parentTag?: Tag): string => {
+    if (parentTag) {
+      return `${getTagId(parentTag)}/${getModelId(model)}`
+    }
+
     if (!model?.name) {
       return 'models'
     }
