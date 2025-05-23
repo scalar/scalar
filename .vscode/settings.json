@@ -75,7 +75,7 @@
   ],
   "tailwindCSS.experimental.configFile": {
     "packages/api-client/src/tailwind.css": "packages/api-client/**",
-    "packages/api-reference/tailwind.config.ts": "packages/api-reference/**",
+    "packages/api-reference/src/tailwind.css": "packages/api-reference/**",
     "packages/components/src/tailwind.css": "packages/components/**"
   },
   "typescript.tsdk": "node_modules/typescript/lib",

@@ -1,11 +1,12 @@
 import { URL, fileURLToPath } from 'node:url'
+import tailwindcss from '@tailwindcss/vite'
 import { autoCSSInject, createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 import { version } from './package.json'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   define: {
     'process.env.NODE_ENV': '"production"',
     'process.env.SCALAR_API_REFERENCE_VERSION': `"${version}"`,

@@ -20,6 +20,8 @@ defineProps<{
 </template>
 
 <style scoped>
+@reference "@/style.css";
+
 .section-header-wrapper {
   display: grid;
   grid-template-columns: 1fr;

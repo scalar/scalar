@@ -187,10 +187,12 @@
       "import": "./dist/views/Request/types/index.js",
       "types": "./dist/views/Request/types/index.d.ts",
       "default": "./dist/views/Request/types/index.js"
-    }
+    },
+    "./tailwind.css": "./src/tailwind.css"
   },
   "files": [
     "dist",
+    "src/tailwind.css",
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",

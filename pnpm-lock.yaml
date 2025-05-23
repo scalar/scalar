@@ -1208,6 +1208,9 @@ importers:
       '@scalar/react-renderer':
         specifier: workspace:*
         version: link:../react-renderer
+      '@tailwindcss/vite':
+        specifier: catalog:*
+        version: 4.1.7(vite@5.4.19(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2))
       '@types/react':
         specifier: ^19.0.1
         version: 19.0.1
@@ -1223,12 +1226,6 @@ importers:
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
-      autoprefixer:
-        specifier: ^10.4.19
-        version: 10.4.19(postcss@8.5.3)
-      postcss:
-        specifier: catalog:*
-        version: 8.5.3
       react:
         specifier: ^19.0.0
         version: 19.0.0
