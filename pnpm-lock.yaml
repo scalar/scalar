@@ -36,6 +36,9 @@ catalogs:
     express:
       specifier: ^5.1.0
       version: 5.1.0
+    fastify:
+      specifier: ^4.26.2
+      version: 4.28.0
     nanoid:
       specifier: ^5.1.5
       version: 5.1.5
@@ -1963,18 +1966,15 @@ importers:
       '@types/node':
         specifier: catalog:*
         version: 20.17.10
-      glob:
-        specifier: ^10.3.10
-        version: 10.4.5
+      fastify:
+        specifier: catalog:*
+        version: 4.28.0
       json-to-ast:
         specifier: ^2.1.0
         version: 2.1.0
       just-diff:
         specifier: ^6.0.2
         version: 6.0.2
-      tinybench:
-        specifier: ^2.8.0
-        version: 2.8.0
 
   packages/openapi-to-markdown:
     dependencies:
