@@ -236,7 +236,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('object BarModel')
+    expect(detailsElement.text()).toContain('BarModel')
     expect(detailsElement.text()).not.toContain('[]')
   })
 
@@ -264,5 +264,34 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('string')
     expect(detailsElement.text()).not.toContain('[]')
+  })
+
+  it('displays model name for schema references a component schema', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'object',
+          properties: {
+            title: { type: 'string' },
+            pages: { type: 'integer' },
+          },
+        },
+        schemas: {
+          Planet: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              pages: { type: 'integer' },
+            },
+          },
+        },
+      },
+      slots: {
+        name: 'Planet',
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.text()).not.toContain('object')
   })
 })
