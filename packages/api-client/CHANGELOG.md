@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.4.3
+
+### Patch Changes
+
+- fbcce50: fix: adds server selector x axis overflow for long content
+- Updated dependencies [ca8d9bc]
+  - @scalar/use-codemirror@0.12.2
+
 ## 2.4.2
 
 ### Patch Changes

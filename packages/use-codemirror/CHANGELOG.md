@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.12.2
+
+### Patch Changes
+
+- ca8d9bc: chore: remove unused dependencies
+
 ## 0.12.1
 
 ### Patch Changes
