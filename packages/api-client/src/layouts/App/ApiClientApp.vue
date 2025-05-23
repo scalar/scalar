@@ -117,9 +117,8 @@ const themeStyleTag = computed(
   </ScalarTeleportRoot>
 </template>
 <style>
-@import '@scalar/components/style.css';
 @import '@scalar/themes/style.css';
-@import '@/tailwind.css';
+@import '@/style.css';
 
 #scalar-client {
   display: flex;

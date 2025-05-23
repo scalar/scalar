@@ -54,7 +54,9 @@ const { cx } = useBindCx()
     </div>
   </div>
 </template>
-<style scoped lang="postcss">
+<style scoped>
+@reference "../../style.css";
+
 .group\/item
   > .group\/button
   > .scalar-sidebar-indent
