@@ -214,7 +214,7 @@
       }
     },
     {
-      "include": ["packages/api-reference}/**/*.ts", "packages/openapi-parser/**/*.ts"],
+      "include": ["packages/api-reference/**/*.ts", "packages/openapi-parser/**/*.ts"],
       "linter": {
         "rules": {
           "performance": {
