@@ -3,7 +3,8 @@ import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { Scalar } from '@scalar/hono-api-reference'
 
-import { createMockServer } from '../src/createMockServer'
+import { createMockServer } from '@scalar/mock-server'
+import type { Context } from 'hono'
 
 const port = process.env.PORT || 5052
 
@@ -11,7 +12,7 @@ const port = process.env.PORT || 5052
  * Load the specification from the workspace.
  * We do not want a circular depedency as galaxy uses mock server for its playground
  */
-const specification = await fs.readFile('../galaxy/src/documents/3.1.yaml', 'utf8').catch(() => {
+const specification = await fs.readFile('../../galaxy/src/documents/3.1.yaml', 'utf8').catch(() => {
   console.error('[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.')
 
   return ''
@@ -20,8 +21,8 @@ const specification = await fs.readFile('../galaxy/src/documents/3.1.yaml', 'utf
 // Create the server instance
 const app = await createMockServer({
   specification,
-  onRequest: ({ context }) => {
-    console.log(`${context.req.method} ${context.req.url}`)
+  onRequest: (opts: { context: Context }) => {
+    console.log(`${opts.context.req.method} ${opts.context.req.url}`)
   },
 })
 
