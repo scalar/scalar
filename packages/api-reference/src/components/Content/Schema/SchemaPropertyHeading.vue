@@ -82,9 +82,21 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
   }
 
   if (schemas && typeof schemas === 'object') {
+    // Handle direct schema match
     for (const [schemaName, schemaValue] of Object.entries(schemas)) {
       if (stringify(schemaValue) === stringify(schema)) {
         return schemaName
+      }
+    }
+
+    // Handle case where schema is a reference to a component schema
+    if (schema.type === 'object' && schema.properties) {
+      for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+        if (
+          stringify(schemaValue.properties) === stringify(schema.properties)
+        ) {
+          return schemaName
+        }
       }
     }
   }
@@ -152,7 +164,7 @@ const modelName = computed(() => {
   // Handle direct object references
   const objectModelName = getModelNameFromSchema(value)
   if (objectModelName) {
-    return formatTypeWithModel(value.type, objectModelName)
+    return objectModelName
   }
 
   return null
