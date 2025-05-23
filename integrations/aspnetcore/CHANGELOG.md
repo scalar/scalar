@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.4.3
+
+### Patch Changes
+
+- 165f80b: chore(Scalar.AspNetCore): remove obsolete license URL property
+- Updated dependencies [fbcce50]
+- Updated dependencies [0afb11d]
+- Updated dependencies [9fd408c]
+- Updated dependencies [0afb11d]
+- Updated dependencies [c944864]
+- Updated dependencies [9ffba73]
+  - @scalar/api-reference@1.29.3
+
 ## 2.4.2
 
 ### Patch Changes
