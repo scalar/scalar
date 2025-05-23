@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises'
+import path from 'node:path'
 import type { UnknownObject } from '../types'
 import { getSegmentsFromPath } from './getSegmentsFromPath'
 import { isObject } from './isObject'
@@ -143,6 +144,37 @@ export function getNestedValue(target: Record<string, any>, segments: string[]) 
 }
 
 /**
+ * Resolves a reference path by combining a base path with a relative path.
+ * Handles both remote URLs and local file paths.
+ *
+ * @param base - The base path (can be a URL or local file path)
+ * @param relativePath - The relative path to resolve against the base
+ * @returns The resolved absolute path
+ * @example
+ * // Resolve remote URL
+ * resolveReferencePath('https://example.com/api/schema.json', 'user.json')
+ * // Returns: 'https://example.com/api/user.json'
+ *
+ * // Resolve local path
+ * resolveReferencePath('/path/to/schema.json', 'user.json')
+ * // Returns: '/path/to/user.json'
+ */
+function resolveReferencePath(base: string, relativePath: string) {
+  if (isRemoteUrl(relativePath)) {
+    return relativePath
+  }
+
+  if (isRemoteUrl(base)) {
+    const url = new URL(base)
+
+    const mergedPath = path.join(path.dirname(url.pathname), relativePath)
+    return new URL(mergedPath, base).toString()
+  }
+
+  return path.join(path.dirname(base), relativePath)
+}
+
+/**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and replaces any external $ref
  * references with their actual content. External references can be URLs or local files.
@@ -155,7 +187,7 @@ export function bundle(input: UnknownObject) {
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
 
-  const bundler = async (root: any, targetKey: string = null) => {
+  const bundler = async (root: any, targetKey: string = null, origin: string = '') => {
     if (!root || !isObject(root)) {
       return
     }
@@ -182,12 +214,16 @@ export function bundle(input: UnknownObject) {
 
           const [prefix, path = ''] = ref.split('#', 2)
 
-          if (!cache.has(prefix)) {
-            cache.set(prefix, resolveRef(prefix))
+          // Combine the current origin with the new path to resolve relative references
+          // correctly within the context of the external file being processed
+          const resolvedPath = resolveReferencePath(origin, prefix)
+
+          if (!cache.has(resolvedPath)) {
+            cache.set(resolvedPath, resolveRef(resolvedPath))
           }
 
-          // Resolve the remote ref
-          const result = await cache.get(prefix)
+          // Resolve the remote document
+          const result = await cache.get(resolvedPath)
 
           if (result.ok) {
             // Dereference the remote document to resolve any internal references before extracting the target segment.
@@ -200,7 +236,7 @@ export function bundle(input: UnknownObject) {
             // we need to run the bundler again specifically on this key to handle any nested
             // references that might exist within the resolved content. This targeted approach
             // prevents unnecessary traversal of unrelated parts of the object tree.
-            return bundler(root, key)
+            return bundler(root, key, resolvedPath)
           }
 
           console.warn(
@@ -208,7 +244,7 @@ export function bundle(input: UnknownObject) {
           )
         }
 
-        await bundler(root[key])
+        await bundler(root[key], null, origin)
       }),
     )
   }

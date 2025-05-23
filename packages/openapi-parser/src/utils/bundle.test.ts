@@ -166,6 +166,72 @@ describe('bundle', () => {
 
       expect(input.a).toEqual({ a: { c: 'c' }, b: { c: 'c' } })
     })
+
+    it('handles correctly external nested refs', async () => {
+      const PORT = 5578
+      const url = `http://localhost:${PORT}`
+
+      server.get('/nested/another-file.json', (_, reply) => {
+        reply.send({
+          c: 'c',
+        })
+      })
+
+      server.get('/nested/chunk1.json', (_, reply) => {
+        reply.send({
+          b: {
+            '$ref': './another-file.json#',
+          },
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          '$ref': `${url}/nested/chunk1.json#`,
+        },
+      }
+      await bundle(input)
+
+      expect(input.a).toEqual({
+        b: {
+          c: 'c',
+        },
+      })
+    })
+
+    it('does not merge paths when we use absolute urls', async () => {
+      const PORT = 5579
+      const url = `http://localhost:${PORT}`
+
+      server.get('/top-level', (_, reply) => {
+        reply.send({
+          c: 'c',
+        })
+      })
+
+      server.get('/nested/chunk1.json', (_, reply) => {
+        reply.send({
+          b: {
+            '$ref': `${url}/top-level#`,
+          },
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          '$ref': `${url}/nested/chunk1.json`,
+        },
+      }
+
+      await bundle(input)
+      expect(input.a).toEqual({
+        b: {
+          c: 'c',
+        },
+      })
+    })
   })
 
   describe('local files', () => {
@@ -232,6 +298,38 @@ describe('bundle', () => {
       await fs.rm(chunk2Path)
 
       expect(input.a).toEqual(chunk1)
+    })
+
+    it('resolves nested refs correctly', async () => {
+      const c = {
+        c: 'c',
+      }
+      const cName = randomUUID()
+
+      const b = {
+        b: {
+          '$ref': `./${cName}`,
+        },
+      }
+      const bName = randomUUID()
+
+      await fs.mkdir('./nested')
+      await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
+      await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
+
+      const input = {
+        a: {
+          '$ref': `./nested/${bName}`,
+        },
+      }
+
+      await bundle(input)
+
+      await fs.rm(`./nested/${bName}`)
+      await fs.rm(`./nested/${cName}`)
+      await fs.rmdir('nested')
+
+      expect(input.a).toEqual({ b: { c: 'c' } })
     })
   })
 })
