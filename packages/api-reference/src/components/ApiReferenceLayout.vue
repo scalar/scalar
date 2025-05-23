@@ -299,7 +299,7 @@ const themeStyleTag = computed(
     <!-- Header -->
     <div class="references-header">
       <slot
-        v-bind="{ ...referenceSlotProps }"
+        v-bind="referenceSlotProps"
         name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
@@ -316,12 +316,12 @@ const themeStyleTag = computed(
             :tagsSorter="configuration.tagsSorter">
             <template #sidebar-start>
               <slot
-                v-bind="{ ...referenceSlotProps }"
+                v-bind="referenceSlotProps"
                 name="sidebar-start" />
             </template>
             <template #sidebar-end>
               <slot
-                v-bind="{ ...referenceSlotProps }"
+                v-bind="referenceSlotProps"
                 name="sidebar-end" />
             </template>
           </Sidebar>
@@ -334,7 +334,7 @@ const themeStyleTag = computed(
       class="references-editor">
       <div class="references-editor-textarea">
         <slot
-          v-bind="{ ...referenceSlotProps }"
+          v-bind="referenceSlotProps"
           name="editor" />
       </div>
     </div>
@@ -348,7 +348,7 @@ const themeStyleTag = computed(
           :parsedSpec="parsedDocument">
           <template #start>
             <slot
-              v-bind="{ ...referenceSlotProps }"
+              v-bind="referenceSlotProps"
               name="content-start" />
           </template>
           <template
@@ -363,7 +363,7 @@ const themeStyleTag = computed(
           </template>
           <template #end>
             <slot
-              v-bind="{ ...referenceSlotProps }"
+              v-bind="referenceSlotProps"
               name="content-end" />
           </template>
         </Content>
@@ -372,7 +372,7 @@ const themeStyleTag = computed(
         v-if="$slots.footer"
         class="references-footer">
         <slot
-          v-bind="{ ...referenceSlotProps }"
+          v-bind="referenceSlotProps"
           name="footer" />
       </div>
     </template>
