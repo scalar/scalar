@@ -2,7 +2,6 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-# Build the package with the BUILD_PLAYGROUND flag set
 RUN pnpm --filter @scalar-examples/galaxy build
 
 FROM node:20-bullseye-slim AS runner
@@ -19,6 +18,7 @@ RUN chown node:node /app
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/integrations/hono /app/integrations/hono
 COPY --from=builder /app/packages /app/packages
-WORKDIR /app/packages/galaxy
+
+WORKDIR /app/packages/mock-server
 
 CMD ["dumb-init", "node", "playground/dist/index.js"]

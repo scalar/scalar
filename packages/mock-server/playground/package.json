@@ -1,0 +1,56 @@
+{
+  "name": "@scalar-examples/galaxy",
+  "description": "Playground for Scalar Galaxy",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "private": true,
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/galaxy"
+  },
+  "keywords": [
+    "openapi",
+    "example",
+    "swagger",
+    "petstore"
+  ],
+  "version": "0.2.20",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-esbuild",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "devDependencies": {
+    "@hono/node-server": "^1.11.0",
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/hono-api-reference": "workspace:*",
+    "@scalar/mock-server": "workspace:*",
+    "@scalar/openapi-parser": "workspace:*",
+    "vite": "catalog:*",
+    "@types/node": "catalog:*"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  }
+}
