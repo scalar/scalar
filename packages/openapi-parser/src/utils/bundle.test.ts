@@ -36,7 +36,7 @@ describe('bundle', () => {
           },
         },
         d: {
-          '$ref': `http://localhost:${PORT}/#/prop`,
+          '$ref': `http://localhost:${PORT}#/prop`,
         },
       }
 
@@ -60,7 +60,7 @@ describe('bundle', () => {
           hello: 'hello',
         },
         b: {
-          '$ref': `${url}/chunk2/#`,
+          '$ref': `${url}/chunk2#`,
         },
       }
 
@@ -76,7 +76,7 @@ describe('bundle', () => {
         a: {
           b: {
             c: {
-              '$ref': `${url}/chunk1/#`,
+              '$ref': `${url}/chunk1#`,
             },
           },
         },
@@ -84,6 +84,29 @@ describe('bundle', () => {
 
       await bundle(input)
       expect(input.a.b.c).toEqual({ ...chunk1, b: chunk2 })
+    })
+
+    it('should correctly handle only urls without a pointer', async () => {
+      const PORT = 5678
+      const url = `http://localhost:${PORT}`
+
+      server.get('/', (_, reply) => {
+        reply.send({
+          a: 'a',
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          b: {
+            '$ref': `${url}`,
+          },
+        },
+      }
+
+      await bundle(input)
+      expect(input.a.b).toEqual({ a: 'a' })
     })
 
     it('caches results for same resource', async () => {
@@ -103,10 +126,10 @@ describe('bundle', () => {
 
       const input = {
         a: {
-          '$ref': `${url}/#/a`,
+          '$ref': `${url}#/a`,
         },
         b: {
-          '$ref': `${url}/#/b`,
+          '$ref': `${url}#/b`,
         },
       }
 
@@ -129,22 +152,21 @@ describe('bundle', () => {
 
       const input = {
         a: {
-          '$ref': `./${chunk1Path}/#/a`,
+          '$ref': `./${chunk1Path}#/a`,
         },
       }
 
       await bundle(input)
+      await fs.rm(chunk1Path)
 
       expect(input.a).toBe('a')
-
-      await fs.rm(chunk1Path)
     })
 
     it('resolves external refs from resolved files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
 
-      const chunk2 = { a: { '$ref': `./${chunk1Path}/#` } }
+      const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
       const chunk2Path = randomUUID()
 
       await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
@@ -152,15 +174,15 @@ describe('bundle', () => {
 
       const input = {
         a: {
-          '$ref': `./${chunk2Path}/#`,
+          '$ref': `./${chunk2Path}#`,
         },
       }
 
       await bundle(input)
-      expect(input.a).toEqual({ a: chunk1 })
-
       await fs.rm(chunk1Path)
       await fs.rm(chunk2Path)
+
+      expect(input.a).toEqual({ a: chunk1 })
     })
   })
 })
@@ -270,13 +292,12 @@ describe('readFile', () => {
     await fs.writeFile(path, JSON.stringify(contents))
 
     const result = await readFile(path)
+    await fs.rm(path)
 
     expect(result.ok).toBe(true)
     assert(result.ok === true)
 
     expect(result.data).toEqual(contents)
-
-    await fs.rm(path)
   })
 
   it('returns error for non-json content', async () => {
@@ -284,10 +305,9 @@ describe('readFile', () => {
     await fs.writeFile(path, '<Non JSON content>')
 
     const result = await readFile(path)
+    await fs.rm(path)
 
     expect(result.ok).toBe(false)
-
-    await fs.rm(path)
   })
 
   it('returns error for non-existent file', async () => {

@@ -192,7 +192,7 @@ export function bundle(input: UnknownObject) {
             return
           }
 
-          const [prefix, path] = ref.split('/#', 2)
+          const [prefix, path = ''] = ref.split('#', 2)
 
           if (!cache.has(prefix)) {
             cache.set(prefix, resolveRef(prefix))
