@@ -1,2 +1,1 @@
-export * from './Validator'
-export * from '../../utils/resolveReferences'
+export { Validator } from './Validator'

@@ -1,1 +1,1 @@
-export * from './load'
+export { load, type LoadPlugin, type LoadOptions } from './load'

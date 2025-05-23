@@ -2,7 +2,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { load, validate } from '../../../../src/index'
-import { readFiles } from '../../../../src/plugins/read-files/readFiles'
+import { readFiles } from '../../../../src/plugins/read-files/read-files'
 
 const EXAMPLE_FILE = path.join(
   new URL(import.meta.url).pathname,

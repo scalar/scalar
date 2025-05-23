@@ -1,8 +1,8 @@
-import type { AnyApiDefinitionFormat, DereferenceResult, Filesystem } from '../types/index'
+import type { AnyApiDefinitionFormat, DereferenceResult, Filesystem } from '@/types/index'
 import { details } from './details'
-import { getEntrypoint } from './getEntrypoint'
-import { makeFilesystem } from './makeFilesystem'
-import { type ResolveReferencesOptions, resolveReferences } from './resolveReferences'
+import { getEntrypoint } from './get-entrypoint'
+import { makeFilesystem } from './make-filesystem'
+import { type ResolveReferencesOptions, resolveReferences } from './resolve-references'
 
 export type DereferenceOptions = ResolveReferencesOptions
 

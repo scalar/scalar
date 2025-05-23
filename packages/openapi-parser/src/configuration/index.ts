@@ -1,6 +1,6 @@
-import Swagger20 from '../schemas/v2.0/schema'
-import OpenApi30 from '../schemas/v3.0/schema'
-import OpenApi31 from '../schemas/v3.1/schema'
+import Swagger20 from '@/schemas/v2.0/schema'
+import OpenApi30 from '@/schemas/v3.0/schema'
+import OpenApi31 from '@/schemas/v3.1/schema'
 
 /**
  * A list of the supported OpenAPI specifications

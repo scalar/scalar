@@ -1,1 +1,1 @@
-export * from './fetchUrls'
+export { fetchUrls, fetchUrlsDefaultConfiguration } from './fetch-urls'

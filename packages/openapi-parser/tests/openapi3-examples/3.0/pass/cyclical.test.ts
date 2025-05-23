@@ -1,6 +1,7 @@
+import { getListOfReferences } from '@/utils/get-list-of-references'
+import { validate } from '@/utils/validate'
 import { describe, expect, it } from 'vitest'
 
-import { getListOfReferences, validate } from '../../../../src/index'
 
 describe('cyclical', () => {
   it('resolves circular references', async () => {

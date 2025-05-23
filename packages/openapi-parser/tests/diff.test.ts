@@ -2,7 +2,9 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { diff } from 'just-diff'
 import { expect, test } from 'vitest'
 
-import { type AnyObject, normalize, openapi } from '../src/index'
+import { load, normalize } from '../src/index'
+import type { AnyObject } from '../src/types'
+import { dereference } from '../src/utils/dereference'
 
 const expectedErrors = {
   'oas/files/opensuseorgobs.yaml': [
@@ -96,7 +98,8 @@ test.concurrent.each(fetched)('diff $file', async ({ file, content }) => {
     console.error('[@apidevtools/swagger-parser]', error.message)
   })) as any
 
-  const { schema: newSchema, errors } = await openapi().load(structuredClone(specification)).dereference().get()
+  const { filesystem } = await load(structuredClone(specification))
+  const { schema: newSchema, errors } = await dereference(filesystem)
 
   // Errors expected
   if (expectedErrors[file]) {

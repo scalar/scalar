@@ -3,7 +3,7 @@ import { bench, describe, expect } from 'vitest'
 // import { upgrade as upgradeOld } from './slow/upgrade'
 // import { upgradeFromTwoToThree as upgradeFromTwoToThreeOld } from './slow/upgradeFromTwoToThree'
 import { upgrade } from './upgrade'
-import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
+import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
 // Setup the test data
 const STRIPE = await fetch(

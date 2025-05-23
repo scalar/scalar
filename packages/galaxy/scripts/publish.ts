@@ -1,4 +1,4 @@
-import { openapi } from '@scalar/openapi-parser'
+import { normalize, toJson } from '@scalar/openapi-parser'
 import fs from 'node:fs'
 
 // Get the package meta data
@@ -23,8 +23,8 @@ const version = fs.readFileSync('dist/3.1.yaml', 'utf-8')
 const latest = fs.readFileSync('dist/latest.yaml', 'utf-8')
 
 // Copy the base files into JSON format as well
-const versionOut = await openapi().load(version).toJson()
-const latestOut = await openapi().load(latest).toJson()
+const versionOut = toJson(normalize(version))
+const latestOut = toJson(normalize(latest))
 
 fs.writeFileSync('./dist/3.1.json', versionOut)
 fs.writeFileSync('./dist/latest.json', latestOut)
