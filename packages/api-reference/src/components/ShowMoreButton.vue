@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 
+import { useSidebar } from '@/features/Sidebar'
 import { useConfig } from '@/hooks/useConfig'
-import { useSidebar } from '@/hooks/useSidebar'
 
 const { id } = defineProps<{
   id: string

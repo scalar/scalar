@@ -6,8 +6,8 @@ import { computed, nextTick, ref, useId } from 'vue'
 import Tag from '@/components/Content/Tag/Tag.vue'
 import { SectionContainer } from '@/components/Section'
 import ShowMoreButton from '@/components/ShowMoreButton.vue'
+import { useSidebar } from '@/features/Sidebar'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 
 const props = defineProps<{
   id?: string

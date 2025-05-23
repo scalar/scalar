@@ -1,13 +1,13 @@
-import { lazyBus } from '@/components/Content/Lazy/lazyBus'
 import { scrollToId } from '@/helpers/scroll-to-id'
-import { useNavState } from '@/hooks/useNavState'
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
-import { getModels, hasModels, hasWebhooks } from '@/libs/openapi'
 import { isOperationDeprecated } from '@/libs/openapi'
+import { getModels, hasModels, hasWebhooks } from '@/libs/openapi'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed, reactive, ref, watch } from 'vue'
+import { lazyBus } from '../../components/Content/Lazy/lazyBus'
+import { useNavState } from '../useNavState'
 
 export type SidebarEntry = {
   id: string
@@ -177,7 +177,7 @@ const items = computed(() => {
                   id,
                   title,
                   httpVerb: operation.httpVerb,
-                  // TODO: Workaround until we’re using the store directly
+                  // TODO: Workaround until we're using the store directly
                   deprecated: operation.information
                     ? isOperationDeprecated({
                         deprecated: operation.information?.deprecated,
@@ -199,7 +199,7 @@ const items = computed(() => {
             id,
             title,
             httpVerb: operation.httpVerb,
-            // TODO: Workaround until we’re using the store directly
+            // TODO: Workaround until we're using the store directly
             deprecated: operation.information
               ? isOperationDeprecated({
                   deprecated: operation.information?.deprecated,
@@ -266,12 +266,12 @@ const items = computed(() => {
           if (tagName === 'models' && modelEntries.length > 0) {
             // Add default models entry to the group
             children.push(modelEntries[0])
-            // Don’t show default models entry
+            // Don't show default models entry
             modelEntries = []
           } else if (tagName === 'webhooks' && webhookEntries.length > 0) {
             // Add default webhooks entry to the group
             children.push(webhookEntries[0])
-            // Don’t show default webhooks entry
+            // Don't show default webhooks entry
             webhookEntries = []
           } else {
             const tag = operationEntries?.find((entry) => entry.title === tagName)
@@ -357,6 +357,8 @@ export const scrollToOperation = (operationId: string, focus?: boolean) => {
 
 /**
  * Provides the sidebar state and methods to control it.
+ *
+ * @deprecated We want to use the new useSidebar from @/features/Content
  */
 export function useSidebar(options?: ParsedSpecOption & SorterOption) {
   Object.assign(optionsRef, options)
@@ -367,7 +369,6 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
   const { hash, getSectionId, getTagId } = _navState
 
   if (options?.parsedSpec) {
-    console.trace('CREATE WITH PARSED SPEC')
     setParsedSpec(options.parsedSpec)
 
     // Open the first tag section by default OR specific section from hash

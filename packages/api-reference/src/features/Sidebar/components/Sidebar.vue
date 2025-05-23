@@ -1,18 +1,30 @@
 <script setup lang="ts">
-import type { Spec } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
-import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
-import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
 import { useSidebar, type SortOptions } from '@/features/Sidebar'
 import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
 
+import SidebarElement from './SidebarElement.vue'
+import SidebarGroup from './SidebarGroup.vue'
+
+const { content, tagSort, operationSort } = defineProps<
+  {
+    // TODO: Make sure to upgrade it to OpenAPIV3_1.Document
+    // content: OpenAPIV3_1.Document
+  } & SortOptions
+>()
+
 const { hash, isIntersectionEnabled } = useNavState()
 
-// TODO: Use dereferenced document instead
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
   useSidebar()
+// {
+//   content,
+//   tagSort,
+//   operationSort,
+// },
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -97,10 +109,10 @@ onMounted(() => {
 <template>
   <div class="sidebar">
     <slot name="sidebar-start" />
-    <!-- TODO: Bring back the title here: -->
+    <!-- TODO: Bring back title -->
+    <!-- :aria-label="`Table of contents for ${content.info?.title}`" -->
     <nav
       ref="scrollerEl"
-      :aria-label="`Table of contents for ${parsedSpec?.info?.title}`"
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template

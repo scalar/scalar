@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { upgrade } from '@scalar/openapi-parser'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'

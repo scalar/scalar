@@ -39,12 +39,16 @@ import {
 
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
-import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
+import {
+  createSidebar,
+  Sidebar,
+  SIDEBAR_SYMBOL,
+  useSidebar,
+} from '@/features/Sidebar'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
@@ -99,9 +103,33 @@ const {
   setCollapsedSidebarItem,
   hideModels,
   defaultOpenAllTags,
-  setParsedSpec,
+  // setParsedSpec,
   scrollToOperation,
-} = useSidebar()
+} = useSidebar({
+  // TODO: Use dereferenced document instead
+  content: {
+    openapi: '3.1.1',
+    info: {
+      title: 'API Reference',
+      version: '1.0.0',
+    },
+    paths: {
+      '/': {
+        get: {
+          summary: 'Get the root',
+          responses: {
+            '200': { description: 'OK' },
+          },
+        },
+      },
+    },
+    components: {},
+    tags: [],
+  },
+  // TODO: Add those
+  // tagSort: props.tagSort,
+  // operationSort: props.operationSort,
+})
 
 const {
   getReferenceId,
@@ -130,7 +158,8 @@ onBeforeMount(() => updateHash())
 
 // Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
-  isIntersectionEnabled.value = false
+  // TODO: Bring back
+  // isIntersectionEnabled.value = false
   updateHash()
 
   if (id) {
@@ -140,7 +169,8 @@ const scrollToSection = async (id?: string) => {
   }
 
   await sleep(100)
-  isIntersectionEnabled.value = true
+  // TODO: Bring back
+  // isIntersectionEnabled.value = true
 }
 
 const yPosition = ref(0)
@@ -203,9 +233,6 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 onUnmounted(() => {
   downloadEventBus.reset()
 })
-
-// Keep the parsed spec up to date
-watch(() => props.parsedSpec, setParsedSpec, { deep: true })
 
 // Initialize the server state
 onServerPrefetch(() => {
