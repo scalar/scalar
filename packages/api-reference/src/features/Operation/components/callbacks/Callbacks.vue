@@ -13,7 +13,7 @@ const { callbacks, collection, schemas } = defineProps<{
 </script>
 
 <template>
-  <div class="mt-6 gap-3 divide-y divide-solid">
+  <div class="mt-6 gap-3">
     <div class="text-c-1 my-3 text-lg font-medium">Callbacks</div>
 
     <!-- Loop over names -->
