@@ -131,9 +131,9 @@ const displayType = computed(() => {
   return value?.type ?? ''
 })
 
-/** Format the type and model name with array suffix */
+/** Format the type and model name */
 const formatTypeWithModel = (type: string, modelName: string) => {
-  return `${type} ${modelName}[]`
+  return type === 'array' ? `${type} ${modelName}[]` : `${type} ${modelName}`
 }
 
 /** Gets the model name */
@@ -143,7 +143,7 @@ const modelName = computed(() => {
   }
 
   // Handle array types with item references
-  if (value.items?.type) {
+  if (value.type === 'array' && value.items?.type) {
     const itemModelName =
       getModelNameFromSchema(value.items) || value.items.type
     return formatTypeWithModel(value.type, itemModelName)
