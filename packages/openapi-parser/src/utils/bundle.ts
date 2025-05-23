@@ -179,7 +179,7 @@ export function bundle(input: UnknownObject) {
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
 
-  const bundler = async (root: any) => {
+  const bundler = async (root: any, targetKey: string = null) => {
     if (!root || !isObject(root)) {
       return
     }
@@ -187,6 +187,13 @@ export function bundle(input: UnknownObject) {
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
         if (!isObject(value)) {
+          return
+        }
+
+        // Skip processing other keys when we're targeting a specific key.
+        // This optimization prevents unnecessary traversal of unrelated branches
+        // when we only need to process a specific part of the object tree.
+        if (targetKey !== null && targetKey !== key) {
           return
         }
 
@@ -212,11 +219,17 @@ export function bundle(input: UnknownObject) {
             // when merged into the final bundled document.
             const dereferencedResult = await dereference(result.data)
             root[key] = getNestedValue(dereferencedResult.schema, getSegmentsFromPath(path))
-          } else {
-            console.warn(
-              `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
-            )
+
+            // After resolving an external reference and replacing the $ref with its content,
+            // we need to run the bundler again specifically on this key to handle any nested
+            // references that might exist within the resolved content. This targeted approach
+            // prevents unnecessary traversal of unrelated parts of the object tree.
+            return bundler(root, key)
           }
+
+          console.warn(
+            `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
+          )
         }
 
         await bundler(root[key])

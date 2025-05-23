@@ -209,6 +209,30 @@ describe('bundle', () => {
 
       expect(input.a).toEqual({ a: chunk1 })
     })
+
+    it('should correctly handle refs that points to refs', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = randomUUID()
+
+      const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
+      const chunk2Path = randomUUID()
+
+      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+      await fs.writeFile(chunk2Path, JSON.stringify(chunk2))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk2Path}#/a`,
+        },
+      }
+
+      await bundle(input)
+
+      await fs.rm(chunk1Path)
+      await fs.rm(chunk2Path)
+
+      expect(input.a).toEqual(chunk1)
+    })
   })
 })
 
