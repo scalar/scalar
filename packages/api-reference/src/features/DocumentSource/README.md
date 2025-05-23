@@ -99,7 +99,6 @@ const {
 watch(dereferencedDocument, (doc) => {
   if (doc) {
     // Use the fully dereferenced document
-    console.log(doc.paths)
   }
 })
 ```

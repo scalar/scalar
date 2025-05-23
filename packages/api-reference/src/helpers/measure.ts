@@ -26,7 +26,7 @@ export function measure<T>(name: string, fn: () => T | Promise<T>): T | Promise<
   const end = performance.now()
   const duration = Math.round(end - start)
 
-  console.log(`${name}: ${duration} ms`)
+  console.info(`${name}: ${duration} ms`)
 
   return result
 }

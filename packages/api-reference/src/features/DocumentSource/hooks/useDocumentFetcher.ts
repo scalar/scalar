@@ -51,7 +51,7 @@ const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string
     try {
       const result = await measure(`fetch(${url})`, async () => await fetchDocument(url, proxyUrl))
 
-      console.log('size:', Math.round(result.length / 1024), 'kB')
+      console.info('size:', Math.round(result.length / 1024), 'kB')
 
       return result
     } catch (error) {
