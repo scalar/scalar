@@ -312,7 +312,10 @@ button.schema-card-title:hover {
 .schema-properties-open > .schema-card-title--compact {
   position: static;
 }
-.property--level-0 .schema-card--level-0 .schema-properties {
+.property--level-0
+  > .schema-properties
+  > .schema-card--level-0
+  > .schema-properties {
   border: none;
 }
 .property--level-0
