@@ -342,7 +342,6 @@ const themeStyleTag = computed(
       '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
     }"
     @scroll.passive="debouncedScroll">
-    <div>deref:{{ !!dereferencedDocument }}</div>
     <!-- Header -->
     <div class="references-header">
       <slot
