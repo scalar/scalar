@@ -181,6 +181,11 @@ const modelName = computed(() => {
         name="name" />
       <template v-else>&sol;<slot name="name" />&sol;</template>
     </div>
+    <div
+      v-if="value?.isDiscriminator"
+      class="property-discriminator">
+      Discriminator
+    </div>
     <template v-if="value">
       <SchemaPropertyDetail v-if="value?.type">
         <ScreenReader>Type:</ScreenReader>
@@ -357,6 +362,12 @@ const modelName = computed(() => {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-green);
 }
+
+.property-discriminator {
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-purple);
+}
+
 .property-detail {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-2);
