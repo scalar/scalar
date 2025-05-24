@@ -14,6 +14,15 @@
 
 /* Use :where to lower specificity */
 :where(.scalar-app) {
+  /* Apply styles that are normally applied to `html`. */
+  font-family: var(--scalar-font);
+  line-height: 1.15;
+  color: var(--scalar-color-1);
+
+  -webkit-text-size-adjust: 100%;
+  -moz-tab-size: 4;
+  tab-size: 4;
+
   *,
   *:before,
   *:after {
@@ -138,13 +147,4 @@
   [hidden] {
     display: none;
   }
-}
-
-/** Add some more things which are normally applied to `html`. */
-:where(.scalar-app) {
-  font-family: var(--scalar-font);
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  -moz-tab-size: 4;
-  tab-size: 4;
 }

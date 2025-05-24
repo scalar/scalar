@@ -1,49 +1,18 @@
-/* Source client files */
-@source "./";
+/* Tailwind Base Theme */
+@import "tailwindcss/theme.css" layer(scalar-base);
 
-/** Client Specific Utilities */
+/* Scalar Base Theme */
+@import "@scalar/themes/tailwind/theme.css" layer(scalar-base);
+@import "@scalar/themes/tailwind/variants.css";
+@import "@scalar/themes/tailwind/utilities.css";
 
-/**
- * App Drag Region Utility Classes
- * @see https://www.electronjs.org/docs/latest/tutorial/window-customization#set-custom-draggable-region
- */
-@utility app-drag-region {
-  /** Enable dragging for a region (e.g. for the window title bar) */
-  -webkit-app-region: drag;
+.scalar-client {
+  line-height: 1.5;
+  color: var(--scalar-color-1);
+
+  /* Utilities need to exist outside a layer */
+  @import "tailwindcss/utilities.css";
 }
 
-@utility app-no-drag-region {
-  /** Disable dragging for a region (e.g. for clickable elements) */
-  -webkit-app-region: no-drag;
-}
-
-/**
- * Floating background (e.g. for hoverable auth flows)
- */
-@utility floating-bg {
-  &::before {
-    background-color: var(--scalar-background-2);
-    border-radius: var(--scalar-radius);
-    content: "";
-    height: calc(100% - 4px);
-    left: -4px;
-    opacity: 0;
-    position: absolute;
-    top: 2.5px;
-    transition: opacity 0.2s ease-in-out;
-    width: calc(100% + 8px);
-    z-index: 1;
-  }
-  &:hover::before {
-    opacity: 1;
-  }
-}
-
-/** Desktop Variants */
-@custom-variant desktop (.app-platform-desktop &);
-@custom-variant mac (.app-platform-mac &);
-@custom-variant windows (.app-platform-windows &);
-@custom-variant linux (.app-platform-linux &);
-
-/* Plugins */
-@plugin "@headlessui/tailwindcss";
+@import "@scalar/components/tailwind.css";
+@import "./tailwind.config.css";

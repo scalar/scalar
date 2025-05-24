@@ -23,7 +23,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "scalar-build-vite && pnpm build:tw",
+    "build:tw": "vite build -c vite.tw.config.ts",
     "dev": "pnpm playground:app",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
@@ -188,7 +189,9 @@
       "types": "./dist/views/Request/types/index.d.ts",
       "default": "./dist/views/Request/types/index.js"
     },
-    "./tailwind.css": "./src/tailwind.css"
+    "./bundled.css": "./dist/style.css",
+    "./tailwind.css": "./dist/tailwind.css",
+    "./tailwind.config.css": "./src/tailwind.config.css"
   },
   "files": [
     "dist",

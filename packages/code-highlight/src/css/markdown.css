@@ -3,7 +3,6 @@
 .scalar-app {
   .markdown {
     font-family: var(--scalar-font);
-    color: var(--scalar-color-1);
     word-break: break-word;
   }
 

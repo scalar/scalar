@@ -7,14 +7,14 @@
 @import "@scalar/themes/tailwind/utilities.css";
 
 :where(.scalar-app) {
-  line-height: 1.5;
   color: var(--scalar-color-1);
 
   /* Utilities need to exist outside a layer */
   @import "tailwindcss/utilities.css";
 }
 
-@import "@scalar/components/style.css"; /* Components Scoped Styles */
+@import "@scalar/components/bundled.css"; /* Components Bundled Styles */
 @import "@scalar/components/tailwind.config.css"; /* Components Tailwind Config */
-@import "@scalar/api-client/tailwind.css";
+@import "@scalar/api-client/bundled.css"; /* API Client Bundled Styles */
+@import "@scalar/api-client/tailwind.config.css"; /* API Client Tailwind Config */
 @import "./tailwind.css";

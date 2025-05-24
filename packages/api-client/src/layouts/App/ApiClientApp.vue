@@ -117,7 +117,6 @@ const themeStyleTag = computed(
   </ScalarTeleportRoot>
 </template>
 <style>
-@import '@scalar/themes/style.css';
 @import '@/style.css';
 
 #scalar-client {

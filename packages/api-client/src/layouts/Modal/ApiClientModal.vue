@@ -96,8 +96,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style>
-@import '@scalar/components/style.css';
-@import '@/tailwind.css';
+@import '@/style.css';
 </style>
 
 <style scoped>

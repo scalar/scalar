@@ -424,7 +424,7 @@ const shouldShowItem = computed(() => {
             highlightClasses,
             isExactActive || isDefaultActive
               ? 'bg-sidebar-active-background text-sidebar-active transition-none'
-              : 'text-sidebar-c-2',
+              : 'text-sidebar-2',
           ]">
           <span class="line-clamp-1 w-full pl-2 font-medium break-all">
             {{ item.title || 'Untitled' }}
