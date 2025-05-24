@@ -118,11 +118,7 @@ export async function readFile(path: string): Promise<ResolveResult> {
  * await resolveRef('#/components/schemas/User')
  */
 async function resolveRef(ref: string): Promise<ResolveResult> {
-  if (isRemoteUrl(ref)) {
-    return fetchUrl(ref)
-  }
-
-  return readFile(ref)
+  return isRemoteUrl(ref) ? fetchUrl(ref) : readFile(ref)
 }
 
 /**
