@@ -33,8 +33,6 @@ const files = computed(() => {
     })[]
   > = {}
 
-  console.log(previewModules)
-
   for (const path in previewModules) {
     if (path) {
       const name = getNameFromPath(path)

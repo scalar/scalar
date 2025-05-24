@@ -4,7 +4,7 @@ const hasLoaded = ref(false)
 </script>
 <script lang="ts" setup>
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type {
   Spec,
   Tag as TagType,
@@ -218,7 +218,7 @@ onMounted(() => {
               <Anchor :id="getModelId({ name })">
                 <SectionHeaderTag :level="2">
                   {{
-                    (getModels(parsedSpec)?.[name] as OpenAPIV3.SchemaObject)
+                    (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)
                       .title ?? name
                   }}
                 </SectionHeaderTag>

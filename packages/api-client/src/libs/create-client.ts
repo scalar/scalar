@@ -150,7 +150,7 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || (!configuration.value.url && !configuration.value.content)) {
+  else if (!isReadOnly && !configuration.value.url && !configuration.value.content) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],

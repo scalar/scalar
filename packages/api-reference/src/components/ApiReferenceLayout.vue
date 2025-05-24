@@ -3,15 +3,12 @@ import { provideUseId } from '@headlessui/vue'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
-  createActiveEntitiesStore,
-  createWorkspaceStore,
   WORKSPACE_SYMBOL,
 } from '@scalar/api-client/store'
 import {
   addScalarClassesToHeadless,
   ScalarErrorBoundary,
 } from '@scalar/components'
-import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   getThemeStyles,
   hasObtrusiveScrollbars,
@@ -21,19 +18,17 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
-import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
   onMounted,
-  onServerPrefetch,
   onUnmounted,
   provide,
   ref,
+  toValue,
   useId,
-  useSSRContext,
   watch,
 } from 'vue'
 
@@ -41,6 +36,8 @@ import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
+import { useDocumentSource } from '@/features/DocumentSource'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -54,7 +51,12 @@ import type {
   ReferenceSlotProps,
 } from '@/types'
 
-const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
+const {
+  rawSpec,
+  configuration: providedConfiguration,
+  originalDocument: providedOriginalDocument,
+  dereferencedDocument: providedDereferencedDocument,
+} = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
 
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
@@ -65,7 +67,7 @@ defineEmits<{
 }>()
 
 const configuration = computed(() =>
-  apiReferenceConfigurationSchema.parse(props.configuration),
+  apiReferenceConfigurationSchema.parse(providedConfiguration),
 )
 
 // Configure Reference toasts to use vue-sonner
@@ -75,6 +77,23 @@ initializeToasts((message) => toast(message))
 defineOptions({
   inheritAttrs: false,
 })
+
+const {
+  originalDocument,
+  originalOpenApiVersion,
+  dereferencedDocument,
+  parsedDocument,
+  workspaceStore,
+  activeEntitiesStore,
+} = useDocumentSource({
+  configuration,
+  dereferencedDocument: providedDereferencedDocument,
+  originalDocument: providedOriginalDocument,
+})
+
+provide(OPENAPI_VERSION_SYMBOL, originalOpenApiVersion)
+provide(WORKSPACE_SYMBOL, workspaceStore)
+provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
 defineSlots<{
   [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
@@ -99,7 +118,7 @@ const {
   setCollapsedSidebarItem,
   hideModels,
   defaultOpenAllTags,
-  setParsedSpec,
+  // setParsedSpec,
   scrollToOperation,
 } = useSidebar()
 
@@ -155,11 +174,6 @@ onMounted(() => {
   // Prevent the browser from restoring scroll position on refresh
   history.scrollRestoration = 'manual'
 
-  // Enable the spec download event bus
-  downloadEventBus.on(({ filename }) => {
-    downloadDocument(props.rawSpec, filename)
-  })
-
   // Find scalar Y offset to support users who have tried to add their own headers
   const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
   const bcr = documentEl.value?.getBoundingClientRect()
@@ -197,52 +211,20 @@ const debouncedScroll = useDebounceFn((value) => {
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
-  spec: props.parsedSpec,
+  spec: parsedDocument.value,
 }))
 
-onUnmounted(() => {
-  downloadEventBus.reset()
-})
+// Download documents
+onMounted(() =>
+  downloadEventBus.on(({ filename }) => {
+    downloadDocument(
+      toValue(originalDocument) || toValue(rawSpec) || '',
+      filename,
+    )
+  }),
+)
 
-// Keep the parsed spec up to date
-watch(() => props.parsedSpec, setParsedSpec, { deep: true })
-
-// Initialize the server state
-onServerPrefetch(() => {
-  const ctx = useSSRContext<SSRState>()
-  if (!ctx) {
-    return
-  }
-
-  ctx.payload ||= { data: defaultStateFactory() }
-  ctx.payload.data ||= defaultStateFactory()
-
-  // Set initial hash value
-  if (configuration.value.pathRouting) {
-    const id = getPathRoutingId(ctx.url)
-    hash.value = id
-    ctx.payload.data.hash = id
-
-    // For sidebar items we need to reset the state as it persists between requests
-    // This is a temp hack, need to come up with a better solution
-    for (const key in collapsedSidebarItems) {
-      if (Object.hasOwn(collapsedSidebarItems, key)) {
-        delete collapsedSidebarItems[key]
-      }
-    }
-
-    if (id) {
-      setCollapsedSidebarItem(getSectionId(id), true)
-    } else {
-      const firstTag = props.parsedSpec.tags?.[0]
-      if (firstTag) {
-        setCollapsedSidebarItem(getTagId(firstTag), true)
-      }
-    }
-    ctx.payload.data['useSidebarContent-collapsedSidebarItems'] =
-      collapsedSidebarItems
-  }
-})
+onUnmounted(() => downloadEventBus.reset())
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -251,32 +233,6 @@ onServerPrefetch(() => {
  * @see https://github.com/tailwindlabs/headlessui/issues/2979
  */
 provideUseId(() => useId())
-
-// Create the workspace store and provide it
-const workspaceStore = createWorkspaceStore({
-  useLocalStorage: false,
-  ...configuration.value,
-})
-// Populate the workspace store
-watch(
-  () => props.rawSpec,
-  (spec) =>
-    spec &&
-    workspaceStore.importSpecFile(spec, 'default', {
-      shouldLoad: false,
-      documentUrl: configuration.value.spec?.url ?? configuration.value.url,
-      useCollectionSecurity: true,
-      ...configuration.value,
-    }),
-  { immediate: true },
-)
-
-provide(WORKSPACE_SYMBOL, workspaceStore)
-
-// Same for the active entities store
-const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
-provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
-
 // Provide the client layout
 provide(LAYOUT_SYMBOL, 'modal')
 
@@ -286,13 +242,9 @@ provide(CONFIGURATION_SYMBOL, configuration)
 provide(
   PLUGIN_MANAGER_SYMBOL,
   createPluginManager({
-    // TODO: Get plugins from the configuration
     plugins: configuration.value.plugins,
   }),
 )
-
-// ---------------------------------------------------------------------------/
-// HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
 
 /** Helper utility to map configuration props to the ApiReference internal state */
 function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
@@ -353,14 +305,14 @@ const themeStyleTag = computed(
     <!-- Navigation (sidebar) wrapper -->
     <aside
       v-if="configuration.showSidebar"
-      :aria-label="`Sidebar for ${parsedSpec.info?.title}`"
+      :aria-label="`Sidebar for ${dereferencedDocument?.info?.title}`"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
           <Sidebar
             :operationsSorter="configuration.operationsSorter"
-            :parsedSpec="parsedSpec"
+            :parsedSpec="parsedDocument"
             :tagsSorter="configuration.tagsSorter">
             <template #sidebar-start>
               <slot
@@ -389,11 +341,11 @@ const themeStyleTag = computed(
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
       <main
-        :aria-label="`Open API Documentation for ${parsedSpec.info?.title}`"
+        :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
         class="references-rendered">
         <Content
           :layout="configuration.layout"
-          :parsedSpec="parsedSpec">
+          :parsedSpec="parsedDocument">
           <template #start>
             <slot
               v-bind="referenceSlotProps"
@@ -426,7 +378,7 @@ const themeStyleTag = computed(
     </template>
     <ApiClientModal
       :configuration="configuration"
-      :parsedSpec="parsedSpec" />
+      :dereferencedDocument="dereferencedDocument" />
   </div>
   <ScalarToasts />
 </template>

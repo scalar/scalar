@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
   ApiReferenceLayout,
-  useReactiveSpec,
   type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
@@ -53,19 +52,10 @@ watch(
     document.body.classList.toggle('light-mode', !isDark)
   },
 )
-
-const { parsedSpec } = useReactiveSpec({
-  proxyUrl: () => configuration.proxyUrl ?? '',
-  specConfig: () => ({
-    content: content.value,
-  }),
-})
 </script>
 <template>
   <ApiReferenceLayout
     :configuration="configuration"
-    :parsedSpec="parsedSpec"
-    :rawSpec="content"
     @changeTheme="configuration.theme = $event.id"
     @updateContent="(v) => (content = v)">
     <template #header>

@@ -10,7 +10,10 @@ import { toRaw } from 'vue'
 /** Maps the specs by URL */
 export const specDictionary: Record<string, { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }> = {}
 
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ApiReferenceConfiguration, 'servers'>
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
+  Pick<ApiReferenceConfiguration, 'servers'> & {
+    dereferencedDocument?: OpenAPIV3_1.Document
+  }
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -24,7 +27,7 @@ export function importSpecFileFactory({
   workspaces,
 }: StoreContext) {
   const importSpecFile = async (
-    _spec: string | Record<string, any>,
+    _spec: string | Record<string, any> | undefined,
     workspaceUid: string,
     options: ImportSpecFileArgs = {},
   ) => {

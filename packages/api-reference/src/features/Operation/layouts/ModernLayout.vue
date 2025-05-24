@@ -5,6 +5,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, useId } from 'vue'
 

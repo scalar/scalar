@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import { normalize } from './normalize'
 
 describe('normalize', () => {
-  it('should return an empty object if the specification is null', () => {
-    expect(normalize(null)).toEqual({})
+  it('returns undefined if the document is null', () => {
+    expect(normalize(null)).toEqual(undefined)
   })
 
   it('should return the same filesystem if the specification is already a filesystem', () => {
@@ -26,8 +26,8 @@ describe('normalize', () => {
   })
 
   it('should parse YAML string specifications', () => {
-    const yamlString = 'foo: bar'
-    expect(normalize(yamlString)).toEqual({ foo: 'bar' })
+    const yamlString = 'foo: bar\nbar: foo'
+    expect(normalize(yamlString)).toEqual({ foo: 'bar', bar: 'foo' })
   })
 
   it('should handle invalid YAML with custom maxAliasCount', () => {
@@ -45,17 +45,18 @@ describe('normalize', () => {
     expect(normalize(obj)).toBe(obj)
   })
 
-  it('should handle malformed JSON strings by falling back to YAML parsing', () => {
-    const malformedJson = '{ foo: "bar" }' // Missing quotes around property name
-    expect(normalize(malformedJson)).toEqual({ foo: 'bar' })
+  it('doesn’t freak out on invalid JSON strings ', () => {
+    // Missing quotes around property name
+    const malformedJson = '{ foo: "bar" }'
+    expect(normalize(malformedJson)).toEqual(undefined)
   })
 
   it('should handle empty string input', () => {
-    expect(normalize('')).toEqual({})
+    expect(normalize('')).toEqual(undefined)
   })
 
   it('should handle whitespace-only string input', () => {
-    expect(normalize('   ')).toEqual({})
+    expect(normalize('   ')).toEqual(undefined)
   })
 
   it('should handle complex nested structures', () => {

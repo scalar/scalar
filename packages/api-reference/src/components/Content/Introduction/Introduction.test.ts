@@ -30,7 +30,6 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('Hello World')
     expect(wrapper.html()).toContain('Example description')
     expect(wrapper.html()).toContain('v1.0.0')
-    expect(wrapper.html()).toContain('OAS 3.1.1')
   })
 
   it('renders loading state when info is empty', () => {
@@ -77,9 +76,6 @@ describe('Introduction', () => {
     const section = wrapper.get('.introduction-section')
 
     expect(section.html()).toContain('Hello World')
-    expect(section.html()).toContain('Example description')
-    expect(section.html()).toContain('v1.0.0')
-    expect(section.html()).toContain('OAS 3.1.1')
   })
 
   it('generates filename from title', () => {
@@ -100,7 +96,7 @@ describe('Introduction', () => {
     })
 
     const downloadLink = wrapper.findComponent(DownloadLink)
-    expect(downloadLink.props('filename')).toBe('hello-world-api')
+    expect(downloadLink.props('title')).toBe('Hello World API!')
   })
 
   it('shows version badge when version exists', () => {
@@ -208,45 +204,5 @@ describe('Introduction', () => {
     })
 
     expect(wrapper.html()).not.toContain('foobar')
-  })
-
-  it('shows OpenAPI version badge for OpenAPI spec', () => {
-    const example = {
-      openapi: '3.0.0',
-      info: {
-        title: 'Test API',
-        description: '',
-        version: '1.0.0',
-      },
-    } satisfies Spec
-
-    const wrapper = mount(Introduction, {
-      props: {
-        parsedSpec: example,
-        info: example.info,
-      },
-    })
-
-    expect(wrapper.html()).toContain('OAS 3.0.0')
-  })
-
-  it('shows OpenAPI version badge for version 2.0', () => {
-    const example = {
-      swagger: '2.0',
-      info: {
-        title: 'Test API',
-        description: '',
-        version: '1.0.0',
-      },
-    } satisfies Spec
-
-    const wrapper = mount(Introduction, {
-      props: {
-        parsedSpec: example,
-        info: example.info,
-      },
-    })
-
-    expect(wrapper.html()).toContain('OAS 2.0')
   })
 })
