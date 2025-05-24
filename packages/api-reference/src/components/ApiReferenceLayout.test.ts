@@ -8,7 +8,7 @@ import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
-    title: "GitHub's v3 REST API.",
+    title: 'GitHub v3 REST API',
     url: 'https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json',
     name: 'githubs-v3-rest-api-0.json',
   },
@@ -53,7 +53,7 @@ const EXAMPLE_API_DEFINITIONS = [
     name: 'outline-8.yaml',
   },
   {
-    title: 'Sentry',
+    title: 'API Reference',
     url: 'https://raw.githubusercontent.com/getsentry/sentry/refs/heads/master/api-docs/openapi.json',
     name: 'sentry-9.json',
   },

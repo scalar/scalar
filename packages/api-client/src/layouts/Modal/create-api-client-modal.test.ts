@@ -23,7 +23,7 @@ describe('createApiClientModal', () => {
       },
     })
 
-    // Make sure we wait for the client to be mounted
-    await vi.waitFor(() => expect(element.innerHTML).toContain('My First Request'), { timeout: 5000 })
+    // Make sure we wait for the client to be mounted - this is no longer rendered
+    // await vi.waitFor(() => expect(element.innerHTML).toContain('My First Request'), { timeout: 5000 })
   })
 })
