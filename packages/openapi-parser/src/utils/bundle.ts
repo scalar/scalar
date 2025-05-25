@@ -205,7 +205,7 @@ export function prefixInternalRef(input: string, prefix: string[]) {
  *     $ref: '#/components/schemas/User'
  *   }
  * }
- * updateInternalReferences(input, ['definitions'])
+ * prefixInternalRefRecursive(input, ['definitions'])
  * // Result:
  * // {
  * //   foo: {
@@ -214,12 +214,12 @@ export function prefixInternalRef(input: string, prefix: string[]) {
  * // }
  * ```
  */
-export function updateInternalReferences(input: unknown, prefix: string[]) {
+export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
   if (!isObject(input)) {
     return
   }
 
-  Object.values(input).forEach((el) => updateInternalReferences(el, prefix))
+  Object.values(input).forEach((el) => prefixInternalRefRecursive(el, prefix))
 
   if (typeof input === 'object' && '$ref' in input && typeof input['$ref'] === 'string') {
     const ref = input['$ref']
@@ -245,79 +245,76 @@ export function bundle(input: UnknownObject) {
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
 
+  // Initialize storage for external references using a custom OpenAPI extension key
   const EXTERNAL_KEY = 'x-external'
-
-  // Save all external files
   input[EXTERNAL_KEY] = {}
 
-  const bundler = async (root: any, targetKey: string = null, origin: string = '') => {
+  const bundler = async (root: any, origin: string = '') => {
     if (!root || !isObject(root)) {
       return
     }
 
+    if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
+      const ref = root['$ref']
+
+      if (isLocalRef(ref)) {
+        return
+      }
+
+      const [prefix, path = ''] = ref.split('#', 2)
+
+      // Combine the current origin with the new path to resolve relative references
+      // correctly within the context of the external file being processed
+      const resolvedPath = resolveReferencePath(origin, prefix)
+
+      if (!cache.has(resolvedPath)) {
+        cache.set(resolvedPath, resolveRef(resolvedPath))
+      }
+
+      // Resolve the remote document
+      const result = await cache.get(resolvedPath)
+
+      if (result.ok) {
+        // Update internal references in the resolved document to use the correct base path.
+        // When we embed external documents, their internal references need to be updated to
+        // maintain the correct path context relative to the main document. This is crucial
+        // because internal references in the external document are relative to its original
+        // location, but when embedded, they need to be relative to their new location in
+        // the main document's x-external section. Without this update, internal references
+        // would point to incorrect locations and break the document structure.
+        prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
+
+        // Store the external document in the main document's x-external key, using the escaped path as the key
+        // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
+        input[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+
+        // Update the $ref to point to the embedded document in x-external
+        // This is necessary because we need to maintain the correct path context
+        // for the embedded document while preserving its internal structure
+        root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
+
+        // After resolving an external reference, we need to recursively process the resolved content
+        // to handle any nested references it may contain. We pass the resolvedPath as the new origin
+        // to ensure any relative references within this content are resolved correctly relative to
+        // their new location in the bundled document.
+        return bundler(result.data, resolvedPath)
+      }
+
+      return console.warn(
+        `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
+      )
+    }
+
+    // Recursively process all child objects to handle nested references
+    // This ensures we catch and resolve any $refs that exist deeper in the object tree
+    // We skip EXTERNAL_KEY to avoid processing already bundled content
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
-        if (!isObject(value)) {
-          return
-        }
-
         if (key === EXTERNAL_KEY) {
           return
         }
 
-        // Skip processing other keys when we're targeting a specific key.
-        // This optimization prevents unnecessary traversal of unrelated branches
-        // when we only need to process a specific part of the object tree.
-        if (targetKey !== null && targetKey !== key) {
-          return
-        }
-
-        if (typeof value === 'object' && '$ref' in value && typeof value['$ref'] === 'string') {
-          const ref = value['$ref']
-
-          if (isLocalRef(ref)) {
-            return
-          }
-
-          const [prefix, path = ''] = ref.split('#', 2)
-
-          // Combine the current origin with the new path to resolve relative references
-          // correctly within the context of the external file being processed
-          const resolvedPath = resolveReferencePath(origin, prefix)
-
-          if (!cache.has(resolvedPath)) {
-            cache.set(resolvedPath, resolveRef(resolvedPath))
-          }
-
-          // Resolve the remote document
-          const result = await cache.get(resolvedPath)
-
-          if (result.ok) {
-            // Update all internal refs within the resolved document to use the correct base path.
-            // This is necessary because when we embed external documents, their internal references
-            // need to be updated to maintain the correct path context relative to the main document.
-            // Without this update, internal references would break when the document is embedded.
-            updateInternalReferences(result.data, [EXTERNAL_KEY, resolvedPath])
-
-            // Store the external document in the main document's x-external key
-            input[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
-
-            // Update the ref to point to the embed document
-            value.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
-
-            // After resolving an external reference and replacing the $ref with its content,
-            // we need to run the bundler again specifically on this key to handle any nested
-            // references that might exist within the resolved content. This targeted approach
-            // prevents unnecessary traversal of unrelated parts of the object tree.
-            return bundler(result.data, null, resolvedPath)
-          }
-
-          console.warn(
-            `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
-          )
-        }
-
-        await bundler(root[key], null, origin)
+        await bundler(value, origin)
       }),
     )
   }

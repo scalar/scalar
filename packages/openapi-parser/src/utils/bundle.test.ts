@@ -12,7 +12,7 @@ import {
   isRemoteUrl,
   prefixInternalRef,
   readFile,
-  updateInternalReferences,
+  prefixInternalRefRecursive,
 } from './bundle'
 
 describe('bundle', () => {
@@ -551,7 +551,7 @@ describe('prefixInternalRef', () => {
   })
 })
 
-describe('updateInternalReferences', () => {
+describe('prefixInternalRefRecursive', () => {
   it.each([
     [
       { a: { $ref: '#/a/b' }, b: { $ref: '#' } },
@@ -564,7 +564,7 @@ describe('updateInternalReferences', () => {
       { a: { $ref: '#/d/e/f/a/b' }, b: { $ref: 'http://example.com#/external' } },
     ],
   ])('recursively prefixes any internal ref with the correct values', (a, b, c) => {
-    updateInternalReferences(a, b)
+    prefixInternalRefRecursive(a, b)
     expect(a).toEqual(c)
   })
 })
