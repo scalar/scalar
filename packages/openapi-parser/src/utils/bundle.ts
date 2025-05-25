@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises'
-import path from 'node:path'
 import type { UnknownObject } from '../types'
 import { isObject } from './isObject'
 import { normalize } from './normalize'
 import { escapeJsonPointer } from './escapeJsonPointer'
+import path from '../polyfills/path'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
