@@ -1,10 +1,9 @@
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import type { UnknownObject } from '../types'
-import { getSegmentsFromPath } from './getSegmentsFromPath'
 import { isObject } from './isObject'
 import { normalize } from './normalize'
-import { dereference } from './dereference'
+import { escapeJsonPointer } from './escapeJsonPointer'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -171,6 +170,69 @@ function resolveReferencePath(base: string, relativePath: string) {
 }
 
 /**
+ * Prefixes an internal JSON reference with a given path prefix.
+ * Takes a local reference (starting with #) and prepends the provided prefix segments.
+ *
+ * @param input - The internal reference string to prefix (must start with #)
+ * @param prefix - Array of path segments to prepend to the reference
+ * @returns The prefixed reference string
+ * @throws Error if input is not a local reference
+ * @example
+ * prefixInternalRef('#/components/schemas/User', ['definitions'])
+ * // Returns: '#/definitions/components/schemas/User'
+ */
+export function prefixInternalRef(input: string, prefix: string[]) {
+  if (!isLocalRef(input)) {
+    throw 'Please provide an internal ref'
+  }
+
+  return `#/${prefix.map(escapeJsonPointer).join('/')}${input.substring(1)}`
+}
+
+/**
+ * Updates internal references in an object by adding a prefix to their paths.
+ * Recursively traverses the input object and modifies any local $ref references
+ * by prepending the given prefix to their paths. This is used when embedding external
+ * documents to maintain correct reference paths relative to the main document.
+ *
+ * @param input - The object to update references in
+ * @param prefix - Array of path segments to prepend to internal reference paths
+ * @returns void
+ * @example
+ * ```ts
+ * const input = {
+ *   foo: {
+ *     $ref: '#/components/schemas/User'
+ *   }
+ * }
+ * updateInternalReferences(input, ['definitions'])
+ * // Result:
+ * // {
+ * //   foo: {
+ * //     $ref: '#/definitions/components/schemas/User'
+ * //   }
+ * // }
+ * ```
+ */
+export function updateInternalReferences(input: unknown, prefix: string[]) {
+  if (!isObject(input)) {
+    return
+  }
+
+  Object.values(input).forEach((el) => updateInternalReferences(el, prefix))
+
+  if (typeof input === 'object' && '$ref' in input && typeof input['$ref'] === 'string') {
+    const ref = input['$ref']
+
+    if (!isLocalRef(ref)) {
+      return
+    }
+
+    return (input['$ref'] = prefixInternalRef(ref, prefix))
+  }
+}
+
+/**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and replaces any external $ref
  * references with their actual content. External references can be URLs or local files.
@@ -183,6 +245,11 @@ export function bundle(input: UnknownObject) {
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
 
+  const EXTERNAL_KEY = 'x-external'
+
+  // Save all external files
+  input[EXTERNAL_KEY] = {}
+
   const bundler = async (root: any, targetKey: string = null, origin: string = '') => {
     if (!root || !isObject(root)) {
       return
@@ -191,6 +258,10 @@ export function bundle(input: UnknownObject) {
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
         if (!isObject(value)) {
+          return
+        }
+
+        if (key === EXTERNAL_KEY) {
           return
         }
 
@@ -222,17 +293,23 @@ export function bundle(input: UnknownObject) {
           const result = await cache.get(resolvedPath)
 
           if (result.ok) {
-            // Dereference the remote document to resolve any internal references before extracting the target segment.
-            // This is necessary because local references within the remote document would become invalid
-            // when merged into the final bundled document.
-            const dereferencedResult = await dereference(result.data)
-            root[key] = getNestedValue(dereferencedResult.schema, getSegmentsFromPath(path))
+            // Update all internal refs within the resolved document to use the correct base path.
+            // This is necessary because when we embed external documents, their internal references
+            // need to be updated to maintain the correct path context relative to the main document.
+            // Without this update, internal references would break when the document is embedded.
+            updateInternalReferences(result.data, [EXTERNAL_KEY, resolvedPath])
+
+            // Store the external document in the main document's x-external key
+            input[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+
+            // Update the ref to point to the embed document
+            value.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
 
             // After resolving an external reference and replacing the $ref with its content,
             // we need to run the bundler again specifically on this key to handle any nested
             // references that might exist within the resolved content. This targeted approach
             // prevents unnecessary traversal of unrelated parts of the object tree.
-            return bundler(root, key, resolvedPath)
+            return bundler(result.data, null, resolvedPath)
           }
 
           console.warn(

@@ -4,7 +4,16 @@ import fs from 'node:fs/promises'
 import { afterEach } from 'node:test'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
-import { bundle, fetchUrl, getNestedValue, isLocalRef, isRemoteUrl, readFile } from './bundle'
+import {
+  bundle,
+  fetchUrl,
+  getNestedValue,
+  isLocalRef,
+  isRemoteUrl,
+  prefixInternalRef,
+  readFile,
+  updateInternalReferences,
+} from './bundle'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -19,7 +28,7 @@ describe('bundle', () => {
     })
 
     it('bundles external urls', async () => {
-      const PORT = 7789
+      const PORT = 6738
 
       const external = {
         prop: 'I am external json prop',
@@ -41,7 +50,17 @@ describe('bundle', () => {
       }
 
       await bundle(input)
-      expect(input.d).toBe(external.prop)
+      expect(input).toEqual({
+        'x-external': {
+          [`http:~1~1localhost:${PORT}`]: {
+            ...external,
+          },
+        },
+        ...input,
+        d: {
+          $ref: `#/x-external/http:~1~1localhost:${PORT}/prop`,
+        },
+      })
     })
 
     it('bundles external urls from resolved external piece', async () => {
@@ -83,7 +102,30 @@ describe('bundle', () => {
       }
 
       await bundle(input)
-      expect(input.a.b.c).toEqual({ ...chunk1, b: chunk2 })
+      expect(input).toEqual({
+        'x-external': {
+          [`http://localhost:${PORT}/chunk1`]: {
+            ...chunk1,
+            b: {
+              $ref: `#/x-external/http:~1~1localhost:${PORT}~1chunk2`,
+            },
+          },
+          [`http://localhost:${PORT}/chunk2`]: {
+            ...chunk2,
+            internal: `#/x-external/http:~1~1localhost:${PORT}~1chunk2/nested/key`,
+          },
+        },
+        ...input,
+        a: {
+          ...input.a,
+          b: {
+            ...input.a.b,
+            c: {
+              $ref: `#/x-external/http:~1~1localhost:${PORT}~1chunk1`,
+            },
+          },
+        },
+      })
     })
 
     it('should correctly handle only urls without a pointer', async () => {
@@ -106,7 +148,20 @@ describe('bundle', () => {
       }
 
       await bundle(input)
-      expect(input.a.b).toEqual({ a: 'a' })
+      expect(input).toEqual({
+        'x-external': {
+          [`http://localhost:${PORT}`]: {
+            a: 'a',
+          },
+        },
+        ...input,
+        a: {
+          ...input.a,
+          b: {
+            $ref: `#/x-external/http:~1~1localhost:${PORT}`,
+          },
+        },
+      })
     })
 
     it('caches results for same resource', async () => {
@@ -135,36 +190,24 @@ describe('bundle', () => {
 
       await bundle(input)
 
-      expect(input.a).toBe('a')
-      expect(input.b).toBe('b')
+      expect(input).toEqual({
+        'x-external': {
+          [`http://localhost:${PORT}`]: {
+            a: 'a',
+            b: 'b',
+          },
+        },
+        ...input,
+        a: {
+          $ref: `#/x-external/http:~1~1localhost:${PORT}/a`,
+        },
+        b: {
+          $ref: `#/x-external/http:~1~1localhost:${PORT}/b`,
+        },
+      })
 
       // We expect the bundler to cache the result for the same url
       expect(fn.mock.calls.length).toBe(1)
-    })
-
-    it('dereference the resolved documents before merging with the original document', async () => {
-      const PORT = 5627
-      const url = `http://localhost:${PORT}`
-      server.get('/', (_, reply) => {
-        reply.send({
-          a: {
-            '$ref': '#/b',
-          },
-          b: {
-            c: 'c',
-          },
-        })
-      })
-      await server.listen({ port: PORT })
-
-      const input = {
-        a: {
-          '$ref': url,
-        },
-      }
-      await bundle(input)
-
-      expect(input.a).toEqual({ a: { c: 'c' }, b: { c: 'c' } })
     })
 
     it('handles correctly external nested refs', async () => {
@@ -193,9 +236,20 @@ describe('bundle', () => {
       }
       await bundle(input)
 
-      expect(input.a).toEqual({
-        b: {
-          c: 'c',
+      expect(input).toEqual({
+        'x-external': {
+          [`http://localhost:${PORT}/nested/another-file.json`]: {
+            c: 'c',
+          },
+          [`http://localhost:${PORT}/nested/chunk1.json`]: {
+            b: {
+              $ref: `#/x-external/http:~1~1localhost:${PORT}~1nested~another-file.json`,
+            },
+          },
+        },
+        ...input,
+        a: {
+          $ref: `#/x-external/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
       })
     })
@@ -226,9 +280,20 @@ describe('bundle', () => {
       }
 
       await bundle(input)
-      expect(input.a).toEqual({
-        b: {
-          c: 'c',
+      expect(input).toEqual({
+        'x-external': {
+          [`http://localhost:${PORT}/top-level`]: {
+            c: 'c',
+          },
+          [`http://localhost:${PORT}/nested/chunk1.json`]: {
+            b: {
+              $ref: `#/x-external/http:~1~1localhost:${PORT}~top-level`,
+            },
+          },
+        },
+        ...input,
+        a: {
+          $ref: `#/x-external/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
       })
     })
@@ -250,7 +315,17 @@ describe('bundle', () => {
       await bundle(input)
       await fs.rm(chunk1Path)
 
-      expect(input.a).toBe('a')
+      expect(input).toEqual({
+        'x-external': {
+          [`${chunk1Path}`]: {
+            ...chunk1,
+          },
+        },
+        ...input,
+        a: {
+          $ref: `#/x-external/${chunk1Path}/a`,
+        },
+      })
     })
 
     it('resolves external refs from resolved files', async () => {
@@ -273,31 +348,20 @@ describe('bundle', () => {
       await fs.rm(chunk1Path)
       await fs.rm(chunk2Path)
 
-      expect(input.a).toEqual({ a: chunk1 })
-    })
-
-    it('should correctly handle refs that points to refs', async () => {
-      const chunk1 = { a: 'a', b: 'b' }
-      const chunk1Path = randomUUID()
-
-      const chunk2 = { a: { '$ref': `./${chunk1Path}#` } }
-      const chunk2Path = randomUUID()
-
-      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
-      await fs.writeFile(chunk2Path, JSON.stringify(chunk2))
-
-      const input = {
-        a: {
-          '$ref': `./${chunk2Path}#/a`,
+      expect(input).toEqual({
+        'x-external': {
+          [`${chunk1Path}`]: {
+            ...chunk1,
+          },
+          [`${chunk2Path}`]: {
+            a: { $ref: `#/x-external/${chunk1Path}` },
+          },
         },
-      }
-
-      await bundle(input)
-
-      await fs.rm(chunk1Path)
-      await fs.rm(chunk2Path)
-
-      expect(input.a).toEqual(chunk1)
+        ...input,
+        a: {
+          $ref: `#/x-external/${chunk2Path}`,
+        },
+      })
     })
 
     it('resolves nested refs correctly', async () => {
@@ -329,7 +393,20 @@ describe('bundle', () => {
       await fs.rm(`./nested/${cName}`)
       await fs.rmdir('nested')
 
-      expect(input.a).toEqual({ b: { c: 'c' } })
+      expect(input).toEqual({
+        'x-external': {
+          [`nested~1${cName}`]: {
+            c: 'c',
+          },
+          [`nested~1${bName}`]: {
+            a: { $ref: `#/x-external/.~1nested~1${cName}` },
+          },
+        },
+        ...input,
+        a: {
+          $ref: `#/x-external/nested~1${bName}`,
+        },
+      })
     })
   })
 })
@@ -458,5 +535,36 @@ describe('getNestedValue', () => {
     [{ foo: { bar: { baz: 42 } } }, ['foo', 'non-existing', 'baz'], undefined],
   ])('gets nested value', (a, b, c) => {
     expect(getNestedValue(a, b)).toEqual(c)
+  })
+})
+
+describe('prefixInternalRef', () => {
+  it.each([
+    ['#/hello', ['prefix'], '#/prefix/hello'],
+    ['#/a/b/c', ['prefixA', 'prefixB'], '#/prefixA/prefixB/a/b/c'],
+  ])('correctly prefix the internal refs', (a, b, c) => {
+    expect(prefixInternalRef(a, b)).toEqual(c)
+  })
+
+  it('throws when the ref is not internal', () => {
+    expect(() => prefixInternalRef('http://example.com#/prefix', ['a', 'b'])).toThrowError()
+  })
+})
+
+describe('updateInternalReferences', () => {
+  it.each([
+    [
+      { a: { $ref: '#/a/b' }, b: { $ref: '#' } },
+      ['d', 'e', 'f'],
+      { a: { $ref: '#/d/e/f/a/b' }, b: { $ref: '#/d/e/f' } },
+    ],
+    [
+      { a: { $ref: '#/a/b' }, b: { $ref: 'http://example.com#/external' } },
+      ['d', 'e', 'f'],
+      { a: { $ref: '#/d/e/f/a/b' }, b: { $ref: 'http://example.com#/external' } },
+    ],
+  ])('recursively prefixes any internal ref with the correct values', (a, b, c) => {
+    updateInternalReferences(a, b)
+    expect(a).toEqual(c)
   })
 })
