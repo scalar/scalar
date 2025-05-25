@@ -38,6 +38,10 @@ export function isLocalRef(value: string): boolean {
 
 type ResolveResult = { ok: true; data: unknown } | { ok: false }
 
+type FetchConfig = Partial<{
+  auth: { token: string; type: 'bearer'; domains: string[] }[]
+}>
+
 /**
  * Fetches and normalizes data from a remote URL
  * @param url - The URL to fetch data from
@@ -52,9 +56,19 @@ type ResolveResult = { ok: true; data: unknown } | { ok: false }
  * }
  * ```
  */
-export async function fetchUrl(url: string): Promise<ResolveResult> {
+export async function fetchUrl(url: string, config?: FetchConfig): Promise<ResolveResult> {
   try {
-    const result = await fetch(url)
+    const domain = new URL(url).hostname
+
+    // We can attach the auth header if the auth matches
+    const auth = config?.auth?.find((a) => a.domains.find((d) => d === domain) !== undefined)
+
+    const result = await fetch(url, {
+      headers: {
+        // TODO: handle different authorization types
+        'Authorization': `Bearer ${auth.token}`,
+      },
+    })
 
     if (result.ok) {
       const body = await result.text()
@@ -261,13 +275,35 @@ type Config = {
   plugins: Plugin[]
 }
 
-export function fetchUrls(): Plugin {
+/**
+ * Creates a plugin for handling remote URL references.
+ * This plugin validates and fetches data from HTTP/HTTPS URLs.
+ *
+ * @returns A plugin object with validate and exec functions
+ * @example
+ * const urlPlugin = fetchUrls()
+ * if (urlPlugin.validate('https://example.com/schema.json')) {
+ *   const result = await urlPlugin.exec('https://example.com/schema.json')
+ * }
+ */
+export function fetchUrls(config?: FetchConfig): Plugin {
   return {
     validate: (value) => isRemoteUrl(value),
-    exec: (value) => fetchUrl(value),
+    exec: (value) => fetchUrl(value, config),
   }
 }
 
+/**
+ * Creates a plugin for handling local file references.
+ * This plugin validates and reads data from local filesystem paths.
+ *
+ * @returns A plugin object with validate and exec functions
+ * @example
+ * const filePlugin = readFiles()
+ * if (filePlugin.validate('./local-schema.json')) {
+ *   const result = await filePlugin.exec('./local-schema.json')
+ * }
+ */
 export function readFiles(): Plugin {
   return {
     validate: (value) => !isRemoteUrl(value),
@@ -344,7 +380,7 @@ export function bundle(input: UnknownObject, config: Config) {
       }
 
       return console.warn(
-        `Failed to resolve external reference "${prefix}". The reference may be invalid or inaccessible.`,
+        `Failed to resolve external reference "${prefix}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
     }
 

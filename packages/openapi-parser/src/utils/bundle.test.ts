@@ -51,7 +51,20 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, {
+        plugins: [
+          fetchUrls({
+            auth: [
+              {
+                domains: ['example.com'],
+                token: 'secret-don`t share',
+                type: 'bearer',
+              },
+            ],
+          }),
+          readFiles(),
+        ],
+      })
 
       expect(input).toEqual({
         'x-external': {
