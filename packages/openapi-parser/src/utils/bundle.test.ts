@@ -13,6 +13,8 @@ import {
   prefixInternalRef,
   readFile,
   prefixInternalRefRecursive,
+  fetchUrls,
+  readFiles,
 } from './bundle'
 
 describe('bundle', () => {
@@ -49,7 +51,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       expect(input).toEqual({
         'x-external': {
           [`http:~1~1localhost:${PORT}`]: {
@@ -101,7 +104,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       expect(input).toEqual({
         'x-external': {
           [`http://localhost:${PORT}/chunk1`]: {
@@ -147,7 +151,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       expect(input).toEqual({
         'x-external': {
           [`http://localhost:${PORT}`]: {
@@ -188,7 +193,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
         'x-external': {
@@ -234,7 +239,8 @@ describe('bundle', () => {
           '$ref': `${url}/nested/chunk1.json#`,
         },
       }
-      await bundle(input)
+
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
         'x-external': {
@@ -279,7 +285,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       expect(input).toEqual({
         'x-external': {
           [`http://localhost:${PORT}/top-level`]: {
@@ -312,7 +319,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       await fs.rm(chunk1Path)
 
       expect(input).toEqual({
@@ -344,7 +352,8 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+
       await fs.rm(chunk1Path)
       await fs.rm(chunk2Path)
 
@@ -387,7 +396,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input)
+      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       await fs.rm(`./nested/${bName}`)
       await fs.rm(`./nested/${cName}`)

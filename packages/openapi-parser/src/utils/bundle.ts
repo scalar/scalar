@@ -116,8 +116,16 @@ export async function readFile(path: string): Promise<ResolveResult> {
  * // Invalid reference returns { ok: false }
  * await resolveRef('#/components/schemas/User')
  */
-async function resolveRef(ref: string): Promise<ResolveResult> {
-  return isRemoteUrl(ref) ? fetchUrl(ref) : readFile(ref)
+async function resolveRef(ref: string, plugins: Plugin[]): Promise<ResolveResult> {
+  const plugin = plugins.find((p) => p.validate(ref))
+
+  if (plugin) {
+    return plugin.exec(ref)
+  }
+
+  return {
+    ok: false,
+  }
 }
 
 /**
@@ -233,6 +241,41 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
 }
 
 /**
+ * Represents a plugin that handles resolving references from external sources.
+ * Plugins are responsible for fetching and processing data from different sources
+ * like URLs or the filesystem. Each plugin must implement validation to determine
+ * if it can handle a specific reference, and an execution function to perform
+ * the actual resolution.
+ *
+ * @property validate - Determines if this plugin can handle the given reference
+ * @property exec - Fetches and processes the reference, returning the resolved data
+ */
+type Plugin = {
+  // Determines if this plugin can handle the given reference value
+  validate: (value: string) => boolean
+  // Fetches and processes the reference, returning the resolved data
+  exec: (value: string) => Promise<ResolveResult>
+}
+
+type Config = {
+  plugins: Plugin[]
+}
+
+export function fetchUrls(): Plugin {
+  return {
+    validate: (value) => isRemoteUrl(value),
+    exec: (value) => fetchUrl(value),
+  }
+}
+
+export function readFiles(): Plugin {
+  return {
+    validate: (value) => !isRemoteUrl(value),
+    exec: (value) => readFile(value),
+  }
+}
+
+/**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and replaces any external $ref
  * references with their actual content. External references can be URLs or local files.
@@ -240,7 +283,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  * @param input - The OpenAPI specification object to bundle
  * @returns A promise that resolves when all references have been resolved
  */
-export function bundle(input: UnknownObject) {
+export function bundle(input: UnknownObject, config: Config) {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
@@ -268,7 +311,7 @@ export function bundle(input: UnknownObject) {
       const resolvedPath = resolveReferencePath(origin, prefix)
 
       if (!cache.has(resolvedPath)) {
-        cache.set(resolvedPath, resolveRef(resolvedPath))
+        cache.set(resolvedPath, resolveRef(resolvedPath, config.plugins))
       }
 
       // Resolve the remote document
