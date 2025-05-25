@@ -502,8 +502,8 @@ export function createExampleFromRequest(request: Request, name: string, server?
       }
     }
 
-    // Add the content-type header if it doesn't exist
-    if (requestBody?.mimeType && !contentTypeHeader) {
+    // Add the content-type header if it doesn't exist and if it's not multipart request
+    if (requestBody?.mimeType && !contentTypeHeader && !requestBody.mimeType.startsWith('multipart/')) {
       parameters.headers.push({
         key: 'Content-Type',
         value: requestBody.mimeType,
