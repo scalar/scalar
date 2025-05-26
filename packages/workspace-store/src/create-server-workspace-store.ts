@@ -114,8 +114,8 @@ export function externalizeComponentReferences(
     Object.keys(component).forEach((name) => {
       const ref =
         meta.mode === 'ssr'
-          ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}/#`
-          : `${meta.directory}/chunks/${meta.name}/components/${type}/${name}.json/#`
+          ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
+          : `${meta.directory}/chunks/${meta.name}/components/${type}/${name}.json#`
 
       result[type][name] = { '$ref': ref }
     })
@@ -150,8 +150,8 @@ export function externalizePathReferences(
       if (httpMethods.has(type)) {
         const ref =
           meta.mode === 'ssr'
-            ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}/#`
-            : `${meta.directory}/chunks/${meta.name}/operations/${escapedPath}/${type}.json/#`
+            ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
+            : `${meta.directory}/chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
 
         result[path][type] = { '$ref': ref }
       }

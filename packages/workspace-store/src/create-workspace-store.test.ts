@@ -270,7 +270,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
-      '$ref': 'http://localhost:9988/default/operations/~1users/get/#',
+      '$ref': 'http://localhost:9988/default/operations/~1users/get#',
     })
 
     // We resolve the ref
@@ -278,9 +278,6 @@ describe('create-workspace-store', () => {
 
     // We expect the ref to have been resolved with the correct contents
     expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
-
-    // We should resolve the user component chunk
-    await store.resolve(['components', 'schemas', 'User'])
 
     expect(
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
@@ -323,7 +320,7 @@ describe('create-workspace-store', () => {
 
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
-      '$ref': `${path}/chunks/default/operations/~1users/get.json/#`,
+      '$ref': `${path}/chunks/default/operations/~1users/get.json#`,
     })
 
     // We resolve the ref
@@ -331,9 +328,6 @@ describe('create-workspace-store', () => {
 
     // We expect the ref to have been resolved with the correct contents
     expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
-
-    // We should resolve the user component chunk
-    await store.resolve(['components', 'schemas', 'User'])
 
     expect(
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
@@ -393,10 +387,9 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default'].info?.title).toEqual(document.info.title)
 
     await store.addDocument({ name: 'new', path: fileName })
+    await fs.rm(fileName)
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
     expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
-
-    await fs.rm(fileName)
   })
 })

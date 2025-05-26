@@ -85,6 +85,8 @@ export async function readLocalFile(value: string): Promise<{ ok: true; data: un
   }
 }
 
+type ResolveResult = { ok: false } | { ok: true; data: unknown }
+
 /**
  * Resolves a reference by attempting to fetch data from either a remote URL or local filesystem.
  *
@@ -98,11 +100,11 @@ export async function readLocalFile(value: string): Promise<{ ok: true; data: un
  * }
  * ```
  */
-export async function resolveRef(value: string) {
-  const [path, pointer] = value.split('/#')
+export async function resolveRef(value: string): Promise<ResolveResult> {
+  const [path, pointer] = value.split('#')
 
   if (!isRemoteRef(value) && !isFileSystemRef(value)) {
-    return { ok: false } as const
+    return { ok: false }
   }
 
   const result = isRemoteRef(value) ? await fetchUrl(path) : await readLocalFile(path)

@@ -143,7 +143,10 @@ export async function createWorkspaceStore(workspaceProps?: {
       Object.assign(currentDocument, { [key]: value })
     },
     /**
-     * Resolves a reference in the active document by following the provided path and resolving any external $ref references
+     * Resolves a reference in the active document by following the provided path and resolving any external $ref references.
+     * This method traverses the document structure following the given path and resolves any $ref references it encounters.
+     * During resolution, it sets a loading status and updates the reference with the resolved content.
+     *
      * @param path - Array of strings representing the path to the reference (e.g. ['paths', '/users', 'get', 'responses', '200'])
      * @throws Error if the path is invalid or empty
      * @example
@@ -166,26 +169,44 @@ export async function createWorkspaceStore(workspaceProps?: {
         parent = parent[p]
       }
 
-      const target = parent[lastPathSegment]
+      const resolveRecursive = async (root: unknown, targetKey: string) => {
+        if (!root && !isObject(root)) {
+          return
+        }
 
-      if (isObject(target) && '$ref' in target) {
-        const ref = target['$ref']
+        const target = (root as Record<string, unknown>)[targetKey]
 
-        // Set the status to loading while we resolve the ref
-        Object.assign(target, { '$status': 'loading' })
+        if (!target || !isObject(target)) {
+          return
+        }
 
-        const result = await resolveRef(ref)
+        if (typeof target === 'object' && '$ref' in target && typeof target['$ref'] === 'string') {
+          const ref = target['$ref']
 
-        if (result.ok) {
-          if (lastPathSegment === '__proto__' || lastPathSegment === 'constructor' || lastPathSegment === 'prototype') {
-            throw new Error('Invalid key: cannot modify prototype')
+          // Set the status to loading while we resolve the ref
+          Object.assign(target, { '$status': 'loading' })
+
+          const result = await resolveRef(ref)
+
+          if (result.ok) {
+            if (targetKey === '__proto__' || targetKey === 'constructor' || targetKey === 'prototype') {
+              throw new Error('Invalid key: cannot modify prototype')
+            }
+
+            Object.assign(root as object, { [targetKey]: result.data })
+
+            await resolveRecursive(root, targetKey)
+          } else {
+            Object.assign(target, { '$status': 'error' })
           }
 
-          Object.assign(parent, { [lastPathSegment]: result.data })
-        } else {
-          Object.assign(target, { '$status': 'error' })
+          return
         }
+
+        await Promise.all(Object.keys(target).map((key) => resolveRecursive(target, key)))
       }
+
+      return resolveRecursive(parent, lastPathSegment)
     },
     /**
      * Adds a new document to the workspace
