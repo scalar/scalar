@@ -1,7 +1,7 @@
+import { ERRORS } from '@/errors'
 import type { UnknownObject } from '@/types'
 import { traverse, upgrade } from '@scalar/openapi-parser'
 import { type Ref, ref, watchEffect } from 'vue'
-import { ERRORS } from '../errors'
 
 // Defaults
 const DEFAULT_CONCURRENCY_LIMIT = 5
@@ -72,7 +72,6 @@ export const createExternalReferenceFetcher = ({
   strategy = DEFAULT_STRATEGY,
   concurrencyLimit = DEFAULT_CONCURRENCY_LIMIT,
 }: CreateExternalReferenceFetcherOptions): ExternalReferenceFetcher => {
-  let numberOfRequests = 0
   const references: Ref<Map<string, ExternalReference>> = ref(new Map())
 
   /**
@@ -128,9 +127,6 @@ export const createExternalReferenceFetcher = ({
         errors: [],
         status: 'fetched',
       })
-
-      numberOfRequests++
-      // console.log(`✅ fetched #${numberOfRequests}: ${fetchTargetUrl}`)
 
       fetchReferences(fetchedContent, fetchTargetUrl)
     } catch (error) {

@@ -241,6 +241,7 @@ export function createOpenApiProxy(
           // Calculate the new origin based on the resolved reference
           const [filePath] = ref.split('#')
           const newOrigin = getAbsoluteUrl(origin || '', filePath)
+
           // Pass the new origin for nested references
           return createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
@@ -283,13 +284,14 @@ export function createOpenApiProxy(
         if (resolvedTarget) {
           // Create a proxy for the resolved target to handle any further resolutions or deep $refs.
           const proxiedResolvedTarget = createOpenApiProxy(resolvedTarget, sourceDocument, externalReferences, origin)
+
           // Get the originally requested property (`prop`) from this new proxy/object.
           // This will trigger another 'get' if proxiedResolvedTarget is a proxy.
           return Reflect.get(proxiedResolvedTarget as object, prop, receiver)
-        } else {
-          // If targetObject.$ref could not be resolved, the property `prop` is effectively undefined.
-          return undefined
         }
+
+        // If targetObject.$ref could not be resolved, the property `prop` is effectively undefined.
+        return undefined
       }
 
       // If targetObject was not a $ref (or if `prop` was '$ref'), proceed to get the property value directly.
