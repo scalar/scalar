@@ -15,6 +15,7 @@ import {
   prefixInternalRefRecursive,
   fetchUrls,
   readFiles,
+  createLimiter,
 } from './bundle'
 
 describe('bundle', () => {
@@ -455,6 +456,8 @@ describe('isLocalRef', () => {
 })
 
 describe('fetchUrl', () => {
+  const noLimit = <T>(fn: () => Promise<T>) => fn()
+
   let server: FastifyInstance
 
   beforeEach(() => {
@@ -479,7 +482,7 @@ describe('fetchUrl', () => {
 
     await server.listen({ port: PORT })
 
-    const result = await fetchUrl(url)
+    const result = await fetchUrl(url, noLimit)
 
     expect(result.ok).toBe(true)
     assert(result.ok === true)
@@ -496,7 +499,7 @@ describe('fetchUrl', () => {
 
     await server.listen({ port: PORT })
 
-    const result = await fetchUrl(url)
+    const result = await fetchUrl(url, noLimit)
 
     expect(result.ok).toBe(true)
     assert(result.ok === true)
@@ -513,7 +516,7 @@ describe('fetchUrl', () => {
 
     await server.listen({ port: PORT })
 
-    const result = await fetchUrl(url)
+    const result = await fetchUrl(url, noLimit)
 
     expect(result.ok).toBe(false)
   })
@@ -588,5 +591,31 @@ describe('prefixInternalRefRecursive', () => {
   ])('recursively prefixes any internal ref with the correct values', (a, b, c) => {
     prefixInternalRefRecursive(a, b)
     expect(a).toEqual(c)
+  })
+})
+
+describe('createLimiter', { timeout: 10000 }, () => {
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+  it('run in order and no more than the specified number of concurrent requests', async () => {
+    const limiter = createLimiter(2)
+
+    let active = 0
+    const maxObserved: number[] = []
+
+    const makeTask = (id: number) =>
+      limiter(async () => {
+        active++
+        maxObserved.push(active)
+        await sleep(100)
+        active--
+        return id
+      })
+
+    const tasks = [1, 2, 3, 4, 5].map(makeTask)
+    const results = await Promise.all(tasks)
+
+    expect(results).toEqual([1, 2, 3, 4, 5])
+    expect(Math.max(...maxObserved)).toBeLessThanOrEqual(2)
   })
 })

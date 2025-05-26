@@ -56,19 +56,27 @@ type FetchConfig = Partial<{
  * }
  * ```
  */
-export async function fetchUrl(url: string, config?: FetchConfig): Promise<ResolveResult> {
+export async function fetchUrl(
+  url: string,
+  limiter: <T>(fn: () => Promise<T>) => Promise<T>,
+  config?: FetchConfig,
+): Promise<ResolveResult> {
   try {
     const domain = new URL(url).hostname
 
     // We can attach the auth header if the auth matches
     const auth = config?.auth?.find((a) => a.domains.find((d) => d === domain) !== undefined)
 
-    const result = await fetch(url, {
-      headers: {
-        // TODO: handle different authorization types
-        'Authorization': `Bearer ${auth.token}`,
-      },
-    })
+    // TODO: handle different kind of authorization
+    const headers = auth ? { 'Authorization': `Bearer ${auth.token}` } : {}
+
+    const result = await limiter(() =>
+      fetch(url, {
+        headers: {
+          ...headers,
+        },
+      }),
+    )
 
     if (result.ok) {
       const body = await result.text()
@@ -254,6 +262,40 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
   }
 }
 
+export function createLimiter(maxConcurrent: number) {
+  let activeCount = 0
+  const queue: (() => void)[] = []
+
+  const next = () => {
+    if (queue.length === 0 || activeCount >= maxConcurrent) {
+      return
+    }
+
+    const resolve = queue.shift()
+
+    if (resolve) {
+      resolve()
+    }
+  }
+
+  const run = async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (activeCount >= maxConcurrent) {
+      await new Promise<void>((resolve) => queue.push(resolve))
+    }
+
+    activeCount++
+    try {
+      const result = await fn()
+      return result
+    } finally {
+      activeCount--
+      next()
+    }
+  }
+
+  return run
+}
+
 /**
  * Represents a plugin that handles resolving references from external sources.
  * Plugins are responsible for fetching and processing data from different sources
@@ -286,10 +328,13 @@ type Config = {
  *   const result = await urlPlugin.exec('https://example.com/schema.json')
  * }
  */
-export function fetchUrls(config?: FetchConfig): Plugin {
+export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null }>): Plugin {
+  // If there is a limit specified we limit the number of concurrent calls
+  const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
+
   return {
     validate: (value) => isRemoteUrl(value),
-    exec: (value) => fetchUrl(value, config),
+    exec: (value) => fetchUrl(value, limiter, config),
   }
 }
 
