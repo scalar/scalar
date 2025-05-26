@@ -307,7 +307,7 @@ watch(
             <SchemaProperty
               :compact="compact"
               :hideHeading="hideHeading"
-              :level="level + 1"
+              :level="level"
               :name="(resolvedSchema as OpenAPIV3_1.SchemaObject).name"
               :schemas="schemas"
               :value="
