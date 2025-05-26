@@ -1,9 +1,7 @@
-import fs from 'node:fs/promises'
-import type { UnknownObject } from '../types'
-import { isObject } from './isObject'
-import { normalize } from './normalize'
-import { escapeJsonPointer } from './escapeJsonPointer'
-import path from '../polyfills/path'
+import type { UnknownObject } from '../../types'
+import { isObject } from '../isObject'
+import { escapeJsonPointer } from '../escapeJsonPointer'
+import path from '../../polyfills/path'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -36,95 +34,7 @@ export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
 
-type ResolveResult = { ok: true; data: unknown } | { ok: false }
-
-type FetchConfig = Partial<{
-  auth: { token: string; type: 'bearer'; domains: string[] }[]
-}>
-
-/**
- * Fetches and normalizes data from a remote URL
- * @param url - The URL to fetch data from
- * @returns A promise that resolves to either the normalized data or an error result
- * @example
- * ```ts
- * const result = await fetchUrl('https://api.example.com/data.json')
- * if (result.ok) {
- *   console.log(result.data) // The normalized data
- * } else {
- *   console.log('Failed to fetch data')
- * }
- * ```
- */
-export async function fetchUrl(
-  url: string,
-  limiter: <T>(fn: () => Promise<T>) => Promise<T>,
-  config?: FetchConfig,
-): Promise<ResolveResult> {
-  try {
-    const domain = new URL(url).hostname
-
-    // We can attach the auth header if the auth matches
-    const auth = config?.auth?.find((a) => a.domains.find((d) => d === domain) !== undefined)
-
-    // TODO: handle different kind of authorization
-    const headers = auth ? { 'Authorization': `Bearer ${auth.token}` } : {}
-
-    const result = await limiter(() =>
-      fetch(url, {
-        headers: {
-          ...headers,
-        },
-      }),
-    )
-
-    if (result.ok) {
-      const body = await result.text()
-
-      return {
-        ok: true,
-        data: normalize(body),
-      }
-    }
-
-    return {
-      ok: false,
-    }
-  } catch {
-    return {
-      ok: false,
-    }
-  }
-}
-
-/**
- * Reads and normalizes data from a local file
- * @param path - The file path to read from
- * @returns A promise that resolves to either the normalized data or an error result
- * @example
- * ```ts
- * const result = await readFile('./schemas/user.json')
- * if (result.ok) {
- *   console.log(result.data) // The normalized data
- * } else {
- *   console.log('Failed to read file')
- * }
- * ```
- */
-export async function readFile(path: string): Promise<ResolveResult> {
-  try {
-    const fileContents = await fs.readFile(path, { encoding: 'utf-8' })
-
-    return {
-      ok: true,
-      data: normalize(fileContents),
-    }
-  } catch {
-    return {
-      ok: false,
-    }
-  }
-}
+export type ResolveResult = { ok: true; data: unknown } | { ok: false }
 
 /**
  * Resolves a reference by fetching its content from either a remote URL or local file.
@@ -262,40 +172,6 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
   }
 }
 
-export function createLimiter(maxConcurrent: number) {
-  let activeCount = 0
-  const queue: (() => void)[] = []
-
-  const next = () => {
-    if (queue.length === 0 || activeCount >= maxConcurrent) {
-      return
-    }
-
-    const resolve = queue.shift()
-
-    if (resolve) {
-      resolve()
-    }
-  }
-
-  const run = async <T>(fn: () => Promise<T>): Promise<T> => {
-    if (activeCount >= maxConcurrent) {
-      await new Promise<void>((resolve) => queue.push(resolve))
-    }
-
-    activeCount++
-    try {
-      const result = await fn()
-      return result
-    } finally {
-      activeCount--
-      next()
-    }
-  }
-
-  return run
-}
-
 /**
  * Represents a plugin that handles resolving references from external sources.
  * Plugins are responsible for fetching and processing data from different sources
@@ -306,7 +182,7 @@ export function createLimiter(maxConcurrent: number) {
  * @property validate - Determines if this plugin can handle the given reference
  * @property exec - Fetches and processes the reference, returning the resolved data
  */
-type Plugin = {
+export type Plugin = {
   // Determines if this plugin can handle the given reference value
   validate: (value: string) => boolean
   // Fetches and processes the reference, returning the resolved data
@@ -315,45 +191,6 @@ type Plugin = {
 
 type Config = {
   plugins: Plugin[]
-}
-
-/**
- * Creates a plugin for handling remote URL references.
- * This plugin validates and fetches data from HTTP/HTTPS URLs.
- *
- * @returns A plugin object with validate and exec functions
- * @example
- * const urlPlugin = fetchUrls()
- * if (urlPlugin.validate('https://example.com/schema.json')) {
- *   const result = await urlPlugin.exec('https://example.com/schema.json')
- * }
- */
-export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null }>): Plugin {
-  // If there is a limit specified we limit the number of concurrent calls
-  const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
-
-  return {
-    validate: (value) => isRemoteUrl(value),
-    exec: (value) => fetchUrl(value, limiter, config),
-  }
-}
-
-/**
- * Creates a plugin for handling local file references.
- * This plugin validates and reads data from local filesystem paths.
- *
- * @returns A plugin object with validate and exec functions
- * @example
- * const filePlugin = readFiles()
- * if (filePlugin.validate('./local-schema.json')) {
- *   const result = await filePlugin.exec('./local-schema.json')
- * }
- */
-export function readFiles(): Plugin {
-  return {
-    validate: (value) => !isRemoteUrl(value),
-    exec: (value) => readFile(value),
-  }
 }
 
 /**
