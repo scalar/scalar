@@ -91,7 +91,7 @@ export async function createCollection({
 /**
  * Exports a raw OpenAPI document (containing $ref's)
  */
-function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
+export function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
   return readonly(toRaw(document) as UnknownObject)
 }
 
@@ -105,7 +105,7 @@ function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
  * // { id: '123', name: 'John Doe' }
  * ```
  */
-function getValueByPath(document: UnknownObject, pathSegments: string[]): UnknownObject | undefined {
+export function getValueByPath(document: UnknownObject, pathSegments: string[]): UnknownObject | undefined {
   return pathSegments.reduce<unknown>(
     (currentValue: unknown, pathSegment) =>
       isObject(currentValue) && pathSegment in currentValue ? (currentValue as UnknownObject)[pathSegment] : undefined,
@@ -123,7 +123,7 @@ function getValueByPath(document: UnknownObject, pathSegments: string[]): Unknow
  * // ['components', 'schemas', 'User']
  * ```
  */
-function parseJsonPointer(pointer: string): string[] {
+export function parseJsonPointer(pointer: string): string[] {
   return (
     pointer
       // Split on '/'
@@ -145,14 +145,14 @@ function parseJsonPointer(pointer: string): string[] {
  * isObject(null) // false
  * ```
  */
-function isObject(value: unknown): value is UnknownObject {
+export function isObject(value: unknown): value is UnknownObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
 /**
  * Checks if an object or any of its nested objects contain a $ref
  */
-function hasRefs(obj: unknown): boolean {
+export function hasRefs(obj: unknown): boolean {
   if (!isObject(obj) && !Array.isArray(obj)) {
     return false
   }
@@ -178,7 +178,7 @@ function hasRefs(obj: unknown): boolean {
  * or fetching external references through the externalReferences system.
  * Returns undefined if the external reference is not yet loaded.
  */
-function resolveRef(
+export function resolveRef(
   ref: string,
   sourceDocument: UnknownObject,
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
@@ -219,7 +219,7 @@ function resolveRef(
  * Creates a proxy that handles $ref resolution while using the reactivity from the root document.
  * Only creates proxies for objects that contain $refs to minimize traversal overhead.
  */
-function createOpenApiProxy(
+export function createOpenApiProxy(
   target: unknown,
   sourceDocument: UnknownObject,
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
