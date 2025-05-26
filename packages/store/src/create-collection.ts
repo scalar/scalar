@@ -241,7 +241,7 @@ export function createOpenApiProxy(
         if (resolvedValue) {
           // Calculate the new origin based on the resolved reference
           const [filePath] = ref.split('#')
-          const newOrigin = getAbsoluteUrl(origin || '', filePath)
+          const newOrigin = getAbsoluteUrl(origin, filePath)
 
           // Pass the new origin for nested references
           return createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
@@ -305,7 +305,7 @@ export function createOpenApiProxy(
         const resolvedValue = resolveRef(valueRef, sourceDocument, externalReferences, origin)
         if (resolvedValue) {
           const [filePath] = valueRef.split('#')
-          const newOrigin = getAbsoluteUrl(origin || '', filePath)
+          const newOrigin = getAbsoluteUrl(origin, filePath)
           return createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
         return value // Return original unresolved $ref object

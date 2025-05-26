@@ -35,9 +35,9 @@ type ExternalReference = {
  */
 type CreateExternalReferenceFetcherOptions = Readonly<{
   /** The initial URL to fetch */
-  url?: string
+  url?: string | undefined
   /** Directly pass the content of the OpenAPI document */
-  content?: string | UnknownObject
+  content?: string | UnknownObject | undefined
   /**
    * Whether to load external references right-away or only when they are accessed.
    *
@@ -248,7 +248,11 @@ export const createExternalReferenceFetcher = ({
  * getAbsoluteUrl('/foobar/openapi.yaml', '/components.yaml')
  * // => '/components.yaml'
  */
-export function getAbsoluteUrl(origin: string | undefined, relativeOrAbsoluteUrl: string): string {
+export function getAbsoluteUrl(origin: string | undefined, relativeOrAbsoluteUrl: string | undefined): string {
+  if (!relativeOrAbsoluteUrl) {
+    return origin ?? ''
+  }
+
   if (!origin) {
     return relativeOrAbsoluteUrl
   }
