@@ -461,7 +461,7 @@ describe('proxy behavior', () => {
 
     expect(descriptor?.value).toBe('string')
     expect(descriptor?.enumerable).toBe(true)
-    expect(descriptor?.configurable).toBe(false)
+    expect(descriptor?.configurable).toBe(true)
   })
 
   it('handles deeply nested references', async () => {

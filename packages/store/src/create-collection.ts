@@ -197,6 +197,7 @@ export function resolveRef(
   // External references
   if (!origin || !externalReferences) {
     console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
+
     return undefined
   }
 
@@ -267,84 +268,108 @@ export function createOpenApiProxy(
   }
 
   const proxy = new Proxy(target, {
-    get(target, prop: string | symbol) {
-      // Special property to check if this is a proxy
+    get(targetObject: UnknownObject, prop: string | symbol, receiver: any) {
       if (prop === '__isProxy') {
         return true
       }
 
-      const value = target[prop as keyof typeof target]
+      // If targetObject itself is a $ref, resolve it first before trying to get any other property.
+      // This handles cases like accessing `level1.name` where `level1` is a proxy for an object like `{ $ref: "#/..." }`.
+      if (prop !== '$ref' && typeof prop === 'string' && '$ref' in targetObject) {
+        const targetRef = targetObject.$ref as string
+        const resolvedTarget = resolveRef(targetRef, sourceDocument, externalReferences, origin)
 
-      if (!isObject(value) && !Array.isArray(value)) {
-        return value
+        if (resolvedTarget) {
+          // Create a proxy for the resolved target to handle any further resolutions or deep $refs.
+          const proxiedResolvedTarget = createOpenApiProxy(resolvedTarget, sourceDocument, externalReferences, origin)
+          // Get the originally requested property (`prop`) from this new proxy/object.
+          // This will trigger another 'get' if proxiedResolvedTarget is a proxy.
+          return Reflect.get(proxiedResolvedTarget as object, prop, receiver)
+        } else {
+          // If targetObject.$ref could not be resolved, the property `prop` is effectively undefined.
+          return undefined
+        }
       }
 
-      // Handle $ref resolution
-      if (isObject(value) && '$ref' in value) {
-        const ref = value.$ref as string
-        const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
+      // If targetObject was not a $ref (or if `prop` was '$ref'), proceed to get the property value directly.
+      const value = Reflect.get(targetObject, prop, receiver)
 
+      // If the property's value itself is a $ref object (e.g., target.someProperty = { $ref: "..." }),
+      // resolve and proxy it.
+      if (isObject(value) && '$ref' in value) {
+        const valueRef = value.$ref as string
+        const resolvedValue = resolveRef(valueRef, sourceDocument, externalReferences, origin)
         if (resolvedValue) {
-          // Calculate the new origin based on the resolved reference
-          const [filePath] = ref.split('#')
+          const [filePath] = valueRef.split('#')
           const newOrigin = getAbsoluteUrl(origin || '', filePath)
-          // Pass the new origin for nested references
           return createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
         }
-        // If resolvedValue is undefined (external file not loaded yet),
-        // return the original value with $ref - it will be re-evaluated when the file loads
-        return value
+        return value // Return original unresolved $ref object
       }
 
-      // For other objects and arrays, create a proxy if they contain $refs
-      return createOpenApiProxy(value, sourceDocument, externalReferences, origin)
+      // If the value is an object or array (but not a $ref itself, as handled above),
+      // it might contain nested $refs, so it needs to be proxied.
+      if (isObject(value) || Array.isArray(value)) {
+        return createOpenApiProxy(value, sourceDocument, externalReferences, origin)
+      }
+
+      // Otherwise, the value is a primitive or doesn't need further proxying for this access.
+      return value
     },
 
-    has(target: UnknownObject, key: string) {
+    has(targetObject: UnknownObject, key: string) {
       // Quick path for direct property access
-      if (key in target) {
+      if (key in targetObject) {
         return true
       }
 
       // Only check $ref resolution if the key isn't found directly
-      if (typeof key === 'string' && key !== '$ref' && '$ref' in target) {
-        const ref = target.$ref as string
-        const referencePath = parseJsonPointer(ref)
-        const resolvedValue = getValueByPath(sourceDocument, referencePath)
-        return resolvedValue ? key in resolvedValue : false
+      if (typeof key === 'string' && key !== '$ref' && '$ref' in targetObject) {
+        const ref = targetObject.$ref as string
+        const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
+        if (resolvedValue) {
+          const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
+          return isObject(proxiedValue) && key in proxiedValue
+        }
       }
 
       return false
     },
 
-    ownKeys(target: UnknownObject) {
+    ownKeys(targetObject: UnknownObject) {
       // Quick path for direct property access
-      if (!('$ref' in target)) {
-        return Reflect.ownKeys(target)
+      if (!('$ref' in targetObject)) {
+        return Reflect.ownKeys(targetObject)
       }
 
       // Only resolve $ref if the object has one
-      const ref = target.$ref as string
-      const referencePath = parseJsonPointer(ref)
-      const resolvedValue = getValueByPath(sourceDocument, referencePath)
-      return resolvedValue ? Reflect.ownKeys(resolvedValue) : []
+      const ref = targetObject.$ref as string
+      const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
+      if (resolvedValue) {
+        const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
+        return isObject(proxiedValue) ? Reflect.ownKeys(proxiedValue) : Reflect.ownKeys(targetObject)
+      }
+
+      return Reflect.ownKeys(targetObject)
     },
 
-    getOwnPropertyDescriptor(target: UnknownObject, key: string) {
+    getOwnPropertyDescriptor(targetObject: UnknownObject, key: string) {
       // Quick path for direct property access
-      if (!('$ref' in target) || key === '$ref') {
-        return Object.getOwnPropertyDescriptor(target, key)
+      if (!('$ref' in targetObject) || key === '$ref') {
+        return Object.getOwnPropertyDescriptor(targetObject, key)
       }
 
       // Only resolve $ref if the object has one and we're not looking for the $ref itself
-      const ref = target.$ref as string
-      const referencePath = parseJsonPointer(ref)
-      const resolvedValue = getValueByPath(sourceDocument, referencePath)
+      const ref = targetObject.$ref as string
+      const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
       if (resolvedValue) {
-        return Object.getOwnPropertyDescriptor(resolvedValue, key)
+        const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
+        return isObject(proxiedValue)
+          ? Object.getOwnPropertyDescriptor(proxiedValue, key)
+          : Object.getOwnPropertyDescriptor(targetObject, key)
       }
 
-      return Object.getOwnPropertyDescriptor(target, key)
+      return Object.getOwnPropertyDescriptor(targetObject, key)
     },
   })
 
