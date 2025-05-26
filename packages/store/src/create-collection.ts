@@ -10,8 +10,26 @@ const DEFAULT_STRATEGY = 'eager'
 export type Collection = Awaited<ReturnType<typeof createCollection>>
 
 export type CreateCollectionOptions = {
+  /**
+   * The URL of the OpenAPI document.
+   *
+   * @default undefined
+   */
   url?: string
+  /*
+   * The content of an OpenAPI document.
+   *
+   * @default undefined
+   */
   content?: string | UnknownObject
+  /**
+   * Whether to load external references right-away or only when needed.
+   *
+   * - `eager`: Load all external references right-away.
+   * - `lazy`: Load external references only when the relevant $ref is accessed.
+   *
+   * @default 'eager'
+   */
   strategy?: 'lazy' | 'eager'
 }
 

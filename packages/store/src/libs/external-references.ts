@@ -1,6 +1,5 @@
 import type { UnknownObject } from '@/types'
 import { traverse, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Ref, ref, watchEffect } from 'vue'
 
 // Defaults
@@ -27,7 +26,7 @@ type ExternalReference = {
   /** Any errors that occurred during fetching */
   errors: Error[]
   /** The content of the reference */
-  content: OpenAPIV3_1.Document
+  content: UnknownObject
 }
 
 /**
@@ -265,7 +264,7 @@ export function getAbsoluteUrl(origin: string | undefined, url: string) {
 /**
  * Finds all external references in a parsed OpenAPI document.
  */
-const findReferences = (content: OpenAPIV3_1.Document, origin?: string): string[] => {
+const findReferences = (content: UnknownObject, origin?: string): string[] => {
   const references: string[] = []
 
   traverse(content, (value: any) => {
