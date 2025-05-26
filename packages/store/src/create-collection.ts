@@ -148,9 +148,14 @@ export function parseJsonPointer(pointer: string): string[] {
 export const isObject = (value: unknown): value is UnknownObject =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
+/** An object which contains a $ref property */
+type ReferenceObject = {
+  $ref: string
+}
+
 /** Type guard for reference objects */
-export const isReferenceObject = (value: unknown): value is { $ref: string } =>
-  isObject(value) && '$ref' in value && typeof (value as { $ref: unknown }).$ref === 'string'
+export const isReferenceObject = (value: unknown): value is ReferenceObject =>
+  isObject(value) && '$ref' in value && typeof (value as ReferenceObject).$ref === 'string'
 
 /** Type guard to check if an object is a valid OpenAPI/Swagger document */
 const isValidOpenApiDocument = (value: unknown): value is UnprocessedOpenApiObject => {
@@ -298,7 +303,7 @@ export function createOpenApiProxy(
 
       // If targetObject itself is a $ref, resolve it first before trying to get any other property.
       // This handles cases like accessing `level1.name` where `level1` is a proxy for an object like `{ $ref: "#/..." }`.
-      if (prop !== '$ref' && typeof prop === 'string' && '$ref' in targetObject) {
+      if (prop !== '$ref' && typeof prop === 'string' && isReferenceObject(targetObject)) {
         const targetRef = targetObject.$ref
         const resolvedTarget = resolveRef(targetRef, sourceDocument, externalReferences, origin)
 
