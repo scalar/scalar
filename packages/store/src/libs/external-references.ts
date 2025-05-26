@@ -142,9 +142,9 @@ export const createExternalReferenceFetcher = ({
   /**
    * Fetches all references in a parsed OpenAPI document.
    */
-  const fetchReferences = async (specContent: UnknownObject, origin?: string): Promise<void> => {
+  const fetchReferences = async (content: UnknownObject, origin?: string): Promise<void> => {
     if (strategy === 'eager') {
-      const foundReferences = findReferences(specContent, origin)
+      const foundReferences = findReferences(content, origin)
 
       // Fetch references in chunks
       const chunks = chunkArray(foundReferences, concurrencyLimit)
@@ -271,10 +271,10 @@ export function getAbsoluteUrl(origin: string | undefined, relativeOrAbsoluteUrl
 /**
  * Finds all external references in a parsed OpenAPI document.
  */
-const findReferences = (specContent: UnknownObject, origin?: string): string[] => {
+const findReferences = (content: UnknownObject, origin?: string): string[] => {
   const foundReferences: string[] = []
 
-  traverse(specContent, (value: UnknownObject) => {
+  traverse(content, (value: UnknownObject) => {
     // Check if value is an object and has a $ref property that is a string
     if (typeof value === 'object' && value !== null && '$ref' in value) {
       const refValue = (value as { $ref: unknown }).$ref
