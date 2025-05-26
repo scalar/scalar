@@ -1,8 +1,7 @@
 import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-references'
 import type { UnknownObject } from '@/types'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
-import { reactive, toRaw } from 'vue'
+import { reactive, readonly, toRaw } from 'vue'
 
 // Defaults
 const DEFAULT_STRATEGY = 'eager'
@@ -54,7 +53,7 @@ export async function createCollection({
     strategy,
   })
 
-  // Wait until the first file is loaded
+  // Wait until the first file is fetched
   await externalReferences.isReady()
 
   if (url) {
@@ -74,14 +73,17 @@ export async function createCollection({
   const root = reactive(content)
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createOpenApiProxy(root, root, externalReferences, url)
+  const documentProxy = createOpenApiProxy(root, root, externalReferences, url) as UnknownObject
 
   return {
-    document: documentProxy as OpenAPI.Document, //ProcessedOpenApiObject,
+    // TODO: type ProcessedOpenApiObject
+    document: readonly(documentProxy),
     /**
      * Exports the raw OpenAPI document with $ref's intact
+     *
+     * TODO: type UnprocessedOpenApiObject
      */
-    export: () => exportRawDocument(root) as OpenAPI.Document, //UnprocessedOpenApiObject
+    export: () => exportRawDocument(root),
     externalReferences,
   }
 }
@@ -89,8 +91,8 @@ export async function createCollection({
 /**
  * Exports a raw OpenAPI document (containing $ref's)
  */
-function exportRawDocument(document: UnknownObject): UnknownObject {
-  return toRaw(document)
+function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
+  return readonly(toRaw(document) as UnknownObject)
 }
 
 /**
@@ -339,6 +341,24 @@ function createOpenApiProxy(
       }
 
       return Object.getOwnPropertyDescriptor(target, key)
+    },
+
+    set(target: UnknownObject, key: string | symbol, value: unknown) {
+      throw new Error(
+        'Cannot modify the OpenAPI document. The document is read-only to maintain consistency with external references.',
+      )
+    },
+
+    deleteProperty(target: UnknownObject, key: string | symbol) {
+      throw new Error(
+        'Cannot delete properties from the OpenAPI document. The document is read-only to maintain consistency with external references.',
+      )
+    },
+
+    defineProperty(target: UnknownObject, key: string | symbol, descriptor: PropertyDescriptor) {
+      throw new Error(
+        'Cannot define new properties on the OpenAPI document. The document is read-only to maintain consistency with external references.',
+      )
     },
   })
 

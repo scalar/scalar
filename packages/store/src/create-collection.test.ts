@@ -1,3 +1,4 @@
+import type { AnyObject } from '@scalar/openapi-parser'
 import { describe, expect, it, vi } from 'vitest'
 import { createCollection } from './create-collection'
 
@@ -37,7 +38,7 @@ describe('create-collection', () => {
       })
     })
 
-    it('throws if it’s not an OpenAPI document', async () => {
+    it(`throws if it's not an OpenAPI document`, async () => {
       await expect(createCollection({ content: {} })).rejects.toThrow(
         'Invalid OpenAPI/Swagger document, failed to find a specification version.',
       )
@@ -86,7 +87,7 @@ describe('create-collection', () => {
       const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Original object
-      expect(collection.document.components?.schemas?.Person).toMatchObject({
+      expect((collection.document as AnyObject).components?.schemas?.Person).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -94,7 +95,7 @@ describe('create-collection', () => {
       })
 
       // Resolved reference
-      expect(collection.document.components?.schemas?.User).toMatchObject({
+      expect((collection.document as AnyObject).components?.schemas?.User).toMatchObject({
         type: 'object',
         properties: {
           name: { type: 'string' },
@@ -145,7 +146,9 @@ describe('create-collection', () => {
       const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
       // Check that both references in anyOf are resolved
-      expect(collection.document.components?.schemas?.Person?.properties?.pets?.items?.anyOf).toMatchObject([
+      expect(
+        (collection.document as AnyObject).components?.schemas?.Person?.properties?.pets?.items?.anyOf,
+      ).toMatchObject([
         {
           type: 'object',
           properties: {
@@ -165,11 +168,19 @@ describe('create-collection', () => {
   })
 
   describe('read-only', () => {
-    it('throws if trying to update the document', async () => {
+    it('warns when trying to update the document', async () => {
+      const consoleWarnSpy = vi.spyOn(console, 'warn')
       const collection = await createCollection({ content: { openapi: '3.1.1' } })
 
-      // @ts-expect-error It’s fine, we’re just testing the read-only behavior.
-      expect(() => (collection.document.openapi = '3.1.2')).toThrow()
+      // @ts-expect-error We expect a TS error here, we're testing that it's read-only.
+      collection.document.openapi = '3.1.2'
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        '[Vue warn] Set operation on key "openapi" failed: target is readonly.',
+        { openapi: '3.1.1' },
+      )
+
+      consoleWarnSpy.mockRestore()
     })
   })
 
@@ -284,7 +295,7 @@ describe('create-collection', () => {
         description: 'This is a test description',
       })
 
-      expect(collection.document.info?.description).toBe('This is a test description')
+      expect((collection.document as AnyObject).info?.description).toBe('This is a test description')
     })
   })
 
@@ -310,7 +321,7 @@ describe('create-collection', () => {
 
       const result = collection.export()
 
-      expect(result.components?.schemas?.Circular?.properties?.self).toMatchObject({
+      expect((result as AnyObject).components?.schemas?.Circular?.properties?.self).toMatchObject({
         $ref: '#/components/schemas/Circular',
       })
     })

@@ -119,7 +119,7 @@ export const createExternalReferenceFetcher = ({
       })
 
       numberOfRequests++
-      console.log(`✅ fetched #${numberOfRequests}: ${url}`)
+      // console.log(`✅ fetched #${numberOfRequests}: ${url}`)
 
       fetchReferences(content, url)
     } catch (error) {
@@ -128,7 +128,7 @@ export const createExternalReferenceFetcher = ({
         errors: [error instanceof Error ? error : new Error(String(error))],
       })
 
-      console.error(`❌ Failed to fetch ${url}:`, error)
+      console.error(`[external-references] [${url}]`, error)
     }
   }
 
