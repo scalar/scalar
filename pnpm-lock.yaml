@@ -1948,9 +1948,6 @@ importers:
       '@apidevtools/swagger-parser':
         specifier: ^10.1.0
         version: 10.1.0(openapi-types@12.1.3)
-      '@babel/code-frame':
-        specifier: ^7.24.7
-        version: 7.24.7
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1975,6 +1972,9 @@ importers:
       tinybench:
         specifier: ^2.8.0
         version: 2.8.0
+      vite:
+        specifier: catalog:*
+        version: 5.4.19(@types/node@20.17.10)(terser@5.31.2)
 
   packages/openapi-to-markdown:
     dependencies:
@@ -19324,6 +19324,7 @@ snapshots:
     dependencies:
       '@babel/highlight': 7.24.7
       picocolors: 1.0.1
+    optional: true
 
   '@babel/code-frame@7.26.2':
     dependencies:
@@ -19771,6 +19772,7 @@ snapshots:
       chalk: 2.4.2
       js-tokens: 4.0.0
       picocolors: 1.1.1
+    optional: true
 
   '@babel/parser@7.26.2':
     dependencies:

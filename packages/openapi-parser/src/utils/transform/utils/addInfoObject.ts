@@ -1,4 +1,4 @@
-import type { AnyObject } from '../../../types/index'
+import type { AnyObject } from '@/types/index'
 
 export const DEFAULT_TITLE = 'API'
 export const DEFAULT_VERSION = '1.0'

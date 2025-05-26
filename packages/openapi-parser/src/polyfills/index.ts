@@ -1,1 +1,12 @@
-export * as path from './path'
+export {
+  resolve,
+  normalize,
+  isAbsolute,
+  join,
+  relative,
+  sep,
+  delimiter,
+  dirname,
+  basename,
+  extname,
+} from './path'

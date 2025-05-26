@@ -1,5 +1,5 @@
+import type { AnyObject } from '@/types/index'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { AnyObject } from '../types/index'
 
 /**
  * Recursively traverses the content and applies the transform function to each node.
