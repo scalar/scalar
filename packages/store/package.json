@@ -22,9 +22,10 @@
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite ./playground",
+    "dev": "pnpm playground",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "playground": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
@@ -36,16 +37,6 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css",
-      "default": "./dist/*.css"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css",
-      "default": "./dist/css/*.css"
     }
   },
   "files": [
@@ -55,12 +46,12 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "vue": "catalog:*"
   },
   "devDependencies": {
     "@scalar/api-client": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@vitejs/plugin-vue": "catalog:*",
     "@vueuse/core": "catalog:*",
     "vite": "catalog:*",

@@ -169,7 +169,7 @@ describe('external-references', () => {
 
         const entry = references.value.get('https://example.com/openapi.yaml')
         expect(entry?.status).toBe('failed')
-        expect(entry?.errors[0].message).toBe('Network error')
+        expect(entry?.errors[0]?.message).toBe('Network error')
       })
 
       it('handles HTTP errors gracefully', async () => {
@@ -186,7 +186,7 @@ describe('external-references', () => {
 
         const entry = references.value.get('https://example.com/openapi.yaml')
         expect(entry?.status).toBe('failed')
-        expect(entry?.errors[0].message).toContain('HTTP error! status: 404')
+        expect(entry?.errors[0]?.message).toContain('HTTP error! status: 404')
       })
 
       it('processes nested references correctly', async () => {
@@ -289,7 +289,7 @@ describe('external-references', () => {
 
         const entry = references.value.get('https://example.com/openapi.yaml')
         expect(entry?.status).toBe('failed')
-        expect(entry?.errors[0].message).toContain('Invalid OpenAPI document: Failed to parse the content')
+        expect(entry?.errors[0]?.message).toContain('Invalid OpenAPI document: Failed to parse the content')
         expect(entry?.errors.length).toBe(1)
       })
 

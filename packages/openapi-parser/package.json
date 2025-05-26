@@ -59,6 +59,7 @@
   "module": "./dist/index.js",
   "sideEffects": false,
   "dependencies": {
+    "@scalar/openapi-types": "workspace:*",
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
@@ -69,7 +70,6 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
     "glob": "^10.3.10",

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.strict.json",
   "include": ["src", "test"],
   "compilerOptions": {
     "paths": {

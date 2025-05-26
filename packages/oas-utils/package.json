@@ -112,7 +112,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "catalog:*",
-    "type-fest": "^4.20.0",
+    "type-fest": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*",
     "zod-to-ts": "github:amritk/zod-to-ts#build"

@@ -33,24 +33,24 @@ type ExternalReference = {
 /**
  * Options for creating an external reference fetcher.
  */
-type CreateExternalReferenceFetcherOptions = {
+type CreateExternalReferenceFetcherOptions = Readonly<{
   /** The initial URL to fetch */
-  readonly url?: string
+  url?: string
   /** Directly pass the content of the OpenAPI document */
-  readonly content?: string | UnknownObject
+  content?: string | UnknownObject
   /**
    * Whether to load external references right-away or only when they are accessed.
    *
    * - `eager` is great for SSR/SSG.
    * - `lazy` is great for client-side rendering.
    */
-  readonly strategy?: 'eager' | 'lazy'
+  strategy?: 'eager' | 'lazy'
   /**
    * Maximum number of concurrent requests when fetching references.
    * Defaults to 5 if not specified.
    */
-  readonly concurrencyLimit?: number
-}
+  concurrencyLimit?: number
+}>
 
 /**
  * Defines the structure of the external reference fetcher returned by createExternalReferenceFetcher.
@@ -105,6 +105,7 @@ export const createExternalReferenceFetcher = ({
    * Handles errors and recursively fetches references.
    */
   const fetchUrl = async (fetchTargetUrl: string): Promise<void> => {
+    console.log('fetching', fetchTargetUrl)
     updateReference(fetchTargetUrl, { status: 'pending' })
 
     try {
@@ -160,6 +161,7 @@ export const createExternalReferenceFetcher = ({
    */
   const addReference = async (newUrl: string): Promise<void> => {
     if (references.value.has(newUrl)) {
+      console.log('already have', newUrl)
       const entry = references.value.get(newUrl)!
 
       if (entry.status === 'idle') {
@@ -182,8 +184,8 @@ export const createExternalReferenceFetcher = ({
   /**
    * Resolves when all pending fetches are complete.
    */
-  const isReady = async (): Promise<void> => {
-    return new Promise((resolve) => {
+  const isReady = async (): Promise<void> =>
+    new Promise((resolve) => {
       watchEffect(() => {
         const hasPendingRequests = Array.from(references.value.values()).some(
           (reference) => reference.status === 'pending',
@@ -194,7 +196,6 @@ export const createExternalReferenceFetcher = ({
         }
       })
     })
-  }
 
   /**
    * Alias to access an entry in the references map.
@@ -280,8 +281,10 @@ const findReferences = (content: UnknownObject, origin?: string): string[] => {
       const refValue = (value as { $ref: unknown }).$ref
       if (typeof refValue === 'string' && !refValue.startsWith('#')) {
         const reference = refValue.split('#')[0]
-        const absoluteUrl = getAbsoluteUrl(origin, reference)
-        foundReferences.push(absoluteUrl)
+        if (reference) {
+          const absoluteUrl = getAbsoluteUrl(origin, reference)
+          foundReferences.push(absoluteUrl)
+        }
       }
     }
     // traverse expects the value to be returned, potentially modified.

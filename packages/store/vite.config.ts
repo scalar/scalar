@@ -18,7 +18,7 @@ export default defineConfig({
     minify: false,
     target: 'esnext',
     lib: {
-      entry: await findEntryPoints({ allowCss: true }),
+      entry: await findEntryPoints({ allowCss: false }),
       formats: ['es'],
     },
     rollupOptions: {
