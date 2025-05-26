@@ -342,8 +342,8 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
-    const userSchema2 = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
+    const userSchema2 = collection.document.components?.schemas?.User
 
     // The same proxy instance should be returned
     expect(userSchema).toBe(userSchema2)
@@ -361,7 +361,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema[Symbol.for('type')]).toBe('object')
   })
@@ -381,7 +381,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
     const descriptor = Object.getOwnPropertyDescriptor(userSchema, 'type')
 
     expect(descriptor?.enumerable).toBe(false)
@@ -400,7 +400,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
     const keys = Object.keys(userSchema)
 
     expect(keys).toContain('type')
@@ -420,7 +420,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect('type' in userSchema).toBe(true)
     expect('name' in userSchema).toBe(true)
@@ -439,7 +439,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema[123]).toBe('number key')
   })
@@ -456,7 +456,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
     const descriptor = Object.getOwnPropertyDescriptor(userSchema, 'name')
 
     expect(descriptor?.value).toBe('string')
@@ -479,7 +479,7 @@ describe('proxy behavior', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const level1 = (collection.document as any).components.schemas.Level1
+    const level1 = collection.document.components?.schemas?.Level1
 
     expect(level1.name).toBe('string')
   })
@@ -510,11 +510,11 @@ describe('reference resolution', () => {
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
 
-    const parentSchema = (collection.document as any).components.schemas.Parent
-    const childSchema = (collection.document as any).components.schemas.Child
+    const parentSchema = collection.document.components?.schemas?.Parent
+    const childSchema = collection.document.components?.schemas?.Child
 
-    expect(parentSchema.properties.child).toBe(childSchema)
-    expect(childSchema.properties.parent).toBe(parentSchema)
+    expect(parentSchema?.properties.child).toBe(childSchema)
+    expect(childSchema?.properties.parent).toBe(parentSchema)
   })
 
   it('handles invalid JSON pointer syntax', async () => {
@@ -529,7 +529,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual({ $ref: '#invalid/pointer' })
   })
@@ -546,7 +546,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual({ $ref: '#/components/schemas/NonExistent' })
   })
@@ -564,7 +564,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual({ type: 'string' })
   })
@@ -581,7 +581,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual(collection.document)
   })
@@ -598,7 +598,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual({ $ref: 123 })
   })
@@ -615,7 +615,7 @@ describe('reference resolution', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
     expect(userSchema).toEqual({ $ref: '' })
   })
@@ -665,7 +665,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas).toEqual({})
+    expect(collection.document.components?.schemas).toEqual({})
   })
 
   it('handles documents with null values', async () => {
@@ -680,7 +680,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas.User).toBeNull()
+    expect(collection.document.components?.schemas?.User).toBeNull()
   })
 
   it('handles documents with boolean values', async () => {
@@ -695,7 +695,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas.User.required).toBe(true)
+    expect(collection.document.components?.schemas?.User.required).toBe(true)
   })
 
   it('handles documents with number values', async () => {
@@ -710,7 +710,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas.User.minLength).toBe(1)
+    expect(collection.document.components?.schemas?.User.minLength).toBe(1)
   })
 
   it('handles undefined values in documents', async () => {
@@ -725,7 +725,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas.User.optional).toBeUndefined()
+    expect(collection.document.components?.schemas?.User.optional).toBeUndefined()
   })
 
   it('handles nested empty objects', async () => {
@@ -744,10 +744,10 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    const userSchema = (collection.document as any).components.schemas.User
+    const userSchema = collection.document.components?.schemas?.User
 
-    expect(userSchema.properties).toEqual({})
-    expect(userSchema.additionalProperties).toEqual({})
+    expect(userSchema?.properties).toEqual({})
+    expect(userSchema?.additionalProperties).toEqual({})
   })
 
   it('handles documents with invalid component types', async () => {
@@ -762,7 +762,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect((collection.document as any).components.schemas.User.type).toBe('invalid-type')
+    expect(collection.document.components?.schemas?.User.type).toBe('invalid-type')
   })
 })
 
@@ -988,7 +988,7 @@ describe('strategy options', () => {
     })
 
     // The reference should still be resolved when accessed
-    expect((collection.document as any).components.schemas.User.type).toBe('object')
+    expect(collection.document.components?.schemas?.User.type).toBe('object')
   })
 
   it('behaves the same for both strategies with internal references', async () => {
@@ -1013,8 +1013,8 @@ describe('strategy options', () => {
       strategy: 'lazy',
     })
 
-    expect((eagerCollection.document as any).components.schemas.User).toEqual(
-      (lazyCollection.document as any).components.schemas.User,
+    expect(eagerCollection.document.components?.schemas?.User).toEqual(
+      lazyCollection.document.components?.schemas?.User,
     )
   })
 })

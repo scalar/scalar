@@ -1,6 +1,8 @@
 import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-references'
 import type { UnknownObject } from '@/types'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
+import type { OpenApiObject as ProcessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/processed'
+import type { OpenApiObject as UnprocessedOpenApiObject } from '@scalar/openapi-types/schemas/3.1/unprocessed'
 import { reactive, readonly, toRaw } from 'vue'
 import { ERRORS } from './errors'
 
@@ -77,8 +79,7 @@ export async function createCollection({
   const documentProxy = createOpenApiProxy(root, root, externalReferences, url) as UnknownObject
 
   return {
-    // TODO: type ProcessedOpenApiObject
-    document: readonly(documentProxy),
+    document: readonly(documentProxy) as Readonly<ProcessedOpenApiObject>,
     /**
      * Exports the raw OpenAPI document with $ref's intact
      *
@@ -93,7 +94,7 @@ export async function createCollection({
  * Exports a raw OpenAPI document (containing $ref's)
  */
 export function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
-  return readonly(toRaw(document) as UnknownObject)
+  return readonly(toRaw(document) as UnprocessedOpenApiObject)
 }
 
 /**
