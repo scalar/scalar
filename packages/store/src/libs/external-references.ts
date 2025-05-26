@@ -105,7 +105,6 @@ export const createExternalReferenceFetcher = ({
    * Handles errors and recursively fetches references.
    */
   const fetchUrl = async (fetchTargetUrl: string): Promise<void> => {
-    console.log('fetching', fetchTargetUrl)
     updateReference(fetchTargetUrl, { status: 'pending' })
 
     try {
@@ -161,7 +160,6 @@ export const createExternalReferenceFetcher = ({
    */
   const addReference = async (newUrl: string): Promise<void> => {
     if (references.value.has(newUrl)) {
-      console.log('already have', newUrl)
       const entry = references.value.get(newUrl)!
 
       if (entry.status === 'idle') {

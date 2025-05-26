@@ -1,6 +1,6 @@
 import type { AnyObject } from '@scalar/openapi-parser'
 import { describe, expect, it, vi } from 'vitest'
-import { createCollection, getValueByPath, hasRefs, isObject, parseJsonPointer } from './create-collection'
+import { createCollection, getValueByPath, hasRefs, parseJsonPointer } from './create-collection'
 
 describe('createCollection', () => {
   describe('create', () => {
@@ -695,7 +695,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect(collection.document.components?.schemas?.User.required).toBe(true)
+    expect(collection.document.components?.schemas?.User?.required).toBe(true)
   })
 
   it('handles documents with number values', async () => {
@@ -710,7 +710,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect(collection.document.components?.schemas?.User.minLength).toBe(1)
+    expect(collection.document.components?.schemas?.User?.minLength).toBe(1)
   })
 
   it('handles undefined values in documents', async () => {
@@ -725,7 +725,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect(collection.document.components?.schemas?.User.optional).toBeUndefined()
+    expect(collection.document.components?.schemas?.User?.optional).toBeUndefined()
   })
 
   it('handles nested empty objects', async () => {
@@ -762,7 +762,7 @@ describe('document structure', () => {
     }
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
-    expect(collection.document.components?.schemas?.User.type).toBe('invalid-type')
+    expect(collection.document.components?.schemas?.User?.type).toBe('invalid-type')
   })
 })
 
@@ -841,17 +841,17 @@ describe('utility functions', () => {
         },
       }
 
-      expect(getValueByPath(document, ['components', 'schemas', 'User'])).toMatchObject({ type: 'object' })
+      expect(getValueByPath(document, ['components', 'schemas', 'User'], new Map())).toMatchObject({ type: 'object' })
     })
 
     it('returns undefined for non-existent paths', () => {
       const document = { components: {} }
-      expect(getValueByPath(document, ['components', 'schemas', 'User'])).toBeUndefined()
+      expect(getValueByPath(document, ['components', 'schemas', 'User'], new Map())).toBeUndefined()
     })
 
     it('handles empty path segments', () => {
       const document = { components: {} }
-      expect(getValueByPath(document, [])).toBe(document)
+      expect(getValueByPath(document, [], new Map())).toBe(document)
     })
 
     it('handles non-string path segments', () => {
@@ -864,7 +864,7 @@ describe('utility functions', () => {
       }
 
       // @ts-expect-error Testing invalid input
-      expect(getValueByPath(document, [123, 'schemas', 'User'])).toBeUndefined()
+      expect(getValueByPath(document, [123, 'schemas', 'User'], new Map())).toBeUndefined()
     })
 
     it('handles null/undefined path segments', () => {
@@ -877,9 +877,9 @@ describe('utility functions', () => {
       }
 
       // @ts-expect-error Testing invalid input
-      expect(getValueByPath(document, [null, 'schemas', 'User'])).toBeUndefined()
+      expect(getValueByPath(document, [null, 'schemas', 'User'], new Map())).toBeUndefined()
       // @ts-expect-error Testing invalid input
-      expect(getValueByPath(document, [undefined, 'schemas', 'User'])).toBeUndefined()
+      expect(getValueByPath(document, [undefined, 'schemas', 'User'], new Map())).toBeUndefined()
     })
   })
 
@@ -908,29 +908,6 @@ describe('utility functions', () => {
 
     it('handles URL-encoded characters', () => {
       expect(parseJsonPointer('#/components/schemas/User%20Name')).toEqual(['components', 'schemas', 'User Name'])
-    })
-  })
-
-  describe('isObject', () => {
-    it('returns true for plain objects', () => {
-      expect(isObject({})).toBe(true)
-      expect(isObject({ key: 'value' })).toBe(true)
-    })
-
-    it('returns false for arrays', () => {
-      expect(isObject([])).toBe(false)
-      expect(isObject([1, 2, 3])).toBe(false)
-    })
-
-    it('returns false for null', () => {
-      expect(isObject(null)).toBe(false)
-    })
-
-    it('returns false for primitives', () => {
-      expect(isObject('string')).toBe(false)
-      expect(isObject(123)).toBe(false)
-      expect(isObject(true)).toBe(false)
-      expect(isObject(undefined)).toBe(false)
     })
   })
 
@@ -988,7 +965,7 @@ describe('strategy options', () => {
     })
 
     // The reference should still be resolved when accessed
-    expect(collection.document.components?.schemas?.User.type).toBe('object')
+    expect(collection.document.components?.schemas?.User?.type).toBe('object')
   })
 
   it('behaves the same for both strategies with internal references', async () => {
