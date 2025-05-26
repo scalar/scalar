@@ -1,14 +1,20 @@
 # Scalar Collection
 
+[![Version](https://img.shields.io/npm/v/%40scalar/store)](https://www.npmjs.com/package/@scalar/store)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/store)](https://www.npmjs.com/package/@scalar/store)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fstore)](https://www.npmjs.com/package/@scalar/store)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
 A powerful data store for OpenAPI documents that handles `$ref` pointers with Vue reactivity support.
 
 ## Features
 
-- Seamless reference resolution
-- Vue reactivity support
-- Circular reference handling
-- Original document structure preservation
-- Caching for resolved references
+- Behaves like a regular object
+- Resolves internal $ref's magically
+- Fetches external references asynchronously
+- Updates asynchrously using Vue's reactivity model
+- Batches HTTP requests to avoid server limits
+- Preserves the original document structure, exports with all $ref's intact
 
 ## Installation
 
@@ -24,7 +30,7 @@ Create a new collection instance:
 import { createCollection } from '@scalar/store'
 
 // Create a collection from an OpenAPI document containing $ref's
-const collection = createCollection({
+const collection = await createCollection({
   content: {
     openapi: '3.1.1',
     info: {
@@ -58,7 +64,7 @@ console.log(collection.document.components.schemas.User)
 The store automatically resolves JSON References (`$ref`) when accessing properties:
 
 ```ts
-const collection = createCollection({
+const collection = await createCollection({
   content: {
     components: {
       schemas: {
@@ -85,74 +91,12 @@ user.properties.age = { type: 'number' }
 console.log(person.properties.age) // { type: 'number' }
 ```
 
-### Reactive Updates
-
-The collection maintains Vue reactivity while resolving references:
-
-```ts
-import { watch } from 'vue'
-import { createCollection } from '@scalar/store'
-
-const collection = createCollection({
-  content: {
-    components: {
-      schemas: {
-        Person: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-          },
-        },
-        User: {
-          $ref: '#/components/schemas/Person',
-        },
-      },
-    },
-  }
-})
-
-// Vue reactivity works through references
-watch(
-  () => collection.document.components.schemas.User.properties,
-  (newProps) => {
-    console.log('User properties changed:', newProps)
-  }
-)
-```
-
-### Private properties
-
-Collections support temporary data using properties prefixed with `_`. These properties are removed when exporting:
-
-```ts
-const collection = createCollection({
-  content: {
-    components: {
-      schemas: {
-        Person: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-          },
-        },
-        User: {
-          $ref: '#/components/schemas/Person',
-        },
-      },
-    },
-  },
-})
-
-// Prefix temporary properties with _ and they won’t be exported.
-collection.document.components.schemas.Person._selected = true
-```
-
-### Exporting
+### Export
 
 Export the raw document with references intact:
 
 ```ts
-const collection = createCollection({
+const collection = await createCollection({
   content: {
     components: {
       schemas: {
@@ -174,175 +118,10 @@ const collection = createCollection({
 const raw = collection.export()
 ```
 
-<!-- ## Update an OpenAPI Document
+## Community
 
-```ts
-const collection = createCollection({
-  content: {
-    openapi: '3.1.1',
-    info: {
-      title: 'Hello World',
-      version: '1.0.0'
-    },
-    paths: {}
-  }
-})
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
-// Replace the original content with a new document
-collection.update({
-  openapi: '3.1.1',
-  info: {
-    title: 'New OpenAPI Document',
-    version: '1.2.0'
-  },
-  paths: {}
-})
-``` -->
+## License
 
-## Merge Unrelated Documents
-
-Add data to an existing OpenAPI document:
-
-```ts
-const collection = createCollection({
-  content: {
-    openapi: '3.1.1',
-    info: {
-      title: 'Hello World',
-      version: '1.0.0'
-    },
-    paths: {
-      '/planets': {
-        get: { summary: 'List planets' },
-      },
-    }
-  }
-})
-
-// Add something to the existing document
-collection.merge({
-  info: {
-    // The result will have the new title and the version from the original document
-    title: 'New Title'
-  },
-  paths: {
-    // The result will have both paths
-    '/foobar': {
-      get: { summary: 'Foobar' },
-    },
-  },
-})
-```
-
-## Overlays
-
-```ts
-const collection = createCollection({
-  content: {
-    openapi: '3.1.1',
-    info: {
-      title: 'Hello World',
-      version: '1.0.0'
-    },
-    paths: {
-      '/planets': {
-        get: { summary: 'List planets' },
-      },
-    },
-  },
-})
-
-// Add an overlay
-collection.apply({
-  overlay: '1.0.0',
-  info: {
-    title: 'Overlay Example',
-    version: '1.0.0'
-  },
-  actions: [
-    {
-      target: '$.info',
-      update: { title: 'Overlayed Title' },
-    },
-    {
-      target: "$.paths['/planets'].get",
-      update: { summary: 'Overlayed summary' },
-    },
-  ]
-})
-
-// Or even multiple at once
-collection.apply([overlay1, overlay2])
-```
-
-<!-- ## Workspaces
-
-Create a new worksapce instance and manage collections:
-
-```ts
-import { createWorkspace } from '@scalar/store'
-
-// Create a new workspace
-const workspace = createWorkspace()
-
-// Load data into a collection
-workspace.load('myCollection', {
-  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-    version: '1.0',
-  },
-  paths: {},
-})
-
-// Export data from a collection
-const data = workspace.export('myCollection')
-```
-
-### Async Data Loading
-
-The workspace supports async data loading for remote data fetching:
-
-```ts
-const workspace = createWorkspace()
-
-// Load data asynchronously
-await workspace.load('myCollection', async () => {
-  const response = await fetch('https://example.com/openapi.json')
-
-  return response.json()
-})
-```
-
-### Local Storage Persistence
-
-Enable automatic state persistence to localStorage:
-
-```ts
-import { createWorkspace, localStoragePlugin } from '@scalar/store'
-
-// Create a workspace with localStorage persistence
-const workspace = createWorkspace({
-  plugins: [
-    localStoragePlugin(),
-
-    // Or specify a custom storage key (default: 'state')
-    localStoragePlugin({ key: 'my-state' })
-  ]
-})
-```
-
-### Work with collections
-
-You can access all collection methods through the workspace for convenience.
-
-```ts
-// Replace the whole OpenAPI document
-workspace.update('myCollection', { … })
-
-// Add data to an existing document
-workspace.merge('myCollection', { … })
-
-// Apply OpenAPI overlays
-workspace.apply('myCollection', { … })
-``` -->
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
