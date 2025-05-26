@@ -68,7 +68,7 @@ export async function createCollection({
   // Normalized and upgraded content, doesn't matter where it came from.
   const content = externalReferences.getReference(url)?.content || {}
 
-  if (!isObject(content) || (typeof content.openapi !== 'string' && typeof content.swagger !== 'string')) {
+  if (!isValidOpenApiDocument(content)) {
     throw new Error(ERRORS.INVALID_SPECIFICATION_VERSION)
   }
 
@@ -76,10 +76,10 @@ export async function createCollection({
   const root = reactive(content)
 
   // Create a proxy that only handles $ref resolution, using the reactive root
-  const documentProxy = createOpenApiProxy(root, root, externalReferences, url) as UnknownObject
+  const documentProxy = createOpenApiProxy(root, root, externalReferences, url) as ProcessedOpenApiObject
 
   return {
-    document: readonly(documentProxy) as Readonly<ProcessedOpenApiObject>,
+    document: readonly(documentProxy),
     /**
      * Exports the raw OpenAPI document with $ref's intact
      *
@@ -93,9 +93,7 @@ export async function createCollection({
 /**
  * Exports a raw OpenAPI document (containing $ref's)
  */
-export function exportRawDocument(document: UnknownObject): Readonly<UnknownObject> {
-  return readonly(toRaw(document) as UnprocessedOpenApiObject)
-}
+export const exportRawDocument = (document: UnprocessedOpenApiObject) => readonly(toRaw(document))
 
 /**
  * Retrieves a nested value from the source document using a path array
@@ -147,8 +145,30 @@ export function parseJsonPointer(pointer: string): string[] {
  * isObject(null) // false
  * ```
  */
-export function isObject(value: unknown): value is UnknownObject {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
+export const isObject = (value: unknown): value is UnknownObject =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+
+/** Type guard for reference objects */
+export const isReferenceObject = (value: unknown): value is { $ref: string } =>
+  isObject(value) && '$ref' in value && typeof (value as { $ref: unknown }).$ref === 'string'
+
+/** Type guard to check if an object is a valid OpenAPI/Swagger document */
+const isValidOpenApiDocument = (value: unknown): value is UnprocessedOpenApiObject => {
+  if (!isObject(value)) {
+    return false
+  }
+
+  // Check for OpenAPI
+  if (typeof value.openapi === 'string') {
+    return true
+  }
+
+  // Check for Swagger
+  if (typeof value.swagger === 'string') {
+    return true
+  }
+
+  return false
 }
 
 /**
@@ -198,7 +218,7 @@ export function resolveRef(
 
   // External references
   if (!origin || !externalReferences) {
-    console.warn(ERRORS.CANNOT_RESOLVE_EXTERNAL_REFERENCE(ref as string))
+    console.warn(ERRORS.CANNOT_RESOLVE_EXTERNAL_REFERENCE(ref))
 
     return undefined
   }
@@ -236,9 +256,9 @@ export function createOpenApiProxy(
   if (Array.isArray(target)) {
     return target.map((item) => {
       if (isObject(item) && '$ref' in item) {
-        const ref = item.$ref as string
+        const ref = item.$ref
         const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
-        if (resolvedValue) {
+        if (resolvedValue && typeof ref === 'string') {
           // Calculate the new origin based on the resolved reference
           const [filePath] = ref.split('#')
           const newOrigin = getAbsoluteUrl(origin, filePath)
@@ -279,7 +299,7 @@ export function createOpenApiProxy(
       // If targetObject itself is a $ref, resolve it first before trying to get any other property.
       // This handles cases like accessing `level1.name` where `level1` is a proxy for an object like `{ $ref: "#/..." }`.
       if (prop !== '$ref' && typeof prop === 'string' && '$ref' in targetObject) {
-        const targetRef = targetObject.$ref as string
+        const targetRef = targetObject.$ref
         const resolvedTarget = resolveRef(targetRef, sourceDocument, externalReferences, origin)
 
         if (resolvedTarget) {
@@ -288,7 +308,9 @@ export function createOpenApiProxy(
 
           // Get the originally requested property (`prop`) from this new proxy/object.
           // This will trigger another 'get' if proxiedResolvedTarget is a proxy.
-          return Reflect.get(proxiedResolvedTarget as object, prop, receiver)
+          if (isObject(proxiedResolvedTarget)) {
+            return Reflect.get(proxiedResolvedTarget, prop, receiver)
+          }
         }
 
         // If targetObject.$ref could not be resolved, the property `prop` is effectively undefined.
@@ -301,9 +323,9 @@ export function createOpenApiProxy(
       // If the property's value itself is a $ref object (e.g., target.someProperty = { $ref: "..." }),
       // resolve and proxy it.
       if (isObject(value) && '$ref' in value) {
-        const valueRef = value.$ref as string
+        const valueRef = value.$ref
         const resolvedValue = resolveRef(valueRef, sourceDocument, externalReferences, origin)
-        if (resolvedValue) {
+        if (resolvedValue && typeof valueRef === 'string') {
           const [filePath] = valueRef.split('#')
           const newOrigin = getAbsoluteUrl(origin, filePath)
           return createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, newOrigin)
@@ -329,7 +351,7 @@ export function createOpenApiProxy(
 
       // Only check $ref resolution if the key isn't found directly
       if (typeof key === 'string' && key !== '$ref' && '$ref' in targetObject) {
-        const ref = targetObject.$ref as string
+        const ref = targetObject.$ref
         const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
         if (resolvedValue) {
           const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
@@ -347,7 +369,7 @@ export function createOpenApiProxy(
       }
 
       // Only resolve $ref if the object has one
-      const ref = targetObject.$ref as string
+      const ref = targetObject.$ref
       const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
       if (resolvedValue) {
         const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
@@ -364,7 +386,7 @@ export function createOpenApiProxy(
       }
 
       // Only resolve $ref if the object has one and we're not looking for the $ref itself
-      const ref = targetObject.$ref as string
+      const ref = targetObject.$ref
       const resolvedValue = resolveRef(ref, sourceDocument, externalReferences, origin)
       if (resolvedValue) {
         const proxiedValue = createOpenApiProxy(resolvedValue, sourceDocument, externalReferences, origin)
