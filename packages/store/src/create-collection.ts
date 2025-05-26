@@ -179,11 +179,15 @@ export function hasRefs(obj: unknown): boolean {
  * Returns undefined if the external reference is not yet loaded.
  */
 export function resolveRef(
-  ref: string,
+  ref: string | unknown,
   sourceDocument: UnknownObject,
   externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
   origin?: string,
 ): UnknownObject | undefined {
+  if (typeof ref !== 'string') {
+    return undefined
+  }
+
   // Internal references
   if (ref.startsWith('#')) {
     const referencePath = parseJsonPointer(ref)

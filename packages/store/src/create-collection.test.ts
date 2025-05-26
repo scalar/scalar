@@ -443,6 +443,46 @@ describe('proxy behavior', () => {
 
     expect(userSchema[123]).toBe('number key')
   })
+
+  it('handles getOwnPropertyDescriptor for non-$ref properties', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { type: 'object', name: 'string' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+    const descriptor = Object.getOwnPropertyDescriptor(userSchema, 'name')
+
+    expect(descriptor?.value).toBe('string')
+    expect(descriptor?.enumerable).toBe(true)
+    expect(descriptor?.configurable).toBe(false)
+  })
+
+  it('handles deeply nested references', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          Level1: { $ref: '#/components/schemas/Level2' },
+          Level2: { $ref: '#/components/schemas/Level3' },
+          Level3: { $ref: '#/components/schemas/Level4' },
+          Level4: { type: 'object', name: 'string' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const level1 = (collection.document as any).components.schemas.Level1
+
+    expect(level1.name).toBe('string')
+  })
 })
 
 describe('reference resolution', () => {
@@ -527,6 +567,57 @@ describe('reference resolution', () => {
     const userSchema = (collection.document as any).components.schemas.User
 
     expect(userSchema).toEqual({ type: 'string' })
+  })
+
+  it('handles empty paths', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual(collection.document)
+  })
+
+  it('handles malformed $ref values', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: 123 as any },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual({ $ref: 123 })
+  })
+
+  it('handles empty $ref values', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual({ $ref: '' })
   })
 })
 
@@ -620,6 +711,58 @@ describe('document structure', () => {
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     expect((collection.document as any).components.schemas.User.minLength).toBe(1)
+  })
+
+  it('handles undefined values in documents', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { type: 'object', optional: undefined },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    expect((collection.document as any).components.schemas.User.optional).toBeUndefined()
+  })
+
+  it('handles nested empty objects', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {},
+            additionalProperties: {},
+          },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema.properties).toEqual({})
+    expect(userSchema.additionalProperties).toEqual({})
+  })
+
+  it('handles documents with invalid component types', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { type: 'invalid-type' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    expect((collection.document as any).components.schemas.User.type).toBe('invalid-type')
   })
 })
 
@@ -823,5 +966,55 @@ describe('utility functions', () => {
       expect(hasRefs([null, undefined, { $ref: '#/components/schemas/User' }])).toBe(true)
       expect(hasRefs([null, undefined, { type: 'object' }])).toBe(false)
     })
+  })
+})
+
+describe('strategy options', () => {
+  it('handles lazy loading strategy', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#/components/schemas/BaseUser' },
+          BaseUser: { type: 'object' },
+        },
+      },
+    }
+
+    const collection = await createCollection({
+      content: EXAMPLE_DOCUMENT,
+      strategy: 'lazy',
+    })
+
+    // The reference should still be resolved when accessed
+    expect((collection.document as any).components.schemas.User.type).toBe('object')
+  })
+
+  it('behaves the same for both strategies with internal references', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#/components/schemas/BaseUser' },
+          BaseUser: { type: 'object' },
+        },
+      },
+    }
+
+    const eagerCollection = await createCollection({
+      content: EXAMPLE_DOCUMENT,
+      strategy: 'eager',
+    })
+
+    const lazyCollection = await createCollection({
+      content: EXAMPLE_DOCUMENT,
+      strategy: 'lazy',
+    })
+
+    expect((eagerCollection.document as any).components.schemas.User).toEqual(
+      (lazyCollection.document as any).components.schemas.User,
+    )
   })
 })
