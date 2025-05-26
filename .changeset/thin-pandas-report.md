@@ -1,0 +1,5 @@
+---
+'@scalar/store': minor
+---
+
+init :)
