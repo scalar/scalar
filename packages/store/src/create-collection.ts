@@ -342,24 +342,6 @@ export function createOpenApiProxy(
 
       return Object.getOwnPropertyDescriptor(target, key)
     },
-
-    set(target: UnknownObject, key: string | symbol, value: unknown) {
-      throw new Error(
-        'Cannot modify the OpenAPI document. The document is read-only to maintain consistency with external references.',
-      )
-    },
-
-    deleteProperty(target: UnknownObject, key: string | symbol) {
-      throw new Error(
-        'Cannot delete properties from the OpenAPI document. The document is read-only to maintain consistency with external references.',
-      )
-    },
-
-    defineProperty(target: UnknownObject, key: string | symbol, descriptor: PropertyDescriptor) {
-      throw new Error(
-        'Cannot define new properties on the OpenAPI document. The document is read-only to maintain consistency with external references.',
-      )
-    },
   })
 
   // Cache the proxy

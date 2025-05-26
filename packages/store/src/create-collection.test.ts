@@ -386,6 +386,148 @@ describe('proxy behavior', () => {
 
     expect(descriptor?.enumerable).toBe(false)
   })
+
+  it('handles ownKeys for objects with $refs', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#/components/schemas/BaseUser' },
+          BaseUser: { type: 'object', name: 'string' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+    const keys = Object.keys(userSchema)
+
+    expect(keys).toContain('type')
+    expect(keys).toContain('name')
+  })
+
+  it('handles has for nested properties', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#/components/schemas/BaseUser' },
+          BaseUser: { type: 'object', name: 'string' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect('type' in userSchema).toBe(true)
+    expect('name' in userSchema).toBe(true)
+    expect('nonexistent' in userSchema).toBe(false)
+  })
+
+  it('handles non-string/symbol keys', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { [123]: 'number key' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema[123]).toBe('number key')
+  })
+})
+
+describe('reference resolution', () => {
+  it('handles circular references in the same document', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          Parent: {
+            type: 'object',
+            properties: {
+              child: { $ref: '#/components/schemas/Child' },
+            },
+          },
+          Child: {
+            type: 'object',
+            properties: {
+              parent: { $ref: '#/components/schemas/Parent' },
+            },
+          },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+
+    const parentSchema = (collection.document as any).components.schemas.Parent
+    const childSchema = (collection.document as any).components.schemas.Child
+
+    expect(parentSchema.properties.child).toBe(childSchema)
+    expect(childSchema.properties.parent).toBe(parentSchema)
+  })
+
+  it('handles invalid JSON pointer syntax', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#invalid/pointer' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual({ $ref: '#invalid/pointer' })
+  })
+
+  it('handles non-existent paths', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { $ref: '#/components/schemas/NonExistent' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual({ $ref: '#/components/schemas/NonExistent' })
+  })
+
+  it('handles special characters in paths', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          'User/Name': { type: 'string' },
+          User: { $ref: '#/components/schemas/User~1Name' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const userSchema = (collection.document as any).components.schemas.User
+
+    expect(userSchema).toEqual({ type: 'string' })
+  })
 })
 
 describe('document structure', () => {
@@ -434,6 +576,97 @@ describe('document structure', () => {
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     expect((collection.document as any).components.schemas).toEqual({})
   })
+
+  it('handles documents with null values', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: null,
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    expect((collection.document as any).components.schemas.User).toBeNull()
+  })
+
+  it('handles documents with boolean values', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { type: 'object', required: true },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    expect((collection.document as any).components.schemas.User.required).toBe(true)
+  })
+
+  it('handles documents with number values', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          User: { type: 'object', minLength: 1 },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    expect((collection.document as any).components.schemas.User.minLength).toBe(1)
+  })
+})
+
+describe('export functionality', () => {
+  it('preserves circular references in arrays', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          Users: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/User' },
+          },
+          User: {
+            type: 'object',
+            properties: {
+              friends: { $ref: '#/components/schemas/Users' },
+            },
+          },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const exported = collection.export()
+
+    expect((exported as any).components.schemas.Users.items.$ref).toBe('#/components/schemas/User')
+    expect((exported as any).components.schemas.User.properties.friends.$ref).toBe('#/components/schemas/Users')
+  })
+
+  it('preserves special characters in keys', async () => {
+    const EXAMPLE_DOCUMENT = {
+      openapi: '3.1.1',
+      info: { title: 'Example', version: '1.0.0' },
+      components: {
+        schemas: {
+          'User/Name': { type: 'string' },
+        },
+      },
+    }
+
+    const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
+    const exported = collection.export()
+
+    expect((exported as any).components.schemas['User/Name']).toEqual({ type: 'string' })
+  })
 })
 
 describe('error handling', () => {
@@ -477,6 +710,34 @@ describe('utility functions', () => {
       const document = { components: {} }
       expect(getValueByPath(document, [])).toBe(document)
     })
+
+    it('handles non-string path segments', () => {
+      const document = {
+        components: {
+          schemas: {
+            User: { type: 'object' },
+          },
+        },
+      }
+
+      // @ts-expect-error Testing invalid input
+      expect(getValueByPath(document, [123, 'schemas', 'User'])).toBeUndefined()
+    })
+
+    it('handles null/undefined path segments', () => {
+      const document = {
+        components: {
+          schemas: {
+            User: { type: 'object' },
+          },
+        },
+      }
+
+      // @ts-expect-error Testing invalid input
+      expect(getValueByPath(document, [null, 'schemas', 'User'])).toBeUndefined()
+      // @ts-expect-error Testing invalid input
+      expect(getValueByPath(document, [undefined, 'schemas', 'User'])).toBeUndefined()
+    })
   })
 
   describe('parseJsonPointer', () => {
@@ -496,6 +757,14 @@ describe('utility functions', () => {
 
     it('handles pointers without leading #', () => {
       expect(parseJsonPointer('components/schemas/User')).toEqual(['components', 'schemas', 'User'])
+    })
+
+    it('handles invalid escape sequences', () => {
+      expect(parseJsonPointer('#/components/schemas/User~2Name')).toEqual(['components', 'schemas', 'User~2Name'])
+    })
+
+    it('handles URL-encoded characters', () => {
+      expect(parseJsonPointer('#/components/schemas/User%20Name')).toEqual(['components', 'schemas', 'User Name'])
     })
   })
 
@@ -548,6 +817,11 @@ describe('utility functions', () => {
       expect(hasRefs({ key: 'value' })).toBe(false)
       expect(hasRefs([])).toBe(false)
       expect(hasRefs([1, 2, 3])).toBe(false)
+    })
+
+    it('handles null/undefined values in arrays', () => {
+      expect(hasRefs([null, undefined, { $ref: '#/components/schemas/User' }])).toBe(true)
+      expect(hasRefs([null, undefined, { type: 'object' }])).toBe(false)
     })
   })
 })
