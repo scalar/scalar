@@ -2,6 +2,7 @@ import { createExternalReferenceFetcher, getAbsoluteUrl } from '@/libs/external-
 import type { UnknownObject } from '@/types'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import { reactive, readonly, toRaw } from 'vue'
+import { ERRORS } from './errors'
 
 // Defaults
 const DEFAULT_STRATEGY = 'eager'
@@ -58,7 +59,7 @@ export async function createCollection({
 
   if (url) {
     if (externalReferences.getReference(url)?.status !== 'fetched') {
-      throw new Error('Failed to fetch OpenAPI document', { cause: externalReferences.getReference(url)?.errors })
+      throw new Error(ERRORS.FAILED_TO_FETCH_OPENAPI_DOCUMENT, { cause: externalReferences.getReference(url)?.errors })
     }
   }
 
@@ -66,7 +67,7 @@ export async function createCollection({
   const content = externalReferences.getReference(url)?.content || {}
 
   if (!isObject(content) || (typeof content.openapi !== 'string' && typeof content.swagger !== 'string')) {
-    throw new Error('Invalid OpenAPI/Swagger document, failed to find a specification version.')
+    throw new Error(ERRORS.INVALID_SPECIFICATION_VERSION)
   }
 
   // Make the root document reactive
@@ -196,7 +197,7 @@ export function resolveRef(
 
   // External references
   if (!origin || !externalReferences) {
-    console.warn('Cannot resolve external reference without origin or externalReferences:', ref)
+    console.warn(ERRORS.CANNOT_RESOLVE_EXTERNAL_REFERENCE(ref as string))
 
     return undefined
   }

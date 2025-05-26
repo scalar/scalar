@@ -1,6 +1,7 @@
 import type { UnknownObject } from '@/types'
 import { traverse, upgrade } from '@scalar/openapi-parser'
 import { type Ref, ref, watchEffect } from 'vue'
+import { ERRORS } from '../errors'
 
 // Defaults
 const DEFAULT_CONCURRENCY_LIMIT = 5
@@ -79,7 +80,7 @@ export const createExternalReferenceFetcher = ({
    */
   const updateReference = (referenceUrl: string, updates: Partial<ExternalReference> = {}): void => {
     if (!references.value.has(referenceUrl)) {
-      throw new Error(`Reference ${referenceUrl} not found`)
+      throw new Error(ERRORS.REFERENCE_NOT_FOUND(referenceUrl))
     }
 
     const entry = references.value.get(referenceUrl)!
@@ -111,7 +112,7 @@ export const createExternalReferenceFetcher = ({
       const response = await fetch(fetchTargetUrl)
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(ERRORS.HTTP_ERROR(response.status))
       }
 
       const text = await response.text()
@@ -119,7 +120,7 @@ export const createExternalReferenceFetcher = ({
 
       // Add validation to ensure we got a proper OpenAPI document
       if (!fetchedContent || typeof fetchedContent !== 'object' || Object.keys(fetchedContent).length === 0) {
-        throw new Error('Invalid OpenAPI document: Failed to parse the content')
+        throw new Error(ERRORS.INVALID_OPENAPI_DOCUMENT)
       }
 
       updateReference(fetchTargetUrl, {
@@ -138,7 +139,7 @@ export const createExternalReferenceFetcher = ({
         errors: [error instanceof Error ? error : new Error(String(error))],
       })
 
-      console.error(`[external-references] [${fetchTargetUrl}]`, error)
+      console.error(ERRORS.EXTERNAL_REFERENCE_ERROR_PREFIX(fetchTargetUrl), error)
     }
   }
 
@@ -277,7 +278,7 @@ export function getAbsoluteUrl(origin: string | undefined, relativeOrAbsoluteUrl
 const findReferences = (specContent: UnknownObject, origin?: string): string[] => {
   const foundReferences: string[] = []
 
-  traverse(specContent, (value: unknown) => {
+  traverse(specContent, (value: UnknownObject) => {
     // Check if value is an object and has a $ref property that is a string
     if (typeof value === 'object' && value !== null && '$ref' in value) {
       const refValue = (value as { $ref: unknown }).$ref
