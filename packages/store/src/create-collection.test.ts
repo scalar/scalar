@@ -363,7 +363,7 @@ describe('proxy behavior', () => {
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     const userSchema = collection.document.components?.schemas?.User
 
-    expect(userSchema[Symbol.for('type')]).toBe('object')
+    expect(userSchema?.[Symbol.for('type') as any]).toBe('object')
   })
 
   it('preserves property descriptors', async () => {
@@ -401,7 +401,7 @@ describe('proxy behavior', () => {
 
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     const userSchema = collection.document.components?.schemas?.User
-    const keys = Object.keys(userSchema)
+    const keys = Object.keys(userSchema ?? {})
 
     expect(keys).toContain('type')
     expect(keys).toContain('name')
@@ -422,9 +422,9 @@ describe('proxy behavior', () => {
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     const userSchema = collection.document.components?.schemas?.User
 
-    expect('type' in userSchema).toBe(true)
-    expect('name' in userSchema).toBe(true)
-    expect('nonexistent' in userSchema).toBe(false)
+    expect('type' in (userSchema ?? {})).toBe(true)
+    expect('name' in (userSchema ?? {})).toBe(true)
+    expect('nonexistent' in (userSchema ?? {})).toBe(false)
   })
 
   it('handles non-string/symbol keys', async () => {
@@ -441,7 +441,7 @@ describe('proxy behavior', () => {
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     const userSchema = collection.document.components?.schemas?.User
 
-    expect(userSchema[123]).toBe('number key')
+    expect(userSchema?.[123 as any]).toBe('number key')
   })
 
   it('handles getOwnPropertyDescriptor for non-$ref properties', async () => {
@@ -481,7 +481,7 @@ describe('proxy behavior', () => {
     const collection = await createCollection({ content: EXAMPLE_DOCUMENT })
     const level1 = collection.document.components?.schemas?.Level1
 
-    expect(level1.name).toBe('string')
+    expect(level1?.name).toBe('string')
   })
 })
 
