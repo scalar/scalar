@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
-import { computed, onMounted } from 'vue'
+import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
@@ -31,9 +32,7 @@ const { getHeadingId } = useNavState()
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
  */
-const oasVersion = computed(
-  () => props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? '',
-)
+const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
 
 /** Format the version number to be displayed in the badge */
 const version = computed(() => {

@@ -72,24 +72,15 @@ export function useDocumentSource({
         return
       }
 
-      if (providedDereferencedDocument) {
-        return
-      }
-
-      // TODO: Load external references
-      // const { filesystem } = await load(dereferencedDocument, {
-      //   plugins: [
-      //     fetchUrls({
-      //       fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
-      //     }),
-      //   ],
-      // })
-
       // Make it an object
       const content = normalize(newDocument) as OpenAPI.Document
 
-      // Original OpenAPI version
+      // Original OpenAPI version (not the one after the upgrade)
       originalOpenApiVersion.value = (typeof content === 'object' && (content.openapi || content.swagger)) || ''
+
+      if (providedDereferencedDocument) {
+        return
+      }
 
       // Upgrade
       const outdatedVersion = !originalOpenApiVersion.value.startsWith('3.1')
