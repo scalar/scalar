@@ -378,7 +378,6 @@ button.schema-card-title:hover {
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
-  overflow: hidden;
   width: fit-content;
 }
 .schema-properties-name {
