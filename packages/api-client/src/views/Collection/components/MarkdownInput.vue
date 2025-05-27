@@ -55,7 +55,7 @@ watch(mode, (newMode) => {
           <template v-if="modelValue && modelValue.trim().length">
             <ScalarMarkdown
               v-if="modelValue"
-              class="h-full flex-1 rounded border border-transparent p-1.5 hover:border-(--color-b-3)"
+              class="h-full flex-1 rounded border border-transparent p-1.5 hover:border-(--scalar-background-3)"
               :value="modelValue"
               withImages
               @dblclick="mode = 'edit'" />

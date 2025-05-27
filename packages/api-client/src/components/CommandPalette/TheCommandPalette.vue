@@ -327,7 +327,7 @@ onBeforeUnmount(() => {
         v-if="!activeCommand"
         class="custom-scroll max-h-[50dvh] min-h-0 flex-1 rounded-lg p-1.5">
         <div
-          class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--color-b-3)">
+          class="bg-b-2 focus-within:bg-b-1 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:border-(--scalar-background-3)">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
