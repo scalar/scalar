@@ -21,16 +21,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
-      - name: Build
+      - name: Build packages
         uses: ./.github/actions/build-blacksmith
         with:
           node-version: ${{ matrix.node-version }}
-          packages: './{packages}/**'
+          packages: './packages/**'
       - name: Build scalar-app
-        uses: ./.github/actions/build
+        uses: ./.github/actions/build-blacksmith
         with:
-          packages-only: 'scalar-app'
           node-version: ${{ matrix.node-version }}
+          packages: './projects/scalar-app'
       # Caching browser binaries is not recommended, since the amount of time it takes to restore the cache is comparable to the time it takes to download the binaries.
       - name: Install chromium browser
         run: npx playwright install chromium
