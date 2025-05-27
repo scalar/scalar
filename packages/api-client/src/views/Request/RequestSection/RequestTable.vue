@@ -94,7 +94,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
       }">
       <template v-if="isGlobal">
         <RouterLink
-          class="!border-r-1/2 border-t-1/2 text-c-2 flex items-center justify-center"
+          class="text-c-2 flex items-center justify-center border-t !border-r"
           :to="item.route ?? {}">
           <span class="sr-only">Global</span>
           <ScalarTooltip
@@ -110,7 +110,7 @@ const showDeleteButton = (item: RequestExampleParameter) => {
       </template>
       <template v-else>
         <DataTableCheckbox
-          class="!border-r-1/2"
+          class="!border-r"
           :disabled="props.hasCheckboxDisabled"
           :modelValue="item.enabled"
           @update:modelValue="(v) => emit('toggleRow', idx, v)" />

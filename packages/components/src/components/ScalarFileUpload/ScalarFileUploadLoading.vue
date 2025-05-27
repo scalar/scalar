@@ -25,7 +25,7 @@ const { cx } = useBindCx()
   <div
     v-bind="
       cx(
-        ' size-full flex items-center justify-center bg-b-1 bg-mix-transparent bg-mix-amount-25 absolute inset-0 z-1 rounded p-1 backdrop-blur text-c-2',
+        ' size-full flex items-center justify-center absolute inset-0 z-1 rounded p-1 backdrop-blur text-c-2',
       )
     ">
     <ScalarLoading

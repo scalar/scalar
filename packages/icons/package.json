@@ -45,7 +45,6 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@phosphor-icons/core": "^2.1.1",
-    "@scalar/use-hooks": "workspace:*",
     "@types/node": "catalog:*",
     "chalk": "^5.4.1",
     "vue": "catalog:*"

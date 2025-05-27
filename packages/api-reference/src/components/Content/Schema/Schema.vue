@@ -119,7 +119,7 @@ watch(
       :class="[
         `schema-card--level-${level}`,
         { 'schema-card--compact': compact, 'schema-card--open': open },
-        { 'border-t-1/2': additionalProperties && open },
+        { 'border-t': additionalProperties && open },
       ]">
       <!-- Schema description -->
       <div

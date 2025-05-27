@@ -118,7 +118,7 @@ function handleDragEnter(event: DragEvent) {
     leaveToClass="opacity-0">
     <div
       v-if="isDragging"
-      class="bg-b-2 fixed bottom-1/2 right-1/2 z-50 h-64 w-64 translate-x-1/2 translate-y-1/2 rounded-xl border transition-opacity duration-200 md:bottom-10 md:right-10 md:translate-x-0 md:translate-y-0">
+      class="bg-b-2 fixed right-1/2 bottom-1/2 z-50 h-64 w-64 translate-x-1/2 translate-y-1/2 rounded-xl border transition-opacity duration-200 md:right-10 md:bottom-10 md:translate-x-0 md:translate-y-0">
       <div class="flex h-full flex-col items-center justify-center">
         <div>
           <ScalarIcon

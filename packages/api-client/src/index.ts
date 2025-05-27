@@ -1,3 +1,5 @@
+import './style.css'
+
 export * from './layouts/Modal'
 export * from './layouts/App'
 

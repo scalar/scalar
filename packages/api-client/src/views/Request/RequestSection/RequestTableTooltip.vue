@@ -29,7 +29,7 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
     </button>
     <template #popover>
       <div
-        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pb-1.5 pt-2 leading-none">
+        class="w-content text-xxs text-c-1 grid min-w-48 gap-1.5 rounded px-1.5 pt-2 pb-1.5 leading-none">
         <div
           v-if="isInvalid"
           class="text-error-1">
@@ -52,7 +52,7 @@ const isInvalid = computed(() => !!parameterIsInvalid(item).value)
         </div>
         <span
           v-if="item.description && !isInvalid"
-          class="text-pretty text-sm leading-snug"
+          class="text-sm leading-snug text-pretty"
           :style="{ maxWidth: '16rem' }">
           {{ item.description }}
         </span>

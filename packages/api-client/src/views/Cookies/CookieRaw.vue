@@ -20,7 +20,7 @@ const { cookies } = useWorkspace()
     <template
       v-if="activeCookieId && cookies[activeCookieId] && activeWorkspace">
       <CodeInput
-        class="py-2.5 pl-px pr-2 md:px-2"
+        class="py-2.5 pr-2 pl-px md:px-2"
         :envVariables="activeEnvVariables"
         :environment="activeEnvironment"
         lineNumbers

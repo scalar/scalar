@@ -40,7 +40,7 @@ const getVariable = (name: string) => {
         class="group/label flex w-full"
         :class="layout === 'reference' && 'border-x border-b'">
         <span
-          class="mr-1.5 flex items-center py-1.5 pl-3 after:content-[':'] group-has-[input]/label:mr-0">
+          class="mr-1.5 flex items-center py-1.5 pl-3 group-has-[input]/label:mr-0 after:content-[':']">
           {{ name }}
         </span>
         <template v-if="variables?.[name]?.enum?.length">

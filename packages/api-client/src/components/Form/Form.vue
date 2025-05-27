@@ -66,7 +66,7 @@ const id = useId()
               v-if="option.key === 'description'"
               #icon>
               <div
-                class="centered-y bg-b-2 flex-center z-1 absolute right-1 rounded px-1 py-0.5">
+                class="centered-y bg-b-2 flex-center absolute right-1 z-1 rounded px-1 py-0.5">
                 <ScalarIcon
                   icon="Markdown"
                   size="lg" />

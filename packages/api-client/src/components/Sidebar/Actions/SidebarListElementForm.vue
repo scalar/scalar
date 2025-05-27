@@ -25,7 +25,7 @@ const emit = defineEmits<{
         Cancel
       </ScalarButton>
       <ScalarButton
-        class="custom-scroll h-8 gap-1.5 whitespace-nowrap px-2.5 font-medium shadow-none focus:outline-none"
+        class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
         type="submit"
         :variant="danger ? 'danger' : 'solid'">
         {{ label ?? 'Save' }}

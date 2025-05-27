@@ -125,7 +125,7 @@ onClickOutside(
     class="scalar-client">
     <div
       ref="dropdownRef"
-      class="p-0.75 custom-scroll fixed left-0 top-0 flex max-h-[60svh] w-56 flex-col rounded border"
+      class="custom-scroll fixed top-0 left-0 flex max-h-[60svh] w-56 flex-col rounded border p-0.75"
       :style="dropdownStyle">
       <ul
         v-if="filteredVariables.length"
@@ -151,7 +151,7 @@ onClickOutside(
               {{ item.key }}
             </div>
             <span
-              class="w-20 overflow-hidden text-ellipsis whitespace-nowrap text-right">
+              class="w-20 overflow-hidden text-right text-ellipsis whitespace-nowrap">
               {{ item.value }}
             </span>
           </li>
@@ -169,7 +169,7 @@ onClickOutside(
       </ScalarButton>
       <!-- Backdrop for the dropdown -->
       <div
-        class="-z-1 bg-b-1 brightness-lifted absolute inset-0 rounded shadow-lg" />
+        class="bg-b-1 brightness-lifted absolute inset-0 -z-1 rounded shadow-lg" />
     </div>
   </ScalarTeleport>
 </template>
