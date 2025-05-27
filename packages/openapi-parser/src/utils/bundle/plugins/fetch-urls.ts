@@ -26,7 +26,7 @@ export async function fetchUrl(
   config?: FetchConfig,
 ): Promise<ResolveResult> {
   try {
-    const domain = new URL(url).hostname
+    const domain = new URL(url).host
 
     // Get the headers that match the domain
     const headers = config?.headers?.find((a) => a.domains.find((d) => d === domain) !== undefined)?.headers

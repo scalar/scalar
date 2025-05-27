@@ -1,5 +1,5 @@
 import { fastify, type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchUrl } from './fetch-urls'
 import assert from 'node:assert'
 
@@ -67,5 +67,68 @@ describe('fetchUrl', () => {
     const result = await fetchUrl(url, noLimit)
 
     expect(result.ok).toBe(false)
+  })
+
+  it('send headers to the specified domain', async () => {
+    const PORT = 6688
+    const url = `http://localhost:${PORT}`
+    const fn = vi.fn()
+
+    const response = {
+      message: '200OK',
+    }
+
+    server.get('/', (request, reply) => {
+      fn(request.headers)
+      reply.send(response)
+    })
+
+    await server.listen({ port: PORT })
+    await fetchUrl(url, noLimit, {
+      headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: [`localhost:${PORT}`] }],
+    })
+
+    expect(fn).toHaveBeenCalled()
+    expect(fn.mock.calls[0][0]).toEqual({
+      'accept': '*/*',
+      'accept-encoding': 'gzip, deflate',
+      'accept-language': '*',
+      'authorization': 'Bearer <TOKEN>',
+      'connection': 'keep-alive',
+      'host': 'localhost:6688',
+      'sec-fetch-mode': 'cors',
+      'user-agent': 'node',
+    })
+  })
+
+  it('does not send headers to other domains', async () => {
+    const PORT = 6688
+    const url = `http://localhost:${PORT}`
+    const fn = vi.fn()
+
+    const response = {
+      message: '200OK',
+    }
+
+    server.get('/', (request, reply) => {
+      fn(request.headers)
+      reply.send(response)
+    })
+
+    await server.listen({ port: PORT })
+    await fetchUrl(url, noLimit, {
+      headers: [{ headers: { 'Authorization': 'Bearer <TOKEN>' }, domains: ['localhost:9932', 'localhost'] }],
+    })
+
+    expect(fn).toHaveBeenCalled()
+    expect(fn.mock.calls[0][0]).toEqual({
+      'accept': '*/*',
+      'accept-encoding': 'gzip, deflate',
+      'accept-language': '*',
+      'connection': 'keep-alive',
+      'host': 'localhost:6688',
+      'sec-fetch-mode': 'cors',
+      'user-agent': 'node',
+    })
   })
 })
