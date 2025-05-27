@@ -1,5 +1,16 @@
 # @scalar/fastify-api-reference
 
+## 1.30.0
+
+### Minor Changes
+
+- edf694b: refactor!: use openapi-parser utils, remove the deprecated pipeline syntax
+
+### Patch Changes
+
+- Updated dependencies [edf694b]
+  - @scalar/openapi-parser@0.12.0
+
 ## 1.29.3
 
 ## 1.29.2

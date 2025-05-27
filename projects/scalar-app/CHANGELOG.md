@@ -1,5 +1,14 @@
 # scalar-app
 
+## 0.1.197
+
+### Patch Changes
+
+- Updated dependencies [151ef09]
+  - @scalar/api-client@2.4.4
+  - @scalar/components@0.14.2
+  - @scalar/import@0.4.3
+
 ## 0.1.196
 
 ### Patch Changes
