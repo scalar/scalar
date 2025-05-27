@@ -23,18 +23,18 @@ type WorkspaceDocumentInput =
  *
  * @example
  * // Resolve from URL
- * const urlDoc = await resolveDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
+ * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
  *
  * // Resolve from local file
- * const fileDoc = await resolveDocument({ name: 'local', path: './openapi.json' })
+ * const fileDoc = await loadDocument({ name: 'local', path: './openapi.json' })
  *
  * // Resolve direct document
- * const directDoc = await resolveDocument({
+ * const directDoc = await loadDocument({
  *   name: 'inline',
  *   document: { openapi: '3.0.0', paths: {} }
  * })
  */
-async function resolveDocument(workspaceDocument: WorkspaceDocumentInput) {
+async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
     return fetchUrl(workspaceDocument.url)
   }
@@ -71,7 +71,7 @@ export async function createWorkspaceStore(workspaceProps?: {
         (workspaceProps?.documents ?? []).map<
           Promise<{ name: string; meta?: WorkspaceDocumentMeta; document: Record<string, unknown> }>
         >(async (data) => {
-          const resolved = await resolveDocument(data)
+          const resolved = await loadDocument(data)
 
           if (!resolved.ok) {
             console.error(`Can not load the document '${data.name}'`)
@@ -90,9 +90,23 @@ export async function createWorkspaceStore(workspaceProps?: {
         }),
       )
     ).reduce<Record<string, Record<string, unknown>>>((acc, { name, meta, document }) => {
+      /**
+       * We wrap each document in the magic proxy to enable auto-resolving of references
+       */
       acc[name] = createMagicProxy({ ...document, ...meta })
       return acc
     }, {}),
+    /**
+     * Returns the currently active document from the workspace.
+     * The active document is determined by the 'x-scalar-active-document' metadata field,
+     * falling back to the first document in the workspace if no active document is specified.
+     *
+     * @returns The active document or undefined if no document is found
+     */
+    get activeDocument(): (typeof workspace.documents)[number] | undefined {
+      const activeDocumentKey = workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? ''
+      return workspace.documents[activeDocumentKey]
+    },
   }) as Workspace
 
   return {
@@ -106,20 +120,7 @@ export async function createWorkspaceStore(workspaceProps?: {
      * Returns the reactive workspace object with an additional activeDocument getter
      */
     get workspace() {
-      return {
-        ...workspace,
-        /**
-         * Returns the currently active document from the workspace.
-         * The active document is determined by the 'x-scalar-active-document' metadata field,
-         * falling back to the first document in the workspace if no active document is specified.
-         *
-         * @returns The active document or undefined if no document is found
-         */
-        get activeDocument(): (typeof workspace.documents)[number] | undefined {
-          const activeDocumentKey = workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? ''
-          return workspace.documents[activeDocumentKey]
-        },
-      }
+      return workspace
     },
     /**
      * Updates a specific metadata field in the workspace
@@ -268,7 +269,7 @@ export async function createWorkspaceStore(workspaceProps?: {
     addDocument: async (input: WorkspaceDocumentInput) => {
       const { name, meta } = input
 
-      const resolve = await resolveDocument(input)
+      const resolve = await loadDocument(input)
 
       if (!resolve.ok || !isObject(resolve.data)) {
         console.error(`Can not load the document '${name}'`)
