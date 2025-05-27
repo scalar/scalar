@@ -45,11 +45,19 @@ const { operation } = defineProps<{
   schemas?: Schemas
 }>()
 
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
 const labelId = useId()
 const config = useConfig()
 
 /** The title of the operation (summary or path) */
 const title = computed(() => operation.summary || operation.path)
+
+const handleDiscriminatorChange = (type: string) => {
+  emit('update:modelValue', type)
+}
 </script>
 
 <template>
@@ -86,7 +94,9 @@ const title = computed(() => operation.summary || operation.path)
               :anchorPrefix="id" />
             <OperationParameters
               :operation="operation"
-              :schemas="schemas" />
+              :schemas="schemas"
+              @update:modelValue="handleDiscriminatorChange">
+            </OperationParameters>
             <OperationResponses
               :operation="transformedOperation"
               :schemas="schemas" />
@@ -109,7 +119,9 @@ const title = computed(() => operation.summary || operation.path)
                 fallback
                 :operation="operation"
                 :server="server"
-                :transformedOperation="transformedOperation">
+                :transformedOperation="transformedOperation"
+                :schemas="schemas"
+                @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
                     class="example-path"

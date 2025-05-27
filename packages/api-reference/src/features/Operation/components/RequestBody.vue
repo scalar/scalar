@@ -12,6 +12,11 @@ const { requestBody, schemas } = defineProps<{
   requestBody?: RequestBody
   schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
 const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
 )
@@ -55,6 +60,10 @@ const partitionedSchema = computed(() => {
     },
   }
 })
+
+const handleDiscriminatorChange = (type: string) => {
+  emit('update:modelValue', type)
+}
 </script>
 <template>
   <div v-if="requestBody">
@@ -89,7 +98,8 @@ const partitionedSchema = computed(() => {
         name="Request Body"
         noncollapsible
         :schemas="schemas"
-        :value="partitionedSchema.visibleProperties" />
+        :value="partitionedSchema.visibleProperties"
+        @update:modelValue="handleDiscriminatorChange" />
 
       <Schema
         additionalProperties
@@ -108,7 +118,8 @@ const partitionedSchema = computed(() => {
         name="Request Body"
         noncollapsible
         :schemas="schemas"
-        :value="requestBody.content?.[selectedContentType]?.schema" />
+        :value="requestBody.content?.[selectedContentType]?.schema"
+        @update:modelValue="handleDiscriminatorChange" />
     </div>
   </div>
 </template>

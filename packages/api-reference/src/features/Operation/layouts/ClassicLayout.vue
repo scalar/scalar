@@ -47,6 +47,14 @@ const config = useConfig()
 
 /** The title of the operation (summary or path) */
 const title = computed(() => operation.summary || operation.path)
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
+const handleDiscriminatorChange = (type: string) => {
+  emit('update:modelValue', type)
+}
 </script>
 <template>
   <SectionAccordion
@@ -114,7 +122,8 @@ const title = computed(() => operation.summary || operation.path)
         <div class="operation-details-card-item">
           <OperationParameters
             :operation="operation"
-            :schemas="schemas" />
+            :schemas="schemas"
+            @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
@@ -128,7 +137,8 @@ const title = computed(() => operation.summary || operation.path)
         :collection="collection"
         :operation="operation"
         :server="server"
-        :transformedOperation="transformedOperation" />
+        :transformedOperation="transformedOperation"
+        @update:modelValue="handleDiscriminatorChange" />
     </div>
   </SectionAccordion>
 </template>
