@@ -431,7 +431,6 @@ const themeStyleTag = computed(
   <ScalarToasts />
 </template>
 <style>
-@import '@scalar/themes/style.css';
 @import '@/style.css';
 
 /** Used to check if css is loaded */
