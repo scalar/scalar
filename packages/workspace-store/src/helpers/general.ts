@@ -48,13 +48,6 @@ export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
 
-/**
- * Check if a json pointer is a filesystem ref
- */
-export function isFileSystemRef(value: string) {
-  return !isRemoteUrl(value) && !isLocalRef(value)
-}
-
 type ResolveResult = { ok: false } | { ok: true; data: unknown }
 
 /**
