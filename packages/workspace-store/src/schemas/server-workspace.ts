@@ -29,6 +29,7 @@ export const WorkspaceSchema = Type.Intersect([
   WorkspaceMetaSchema,
   Type.Object({
     documents: Type.Record(Type.String(), Type.Partial(WorkspaceDocumentSchema)),
+    activeDocument: Type.Partial(WorkspaceDocumentSchema),
   }),
 ])
 
