@@ -59,7 +59,7 @@ export async function createCollection({
 }: CreateCollectionOptions) {
   // Create instance-based caches
   const refProxyCache = new WeakMap<object, unknown>()
-  const pathCache = new Map<string, UnknownObject | undefined>()
+  const pathCache = new Map<string, UnknownObject>()
 
   const externalReferences = createExternalReferenceFetcher({
     url,
@@ -127,7 +127,7 @@ export const exportRawDocument = (document: UnprocessedOpenApiObject) => readonl
 export function getValueByPath(
   document: UnknownObject,
   pathSegments: string[],
-  pathCache: Map<string, UnknownObject | undefined>,
+  pathCache: Map<string, UnknownObject>,
 ): UnknownObject | undefined {
   // Create a cache key from the path segments
   const cacheKey = pathSegments.join('.')
@@ -144,7 +144,9 @@ export function getValueByPath(
   ) as UnknownObject | undefined
 
   // Cache the result
-  pathCache.set(cacheKey, result)
+  if (result) {
+    pathCache.set(cacheKey, result)
+  }
 
   return result
 }
@@ -203,9 +205,9 @@ export function hasRefs(obj: unknown): boolean {
 export function resolveRef(
   ref: string | unknown,
   sourceDocument: UnknownObject,
-  externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
-  origin?: string,
-  pathCache: Map<string, UnknownObject | undefined> = new Map(),
+  externalReferences: ReturnType<typeof createExternalReferenceFetcher>,
+  origin: string | undefined,
+  pathCache: Map<string, UnknownObject>,
 ): UnknownObject | undefined {
   if (typeof ref !== 'string') {
     console.warn('Invalid reference: expected string, got', typeof ref)
@@ -251,9 +253,7 @@ export function resolveRef(
   // Resolve the pointer within the external file
   const referencePath = parseJsonPointer(pointer)
   const value = getValueByPath(file.content, referencePath, pathCache)
-  if (value === undefined) {
-    console.warn(`Reference not found in external file: ${ref}`)
-  }
+
   return value
 }
 
@@ -264,10 +264,10 @@ export function resolveRef(
 export function createOpenApiProxy(
   target: unknown,
   sourceDocument: UnknownObject,
-  externalReferences?: ReturnType<typeof createExternalReferenceFetcher>,
-  origin?: string,
+  externalReferences: ReturnType<typeof createExternalReferenceFetcher>,
+  origin: string | undefined,
   refProxyCache: WeakMap<object, unknown> = new WeakMap(),
-  pathCache: Map<string, UnknownObject | undefined> = new Map(),
+  pathCache: Map<string, UnknownObject> = new Map(),
 ): unknown {
   // Handle arrays
   if (Array.isArray(target)) {
