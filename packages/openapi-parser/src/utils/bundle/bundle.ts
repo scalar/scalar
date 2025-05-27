@@ -37,22 +37,23 @@ export function isLocalRef(value: string): boolean {
 export type ResolveResult = { ok: true; data: unknown } | { ok: false }
 
 /**
- * Resolves a reference by fetching its content from either a remote URL or local file.
- * @param ref - The reference string to resolve
+ * Resolves a string by finding and executing the appropriate plugin.
+ * @param value - The string to resolve (URL, file path, etc)
+ * @param plugins - Array of plugins that can handle different types of strings
  * @returns A promise that resolves to either the content or an error result
  * @example
- * // Resolve a remote URL
- * await resolveRef('https://example.com/schema.json')
- * // Resolve a local file
- * await resolveRef('./schemas/user.json')
- * // Invalid reference returns { ok: false }
- * await resolveRef('#/components/schemas/User')
+ * // Using a URL plugin
+ * await resolveContents('https://example.com/schema.json', [urlPlugin])
+ * // Using a file plugin
+ * await resolveContents('./schemas/user.json', [filePlugin])
+ * // No matching plugin returns { ok: false }
+ * await resolveContents('#/components/schemas/User', [urlPlugin, filePlugin])
  */
-async function resolveRef(ref: string, plugins: Plugin[]): Promise<ResolveResult> {
-  const plugin = plugins.find((p) => p.validate(ref))
+async function resolveContents(value: string, plugins: Plugin[]): Promise<ResolveResult> {
+  const plugin = plugins.find((p) => p.validate(value))
 
   if (plugin) {
-    return plugin.exec(ref)
+    return plugin.exec(value)
   }
 
   return {
@@ -195,22 +196,77 @@ type Config = {
 
 /**
  * Bundles an OpenAPI specification by resolving all external references.
- * This function traverses the input object recursively and replaces any external $ref
- * references with their actual content. External references can be URLs or local files.
+ * This function traverses the input object recursively and embeds external $ref
+ * references into an x-external-references section. External references can be URLs or local files.
+ * The original $refs are updated to point to their embedded content in the x-external-references section.
+ * If the input is an object, it will be modified in place by adding an x-external-references
+ * property to store resolved external references.
  *
- * @param input - The OpenAPI specification object to bundle
- * @returns A promise that resolves when all references have been resolved
+ * @param input - The OpenAPI specification object or string to bundle. If a string is provided,
+ *                it should be a URL or file path that points to an OpenAPI specification.
+ *                The string will be resolved using the provided plugins before bundling.
+ * @param config - Configuration object containing plugins for resolving references
+ * @returns A promise that resolves to the bundled specification with all references embedded
+ * @example
+ * // Example with object input
+ * const spec = {
+ *   paths: {
+ *     '/users': {
+ *       $ref: 'https://example.com/schemas/users.yaml'
+ *     }
+ *   }
+ * }
+ *
+ * const bundled = await bundle(spec, { plugins: [fetchUrls()] })
+ * // Result:
+ * // {
+ * //   paths: {
+ * //     '/users': {
+ * //       $ref: '#/x-external-references/https~1~1example.com~1schemas~1users.yaml'
+ * //     }
+ * //   },
+ * //   'x-external-references': {
+ * //     'https~1~1example.com~1schemas~1users.yaml': {
+ * //       // Resolved content from users.yaml
+ * //     }
+ * //   }
+ * // }
+ *
+ * // Example with URL input
+ * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', { plugins: [fetchUrls()] })
+ * // The function will first fetch the OpenAPI spec from the URL,
+ * // then bundle all its external references into the x-external-references section
  */
-export function bundle(input: UnknownObject, config: Config) {
+export async function bundle(input: UnknownObject | string, config: Config) {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = new Map<string, Promise<ResolveResult>>()
 
-  // Initialize storage for external references using a custom OpenAPI extension key
-  const EXTERNAL_KEY = 'x-external'
-  input[EXTERNAL_KEY] = {}
+  /**
+   * Resolves the input value by either returning it directly if it's not a string,
+   * or attempting to resolve it using the provided plugins if it is a string.
+   * @returns The resolved input data or throws an error if resolution fails
+   */
+  const resolveInput = async () => {
+    if (typeof input !== 'string') {
+      return input
+    }
+    const result = await resolveContents(input, config.plugins)
 
-  const bundler = async (root: any, origin: string = '') => {
+    if (result.ok) {
+      return result.data
+    }
+
+    throw 'Please provide a valid string value or pass a loader to process the input'
+  }
+
+  const rawSpecification = await resolveInput()
+
+  // Initialize storage for external references using a custom OpenAPI extension key
+  const EXTERNAL_KEY = 'x-external-references'
+  rawSpecification[EXTERNAL_KEY] = {}
+
+  const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
     if (!root || !isObject(root)) {
       return
     }
@@ -229,7 +285,7 @@ export function bundle(input: UnknownObject, config: Config) {
       const resolvedPath = resolveReferencePath(origin, prefix)
 
       if (!cache.has(resolvedPath)) {
-        cache.set(resolvedPath, resolveRef(resolvedPath, config.plugins))
+        cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
       }
 
       // Resolve the remote document
@@ -241,15 +297,15 @@ export function bundle(input: UnknownObject, config: Config) {
         // maintain the correct path context relative to the main document. This is crucial
         // because internal references in the external document are relative to its original
         // location, but when embedded, they need to be relative to their new location in
-        // the main document's x-external section. Without this update, internal references
+        // the main document's x-external-references section. Without this update, internal references
         // would point to incorrect locations and break the document structure.
         prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
 
-        // Store the external document in the main document's x-external key, using the escaped path as the key
+        // Store the external document in the main document's x-external-references key, using the escaped path as the key
         // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
-        input[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+        rawSpecification[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
 
-        // Update the $ref to point to the embedded document in x-external
+        // Update the $ref to point to the embedded document in x-external-references
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
@@ -280,5 +336,6 @@ export function bundle(input: UnknownObject, config: Config) {
     )
   }
 
-  return bundler(input)
+  await bundler(rawSpecification)
+  return rawSpecification
 }
