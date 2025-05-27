@@ -325,6 +325,7 @@ describe('create-workspace-store', () => {
 
     // We resolve the ref
     await store.resolve(['paths', '/users', 'get'])
+    await fs.rm(`${cwd()}/${path}`, { recursive: true })
 
     // We expect the ref to have been resolved with the correct contents
     expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
@@ -335,7 +336,6 @@ describe('create-workspace-store', () => {
     ).toEqual(document.components.schemas.User)
 
     // clean up generated files
-    await fs.rm(`${cwd()}/${path}`, { recursive: true })
   })
 
   test('should load files form the remote url', async () => {
@@ -391,5 +391,98 @@ describe('create-workspace-store', () => {
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
     expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
+  })
+
+  test('should handle circular references when we try to resolve all remote chunks recursively', async () => {
+    const document = {
+      openapi: '3.0.0',
+      info: { title: 'My API' },
+      components: {
+        schemas: {
+          User: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'The user ID',
+              },
+              name: {
+                $ref: '#/components/schemas/Rec',
+              },
+            },
+          },
+          Rec: {
+            type: 'object',
+            properties: {
+              id: {
+                $ref: '#/components/schemas/User',
+              },
+            },
+          },
+        },
+      },
+      paths: {
+        '/users': {
+          get: {
+            summary: 'Get all users',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'array',
+                      items: {
+                        $ref: '#/components/schemas/User',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    server.get('/*', (req, res) => {
+      const path = req.url
+      const contents = serverStore.get(path)
+
+      res.send(contents)
+    })
+
+    const PORT = 6672
+    await server.listen({ port: PORT })
+
+    const serverStore = createServerWorkspaceStore({
+      mode: 'ssr',
+      baseUrl: `http://localhost:${PORT}`,
+      documents: [
+        {
+          name: 'default',
+          document,
+        },
+      ],
+    })
+
+    const store = await createWorkspaceStore({
+      documents: [
+        {
+          name: 'default',
+          document: serverStore.getWorkspace().documents['default'],
+        },
+      ],
+    })
+
+    // The operation should not be resolved on the fly
+    expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
+      '$ref': `http://localhost:${PORT}/default/operations/~1users/get#`,
+    })
+
+    // We resolve the ref
+    await store.resolve(['paths', '/users', 'get'])
+
+    expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)?.type).toBe('object')
   })
 })

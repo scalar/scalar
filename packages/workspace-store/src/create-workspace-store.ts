@@ -1,8 +1,7 @@
 import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
-import { isObject } from '@scalar/openapi-parser'
-import { createMagicProxy } from './helpers/proxy'
-import { fetchUrl, readLocalFile, resolveRef } from '@/helpers/general'
+import { createMagicProxy, getRaw } from './helpers/proxy'
+import { fetchUrl, isObject, readLocalFile, resolveRef } from '@/helpers/general'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
 type WorkspaceDocumentInput =
@@ -10,6 +9,30 @@ type WorkspaceDocumentInput =
   | ({ url: string } & WorkspaceDocumentMetaInput)
   | ({ path: string } & WorkspaceDocumentMetaInput)
 
+/**
+ * Resolves a workspace document from various input sources (URL, local file, or direct document object).
+ *
+ * @param workspaceDocument - The document input to resolve, which can be:
+ *   - A URL to fetch the document from
+ *   - A local file path to read the document from
+ *   - A direct document object
+ * @returns A promise that resolves to an object containing:
+ *   - ok: boolean indicating if the resolution was successful
+ *   - data: The resolved document data
+ *
+ * @example
+ * // Resolve from URL
+ * const urlDoc = await resolveDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
+ *
+ * // Resolve from local file
+ * const fileDoc = await resolveDocument({ name: 'local', path: './openapi.json' })
+ *
+ * // Resolve direct document
+ * const directDoc = await resolveDocument({
+ *   name: 'inline',
+ *   document: { openapi: '3.0.0', paths: {} }
+ * })
+ */
 async function resolveDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
     return fetchUrl(workspaceDocument.url)
@@ -169,6 +192,9 @@ export async function createWorkspaceStore(workspaceProps?: {
         parent = parent[p]
       }
 
+      // Keep track of objects we've already processed to prevent infinite loops
+      const processedObjects = new WeakSet()
+
       const resolveRecursive = async (root: unknown, targetKey: string) => {
         if (!root && !isObject(root)) {
           return
@@ -179,6 +205,17 @@ export async function createWorkspaceStore(workspaceProps?: {
         if (!target || !isObject(target)) {
           return
         }
+
+        // Unwrap the target from the proxy
+        const rawTarget = getRaw(target)
+
+        // Skip if we've already processed this object
+        if (processedObjects.has(rawTarget)) {
+          return
+        }
+
+        // Mark this object as processed
+        processedObjects.add(rawTarget)
 
         if (typeof target === 'object' && '$ref' in target && typeof target['$ref'] === 'string') {
           const ref = target['$ref']

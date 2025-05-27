@@ -3,8 +3,16 @@ import { getValueByPath, parseJsonPointer } from './json-path-utils'
 import { isLocalRef, isObject } from './general'
 import type { UnknownObject } from './general'
 
+export const TARGET_SYMBOL = Symbol('target')
+
 /**
- * Proxy handler methods which resolve on the fly local ref json pointers
+ * Creates a proxy handler that automatically resolves JSON references ($ref) in an object.
+ * The handler intercepts property access, assignment, and property enumeration to automatically
+ * resolve any $ref references to their target values in the source document.
+ *
+ * @param sourceDocument - The source document containing the reference targets
+ * @param resolvedProxyCache - Optional cache to store resolved proxies and prevent duplicate proxies
+ * @returns A proxy handler that automatically resolves $ref references
  */
 function createProxyHandler(
   sourceDocument: UnknownObject,
@@ -12,6 +20,10 @@ function createProxyHandler(
 ): ProxyHandler<UnknownObject> {
   return {
     get(target, property, receiver) {
+      if (property === TARGET_SYMBOL) {
+        return target
+      }
+
       if (property === '__isProxy') {
         return true
       }
@@ -108,7 +120,52 @@ function createProxyHandler(
 }
 
 /**
- * Creates a proxy that automatically resolves JSON references.
+ * Creates a proxy that automatically resolves JSON references ($ref) in an object.
+ * The proxy intercepts property access and automatically resolves any $ref references
+ * to their target values in the source document.
+ *
+ * @param targetObject - The object to create a proxy for
+ * @param sourceDocument - The source document containing the reference targets (defaults to targetObject)
+ * @param resolvedProxyCache - Optional cache to store resolved proxies and prevent duplicate proxies
+ * @returns A proxy that automatically resolves $ref references
+ *
+ * @example
+ * // Basic usage with local references
+ * const doc = {
+ *   components: {
+ *     schemas: {
+ *       User: { type: 'object', properties: { name: { type: 'string' } } }
+ *     }
+ *   },
+ *   paths: {
+ *     '/users': {
+ *       get: {
+ *         responses: {
+ *           200: {
+ *             content: {
+ *               'application/json': {
+ *                 schema: { $ref: '#/components/schemas/User' }
+ *               }
+ *             }
+ *           }
+ *         }
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ * const proxy = createMagicProxy(doc)
+ * // Accessing the schema will automatically resolve the $ref
+ * console.log(proxy.paths['/users'].get.responses[200].content['application/json'].schema)
+ * // Output: { type: 'object', properties: { name: { type: 'string' } } }
+ *
+ * @example
+ * // Using with a cache to prevent duplicate proxies
+ * const cache = new WeakMap()
+ * const proxy1 = createMagicProxy(doc, doc, cache)
+ * const proxy2 = createMagicProxy(doc, doc, cache)
+ * // proxy1 and proxy2 are the same instance due to caching
+ * console.log(proxy1 === proxy2) // true
  */
 export function createMagicProxy<T extends UnknownObject>(
   targetObject: T,
@@ -139,4 +196,18 @@ export function createMagicProxy<T extends UnknownObject>(
   }
 
   return proxy
+}
+
+/**
+ * Gets the raw (non-proxied) version of an object created by createMagicProxy.
+ * This is useful when you need to access the original object without the magic proxy wrapper.
+ *
+ * @param obj - The magic proxy object to get the raw version of
+ * @returns The raw version of the object
+ * @example
+ * const proxy = createMagicProxy({ foo: { $ref: '#/bar' } })
+ * const raw = getRaw(proxy) // { foo: { $ref: '#/bar' } }
+ */
+export function getRaw(obj: UnknownObject) {
+  return (obj as { [TARGET_SYMBOL]: UnknownObject })[TARGET_SYMBOL]
 }

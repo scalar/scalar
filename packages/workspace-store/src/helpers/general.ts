@@ -18,25 +18,44 @@ export function isObject(value: unknown): value is UnknownObject {
 }
 
 /**
- * Checks whether a json ref is a remote ref
+ * Checks if a string is a remote URL (starts with http:// or https://)
+ * @param value - The URL string to check
+ * @returns true if the string is a remote URL, false otherwise
+ * @example
+ * ```ts
+ * isRemoteUrl('https://example.com/schema.json') // true
+ * isRemoteUrl('http://api.example.com/schemas/user.json') // true
+ * isRemoteUrl('#/components/schemas/User') // false
+ * isRemoteUrl('./local-schema.json') // false
+ * ```
  */
-export function isRemoteRef(value: string) {
-  return value.startsWith('http')
+export function isRemoteUrl(value: string): boolean {
+  return value.startsWith('http://') || value.startsWith('https://')
 }
 
 /**
- * Check if a json pointer is a local ref
+ * Checks if a string is a local reference (starts with #)
+ * @param value - The reference string to check
+ * @returns true if the string is a local reference, false otherwise
+ * @example
+ * ```ts
+ * isLocalRef('#/components/schemas/User') // true
+ * isLocalRef('https://example.com/schema.json') // false
+ * isLocalRef('./local-schema.json') // false
+ * ```
  */
-export function isLocalRef(value: string) {
-  return value.startsWith('#/')
+export function isLocalRef(value: string): boolean {
+  return value.startsWith('#')
 }
 
 /**
  * Check if a json pointer is a filesystem ref
  */
 export function isFileSystemRef(value: string) {
-  return !isRemoteRef(value) && !isLocalRef(value)
+  return !isRemoteUrl(value) && !isLocalRef(value)
 }
+
+type ResolveResult = { ok: false } | { ok: true; data: unknown }
 
 /**
  * Fetches and parses JSON data from a remote URL.
@@ -51,7 +70,7 @@ export function isFileSystemRef(value: string) {
  * }
  * ```
  */
-export async function fetchUrl(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+export async function fetchUrl(value: string): Promise<ResolveResult> {
   const response = await fetch(value)
 
   if (response.ok) {
@@ -75,7 +94,7 @@ export async function fetchUrl(value: string): Promise<{ ok: true; data: unknown
  * }
  * ```
  */
-export async function readLocalFile(value: string): Promise<{ ok: true; data: unknown } | { ok: false }> {
+export async function readLocalFile(value: string): Promise<ResolveResult> {
   try {
     const contents = await fs.readFile(value, 'utf-8')
 
@@ -84,8 +103,6 @@ export async function readLocalFile(value: string): Promise<{ ok: true; data: un
     return { ok: false }
   }
 }
-
-type ResolveResult = { ok: false } | { ok: true; data: unknown }
 
 /**
  * Resolves a reference by attempting to fetch data from either a remote URL or local filesystem.
@@ -103,11 +120,7 @@ type ResolveResult = { ok: false } | { ok: true; data: unknown }
 export async function resolveRef(value: string): Promise<ResolveResult> {
   const [path, pointer] = value.split('#')
 
-  if (!isRemoteRef(value) && !isFileSystemRef(value)) {
-    return { ok: false }
-  }
-
-  const result = isRemoteRef(value) ? await fetchUrl(path) : await readLocalFile(path)
+  const result = isRemoteUrl(value) ? await fetchUrl(path) : await readLocalFile(path)
   if (result.ok) {
     return {
       ok: true,
