@@ -23,7 +23,7 @@ const newIcon = ref(props.icon)
   <SidebarListElementForm
     @cancel="emit('close')"
     @submit="emit('edit', newName, newIcon)">
-    <div class="grid grid-cols-[auto,1fr] gap-2">
+    <div class="grid grid-cols-[auto_1fr] gap-2">
       <div class="flex aspect-square">
         <IconSelector
           v-model="newIcon"

@@ -64,7 +64,7 @@ function handleHistoryClick(requestHistoryItem: RequestEvent) {
         #floating="{ width }">
         <!-- History Item -->
         <MenuItems
-          class="custom-scroll grid max-h-[inherit] grid-cols-[44px,1fr,repeat(3,auto)] items-center border-t p-0.75"
+          class="custom-scroll grid max-h-[inherit] grid-cols-[44px_1fr_repeat(3,auto)] items-center border-t p-0.75"
           static
           :style="{ width }">
           <MenuItem
