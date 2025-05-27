@@ -9,28 +9,36 @@ import { isFilesystem } from './is-filesystem'
  *
  * Doesn’t modify the object if it’s a `Filesystem` (multiple files) already.
  */
-export function normalize(specification: string | UnknownObject | Filesystem): UnknownObject | Filesystem {
-  if (specification === null) {
-    return {}
+export function normalize(content: string | UnknownObject | Filesystem): UnknownObject | Filesystem {
+  if (content === null) {
+    return undefined
   }
 
-  if (typeof specification === 'string') {
-    if (specification.trim() === '') {
-      return {}
+  if (typeof content === 'string') {
+    if (content.trim() === '') {
+      return undefined
     }
 
     try {
-      return JSON.parse(specification)
+      return JSON.parse(content)
     } catch (_error) {
-      return parse(specification, {
+      // Does it look like YAML?
+      const hasColon = /^[^:]+:/.test(content)
+      const isMultiLine = content.includes('\n')
+
+      if (!hasColon || !isMultiLine) {
+        return undefined
+      }
+
+      return parse(content, {
         maxAliasCount: 10000,
       })
     }
   }
 
-  if (isFilesystem(specification)) {
-    return specification as Filesystem
+  if (isFilesystem(content)) {
+    return content
   }
 
-  return specification
+  return content
 }

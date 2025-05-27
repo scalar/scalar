@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
-import GitHubSlugger from 'github-slugger'
-import { computed, onMounted } from 'vue'
+import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
@@ -23,9 +23,7 @@ import {
 import Description from './Description.vue'
 
 const props = defineProps<{
-  info: Partial<
-    OpenAPIV2.InfoObject | OpenAPIV3.InfoObject | OpenAPIV3_1.InfoObject
-  >
+  info: Partial<OpenAPIV3_1.InfoObject>
   parsedSpec: Spec
 }>()
 
@@ -34,17 +32,7 @@ const { getHeadingId } = useNavState()
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
  */
-const oasVersion = computed(
-  () => props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? '',
-)
-
-/**
- * Format the title to be displayed in the badge.
- *
- * TODO: We should move this logic to the DownloadLink component
- */
-const slugger = new GitHubSlugger()
-const filenameFromTitle = computed(() => slugger.slug(props.info?.title ?? ''))
+const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
 
 /** Format the version number to be displayed in the badge */
 const version = computed(() => {
@@ -90,7 +78,7 @@ onMounted(() => config.value.onLoaded?.())
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :filename="filenameFromTitle" />
+            <DownloadLink :title="info.title" />
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, useId } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
@@ -18,11 +18,7 @@ import { Lazy } from '../Lazy'
 import { Schema, SchemaHeading } from '../Schema'
 
 const props = defineProps<{
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const headerId = useId()
