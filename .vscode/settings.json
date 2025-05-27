@@ -77,9 +77,9 @@
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "tailwindCSS.experimental.configFile": {
-    "packages/api-client/src/tailwind.css": "packages/api-client/**",
-    "packages/api-reference/src/tailwind.css": "packages/api-reference/**",
-    "packages/components/src/tailwind.css": "packages/components/**"
+    "packages/api-client/src/style.css": "packages/api-client/**",
+    "packages/api-reference/src/style.css": "packages/api-reference/**",
+    "packages/components/src/style.css": "packages/components/**"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",
