@@ -307,7 +307,7 @@ watch(
             <SchemaProperty
               :compact="compact"
               :hideHeading="hideHeading"
-              :level="level + 1"
+              :level="level"
               :name="(resolvedSchema as OpenAPIV3_1.SchemaObject).name"
               :schemas="schemas"
               :value="
@@ -378,7 +378,6 @@ button.schema-card-title:hover {
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
-  overflow: hidden;
   width: fit-content;
 }
 .schema-properties-name {
