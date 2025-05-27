@@ -4,6 +4,7 @@ import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
+import { nanoid } from 'nanoid'
 
 /**
  * Initialize Scalar References
@@ -29,6 +30,9 @@ export function createScalarReferences(
 
   const head = createHead()
   app.use(head)
+
+  // Set an id prefix for useId so we don't have collisions with other Vue apps
+  app.config.idPrefix = `scalar-refs-${nanoid(4)}`
 
   function mount(mountingEl = el) {
     if (!mountingEl) {
