@@ -7,6 +7,8 @@
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
 .scalar-client {
+  line-height: 1.5;
+
   @import "tailwindcss/utilities.css";
 }
 
