@@ -25,7 +25,7 @@ export const isReferenceObject = (value: unknown): value is ReferenceObject =>
 
 /** Type guard to check if an object is a valid OpenAPI/Swagger document */
 export const isValidOpenApiDocument = (value: unknown): value is UnprocessedOpenApiObject => {
-  if (!isObject(value)) {
+  if (!value || !isObject(value)) {
     return false
   }
 
