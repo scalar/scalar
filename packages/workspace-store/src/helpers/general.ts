@@ -1,4 +1,3 @@
-import { getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
 import fs from 'node:fs/promises'
 
 export type UnknownObject = Record<string, unknown>
@@ -99,26 +98,18 @@ export async function readLocalFile(value: string): Promise<ResolveResult> {
 
 /**
  * Resolves a reference by attempting to fetch data from either a remote URL or local filesystem.
+ * The function automatically determines whether to use fetchUrl() for remote URLs or readLocalFile() for local paths.
  *
  * @param value - The reference string to resolve (URL or file path)
  * @returns A result object containing either the resolved data or an error indicator
  * @example
  * ```ts
- * const result = await resolveRef('https://api.example.com/data')
+ * const result = await resolveContents('https://api.example.com/data')
  * if (result.ok) {
  *   console.log(result.data) // The resolved data
  * }
  * ```
  */
-export async function resolveRef(value: string): Promise<ResolveResult> {
-  const [path, pointer] = value.split('#')
-
-  const result = isRemoteUrl(value) ? await fetchUrl(path) : await readLocalFile(path)
-  if (result.ok) {
-    return {
-      ok: true,
-      data: getValueByPath(result.data, parseJsonPointer(pointer)),
-    }
-  }
-  return result
+export async function resolveContents(value: string): Promise<ResolveResult> {
+  return isRemoteUrl(value) ? await fetchUrl(value) : await readLocalFile(value)
 }

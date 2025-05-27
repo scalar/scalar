@@ -1,7 +1,8 @@
 import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
 import { createMagicProxy, getRaw } from './helpers/proxy'
-import { fetchUrl, isObject, readLocalFile, resolveRef } from '@/helpers/general'
+import { fetchUrl, isObject, readLocalFile, resolveContents } from '@/helpers/general'
+import { getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
 type WorkspaceDocumentInput =
@@ -223,14 +224,15 @@ export async function createWorkspaceStore(workspaceProps?: {
           // Set the status to loading while we resolve the ref
           Object.assign(target, { '$status': 'loading' })
 
-          const result = await resolveRef(ref)
+          const [path, pointer] = ref.split('#')
+          const result = await resolveContents(path)
 
           if (result.ok) {
             if (targetKey === '__proto__' || targetKey === 'constructor' || targetKey === 'prototype') {
               throw new Error('Invalid key: cannot modify prototype')
             }
 
-            Object.assign(root as object, { [targetKey]: result.data })
+            Object.assign(root as object, { [targetKey]: getValueByPath(result.data, parseJsonPointer(pointer)) })
 
             await resolveRecursive(root, targetKey)
           } else {
