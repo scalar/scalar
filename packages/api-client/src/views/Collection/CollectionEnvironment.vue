@@ -256,7 +256,7 @@ const handleDragEnd = (
                 </button>
               </div>
               <ScalarButton
-                class="hover:bg-b-3 hover:text-c-1 p-1.25 h-fit"
+                class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
                 variant="ghost"
                 @click="openDeleteModal(environment.name)">
                 <ScalarIconTrash class="size-3.5" />

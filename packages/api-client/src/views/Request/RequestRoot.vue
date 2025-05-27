@@ -190,12 +190,12 @@ const cloneRequestResult = (result: any) => {
     ref="element"
     class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
-      '!mb-0 !mr-0 !border-0': layout === 'modal',
+      '!mr-0 !mb-0 !border-0': layout === 'modal',
     }">
     <SidebarToggle
       v-if="showSidebar"
       v-model="isSidebarOpen"
-      class="absolute left-3 top-2 z-50"
+      class="absolute top-2 left-3 z-50"
       :class="[
         { hidden: isSidebarOpen },
         { 'xl:!flex': !isSidebarOpen },

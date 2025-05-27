@@ -117,7 +117,7 @@ const getDraggableOffsets = computed(() => ({
           class="text-sidebar-c-2 size-3.5 stroke-[2.25]"
           :icon="variable.icon" />
         <span
-          class="empty-variable-name line-clamp-1 break-all text-sm group-hover:pr-5">
+          class="empty-variable-name line-clamp-1 text-sm break-all group-hover:pr-5">
           {{ variable.name }}
         </span>
         <SidebarListElementActions

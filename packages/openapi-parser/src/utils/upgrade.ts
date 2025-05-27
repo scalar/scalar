@@ -1,12 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+import type { AnyObject, Filesystem, UpgradeResult } from '@/types/index'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { AnyObject, Filesystem, UpgradeResult } from '../types/index'
-import { getEntrypoint } from './getEntrypoint'
-import { isFilesystem } from './isFilesystem'
+import { getEntrypoint } from './get-entrypoint'
+import { isFilesystem } from './is-filesystem'
 import { normalize } from './normalize'
-import { upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne'
-import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
+import { upgradeFromThreeToThreeOne } from './upgrade-from-three-to-three-one'
+import { upgradeFromTwoToThree } from './upgrade-from-two-to-three'
 
 const upgraders = [
   // Swagger 2.0 -> OpenAPI 3.0

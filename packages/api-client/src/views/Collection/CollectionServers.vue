@@ -73,7 +73,7 @@ const openDeleteModal = (serverUid: Server['uid']) => {
         :key="server.uid">
         <div class="rounded-lg border">
           <div
-            class="bg-b-2 flex items-start justify-between rounded-t-lg py-1 pl-3 pr-1 text-sm">
+            class="bg-b-2 flex items-start justify-between rounded-t-lg py-1 pr-1 pl-3 text-sm">
             <ScalarMarkdown
               v-if="server.description"
               :value="server.description"
@@ -84,7 +84,7 @@ const openDeleteModal = (serverUid: Server['uid']) => {
               >Server {{ index + 1 }}</span
             >
             <ScalarButton
-              class="hover:bg-b-3 hover:text-c-1 p-1.25 h-fit"
+              class="hover:bg-b-3 hover:text-c-1 h-fit p-1.25"
               variant="ghost"
               @click="openDeleteModal(server.uid)">
               <ScalarIconTrash class="size-3.5" />

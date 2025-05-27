@@ -18,7 +18,7 @@ We’ve also got some seriously cool open-source projects on GitHub! Go ahead, d
 | ------------------------------------------------------------------------------------------------------ | ---------------------- |
 | [Scalar API Reference](https://github.com/scalar/scalar/blob/main/packages/api-reference/README.md)    | API reference          |
 | [Scalar API Client](https://github.com/scalar/scalar/blob/main/packages/api-client/README.md)          | API client             |
-| [Scalar CLI](https://github.com/scalar/scalar/blob/main/packages/cli/README.md)                        | Command-line interface |
+| [Scalar CLI](https://www.npmjs.com/package/@scalar/cli)                                                | Command-line interface |
 | [Scalar Galaxy](https://github.com/scalar/scalar/blob/main/packages/galaxy/README.md)                  | OpenAPI Example        |
 | [Scalar Mock Server](https://github.com/scalar/scalar/blob/main/packages/mock-server/README.md)        | OpenAPI Mock Server    |
 | [Scalar Void Server](https://github.com/scalar/scalar/blob/main/packages/void-server/README.md)        | HTTP Request Mirror    |

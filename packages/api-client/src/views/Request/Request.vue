@@ -60,7 +60,7 @@ function handleCurlImport(curl: string) {
     v-if="activeCollection && activeWorkspace"
     class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
-      '!mb-0 !mr-0 !border-0': layout === 'modal',
+      '!mr-0 !mb-0 !border-0': layout === 'modal',
     }">
     <div class="flex h-full">
       <!-- Ensure we have a request for this view -->

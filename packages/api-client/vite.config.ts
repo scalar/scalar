@@ -1,10 +1,12 @@
 import { ViteWatchWorkspace, alias, createViteBuildOptions, findEntryPoints } from '@scalar/build-tooling'
+
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
 import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
-  plugins: [vue(), svgLoader(), ViteWatchWorkspace()],
+  plugins: [vue(), tailwindcss(), svgLoader(), ViteWatchWorkspace()],
   define: {
     PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
   },

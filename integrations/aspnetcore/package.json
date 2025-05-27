@@ -9,14 +9,14 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/aspnetcore"
   },
-  "version": "2.4.1",
+  "version": "2.4.4",
   "private": true,
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "compress": "cd ./src/Scalar.AspNetCore/StaticAssets && gzip --keep --verbose --force scalar.js scalar.aspnetcore.js",
-    "copy:standalone": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
@@ -27,6 +27,7 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "shx": "^0.4.0"
   }
 }

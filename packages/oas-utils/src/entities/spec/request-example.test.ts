@@ -601,10 +601,7 @@ describe('createExampleFromRequest', () => {
         },
       },
       parameters: {
-        headers: [
-          { key: 'Accept', value: '*/*', enabled: true },
-          { key: 'Content-Type', value: 'multipart/form-data', enabled: true },
-        ],
+        headers: [{ key: 'Accept', value: '*/*', enabled: true }],
         path: [],
         query: [],
         cookies: [],

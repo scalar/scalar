@@ -1,5 +1,17 @@
 # @scalar/openapi-parser
 
+## 0.12.0
+
+### Minor Changes
+
+- edf694b: feat: remove wildcard exports
+
+## 0.11.1
+
+### Patch Changes
+
+- ea20eb4: fix: swagger upgrade fails if you pass something that is not an object
+
 ## 0.11.0
 
 ### Minor Changes

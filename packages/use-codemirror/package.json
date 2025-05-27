@@ -16,7 +16,7 @@
     "vue",
     "vue3"
   ],
-  "version": "0.12.1",
+  "version": "0.12.3",
   "engines": {
     "node": ">=20"
   },
@@ -67,11 +67,9 @@
     "@codemirror/view": "^6.35.3",
     "@lezer/common": "^1.2.3",
     "@lezer/highlight": "^1.2.1",
-    "@lezer/lr": "^1.4.2",
     "@replit/codemirror-css-color-picker": "^6.3.0",
     "@scalar/components": "workspace:*",
     "codemirror": "^6.0.0",
-    "style-mod": "^4.1.2",
     "vue": "catalog:*"
   },
   "devDependencies": {

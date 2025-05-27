@@ -109,7 +109,7 @@ onMounted(() => {
       class="text-c-1 hover:bg-b-2 line-clamp-1 h-auto w-fit justify-start px-1.5 py-1.5 font-normal"
       fullWidth
       variant="ghost">
-      <h2 class="m-0 flex items-center gap-1.5 whitespace-nowrap font-medium">
+      <h2 class="m-0 flex items-center gap-1.5 font-medium whitespace-nowrap">
         {{ selectedEnvironment }}
       </h2>
     </ScalarButton>

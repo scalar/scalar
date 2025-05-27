@@ -25,7 +25,7 @@ const resultStatus = computed(() => {
 <template>
   <div class="flex flex-col">
     <div
-      class="pl-2.25 flex h-8 items-center gap-2 pr-3"
+      class="flex h-8 items-center gap-2 pr-3 pl-2.25"
       :class="result.error && 'bg-b-danger'">
       <!-- Title -->
       <div class="flex items-center gap-3 p-2">
@@ -46,7 +46,7 @@ const resultStatus = computed(() => {
     <!-- Error -->
     <div
       v-if="result.error"
-      class="bg-b-danger text-c-1 flex items-center pb-1.5 pl-9 pr-3">
+      class="bg-b-danger text-c-1 flex items-center pr-3 pb-1.5 pl-9">
       {{ result.error }}
     </div>
   </div>

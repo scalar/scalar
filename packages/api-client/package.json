@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.4.1",
+  "version": "2.4.4",
   "engines": {
     "node": ">=20"
   },
@@ -237,15 +237,13 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/test-utils": "^2.4.1",
-    "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",
-    "postcss": "catalog:*",
     "tailwindcss": "catalog:*",
-    "tailwindcss-color-mix": "^0.0.8",
     "vite": "catalog:*",
     "vite-svg-loader": "^5.1.0",
     "vitest": "catalog:*"

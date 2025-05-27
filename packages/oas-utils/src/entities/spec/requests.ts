@@ -102,6 +102,8 @@ export const oasRequestSchema = z.object({
   'deprecated': z.boolean().optional(),
   /** Response formats */
   'responses': z.record(z.string(), z.any()).optional(),
+  /** Callbacks */
+  'callbacks': z.record(z.string(), z.record(z.string(), z.record(z.string(), z.any()))).optional(),
   /** xScalar examples */
   'x-scalar-examples': z.record(z.string(), xScalarExampleSchema).optional(),
   /** Hide operations */

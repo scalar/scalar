@@ -1,0 +1,33 @@
+/**
+ * Scalar Tailwind Config
+ *
+ * This config provides a base theme for Scalar Tailwind projects.
+ */
+
+/*
+ * Tailwind Base Theme
+ *
+ * We build our theme on top of the Tailwind base theme variables.
+ */
+@import "tailwindcss/theme.css" layer(scalar-base);
+
+/*
+ * Scalar Tailwind Theme
+ *
+ * @see https://tailwindcss.com/docs/theme#overriding-the-default-theme
+ */
+@import "./tailwind/theme.css" layer(scalar-base);
+
+/*
+ * Scalar Tailwind Variants
+ *
+ * @see https://tailwindcss.com/docs/adding-custom-styles#using-variants
+ */
+@import "./tailwind/variants.css";
+
+/*
+ * Scalar Tailwind Utilities
+ *
+ * @see https://tailwindcss.com/docs/adding-custom-styles#adding-custom-utilities
+ */
+@import "./tailwind/utilities.css";

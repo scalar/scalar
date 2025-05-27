@@ -11,6 +11,5 @@ const { level = 1 } = defineProps<{ level?: 1 | 2 | 3 | 4 | 5 | 6 }>()
 <style scoped>
 .section-header-label {
   display: inline;
-  user-select: none;
 }
 </style>

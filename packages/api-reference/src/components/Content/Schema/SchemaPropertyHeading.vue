@@ -1,11 +1,6 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/oas-utils/helpers'
-import type {
-  OpenAPI,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { computed } from 'vue'
 
@@ -31,11 +26,7 @@ const {
   additional?: boolean
   pattern?: boolean
   withExamples?: boolean
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const composition = compositions.find((composition: CompositionKeyword) => {
@@ -68,7 +59,9 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 // Get model name from schema
-const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
+const getModelNameFromSchema = (
+  schema: OpenAPIV3_1.Document,
+): string | null => {
   if (!schema) {
     return null
   }
@@ -82,9 +75,21 @@ const getModelNameFromSchema = (schema: OpenAPI.Document): string | null => {
   }
 
   if (schemas && typeof schemas === 'object') {
+    // Handle direct schema match
     for (const [schemaName, schemaValue] of Object.entries(schemas)) {
       if (stringify(schemaValue) === stringify(schema)) {
         return schemaName
+      }
+    }
+
+    // Handle case where schema is a reference to a component schema
+    if (schema.type === 'object' && schema.properties) {
+      for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+        if (
+          stringify(schemaValue.properties) === stringify(schema.properties)
+        ) {
+          return schemaName
+        }
       }
     }
   }
@@ -130,6 +135,33 @@ const displayType = computed(() => {
 
   return value?.type ?? ''
 })
+
+/** Format the type and model name */
+const formatTypeWithModel = (type: string, modelName: string) => {
+  return type === 'array' ? `${type} ${modelName}[]` : `${type} ${modelName}`
+}
+
+/** Gets the model name */
+const modelName = computed(() => {
+  if (!value?.type) {
+    return null
+  }
+
+  // Handle array types with item references
+  if (value.type === 'array' && value.items?.type) {
+    const itemModelName =
+      getModelNameFromSchema(value.items) || value.items.type
+    return formatTypeWithModel(value.type, itemModelName)
+  }
+
+  // Handle direct object references
+  const objectModelName = getModelNameFromSchema(value)
+  if (objectModelName) {
+    return objectModelName
+  }
+
+  return null
+})
 </script>
 <template>
   <div class="property-heading">
@@ -142,12 +174,16 @@ const displayType = computed(() => {
         name="name" />
       <template v-else>&sol;<slot name="name" />&sol;</template>
     </div>
+    <div
+      v-if="value?.isDiscriminator"
+      class="property-discriminator">
+      Discriminator
+    </div>
     <template v-if="value">
       <SchemaPropertyDetail v-if="value?.type">
         <ScreenReader>Type:</ScreenReader>
-        <template v-if="value?.items?.type">
-          {{ value.type }}
-          {{ getModelNameFromSchema(value.items) || value.items.type }}[]
+        <template v-if="modelName">
+          {{ modelName }}
         </template>
         <template v-else>
           {{ displayType }}
@@ -319,6 +355,12 @@ const displayType = computed(() => {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-green);
 }
+
+.property-discriminator {
+  font-size: var(--scalar-micro);
+  color: var(--scalar-color-purple);
+}
+
 .property-detail {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-2);

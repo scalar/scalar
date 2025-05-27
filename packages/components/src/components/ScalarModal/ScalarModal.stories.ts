@@ -38,7 +38,7 @@ export const Base: Story = {
         :state="modalState"
         title="Example modal"
         v-bind="args">
-        <div class="col gap-4">
+        <div class="flex flex-col gap-4">
           <div>You can put some nice content here, or even ask a nice question</div>
           <div class="flex *:flex-1 gap-2">
             <ScalarButton variant="outlined" @click="modalState.hide()" >Cancel</ScalarButton>

@@ -1,5 +1,45 @@
 # @scalar/api-reference
 
+## 1.30.0
+
+### Patch Changes
+
+- 5208e7a: fix: decreases level on single property schema
+- edb5490: feat: adds schema discriminator helper functions
+- 442c0a3: feat: added support for callbacks
+- edb5490: feat: adds schema discriminator support
+- Updated dependencies [151ef09]
+- Updated dependencies [442c0a3]
+- Updated dependencies [edf694b]
+  - @scalar/api-client@2.4.4
+  - @scalar/oas-utils@0.3.2
+  - @scalar/openapi-parser@0.12.0
+  - @scalar/components@0.14.2
+
+## 1.29.3
+
+### Patch Changes
+
+- fbcce50: fix: moves download link to section column in introduction component
+- 0afb11d: fix: asses schemas to children object in schema property
+- 9fd408c: fix: updates schema property heading type handling
+- 0afb11d: fix: adds model name function in schema property heading
+- c944864: fix: updates schema composition style and missing value
+- 9ffba73: fix: displays schema references name in property heading
+- Updated dependencies [fbcce50]
+  - @scalar/api-client@2.4.3
+
+## 1.29.2
+
+### Patch Changes
+
+- 2efdf8e: fix: updates introduction card and auth style
+- Updated dependencies [ea20eb4]
+- Updated dependencies [2efdf8e]
+  - @scalar/openapi-parser@0.11.1
+  - @scalar/api-client@2.4.2
+  - @scalar/oas-utils@0.3.1
+
 ## 1.29.1
 
 ### Patch Changes

@@ -71,7 +71,7 @@ export const convertToHarRequest = ({
   // Handle request body if present
   if (body) {
     try {
-      const contentType = headers.find((h) => h.key.toLowerCase() === 'content-type')?.value || 'application/json'
+      const contentType = headers.find((h) => h.key.toLowerCase() === 'content-type')?.value
 
       // For form-data, convert to object while handling File objects
       if (body.activeBody === 'formData' && body.formData) {
@@ -100,19 +100,19 @@ export const convertToHarRequest = ({
         // Handle urlencoded form data
         if (body.formData?.encoding === 'urlencoded') {
           harRequest.postData = {
-            mimeType: contentType,
+            mimeType: contentType || 'application/x-www-form-urlencoded',
             params,
           }
         } else {
           harRequest.postData = {
-            mimeType: contentType,
+            mimeType: contentType || 'multipart/form-data',
             params,
           }
         }
       } else if (body.activeBody === 'raw' && body.raw) {
         // For other content types (JSON, plain text, url-encoded)
         harRequest.postData = {
-          mimeType: contentType,
+          mimeType: contentType || 'application/json',
           text: body.raw?.value ?? '',
         }
       }

@@ -2,8 +2,8 @@
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchUrls } from '../src/plugins/fetch-urls/fetchUrls'
-import { readFiles } from '../src/plugins/read-files/readFiles'
+import { fetchUrls } from '../src/plugins/fetch-urls/fetch-urls'
+import { readFiles } from '../src/plugins/read-files/read-files'
 import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load/load'
 import { validate } from '../src/utils/validate'

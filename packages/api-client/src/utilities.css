@@ -1,0 +1,45 @@
+/**
+ * Client Specific Tailwind Utilities
+ */
+
+/**
+ * App Drag Region Utility Classes
+ * @see https://www.electronjs.org/docs/latest/tutorial/window-customization#set-custom-draggable-region
+ */
+@utility app-drag-region {
+  /** Enable dragging for a region (e.g. for the window title bar) */
+  -webkit-app-region: drag;
+}
+
+@utility app-no-drag-region {
+  /** Disable dragging for a region (e.g. for clickable elements) */
+  -webkit-app-region: no-drag;
+}
+
+/**
+ * Floating background (e.g. for hoverable auth flows)
+ */
+@utility floating-bg {
+  &::before {
+    background-color: var(--scalar-background-2);
+    border-radius: var(--scalar-radius);
+    content: "";
+    height: calc(100% - 4px);
+    left: -4px;
+    opacity: 0;
+    position: absolute;
+    top: 2.5px;
+    transition: opacity 0.2s ease-in-out;
+    width: calc(100% + 8px);
+    z-index: 1;
+  }
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+/** Desktop Variants */
+@custom-variant desktop (.app-platform-desktop &);
+@custom-variant mac (.app-platform-mac &);
+@custom-variant windows (.app-platform-windows &);
+@custom-variant linux (.app-platform-linux &);

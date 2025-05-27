@@ -66,23 +66,24 @@ watch(
   <form @submit.prevent>
     <div
       v-if="selectedSchemeOptions.length > 1"
-      class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3">
+      class="box-content flex h-8 flex-wrap gap-x-2.5 overflow-hidden border border-b-0 px-3"
+      :class="layout === 'client' && 'border-r-0'">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"
-        class="z-1 relative -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
+        class="relative z-1 -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
           class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
           type="button"
           @click="activeAuthIndex = index">
-          <span class="relative z-10 whitespace-nowrap font-medium">{{
+          <span class="relative z-10 font-medium whitespace-nowrap">{{
             option.label
           }}</span>
         </button>
         <div
           v-if="activeAuthIndex === index"
-          class="z-1 absolute inset-x-1 bottom-[var(--scalar-border-width)] left-1/2 h-px w-full -translate-x-1/2 bg-current" />
+          class="absolute inset-x-1 bottom-[var(--scalar-border-width)] left-1/2 z-1 h-px w-full -translate-x-1/2 bg-current" />
       </div>
     </div>
 
@@ -105,7 +106,10 @@ watch(
 
     <div
       v-else
-      class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t px-4 text-sm">
+      class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm"
+      :class="
+        layout === 'reference' && 'min-h-[calc(4rem+0.5px)] rounded-b-lg border'
+      ">
       No authentication selected
     </div>
 

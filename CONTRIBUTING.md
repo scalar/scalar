@@ -17,7 +17,7 @@ This should give you a nice start page with entrypoints to the various previews 
 These scripts use [`turbo`](https://turbo.build/) to build all the dependencies and run a development server.
 
 | Command                    | Description                                                               |
-| -------------------------  | ------------------------------------------------------------------------- |
+| -------------------------- | ------------------------------------------------------------------------- |
 | `pnpm dev`                 | Runs all package `pnpm dev` commands (slow)                               |
 | `pnpm dev:client`          | Runs the API Client dev environment                                       |
 | `pnpm dev:client:desktop`  | Runs the API Client desktop app in an electron dev environment            |
@@ -48,14 +48,6 @@ Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-serve
 pnpm dev:void-server
 pnpm dev:proxy-server
 ```
-
-### Testing the CLI
-
-If you want to run the tests for the CLI, you’ll need to package first. The tests don’t use the source files, but the dist files.
-
-To just run the CLI from the source files, you can use the following alias:
-`$ pnpm @scalar/cli --version`
-
 ## PRs
 
 Don’t worry, we’ll help you to get your PR in. But here is how you can help us:

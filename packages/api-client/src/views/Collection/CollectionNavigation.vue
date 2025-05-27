@@ -118,7 +118,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
           "
           stroke-width="2" />
         <span
-          class="text-c-1 mr-[6.25px] hidden overflow-hidden text-ellipsis whitespace-nowrap px-2 font-medium md:block"
+          class="text-c-1 mr-[6.25px] hidden overflow-hidden px-2 font-medium text-ellipsis whitespace-nowrap md:block"
           >{{ activeCollection?.info?.title }}</span
         >
       </div>
@@ -128,7 +128,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
         <RouterLink
           v-for="({ to, displayName }, i) in routes"
           :key="i"
-          class="-ml-2 flex h-10 cursor-pointer items-center whitespace-nowrap px-2 text-center text-sm font-medium no-underline -outline-offset-1 has-[:focus-visible]:outline"
+          class="-ml-2 flex h-10 cursor-pointer items-center px-2 text-center text-sm font-medium whitespace-nowrap no-underline -outline-offset-1 has-[:focus-visible]:outline"
           :to="to">
           <span
             class="flex-center h-full w-full border-b"

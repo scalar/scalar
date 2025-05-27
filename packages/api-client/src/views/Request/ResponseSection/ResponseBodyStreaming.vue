@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 
     <div
       ref="contentContainer"
-      class="text-xxs font-code leading-2 h-full overflow-auto whitespace-pre-wrap">
+      class="text-xxs font-code h-full overflow-auto leading-2 whitespace-pre-wrap">
       <template v-if="errorRef">
         <div class="text-red bg-b-danger sticky top-0 border-b p-2">
           {{ errorRef.message }}
