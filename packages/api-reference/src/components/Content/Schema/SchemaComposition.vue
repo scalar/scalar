@@ -5,11 +5,11 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
+import type { Schemas } from '@/features/Operation/types/schemas'
 
 import {
   hasComposition,
@@ -19,7 +19,7 @@ import Schema from './Schema.vue'
 
 const { schemas, value, composition } = defineProps<{
   composition: CompositionKeyword
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Schemas
   name?: string
   value: Record<string, any>
   level: number
