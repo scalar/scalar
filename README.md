@@ -140,6 +140,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Scalar for Laravel](https://github.com/scalar/laravel)
 - [Ts.ED](https://tsed.dev/tutorials/scalar.html)
 - [Vue.js](packages/api-reference/README.md)
+- [Python](https://github.com/iagobalmeida/scalar_doc)
 
 ### Built-in Support
 
