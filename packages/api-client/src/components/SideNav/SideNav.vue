@@ -27,7 +27,7 @@ const { activeWorkspace } = useActiveEntities()
     role="navigation">
     <SideNavGroup class="app-no-drag-region">
       <a
-        class="ml-1 mr-3 hidden items-center"
+        class="mr-3 ml-1 hidden items-center"
         :class="{
           'sm:flex': layout === 'web',
         }"

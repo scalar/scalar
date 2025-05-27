@@ -122,7 +122,7 @@ const shouldShowParameter = computed(() => {
       </DisclosurePanel>
     </Disclosure>
     <div
-      class="absolute right-0 top-2.5 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
+      class="absolute top-2.5 right-0 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
       <ContentTypeSelect
         v-if="shouldCollapse && props.parameter.content"
         class="parameter-item-content-type"

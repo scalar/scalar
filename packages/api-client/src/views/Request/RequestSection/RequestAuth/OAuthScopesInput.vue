@@ -62,7 +62,7 @@ function selectAllScopes() {
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion hover:text-c-1 pr-2.25 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pl-3 text-left',
+            'group/scopes-accordion hover:text-c-1 flex h-auto min-h-8 cursor-pointer items-center gap-1.5 pr-2.25 pl-3 text-left',
             (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
@@ -70,7 +70,7 @@ function selectAllScopes() {
             {{ flow?.selectedScopes?.length || 0 }} /
             {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
           </div>
-          <div class="gap-1.75 flex items-center">
+          <div class="flex items-center gap-1.75">
             <ScalarButton
               v-if="
                 flow?.selectedScopes?.length > 4 &&

@@ -180,7 +180,7 @@ const dataTableInputProps = {
         :aria-label="scheme.description"
         class="text-c-2 auth-description-container group/auth -mb-0.25 flex items-center whitespace-nowrap outline-none hover:whitespace-normal">
         <ScalarMarkdown
-          class="auth-description z-1 bg-b-1 text-c-2 outline-b-3 top-0 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none"
+          class="auth-description bg-b-1 text-c-2 outline-b-3 top-0 z-1 line-clamp-1 h-full w-full px-3 py-1.5 group-hover/auth:line-clamp-none"
           :value="scheme.description" />
       </DataTableCell>
     </DataTableRow>
@@ -297,7 +297,7 @@ const dataTableInputProps = {
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-b-0 border-t px-4 text-sm"
+        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t border-b-0 px-4 text-sm"
         :class="{ 'rounded-b-lg': layout === 'reference' }">
         Coming soon
       </div>
