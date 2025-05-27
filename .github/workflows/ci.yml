@@ -548,7 +548,7 @@ jobs:
             **Preview Storybook**
 
             https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
-          comment_tag: 'netlify-preview'
+          comment_tag: 'storybook-preview'
 
   aspnetcore-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
