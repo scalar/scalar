@@ -68,7 +68,11 @@ describe('bundle', () => {
             ...external,
           },
         },
-        ...input,
+        a: {
+          b: {
+            c: 'hello',
+          },
+        },
         d: {
           $ref: `#/x-external-references/http:~1~1localhost:${PORT}/prop`,
         },
@@ -117,22 +121,19 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-external-references': {
-          [`http://localhost:${PORT}/chunk1`]: {
+          [`http:~1~1localhost:${PORT}~1chunk1`]: {
             ...chunk1,
             b: {
               $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk2`,
             },
           },
-          [`http://localhost:${PORT}/chunk2`]: {
+          [`http:~1~1localhost:${PORT}~1chunk2`]: {
             ...chunk2,
-            internal: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk2/nested/key`,
+            internal: '#/nested/key',
           },
         },
-        ...input,
         a: {
-          ...input.a,
           b: {
-            ...input.a.b,
             c: {
               $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
             },
@@ -164,13 +165,11 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-external-references': {
-          [`http://localhost:${PORT}`]: {
+          [`http:~1~1localhost:${PORT}`]: {
             a: 'a',
           },
         },
-        ...input,
         a: {
-          ...input.a,
           b: {
             $ref: `#/x-external-references/http:~1~1localhost:${PORT}`,
           },
@@ -206,12 +205,11 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-external-references': {
-          [`http://localhost:${PORT}`]: {
+          [`http:~1~1localhost:${PORT}`]: {
             a: 'a',
             b: 'b',
           },
         },
-        ...input,
         a: {
           $ref: `#/x-external-references/http:~1~1localhost:${PORT}/a`,
         },
@@ -253,16 +251,15 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-external-references': {
-          [`http://localhost:${PORT}/nested/another-file.json`]: {
+          [`http:~1~1localhost:${PORT}~1nested~1another-file.json`]: {
             c: 'c',
           },
-          [`http://localhost:${PORT}/nested/chunk1.json`]: {
+          [`http:~1~1localhost:${PORT}~1nested~1chunk1.json`]: {
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~another-file.json`,
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1another-file.json`,
             },
           },
         },
-        ...input,
         a: {
           $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
@@ -298,16 +295,61 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         'x-external-references': {
-          [`http://localhost:${PORT}/top-level`]: {
+          [`http:~1~1localhost:${PORT}~1top-level`]: {
             c: 'c',
           },
-          [`http://localhost:${PORT}/nested/chunk1.json`]: {
+          [`http:~1~1localhost:${PORT}~1nested~1chunk1.json`]: {
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~top-level`,
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1top-level`,
             },
           },
         },
-        ...input,
+        a: {
+          $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
+        },
+      })
+    })
+
+    it('bundles from a url input', async () => {
+      const PORT = 5588
+      const url = `http://localhost:${PORT}`
+
+      server.get('/top-level', (_, reply) => {
+        reply.send({
+          c: 'c',
+        })
+      })
+
+      server.get('/nested/chunk1.json', (_, reply) => {
+        reply.send({
+          b: {
+            '$ref': `${url}/top-level#`,
+          },
+        })
+      })
+
+      server.get('/base/openapi.json', (_, reply) => {
+        reply.send({
+          a: {
+            $ref: '../nested/chunk1.json',
+          },
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()] })
+
+      expect(output).toEqual({
+        'x-external-references': {
+          [`http:~1~1localhost:${PORT}~1top-level`]: {
+            c: 'c',
+          },
+          [`http:~1~1localhost:${PORT}~1nested~1chunk1.json`]: {
+            b: {
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1top-level`,
+            },
+          },
+        },
         a: {
           $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
@@ -338,7 +380,6 @@ describe('bundle', () => {
             ...chunk1,
           },
         },
-        ...input,
         a: {
           $ref: `#/x-external-references/${chunk1Path}/a`,
         },
@@ -375,7 +416,6 @@ describe('bundle', () => {
             a: { $ref: `#/x-external-references/${chunk1Path}` },
           },
         },
-        ...input,
         a: {
           $ref: `#/x-external-references/${chunk2Path}`,
         },
@@ -417,12 +457,55 @@ describe('bundle', () => {
             c: 'c',
           },
           [`nested~1${bName}`]: {
-            a: { $ref: `#/x-external-references/.~1nested~1${cName}` },
+            b: { $ref: `#/x-external-references/nested~1${cName}` },
           },
         },
-        ...input,
         a: {
           $ref: `#/x-external-references/nested~1${bName}`,
+        },
+      })
+    })
+
+    it('bundles from a file input', async () => {
+      const c = {
+        c: 'c',
+      }
+      const cName = randomUUID()
+
+      const b = {
+        b: {
+          '$ref': `./${cName}`,
+        },
+      }
+      const bName = randomUUID()
+
+      await fs.mkdir('./nested')
+      await fs.writeFile(`./nested/${bName}`, JSON.stringify(b))
+      await fs.writeFile(`./nested/${cName}`, JSON.stringify(c))
+
+      const input = {
+        a: {
+          '$ref': `./${bName}`,
+        },
+      }
+      const inputName = randomUUID()
+      await fs.writeFile(`./nested/${inputName}`, JSON.stringify(input))
+
+      const result = await bundle(`./nested/${bName}`, { plugins: [fetchUrls(), readFiles()] })
+
+      await fs.rm(`./nested/${bName}`)
+      await fs.rm(`./nested/${cName}`)
+      await fs.rm(`./nested/${inputName}`)
+      await fs.rmdir('nested')
+
+      expect(result).toEqual({
+        'b': {
+          '$ref': `#/x-external-references/nested~1${cName}`,
+        },
+        'x-external-references': {
+          [`nested~1${cName}`]: {
+            'c': 'c',
+          },
         },
       })
     })
