@@ -7,6 +7,8 @@ import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
+import type { Schemas } from '@/features/Operation/types/schemas'
+import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
@@ -17,6 +19,7 @@ const {
   transformedOperation,
   collection,
   server,
+  schemas,
 } = defineProps<{
   id?: string
   layout?: 'modern' | 'classic'
@@ -27,6 +30,12 @@ const {
 }>()
 
 const store = useWorkspace()
+
+// Setup discriminator handling
+const { handleDiscriminatorChange } = useOperationDiscriminator(
+  transformedOperation,
+  schemas,
+)
 
 /**
  * Resolve the matching operation from the store
@@ -73,7 +82,8 @@ const operationServer = computed(() => {
         :operation="operation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation" />
+        :transformedOperation="transformedOperation"
+        @update:modelValue="handleDiscriminatorChange" />
     </template>
     <template v-else>
       <ModernLayout
@@ -82,7 +92,8 @@ const operationServer = computed(() => {
         :operation="operation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation" />
+        :transformedOperation="transformedOperation"
+        @update:modelValue="handleDiscriminatorChange" />
     </template>
   </template>
 </template>
