@@ -172,7 +172,7 @@ function updateRequestPath(url: string) {
       <div
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
-          class="bg-mix-transparent bg-mix-amount-90 absolute top-0 left-0 z-[1002] h-full w-full"
+          class="absolute top-0 left-0 z-[1002] h-full w-full"
           :class="getBackgroundColor()"
           :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
       </div>

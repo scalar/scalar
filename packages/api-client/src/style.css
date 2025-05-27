@@ -12,6 +12,7 @@
 
 /* Search for Tailwind classes in the API Client */
 @source "./";
+@source "../node_modules/@scalar/oas-utils/src/";
 
 /* Client Specific Tailwind Utilities */
 @import "./utilities.css";
