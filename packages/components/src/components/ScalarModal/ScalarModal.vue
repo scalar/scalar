@@ -44,7 +44,7 @@ const body = cva({
   variants: {
     variant: {
       form: 'overflow-visible',
-      search: 'col !m-0 overflow-hidden p-0',
+      search: 'flex flex-col !m-0 overflow-hidden p-0',
       error: 'overflow-y-scroll',
     },
     size: {
