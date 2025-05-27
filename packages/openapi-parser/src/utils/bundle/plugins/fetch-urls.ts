@@ -3,7 +3,7 @@ import { isRemoteUrl, type Plugin, type ResolveResult } from '../bundle'
 import { createLimiter } from '../create-limiter'
 
 type FetchConfig = Partial<{
-  auth: { token: string; type: 'bearer'; domains: string[] }[]
+  headers: { headers: HeadersInit; domains: string[] }[]
 }>
 
 /**
@@ -28,17 +28,12 @@ export async function fetchUrl(
   try {
     const domain = new URL(url).hostname
 
-    // We can attach the auth header if the auth matches
-    const auth = config?.auth?.find((a) => a.domains.find((d) => d === domain) !== undefined)
-
-    // TODO: handle different kind of authorization
-    const headers = auth ? { 'Authorization': `Bearer ${auth.token}` } : {}
+    // Get the headers that match the domain
+    const headers = config?.headers?.find((a) => a.domains.find((d) => d === domain) !== undefined)?.headers
 
     const result = await limiter(() =>
       fetch(url, {
-        headers: {
-          ...headers,
-        },
+        headers,
       }),
     )
 
