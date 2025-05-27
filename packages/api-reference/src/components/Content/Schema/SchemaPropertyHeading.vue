@@ -4,12 +4,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { computed } from 'vue'
 
-import {
-  compositions,
-  type CompositionKeyword,
-} from '@/components/Content/Schema/helpers/schema-composition'
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
 import ScreenReader from '@/components/ScreenReader.vue'
+import type { Schemas } from '@/features/Operation/types/schemas'
+import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
 import { Badge } from '../../Badge'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
@@ -28,21 +26,8 @@ const {
   pattern?: boolean
   withExamples?: boolean
   hideModelNames?: boolean
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Schemas
 }>()
-
-const composition = compositions.find((composition: CompositionKeyword) => {
-  if (!value || typeof value !== 'object') {
-    return false
-  }
-
-  return (
-    composition in value ||
-    (value.items &&
-      typeof value.items === 'object' &&
-      composition in value.items)
-  )
-})
 
 const flattenDefaultValue = (value: Record<string, any>) => {
   if (value?.default === null) {
@@ -177,8 +162,22 @@ const modelName = computed(() => {
 
   // Handle array types with item references only if no full schema match was found
   if (value.type === 'array' && value.items?.type) {
+    // Check if items reference a discriminator schema
+    const baseSchemaName = getDiscriminatorSchemaName(value.items, schemas)
+    if (baseSchemaName) {
+      return formatTypeWithModel(value.type, baseSchemaName)
+    }
+
+    // Handle title/name
+    if (value.items.title || value.items.name) {
+      return formatTypeWithModel(
+        value.type,
+        value.items.title || value.items.name,
+      )
+    }
+
     const itemModelName =
-      getModelNameFromSchema(value.items) || value.items.type
+      getModelNameFromSchema(value.items) || value.items.type || 'object'
     return formatTypeWithModel(value.type, itemModelName)
   }
 
