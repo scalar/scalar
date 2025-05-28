@@ -134,7 +134,7 @@ onMounted(() => {
           :key="item.id">
           <template v-if="item.isGroup">
             <li class="sidebar-group-title">
-              {{ item.displayTitle ?? item.title }}
+              {{ item.title }}
             </li>
             <template
               v-for="group in item.children"
@@ -146,7 +146,7 @@ onMounted(() => {
                 :isActive="isItemActive(group.id)"
                 :item="{
                   id: group.id,
-                  title: group.displayTitle ?? group.title,
+                  title: group.title,
                   select: group.select,
                   httpVerb: group.httpVerb,
                   deprecated: group.deprecated ?? false,
@@ -166,12 +166,11 @@ onMounted(() => {
                       v-for="child in group.children"
                       :key="child.id">
                       <SidebarElement
-                        v-if="item.show"
                         :id="`sidebar-${child.id}`"
                         :isActive="isItemActive(child.id)"
                         :item="{
                           id: child.id,
-                          title: child.displayTitle ?? child.title,
+                          title: child.title,
                           select: child.select,
                           httpVerb: child.httpVerb,
                           deprecated: child.deprecated ?? false,
@@ -184,14 +183,13 @@ onMounted(() => {
           </template>
           <template v-else>
             <SidebarElement
-              v-if="item.show"
               :id="`sidebar-${item.id}`"
               data-sidebar-type="heading"
               :hasChildren="item.children && item.children.length > 0"
               :isActive="isItemActive(item.id)"
               :item="{
                 id: item.id,
-                title: item.displayTitle ?? item.title,
+                title: item.title,
                 select: item.select,
                 httpVerb: item.httpVerb,
                 deprecated: item.deprecated ?? false,
@@ -211,12 +209,11 @@ onMounted(() => {
                     v-for="child in item.children"
                     :key="child.id">
                     <SidebarElement
-                      v-if="item.show"
                       :id="`sidebar-${child.id}`"
                       :isActive="isItemActive(child.id)"
                       :item="{
                         id: child.id,
-                        title: child.displayTitle ?? child.title,
+                        title: child.title,
                         select: child.select,
                         httpVerb: child.httpVerb,
                         deprecated: child.deprecated ?? false,
