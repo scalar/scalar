@@ -5,7 +5,7 @@
 @import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
 @import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
 
-:where(.scalar-app) {
+.scalar-app {
   @import "tailwindcss/utilities.css";
 }
 
