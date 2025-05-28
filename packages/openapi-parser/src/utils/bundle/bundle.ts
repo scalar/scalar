@@ -267,7 +267,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   rawSpecification[EXTERNAL_KEY] = {}
 
   const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
-    if (!root || !isObject(root)) {
+    if (!isObject(root) && !Array.isArray(root)) {
       return
     }
 

@@ -428,6 +428,48 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('bundles array references', async () => {
+      const PORT = 8893
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+      }
+
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: [
+          {
+            $ref: `${url}/chunk1#`,
+          },
+        ],
+      }
+      await bundle(input, {
+        plugins: [fetchUrls()],
+      })
+
+      expect(input).toEqual({
+        a: [
+          {
+            $ref: '#/x-external-references/http:~1~1localhost:8893~1chunk1',
+          },
+        ],
+        'x-external-references': {
+          'http:~1~1localhost:8893~1chunk1': {
+            a: {
+              hello: 'hello',
+            },
+          },
+        },
+      })
+    })
   })
 
   describe('local files', () => {
