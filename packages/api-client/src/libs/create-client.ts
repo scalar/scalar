@@ -13,7 +13,6 @@ import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
 import type { OpenAPI } from '@scalar/types/legacy'
-import { nanoid } from 'nanoid'
 import { type Component, createApp, ref, watch } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -192,7 +191,7 @@ export const createApiClient = ({
   // Provide the plugin manager
   app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
   // Set an id prefix for useId so we don't have collisions with other Vue apps
-  app.config.idPrefix = `scalar-client-${nanoid(4)}`
+  app.config.idPrefix = 'scalar-client'
 
   const {
     collectionMutators,

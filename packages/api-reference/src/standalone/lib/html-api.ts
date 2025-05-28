@@ -9,7 +9,6 @@ import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from '@/components/ApiReference.vue'
-import { nanoid } from 'nanoid'
 
 const getSpecScriptTag = (doc: Document) => doc.getElementById('api-reference')
 
@@ -181,7 +180,7 @@ export const createApiReference: CreateApiReference = (
   optionalConfiguration?: AnyApiReferenceConfiguration,
 ) => {
   // Create an id prefix for useId so we don't have collisions with other Vue apps
-  const idPrefix = `scalar-refs-${nanoid(4)}`
+  const idPrefix = 'scalar-refs'
 
   const props = reactive<ReferenceProps>({
     // Either the configuration will be the second arugment or it MUST be the first (configuration only)
