@@ -8,7 +8,6 @@ import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/BaseUrl'
 import { useConfig } from '@/hooks/useConfig'
-import { useSidebar } from '@/hooks/useSidebar'
 import { getModels, hasModels } from '@/libs/openapi'
 
 import { ClientLibraries } from './ClientLibraries'
@@ -29,7 +28,6 @@ const props = withDefaults(
 )
 
 const config = useConfig()
-const { hideModels } = useSidebar()
 const { collections, securitySchemes, servers } = useWorkspace()
 const {
   activeCollection: _activeCollection,
@@ -164,7 +162,7 @@ const introCardsSlot = computed(() =>
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
 
-    <template v-if="hasModels(parsedSpec) && !hideModels">
+    <template v-if="hasModels(parsedSpec) && !config.hideModels">
       <ModelsAccordion
         v-if="layout === 'classic'"
         :schemas="getModels(parsedSpec)" />

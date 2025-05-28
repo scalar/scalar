@@ -1,13 +1,11 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+/** Copied from the old useSidebar hook for backwards compatibility, we will update it later */
 export type SidebarEntry = {
   id: string
   title: string
-  displayTitle?: string
   children?: SidebarEntry[]
-  select?: () => void
   httpVerb?: string
-  show: boolean
   deprecated?: boolean
   isGroup?: boolean
 }

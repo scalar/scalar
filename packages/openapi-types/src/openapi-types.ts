@@ -11,8 +11,6 @@
 type AnyOtherAttribute = {
   /** OpenAPI extension */
   [customExtension: `x-${string}`]: any
-  /** Unknown attribute */
-  [key: string]: any
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
@@ -617,7 +615,7 @@ export namespace OpenAPIV3 {
   }
 
   export type TagObject = {
-    name?: string
+    name: string
     description?: string
     externalDocs?: ExternalDocumentationObject
   } & AnyOtherAttribute
