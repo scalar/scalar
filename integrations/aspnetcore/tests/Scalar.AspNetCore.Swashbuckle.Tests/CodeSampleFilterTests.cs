@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
@@ -6,10 +6,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Scalar.AspNetCore.Swashbuckle.Tests;
 
-public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
+public class CodeSampleFilterTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
     [Fact]
-    public async Task ExcludeFromApiReferenceTransformer_ShouldAddIgnoreExtension()
+    public async Task CodeSampleFilter_ShouldAddCodeSamples()
     {
         // Arrange
         var localFactory = factory.WithWebHostBuilder(builder =>
@@ -22,12 +22,9 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                 {
                     endpoints.MapSwagger("/openapi/{documentName}.json");
 
-                    var group = endpoints.MapGroup("/foo").WithTags("foo");
-                    group.MapGet("/exclude", Results.NoContent).ExcludeFromApiReference();
-                    group.MapGet("/include", Results.NoContent);
-                    var excludeGroup = endpoints.MapGroup("/full-exclude").WithTags("exclude").ExcludeFromApiReference();
-                    excludeGroup.MapGet("/foo", Results.NoContent);
-                    excludeGroup.MapGet("/bar", Results.NoContent);
+                    var group = endpoints.MapGroup("/foo").WithTags("foo").CodeSample("const foo = 0");
+                    group.MapGet("/default", Results.NoContent);
+                    group.MapGet("/custom", Results.NoContent).CodeSample("const foo = 0", ScalarTarget.CSharp, "my-code");
                 });
             });
         });
@@ -46,33 +43,7 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                     "version": "1.0"
                                   },
                                   "paths": {
-                                    "/full-exclude/foo": {
-                                      "get": {
-                                        "tags": [
-                                          "exclude"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        },
-                                        "x-scalar-ignore": true
-                                      }
-                                    },
-                                    "/full-exclude/bar": {
-                                      "get": {
-                                        "tags": [
-                                          "exclude"
-                                        ],
-                                        "responses": {
-                                          "200": {
-                                            "description": "OK"
-                                          }
-                                        },
-                                        "x-scalar-ignore": true
-                                      }
-                                    },
-                                    "/foo/exclude": {
+                                    "/foo/default": {
                                       "get": {
                                         "tags": [
                                           "foo"
@@ -82,10 +53,14 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                             "description": "OK"
                                           }
                                         },
-                                        "x-scalar-ignore": true
+                                        "x-codeSamples": [
+                                          {
+                                            "source": "const foo = 0"
+                                          }
+                                        ]
                                       }
                                     },
-                                    "/foo/include": {
+                                    "/foo/custom": {
                                       "get": {
                                         "tags": [
                                           "foo"
@@ -94,7 +69,14 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
                                           "200": {
                                             "description": "OK"
                                           }
-                                        }
+                                        },
+                                        "x-codeSamples": [
+                                          {
+                                            "source": "const foo = 0",
+                                            "lang": "csharp",
+                                            "label": "my-code"
+                                          }
+                                        ]
                                       }
                                     }
                                   },

@@ -18,6 +18,7 @@ public static class SwaggerGenOptionsExtensions
         options.DocumentFilter<ExcludeFromApiReferenceDocumentFilter>();
         options.OperationFilter<ExcludeFromApiReferenceOperationFilter>();
         options.OperationFilter<StabilityOpenApiOperationFilter>();
+        options.OperationFilter<CodeSampleDocumentFilter>();
         return options;
     }
 }
