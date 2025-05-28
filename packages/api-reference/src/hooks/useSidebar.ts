@@ -418,7 +418,7 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
     )
   }
 
-  const x = {
+  return {
     breadcrumb,
     items,
     isSidebarOpen,
@@ -430,7 +430,4 @@ export function useSidebar(options?: ParsedSpecOption & SorterOption) {
     defaultOpenAllTags,
     scrollToOperation,
   }
-  console.log(x)
-
-  return x
 }

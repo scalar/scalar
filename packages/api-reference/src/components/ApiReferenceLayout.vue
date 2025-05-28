@@ -113,11 +113,7 @@ const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const {
   breadcrumb,
-  collapsedSidebarItems,
   isSidebarOpen,
-  setCollapsedSidebarItem,
-  hideModels,
-  defaultOpenAllTags,
   // setParsedSpec,
   scrollToOperation,
 } = useSidebar()
@@ -266,9 +262,6 @@ function mapConfigToState<K extends keyof ApiReferenceConfiguration>(
 const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
 mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
-
-hideModels.value = configuration.value.hideModels ?? false
-defaultOpenAllTags.value = configuration.value.defaultOpenAllTags ?? false
 
 const themeStyleTag = computed(
   () => `<style>

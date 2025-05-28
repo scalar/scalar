@@ -5,7 +5,7 @@ import { createSidebarAmrit } from './create-sidebar-amrit'
 import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 
 import { parse } from '@/helpers/parse'
-import { useSidebar as useSidebarOld } from '@/hooks/old/useSidebar'
+import { useSidebar } from '@/hooks/useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createSidebar } from '@/features/Sidebar/helpers/create-sidebar'
 
@@ -42,9 +42,18 @@ vi.mock('vue', () => {
   }
 })
 
+const options = {
+  config: apiReferenceConfigurationSchema.parse({}),
+  getHeadingId: vi.fn(),
+  getModelId: vi.fn(),
+  getOperationId: vi.fn(),
+  getTagId: vi.fn(),
+  getWebhookId: vi.fn(),
+}
+
 describe('createSidebar (stripe)', async () => {
   bench('old', async () => {
-    const { items } = useSidebarOld({
+    const { items } = useSidebar({
       parsedSpec,
     })
 
@@ -60,7 +69,7 @@ describe('createSidebar (stripe)', async () => {
   })
 
   bench('amrit', async () => {
-    const items = createSidebarAmrit(schema)
+    const items = createSidebarAmrit(schema, options)
 
     expect(toValue(items)).toBeDefined()
   })
