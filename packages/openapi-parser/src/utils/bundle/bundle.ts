@@ -192,6 +192,8 @@ export type Plugin = {
 
 type Config = {
   plugins: Plugin[]
+  root?: UnknownObject
+  cache?: Map<string, Promise<ResolveResult>>
 }
 
 /**
@@ -240,7 +242,7 @@ type Config = {
 export async function bundle(input: UnknownObject | string, config: Config) {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
-  const cache = new Map<string, Promise<ResolveResult>>()
+  const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
 
   /**
    * Resolves the input value by either returning it directly if it's not a string,
@@ -262,9 +264,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
   const rawSpecification = await resolveInput()
 
+  // Document root used to write all external documents
+  // We need this when we want to do a partial bundle of a document
+  const documentRoot = config.root ?? rawSpecification
+
   // Initialize storage for external references using a custom OpenAPI extension key
   const EXTERNAL_KEY = 'x-external-references'
-  rawSpecification[EXTERNAL_KEY] = {}
+  if (!documentRoot[EXTERNAL_KEY]) {
+    documentRoot[EXTERNAL_KEY] = {}
+  }
 
   const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
     if (!isObject(root) && !Array.isArray(root)) {
@@ -306,7 +314,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
           // Store the external document in the main document's x-external-references key, using the escaped path as the key
           // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
-          rawSpecification[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+          documentRoot[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
 
           // After resolving an external reference, we need to recursively process the resolved content
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin

@@ -470,6 +470,93 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('bundles subpart of the document', async () => {
+      const PORT = 8894
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+      }
+
+      const fn = vi.fn()
+
+      server.get('/chunk1', (_, reply) => {
+        fn()
+        reply.send(chunk1)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+        b: {
+          $ref: `${url}/chunk1#`,
+        },
+        c: {
+          $ref: `${url}/chunk1#`,
+        },
+      }
+
+      const cache = new Map()
+
+      // Bundle only partial
+      await bundle(input.b, {
+        plugins: [fetchUrls()],
+        root: input,
+        cache,
+      })
+
+      expect(input).toEqual({
+        a: {
+          $ref: 'http://localhost:8894/chunk1#',
+        },
+        b: {
+          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+        },
+        c: {
+          $ref: 'http://localhost:8894/chunk1#',
+        },
+        'x-external-references': {
+          'http:~1~1localhost:8894~1chunk1': {
+            a: {
+              hello: 'hello',
+            },
+          },
+        },
+      })
+
+      // Bundle only partial
+      await bundle(input.c, {
+        plugins: [fetchUrls()],
+        root: input,
+        cache,
+      })
+
+      expect(input).toEqual({
+        a: {
+          $ref: 'http://localhost:8894/chunk1#',
+        },
+        b: {
+          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+        },
+        c: {
+          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+        },
+        'x-external-references': {
+          'http:~1~1localhost:8894~1chunk1': {
+            a: {
+              hello: 'hello',
+            },
+          },
+        },
+      })
+
+      expect(fn).toHaveBeenCalledTimes(1)
+    })
   })
 
   describe('local files', () => {
