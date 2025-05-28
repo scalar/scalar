@@ -9,4 +9,6 @@ internal static class ExtensionKeys
     internal const string ScalarIgnore = "x-scalar-ignore";
 
     internal const string ScalarStability = "x-scalar-stability";
+
+    internal const string CodeSamples = "x-codeSamples";
 }

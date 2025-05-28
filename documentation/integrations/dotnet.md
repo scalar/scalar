@@ -505,124 +505,15 @@ For all available configuration properties and their default values, check out t
 
 ## Scalar OpenAPI Extensions
 
-Scalar provides extension methods to enhance OpenAPI documents with additional metadata through two specialized packages: `Scalar.AspNetCore.Microsoft` and `Scalar.AspNetCore.Swashbuckle`. These extensions allow you to add Scalar-specific information to your API endpoints.
+The `Scalar.AspNetCore` package includes extension methods and attributes to enhance your OpenAPI documents with additional metadata. However, to make these extensions functional, you **must install** one of the companion packages (`Scalar.AspNetCore.Microsoft` or `Scalar.AspNetCore.Swashbuckle`) and register the appropriate transformers or filters in your application.
 
-> [!IMPORTANT]
-> While the extension methods and attributes are available in the `Scalar.AspNetCore` package, they **will not work** unless you register the corresponding filters or transformers as shown in the [Configuration](#configuration) section below.
-
-### Installation
+### Installation and Configuration
 
 #### For `Microsoft.AspNetCore.OpenApi`
 
 ```shell
 dotnet add package Scalar.AspNetCore.Microsoft
 ```
-
-#### For `Swashbuckle`
-
-```shell
-dotnet add package Scalar.AspNetCore.Swashbuckle
-```
-
-### Usage
-
-#### Extension Methods for Minimal APIs
-
-These extension methods can be used directly with your endpoint definitions in Minimal APIs:
-
-```csharp
-using Scalar.AspNetCore;
-
-var app = builder.Build();
-
-// Basic usage
-app.MapGet("/products", GetProducts)
-    .Experimental()  // Mark as experimental
-    .ExcludeFromApiReference();
-
-// More advanced example
-app.MapPost("/orders", CreateOrder)
-    .Stable();  // Mark as stable
-```
-
-#### Attributes for Controllers and Minimal APIs
-
-You can also use attributes with both controller-based APIs and Minimal APIs:
-
-```csharp
-using Scalar.AspNetCore;
-
-// For controller methods
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
-{
-    [HttpGet]
-    [Stability(Stability.Stable)]
-    public IActionResult GetProducts() 
-    {
-        // Implementation
-    }
-    
-    [HttpPost]
-    [Stability(Stability.Experimental)]
-    [ExcludeFromApiReference]
-    public IActionResult CreateProduct() 
-    {
-        // Implementation
-    }
-}
-
-// For Minimal APIs with delegate handlers
-app.MapGet("/products", [Stability(Stability.Stable)] 
-    (string? filter) => 
-    {
-        // Implementation
-    });
-```
-
-### Available Extensions
-
-#### API Stability
-
-Indicates the stability status of an API endpoint.
-
-```csharp
-// Extension methods
-app.MapGet("/products", GetProducts).Stable();
-app.MapGet("/beta-features", GetBetaFeatures).Experimental();
-app.MapGet("/legacy-endpoint", GetLegacyData).Deprecated();
-
-// Attribute
-[Stability(Stability.Experimental)]
-```
-
-Available stability levels:
-- `Stability.Stable`: Production-ready API
-- `Stability.Experimental`: API likely to change, not recommended for production
-- `Stability.Deprecated`: API will be removed in a future release
-
-#### Exclude From API Reference
-
-Prevents an endpoint from appearing in the Scalar API Reference while keeping it in the OpenAPI document.
-
-> [!NOTE]
-> The `ExcludeFromApiReference` extension/attribute only affects how endpoints are displayed in the Scalar API Reference. The endpoints are still included in the generated OpenAPI document and accessible via the API.
-
-```csharp
-// Extension method
-app.MapGet("/internal/metrics", GetMetrics).ExcludeFromApiReference();
-
-// Attribute
-[ExcludeFromApiReference]
-```
-
-### Configuration
-
-> [!IMPORTANT]
-> For the extensions to work properly, you **must register** the appropriate filters (Swashbuckle) or transformers (Microsoft OpenAPI) as shown below.
-
-#### Microsoft OpenAPI Integration
 
 ```csharp
 using Scalar.AspNetCore;
@@ -632,20 +523,20 @@ var builder = WebApplication.CreateBuilder(args);
 // Register Microsoft OpenAPI and configure it to use Scalar transformers
 builder.Services.AddOpenApi(options =>
 {
-    // Register Scalar transformers
-    options.AddScalarTransformers();
+    options.AddScalarTransformers(); // Required for extensions to work
 });
 
 var app = builder.Build();
 
-// Map OpenAPI endpoint
 app.MapOpenApi();
-
-// Map Scalar API Reference
 app.MapScalarApiReference();
 ```
 
-#### Swashbuckle Integration
+#### For `Swashbuckle`
+
+```shell
+dotnet add package Scalar.AspNetCore.Swashbuckle
+```
 
 ```csharp
 using Scalar.AspNetCore;
@@ -653,18 +544,108 @@ using Scalar.AspNetCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-
-// Register Swashbuckle with Scalar filters
 builder.Services.AddSwaggerGen(options =>
 {
-    // Register Scalar filters
-    options.AddScalarFilters();
+    options.AddScalarFilters(); // Required for extensions to work
 });
 
 var app = builder.Build();
 
 app.MapSwagger("/openapi/{documentName}.json");
 app.MapScalarApiReference();
+```
+
+### Available Extensions
+
+#### API Stability
+
+Indicates the stability status of an API endpoint:
+
+- `Stability.Stable`: Production-ready API
+- `Stability.Experimental`: API likely to change, not recommended for production
+- `Stability.Deprecated`: API will be removed in a future release
+
+```csharp
+// Extension methods
+app.MapGet("/products", GetProducts).Stable();
+app.MapGet("/beta-features", GetBetaFeatures).Experimental();
+app.MapGet("/legacy-endpoint", GetLegacyData).Deprecated();
+
+// Attribute
+[Stability(Stability.Experimental)]
+public IActionResult CreateProduct() { }
+```
+
+#### Exclude From API Reference
+
+Prevents an endpoint from appearing in the Scalar API Reference while keeping it in the OpenAPI document.
+
+> [!NOTE]
+> This only affects display in the Scalar API Reference. Endpoints remain in the OpenAPI document and are accessible via the API.
+
+```csharp
+// Extension method
+app.MapGet("/internal/metrics", GetMetrics).ExcludeFromApiReference();
+
+// Attribute
+[ExcludeFromApiReference]
+public IActionResult GetInternalMetrics() { }
+```
+
+#### Code Samples
+
+Adds code samples to API endpoints in various programming languages.
+
+```csharp
+// Extension methods
+app.MapPost("/orders", CreateOrder)
+    .CodeSample("fetch('/orders', { method: 'POST' })", ScalarTarget.JavaScript, "Create Order")
+    .CodeSample("curl -X POST /orders", ScalarTarget.Shell, "Create Order with cURL")
+
+// Attribute
+[CodeSample("fetch('/products').then(r => r.json())", ScalarTarget.JavaScript)]
+public IActionResult GetProducts() { }
+```
+
+### Usage Examples
+
+#### Minimal APIs
+
+```csharp
+using Scalar.AspNetCore;
+
+// Using extension methods
+app.MapGet("/products", GetProducts)
+    .Stable()
+    .CodeSample("fetch('/products').then(r => r.json())", ScalarTarget.JavaScript);
+
+app.MapGet("/internal/health", GetHealth)
+    .ExcludeFromApiReference();
+
+// Using attributes with delegate handlers
+app.MapPost("/orders", [Stability(Stability.Experimental)] 
+    (CreateOrderRequest request) => { /* Implementation */ });
+```
+
+#### Controller APIs
+
+```csharp
+using Scalar.AspNetCore;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    [HttpGet]
+    [Stability(Stability.Stable)]
+    [CodeSample("GET /api/products", ScalarTarget.Shell)]
+    public IActionResult GetProducts() { }
+    
+    [HttpPost]
+    [Stability(Stability.Experimental)]
+    [ExcludeFromApiReference]
+    public IActionResult CreateProduct() { }
+}
 ```
 
 ## Legacy .NET Integration
