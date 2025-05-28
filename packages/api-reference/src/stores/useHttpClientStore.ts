@@ -1,3 +1,4 @@
+import { REFERENCE_LS_KEYS } from '@/helpers/local-storage'
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import { snippetz } from '@scalar/snippetz'
 import type { HiddenClients } from '@scalar/types/legacy'
@@ -164,6 +165,9 @@ const setHttpClient = (newState: Partial<HttpClientState>) => {
     ...httpClient,
     ...newState,
   })
+
+  // Save to localStorage
+  localStorage.setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, JSON.stringify(httpClient))
 }
 
 /** Keep track of the available and the selected HTTP client(s) */
