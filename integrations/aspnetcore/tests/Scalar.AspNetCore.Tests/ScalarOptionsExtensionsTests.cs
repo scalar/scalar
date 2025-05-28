@@ -168,7 +168,11 @@ public class ScalarOptionsExtensionsTests
                 ClientSecret = "clientSecret",
                 RedirectUri = "https://auth.example.com/callback",
                 SelectedScopes = ["foo"],
-                Token = "token"
+                Token = "token",
+                AdditionalQueryParameters = new Dictionary<string, string>
+                {
+                    ["foo"] = "bar"
+                }
             };
         });
 
@@ -187,6 +191,7 @@ public class ScalarOptionsExtensionsTests
         oauth2Scheme.Flows!.AuthorizationCode!.RedirectUri.Should().Be("https://auth.example.com/callback");
         oauth2Scheme.Flows!.AuthorizationCode!.SelectedScopes.Should().Contain("foo");
         oauth2Scheme.Flows!.AuthorizationCode!.Token.Should().Be("token");
+        oauth2Scheme.Flows!.AuthorizationCode!.AdditionalQueryParameters.Should().ContainKey("foo").And.ContainValue("bar");
     }
 
     [Fact]
