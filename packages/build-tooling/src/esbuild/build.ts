@@ -5,9 +5,13 @@ import chokidar from 'chokidar'
 import path from 'node:path'
 import as from 'ansis'
 import { runCommand } from './helpers'
+import { glob } from 'glob'
 
 function makeEntryPoints(allowJs?: boolean) {
-  const entryPoints = ['src/**/*.ts']
+  const entryPoints = glob.sync(['src/**/*.ts'], {
+    ignore: ['**/*.@(test|spec).@(ts|js)'],
+  })
+
   if (allowJs) {
     entryPoints.push('src/**/*.js')
   }
