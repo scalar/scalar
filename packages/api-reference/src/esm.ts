@@ -30,6 +30,9 @@ export function createScalarReferences(
   const head = createHead()
   app.use(head)
 
+  // Set an id prefix for useId so we don't have collisions with other Vue apps
+  app.config.idPrefix = 'scalar-refs'
+
   function mount(mountingEl = el) {
     if (!mountingEl) {
       console.warn('Invalid HTML element provided. Cannot mount Scalar References')
