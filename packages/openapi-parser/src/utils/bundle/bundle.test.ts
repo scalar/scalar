@@ -344,6 +344,90 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('prefixes the refs only once', async () => {
+      const PORT = 8896
+      const url = `http://localhost:${PORT}`
+
+      const chunk2 = {
+        a: 'a',
+        b: {
+          '$ref': `${url}/chunk1#`,
+        },
+      }
+      const chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+        b: {
+          '$ref': `${url}/chunk2#`,
+        },
+      }
+
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+      server.get('/chunk2', (_, reply) => {
+        reply.send(chunk2)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          b: {
+            c: {
+              '$ref': `${url}/chunk1#`,
+            },
+            d: {
+              e: {
+                f: {
+                  g: {
+                    '$ref': `${url}/chunk1#`,
+                  },
+                },
+              },
+            },
+          },
+        },
+      }
+
+      await bundle(input, { plugins: [fetchUrls()] })
+
+      expect(input).toEqual({
+        a: {
+          b: {
+            c: {
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+            },
+            d: {
+              e: {
+                f: {
+                  g: {
+                    $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+                  },
+                },
+              },
+            },
+          },
+        },
+        'x-external-references': {
+          'http:~1~1localhost:8896~1chunk1': {
+            a: {
+              hello: 'hello',
+            },
+            b: {
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk2`,
+            },
+          },
+          'http:~1~1localhost:8896~1chunk2': {
+            a: 'a',
+            b: {
+              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+            },
+          },
+        },
+      })
+    })
   })
 
   describe('local files', () => {

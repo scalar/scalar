@@ -284,7 +284,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(origin, prefix)
 
-      if (!cache.has(resolvedPath)) {
+      const seen = cache.has(resolvedPath)
+
+      if (!seen) {
         cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
       }
 
@@ -292,29 +294,32 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const result = await cache.get(resolvedPath)
 
       if (result.ok) {
-        // Update internal references in the resolved document to use the correct base path.
-        // When we embed external documents, their internal references need to be updated to
-        // maintain the correct path context relative to the main document. This is crucial
-        // because internal references in the external document are relative to its original
-        // location, but when embedded, they need to be relative to their new location in
-        // the main document's x-external-references section. Without this update, internal references
-        // would point to incorrect locations and break the document structure.
-        prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
+        if (!seen) {
+          // Update internal references in the resolved document to use the correct base path.
+          // When we embed external documents, their internal references need to be updated to
+          // maintain the correct path context relative to the main document. This is crucial
+          // because internal references in the external document are relative to its original
+          // location, but when embedded, they need to be relative to their new location in
+          // the main document's x-external-references section. Without this update, internal references
+          // would point to incorrect locations and break the document structure.
+          prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
 
-        // Store the external document in the main document's x-external-references key, using the escaped path as the key
-        // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
-        rawSpecification[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+          // Store the external document in the main document's x-external-references key, using the escaped path as the key
+          // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
+          rawSpecification[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
+
+          // After resolving an external reference, we need to recursively process the resolved content
+          // to handle any nested references it may contain. We pass the resolvedPath as the new origin
+          // to ensure any relative references within this content are resolved correctly relative to
+          // their new location in the bundled document.
+          await bundler(result.data, resolvedPath)
+        }
 
         // Update the $ref to point to the embedded document in x-external-references
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
-
-        // After resolving an external reference, we need to recursively process the resolved content
-        // to handle any nested references it may contain. We pass the resolvedPath as the new origin
-        // to ensure any relative references within this content are resolved correctly relative to
-        // their new location in the bundled document.
-        return bundler(result.data, resolvedPath)
+        return
       }
 
       return console.warn(
