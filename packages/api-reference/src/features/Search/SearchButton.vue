@@ -106,11 +106,11 @@ function handleClick() {
   );
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   border-radius: var(--scalar-radius);
-  border-width: var(--scalar-border-width);
-  border-color: var(
-    --scalar-sidebar-search-border-color,
-    var(--scalar-border-color)
-  );
+  box-shadow: inset 0 0 0 0.5px
+    var(
+      --scalar-sidebar-search-border-color,
+      var(--scalar-sidebar-border-color, var(--scalar-border-color))
+    );
   /* prettier-ignore */
   cursor: pointer;
   appearance: none;
