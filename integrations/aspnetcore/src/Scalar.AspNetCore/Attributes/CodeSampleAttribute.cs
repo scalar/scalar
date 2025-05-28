@@ -4,7 +4,7 @@
 /// Attribute used to attach code samples to API endpoints for documentation purposes.
 /// Can be applied to classes, methods, or delegates to provide example code.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Delegate, AllowMultiple = true)]
 public sealed class CodeSampleAttribute : Attribute
 {
     /// <summary>

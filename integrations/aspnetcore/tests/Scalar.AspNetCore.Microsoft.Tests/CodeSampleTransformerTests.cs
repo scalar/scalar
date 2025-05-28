@@ -72,6 +72,9 @@ public class CodeSampleTransformerTests(WebApplicationFactory<Program> factory) 
                                         },
                                         "x-codeSamples": [
                                           {
+                                            "source": "const foo = 0"
+                                          },
+                                          {
                                             "source": "const foo = 0",
                                             "lang": "csharp",
                                             "label": "my-code"

@@ -72,6 +72,9 @@ public class CodeSampleFilterTests(WebApplicationFactory<Program> factory) : ICl
                                         },
                                         "x-codeSamples": [
                                           {
+                                            "source": "const foo = 0"
+                                          },
+                                          {
                                             "source": "const foo = 0",
                                             "lang": "csharp",
                                             "label": "my-code"
