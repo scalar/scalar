@@ -92,6 +92,7 @@ export const OpenAPI = (config: OpenAPIConfig = {}) => {
       const rawPath = fileName
         .replace(/^(?:src\/)?app|\/route\.ts$/g, '')
         .replace(/\[/g, '{')
+        .replace(/\/\(\w+\)/g, '')
         .replace(/]/g, '}')
       const path = rawPath.startsWith('/') ? rawPath : '/' + rawPath
 
