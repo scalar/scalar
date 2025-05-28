@@ -24,12 +24,14 @@ catalogs:
     '@tailwindcss/vite': ^4.1.7
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
+    '@sinclair/typebox': 0.34.3
     ansis: 3.16.0
     concurrently: 9.1.2
     esbuild: 0.25.2
     chokidar: 4.0.3
     commander: 13.1.0
     express: ^5.1.0
+    fastify: ^4.26.2
     nanoid: ^5.1.5
     next: ^15.2.3
     postcss: ^8.4.38
