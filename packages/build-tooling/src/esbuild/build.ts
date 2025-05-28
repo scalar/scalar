@@ -8,14 +8,17 @@ import { runCommand } from './helpers'
 import { glob } from 'glob'
 
 function makeEntryPoints(allowJs?: boolean) {
-  const entryPoints = glob.sync(['src/**/*.ts'], {
-    ignore: ['**/*.@(test|spec).@(ts|js)'],
-  })
+  const entryPoints = ['src/**/*.ts']
 
   if (allowJs) {
     entryPoints.push('src/**/*.js')
   }
-  return entryPoints
+
+  const entryPointsWithoutTests = glob.sync(entryPoints, {
+    ignore: ['**/*.@(test|spec).@(ts|js)'],
+  })
+
+  return entryPointsWithoutTests
 }
 
 function nodeBuildOptions(
