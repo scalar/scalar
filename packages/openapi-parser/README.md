@@ -59,8 +59,93 @@ const { schema, errors } = await dereference(specification)
 
 The OpenAPI specification allows to point to external files (URLs or files). But sometimes, you just want to combine all files into one.
 
+#### Plugins
+
+##### fetchUrls
+This plugins handles all external urls. It works for both node.js and browser environment
+
 ```ts
-import { bundle } from '@scalar/openapi-parser'
+import { bundle, fetchUrls } from '@scalar/openapi-parser'
+
+const document = {
+  openapi: '3.1.0',
+  info: { title: 'Bundled API', version: '1.0.0' },
+  paths: {},
+  components: {
+    schemas: {
+      User: { $ref: 'https://example.com/user-schema.json#' }
+    }
+  }
+}
+
+// This will bundle all external documents and turn all references from external into internal
+await bundle(document, {
+  plugins: [fetchUrls()]
+})
+
+console.log(document)
+```
+
+###### Limiting the number of concurrent requests
+
+```ts
+await bundle(document, {
+  plugins: [
+    fetchUrls({
+      limit: 10, // it should run at most 10 requests at the same time
+    }),
+  ],
+})
+
+```
+
+###### Custom headers
+To pass custom headers to requests for specific domains you can configure the fetch plugin like the example
+
+```ts
+await bundle(
+  document,
+  {
+    plugins: [
+      fetchUrls({
+        // Pass custom headers
+        // The header will only be attached to the list of domains
+        headers: [
+          {
+            domains: ['example.com'],
+            headers: {
+              'Authorization': 'Bearer <TOKEN>'
+            }
+          }
+        ]
+      }),
+      readFiles(),
+    ],
+  },
+)
+```
+
+###### Bundle from remote url
+
+```ts
+const result = await bundle(
+  'https://example.com/openapi.json',
+  {
+    plugins: [
+      fetchUrls(),
+    ],
+  },
+)
+
+// Bundled document
+console.log(result)
+```
+
+##### readFiles
+This plugins handles local files. Only works on node.js environment
+
+```ts
+import { bundle, readFiles } from '@scalar/openapi-parser'
 
 const document = {
   openapi: '3.1.0',
@@ -73,10 +158,29 @@ const document = {
   }
 }
 
-// This will resolve and inline all external $refs (like user-schema.json)
-await bundle(document)
+// This will bundle all external documents and turn all references from external into internal
+await bundle(document, {
+  plugins: [readFiles()]
+})
 
 console.log(document)
+```
+
+###### Bundle from local file
+You can pass the file path directly but make sure to have the correct plugins to handle reading from the local files
+
+```ts
+const result = await bundle(
+  './input.json',
+  {
+    plugins: [
+      readFiles(),
+    ],
+  },
+)
+
+// Bundled document
+console.log(result)
 ```
 
 ### Track references
