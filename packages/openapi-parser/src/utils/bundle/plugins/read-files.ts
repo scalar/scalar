@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
-import { normalize } from '../../normalize'
-import { isRemoteUrl, type Plugin, type ResolveResult } from '../bundle'
+import { normalize } from '@/utils/normalize'
+import { isRemoteUrl, type Plugin, type ResolveResult } from '@/utils/bundle/bundle'
 
 /**
  * Reads and normalizes data from a local file

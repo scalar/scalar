@@ -1,6 +1,6 @@
-import { normalize } from '../../normalize'
-import { isRemoteUrl, type Plugin, type ResolveResult } from '../bundle'
-import { createLimiter } from '../create-limiter'
+import { normalize } from '@/utils/normalize'
+import { isRemoteUrl, type Plugin, type ResolveResult } from '@/utils/bundle/bundle'
+import { createLimiter } from '@/utils/bundle/create-limiter'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]

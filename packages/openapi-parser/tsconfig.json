@@ -6,7 +6,11 @@
     "noImplicitAny": false,
     "useUnknownInCatchVariables": false,
     "exactOptionalPropertyTypes": false,
-    "allowJs": true
+    "allowJs": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
   },
   "include": ["src", "tests", "rollup.config.ts"]
 }

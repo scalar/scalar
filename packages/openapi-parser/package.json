@@ -75,6 +75,7 @@
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
     "json-to-ast": "^2.1.0",
-    "just-diff": "^6.0.2"
+    "just-diff": "^6.0.2",
+    "vite": "catalog:*"
   }
 }
