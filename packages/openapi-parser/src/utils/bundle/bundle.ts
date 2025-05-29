@@ -2,6 +2,7 @@ import type { UnknownObject } from '../../types'
 import { isObject } from '../isObject'
 import { escapeJsonPointer } from '../escapeJsonPointer'
 import path from '../../polyfills/path'
+import { getSegmentsFromPath } from '../getSegmentsFromPath'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -194,6 +195,34 @@ type Config = {
   plugins: Plugin[]
   root?: UnknownObject
   cache?: Map<string, Promise<ResolveResult>>
+  treeShake?: boolean
+}
+
+function setValueAtPath(obj: any, path: string, value: any): void {
+  if (path === '') {
+    throw new Error("Cannot set value at root ('') pointer")
+  }
+
+  const parts = getSegmentsFromPath(path)
+
+  let current = obj
+
+  for (let i = 0; i < parts.length; i++) {
+    const key = parts[i]
+    const isLast = i === parts.length - 1
+
+    const nextKey = parts[i + 1]
+    const shouldBeArray = /^\d+$/.test(nextKey ?? '')
+
+    if (isLast) {
+      current[key] = value
+    } else {
+      if (!(key in current) || typeof current[key] !== 'object') {
+        current[key] = shouldBeArray ? [] : {}
+      }
+      current = current[key]
+    }
+  }
 }
 
 /**
@@ -312,15 +341,57 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // would point to incorrect locations and break the document structure.
           prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
 
-          // Store the external document in the main document's x-external-references key, using the escaped path as the key
-          // to ensure valid JSON pointer syntax and prevent issues with special characters in file paths
-          documentRoot[EXTERNAL_KEY][escapeJsonPointer(resolvedPath)] = result.data
-
-          // After resolving an external reference, we need to recursively process the resolved content
+          // Recursively process the resolved content
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
           await bundler(result.data, resolvedPath)
+        }
+
+        const treeShake = (obj: unknown, path: string, baseKey: string, visited = new Set()) => {
+          const targetValue = getNestedValue(obj, getSegmentsFromPath(path))
+          setValueAtPath(documentRoot, path, targetValue)
+
+          if (visited.has(targetValue)) {
+            return
+          }
+
+          visited.add(targetValue)
+
+          // Do the same for each local ref
+          const traverse = (root: unknown) => {
+            if (!root || typeof root !== 'object') {
+              return
+            }
+
+            if ('$ref' in root && typeof root['$ref'] === 'string') {
+              // We make sure that we are working on the same external document
+              // even tho every reference here should be already internal
+              // Only shake the same external document
+              // Other external document dependencies will be taken care of
+              if (root['$ref'].startsWith(`#/${EXTERNAL_KEY}/${escapeJsonPointer(resolvedPath)}`)) {
+                treeShake(obj, root['$ref'].substring(1), baseKey, visited)
+              }
+            }
+
+            for (const value of Object.values(root)) {
+              traverse(value)
+            }
+          }
+
+          traverse(targetValue)
+        }
+
+        if (config.treeShake === true) {
+          // Store only the subtree that is actually used
+          treeShake(
+            { [EXTERNAL_KEY]: { [resolvedPath]: result.data } },
+            prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath]).substring(1),
+            resolvedPath,
+          )
+        } else {
+          // Store the external document in the main document's x-external-references key
+          documentRoot[EXTERNAL_KEY][resolvedPath] = result.data
         }
 
         // Update the $ref to point to the embedded document in x-external-references
