@@ -14,47 +14,47 @@ export const REQUEST_METHODS: {
   get: {
     short: 'GET',
     color: 'text-blue',
-    backgroundColor: 'bg-blue',
+    backgroundColor: 'bg-blue/10',
   },
   post: {
     short: 'POST',
     color: 'text-green',
-    backgroundColor: 'bg-green',
+    backgroundColor: 'bg-green/10',
   },
   put: {
     short: 'PUT',
     color: 'text-orange',
-    backgroundColor: 'bg-orange',
+    backgroundColor: 'bg-orange/10',
   },
   patch: {
     short: 'PATCH',
     color: 'text-yellow',
-    backgroundColor: 'bg-yellow',
+    backgroundColor: 'bg-yellow/10',
   },
   delete: {
     short: 'DEL',
     color: 'text-red',
-    backgroundColor: 'bg-red',
+    backgroundColor: 'bg-red/10',
   },
   options: {
     short: 'OPTS',
     color: 'text-purple',
-    backgroundColor: 'bg-purple',
+    backgroundColor: 'bg-purple/10',
   },
   head: {
     short: 'HEAD',
     color: 'text-scalar-c-2',
-    backgroundColor: 'bg-c-2',
+    backgroundColor: 'bg-c-2/10',
   },
   connect: {
     short: 'CONN',
     color: 'text-c-2',
-    backgroundColor: 'bg-c-2',
+    backgroundColor: 'bg-c-2/10',
   },
   trace: {
     short: 'TRACE',
     color: 'text-c-2',
-    backgroundColor: 'bg-c-2',
+    backgroundColor: 'bg-c-2/10',
   },
 } as const
 

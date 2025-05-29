@@ -1,0 +1,69 @@
+{
+  "steps":
+    [
+      {
+        "name": "gcr.io/cloud-builders/docker",
+        "id": "build-base",
+        "args":
+          [
+            "build",
+            "-t",
+            "gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}",
+            "-f",
+            "./tooling/base-docker-builder/Dockerfile",
+            "."
+          ]
+      },
+      {
+        "name": "gcr.io/cloud-builders/docker",
+        "id": "push-base",
+        "waitFor": ["build-base"],
+        "args": ["push", "gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}"]
+      },
+      {
+        "name": "gcr.io/cloud-builders/docker",
+        "id": "build-galaxy",
+        "waitFor": ["push-base"],
+        "args":
+          [
+            "buildx",
+            "build",
+            "--build-arg",
+            "BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}",
+            "-t",
+            "gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}",
+            "-f",
+            "./packages/mock-server/Dockerfile",
+            "."
+          ]
+      },
+      {
+        "name": "gcr.io/cloud-builders/docker",
+        "id": "push-galaxy",
+        "waitFor": ["build-galaxy"],
+        "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}"]
+      },
+      {
+        "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
+        "id": "deploy-galaxy",
+        "entrypoint": "gcloud",
+        "waitFor": ["push-galaxy"],
+        "args":
+          [
+            "run",
+            "deploy",
+            "$_SERVICE_GALAXY",
+            "--image=gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}",
+            "--region=$_REGION",
+            "--platform=managed",
+            "--allow-unauthenticated",
+            "--execution-environment=gen2",
+            "--cpu=$_CPU",
+            "--memory=$_MEMORY",
+            "--service-account=$_SERVICE_ACCOUNT"
+          ]
+      }
+    ],
+  "options":
+    { "machineType": "E2_HIGHCPU_8", "logging": "CLOUD_LOGGING_ONLY" }
+}

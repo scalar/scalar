@@ -1,4 +1,4 @@
-import './tailwind/tailwind.css'
+import './style.css'
 
 export * from './components/ScalarButton'
 export * from './components/ScalarCodeBlock'
@@ -7,6 +7,7 @@ export * from './components/ScalarCombobox'
 export * from './components/ScalarContextMenu'
 export * from './components/ScalarDropdown'
 export * from './components/ScalarErrorBoundary'
+export * from './components/ScalarFileUpload'
 export * from './components/ScalarFloating'
 export * from './components/ScalarForm'
 export * from './components/ScalarHeader'

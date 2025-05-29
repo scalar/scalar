@@ -14,10 +14,7 @@ public class ExcludeFromApiReferenceFilterTests(WebApplicationFactory<Program> f
         // Arrange
         var localFactory = factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureTestServices(services => services.AddSwaggerGen(options =>
-            {
-                options.AddScalarFilters();
-            }));
+            builder.ConfigureTestServices(services => services.AddSwaggerGen(options => options.AddScalarFilters()));
             builder.Configure(options =>
             {
                 options.UseRouting();

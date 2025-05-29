@@ -153,5 +153,44 @@ describe('SchemaComposition', () => {
       const typeLabel = wrapper.find('span')
       expect(typeLabel.text()).toBe('One of')
     })
+
+    it('renders primitive type in composition panel', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          composition: 'oneOf',
+          value: {
+            oneOf: [{ type: 'boolean' }, { type: 'object', properties: { foo: { type: 'string' } } }],
+          },
+          level: 0,
+        },
+      })
+
+      expect(wrapper.text()).toContain('boolean')
+    })
+
+    it('renders nullable schema in composition panel', async () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          composition: 'anyOf',
+          value: {
+            anyOf: [
+              {
+                type: 'object',
+                properties: { foo: { type: 'string' } },
+              },
+              { nullable: true },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '1', label: 'Schema' })
+      await wrapper.vm.$nextTick()
+
+      const panel = wrapper.find('.composition-panel')
+      expect(panel.text()).toContain('nullable')
+    })
   })
 })

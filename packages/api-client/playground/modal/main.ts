@@ -1,4 +1,4 @@
-import { createApiClientModal } from '@/layouts/Modal'
+import { createApiClientModal } from '@/index'
 
 const { open } = await createApiClientModal({
   el: document.getElementById('app'),

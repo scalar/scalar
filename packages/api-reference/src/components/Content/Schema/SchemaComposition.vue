@@ -5,7 +5,7 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { stringify } from 'flatted'
 import { computed, ref } from 'vue'
 
@@ -19,11 +19,7 @@ import Schema from './Schema.vue'
 
 const { schemas, value, composition } = defineProps<{
   composition: CompositionKeyword
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   name?: string
   value: Record<string, any>
   level: number
@@ -106,11 +102,12 @@ const getSchemaWithComposition = (schemas: any[]) => {
 }
 
 const schemaComposition = computed(() => {
-  const schemaComposition = getSchemaWithComposition(value[composition])
-
-  if (!schemaComposition) {
+  // If there's no nested composition, return the direct composition array
+  if (!getSchemaWithComposition(value[composition])) {
     return value[composition]
   }
+
+  const schemaComposition = getSchemaWithComposition(value[composition])
 
   // Get schema with nested composition
   const schemaNestedComposition =
@@ -207,7 +204,7 @@ const compositionValue = computed(() => {
         :options="listboxOptions"
         resize>
         <button
-          class="composition-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
+          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
           type="button">
           <span class="text-c-2">{{ humanizeType(composition) }}</span>
           <span class="composition-selector-label text-c-1 relative">
@@ -223,17 +220,25 @@ const compositionValue = computed(() => {
           <ScalarMarkdown :value="compositionSchema.description" />
         </div>
         <Schema
-          v-if="compositionSchema?.properties"
+          v-if="
+            compositionSchema?.properties ||
+            compositionSchema?.type ||
+            compositionSchema?.nullable
+          "
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
           :name="name"
           :noncollapsible="true"
           :schemas="schemas"
-          :value="{
-            type: 'object',
-            properties: compositionSchema.properties,
-          }" />
+          :value="
+            compositionSchema?.properties
+              ? {
+                  type: 'object',
+                  properties: compositionSchema.properties,
+                }
+              : compositionSchema
+          " />
         <!-- Nested tabs -->
         <template v-if="compositionSchema?.oneOf || compositionSchema?.anyOf">
           <SchemaComposition

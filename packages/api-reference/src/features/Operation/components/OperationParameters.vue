@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{
   operation?: Pick<RequestEntity, 'parameters' | 'requestBody'>
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>

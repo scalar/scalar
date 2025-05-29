@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.json",
+  "exclude": ["tests"],
+  "compilerOptions": {
+    "resolveJsonModule": true
+  }
+}

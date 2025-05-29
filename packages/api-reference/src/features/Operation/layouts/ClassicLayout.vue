@@ -9,7 +9,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
@@ -39,11 +39,7 @@ const { operation } = defineProps<{
   operation: Operation
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -135,6 +131,8 @@ const title = computed(() => operation.summary || operation.path)
 </template>
 
 <style scoped>
+@reference "@/style.css";
+
 .operation-title {
   display: flex;
   justify-content: space-between;
@@ -246,7 +244,7 @@ const title = computed(() => operation.summary || operation.path)
   padding: 9px;
 }
 
-@screen lg {
+@variant lg {
   .endpoint-content {
     grid-auto-flow: column;
   }

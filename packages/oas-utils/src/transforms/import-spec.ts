@@ -24,9 +24,11 @@ import {
   securitySchemeSchema,
 } from '@scalar/types/entities'
 
-/** Takes a string or object and parses it into an openapi spec compliant schema */
-export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = true } = {}) => {
-  if (spec === null || (typeof spec === 'string' && spec.trim() === '')) {
+const dereferenceDocument = async (
+  document: string | UnknownObject,
+  { shouldLoad = true }: { shouldLoad?: boolean } = {},
+) => {
+  if (document === null || (typeof document === 'string' && document.trim() === '')) {
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
     return {
@@ -35,13 +37,13 @@ export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = t
     }
   }
 
-  let filesystem: LoadResult['filesystem'] | string | UnknownObject = spec
+  let filesystem: LoadResult['filesystem'] | string | UnknownObject = document
   let loadErrors: LoadResult['errors'] = []
 
   if (shouldLoad) {
-    // TODO: Plugins for URLs and files with the proxy is missing here.
+    // TODO: Plugins for URLs and files with the proxy are missing here.
     // @see packages/api-reference/src/helpers/parse.ts
-    const resp = await load(spec).catch((e) => ({
+    const response = await load(document).catch((e) => ({
       errors: [
         {
           code: e.code,
@@ -50,23 +52,50 @@ export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = t
       ],
       filesystem: [],
     }))
-    filesystem = resp.filesystem
-    loadErrors = resp.errors ?? []
+    filesystem = response.filesystem
+    loadErrors = response.errors ?? []
   }
 
   const { specification } = upgrade(filesystem)
   const { schema, errors: derefErrors = [] } = await dereference(specification)
 
+  return {
+    schema,
+    errors: [...loadErrors, ...derefErrors],
+  }
+}
+
+/** Takes a string or object and parses it into an openapi spec compliant schema */
+export const parseSchema = async (
+  originalDocument: string | UnknownObject | undefined,
+  {
+    shouldLoad = true,
+    /** If a dereferenced document is provided, we will skip the dereferencing step. */
+    dereferencedDocument = undefined,
+  }: { shouldLoad?: boolean; dereferencedDocument?: OpenAPIV3_1.Document } = {},
+) => {
+  // Skip, if a dereferenced document is provided
+  const { schema, errors } = dereferencedDocument
+    ? {
+        schema: dereferencedDocument,
+        errors: [],
+      }
+    : // Otherwise, dereference the original document
+      await dereferenceDocument(originalDocument ?? '', {
+        shouldLoad,
+      })
+
   if (!schema) {
     console.warn('[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined')
   }
+
   return {
     /**
      * Temporary fix for the parser returning an empty array
      * TODO: remove this once the parser is fixed
      */
     schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
-    errors: [...loadErrors, ...derefErrors],
+    errors,
   }
 }
 
@@ -95,6 +124,8 @@ export const getSlugUid = (slug: string) => `slug-uid-${slug}` as Collection['ui
 
 export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 'watchMode'> &
   Pick<ApiReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers' | 'slug'> & {
+    /** The dereferenced document */
+    dereferencedDocument?: OpenAPIV3_1.Document
     /** Sets the preferred security scheme on the collection instead of the requests */
     useCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -115,8 +146,10 @@ export type ImportSpecToWorkspaceArgs = Pick<CollectionPayload, 'documentUrl' | 
  * - Easy lookup and reference of dependent entities
  */
 export async function importSpecToWorkspace(
-  spec: string | UnknownObject,
+  content: string | UnknownObject | undefined,
   {
+    /** If a dereferenced document is provided, we will skip the dereferencing step. */
+    dereferencedDocument,
     authentication,
     baseServerURL,
     documentUrl,
@@ -139,7 +172,7 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[]; collection: undefined }
 > {
-  const { schema, errors } = await parseSchema(spec, { shouldLoad })
+  const { schema, errors } = await parseSchema(content, { shouldLoad, dereferencedDocument })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
   if (!schema) {

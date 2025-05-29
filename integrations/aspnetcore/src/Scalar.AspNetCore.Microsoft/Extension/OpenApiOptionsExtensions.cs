@@ -13,9 +13,10 @@ public static class OpenApiOptionsExtensions
     /// <param name="options"><see cref="OpenApiOptions" />.</param>
     public static OpenApiOptions AddScalarTransformers(this OpenApiOptions options)
     {
-        options.AddOperationTransformer<StabilityOpenApiOperationTransformer>();
-        options.AddOperationTransformer<ExcludeFromApiReferenceOpenApiOperationTransformer>();
         options.AddDocumentTransformer<ExcludeFromApiReferenceOpenApiDocumentTransformer>();
+        options.AddOperationTransformer<ExcludeFromApiReferenceOpenApiOperationTransformer>();
+        options.AddOperationTransformer<StabilityOpenApiOperationTransformer>();
+        options.AddOperationTransformer<CodeSampleOpenApiOperationTransformer>();
 
         return options;
     }

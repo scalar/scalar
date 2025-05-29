@@ -24,12 +24,12 @@ const modal = cva({
   ].join(' '),
   variants: {
     size: {
-      xxs: 'mt-[20svh] max-h-[60svh] max-w-screen-xxs',
-      xs: 'mt-[20svh] max-h-[60svh] max-w-screen-xs',
-      sm: 'mt-[20svh] max-h-[60svh] max-w-screen-sm',
-      md: 'mt-[20svh] max-h-[60svh] max-w-screen-md',
-      lg: 'm-auto max-h-[80svh] max-w-screen-lg',
-      xl: 'm-auto max-h-[90svh] max-w-screen-xl',
+      xxs: 'mt-[20svh] max-h-[60svh] max-w-[360px]',
+      xs: 'mt-[20svh] max-h-[60svh] max-w-[480px]',
+      sm: 'mt-[20svh] max-h-[60svh] max-w-[540px]',
+      md: 'mt-[20svh] max-h-[60svh] max-w-[640px]',
+      lg: 'm-auto max-h-[80svh] max-w-[800px]',
+      xl: 'm-auto max-h-[90svh] max-w-[1000px]',
       full: 'full-size-styles max-h-dvh mt-0 lg:w-full',
     },
     variant: {
@@ -44,7 +44,7 @@ const body = cva({
   variants: {
     variant: {
       form: 'overflow-visible',
-      search: 'col !m-0 overflow-hidden p-0',
+      search: 'flex flex-col !m-0 overflow-hidden p-0',
       error: 'overflow-y-scroll',
     },
     size: {
@@ -83,7 +83,7 @@ export function useModal() {
           size === 'full' ? 'scalar-modal-layout-full' : 'scalar-modal-layout',
           'fixed left-0 top-0 flex items-start justify-center',
           'z-[1001] h-[100dvh] w-[100dvw]',
-          'bg-backdrop opacity-0 dark:bg-backdropdark',
+          'bg-backdrop opacity-0 dark:bg-backdrop-dark',
           size === 'full' && 'flex',
         )
       ">
@@ -119,6 +119,8 @@ export function useModal() {
   </Dialog>
 </template>
 <style scoped>
+@reference '../../style.css';
+
 .scalar-modal-layout {
   animation: fadein-layout ease-in-out 0.3s forwards;
 }
@@ -143,7 +145,7 @@ export function useModal() {
  * Allow the modal to fill more space on
  * very short (or very zoomed in) screens
  */
-@screen zoomed {
+@variant zoomed {
   .scalar-modal-layout .scalar-modal {
     margin-top: 5svh;
     max-height: 90svh;
@@ -180,7 +182,7 @@ export function useModal() {
   box-shadow: none !important;
   border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-@screen md {
+@variant zoomed {
   .full-size-styles {
     width: 50dvw !important;
   }

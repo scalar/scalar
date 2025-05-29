@@ -1,6 +1,6 @@
-import { build } from '@scalar/build-tooling/esbuild'
-import { openapi } from '@scalar/openapi-parser'
 import fs from 'node:fs'
+import { build } from '@scalar/build-tooling/esbuild'
+import { normalize, toJson } from '@scalar/openapi-parser'
 
 await build({
   entries: ['./src/index.ts'],
@@ -28,8 +28,8 @@ await build({
     const latest = fs.readFileSync('dist/latest.yaml', 'utf-8')
 
     // Copy the base files into JSON format as well
-    const versionOut = await openapi().load(version).toJson()
-    const latestOut = await openapi().load(latest).toJson()
+    const versionOut = toJson(normalize(version))
+    const latestOut = toJson(normalize(latest))
 
     fs.writeFileSync('./dist/3.1.json', versionOut)
     fs.writeFileSync('./dist/latest.json', latestOut)

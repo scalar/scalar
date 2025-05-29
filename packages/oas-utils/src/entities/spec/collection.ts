@@ -31,7 +31,7 @@ export const oasCollectionSchema = z.object({
    * security requirement ({}) can be included in the array.
    */
   'security': z.array(oasSecurityRequirementSchema).optional().default([]),
-  'externalDocs': oasExternalDocumentationSchema.optional(),
+  'externalDocs': oasExternalDocumentationSchema.optional().catch(undefined),
   /** TODO: Type these */
   'components': z.record(z.string(), z.unknown()).optional(),
   /** TODO: Type these */

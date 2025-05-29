@@ -21,8 +21,10 @@ catalogs:
     '@types/node': ^20.17.10
     '@vitejs/plugin-vue': ^5.0.4
     '@vueuse/core': ^10.10.0
+    '@tailwindcss/vite': ^4.1.7
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
+    '@sinclair/typebox': 0.34.3
     ansis: 3.16.0
     concurrently: 9.1.2
     esbuild: 0.25.2
@@ -33,7 +35,7 @@ catalogs:
     nanoid: ^5.1.5
     next: ^15.2.3
     postcss: ^8.4.38
-    tailwindcss: ^3.4.4
+    tailwindcss: ^4.1.7
     type-fest: ^4.20.0
     vite: 5.4.19
     vitest: ^1.6.0

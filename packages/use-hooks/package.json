@@ -57,7 +57,6 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "catalog:*",
     "cva": "1.0.0-beta.2",

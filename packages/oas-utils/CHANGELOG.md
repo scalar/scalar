@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.3.2
+
+### Patch Changes
+
+- 151ef09: fix(oas-utils): do not add content-type for multipart requests
+- 442c0a3: feat: added support for callbacks
+
 ## 0.3.1
 
 ### Patch Changes

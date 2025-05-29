@@ -20,7 +20,7 @@ const id = useId()
     v-slot="{ open }"
     as="div"
     class="group/collapse focus-within:text-c-1 text-c-2 border-b"
-    :class="{ 'first-of-type:last-of-type:border-b-0': layout === 'reference' }"
+    :class="{ 'last-of-type:first-of-type:border-b-0': layout === 'reference' }"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference' ? true : undefined">
     <section
@@ -31,7 +31,7 @@ const id = useId()
         :class="layout === 'reference' && 'rounded-t-lg border border-b-0'">
         <DisclosureButton
           :class="[
-            'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pl-2 xl:pr-0.5',
+            'hover:text-c-1 group box-content flex max-h-8 flex-1 items-center gap-2.5 overflow-hidden px-1 py-1.5 text-sm font-medium outline-none md:px-1.5 xl:pr-0.5 xl:pl-2',
             { '!pl-3': layout === 'reference' },
           ]"
           :disabled="layout === 'reference'">

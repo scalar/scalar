@@ -15,11 +15,11 @@ const { layout } = useLayout()
 <template>
   <component
     :is="is ?? 'a'"
-    class="hover:bg-b-3 dark:hover:bg-b-2 flex min-w-[37px] max-w-[37px] items-center justify-center rounded-lg p-2 no-underline"
+    class="hover:bg-b-3 hover:dark:bg-b-2 flex max-w-[37px] min-w-[37px] items-center justify-center rounded-lg p-2 no-underline"
     :class="{
       'bg-b-3 dark:bg-b-2 text-c-1 transition-none hover:cursor-default':
         active,
-      'sm:min-w-max sm:max-w-max sm:rounded sm:py-1.5': layout === 'web',
+      'sm:max-w-max sm:min-w-max sm:rounded sm:py-1.5': layout === 'web',
     }">
     <slot name="icon">
       <ScalarIcon

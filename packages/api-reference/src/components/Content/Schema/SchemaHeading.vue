@@ -1,12 +1,8 @@
 <script lang="ts" setup>
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 defineProps<{
   value:
-    | OpenAPIV2.DefinitionsObject
-    | OpenAPIV3.SchemaObject
-    | OpenAPIV3.ArraySchemaObject
-    | OpenAPIV3.NonArraySchemaObject
     | OpenAPIV3_1.SchemaObject
     | OpenAPIV3_1.ArraySchemaObject
     | OpenAPIV3_1.NonArraySchemaObject

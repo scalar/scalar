@@ -150,7 +150,7 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || (!configuration.value.url && !configuration.value.content)) {
+  else if (!isReadOnly && !configuration.value.url && !configuration.value.content) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],
@@ -190,6 +190,8 @@ export const createApiClient = ({
   app.provide(CLIENT_CONFIGURATION_SYMBOL, configuration)
   // Provide the plugin manager
   app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+  // Set an id prefix for useId so we don't have collisions with other Vue apps
+  app.config.idPrefix = 'scalar-client'
 
   const {
     collectionMutators,

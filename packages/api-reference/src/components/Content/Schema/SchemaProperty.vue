@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, type Component } from 'vue'
 
 import {
@@ -34,11 +34,7 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
-    schemas?:
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
-      | unknown
+    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     hideHeading?: boolean
   }>(),
   {
@@ -287,7 +283,8 @@ const displayPropertyHeading = (
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
-          :value="optimizedValue.items" />
+          :value="optimizedValue.items"
+          :schemas="schemas" />
       </div>
     </template>
     <!-- Compositions -->
@@ -344,14 +341,24 @@ const displayPropertyHeading = (
 .property:hover {
   z-index: 1;
 }
+
 .property--compact.property--level-0,
 .property--compact.property--level-1 {
   padding: 8px 0;
+}
+.composition-panel .property.property.property.property--level-0 {
+  padding: 0px;
 }
 .property--compact.property--level-0
   .composition-panel
   .property--compact.property--level-1 {
   padding: 8px;
+}
+
+/*  if a property doesn't have a heading, remove the top padding */
+.property:has(> .property-rule:nth-of-type(1)):not(.property--compact) {
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 .property--deprecated {
   background: repeating-linear-gradient(
@@ -363,9 +370,11 @@ const displayPropertyHeading = (
   );
   background-size: 100%;
 }
+
 .property--deprecated > * {
   opacity: 0.75;
 }
+
 .property-description {
   margin-top: 6px;
   line-height: 1.4;
@@ -414,20 +423,6 @@ const displayPropertyHeading = (
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
-.property-rule :deep(.composition-panel .composition-selector) {
-  border-top: 0;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-.property-rule
-  :deep(
-    .composition-panel:has(.property-rule)
-      > .schema-card
-      .schema-properties.schema-properties-open
-  ) {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
 .property-enum-value {
   color: var(--scalar-color-3);
   line-height: 1.5;
@@ -471,6 +466,7 @@ const displayPropertyHeading = (
   margin-top: 8px;
   list-style: none;
 }
+
 .property-example {
   background: transparent;
   border: none;

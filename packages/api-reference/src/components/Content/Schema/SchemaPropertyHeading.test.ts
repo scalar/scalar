@@ -212,4 +212,86 @@ describe('SchemaPropertyHeading', () => {
     expect(defaultValueElement.text()).toContain('default:')
     expect(defaultValueElement.text()).toContain('"foo"')
   })
+
+  it('formats array type with model reference', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'FooModel' },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array FooModel[]')
+  })
+
+  it('formats object type with direct model reference', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'object',
+          name: 'BarModel',
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('BarModel')
+    expect(detailsElement.text()).not.toContain('[]')
+  })
+
+  it('formats array type with model reference correctly', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'object', name: 'BarModel' },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array BarModel[]')
+  })
+
+  it('displays plain type when no model name is present', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'string',
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('string')
+    expect(detailsElement.text()).not.toContain('[]')
+  })
+
+  it('displays model name for schema references a component schema', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'object',
+          properties: {
+            title: { type: 'string' },
+            pages: { type: 'integer' },
+          },
+        },
+        schemas: {
+          Planet: {
+            type: 'object',
+            properties: {
+              title: { type: 'string' },
+              pages: { type: 'integer' },
+            },
+          },
+        },
+      },
+      slots: {
+        name: 'Planet',
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('Planet')
+    expect(detailsElement.text()).not.toContain('object')
+  })
 })

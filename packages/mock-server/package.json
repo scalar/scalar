@@ -16,13 +16,13 @@
     "swagger",
     "cli"
   ],
-  "version": "0.4.1",
+  "version": "0.5.0",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "dev": "nodemon --exec \"vite-node playground/src/index.ts\" --ext ts --quiet",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",

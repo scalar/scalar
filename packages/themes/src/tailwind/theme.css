@@ -1,0 +1,171 @@
+/** Scalar Tailwind Base Theme */
+@theme inline {
+  /* Border Radius */
+  --radius-\*: initial;
+  --radius: var(--scalar-radius);
+  --radius-md: var(--scalar-radius);
+  --radius-lg: var(--scalar-radius-lg);
+  --radius-xl: var(--scalar-radius-xl);
+  --radius-px: 1px;
+  --radius-full: 9999px;
+
+  /* Border Width */
+  --default-border-width: var(--scalar-border-width);
+
+  /* Shadows */
+  --shadow-\*: initial;
+  --shadow: var(--scalar-shadow-1);
+  --shadow-md: var(--scalar-shadow-1);
+  --shadow-lg: var(--scalar-shadow-2);
+  --shadow-sm: rgba(0, 0, 0, 0.09) 0px 1px 4px;
+  --shadow-border: inset 0 0 0 calc(var(--scalar-border-width) * 2) var(--scalar-border-color);
+
+  /* Fonts */
+  --font-\*: initial;
+  --font-sans: var(--scalar-font);
+  --font-code: var(--scalar-font-code);
+
+  /* Font Sizes */
+  --text-\*: initial;
+  --text-3xs: var(--scalar-font-size-7);
+  --text-xxs: var(--scalar-font-size-6);
+  --text-xs: var(--scalar-font-size-5);
+  --text-sm: var(--scalar-font-size-4);
+  --text-base: var(--scalar-font-size-3);
+  --text-lg: var(--scalar-font-size-2);
+  --text-xl: var(--scalar-font-size-1);
+
+  /* Font Weights */
+  --font-weight-\*: initial;
+  --font-weight-normal: var(--scalar-regular);
+  --font-weight-medium: var(--scalar-semibold);
+  --font-weight-bold: var(--scalar-bold);
+
+  /* Colors */
+  --color-\*: initial;
+
+  /* - Background Colors */
+  --color-b-1: var(--scalar-background-1);
+  --color-b-1\.5: color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2));
+  --color-b-2: var(--scalar-background-2);
+  --color-b-3: var(--scalar-background-3);
+  --color-b-accent: var(--scalar-background-accent);
+  --color-b-btn: var(--scalar-button-1);
+  --color-b-tooltip: var(--scalar-tooltip-background);
+  --color-b-danger: var(--scalar-background-danger);
+  --color-b-alert: var(--scalar-background-alert);
+
+  /* - Foreground Colors */
+  --color-c-1: var(--scalar-color-1);
+  --color-c-2: var(--scalar-color-2);
+  --color-c-3: var(--scalar-color-3);
+  --color-c-accent: var(--scalar-color-accent);
+  --color-c-ghost: var(--scalar-color-ghost);
+  --color-c-disabled: var(--scalar-color-disabled);
+  --color-c-btn: var(--scalar-button-1-color);
+  --color-c-tooltip: var(--scalar-tooltip-color);
+  --color-c-danger: var(--scalar-color-danger);
+  --color-c-alert: var(--scalar-color-alert);
+
+  /* - Hover Colors */
+  --color-h-btn: var(--scalar-button-1-hover);
+
+  /* - Sidebar Colors */
+  --color-sidebar-b-1: var(--scalar-sidebar-background-1, var(--scalar-background-1));
+
+  --color-sidebar-c-1: var(--scalar-sidebar-color-1, var(--scalar-color-1));
+  --color-sidebar-c-2: var(--scalar-sidebar-color-2, var(--scalar-color-2));
+
+  --color-sidebar-b-hover: var(--scalar-sidebar-item-hover-background, var(--scalar-background-2));
+  --color-sidebar-c-hover: var(--scalar-sidebar-item-hover-color, currentColor);
+
+  --color-sidebar-b-active: var(--scalar-sidebar-item-active-background, var(--scalar-background-2));
+  --color-sidebar-c-active: var(--scalar-sidebar-color-active, currentColor);
+
+  --color-sidebar-border: var(--scalar-sidebar-border-color, var(--scalar-border-color));
+
+  --color-sidebar-indent-border: var(--scalar-sidebar-indent-border, var(--scalar-border-color));
+  --color-sidebar-indent-border-hover: var(--scalar-sidebar-indent-border-hover, var(--scalar-border-color));
+  --color-sidebar-indent-border-active: var(--scalar-sidebar-indent-border-active, var(--scalar-color-accent));
+
+  --color-sidebar-b-search: var(--scalar-sidebar-search-background, var(--scalar-background-2));
+  --color-sidebar-c-search: var(--scalar-sidebar-search-color, var(--scalar-color-3));
+  --color-sidebar-border-search: var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
+
+  /* - Utility Colors */
+  --color-backdrop: rgba(0, 0, 0, 0.22);
+  --color-backdrop-dark: rgba(0, 0, 0, 0.45);
+  --color-border: var(--scalar-border-color);
+  --color-brand: var(--scalar-brand);
+
+  /* - Hardcoded Colors */
+  --color-white: #fff;
+  --color-black: #000;
+
+  /* - Themed Colors */
+  --color-green: var(--scalar-color-green);
+  --color-red: var(--scalar-color-red);
+  --color-yellow: var(--scalar-color-yellow);
+  --color-blue: var(--scalar-color-blue);
+  --color-orange: var(--scalar-color-orange);
+  --color-purple: var(--scalar-color-purple);
+  --color-grey: var(--scalar-color-3);
+  --color-indigo: var(--scalar-color-blue);
+  --color-pink: var(--scalar-color-pink);
+
+  /* Line Heights */
+  --leading-1: var(--scalar-line-height-1);
+  --leading-2: var(--scalar-line-height-2);
+  --leading-3: var(--scalar-line-height-3);
+  --leading-4: var(--scalar-line-height-4);
+  --leading-5: var(--scalar-line-height-5);
+
+  /* Brightness */
+  --brightness-lifted: var(--scalar-lifted-brightness);
+  --brightness-backdrop: var(--scalar-backdrop-brightness);
+
+  /* Spacing Scale */
+  --spacing: 4px;
+
+  /* Custom Spacing */
+  --spacing-header: 48px;
+  --spacing-border: var(--scalar-border-width);
+
+  /* Breakpoints */
+  --breakpoint-xs: 400px;
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 800px;
+  --breakpoint-lg: 1000px;
+  --breakpoint-xl: 1200px;
+
+  /* Container Widths */
+  --container-0: 0px;
+  --container-xs: 320px;
+  --container-sm: 384px;
+  --container-md: 448px;
+  --container-lg: 512px;
+  --container-xl: 576px;
+  --container-2xl: 672px;
+  --container-3xl: 768px;
+  --container-4xl: 896px;
+  --container-5xl: 1024px;
+  --container-6xl: 1152px;
+  --container-7xl: 1280px;
+  --container-full: 100%;
+  --container-min: min-content;
+  --container-max: max-content;
+  --container-fit: fit-content;
+
+  /*
+   * Z-Index
+   *
+   * @see ./utilities.css
+   */
+  --z-10: 10;
+  --z-20: 20;
+  --z-50: 50;
+  --z-context: 1000;
+  --z-context-plus: 1001;
+  --z-overlay: 10000;
+  --z-tooltip: 99999;
+}

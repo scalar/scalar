@@ -85,10 +85,10 @@ function handleDeleteCollection() {
             @update:modelValue="handleToggleWatchMode" />
         </div>
         <div
-          class="text-c-1 flex items-center overflow-x-auto whitespace-nowrap border-t py-1.5">
+          class="text-c-1 flex items-center overflow-x-auto border-t py-1.5 whitespace-nowrap">
           <div class="flex items-center">
             <template v-if="activeCollection?.documentUrl">
-              <span class="bg-b-2 sticky left-0 pl-3 pr-2">Source</span>
+              <span class="bg-b-2 sticky left-0 pr-2 pl-3">Source</span>
               <a
                 class="text-c-2 group rounded pr-3 no-underline hover:underline"
                 :href="activeCollection.documentUrl"
@@ -101,7 +101,7 @@ function handleDeleteCollection() {
             </template>
             <template v-else>
               <ScalarIcon
-                class="text-c-2 ml-3 mr-2 w-4"
+                class="text-c-2 mr-2 ml-3 w-4"
                 icon="NotAllowed"
                 size="sm" />
               <span class="text-c-2 pr-3">
@@ -127,7 +127,7 @@ function handleDeleteCollection() {
           </p>
         </div>
         <ScalarButton
-          class="custom-scroll h-8 gap-1.5 whitespace-nowrap px-2.5 font-medium shadow-none focus:outline-none"
+          class="custom-scroll h-8 gap-1.5 px-2.5 font-medium whitespace-nowrap shadow-none focus:outline-none"
           :variant="'danger'"
           @click="deleteModal.show()">
           Delete Collection

@@ -1,16 +1,23 @@
 <script lang="ts" setup>
+import GitHubSlugger from 'github-slugger'
+import { computed } from 'vue'
+
 import { useConfig } from '@/hooks/useConfig'
 import { downloadEventBus } from '@/libs/download'
 
-const { filename } = defineProps<{
-  filename?: string
+const { title } = defineProps<{
+  title?: string
 }>()
 
 const config = useConfig()
 
-// id is retrieved at the layout level
+// Format the title to be displayed in the badge.
+const slugger = new GitHubSlugger()
+const filename = computed(() => slugger.slug(title ?? ''))
+
+// The id is retrieved at the layout level.
 const handleDownloadClick = () => {
-  downloadEventBus.emit({ id: '', filename })
+  downloadEventBus.emit({ id: '', filename: filename.value })
 }
 </script>
 <template>

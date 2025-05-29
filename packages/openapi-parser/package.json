@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.11.0",
+  "version": "0.12.0",
   "engines": {
     "node": ">=20"
   },
@@ -68,7 +68,6 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@babel/code-frame": "^7.24.7",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",
@@ -76,6 +75,7 @@
     "fastify": "catalog:*",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
+    "tinybench": "^2.8.0",
     "vite": "catalog:*"
   }
 }

@@ -538,7 +538,7 @@ const selectedExample = computed({
       <DataTableRow>
         <template v-if="selectedContentType?.id === 'none'">
           <div
-            class="border-t-1/2 text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
+            class="text-c-3 flex min-h-10 w-full items-center justify-center border-t p-2 text-sm">
             <span>No Body</span>
           </div>
         </template>
@@ -547,7 +547,7 @@ const selectedExample = computed({
             class="flex items-center justify-center overflow-hidden border-t p-1.5">
             <template v-if="example.body.binary">
               <span
-                class="text-c-2 w-full max-w-full overflow-hidden whitespace-nowrap rounded border px-1.5 py-1 text-xs">
+                class="text-c-2 w-full max-w-full overflow-hidden rounded border px-1.5 py-1 text-xs whitespace-nowrap">
                 {{ (example.body.binary as File).name }}
               </span>
               <ScalarButton
@@ -577,7 +577,7 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id == 'multipartForm'">
           <RequestTable
             ref="tableWrapperRef"
-            class="!m-0 rounded-t-none border-b-0 border-l-0 border-r-0 border-t-0 shadow-none"
+            class="!m-0 rounded-t-none border-t-0 border-r-0 border-b-0 border-l-0 shadow-none"
             :columns="['32px', '', '', '104px']"
             :envVariables="envVariables"
             :environment="environment"
@@ -593,7 +593,7 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id == 'formUrlEncoded'">
           <RequestTable
             ref="tableWrapperRef"
-            class="!m-0 rounded-t-none border-b-0 border-l-0 border-r-0 border-t-0 shadow-none"
+            class="!m-0 rounded-t-none border-t-0 border-r-0 border-b-0 border-l-0 shadow-none"
             :columns="['32px', '', '', '104px']"
             :envVariables="envVariables"
             :environment="environment"
@@ -609,7 +609,7 @@ const selectedExample = computed({
         <template v-else>
           <!-- TODO: remove this as type hack when we add syntax highligting -->
           <CodeInput
-            class="border-t-1/2 px-1"
+            class="border-t px-1"
             content=""
             :envVariables="envVariables"
             :environment="environment"

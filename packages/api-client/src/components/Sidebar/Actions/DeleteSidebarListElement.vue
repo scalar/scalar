@@ -28,7 +28,7 @@ const truncatedName = computed(() => {
     @submit="emit('delete')">
     <p
       v-if="warningMessage"
-      class="text-c-2 text-pretty text-sm leading-normal">
+      class="text-c-2 text-sm leading-normal text-pretty">
       {{ warningMessage }}
     </p>
   </SidebarListElementForm>

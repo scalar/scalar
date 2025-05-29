@@ -5,6 +5,6 @@ import { ApiReference } from '@/index'
 <template>
   <ApiReference
     :configuration="{
-      url: 'https://petstore.swagger.io/v2/swagger.json',
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     }" />
 </template>
