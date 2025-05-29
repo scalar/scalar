@@ -1,8 +1,8 @@
 import type { UnknownObject } from '@/types'
-import { escapeJsonPointer } from '@/utils/escapeJsonPointer'
+import { escapeJsonPointer } from '@/utils/escape-json-pointer'
 import path from '@/polyfills/path'
-import { getSegmentsFromPath } from '@/utils/getSegmentsFromPath'
-import { isObject } from '@/utils/isObject'
+import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
+import { isObject } from '@/utils/is-object'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
