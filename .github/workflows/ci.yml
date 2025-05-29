@@ -329,7 +329,7 @@ jobs:
           method: 'GET'
 
   todesktop-build:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
