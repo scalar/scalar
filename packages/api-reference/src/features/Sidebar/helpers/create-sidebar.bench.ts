@@ -1,17 +1,22 @@
+import { computed } from 'vue'
 import { bench, describe, expect, vi } from 'vitest'
-import { computed, toValue } from 'vue'
+import { toValue } from 'vue'
+import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 
 import { parse } from '@/helpers/parse'
-import { useSidebar as useSidebarOld } from '@/hooks/old/useSidebar'
+import { useSidebar } from '@/hooks/useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
-import { createSidebar } from './create-sidebar'
+import { createSidebar } from '@/features/Sidebar/helpers/create-sidebar'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks
 const EXAMPLE_DOCUMENT = await fetch(
   'https://raw.githubusercontent.com/stripe/openapi/refs/heads/master/openapi/spec3.json',
-).then((r) => r.json())
+).then((r) => r.text())
+const normalized = normalize(EXAMPLE_DOCUMENT)
+const { specification } = upgrade(normalized)
+const { schema } = await dereference(specification)
 
-const parsedSpec = await parse(EXAMPLE_DOCUMENT)
+const parsedSpec = await parse(schema)
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -36,20 +41,25 @@ vi.mock('vue', () => {
   }
 })
 
-describe('createSidebar', async () => {
-  bench('old (stripe)', async () => {
-    const { items } = useSidebarOld({
+const options = {
+  config: apiReferenceConfigurationSchema.parse({}),
+  getHeadingId: vi.fn(),
+  getModelId: vi.fn(),
+  getOperationId: vi.fn(),
+  getTagId: vi.fn(),
+  getWebhookId: vi.fn(),
+}
+
+describe('createSidebar (stripe)', async () => {
+  bench('old', async () => {
+    const { items } = useSidebar({
       parsedSpec,
     })
-
     expect(toValue(items)).toBeDefined()
   })
 
-  bench('new (stripe)', async () => {
-    const { items } = createSidebar({
-      content: EXAMPLE_DOCUMENT,
-    })
-
+  bench('amrit', async () => {
+    const items = createSidebar(schema, options)
     expect(toValue(items)).toBeDefined()
   })
 })
