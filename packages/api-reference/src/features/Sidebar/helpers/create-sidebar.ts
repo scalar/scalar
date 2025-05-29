@@ -16,6 +16,7 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
  *  - breadcrumb - move to the component
  *  - all the other useSidebar things
  *  - add the search index creation as well
+ *  - update docs
  */
 export const createSidebar = (
   content: OpenAPIV3_1.Document,

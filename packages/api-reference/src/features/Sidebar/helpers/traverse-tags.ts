@@ -78,7 +78,12 @@ const getSortedTagEntries = (
     }
     // Custom sort
     else if (typeof operationsSorter === 'function') {
-      entries.sort(operationsSorter)
+      entries.sort((a, b) =>
+        operationsSorter(
+          { summary: a.title, method: a.httpVerb, path: a.path, operationId: a.operationId },
+          { summary: b.title, method: b.httpVerb, path: b.path, operationId: b.operationId },
+        ),
+      )
     }
 
     return entries.length ? createTagEntry(tag, titlesMap, getTagId, entries) : []
