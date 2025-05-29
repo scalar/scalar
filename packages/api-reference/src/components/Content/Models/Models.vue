@@ -82,6 +82,7 @@ const models = computed(() => {
             <ScalarErrorBoundary>
               <Schema
                 :hideHeading="true"
+                :hideModelNames="true"
                 noncollapsible
                 :schemas="schemas"
                 :value="(schemas as any)[name]" />

@@ -32,9 +32,11 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Show a special one way toggle for additional properties, also has a top border when open */
     additionalProperties?: boolean
+    /** Hide model names in type display */
+    hideModelNames?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   }>(),
-  { level: 0, noncollapsible: false },
+  { level: 0, noncollapsible: false, hideModelNames: false },
 )
 
 const selectedDiscriminatorType = ref<string>('')
@@ -230,7 +232,8 @@ watch(
                   ...resolvedSchema.properties[property],
                   parent: resolvedSchema,
                   isDiscriminator: property === discriminatorPropertyName,
-                }" />
+                }"
+                :hideModelNames="hideModelNames" />
             </template>
 
             <!-- Pattern properties -->
@@ -250,7 +253,8 @@ watch(
                   value.discriminator?.propertyName === property
                     ? value
                     : resolvedSchema.patternProperties[property]
-                " />
+                "
+                :hideModelNames="hideModelNames" />
             </template>
 
             <!-- Additional properties -->
@@ -277,7 +281,8 @@ watch(
                   ...(typeof resolvedSchema.additionalProperties === 'object'
                     ? resolvedSchema.additionalProperties
                     : {}),
-                }" />
+                }"
+                :hideModelNames="hideModelNames" />
               <SchemaProperty
                 v-else
                 additional
@@ -290,7 +295,8 @@ watch(
                   value.discriminator?.propertyName === name
                     ? value
                     : resolvedSchema.additionalProperties
-                " />
+                "
+                :hideModelNames="hideModelNames" />
             </template>
           </template>
 
@@ -306,7 +312,8 @@ watch(
                 value.discriminator?.propertyName === name
                   ? value
                   : resolvedSchema
-              " />
+              "
+              :hideModelNames="hideModelNames" />
           </template>
         </DisclosurePanel>
       </div>
