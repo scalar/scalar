@@ -440,7 +440,7 @@ const themeStyleTag = computed(
   grid-area: header;
   position: sticky;
   top: var(--scalar-custom-header-height, 0px);
-  z-index: 10;
+  z-index: 1000;
 
   height: var(--scalar-header-height, 0px);
 }
