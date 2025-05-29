@@ -193,4 +193,39 @@ describe('SchemaComposition', () => {
       expect(panel.text()).toContain('nullable')
     })
   })
+
+  it('passes required array to Schema component for schema composition', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        composition: 'anyOf',
+        value: {
+          anyOf: [
+            {
+              type: 'object',
+              properties: {
+                foo: { const: 'Foo' },
+              },
+              required: ['foo'],
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { const: 'Bar' },
+              },
+            },
+          ],
+        },
+        level: 0,
+      },
+    })
+
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('value')).toEqual({
+      type: 'object',
+      properties: {
+        foo: { const: 'Foo' },
+      },
+      required: ['foo'],
+    })
+  })
 })

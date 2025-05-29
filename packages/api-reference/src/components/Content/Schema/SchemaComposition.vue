@@ -236,6 +236,7 @@ const compositionValue = computed(() => {
               ? {
                   type: 'object',
                   properties: compositionSchema.properties,
+                  required: compositionSchema.required,
                 }
               : compositionSchema
           " />
