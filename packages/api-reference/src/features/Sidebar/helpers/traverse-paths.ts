@@ -30,7 +30,7 @@ export const traversePaths = (
   tagsDict: Record<string, OpenAPIV3_1.TagObject>,
   getOperationId: UseNavState['getOperationId'],
 ): Map<string, SidebarEntry[]> => {
-  const tagMap = new Map<string, SidebarEntry[]>([['default', []]])
+  const tagsMap = new Map<string, SidebarEntry[]>([['default', []]])
 
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
@@ -46,14 +46,14 @@ export const traversePaths = (
       // Traverse tags
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          if (!tagMap.has(tagName)) {
-            tagMap.set(tagName, [])
+          if (!tagsMap.has(tagName)) {
+            tagsMap.set(tagName, [])
           }
 
           // Ensure the tag exists in the spec
           const tag = tagsDict[tagName]
           if (tag) {
-            tagMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, getOperationId))
+            tagsMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, getOperationId))
           }
           // We push to default
           else {
@@ -62,16 +62,16 @@ export const traversePaths = (
               
               https://spec.openapis.org/oas/latest.html#tag-object
               `)
-            tagMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
+            tagsMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
           }
         })
       }
       // Add to default tag
       else {
-        tagMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
+        tagsMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
       }
     })
   })
 
-  return tagMap
+  return tagsMap
 }
