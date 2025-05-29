@@ -18,7 +18,9 @@ const createOperationEntry = (
   return {
     id,
     title: operation.summary ?? path,
+    path,
     httpVerb: method,
+    operationId: operation.operationId,
     deprecated: operation.deprecated ?? false,
   }
 }
