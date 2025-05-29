@@ -101,7 +101,7 @@ const introCardsSlot = computed(() =>
             :class="{ 'introduction-card-row': layout === 'classic' }">
             <div
               v-if="activeCollection?.servers?.length"
-              class="scalar-reference-intro-server scalar-client introduction-card-item text-sm [--scalar-address-bar-height:0px]">
+              class="scalar-reference-intro-server scalar-client introduction-card-item text-sm leading-normal [--scalar-address-bar-height:0px]">
               <BaseUrl
                 :collection="activeCollection"
                 :server="activeServer" />
@@ -112,7 +112,7 @@ const introCardsSlot = computed(() =>
                 activeWorkspace &&
                 Object.keys(securitySchemes ?? {}).length
               "
-              class="scalar-reference-intro-auth scalar-client introduction-card-item">
+              class="scalar-reference-intro-auth scalar-client introduction-card-item leading-normal">
               <RequestAuth
                 :collection="activeCollection"
                 :envVariables="activeEnvVariables"
