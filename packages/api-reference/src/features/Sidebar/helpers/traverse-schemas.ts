@@ -6,16 +6,24 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 const createModelEntry = (
   _schema: OpenAPIV3_1.SchemaObject,
   name = 'Unkown',
+  titlesMap: Map<string, string>,
   getModelId: UseNavState['getModelId'],
-): SidebarEntry => ({
-  id: getModelId({ name }),
-  title: name,
-  deprecated: false,
-})
+): SidebarEntry => {
+  const id = getModelId({ name })
+  titlesMap.set(id, name)
+
+  return {
+    id,
+    title: name,
+    deprecated: false,
+  }
+}
 
 /** Traverse components.schemas to create entries for models */
 export const traverseSchemas = (
   content: OpenAPIV3_1.Document,
+  /** Map of titles for the mobile header */
+  titlesMap: Map<string, string>,
   getModelId: UseNavState['getModelId'],
 ): SidebarEntry[] => {
   const schemas = content.components?.schemas ?? {}
@@ -27,7 +35,7 @@ export const traverseSchemas = (
       continue
     }
 
-    untagged.push(createModelEntry(schemas[name], name, getModelId))
+    untagged.push(createModelEntry(schemas[name], name, titlesMap, getModelId))
   }
 
   return untagged

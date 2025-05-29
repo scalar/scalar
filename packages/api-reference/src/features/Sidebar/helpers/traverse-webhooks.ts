@@ -1,20 +1,28 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+
 import type { SidebarEntry } from '@/features/Sidebar/types'
 import type { UseNavState } from '@/hooks/useNavState'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { getTag } from './get-tag'
 
 /** Handles creating entries for webhooks */
 const createWebhookEntry = (
   operation: OpenAPIV3_1.OperationObject,
   method: OpenAPIV3_1.HttpMethods,
   name = 'Unknown',
+  titlesMap: Map<string, string>,
   getWebhookId: UseNavState['getWebhookId'],
   tag?: OpenAPIV3_1.TagObject,
-): SidebarEntry => ({
-  id: getWebhookId({ name, method }, tag),
-  title: name,
-  httpVerb: method,
-  deprecated: operation.deprecated ?? false,
-})
+): SidebarEntry => {
+  const id = getWebhookId({ name, method }, tag)
+  titlesMap.set(id, name)
+
+  return {
+    id,
+    title: operation.summary || name,
+    httpVerb: method,
+    deprecated: operation.deprecated ?? false,
+  }
+}
 
 /** When traversing webhooks, we pass in the tags in from operations to save on memory */
 export const traverseWebhooks = (
@@ -22,7 +30,9 @@ export const traverseWebhooks = (
   /** The tag map from from traversing paths */
   tagsMap: Map<string, SidebarEntry[]>,
   /** The tag dictionary of tags from the spec */
-  tagsDict: Record<string, OpenAPIV3_1.TagObject>,
+  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  /** Map of titles for the mobile title */
+  titlesMap: Map<string, string>,
   getWebhookId: UseNavState['getWebhookId'],
 ): SidebarEntry[] => {
   const untagged: SidebarEntry[] = []
@@ -43,26 +53,13 @@ export const traverseWebhooks = (
             tagsMap.set(tagName, [])
           }
 
-          // Ensure the tag exists in the spec
-          const tag = tagsDict[tagName]
-          if (tag) {
-            tagsMap.get(tagName)?.push(createWebhookEntry(operation, method, name, getWebhookId, tag))
-          }
-
-          // Push to untagged
-          else {
-            console.warn(`
-              Tag ${tagName} not found in the schema, please ensure it is defined in the tags array.
-              
-              https://spec.openapis.org/oas/latest.html#tag-object
-              `)
-            untagged.push(createWebhookEntry(operation, method, name, getWebhookId))
-          }
+          const tag = getTag(tagsDict, tagName)
+          tagsMap.get(tagName)?.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId, tag))
         })
       }
       // Add to untagged
       else {
-        untagged.push(createWebhookEntry(operation, method, name, getWebhookId))
+        untagged.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId))
       }
     })
   })

@@ -8,6 +8,8 @@ import type { Heading } from '@scalar/types/legacy'
  */
 export const traverseDescription = (
   description: string | undefined,
+  /** Map of titles for the mobile header */
+  titlesMap: Map<string, string>,
   getHeadingId: (heading: Heading) => string,
 ): SidebarEntry[] => {
   if (!description?.trim()) {
@@ -29,6 +31,7 @@ export const traverseDescription = (
       id: getHeadingId(heading),
       title: heading.value,
     }
+    titlesMap.set(entry.id, entry.title)
 
     if (heading.depth === lowestLevel) {
       entry.children = []

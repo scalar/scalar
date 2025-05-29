@@ -38,6 +38,7 @@
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
+    "test:bench": "vitest bench",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },

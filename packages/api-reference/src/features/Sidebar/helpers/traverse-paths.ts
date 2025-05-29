@@ -1,20 +1,27 @@
-import type { SidebarEntry } from '@/features/Sidebar/types'
-import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-// TODO: do we want to nest callbacks under the operation object?
+import type { SidebarEntry } from '@/features/Sidebar/types'
+import type { UseNavState } from '@/hooks/useNavState'
+import { getTag } from './get-tag'
+
 const createOperationEntry = (
   operation: OpenAPIV3_1.OperationObject,
   method: OpenAPIV3_1.HttpMethods,
   path = 'Unknown',
   tag: OpenAPIV3_1.TagObject,
+  titlesMap: Map<string, string>,
   getOperationId: UseNavState['getOperationId'],
-): SidebarEntry => ({
-  id: getOperationId({ ...operation, method, path }, tag),
-  title: operation.summary ?? path,
-  httpVerb: method,
-  deprecated: operation.deprecated ?? false,
-})
+): SidebarEntry => {
+  const id = getOperationId({ ...operation, method, path }, tag)
+  titlesMap.set(id, operation.summary ?? path)
+
+  return {
+    id,
+    title: operation.summary ?? path,
+    httpVerb: method,
+    deprecated: operation.deprecated ?? false,
+  }
+}
 
 const defaultTag = { name: 'default' }
 
@@ -26,8 +33,10 @@ const defaultTag = { name: 'default' }
  */
 export const traversePaths = (
   content: OpenAPIV3_1.Document,
-  /** The tag dictionary of tags from the spec */
-  tagsDict: Record<string, OpenAPIV3_1.TagObject>,
+  /** Dictionary of tags from the spec */
+  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  /** Map of titles for the mobile header */
+  titlesMap: Map<string, string>,
   getOperationId: UseNavState['getOperationId'],
 ): Map<string, SidebarEntry[]> => {
   const tagsMap = new Map<string, SidebarEntry[]>([['default', []]])
@@ -49,26 +58,15 @@ export const traversePaths = (
           if (!tagsMap.has(tagName)) {
             tagsMap.set(tagName, [])
           }
-
-          // Ensure the tag exists in the spec
-          const tag = tagsDict[tagName]
-          if (tag) {
-            tagsMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, getOperationId))
-          }
-          // We push to default
-          else {
-            console.warn(`
-              Tag ${tagName} not found in the schema, please ensure it is defined in the tags array.
-              
-              https://spec.openapis.org/oas/latest.html#tag-object
-              `)
-            tagsMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
-          }
+          const tag = getTag(tagsDict, tagName)
+          tagsMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
         })
       }
       // Add to default tag
       else {
-        tagsMap.get('default')?.push(createOperationEntry(operation, method, path, defaultTag, getOperationId))
+        tagsMap
+          .get('default')
+          ?.push(createOperationEntry(operation, method, path, defaultTag, titlesMap, getOperationId))
       }
     })
   })

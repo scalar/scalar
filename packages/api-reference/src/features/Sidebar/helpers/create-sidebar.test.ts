@@ -1,28 +1,32 @@
-import type { SortOptions } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { describe, expect, it } from 'vitest'
-import { toValue } from 'vue'
+import { describe, expect, it, vi } from 'vitest'
+import { toRef, toValue } from 'vue'
 import { createSidebar } from './create-sidebar'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { useNavState } from '@/hooks/useNavState'
 
-/**
- * Parse the given OpenAPI document and return the items for the sidebar.
- */
-async function getItemsForDocument(content: Record<string, any>, options?: SortOptions) {
-  const { items } = createSidebar({
-    ...{
-      tagSort: undefined,
-      operationSort: undefined,
-      ...options,
-    },
-    content,
-  })
+// Mock vue's inject
+vi.mock('vue', () => {
+  const actual = require('vue')
+  return {
+    ...actual,
+    inject: vi.fn().mockReturnValue({
+      hash: { value: '' },
+      hashPrefix: { value: '' },
+      isIntersectionEnabled: { value: false },
+    }),
+  }
+})
 
-  return toValue(items)
+const config = apiReferenceConfigurationSchema.parse({})
+const mockOptions = {
+  config,
+  ...useNavState(toRef(config)),
 }
 
-describe('createSidebar', async () => {
+describe('createSidebar', () => {
   describe('instance', () => {
-    it('creates a new instance every time', async () => {
+    it('creates a new instance every time', () => {
       const content = {
         openapi: '3.1.0',
         info: {
@@ -38,52 +42,56 @@ describe('createSidebar', async () => {
         },
       } as OpenAPIV3_1.Document
 
-      const sidebar1 = createSidebar({ content })
-      const sidebar2 = createSidebar({ content })
+      const sidebar1 = createSidebar(content, mockOptions)
+      const sidebar2 = createSidebar(content, mockOptions)
 
       // Every call to createSidebar should return a new instance
-      expect(toValue(sidebar1.items)).not.toBe(toValue(sidebar2.items))
+      expect(toValue(sidebar1)).not.toBe(toValue(sidebar2))
+
       // But have the same values
-      expect(JSON.stringify(toValue(sidebar1.items))).toMatchObject(JSON.stringify(toValue(sidebar2.items)))
+      expect(JSON.stringify(sidebar1)).toMatchObject(JSON.stringify(sidebar2))
     })
   })
 
   describe('empty content', () => {
-    it("doesn't return any entries for an empty specification", async () => {
+    it("doesn't return any entries for an empty specification", () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {},
           },
-          paths: {},
-        }),
-      ).toStrictEqual({
-        titles: {},
-        entries: [],
-      })
+          mockOptions,
+        ),
+      ).toStrictEqual({ entries: [], titles: new Map() })
     })
   })
 
   describe('tags', () => {
-    it('has a tag', async () => {
+    it('has a tag', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Hello World',
-                tags: ['Foobar'],
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Hello World',
+                  tags: ['Foobar'],
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -98,23 +106,26 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('has multiple tags', async () => {
+    it('has multiple tags', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Hello World',
-                tags: ['Foobar', 'Barfoo'],
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Hello World',
+                  tags: ['Foobar', 'Barfoo'],
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -137,30 +148,33 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('shows operations without tags directly in the sidebar', async () => {
+    it('shows operations without tags directly in the sidebar', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Get Hello',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Get Hello',
+                },
+                post: {
+                  summary: 'Post Hello',
+                },
               },
-              post: {
-                summary: 'Post Hello',
+              '/world': {
+                get: {
+                  summary: 'Get World',
+                },
               },
             },
-            '/world': {
-              get: {
-                summary: 'Get World',
-              },
-            },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -176,33 +190,36 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('filters out both internal and ignored tags', async () => {
+    it('filters out both internal and ignored tags', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: { title: 'Test', version: '1.0.0' },
-          tags: [
-            { name: 'Public' },
-            { name: 'Internal', 'x-internal': true },
-            { name: 'Ignored', 'x-scalar-ignore': true },
-            { name: 'Both', 'x-internal': true, 'x-scalar-ignore': true },
-          ],
-          paths: {
-            '/hello': {
-              get: {
-                tags: ['Public'],
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: { title: 'Test', version: '1.0.0' },
+            tags: [
+              { name: 'Public' },
+              { name: 'Internal', 'x-internal': true },
+              { name: 'Ignored', 'x-scalar-ignore': true },
+              { name: 'Both', 'x-internal': true, 'x-scalar-ignore': true },
+            ],
+            paths: {
+              '/hello': {
+                get: {
+                  tags: ['Public'],
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Public' }],
       })
     })
 
-    it('sorts tags alphabetically', async () => {
+    it('sorts tags alphabetically', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -219,7 +236,11 @@ describe('createSidebar', async () => {
             },
           },
           {
-            tagSort: 'alpha',
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              tagsSorter: 'alpha',
+            },
           },
         ),
       ).toMatchObject({
@@ -244,9 +265,9 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('sorts tags with custom function', async () => {
+    it('sorts tags with custom function', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -263,12 +284,16 @@ describe('createSidebar', async () => {
             },
           },
           {
-            tagSort: (a) => {
-              if (a.name === 'Foobar') {
-                return -1
-              }
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              tagsSorter: (a: { name: string }) => {
+                if (a.name === 'Foobar') {
+                  return -1
+                }
 
-              return 1
+                return 1
+              },
             },
           },
         ),
@@ -294,29 +319,32 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('adds to existing tags', async () => {
+    it('adds to existing tags', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          tags: [
-            {
-              name: 'Foobar',
-              description: 'Foobar',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
             },
-          ],
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Hello World',
-                tags: ['Foobar'],
+            tags: [
+              {
+                name: 'Foobar',
+                description: 'Foobar',
+              },
+            ],
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Hello World',
+                  tags: ['Foobar'],
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -331,32 +359,35 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('creates a default tag', async () => {
+    it('creates a default tag', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          tags: [
-            {
-              name: 'Foobar',
-              description: 'Foobar',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
             },
-          ],
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Get Hello World',
-                tags: ['foobar'],
+            tags: [
+              {
+                name: 'Foobar',
+                description: 'Foobar',
               },
-              post: {
-                summary: 'Post Hello World',
+            ],
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Get Hello World',
+                  tags: ['foobar'],
+                },
+                post: {
+                  summary: 'Post Hello World',
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -381,34 +412,37 @@ describe('createSidebar', async () => {
   })
 
   describe('tag groups', () => {
-    it('groups tags by x-tagGroups', async () => {
+    it('groups tags by x-tagGroups', () => {
       expect(
-        await getItemsForDocument({
-          'openapi': '3.1.0',
-          'info': {
-            title: 'Example',
-            version: '1.0',
-          },
-          'tags': [
-            {
-              name: 'planets',
+        createSidebar(
+          {
+            'openapi': '3.1.0',
+            'info': {
+              title: 'Example',
+              version: '1.0',
             },
-          ],
-          'x-tagGroups': [
-            {
-              name: 'galaxy',
-              tags: ['planets'],
-            },
-          ],
-          'paths': {
-            '/planets': {
-              get: {
-                summary: 'Get all planets',
+            'tags': [
+              {
+                name: 'planets',
+              },
+            ],
+            'x-tagGroups': [
+              {
+                name: 'galaxy',
                 tags: ['planets'],
+              },
+            ],
+            'paths': {
+              '/planets': {
+                get: {
+                  summary: 'Get all planets',
+                  tags: ['planets'],
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -428,42 +462,45 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('groups tags by x-tagGroups and shows default webhook group', async () => {
+    it('groups tags by x-tagGroups and shows default webhook group', () => {
       expect(
-        await getItemsForDocument({
-          'openapi': '3.1.0',
-          'info': {
-            title: 'Example',
-            version: '1.0',
-          },
-          'tags': [
-            {
-              name: 'planets',
+        createSidebar(
+          {
+            'openapi': '3.1.0',
+            'info': {
+              title: 'Example',
+              version: '1.0',
             },
-          ],
-          'x-tagGroups': [
-            {
-              name: 'galaxy',
-              tags: ['planets'],
-            },
-          ],
-          'paths': {
-            '/planets': {
-              get: {
-                summary: 'Get all planets',
+            'tags': [
+              {
+                name: 'planets',
+              },
+            ],
+            'x-tagGroups': [
+              {
+                name: 'galaxy',
                 tags: ['planets'],
+              },
+            ],
+            'paths': {
+              '/planets': {
+                get: {
+                  summary: 'Get all planets',
+                  tags: ['planets'],
+                },
+              },
+            },
+            'webhooks': {
+              hello: {
+                post: {
+                  tags: ['planets'],
+                  summary: 'Hello Webhook',
+                },
               },
             },
           },
-          'webhooks': {
-            hello: {
-              post: {
-                tags: ['planets'],
-                summary: 'Hello Webhook',
-              },
-            },
-          },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -475,15 +512,10 @@ describe('createSidebar', async () => {
                   {
                     title: 'Get all planets',
                   },
+                  {
+                    title: 'Hello Webhook',
+                  },
                 ],
-              },
-            ],
-          },
-          {
-            title: 'Webhooks',
-            children: [
-              {
-                title: 'Hello Webhook',
               },
             ],
           },
@@ -491,41 +523,44 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.todo('groups tags by x-tagGroups and adds the webhooks to the tag group', async () => {
+    it.todo('groups tags by x-tagGroups and adds the webhooks to the tag group', () => {
       expect(
-        await getItemsForDocument({
-          'openapi': '3.1.0',
-          'info': {
-            title: 'Example',
-            version: '1.0',
-          },
-          'tags': [
-            {
-              name: 'planets',
+        createSidebar(
+          {
+            'openapi': '3.1.0',
+            'info': {
+              title: 'Example',
+              version: '1.0',
             },
-          ],
-          'x-tagGroups': [
-            {
-              name: 'galaxy',
-              tags: ['planets', 'webhooks'],
+            'tags': [
+              {
+                name: 'planets',
+              },
+            ],
+            'x-tagGroups': [
+              {
+                name: 'galaxy',
+                tags: ['planets', 'webhooks'],
+              },
+            ],
+            'paths': {
+              '/planets': {
+                get: {
+                  summary: 'Get all planets',
+                  tags: ['planets'],
+                },
+              },
             },
-          ],
-          'paths': {
-            '/planets': {
-              get: {
-                summary: 'Get all planets',
-                tags: ['planets'],
+            'webhooks': {
+              hello: {
+                post: {
+                  summary: 'Hello Webhook',
+                },
               },
             },
           },
-          'webhooks': {
-            hello: {
-              post: {
-                summary: 'Hello Webhook',
-              },
-            },
-          },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -553,41 +588,44 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.todo('groups tags by x-tagGroups and keeps the webhook default entry', async () => {
+    it('groups tags by x-tagGroups and keeps the webhook default entry', () => {
       expect(
-        await getItemsForDocument({
-          'openapi': '3.1.0',
-          'info': {
-            title: 'Example',
-            version: '1.0',
-          },
-          'tags': [
-            {
-              name: 'planets',
+        createSidebar(
+          {
+            'openapi': '3.1.0',
+            'info': {
+              title: 'Example',
+              version: '1.0',
             },
-          ],
-          'x-tagGroups': [
-            {
-              name: 'galaxy',
-              tags: ['planets'],
-            },
-          ],
-          'paths': {
-            '/planets': {
-              get: {
-                summary: 'Get all planets',
+            'tags': [
+              {
+                name: 'planets',
+              },
+            ],
+            'x-tagGroups': [
+              {
+                name: 'galaxy',
                 tags: ['planets'],
               },
+            ],
+            'paths': {
+              '/planets': {
+                get: {
+                  summary: 'Get all planets',
+                  tags: ['planets'],
+                },
+              },
             },
-          },
-          'webhooks': {
-            hello: {
-              post: {
-                summary: 'Hello Webhook',
+            'webhooks': {
+              hello: {
+                post: {
+                  summary: 'Hello Webhook',
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           {
@@ -617,17 +655,20 @@ describe('createSidebar', async () => {
   })
 
   describe('description', () => {
-    it('adds heading to the sidebar', async () => {
+    it('adds heading to the sidebar', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-            description: '# Foobar',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+              description: '# Foobar',
+            },
+            paths: {},
           },
-          paths: {},
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         titles: {},
         entries: [
@@ -640,17 +681,20 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('adds two levels of headings to the sidebar', async () => {
+    it('adds two levels of headings to the sidebar', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-            description: '# Foobar\n\n## Barfoo',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+              description: '# Foobar\n\n## Barfoo',
+            },
+            paths: {},
           },
-          paths: {},
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         titles: {},
         entries: [
@@ -668,17 +712,20 @@ describe('createSidebar', async () => {
       })
     })
 
-    it("doesn't add third level of headings", async () => {
+    it("doesn't add third level of headings", () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-            description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+              description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
+            },
+            paths: {},
           },
-          paths: {},
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         titles: {},
         entries: [
@@ -698,50 +745,56 @@ describe('createSidebar', async () => {
   })
 
   describe('operations', () => {
-    it('has a single entry for a single operation', async () => {
+    it('has a single entry for a single operation', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Hello World',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Hello World',
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Hello World' }],
       })
     })
 
-    it('has two entries for a single operation and a webhook', async () => {
+    it('has two entries for a single operation and a webhook', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Hello World',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Hello World',
+                },
+              },
+            },
+            webhooks: {
+              hello: {
+                post: {
+                  'summary': 'Hello Webhook',
+                },
               },
             },
           },
-          webhooks: {
-            hello: {
-              post: {
-                summary: 'Hello Webhook',
-              },
-            },
-          },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           { title: 'Hello World' },
@@ -757,35 +810,38 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('hides operations with x-internal: true', async () => {
+    it('hides operations with x-internal: true', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                'summary': 'Get',
-                'x-internal': false,
-              },
-              post: {
-                'summary': 'Post',
-                'x-internal': true,
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  'summary': 'Get',
+                  'x-internal': false,
+                },
+                post: {
+                  'summary': 'Post',
+                  'x-internal': true,
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Get' }],
       })
     })
 
-    it('sorts operations alphabetically with summary', async () => {
+    it('sorts operations alphabetically with summary', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -808,7 +864,11 @@ describe('createSidebar', async () => {
             },
           },
           {
-            operationSort: 'alpha',
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              operationsSorter: 'alpha',
+            },
           },
         ),
       ).toMatchObject({
@@ -828,9 +888,9 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('sorts operations alphabetically with paths', async () => {
+    it('sorts operations alphabetically with paths', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -851,7 +911,11 @@ describe('createSidebar', async () => {
             },
           },
           {
-            operationSort: 'alpha',
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              operationsSorter: 'alpha',
+            },
           },
         ),
       ).toMatchObject({
@@ -871,9 +935,9 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('sorts operations by method', async () => {
+    it('sorts operations by method', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -896,7 +960,11 @@ describe('createSidebar', async () => {
             },
           },
           {
-            operationSort: 'method',
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              operationsSorter: 'method',
+            },
           },
         ),
       ).toMatchObject({
@@ -916,9 +984,9 @@ describe('createSidebar', async () => {
       })
     })
 
-    it.todo('sorts operations with custom function', async () => {
+    it('sorts operations with custom function', () => {
       expect(
-        await getItemsForDocument(
+        createSidebar(
           {
             openapi: '3.1.0',
             info: {
@@ -953,15 +1021,19 @@ describe('createSidebar', async () => {
             },
           },
           {
-            operationSort: (a, b) => {
-              const methodOrder = ['GET', 'POST', 'DELETE']
-              const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+            ...mockOptions,
+            config: {
+              ...mockOptions.config,
+              operationsSorter: (a: { httpVerb: string; path: string }, b: { httpVerb: string; path: string }) => {
+                const methodOrder = ['GET', 'POST', 'DELETE']
+                const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
 
-              if (methodComparison !== 0) {
-                return methodComparison
-              }
+                if (methodComparison !== 0) {
+                  return methodComparison
+                }
 
-              return a.path.localeCompare(b.path)
+                return a.path.localeCompare(b.path)
+              },
             },
           },
         ),
@@ -990,85 +1062,94 @@ describe('createSidebar', async () => {
   })
 
   describe('webhooks', () => {
-    it('shows webhooks', async () => {
+    it('shows webhooks', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {},
-          webhooks: {
-            hello: {
-              post: {
-                'summary': 'Webhook',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {},
+            webhooks: {
+              hello: {
+                post: {
+                  'summary': 'Webhook',
+                },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
 
-    it('hides webhooks with x-internal: true', async () => {
+    it('hides webhooks with x-internal: true', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Operation',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Operation',
+                },
+              },
+            },
+            webhooks: {
+              hello: {
+                post: {
+                  'summary': 'Webhook',
+                },
+              },
+              goodbye: {
+                post: {
+                  'summary': 'Secret Webhook',
+                  'x-internal': true,
+                },
               },
             },
           },
-          webhooks: {
-            hello: {
-              post: {
-                'summary': 'Webhook',
-              },
-            },
-            goodbye: {
-              post: {
-                'summary': 'Secret Webhook',
-                'x-internal': true,
-              },
-            },
-          },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
     })
 
-    it('shows operations and webhooks', async () => {
+    it('shows operations and webhooks', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Operation',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Operation',
+                },
+              },
+            },
+            webhooks: {
+              hello: {
+                post: {
+                  'summary': 'Webhook',
+                },
               },
             },
           },
-          webhooks: {
-            hello: {
-              post: {
-                'summary': 'Webhook',
-              },
-            },
-          },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
@@ -1076,34 +1157,37 @@ describe('createSidebar', async () => {
   })
 
   describe('schemas', () => {
-    it('shows schemas', async () => {
+    it('shows schemas', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Get',
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Get',
+                },
               },
             },
-          },
-          components: {
-            schemas: {
-              Planet: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string',
+            components: {
+              schemas: {
+                Planet: {
+                  type: 'object',
+                  properties: {
+                    name: {
+                      type: 'string',
+                    },
                   },
                 },
               },
             },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           { title: 'Get' },
@@ -1119,44 +1203,47 @@ describe('createSidebar', async () => {
       })
     })
 
-    it('hides schemas with x-internal: true', async () => {
+    it('hides schemas with x-internal: true', () => {
       expect(
-        await getItemsForDocument({
-          openapi: '3.1.0',
-          info: {
-            title: 'Hello World',
-            version: '1.0.0',
-          },
-          paths: {
-            '/hello': {
-              get: {
-                summary: 'Get',
-              },
+        createSidebar(
+          {
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
             },
-          },
-          components: {
-            schemas: {
-              Planet: {
-                'type': 'object',
-                'x-internal': false,
-                'properties': {
-                  name: {
-                    type: 'string',
-                  },
-                },
-              },
-              User: {
-                'type': 'object',
-                'x-internal': true,
-                'properties': {
-                  name: {
-                    type: 'string',
-                  },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: 'Get',
                 },
               },
             },
+            components: {
+              schemas: {
+                Planet: {
+                  'type': 'object',
+                  'x-internal': false,
+                  'properties': {
+                    name: {
+                      type: 'string',
+                    },
+                  },
+                },
+                User: {
+                  'type': 'object',
+                  'x-internal': true,
+                  'properties': {
+                    name: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
           },
-        }),
+          mockOptions,
+        ),
       ).toMatchObject({
         entries: [
           { title: 'Get' },

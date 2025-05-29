@@ -154,6 +154,7 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
         summary: operation.summary,
       })}`
     }
+
     return `${getTagId(parentTag)}/${operation.method}${operation.path}`
   }
 
