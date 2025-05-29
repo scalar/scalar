@@ -27,4 +27,10 @@ public abstract class OAuthFlow
     /// Gets or sets the authentication token.
     /// </summary>
     public string? Token { get; set; }
+
+    /// <summary>
+    /// Gets or sets additional query parameters that should be included in the OAuth request.
+    /// </summary>
+    [JsonPropertyName("x-scalar-security-query")]
+    public IDictionary<string, string>? AdditionalQueryParameters { get; set; } 
 }

@@ -113,6 +113,14 @@ watch(
           operationIndex + 2,
         ),
       })
+
+      // Check if hash contains a markdown heading with the new description format
+      if (hash.value.includes('/description/')) {
+        if (typeof window !== 'undefined') {
+          scrollToId(hash.value)
+        }
+        setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+      }
     }
     // Models
     else if (hash.value.startsWith('model')) {

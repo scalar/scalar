@@ -192,5 +192,98 @@ describe('SchemaComposition', () => {
       const panel = wrapper.find('.composition-panel')
       expect(panel.text()).toContain('nullable')
     })
+
+    it('renders const schema in composition panel', async () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          composition: 'anyOf',
+          value: {
+            anyOf: [
+              {
+                type: 'object',
+                properties: { foo: { const: 'Foo' } },
+                required: ['foo'],
+              },
+              {
+                type: 'object',
+                properties: { bar: { const: 'Bar' } },
+              },
+              { const: 'Baz' },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const listbox = wrapper.findComponent({ name: 'ScalarListbox' })
+      await listbox.vm.$emit('update:modelValue', { id: '2', label: 'Schema' })
+      await wrapper.vm.$nextTick()
+
+      const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+      expect(schemaComponent.exists()).toBe(true)
+      expect(schemaComponent.props('value')).toEqual({ const: 'Baz' })
+    })
+
+    it('renders enum schema in composition panel', async () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          composition: 'oneOf',
+          value: {
+            oneOf: [
+              {
+                type: 'string',
+                enum: ['option1', 'option2', 'option3'],
+              },
+              {
+                type: 'number',
+              },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+      expect(schemaComponent.exists()).toBe(true)
+      expect(schemaComponent.props('value')).toEqual({
+        type: 'string',
+        enum: ['option1', 'option2', 'option3'],
+      })
+    })
+  })
+
+  it('passes required array to Schema component for schema composition', () => {
+    const wrapper = mount(SchemaComposition, {
+      props: {
+        composition: 'anyOf',
+        value: {
+          anyOf: [
+            {
+              type: 'object',
+              properties: {
+                foo: { const: 'Foo' },
+              },
+              required: ['foo'],
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { const: 'Bar' },
+              },
+            },
+          ],
+        },
+        level: 0,
+      },
+    })
+
+    const schemaComponent = wrapper.findComponent({ name: 'Schema' })
+    expect(schemaComponent.props('value')).toEqual({
+      type: 'object',
+      properties: {
+        foo: { const: 'Foo' },
+      },
+      required: ['foo'],
+    })
   })
 })

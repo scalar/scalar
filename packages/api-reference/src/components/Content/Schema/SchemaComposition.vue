@@ -111,7 +111,9 @@ const schemaComposition = computed(() => {
 
   // Get schema with nested composition
   const schemaNestedComposition =
-    schemaComposition.oneOf || schemaComposition.anyOf
+    schemaComposition.oneOf ||
+    schemaComposition.anyOf ||
+    schemaComposition.allOf
 
   return schemaNestedComposition.map((schema: any) => {
     if (schema.allOf) {
@@ -175,6 +177,26 @@ const compositionValue = computed(() => {
   const type = compositionType.value
   return compositionSchema.value?.[type]
 })
+
+/** Check if the composition schema should be rendered */
+const shouldRenderSchema = computed(() => {
+  const schema = compositionSchema.value
+  if (!schema) {
+    return false
+  }
+
+  return !!(
+    schema.properties ||
+    schema.type ||
+    schema.nullable ||
+    schema.const !== undefined ||
+    schema.enum ||
+    schema.allOf ||
+    schema.oneOf ||
+    schema.anyOf ||
+    schema.items
+  )
+})
 </script>
 
 <template>
@@ -220,11 +242,7 @@ const compositionValue = computed(() => {
           <ScalarMarkdown :value="compositionSchema.description" />
         </div>
         <Schema
-          v-if="
-            compositionSchema?.properties ||
-            compositionSchema?.type ||
-            compositionSchema?.nullable
-          "
+          v-if="shouldRenderSchema"
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
@@ -236,6 +254,7 @@ const compositionValue = computed(() => {
               ? {
                   type: 'object',
                   properties: compositionSchema.properties,
+                  required: compositionSchema.required,
                 }
               : compositionSchema
           " />

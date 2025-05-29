@@ -34,6 +34,7 @@ const props = withDefaults(
     additional?: boolean
     pattern?: boolean
     withExamples?: boolean
+    hideModelNames?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
     hideHeading?: boolean
   }>(),
@@ -42,6 +43,7 @@ const props = withDefaults(
     required: false,
     compact: false,
     withExamples: true,
+    hideModelNames: false,
   },
 )
 
@@ -169,7 +171,8 @@ const displayPropertyHeading = (
       :pattern="pattern"
       :required="required"
       :value="optimizedValue"
-      :schemas="schemas">
+      :schemas="schemas"
+      :hideModelNames="hideModelNames">
       <template
         v-if="name"
         #name>

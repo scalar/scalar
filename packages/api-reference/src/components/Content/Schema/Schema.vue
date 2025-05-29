@@ -32,9 +32,11 @@ const props = withDefaults(
     hideHeading?: boolean
     /** Show a special one way toggle for additional properties, also has a top border when open */
     additionalProperties?: boolean
+    /** Hide model names in type display */
+    hideModelNames?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   }>(),
-  { level: 0, noncollapsible: false },
+  { level: 0, noncollapsible: false, hideModelNames: false },
 )
 
 const selectedDiscriminatorType = ref<string>('')
@@ -94,6 +96,40 @@ const shouldShowToggle = computed(() => {
   return true
 })
 
+/** Determines whether to show the schema description */
+const shouldShowDescription = computed(() => {
+  // Don't show description if there's no description or it's not a string
+  if (
+    !resolvedSchema.value?.description ||
+    typeof resolvedSchema.value.description !== 'string'
+  ) {
+    return false
+  }
+
+  // Don't show description if the schema has composition keywords
+  // This prevents duplicate descriptions when individual schemas are part of compositions
+  if (
+    resolvedSchema.value.allOf ||
+    resolvedSchema.value.oneOf ||
+    resolvedSchema.value.anyOf
+  ) {
+    return false
+  }
+
+  // Don't show description for enum schemas (they have special handling)
+  if (resolvedSchema.value.enum) {
+    return false
+  }
+
+  // Merged allOf schemas at level 0 should not show individual descriptions
+  // to prevent duplicates with the request body description
+  if (props.level === 0) {
+    return false
+  }
+
+  return true
+})
+
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
   props.noncollapsible && e.stopPropagation()
@@ -123,17 +159,10 @@ watch(
       ]">
       <!-- Schema description -->
       <div
-        v-if="
-          resolvedSchema?.description &&
-          typeof resolvedSchema.description === 'string' &&
-          !resolvedSchema.allOf &&
-          !resolvedSchema.oneOf &&
-          !resolvedSchema.anyOf &&
-          !compact
-        "
+        v-if="shouldShowDescription"
         class="schema-card-description">
-        <template v-if="!resolvedSchema.enum">
-          <ScalarMarkdown :value="resolvedSchema.description" />
+        <template v-if="!resolvedSchema?.enum">
+          <ScalarMarkdown :value="resolvedSchema?.description" />
         </template>
       </div>
       <div
@@ -230,7 +259,8 @@ watch(
                   ...resolvedSchema.properties[property],
                   parent: resolvedSchema,
                   isDiscriminator: property === discriminatorPropertyName,
-                }" />
+                }"
+                :hideModelNames="hideModelNames" />
             </template>
 
             <!-- Pattern properties -->
@@ -250,7 +280,8 @@ watch(
                   value.discriminator?.propertyName === property
                     ? value
                     : resolvedSchema.patternProperties[property]
-                " />
+                "
+                :hideModelNames="hideModelNames" />
             </template>
 
             <!-- Additional properties -->
@@ -277,7 +308,8 @@ watch(
                   ...(typeof resolvedSchema.additionalProperties === 'object'
                     ? resolvedSchema.additionalProperties
                     : {}),
-                }" />
+                }"
+                :hideModelNames="hideModelNames" />
               <SchemaProperty
                 v-else
                 additional
@@ -290,7 +322,8 @@ watch(
                   value.discriminator?.propertyName === name
                     ? value
                     : resolvedSchema.additionalProperties
-                " />
+                "
+                :hideModelNames="hideModelNames" />
             </template>
           </template>
 
@@ -306,7 +339,8 @@ watch(
                 value.discriminator?.propertyName === name
                   ? value
                   : resolvedSchema
-              " />
+              "
+              :hideModelNames="hideModelNames" />
           </template>
         </DisclosurePanel>
       </div>
