@@ -265,9 +265,9 @@ jobs:
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   npm-publish:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: beefcake
-    timeout-minutes: 10
+    timeout-minutes: 15
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
     # npm publish also shouldn’t happen in parallel.
