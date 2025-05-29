@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, inject } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
@@ -14,10 +14,10 @@ import SchemaProperty from './SchemaProperty.vue'
 const props = withDefaults(
   defineProps<{
     value?:
-      | OpenAPIV2.DefinitionsObject
-      | OpenAPIV3.SchemaObject
-      | OpenAPIV3.ArraySchemaObject
-      | OpenAPIV3.NonArraySchemaObject
+      | OpenAPIV3_1.OperationObject
+      | OpenAPIV3_1.SchemaObject
+      | OpenAPIV3_1.ArraySchemaObject
+      | OpenAPIV3_1.NonArraySchemaObject
       | OpenAPIV3_1.SchemaObject
       | OpenAPIV3_1.ArraySchemaObject
       | OpenAPIV3_1.NonArraySchemaObject
