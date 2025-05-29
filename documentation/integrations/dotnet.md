@@ -306,6 +306,25 @@ app.MapScalarApiReference(options => options
 );
 ```
 
+##### Additional Query Parameters
+
+All OAuth2 flows support additional query parameters that can be included in the OAuth request using the `AdditionalQueryParameters` property. This is useful for adding custom parameters required by your OAuth provider, such as `audience`, `resource`, or other provider-specific parameters:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.AdditionalQueryParameters = new Dictionary<string, string>
+        {
+            ["audience"] = "https://api.example.com",
+            ["resource"] = "https://graph.microsoft.com",
+            ["custom_param"] = "custom_value"
+        };
+    })
+);
+```
+
 ##### Multiple OAuth2 Flows
 
 You can configure multiple OAuth2 flows for a single security scheme:
