@@ -53,7 +53,7 @@ describe('bundle', () => {
       })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}`]: {
             ...external,
           },
@@ -64,7 +64,7 @@ describe('bundle', () => {
           },
         },
         d: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}/prop`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}/prop`,
         },
       })
     })
@@ -110,11 +110,11 @@ describe('bundle', () => {
       await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}/chunk1`]: {
             ...chunk1,
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk2`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk2`,
             },
           },
           [`http://localhost:${PORT}/chunk2`]: {
@@ -125,7 +125,7 @@ describe('bundle', () => {
         a: {
           b: {
             c: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1`,
             },
           },
         },
@@ -154,14 +154,14 @@ describe('bundle', () => {
       await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}`]: {
             a: 'a',
           },
         },
         a: {
           b: {
-            $ref: `#/x-external-references/http:~1~1localhost:${PORT}`,
+            $ref: `#/x-ext/http:~1~1localhost:${PORT}`,
           },
         },
       })
@@ -194,17 +194,17 @@ describe('bundle', () => {
       await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}`]: {
             a: 'a',
             b: 'b',
           },
         },
         a: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}/a`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}/a`,
         },
         b: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}/b`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}/b`,
         },
       })
 
@@ -240,18 +240,18 @@ describe('bundle', () => {
       await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}/nested/another-file.json`]: {
             c: 'c',
           },
           [`http://localhost:${PORT}/nested/chunk1.json`]: {
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1another-file.json`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1nested~1another-file.json`,
             },
           },
         },
         a: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
       })
     })
@@ -284,18 +284,18 @@ describe('bundle', () => {
       await bundle(input, { plugins: [fetchUrls(), readFiles()] })
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}/top-level`]: {
             c: 'c',
           },
           [`http://localhost:${PORT}/nested/chunk1.json`]: {
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1top-level`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1top-level`,
             },
           },
         },
         a: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
       })
     })
@@ -330,18 +330,18 @@ describe('bundle', () => {
       const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()] })
 
       expect(output).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`http://localhost:${PORT}/top-level`]: {
             c: 'c',
           },
           [`http://localhost:${PORT}/nested/chunk1.json`]: {
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1top-level`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1top-level`,
             },
           },
         },
         a: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}~1nested~1chunk1.json`,
         },
       })
     })
@@ -398,32 +398,32 @@ describe('bundle', () => {
         a: {
           b: {
             c: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1`,
             },
             d: {
               e: {
                 f: {
                   g: {
-                    $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+                    $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1`,
                   },
                 },
               },
             },
           },
         },
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8896/chunk1': {
             a: {
               hello: 'hello',
             },
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk2`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk2`,
             },
           },
           'http://localhost:8896/chunk2': {
             a: 'a',
             b: {
-              $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1`,
+              $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1`,
             },
           },
         },
@@ -459,10 +459,10 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: [
           {
-            $ref: '#/x-external-references/http:~1~1localhost:8893~1chunk1',
+            $ref: '#/x-ext/http:~1~1localhost:8893~1chunk1',
           },
         ],
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8893/chunk1': {
             a: {
               hello: 'hello',
@@ -516,12 +516,12 @@ describe('bundle', () => {
           $ref: 'http://localhost:8894/chunk1#',
         },
         b: {
-          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+          $ref: '#/x-ext/http:~1~1localhost:8894~1chunk1',
         },
         c: {
           $ref: 'http://localhost:8894/chunk1#',
         },
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8894/chunk1': {
             a: {
               hello: 'hello',
@@ -542,12 +542,12 @@ describe('bundle', () => {
           $ref: 'http://localhost:8894/chunk1#',
         },
         b: {
-          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+          $ref: '#/x-ext/http:~1~1localhost:8894~1chunk1',
         },
         c: {
-          $ref: '#/x-external-references/http:~1~1localhost:8894~1chunk1',
+          $ref: '#/x-ext/http:~1~1localhost:8894~1chunk1',
         },
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8894/chunk1': {
             a: {
               hello: 'hello',
@@ -594,14 +594,14 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1/a/b`,
+          $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1/a/b`,
         },
-        'x-external-references': {
+        'x-ext': {
           [`${url}/chunk1`]: {
             a: {
               b: {
                 g: {
-                  $ref: `#/x-external-references/http:~1~1localhost:${PORT}~1chunk1/d/e`,
+                  $ref: `#/x-ext/http:~1~1localhost:${PORT}~1chunk1/d/e`,
                 },
                 hello: 'hello',
               },
@@ -665,20 +665,20 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: '#/x-external-references/http:~1~1localhost:8672~1chunk1/a',
+          $ref: '#/x-ext/http:~1~1localhost:8672~1chunk1/a',
         },
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8672/chunk1': {
             a: {
               b: {
                 g: {
-                  $ref: '#/x-external-references/http:~1~1localhost:8672~1chunk1/d/e',
+                  $ref: '#/x-ext/http:~1~1localhost:8672~1chunk1/d/e',
                 },
                 hello: 'hello',
               },
               c: 'c',
               'external': {
-                $ref: '#/x-external-references/http:~1~1localhost:8672~1chunk2/a/b',
+                $ref: '#/x-ext/http:~1~1localhost:8672~1chunk2/a/b',
               },
             },
             d: {
@@ -733,20 +733,20 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: '#/x-external-references/http:~1~1localhost:8772~1chunk1/a',
+          $ref: '#/x-ext/http:~1~1localhost:8772~1chunk1/a',
         },
-        'x-external-references': {
+        'x-ext': {
           'http://localhost:8772/chunk1': {
             a: {
               b: {
                 g: {
-                  $ref: '#/x-external-references/http:~1~1localhost:8772~1chunk1/a/external',
+                  $ref: '#/x-ext/http:~1~1localhost:8772~1chunk1/a/external',
                 },
                 hello: 'hello',
               },
               c: 'c',
               external: {
-                $ref: '#/x-external-references/http:~1~1localhost:8772~1chunk1/a/b',
+                $ref: '#/x-ext/http:~1~1localhost:8772~1chunk1/a/b',
               },
             },
           },
@@ -773,13 +773,13 @@ describe('bundle', () => {
       await fs.rm(chunk1Path)
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`${chunk1Path}`]: {
             ...chunk1,
           },
         },
         a: {
-          $ref: `#/x-external-references/${chunk1Path}/a`,
+          $ref: `#/x-ext/${chunk1Path}/a`,
         },
       })
     })
@@ -806,16 +806,16 @@ describe('bundle', () => {
       await fs.rm(chunk2Path)
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`${chunk1Path}`]: {
             ...chunk1,
           },
           [`${chunk2Path}`]: {
-            a: { $ref: `#/x-external-references/${chunk1Path}` },
+            a: { $ref: `#/x-ext/${chunk1Path}` },
           },
         },
         a: {
-          $ref: `#/x-external-references/${chunk2Path}`,
+          $ref: `#/x-ext/${chunk2Path}`,
         },
       })
     })
@@ -850,16 +850,16 @@ describe('bundle', () => {
       await fs.rmdir('nested')
 
       expect(input).toEqual({
-        'x-external-references': {
+        'x-ext': {
           [`nested/${cName}`]: {
             c: 'c',
           },
           [`nested/${bName}`]: {
-            b: { $ref: `#/x-external-references/nested~1${cName}` },
+            b: { $ref: `#/x-ext/nested~1${cName}` },
           },
         },
         a: {
-          $ref: `#/x-external-references/nested~1${bName}`,
+          $ref: `#/x-ext/nested~1${bName}`,
         },
       })
     })
@@ -898,9 +898,9 @@ describe('bundle', () => {
 
       expect(result).toEqual({
         'b': {
-          '$ref': `#/x-external-references/nested~1${cName}`,
+          '$ref': `#/x-ext/nested~1${cName}`,
         },
-        'x-external-references': {
+        'x-ext': {
           [`nested/${cName}`]: {
             'c': 'c',
           },

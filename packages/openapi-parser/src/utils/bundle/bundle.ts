@@ -241,7 +241,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  * @param targetDocument - The document to copy referenced values to
  * @param sourceDocument - The source document containing the references
  * @param referencePath - The JSON pointer path to the reference
- * @param externalRefsKey - The key used for external references (e.g. 'x-external-references')
+ * @param externalRefsKey - The key used for external references (e.g. 'x-ext')
  * @param documentKey - The key identifying the external document
  * @param processedNodes - Set of already processed nodes to prevent duplicates
  * @example
@@ -250,7 +250,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  *   components: {
  *     schemas: {
  *       User: {
- *         $ref: '#/x-external-references/users~1schema/definitions/Person'
+ *         $ref: '#/x-ext/users~1schema/definitions/Person'
  *       }
  *     }
  *   }
@@ -261,7 +261,7 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
  *   target,
  *   source,
  *   '/components/schemas/User',
- *   'x-external-references',
+ *   'x-ext',
  *   'users/schema'
  * )
  * // Result: target will contain the User schema with resolved references
@@ -347,9 +347,9 @@ type Config = {
 /**
  * Bundles an OpenAPI specification by resolving all external references.
  * This function traverses the input object recursively and embeds external $ref
- * references into an x-external-references section. External references can be URLs or local files.
- * The original $refs are updated to point to their embedded content in the x-external-references section.
- * If the input is an object, it will be modified in place by adding an x-external-references
+ * references into an x-ext section. External references can be URLs or local files.
+ * The original $refs are updated to point to their embedded content in the x-ext section.
+ * If the input is an object, it will be modified in place by adding an x-ext
  * property to store resolved external references.
  *
  * @param input - The OpenAPI specification object or string to bundle. If a string is provided,
@@ -372,10 +372,10 @@ type Config = {
  * // {
  * //   paths: {
  * //     '/users': {
- * //       $ref: '#/x-external-references/https~1~1example.com~1schemas~1users.yaml'
+ * //       $ref: '#/x-ext/https~1~1example.com~1schemas~1users.yaml'
  * //     }
  * //   },
- * //   'x-external-references': {
+ * //   'x-ext': {
  * //     'https~1~1example.com~1schemas~1users.yaml': {
  * //       // Resolved content from users.yaml
  * //     }
@@ -385,7 +385,7 @@ type Config = {
  * // Example with URL input
  * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', { plugins: [fetchUrls()] })
  * // The function will first fetch the OpenAPI spec from the URL,
- * // then bundle all its external references into the x-external-references section
+ * // then bundle all its external references into the x-ext section
  */
 export async function bundle(input: UnknownObject | string, config: Config) {
   // Cache for storing promises of resolved external references (URLs and local files)
@@ -417,7 +417,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   const documentRoot = config.root ?? rawSpecification
 
   // Initialize storage for external references using a custom OpenAPI extension key
-  const EXTERNAL_KEY = 'x-external-references'
+  const EXTERNAL_KEY = 'x-ext'
 
   const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
     if (!isObject(root) && !Array.isArray(root)) {
@@ -455,7 +455,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // maintain the correct path context relative to the main document. This is crucial
           // because internal references in the external document are relative to its original
           // location, but when embedded, they need to be relative to their new location in
-          // the main document's x-external-references section. Without this update, internal references
+          // the main document's x-ext section. Without this update, internal references
           // would point to incorrect locations and break the document structure.
           prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
 
@@ -478,7 +478,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             resolvedPath,
           )
         } else {
-          // Store the external document in the main document's x-external-references key
+          // Store the external document in the main document's x-ext key
           // When tree shaking is disabled, we include the entire external document
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
@@ -486,7 +486,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           setValueAtPath(documentRoot, `/${EXTERNAL_KEY}/${escapeJsonPointer(resolvedPath)}`, result.data)
         }
 
-        // Update the $ref to point to the embedded document in x-external-references
+        // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
