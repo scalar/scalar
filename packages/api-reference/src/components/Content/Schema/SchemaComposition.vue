@@ -111,7 +111,9 @@ const schemaComposition = computed(() => {
 
   // Get schema with nested composition
   const schemaNestedComposition =
-    schemaComposition.oneOf || schemaComposition.anyOf
+    schemaComposition.oneOf ||
+    schemaComposition.anyOf ||
+    schemaComposition.allOf
 
   return schemaNestedComposition.map((schema: any) => {
     if (schema.allOf) {
