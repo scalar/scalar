@@ -81,10 +81,11 @@ const models = computed(() => {
             </template>
             <ScalarErrorBoundary>
               <Schema
+                noncollapsible
                 :hideHeading="true"
                 :hideModelNames="true"
-                noncollapsible
                 :schemas="schemas"
+                :level="1"
                 :value="(schemas as any)[name]" />
             </ScalarErrorBoundary>
           </CompactSection>

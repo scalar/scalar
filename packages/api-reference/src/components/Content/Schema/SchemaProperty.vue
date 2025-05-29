@@ -1,17 +1,19 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed, type Component } from 'vue'
+import { computed, inject, type Component } from 'vue'
 
 import {
   compositions,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import { SpecificationExtension } from '@/components/SpecificationExtension'
+import type { Schemas } from '@/features/Operation/types/schemas'
+import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import Schema from './Schema.vue'
 import SchemaComposition from './SchemaComposition.vue'
+import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
@@ -35,8 +37,11 @@ const props = withDefaults(
     pattern?: boolean
     withExamples?: boolean
     hideModelNames?: boolean
-    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+    schemas?: Schemas
     hideHeading?: boolean
+    discriminatorMapping?: Record<string, string>
+    discriminatorPropertyName?: string
+    isDiscriminator?: boolean
   }>(),
   {
     level: 0,
@@ -46,6 +51,10 @@ const props = withDefaults(
     hideModelNames: false,
   },
 )
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 const descriptions: Record<string, Record<string, string>> = {
   integer: {
@@ -121,6 +130,28 @@ const remainingEnumValues = computed(() =>
 /** Simplified composition with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 
+// Inject the discriminator context
+const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
+
+/** Handle schema value according to discriminator context */
+const schema = computed(() => {
+  if (discriminatorContext?.value?.mergedSchema) {
+    return discriminatorContext.value.mergedSchema
+  }
+
+  return optimizedValue.value
+})
+
+/** Get the current selected discriminator schema with the first as default */
+const currentDiscriminator = computed(() => {
+  return (
+    discriminatorContext?.value?.selectedType ||
+    (props.discriminatorMapping
+      ? Object.keys(props.discriminatorMapping)[0]
+      : '')
+  )
+})
+
 // Display the property heading if any of the following are true
 const displayPropertyHeading = (
   value?: Record<string, any>,
@@ -142,6 +173,11 @@ const displayPropertyHeading = (
     value?.readOnly ||
     required
   )
+}
+
+// Handle discriminator type change
+const handleDiscriminatorChange = (type: string) => {
+  emit('update:modelValue', type)
 }
 </script>
 <template>
@@ -267,27 +303,46 @@ const displayPropertyHeading = (
         :level="level + 1"
         :name="name"
         :noncollapsible="noncollapsible"
-        :value="optimizedValue"
-        :schemas="schemas" />
+        :value="schema"
+        :resolvedSchema="schema"
+        :discriminatorMapping="discriminatorMapping"
+        :discriminatorPropertyName="discriminatorPropertyName"
+        :schemas="schemas"
+        @update:modelValue="handleDiscriminatorChange" />
     </div>
     <!-- Array of objects -->
     <template
-      v-if="
-        optimizedValue?.items &&
-        typeof optimizedValue.items === 'object' &&
-        'type' in optimizedValue.items &&
-        typeof optimizedValue.items.type === 'string'
-      ">
+      v-if="optimizedValue?.items && typeof optimizedValue.items === 'object'">
       <div
-        v-if="['object'].includes(optimizedValue?.items?.type)"
+        v-if="
+          ('type' in optimizedValue.items &&
+            ['object'].includes(optimizedValue?.items?.type)) ||
+          '$ref' in optimizedValue.items ||
+          'discriminator' in optimizedValue.items ||
+          'allOf' in optimizedValue.items ||
+          'oneOf' in optimizedValue.items ||
+          'anyOf' in optimizedValue.items
+        "
         class="children">
         <Schema
           :compact="compact"
           :level="level + 1"
           :name="name"
           :noncollapsible="noncollapsible"
-          :value="optimizedValue.items"
-          :schemas="schemas" />
+          :value="
+            schema && typeof schema === 'object' && 'items' in schema
+              ? schema.items
+              : optimizedValue.items
+          "
+          :resolvedSchema="
+            schema && typeof schema === 'object' && 'items' in schema
+              ? schema.items
+              : optimizedValue.items
+          "
+          :discriminatorMapping="discriminatorMapping"
+          :discriminatorPropertyName="discriminatorPropertyName"
+          :schemas="schemas"
+          @update:modelValue="handleDiscriminatorChange" />
       </div>
     </template>
     <!-- Compositions -->
@@ -327,6 +382,11 @@ const displayPropertyHeading = (
           :value="optimizedValue.items" />
       </template>
     </template>
+    <SchemaDiscriminator
+      v-if="isDiscriminator && discriminatorMapping && compact"
+      :discriminator-mapping="discriminatorMapping"
+      :discriminator="currentDiscriminator"
+      @update:modelValue="handleDiscriminatorChange" />
     <SpecificationExtension :value="optimizedValue" />
   </component>
 </template>
