@@ -104,6 +104,7 @@
     font-weight: var(--scalar-bold);
     display: block;
     line-height: 1.45;
+    scroll-margin-top: 1rem;
   }
   .markdown b,
   .markdown strong {

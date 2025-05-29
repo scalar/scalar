@@ -103,8 +103,11 @@ const title = computed(() => operation.summary || operation.path)
       v-if="operation?.description"
       #description>
       <ScalarMarkdown
-        :value="operation?.description"
-        withImages />
+        :value="operation.description"
+        withImages
+        withAnchors
+        transformType="heading"
+        :anchorPrefix="id" />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
