@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.1.1
+
+### Patch Changes
+
+- 785939b: feat: adds id to markdown heading
+- cad6277: feat(themes)!: migrate to tailwind v4
+
 ## 0.1.0
 
 ### Minor Changes

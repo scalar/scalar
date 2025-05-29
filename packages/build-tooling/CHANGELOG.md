@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.1
+
+### Patch Changes
+
+- 84719d0: fix: exclude test files from esbuild entry points
+
 ## 0.2.0
 
 ### Minor Changes

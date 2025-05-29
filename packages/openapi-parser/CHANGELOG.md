@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.13.0
+
+### Minor Changes
+
+- 1e87feb: fix: normalize doesn’t handle empty documents well
+
 ## 0.12.0
 
 ### Minor Changes

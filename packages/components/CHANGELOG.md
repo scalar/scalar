@@ -1,5 +1,23 @@
 # @scalar/components
 
+## 0.14.3
+
+### Patch Changes
+
+- 785939b: feat: adds id to markdown heading
+- cad6277: feat(themes)!: migrate to tailwind v4
+- ffa93fa: feat(themes): use .scalar-app as the base class for all tailwind styles
+- cedca9b: feat(components): export file upload component
+- Updated dependencies [785939b]
+- Updated dependencies [1e87feb]
+- Updated dependencies [cad6277]
+  - @scalar/code-highlight@0.1.1
+  - @scalar/oas-utils@0.4.0
+  - @scalar/themes@0.13.0
+  - @scalar/use-hooks@0.2.2
+  - @scalar/icons@0.4.2
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.2
 
 ### Patch Changes
