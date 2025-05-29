@@ -18,7 +18,7 @@ import { isRemoteUrl, type Plugin, type ResolveResult } from '@/utils/bundle/bun
  */
 export async function readFile(path: string): Promise<ResolveResult> {
   try {
-    const fileContents = await fs.readFile(path, { encoding: 'utf-8' })
+    const fileContents = await /* @_PURE_ */ fs.readFile(path, { encoding: 'utf-8' })
 
     return {
       ok: true,
