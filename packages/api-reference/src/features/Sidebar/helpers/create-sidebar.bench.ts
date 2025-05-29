@@ -2,10 +2,11 @@ import { computed } from 'vue'
 import { bench, describe, expect, vi } from 'vitest'
 import { toValue } from 'vue'
 import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
+import { apiReferenceConfigurationSchema } from '@scalar/types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { parse } from '@/helpers/parse'
 import { useSidebar } from '@/hooks/useSidebar'
-import { apiReferenceConfigurationSchema } from '@scalar/types'
 import { createSidebar } from '@/features/Sidebar/helpers/create-sidebar'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks
@@ -16,7 +17,7 @@ const normalized = normalize(EXAMPLE_DOCUMENT)
 const { specification } = upgrade(normalized)
 const { schema } = await dereference(specification)
 
-const parsedSpec = await parse(schema)
+const parsedSpec = await parse(schema as OpenAPIV3_1.Document)
 
 // Mock the useConfig hook
 vi.mock('@/hooks/useConfig', () => ({
@@ -58,8 +59,8 @@ describe('createSidebar (stripe)', async () => {
     expect(toValue(items)).toBeDefined()
   })
 
-  bench('amrit', async () => {
-    const items = createSidebar(schema, options)
+  bench('new', async () => {
+    const items = createSidebar(schema as OpenAPIV3_1.Document, options)
     expect(toValue(items)).toBeDefined()
   })
 })
