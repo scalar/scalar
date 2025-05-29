@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.4.2
+
+### Patch Changes
+
+- cad6277: feat(themes)!: migrate to tailwind v4
+
 ## 0.4.1
 
 ### Patch Changes

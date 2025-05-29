@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.4.0
+
+### Minor Changes
+
+- 1e87feb: refactor!: use dereferenced documents as a content source
+
+### Patch Changes
+
+- cad6277: feat(themes)!: migrate to tailwind v4
+- Updated dependencies [cad6277]
+  - @scalar/themes@0.13.0
+  - @scalar/object-utils@1.2.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+
 ## 0.3.2
 
 ### Patch Changes

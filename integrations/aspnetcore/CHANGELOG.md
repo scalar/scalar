@@ -1,5 +1,28 @@
 # @scalar/aspnetcore
 
+## 2.4.5
+
+### Patch Changes
+
+- 28feaf8: feat(Scalar.AspNetCore): add support for code samples
+- 7bc99ff: feat(Scalar.AspNetCore): support AdditionalQueryParameters
+- Updated dependencies [a9a4f9f]
+- Updated dependencies [8529040]
+- Updated dependencies [f5413ba]
+- Updated dependencies [fea1d52]
+- Updated dependencies [785939b]
+- Updated dependencies [1e87feb]
+- Updated dependencies [0113b84]
+- Updated dependencies [cad6277]
+- Updated dependencies [3a24cf9]
+- Updated dependencies [0dfb39a]
+- Updated dependencies [fea1d52]
+- Updated dependencies [ffa93fa]
+- Updated dependencies [785939b]
+- Updated dependencies [f1f9504]
+- Updated dependencies [42e73ee]
+  - @scalar/api-reference@1.31.0
+
 ## 2.4.4
 
 ### Patch Changes

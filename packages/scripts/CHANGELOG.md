@@ -1,5 +1,18 @@
 # @scalar/scripts
 
+## 0.0.4
+
+### Patch Changes
+
+- cad6277: feat(themes)!: migrate to tailwind v4
+- Updated dependencies [785939b]
+- Updated dependencies [1e87feb]
+- Updated dependencies [cad6277]
+- Updated dependencies [ffa93fa]
+- Updated dependencies [cedca9b]
+  - @scalar/components@0.14.3
+  - @scalar/oas-utils@0.4.0
+
 ## 0.0.3
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/nextjs-openapi
 
+## 0.2.3
+
+### Patch Changes
+
+- 66e2768: Removed app router route group from url
+  - @scalar/nextjs-api-reference@0.8.3
+  - @scalar/ts-to-openapi@0.1.0
+  - @scalar/types@0.2.1
+
 ## 0.2.2
 
 ### Patch Changes
