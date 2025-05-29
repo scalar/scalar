@@ -333,9 +333,14 @@ export type Plugin = {
 }
 
 type Config = {
+  // Array of plugins that handle resolving references from different sources (URLs, files, etc.)
   plugins: Plugin[]
+  // Optional root object that serves as the base document when bundling a subpart of the document
+  // This allows resolving references relative to the root document's location
   root?: UnknownObject
+  // Optional cache to store promises of resolved references to avoid duplicate fetches/reads
   cache?: Map<string, Promise<ResolveResult>>
+  // Optional flag to enable tree shaking, which removes unused references from the final bundle
   treeShake?: boolean
 }
 
@@ -413,9 +418,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
   // Initialize storage for external references using a custom OpenAPI extension key
   const EXTERNAL_KEY = 'x-external-references'
-  if (!documentRoot[EXTERNAL_KEY]) {
-    documentRoot[EXTERNAL_KEY] = {}
-  }
 
   const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
     if (!isObject(root) && !Array.isArray(root)) {
@@ -478,8 +480,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         } else {
           // Store the external document in the main document's x-external-references key
           // When tree shaking is disabled, we include the entire external document
-          // This preserves all content but may result in a larger bundle size
-          documentRoot[EXTERNAL_KEY][resolvedPath] = result.data
+          // This preserves all content and is faster since we don't need to analyze and copy
+          // specific parts. This approach is ideal when storing the result in memory
+          // as it avoids the overhead of tree shaking operations
+          setValueAtPath(documentRoot, `/${EXTERNAL_KEY}/${escapeJsonPointer(resolvedPath)}`, result.data)
         }
 
         // Update the $ref to point to the embedded document in x-external-references
