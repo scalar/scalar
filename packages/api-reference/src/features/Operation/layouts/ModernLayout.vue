@@ -80,7 +80,10 @@ const title = computed(() => operation.summary || operation.path)
           <div class="operation-details">
             <ScalarMarkdown
               :value="operation.description"
-              withImages />
+              withImages
+              withAnchors
+              transformType="heading"
+              :anchorPrefix="id" />
             <OperationParameters
               :operation="operation"
               :schemas="schemas" />
