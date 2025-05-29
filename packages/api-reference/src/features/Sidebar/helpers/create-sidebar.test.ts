@@ -1024,9 +1024,9 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: {
               ...mockOptions.config,
-              operationsSorter: (a: { httpVerb: string; path: string }, b: { httpVerb: string; path: string }) => {
-                const methodOrder = ['GET', 'POST', 'DELETE']
-                const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+              operationsSorter: (a, b) => {
+                const methodOrder = ['get', 'post', 'delete']
+                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
 
                 if (methodComparison !== 0) {
                   return methodComparison

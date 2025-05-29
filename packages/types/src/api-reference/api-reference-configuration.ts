@@ -221,6 +221,13 @@ export const apiClientConfigurationSchema = z.object({
 
 export type ApiClientConfiguration = z.infer<typeof apiClientConfigurationSchema>
 
+const sidebarOperationSchema = z.object({
+  path: z.string(),
+  operationId: z.string().optional(),
+  method: z.string(),
+  summary: z.string().optional(),
+})
+
 /** Configuration for the Api Client without the transform since it cannot be merged */
 const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
   z.object({
@@ -380,18 +387,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @returns A string ID used to generate the URL hash
      * @default (operation) => `${operation.method}${operation.path}`
      */
-    generateOperationSlug: z
-      .function()
-      .args(
-        z.object({
-          path: z.string(),
-          operationId: z.string().optional(),
-          method: z.string(),
-          summary: z.string().optional(),
-        }),
-      )
-      .returns(z.string())
-      .optional(),
+    generateOperationSlug: z.function().args(sidebarOperationSchema).returns(z.string()).optional(),
     /**
      * Customize the webhook portion of the hash
      * @param webhook - The webhook object
@@ -446,7 +442,11 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default 'alpha' for alphabetical sorting
      */
     operationsSorter: z
-      .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
+      .union([
+        z.literal('alpha'),
+        z.literal('method'),
+        z.function().args(sidebarOperationSchema, sidebarOperationSchema).returns(z.number()),
+      ])
       .optional(),
   }),
 )
