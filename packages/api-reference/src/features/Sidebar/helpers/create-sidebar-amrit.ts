@@ -1,6 +1,7 @@
 import { traverseDescription } from '@/features/Sidebar/helpers/traverse-description'
 import { traversePaths } from '@/features/Sidebar/helpers/traverse-paths'
 import { traverseSchemas } from '@/features/Sidebar/helpers/traverse-schemas'
+import { traverseTags } from '@/features/Sidebar/helpers/traverse-tags'
 import { traverseWebhooks } from '@/features/Sidebar/helpers/traverse-webhooks'
 import type { SidebarEntry } from '@/features/Sidebar/types'
 import type { UseNavState } from '@/hooks/useNavState'
@@ -46,6 +47,14 @@ export const createSidebarAmrit = (
   const entries: SidebarEntry[] = traverseDescription(content.info?.description, getHeadingId)
   const tags = traversePaths(content, tagsDict, getOperationId)
   const webhooks = traverseWebhooks(content, tags, tagsDict, getWebhookId)
+  const tagsEntries = traverseTags(content, tags, tagsDict, {
+    getTagId,
+    tagsSorter: config.tagsSorter,
+    operationsSorter: config.operationsSorter,
+  })
+
+  // Add tagged operations, webhooks and tagGroups
+  entries.push(...tagsEntries)
 
   // Add untagged webhooks
   if (webhooks.length) {
