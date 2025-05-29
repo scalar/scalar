@@ -81,6 +81,64 @@ export function getNestedValue(target: Record<string, any>, segments: string[]) 
 }
 
 /**
+ * Sets a value at a specified path in an object, creating intermediate objects/arrays as needed.
+ * This function traverses the object structure and creates any missing intermediate objects
+ * or arrays based on the path segments. If the next segment is a numeric string, it creates
+ * an array instead of an object.
+ *
+ * @param obj - The target object to set the value in
+ * @param path - The JSON pointer path where the value should be set
+ * @param value - The value to set at the specified path
+ * @throws {Error} If attempting to set a value at the root path ('')
+ *
+ * @example
+ * const obj = {}
+ * setValueAtPath(obj, '/foo/bar/0', 'value')
+ * // Result:
+ * // {
+ * //   foo: {
+ * //     bar: ['value']
+ * //   }
+ * // }
+ *
+ * @example
+ * const obj = { existing: { path: 'old' } }
+ * setValueAtPath(obj, '/existing/path', 'new')
+ * // Result:
+ * // {
+ * //   existing: {
+ * //     path: 'new'
+ * //   }
+ * // }
+ */
+export function setValueAtPath(obj: any, path: string, value: any): void {
+  if (path === '') {
+    throw new Error("Cannot set value at root ('') pointer")
+  }
+
+  const parts = getSegmentsFromPath(path)
+
+  let current = obj
+
+  for (let i = 0; i < parts.length; i++) {
+    const key = parts[i]
+    const isLast = i === parts.length - 1
+
+    const nextKey = parts[i + 1]
+    const shouldBeArray = /^\d+$/.test(nextKey ?? '')
+
+    if (isLast) {
+      current[key] = value
+    } else {
+      if (!(key in current) || typeof current[key] !== 'object') {
+        current[key] = shouldBeArray ? [] : {}
+      }
+      current = current[key]
+    }
+  }
+}
+
+/**
  * Resolves a reference path by combining a base path with a relative path.
  * Handles both remote URLs and local file paths.
  *
@@ -175,6 +233,89 @@ export function prefixInternalRefRecursive(input: unknown, prefix: string[]) {
 }
 
 /**
+ * Resolves and copies referenced values from a source document to a target document.
+ * This function traverses the document and copies referenced values to the target document,
+ * while tracking processed references to avoid duplicates. It only processes references
+ * that belong to the same external document.
+ *
+ * @param targetDocument - The document to copy referenced values to
+ * @param sourceDocument - The source document containing the references
+ * @param referencePath - The JSON pointer path to the reference
+ * @param externalRefsKey - The key used for external references (e.g. 'x-external-references')
+ * @param documentKey - The key identifying the external document
+ * @param processedNodes - Set of already processed nodes to prevent duplicates
+ * @example
+ * ```ts
+ * const source = {
+ *   components: {
+ *     schemas: {
+ *       User: {
+ *         $ref: '#/x-external-references/users~1schema/definitions/Person'
+ *       }
+ *     }
+ *   }
+ * }
+ *
+ * const target = {}
+ * resolveAndCopyReferences(
+ *   target,
+ *   source,
+ *   '/components/schemas/User',
+ *   'x-external-references',
+ *   'users/schema'
+ * )
+ * // Result: target will contain the User schema with resolved references
+ * ```
+ */
+const resolveAndCopyReferences = (
+  targetDocument: unknown,
+  sourceDocument: unknown,
+  referencePath: string,
+  externalRefsKey: string,
+  documentKey: string,
+  processedNodes = new Set(),
+) => {
+  const referencedValue = getNestedValue(sourceDocument, getSegmentsFromPath(referencePath))
+
+  if (processedNodes.has(referencedValue)) {
+    return
+  }
+  processedNodes.add(referencedValue)
+
+  setValueAtPath(targetDocument, referencePath, referencedValue)
+
+  // Do the same for each local ref
+  const traverse = (node: unknown) => {
+    if (!node || typeof node !== 'object') {
+      return
+    }
+
+    if ('$ref' in node && typeof node['$ref'] === 'string') {
+      // We only process references from the same external document because:
+      // 1. Other documents will be handled in separate recursive branches
+      // 2. The source document only contains the current document's content
+      // This prevents undefined behavior and maintains proper document boundaries
+      if (node['$ref'].startsWith(`#/${externalRefsKey}/${escapeJsonPointer(documentKey)}`)) {
+        resolveAndCopyReferences(
+          targetDocument,
+          sourceDocument,
+          node['$ref'].substring(1),
+          documentKey,
+          externalRefsKey,
+          processedNodes,
+        )
+      }
+    }
+
+    for (const value of Object.values(node)) {
+      traverse(value)
+    }
+  }
+
+  traverse(referencedValue)
+}
+
+/**
  * Represents a plugin that handles resolving references from external sources.
  * Plugins are responsible for fetching and processing data from different sources
  * like URLs or the filesystem. Each plugin must implement validation to determine
@@ -196,33 +337,6 @@ type Config = {
   root?: UnknownObject
   cache?: Map<string, Promise<ResolveResult>>
   treeShake?: boolean
-}
-
-function setValueAtPath(obj: any, path: string, value: any): void {
-  if (path === '') {
-    throw new Error("Cannot set value at root ('') pointer")
-  }
-
-  const parts = getSegmentsFromPath(path)
-
-  let current = obj
-
-  for (let i = 0; i < parts.length; i++) {
-    const key = parts[i]
-    const isLast = i === parts.length - 1
-
-    const nextKey = parts[i + 1]
-    const shouldBeArray = /^\d+$/.test(nextKey ?? '')
-
-    if (isLast) {
-      current[key] = value
-    } else {
-      if (!(key in current) || typeof current[key] !== 'object') {
-        current[key] = shouldBeArray ? [] : {}
-      }
-      current = current[key]
-    }
-  }
 }
 
 /**
@@ -331,6 +445,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const result = await cache.get(resolvedPath)
 
       if (result.ok) {
+        // Process the result only once to avoid duplicate processing and prevent multiple prefixing
+        // of internal references, which would corrupt the reference paths
         if (!seen) {
           // Update internal references in the resolved document to use the correct base path.
           // When we embed external documents, their internal references need to be updated to
@@ -348,49 +464,21 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           await bundler(result.data, resolvedPath)
         }
 
-        const treeShake = (obj: unknown, path: string, baseKey: string, visited = new Set()) => {
-          const targetValue = getNestedValue(obj, getSegmentsFromPath(path))
-          setValueAtPath(documentRoot, path, targetValue)
-
-          if (visited.has(targetValue)) {
-            return
-          }
-
-          visited.add(targetValue)
-
-          // Do the same for each local ref
-          const traverse = (root: unknown) => {
-            if (!root || typeof root !== 'object') {
-              return
-            }
-
-            if ('$ref' in root && typeof root['$ref'] === 'string') {
-              // We make sure that we are working on the same external document
-              // even tho every reference here should be already internal
-              // Only shake the same external document
-              // Other external document dependencies will be taken care of
-              if (root['$ref'].startsWith(`#/${EXTERNAL_KEY}/${escapeJsonPointer(resolvedPath)}`)) {
-                treeShake(obj, root['$ref'].substring(1), baseKey, visited)
-              }
-            }
-
-            for (const value of Object.values(root)) {
-              traverse(value)
-            }
-          }
-
-          traverse(targetValue)
-        }
-
         if (config.treeShake === true) {
           // Store only the subtree that is actually used
-          treeShake(
+          // This optimizes the bundle size by only including the parts of the external document
+          // that are referenced, rather than the entire document
+          resolveAndCopyReferences(
+            documentRoot,
             { [EXTERNAL_KEY]: { [resolvedPath]: result.data } },
             prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath]).substring(1),
+            EXTERNAL_KEY,
             resolvedPath,
           )
         } else {
           // Store the external document in the main document's x-external-references key
+          // When tree shaking is disabled, we include the entire external document
+          // This preserves all content but may result in a larger bundle size
           documentRoot[EXTERNAL_KEY][resolvedPath] = result.data
         }
 
