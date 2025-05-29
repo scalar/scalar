@@ -13,7 +13,8 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
  *
  * TODO:
  *  - defaultOpenAlltags
- *  - breadcrumb
+ *  - breadcrumb - move to the component
+ *  - all the other useSidebar things
  *  - add the search index creation as well
  */
 export const createSidebar = (
@@ -26,24 +27,19 @@ export const createSidebar = (
     getTagId,
     getWebhookId,
   }: {
-    config: ApiReferenceConfiguration
-    // These below are temporary, we will fold them into the config object later
+    config: Pick<ApiReferenceConfiguration, 'hideModels' | 'tagsSorter' | 'operationsSorter'>
   } & Pick<UseNavState, 'getHeadingId' | 'getModelId' | 'getOperationId' | 'getTagId' | 'getWebhookId'>,
 ) => {
   // Create tag dictionary
-  const tagsDict =
-    content.tags?.reduce(
-      (acc, tag) => {
-        acc[tag.name] = tag
-        return acc
-      },
-      {} as Record<string, OpenAPIV3_1.TagObject>,
-    ) ?? {}
+  const tagsDict = new Map(content.tags?.map((tag) => [tag.name, tag]) ?? [])
 
-  const entries: SidebarEntry[] = traverseDescription(content.info?.description, getHeadingId)
-  const tags = traversePaths(content, tagsDict, getOperationId)
-  const webhooks = traverseWebhooks(content, tags, tagsDict, getWebhookId)
-  const tagsEntries = traverseTags(content, tags, tagsDict, {
+  /** Map it ID to title for the mobile header */
+  const titles = new Map<string, string>()
+
+  const entries: SidebarEntry[] = traverseDescription(content.info?.description, titles, getHeadingId)
+  const tags = traversePaths(content, tagsDict, titles, getOperationId)
+  const webhooks = traverseWebhooks(content, tags, tagsDict, titles, getWebhookId)
+  const tagsEntries = traverseTags(content, tags, tagsDict, titles, {
     getTagId,
     tagsSorter: config.tagsSorter,
     operationsSorter: config.operationsSorter,
@@ -62,14 +58,17 @@ export const createSidebar = (
   }
 
   // Add models if they are not hidden
-  if (!config.hideModels) {
-    const models = traverseSchemas(content, getModelId)
-    entries.push({
-      id: getModelId(),
-      title: 'Models',
-      children: models,
-    })
+  if (!config.hideModels && content.components?.schemas) {
+    const models = traverseSchemas(content, titles, getModelId)
+
+    if (models.length) {
+      entries.push({
+        id: getModelId(),
+        title: 'Models',
+        children: models,
+      })
+    }
   }
 
-  return entries
+  return { entries, titles }
 }
