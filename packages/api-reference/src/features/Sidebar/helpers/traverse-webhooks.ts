@@ -20,7 +20,7 @@ const createWebhookEntry = (
 export const traverseWebhooks = (
   content: OpenAPIV3_1.Document,
   /** The tag map from from traversing paths */
-  tagMap: Map<string, SidebarEntry[]>,
+  tagsMap: Map<string, SidebarEntry[]>,
   /** The tag dictionary of tags from the spec */
   tagsDict: Record<string, OpenAPIV3_1.TagObject>,
   getWebhookId: UseNavState['getWebhookId'],
@@ -39,14 +39,14 @@ export const traverseWebhooks = (
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          if (!tagMap.has(tagName)) {
-            tagMap.set(tagName, [])
+          if (!tagsMap.has(tagName)) {
+            tagsMap.set(tagName, [])
           }
 
           // Ensure the tag exists in the spec
           const tag = tagsDict[tagName]
           if (tag) {
-            tagMap.get(tagName)?.push(createWebhookEntry(operation, method, name, getWebhookId, tag))
+            tagsMap.get(tagName)?.push(createWebhookEntry(operation, method, name, getWebhookId, tag))
           }
 
           // Push to untagged
