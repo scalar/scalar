@@ -518,7 +518,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             EXTERNAL_KEY,
             hashPath,
           )
-        } else {
+        } else if (!seen) {
           // Store the external document in the main document's x-ext key
           // When tree shaking is disabled, we include the entire external document
           // This preserves all content and is faster since we don't need to analyze and copy
