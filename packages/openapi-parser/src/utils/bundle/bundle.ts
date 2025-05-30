@@ -369,6 +369,8 @@ type Config = {
   cache?: Map<string, Promise<ResolveResult>>
   // Enable tree shaking, which removes unused references from the final bundle
   treeShake: boolean
+  // Optional flag to generate a URL map that tracks the original source URLs of bundled references
+  urlMap?: boolean
 }
 
 /**
@@ -443,8 +445,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
 
-  // Initialize storage for external references using a custom OpenAPI extension key
+  // Custom OpenAPI extension key used to store external references
+  // This key will contain all bundled external documents
   const EXTERNAL_KEY = 'x-ext'
+
+  // Custom OpenAPI extension key used to maintain a mapping between
+  // original URLs and their corresponding hashed keys in x-ext
+  const EXTERNAL_URL_MAPPING = 'x-ext-urls'
 
   const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
     if (!isObject(root) && !Array.isArray(root)) {
@@ -492,6 +499,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
           await bundler(result.data, resolvedPath)
+
+          // Store the mapping between original URLs and their hashed keys in x-ext-urls
+          // This allows tracking which external URLs were bundled and their corresponding locations
+          if (config.urlMap) {
+            setValueAtPath(documentRoot, `/${EXTERNAL_URL_MAPPING}/${escapeJsonPointer(resolvedPath)}`, hashPath)
+          }
         }
 
         if (config.treeShake === true) {

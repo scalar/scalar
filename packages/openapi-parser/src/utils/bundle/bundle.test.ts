@@ -349,6 +349,60 @@ describe('bundle', () => {
       })
     })
 
+    it('generated a map when we turn the urlMap on', async () => {
+      const PORT = 4628
+      const url = `http://localhost:${PORT}`
+
+      server.get('/top-level', (_, reply) => {
+        reply.send({
+          c: 'c',
+        })
+      })
+
+      server.get('/nested/chunk1.json', (_, reply) => {
+        reply.send({
+          b: {
+            '$ref': `${url}/top-level#`,
+          },
+        })
+      })
+
+      server.get('/base/openapi.json', (_, reply) => {
+        reply.send({
+          a: {
+            $ref: '../nested/chunk1.json',
+          },
+        })
+      })
+      await server.listen({ port: PORT })
+
+      const output = await bundle(`${url}/base/openapi.json`, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        urlMap: true,
+      })
+
+      expect(output).toEqual({
+        'x-ext': {
+          [await getHash(`${url}/top-level`)]: {
+            c: 'c',
+          },
+          [await getHash(`${url}/nested/chunk1.json`)]: {
+            b: {
+              $ref: `#/x-ext/${await getHash(`${url}/top-level`)}`,
+            },
+          },
+        },
+        'x-ext-urls': {
+          [`${url}/top-level`]: await getHash(`${url}/top-level`),
+          [`${url}/nested/chunk1.json`]: await getHash(`${url}/nested/chunk1.json`),
+        },
+        a: {
+          $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
+        },
+      })
+    })
+
     it('prefixes the refs only once', async () => {
       const PORT = 8896
       const url = `http://localhost:${PORT}`
