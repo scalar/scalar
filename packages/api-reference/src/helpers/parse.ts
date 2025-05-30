@@ -2,9 +2,7 @@
  * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
-import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
-import { normalizeRequestMethod } from '@/legacy/helpers'
-import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
+import { isHttpMethod, normalizeRequestMethod, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
@@ -138,9 +136,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
    * { '/pet': { … } }
    */
   Object.keys(schema.paths).forEach((path: string) => {
-    const requestMethods = Object.keys(schema.paths[path]).filter((key) =>
-      validRequestMethods.includes(key.toUpperCase() as RequestMethod),
-    )
+    const requestMethods = Object.keys(schema.paths[path]).filter(isHttpMethod)
 
     requestMethods.forEach((requestMethod) => {
       const operation = schema.paths[path][requestMethod]

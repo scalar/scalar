@@ -4,11 +4,10 @@ import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
   Operation,
-  RequestMethod,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import { isHttpMethod, REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { ref, useId, watch } from 'vue'
 
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
@@ -128,8 +127,10 @@ events.focusAddressBar.on(() => {
   }
 })
 
-function updateRequestMethod(method: RequestMethod) {
-  requestMutators.edit(operation.uid, 'method', method)
+function updateRequestMethod(method: string) {
+  if (isHttpMethod(method)) {
+    requestMutators.edit(operation.uid, 'method', method)
+  }
 }
 
 function getBackgroundColor() {

@@ -1,6 +1,7 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
-import type { RequestExample, RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Create the fetch request body from an example
@@ -8,7 +9,7 @@ import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
  * TODO: Should we be setting the content type headers here?
  * If so we must allow the user to override the content type header
  */
-export function createFetchBody(method: RequestMethod, example: RequestExample, env: object) {
+export function createFetchBody(method: OpenAPIV3_1.HttpMethods, example: RequestExample, env: object) {
   if (!canMethodHaveBody(method)) {
     return { body: undefined, contentType: undefined }
   }

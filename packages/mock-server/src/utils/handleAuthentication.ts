@@ -1,11 +1,11 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { getCookie } from 'hono/cookie'
 
 /**
  * Handles authentication for incoming requests based on the OpenAPI specification.
  */
-export function handleAuthentication(schema?: OpenAPI.Document, operation?: OpenAPI.Operation) {
+export function handleAuthentication(schema?: OpenAPIV3_1.Document, operation?: OpenAPIV3_1.OperationObject) {
   return async (c: Context, next: () => Promise<void>): Promise<Response | void> => {
     const operationSecuritySchemes = operation?.security || schema?.security
 
@@ -17,7 +17,7 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
         let securitySchemeAuthenticated = true
 
         for (const [schemeName] of Object.entries(securityRequirement)) {
-          const scheme = schema?.components?.securitySchemes?.[schemeName]
+          const scheme = schema?.components?.securitySchemes?.[schemeName] as OpenAPIV3_1.SecuritySchemeObject
 
           if (scheme) {
             switch (scheme.type) {
@@ -42,18 +42,18 @@ export function handleAuthentication(schema?: OpenAPI.Document, operation?: Open
                 authScheme = `ApiKey ${scheme.name}`
 
                 if (scheme.in === 'header') {
-                  const apiKey = c.req.header(scheme.name)
+                  const apiKey = c.req.header(scheme.name ?? '')
                   if (apiKey) {
                     isAuthenticated = true
                   }
                 } else if (scheme.in === 'query') {
-                  const apiKey = c.req.query(scheme.name)
+                  const apiKey = c.req.query(scheme.name ?? '')
 
                   if (apiKey) {
                     isAuthenticated = true
                   }
                 } else if (scheme.in === 'cookie') {
-                  const apiKey = getCookie(c, scheme.name)
+                  const apiKey = getCookie(c, scheme.name ?? '')
 
                   if (apiKey) {
                     isAuthenticated = true

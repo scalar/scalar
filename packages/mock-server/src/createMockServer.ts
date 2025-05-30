@@ -1,5 +1,5 @@
 import { dereference } from '@scalar/openapi-parser'
-import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 
@@ -21,7 +21,9 @@ export async function createMockServer(options: MockServerOptions) {
   const app = new Hono()
 
   /** Dereferenced OpenAPI document */
-  const { schema } = await dereference(options?.specification ?? {})
+  const { schema } = (await dereference(options?.specification ?? {})) as {
+    schema: OpenAPIV3_1.Document
+  }
 
   // CORS headers
   app.use(cors())
@@ -42,7 +44,7 @@ export async function createMockServer(options: MockServerOptions) {
     /** Keys for all operations of a specified path */
     methods.forEach((method) => {
       const route = honoRouteFromPath(path)
-      const operation = schema?.paths?.[path]?.[method] as OpenAPI.Operation
+      const operation = schema?.paths?.[path]?.[method] as OpenAPIV3_1.OperationObject
 
       // Check if authentication is required for this operation
       if (isAuthenticationRequired(operation.security)) {

@@ -382,7 +382,7 @@ export namespace OpenAPIV3 {
 
   export type ExternalDocumentationObject = {
     description?: string
-    url?: string
+    url: string
   }
 
   export type ParameterObject = {

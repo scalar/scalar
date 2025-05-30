@@ -1,4 +1,4 @@
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { parse as parseShellCommand } from 'shell-quote'
 
 /** Parse and normalize a curl command */
@@ -14,7 +14,7 @@ export function parseCurlCommand(curlCommand: string) {
 
   const result: {
     url: string
-    method?: RequestMethod
+    method?: OpenAPIV3_1.HttpMethods
     headers?: Record<string, string>
     body?: string
     queryParameters?: Array<{ key: string; value: string }>

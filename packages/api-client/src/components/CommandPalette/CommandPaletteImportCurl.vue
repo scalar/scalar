@@ -5,10 +5,7 @@ import {
   ScalarListbox,
   type ScalarComboboxOption,
 } from '@scalar/components'
-import type {
-  RequestMethod,
-  RequestPayload,
-} from '@scalar/oas-utils/entities/spec'
+import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -138,7 +135,7 @@ const handleImportClick = () => {
         <HttpMethod
           :isEditable="false"
           isSquare
-          :method="(metaData.parsedCurl?.method as RequestMethod) || 'get'" />
+          :method="metaData.parsedCurl?.method || 'get'" />
       </div>
       <span class="scroll-timeline-x whitespace-nowrap">
         {{ metaData.parsedCurl?.servers?.[0] || ''
