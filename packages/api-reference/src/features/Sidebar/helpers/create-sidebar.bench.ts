@@ -6,7 +6,7 @@ import { apiReferenceConfigurationSchema } from '@scalar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { parse } from '@/helpers/parse'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/Sidebar'
 import { createSidebar } from '@/features/Sidebar/helpers/create-sidebar'
 
 // Fetch the Stripe OpenAPI document once for all benchmarks

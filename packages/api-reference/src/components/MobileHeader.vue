@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ScalarIconButton } from '@scalar/components'
+import { computed } from 'vue'
 
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/Sidebar/hooks/useSidebar'
+import { useNavState } from '@/hooks/useNavState'
 
 defineProps<{
   open?: boolean
@@ -11,7 +13,9 @@ defineEmits<{
   (event: 'update:open', open: boolean): void
 }>()
 
-const { breadcrumb } = useSidebar()
+const { items } = useSidebar()
+const { getReferenceId } = useNavState()
+const breadcrumb = computed(() => items.value?.titles.get(getReferenceId()))
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
