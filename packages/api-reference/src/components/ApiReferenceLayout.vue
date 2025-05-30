@@ -115,33 +115,20 @@ useResizeObserver(documentEl, (entries) => {
 // Check for Obtrusive Scrollbars
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
+const navState = useNavState(configuration)
+const { isSidebarOpen, scrollToOperation } = useSidebar(dereferencedDocument, {
+  ...navState,
+  config: configuration,
+  isSidebarOpen: providedIsSidebarOpen,
+})
+
 const {
   getReferenceId,
   getPathRoutingId,
-  getSectionId,
-  getHeadingId,
-  getModelId,
-  getOperationId,
-  getWebhookId,
-  getTagId,
   isIntersectionEnabled,
   updateHash,
   replaceUrlState,
-} = useNavState(configuration)
-console.log('lets goooooo')
-const { isSidebarOpen, scrollToOperation } = useSidebar(
-  providedDereferencedDocument,
-  {
-    config: configuration.value,
-    getSectionId,
-    getTagId,
-    getHeadingId,
-    getModelId,
-    getOperationId,
-    getWebhookId,
-    isSidebarOpen: providedIsSidebarOpen,
-  },
-)
+} = navState
 
 // Front-end redirect
 if (configuration.value.redirect && typeof window !== 'undefined') {

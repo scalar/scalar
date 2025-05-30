@@ -1,5 +1,4 @@
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
-import { useSidebar } from '@/features/Sidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
@@ -182,17 +181,6 @@ describe('useDocumentSource', () => {
 
       await nextTick()
       expect(dereferencedDocument.value).toBeDefined()
-    })
-
-    it('updates sidebar when parsed document changes', async () => {
-      const { setParsedSpec } = useSidebar()
-      useDocumentSource({
-        dereferencedDocument: ref(mockOpenApiDocument),
-      })
-
-      await nextTick()
-
-      expect(setParsedSpec).toHaveBeenCalled()
     })
   })
 
