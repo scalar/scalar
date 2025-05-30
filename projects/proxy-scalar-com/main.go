@@ -2,8 +2,10 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -37,6 +39,58 @@ func main() {
 	if err := http.ListenAndServe(port, handler); err != nil {
 		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
 	}
+}
+
+// Blocked network CIDRs: loopback, link-local, private, CGNAT, local IPv6
+var blockedCIDRs []*net.IPNet
+
+func init() {
+	// Prevent unwanted traffic forwarding for the following
+	cidrs := []string{
+		"127.0.0.0/8",
+		"::1/128",
+		"169.254.0.0/16",
+		"fe80::/10",
+		"10.0.0.0/8",
+		"172.16.0.0/12",
+		"192.168.0.0/16",
+		"100.64.0.0/10",
+		"fc00::/7",
+	}
+
+	for _, cidr := range cidrs {
+		_, network, err := net.ParseCIDR(cidr)
+		if err != nil {
+			log.Fatalf("Invalid CIDR %s: %v", cidr, err)
+		}
+		blockedCIDRs = append(blockedCIDRs, network)
+	}
+}
+
+// Check if a given hostname or IP resolves to any blocked CIDR
+func isBlockedHost(host string) bool {
+	h := host
+
+	// Strip port
+	if hostOnly, _, err := net.SplitHostPort(host); err == nil {
+		h = hostOnly
+	}
+
+	ips, err := net.LookupIP(h)
+
+	// On DNS errors, block
+	if err != nil {
+		return true
+	}
+
+	for _, ip := range ips {
+		for _, network := range blockedCIDRs {
+			if network.Contains(ip) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // ProxyServer encapsulates the proxy server configuration and handlers.
@@ -112,6 +166,12 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Deny any private, link-local, or loopback addresses
+	if isBlockedHost(remote.Host) {
+		http.Error(w, "Forbidden: access to private addresses is not allowed", http.StatusForbidden)
+		return
+	}
+
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
 		// Log any errors
@@ -129,6 +189,11 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	client := &http.Client{
 		Transport: ps.transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// Handle private CIDR check again on redirect
+			if isBlockedHost(req.URL.Host) {
+				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
+			}
+
 			// Copy headers from the original request to maintain authentication
 			// and other important headers through redirect chains.
 			for key, values := range via[0].Header {
