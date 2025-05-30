@@ -63,7 +63,7 @@ function extractHeaders(
       openapiHeaders[header.key] = {
         schema: {
           type: 'string',
-          examples: [header.value],
+          example: [header.value],
         },
       }
     })

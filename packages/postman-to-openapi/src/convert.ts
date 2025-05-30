@@ -140,7 +140,7 @@ export function convert(postmanCollection: PostmanCollection | string): OpenAPIV
   if (openapi.paths) {
     Object.values(openapi.paths).forEach((path) => {
       if (path) {
-        Object.values(path).forEach((method) => {
+        Object.values(path).forEach((method: any) => {
           if (method && 'parameters' in method) {
             // Remove empty parameters array to keep spec clean
             if (method.parameters?.length === 0) {
