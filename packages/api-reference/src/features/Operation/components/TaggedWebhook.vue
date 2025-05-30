@@ -39,7 +39,8 @@ const title = computed(() => webhook.path)
     <SectionContent :loading="config.isLoading">
       <Badge
         class="font-code text-green flex w-fit items-center justify-center gap-1">
-        <ScalarIconWebhooksLogo weight="bold" />Webhook Post
+        <ScalarIconWebhooksLogo weight="bold" />Webhook
+        {{ webhook.httpVerb.toUpperCase() }}
       </Badge>
 
       <div>
