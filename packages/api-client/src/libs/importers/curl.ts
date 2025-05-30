@@ -1,9 +1,10 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
-import type { RequestMethod, RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
+import type { RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Define curlCommandResult type */
 type CurlCommandResult = {
-  method: RequestMethod
+  method: OpenAPIV3_1.HttpMethods
   url: string
   path: string
   headers: Record<string, string>

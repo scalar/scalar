@@ -1,4 +1,4 @@
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Extract path from URL
@@ -32,7 +32,7 @@ function isValidTokenUrl(url: string): boolean {
   return url.trim().length > 0
 }
 
-export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
+export function getOpenAuthTokenUrls(schema?: OpenAPIV3_1.Document): string[] {
   if (!schema?.components?.securitySchemes) {
     return []
   }

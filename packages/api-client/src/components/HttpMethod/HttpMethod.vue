@@ -7,7 +7,8 @@ import { computed } from 'vue'
 const props = withDefaults(
   defineProps<{
     isSquare?: boolean
-    method: string
+    /** We give type hints for methods but we allow strings as we normalize it */
+    method: OpenAPIV3_1.HttpMethods | (string & {})
     isEditable?: boolean
   }>(),
   { isSquare: false, isDisable: false, isEditable: false },

@@ -395,6 +395,7 @@ export const mutateRequestDiff = (
     // Remove security here and add it correctly below
     const { security: operationSecurity, ...operationWithoutSecurity } = operation
 
+    // @ts-expect-error We will remove this with the new store anyway
     const requestPayload: RequestPayload = {
       ...operationWithoutSecurity,
       method: isHttpMethod(newMethod) ? newMethod : 'get',
