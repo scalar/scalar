@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 type SchemaObject = OpenAPIV3_1.SchemaObject

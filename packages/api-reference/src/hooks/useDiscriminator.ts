@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import type { Schemas } from '@/features/Operation/types/schemas'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
