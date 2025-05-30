@@ -99,7 +99,8 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
         )
 
         // Filter out tags marked as internal
-        originalWebhook.tags = resolvedTags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
+        // This is modifying the original object
+        // originalWebhook.tags = resolvedTags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
 
         if (resolvedTags?.some((tag: UnknownObject) => shouldIgnoreEntity(tag))) {
           // Skip this webhook if it has tags marked as internal

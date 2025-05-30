@@ -49,12 +49,16 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
   }
 
   /** Sidebar items */
-  const items = computed(() => traverseDocument(dereferencedDocument.value, options))
+  const items = computed(() => {
+    const result = traverseDocument(dereferencedDocument.value, options)
 
-  // Open all tags on first render
-  if (options.config.value.defaultOpenAllTags) {
-    items.value.entries.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
-  }
+    // Open all tags
+    if (options.config.value.defaultOpenAllTags) {
+      result.entries.forEach((entry) => setCollapsedSidebarItem(entry.id, true))
+    }
+
+    return result
+  })
 
   return {
     collapsedSidebarItems,
