@@ -257,13 +257,11 @@ app.MapScalarApiReference(options => options
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2")
-    .AddAuthorizationCodeFlow("OAuth2", flow =>
-    {
-        flow.ClientId = "your-client-id";
-        flow.ClientSecret = "your-client-secret";
-        flow.Pkce = Pkce.Sha256;
-        flow.SelectedScopes = ["profile", "email"];
-    });
+    .AddAuthorizationCodeFlow("OAuth2", flow => flow
+        .WithClientId("your-client-id")
+        .WithClientSecret("your-client-secret")
+        .WithPkce(Pkce.Sha256)
+        .WithSelectedScopes("profile", "email"))
 );
 ```
 
@@ -272,11 +270,9 @@ app.MapScalarApiReference(options => options
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2")
-    .AddClientCredentialsFlow("OAuth2", flow =>
-    {
-        flow.ClientId = "your-client-id";
-        flow.ClientSecret = "your-client-secret";
-    });
+    .AddClientCredentialsFlow("OAuth2", flow => flow
+        .WithClientId("your-client-id")
+        .WithClientSecret("your-client-secret"))
 );
 ```
 
@@ -285,10 +281,7 @@ app.MapScalarApiReference(options => options
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2")
-    .AddImplicitFlow("OAuth2", flow =>
-    {
-        flow.ClientId = "your-client-id";
-    });
+    .AddImplicitFlow("OAuth2", flow => flow.WithClientId("your-client-id"))
 );
 ```
 
@@ -297,31 +290,24 @@ app.MapScalarApiReference(options => options
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2")
-    .AddPasswordFlow("OAuth2", flow =>
-    {
-        flow.ClientId = "your-client-id";
-        flow.Username = "default-username"; // Pre-filled username
-        flow.Password = "default-password"; // Pre-filled password
-    });
+    .AddPasswordFlow("OAuth2", flow => flow
+        .WithClientId("your-client-id")
+        .WithUsername("default-username") // Pre-filled username
+        .WithPassword("default-password")) // Pre-filled password
 );
 ```
 
 ##### Additional Query Parameters
 
-All OAuth2 flows support additional query parameters that can be included in the OAuth request using the `AdditionalQueryParameters` property. This is useful for adding custom parameters required by your OAuth provider, such as `audience`, `resource`, or other provider-specific parameters:
+All OAuth2 flows support additional query parameters that can be included in the OAuth request using the `AddQueryParameter` extension method. This is useful for adding custom parameters required by your OAuth provider, such as `audience`, `resource`, or other provider-specific parameters:
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .AddAuthorizationCodeFlow("OAuth2", flow =>
-    {
-        flow.ClientId = "your-client-id";
-        flow.AdditionalQueryParameters = new Dictionary<string, string>
-        {
-            ["audience"] = "https://api.example.com",
-            ["resource"] = "https://graph.microsoft.com",
-            ["custom_param"] = "custom_value"
-        };
-    })
+    .AddAuthorizationCodeFlow("OAuth2", flow => flow
+        .WithClientId("your-client-id")
+        .AddQueryParameter("audience", "https://api.example.com")
+        .AddQueryParameter("resource", "https://graph.microsoft.com")
+        .AddQueryParameter("custom_param", "custom_value"))
 );
 ```
 
@@ -335,21 +321,17 @@ app.MapScalarApiReference(options => options
     .AddOAuth2Flows("OAuth2", flows =>
     {
         // Authorization Code flow
-        flows.AuthorizationCode = new AuthorizationCodeFlow
-        {
-            ClientId = "your-client-id",
-            AuthorizationUrl = "https://auth.example.com/oauth2/authorize",
-            TokenUrl = "https://auth.example.com/oauth2/token",
-            RedirectUri = "https://your-app.com/callback"
-        };
+        flows.AuthorizationCode = new AuthorizationCodeFlow()
+            .WithClientId("your-client-id")
+            .WithAuthorizationUrl("https://auth.example.com/oauth2/authorize")
+            .WithTokenUrl("https://auth.example.com/oauth2/token")
+            .WithRedirectUri("https://your-app.com/callback");
         
         // Client Credentials flow
-        flows.ClientCredentials = new ClientCredentialsFlow
-        {
-            ClientId = "your-client-id",
-            ClientSecret = "your-client-secret",
-            TokenUrl = "https://auth.example.com/oauth2/token"
-        };
+        flows.ClientCredentials = new ClientCredentialsFlow()
+            .WithClientId("your-client-id")
+            .WithClientSecret("your-client-secret")
+            .WithTokenUrl("https://auth.example.com/oauth2/token");
     })
     // All OAuth flows will have preselected scopes
     .AddDefaultScopes("OAuth2", ["profile", "email"])
