@@ -3,7 +3,13 @@ export { ensureProtocol } from './ensure-protocol'
 export { fetchDocument } from './fetch-document'
 export { type FetchWithProxyFallbackOptions, fetchWithProxyFallback } from './fetch-with-proxy-fallback'
 export { findVariables } from './find-variables'
-export { canMethodHaveBody, getHttpMethodInfo, isHttpMethod, REQUEST_METHODS } from './http-methods'
+export {
+  canMethodHaveBody,
+  getHttpMethodInfo,
+  normalizeRequestMethod,
+  isHttpMethod,
+  REQUEST_METHODS,
+} from './http-methods'
 export { type HttpStatusCode, type HttpStatusCodes, httpStatusCodes } from './http-status-codes'
 export { isDefined } from './is-defined'
 export { isLocalUrl } from './is-local-url'

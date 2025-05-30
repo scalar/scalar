@@ -319,8 +319,8 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
 
       // add the assets
       assets[meta.name] = {
-        components: documentV3.schema?.components,
-        operations: documentV3.schema?.paths && escapePaths(filterHttpMethodsOnly(documentV3.schema.paths as any)),
+        components: documentV3.components,
+        operations: documentV3?.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
       }
 
       const options =
