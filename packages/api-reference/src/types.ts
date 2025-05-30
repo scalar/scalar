@@ -82,5 +82,4 @@ export type DocumentSelectorSlot = {
 
 export type ReferenceSlotProps = {
   spec: Spec
-  breadcrumb: string
 }

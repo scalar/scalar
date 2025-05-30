@@ -30,6 +30,7 @@ import {
   toValue,
   useId,
   watch,
+  type Ref,
 } from 'vue'
 
 import { Content } from '@/components/Content'
@@ -38,10 +39,10 @@ import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { useSidebar } from '@/features/Sidebar/hooks/useSidebar'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
@@ -56,7 +57,10 @@ const {
   configuration: providedConfiguration,
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
-} = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
+  isSidebarOpen: providedIsSidebarOpen,
+} = defineProps<
+  Omit<ReferenceLayoutProps, 'isDark'> & { isSidebarOpen?: Ref<boolean> }
+>()
 
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
@@ -112,22 +116,31 @@ useResizeObserver(documentEl, (entries) => {
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const {
-  breadcrumb,
-  isSidebarOpen,
-  // setParsedSpec,
-  scrollToOperation,
-} = useSidebar()
-
-const {
   getReferenceId,
   getPathRoutingId,
   getSectionId,
+  getHeadingId,
+  getModelId,
+  getOperationId,
+  getWebhookId,
   getTagId,
-  hash,
   isIntersectionEnabled,
   updateHash,
   replaceUrlState,
 } = useNavState(configuration)
+const { isSidebarOpen, scrollToOperation } = useSidebar(
+  providedDereferencedDocument,
+  {
+    config: configuration.value,
+    getSectionId,
+    getTagId,
+    getHeadingId,
+    getModelId,
+    getOperationId,
+    getWebhookId,
+    isSidebarOpen: providedIsSidebarOpen,
+  },
+)
 
 // Front-end redirect
 if (configuration.value.redirect && typeof window !== 'undefined') {
@@ -304,10 +317,7 @@ const themeStyleTag = computed(
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
-          <Sidebar
-            :operationsSorter="configuration.operationsSorter"
-            :parsedSpec="parsedDocument"
-            :tagsSorter="configuration.tagsSorter">
+          <Sidebar :parsedSpec="parsedDocument">
             <template #sidebar-start>
               <slot
                 v-bind="referenceSlotProps"

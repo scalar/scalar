@@ -6,13 +6,12 @@ import {
 } from '@scalar/components'
 import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,
@@ -28,8 +27,10 @@ defineEmits<{
 const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
 const { mediaQueries } = useBreakpoints()
-const { isSidebarOpen } = useSidebar()
 const isDevelopment = import.meta.env.MODE === 'development'
+
+/** Track the sidebar open state and pass it into useSidebar */
+const isSidebarOpen = ref(false)
 
 watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
@@ -57,6 +58,7 @@ const otherSlots = computed(() =>
         configuration.showSidebar ?? true,
     }"
     :configuration="configuration"
+    :isSidebarOpen="isSidebarOpen"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @updateContent="$emit('updateContent', $event)">
