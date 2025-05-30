@@ -93,7 +93,8 @@ watch(
 
         operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
           ({ httpVerb, path }) =>
-            matchedVerb === httpVerb && matchedPath === path,
+            matchedVerb.toLowerCase() === httpVerb.toLowerCase() &&
+            matchedPath === path,
         )
       }
       // Add a few tags to the loading section
