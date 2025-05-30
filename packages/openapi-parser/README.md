@@ -80,7 +80,8 @@ const document = {
 
 // This will bundle all external documents and turn all references from external into internal
 await bundle(document, {
-  plugins: [fetchUrls()]
+  plugins: [fetchUrls()],
+  treeShake: true  // <------  This flag will try to remove any unused part of the external document
 })
 
 console.log(document)
@@ -95,6 +96,7 @@ await bundle(document, {
       limit: 10, // it should run at most 10 requests at the same time
     }),
   ],
+  treeShake: false
 })
 
 ```
@@ -121,6 +123,7 @@ await bundle(
       }),
       readFiles(),
     ],
+    treeShake: false
   },
 )
 ```
@@ -134,6 +137,7 @@ const result = await bundle(
     plugins: [
       fetchUrls(),
     ],
+    treeShake: false
   },
 )
 
@@ -160,7 +164,8 @@ const document = {
 
 // This will bundle all external documents and turn all references from external into internal
 await bundle(document, {
-  plugins: [readFiles()]
+  plugins: [readFiles()],
+  treeShake: false
 })
 
 console.log(document)
@@ -176,6 +181,7 @@ const result = await bundle(
     plugins: [
       readFiles(),
     ],
+    treeShake: false
   },
 )
 
