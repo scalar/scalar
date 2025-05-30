@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { stringify } from 'flatted'
+import { isDereferenced } from '@scalar/openapi-types/helpers'
 import { computed } from 'vue'
 
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
@@ -47,9 +47,9 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 // Get model name from schema
 const getModelNameFromSchema = (
-  schema: OpenAPIV3_1.Document,
+  schema: OpenAPIV3_1.SchemaObject,
 ): string | null => {
-  if (!schema) {
+  if (!schema || typeof schema !== 'object') {
     return null
   }
 
@@ -57,7 +57,7 @@ const getModelNameFromSchema = (
     return schema.title
   }
 
-  if (schema.name) {
+  if ('name' in schema && typeof schema.name === 'string') {
     return schema.name
   }
 
@@ -68,6 +68,8 @@ const getModelNameFromSchema = (
         // For arrays, also check items type
         if (
           schema.type === 'array' &&
+          isDereferenced(schema.items) &&
+          typeof schema.items === 'object' &&
           schemaValue.items?.type === schema.items?.type
         ) {
           return schemaName

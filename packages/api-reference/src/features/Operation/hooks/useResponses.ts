@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { RequestBodyMimeTypes, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -25,13 +25,13 @@ export function useResponses(operation: TransformedOperation) {
       return res
     }
 
-    Object.entries(responses).forEach(([statusCode, response]) => {
+    Object.entries(responses).forEach(([statusCode, response]: [string, OpenAPIV3_1.ResponseObject]) => {
       res.push({
         name: statusCode,
-        description: response.description,
-        content: response.content,
+        description: response.description ?? '',
+        content: response.content ?? {},
         headers: response.headers,
-        schema: response.schema,
+        schema: response.content?.schema,
       })
     })
 
