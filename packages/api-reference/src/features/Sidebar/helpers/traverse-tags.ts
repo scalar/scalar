@@ -14,6 +14,7 @@ const createTagEntry = (
   titlesMap: Map<string, string>,
   getTagId: UseNavState['getTagId'],
   children: SidebarEntry[],
+  isGroup = false,
 ): SidebarEntry => {
   const id = getTagId(tag)
   const title = tag['x-displayName'] || tag.name || 'Untitled Tag'
@@ -22,7 +23,9 @@ const createTagEntry = (
   return {
     id,
     title,
+    tag,
     children,
+    isGroup,
   }
 }
 
@@ -111,7 +114,7 @@ export const traverseTags = (
         tagsSorter,
         operationsSorter,
       })
-      return entries.length ? createTagEntry(tagGroup, titlesMap, getTagId, entries) : []
+      return entries.length ? createTagEntry(tagGroup, titlesMap, getTagId, entries, true) : []
     })
   }
 
