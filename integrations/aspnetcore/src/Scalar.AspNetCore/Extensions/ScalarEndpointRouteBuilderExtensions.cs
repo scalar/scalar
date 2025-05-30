@@ -22,7 +22,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string DocumentName = "{documentName}";
     private const string LegacyPattern = $"/scalar/{DocumentName}";
     private const string DefaultEndpointPrefix = "/scalar";
-    internal const string ScalarJavaScriptFile = "scalar.js";
+    private const string ScalarJavaScriptFile = "scalar.js";
     private const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
 
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");

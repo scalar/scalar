@@ -32,5 +32,5 @@ public abstract class OAuthFlow
     /// Gets or sets additional query parameters that should be included in the OAuth request.
     /// </summary>
     [JsonPropertyName("x-scalar-security-query")]
-    public IDictionary<string, string>? AdditionalQueryParameters { get; set; } 
+    public IDictionary<string, string>? AdditionalQueryParameters { get; set; }
 }
