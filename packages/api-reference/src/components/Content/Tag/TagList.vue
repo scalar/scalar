@@ -7,6 +7,7 @@ import { computed } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
+import TaggedWebhook from '@/features/Operation/components/TaggedWebhook.vue'
 import { useSidebar } from '@/features/Sidebar'
 import { operationIdParams } from '@/features/Sidebar/helpers/operation-id-params'
 import { useNavState } from '@/hooks/useNavState'
@@ -23,7 +24,7 @@ const { collection, tags, spec, layout, server } = defineProps<{
   schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
-const { getOperationId, getTagId, hash } = useNavState()
+const { getOperationId, getWebhookId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
 
 const tagLayout = computed(() =>
@@ -72,6 +73,31 @@ const isLazy = (index: number) =>
             :schemas="schemas"
             :server="server"
             :transformedOperation="operation" />
+        </ScalarErrorBoundary>
+      </Lazy>
+
+      <Lazy
+        v-for="(webhook, webhookIndex) in tag.webhooks"
+        :id="
+          getWebhookId(
+            { name: webhook.path, method: webhook.httpVerb.toLowerCase() },
+            tag,
+          )
+        "
+        :key="`${webhook.httpVerb}-${webhook.path}`"
+        :isLazy="
+          isLazy(index) ||
+          (collapsedSidebarItems[getTagId(tag)] && webhookIndex > 0)
+        ">
+        <ScalarErrorBoundary>
+          <TaggedWebhook
+            :id="
+              getWebhookId(
+                { name: webhook.path, method: webhook.httpVerb.toLowerCase() },
+                tag,
+              )
+            "
+            :webhook="webhook" />
         </ScalarErrorBoundary>
       </Lazy>
     </Component>

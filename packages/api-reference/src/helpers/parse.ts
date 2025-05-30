@@ -85,6 +85,8 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: SidebarEn
 
     item.children.forEach((child) => {
       const tagIndex = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === item.tag?.name)
+      schema.tags[tagIndex].webhooks ||= []
+      schema.tags[tagIndex].operations ||= []
 
       // Tag
       if (child.tag) {
@@ -93,13 +95,13 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: SidebarEn
 
       // Operation
       else if (child.operation) {
-        schema.tags[tagIndex].operations ||= []
         schema.tags[tagIndex].operations.push({
           httpVerb: normalizeRequestMethod(child.httpVerb),
           path: child.path,
           operationId: child.operation.operationId || child.path,
           name: child.operation.summary || child.path || '',
           description: child.operation.description || '',
+          isWebhook: false,
           information: {
             ...child.operation,
           },
@@ -109,7 +111,6 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: SidebarEn
 
       // Webhook
       else if (child.webhook) {
-        schema.tags[tagIndex].webhooks ||= []
         schema.tags[tagIndex].webhooks.push({
           // Transformed data
           httpVerb: normalizeRequestMethod(child.httpVerb),
@@ -118,6 +119,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: SidebarEn
           name: child.webhook.summary || child.name || '',
           description: child.webhook.description || '',
           pathParameters: schema.paths?.[child.name ?? '']?.parameters,
+          isWebhook: true,
           // Original webhook
           information: {
             ...child.webhook,
