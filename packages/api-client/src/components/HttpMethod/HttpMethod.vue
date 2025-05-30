@@ -2,6 +2,7 @@
 import { cva, cx, ScalarListbox } from '@scalar/components'
 import { getHttpMethodInfo, REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { Entries } from 'type-fest'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -19,8 +20,10 @@ const emit = defineEmits<{
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
-const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
-  id: id as OpenAPIV3_1.HttpMethods,
+const methodOptions = (
+  Object.entries(REQUEST_METHODS) as Entries<typeof REQUEST_METHODS>
+).map(([id]) => ({
+  id,
   label: id.toUpperCase(),
   color: getHttpMethodInfo(id).colorClass,
 }))
