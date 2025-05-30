@@ -1,5 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { type InjectionKey, inject, provide } from 'vue'
+import { type InjectionKey, type Ref, inject, provide } from 'vue'
 import { createSidebar, type CreateSidebarOptions } from '../helpers/create-sidebar'
 
 /**
@@ -15,13 +15,12 @@ export const SIDEBAR_SYMBOL: InjectionKey<ReturnType<typeof createSidebar>> = Sy
  * When called without parameters, it returns the injected sidebar instance.
  */
 export function useSidebar(
-  content?: OpenAPIV3_1.Document,
+  content?: Ref<OpenAPIV3_1.Document>,
   options?: CreateSidebarOptions,
 ): ReturnType<typeof createSidebar> {
   // If collection is provided, create and provide a new sidebar instance
   if (content && options) {
     const sidebar = createSidebar(content, options)
-    console.log('prodivinding sidebar', sidebar)
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar

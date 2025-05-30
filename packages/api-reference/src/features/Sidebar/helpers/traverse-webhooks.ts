@@ -13,12 +13,13 @@ const createWebhookEntry = (
   getWebhookId: UseNavState['getWebhookId'],
   tag?: OpenAPIV3_1.TagObject,
 ): SidebarEntry => {
+  const title = operation.summary || name
   const id = getWebhookId({ name, method }, tag)
-  titlesMap.set(id, name)
+  titlesMap.set(id, title)
 
   return {
     id,
-    title: operation.summary || name,
+    title,
     httpVerb: method,
     deprecated: operation.deprecated ?? false,
   }
