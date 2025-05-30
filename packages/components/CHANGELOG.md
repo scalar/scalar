@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.14.4
+
+### Patch Changes
+
+- Updated dependencies [85877aa]
+  - @scalar/themes@0.13.1
+  - @scalar/code-highlight@0.1.1
+  - @scalar/oas-utils@0.4.1
+
 ## 0.14.3
 
 ### Patch Changes

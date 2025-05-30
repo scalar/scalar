@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.1
+
+### Patch Changes
+
+- 85877aa: fix: handle none theme
+
 ## 0.13.0
 
 ### Minor Changes
