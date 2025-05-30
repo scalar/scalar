@@ -128,6 +128,7 @@ const {
   updateHash,
   replaceUrlState,
 } = useNavState(configuration)
+console.log('lets goooooo')
 const { isSidebarOpen, scrollToOperation } = useSidebar(
   providedDereferencedDocument,
   {
@@ -219,7 +220,6 @@ const debouncedScroll = useDebounceFn((value) => {
 
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
-  breadcrumb: breadcrumb.value,
   spec: parsedDocument.value,
 }))
 

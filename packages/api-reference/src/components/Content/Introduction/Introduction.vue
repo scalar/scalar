@@ -5,9 +5,9 @@ import { computed, inject, onMounted, type Ref } from 'vue'
 
 import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/features/Sidebar'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'

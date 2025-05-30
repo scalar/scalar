@@ -19,8 +19,8 @@ import {
   type EntryType,
   type FuseData,
 } from '@/features/Search/useSearchIndex'
+import { useSidebar } from '@/features/Sidebar'
 import { scrollToId } from '@/helpers/scroll-to-id'
-import { useSidebar } from '@/hooks/useSidebar'
 
 const props = defineProps<{
   parsedSpec: Spec

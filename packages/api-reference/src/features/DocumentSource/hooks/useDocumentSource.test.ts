@@ -1,5 +1,5 @@
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/Sidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
