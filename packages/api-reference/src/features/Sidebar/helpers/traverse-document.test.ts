@@ -32,7 +32,7 @@ describe('traverseDocument', () => {
     getOperationId: (operation) => operation.summary ?? '',
     getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
     getModelId: (model) => model?.name ?? '',
-    getTagId: (tag) => tag.name,
+    getTagId: (tag) => tag.name ?? '',
   }
 
   it('should handle empty document', () => {

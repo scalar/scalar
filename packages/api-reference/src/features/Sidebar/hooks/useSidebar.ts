@@ -1,6 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type InjectionKey, type Ref, inject, provide } from 'vue'
-import { createSidebar, type CreateSidebarOptions } from '../helpers/create-sidebar'
+
+import { createSidebar } from '@/features/Sidebar/helpers/create-sidebar'
+import type { CreateSidebarOptions } from '@/features/Sidebar/types'
 
 /**
  * Injection key for the sidebar instance.
