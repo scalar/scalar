@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@scalar/api-client/store'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type {
   OpenAPIV3_1,
@@ -8,56 +9,49 @@ import type {
 } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { getPointer } from '@/blocks/helpers/getPointer'
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
+import {
+  requestMethodColors,
+  type RequestMethod,
+} from '@/components/HttpMethod/constants'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/Sidebar'
 import { operationIdParams } from '@/features/Sidebar/helpers/operation-id-params'
 import { useNavState } from '@/hooks/useNavState'
 import { isOperationDeprecated } from '@/libs/openapi'
 
-const { transformedOperation, tag, collection } = defineProps<{
+const { transformedOperation, tag } = defineProps<{
   transformedOperation: TransformedOperation
   tag: Tag
   collection: Collection
   isCollapsed?: boolean
 }>()
 
-const { getOperationId } = useNavState()
+const { getOperationId, getWebhookId } = useNavState()
 const { scrollToOperation } = useSidebar()
 
-const operationId = computed(() =>
-  getOperationId(operationIdParams(transformedOperation), tag),
-)
-
-const store = useWorkspace()
-
-/**
- * Resolve the matching operation from the store
- *
- * TODO: In the future, we won’t need this.
- *
- * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
- * instead of using the super custom transformed `parsedSpec` that we’re using now.
- */
-const { operation } = useBlockProps({
-  store,
-  collection,
-  location: getPointer([
-    'paths',
-    transformedOperation.path,
-    transformedOperation.httpVerb.toLowerCase(),
-  ]),
+const operationId = computed(() => {
+  if (transformedOperation.isWebhook) {
+    return getWebhookId(
+      {
+        name: transformedOperation.path,
+        method: transformedOperation.httpVerb.toLowerCase(),
+      },
+      tag,
+    )
+  }
+  return getOperationId(operationIdParams(transformedOperation), tag)
 })
 
 /** The title of the operation (summary or path) */
-const title = computed(() => operation.value?.summary || operation.value?.path)
+const title = computed(
+  () => transformedOperation?.name || transformedOperation?.path,
+)
 </script>
 
 <template>
   <li
-    v-if="operation"
+    v-if="transformedOperation"
     :key="operationId"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
@@ -71,15 +65,28 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
       class="endpoint"
       :href="`#${operationId}`"
       @click.prevent="scrollToOperation(operationId, true)">
-      <HttpMethod
-        class="endpoint-method"
-        :method="operation.method" />
+      <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
+        <ScalarIconWebhooksLogo
+          v-if="transformedOperation.isWebhook"
+          :style="{
+            color:
+              requestMethodColors[
+                transformedOperation.httpVerb.toUpperCase() as RequestMethod
+              ] ?? 'var(--scalar-color-ghost)',
+          }" />
+        <HttpMethod
+          class="endpoint-method min-w-0"
+          :method="transformedOperation.httpVerb" />
+      </div>
+
       <span
         class="endpoint-path"
         :class="{
-          deprecated: isOperationDeprecated(operation),
+          deprecated: isOperationDeprecated(
+            transformedOperation.information ?? {},
+          ),
         }">
-        {{ operation.path }}
+        {{ transformedOperation.path }}
       </span>
     </a>
   </li>
@@ -96,9 +103,7 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
 .endpoint:focus-visible .endpoint-path {
   text-decoration: underline;
 }
-.endpoint span:first-of-type {
-  text-transform: uppercase;
-}
+
 .endpoint .post,
 .endpoint .get,
 .endpoint .delete,
