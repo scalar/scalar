@@ -4,11 +4,7 @@ import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
-import { parse } from '@/helpers/parse'
-import { createEmptySpecification } from '@/libs/openapi'
-
 import { measure } from '@/helpers/measure'
-import type { Spec } from '@scalar/types/legacy'
 import { useDocumentFetcher } from './useDocumentFetcher'
 
 /**
@@ -26,7 +22,6 @@ export function useDocumentSource({
   originalDocument: Ref<string>
   originalOpenApiVersion: Ref<string>
   dereferencedDocument: Ref<OpenAPIV3_1.Document>
-  parsedDocument: Ref<Spec>
   workspaceStore: ReturnType<typeof createWorkspaceStore>
   activeEntitiesStore: ReturnType<typeof createActiveEntitiesStore>
 } {
@@ -144,27 +139,10 @@ export function useDocumentSource({
   /** Active Entities Store */
   const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
 
-  /** Parsed document (legacy data structure) */
-  const parsedDocument = ref<Spec>(createEmptySpecification())
-
-  watch(
-    () => toValue(dereferencedDocument),
-    async (newDocument) => {
-      if (!newDocument) {
-        return
-      }
-
-      const result = await parse(newDocument)
-      parsedDocument.value = result
-    },
-    { immediate: true },
-  )
-
   return {
     originalDocument,
     originalOpenApiVersion,
     dereferencedDocument,
-    parsedDocument,
     workspaceStore,
     activeEntitiesStore,
   }

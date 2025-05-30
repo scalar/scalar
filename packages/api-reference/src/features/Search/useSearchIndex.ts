@@ -8,6 +8,7 @@ import { type ParamMap, useOperation } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
 import { useConfig } from '@/hooks/useConfig'
+import { operationIdParams } from '@/features/Sidebar/helpers/operation-id-params'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -142,7 +143,7 @@ export function useSearchIndex({
             const operationData: FuseData = {
               type: 'req',
               title: operation.name ?? operation.path,
-              href: `#${getOperationId(operation, tag)}`,
+              href: `#${getOperationId(operationIdParams(operation), tag)}`,
               operationId: operation.operationId,
               description: operation.description ?? '',
               httpVerb: operation.httpVerb,

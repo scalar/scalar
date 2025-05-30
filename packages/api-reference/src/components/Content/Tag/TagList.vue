@@ -8,6 +8,7 @@ import { computed } from 'vue'
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
 import { useSidebar } from '@/features/Sidebar'
+import { operationIdParams } from '@/features/Sidebar/helpers/operation-id-params'
 import { useNavState } from '@/hooks/useNavState'
 
 import TagAccordion from './TagAccordion.vue'
@@ -57,7 +58,7 @@ const isLazy = (index: number) =>
       :tag="tag">
       <Lazy
         v-for="(operation, operationIndex) in tag.operations"
-        :id="getOperationId(operation, tag)"
+        :id="getOperationId(operationIdParams(operation), tag)"
         :key="`${operation.httpVerb}-${operation.operationId}`"
         :isLazy="
           isLazy(index) ||
@@ -65,7 +66,7 @@ const isLazy = (index: number) =>
         ">
         <ScalarErrorBoundary>
           <Operation
-            :id="getOperationId(operation, tag)"
+            :id="getOperationId(operationIdParams(operation), tag)"
             :collection="collection"
             :layout="layout"
             :schemas="schemas"
