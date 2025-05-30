@@ -41,7 +41,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
       <ClassicHeader>
         <div
           v-if="$slots['document-selector']"
-          class="w-64">
+          class="w-64 empty:hidden">
           <slot name="document-selector" />
         </div>
         <SearchButton
