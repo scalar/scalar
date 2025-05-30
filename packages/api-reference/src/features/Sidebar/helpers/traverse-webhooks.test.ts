@@ -6,7 +6,9 @@ import { traverseWebhooks } from './traverse-webhooks'
 
 describe('traverse-webhooks', () => {
   const mockGetWebhookId: UseNavState['getWebhookId'] = (params, tag) => {
-    if (!params) return 'untagged-unknown-unknown'
+    if (!params) {
+      return 'untagged-unknown-unknown'
+    }
     return `${tag?.name || 'untagged'}-${params.method || 'unknown'}-${params.name}`
   }
 
