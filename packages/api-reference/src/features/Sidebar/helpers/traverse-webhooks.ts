@@ -20,8 +20,9 @@ const createWebhookEntry = (
   return {
     id,
     title,
+    name,
+    webhook: operation,
     httpVerb: method,
-    isWebhook: true,
     deprecated: operation.deprecated ?? false,
   }
 }

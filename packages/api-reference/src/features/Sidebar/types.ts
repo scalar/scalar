@@ -11,10 +11,14 @@ export type SidebarEntry = {
   children?: SidebarEntry[]
   httpVerb?: OpenAPIV3_1.HttpMethods
   operationId?: string
+  name?: string
   path?: string
   deprecated?: boolean
   isGroup?: boolean
-  isWebhook?: boolean
+
+  webhook?: OpenAPIV3_1.OperationObject
+  tag?: OpenAPIV3_1.TagObject
+  operation?: OpenAPIV3_1.OperationObject
 }
 
 /** Create sidebar options */

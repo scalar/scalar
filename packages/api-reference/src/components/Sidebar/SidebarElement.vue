@@ -132,7 +132,7 @@ const onAnchorClick = async (ev: Event) => {
           &hairsp;
           <span class="sr-only">HTTP Method:&nbsp;</span>
           <ScalarIconWebhooksLogo
-            v-if="item.isWebhook"
+            v-if="item.webhook"
             :style="{
               color:
                 requestMethodColors[
