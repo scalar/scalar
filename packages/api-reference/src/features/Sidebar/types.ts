@@ -2,17 +2,19 @@ import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
 import type { UseNavState } from '@/hooks/useNavState'
 import type { Ref } from 'vue'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Copied from the old useSidebar hook for backwards compatibility, we will update it later */
 export type SidebarEntry = {
   id: string
   title: string
   children?: SidebarEntry[]
-  httpVerb?: string
+  httpVerb?: OpenAPIV3_1.HttpMethods
   operationId?: string
   path?: string
   deprecated?: boolean
   isGroup?: boolean
+  isWebhook?: boolean
 }
 
 /** Create sidebar options */

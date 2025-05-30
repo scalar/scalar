@@ -15,6 +15,7 @@ type CollapsedSidebarItems = Record<string, boolean>
  * TODO:
  *  - add the search index creation as well
  *  - update docs
+ *  - tagged models
  */
 export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: CreateSidebarOptions) => {
   const isSidebarOpen = options.isSidebarOpen ?? ref(false)

@@ -20,7 +20,6 @@ defineProps<{
 <style scoped>
 .sidebar-heading-type {
   display: block;
-  min-width: 3.9em;
   overflow: hidden;
   line-height: 14px;
   flex-shrink: 0;
@@ -37,6 +36,6 @@ defineProps<{
   position: relative;
   font-family: var(--scalar-font-code);
   white-space: nowrap;
-  margin-left: 3px;
+  margin-left: 8px;
 }
 </style>
