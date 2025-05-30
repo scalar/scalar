@@ -116,22 +116,47 @@ useResizeObserver(documentEl, (entries) => {
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
-const { isSidebarOpen, scrollToOperation, items } = useSidebar(
-  dereferencedDocument,
-  {
+const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
+  useSidebar(dereferencedDocument, {
     ...navState,
     config: configuration,
     isSidebarOpen: providedIsSidebarOpen,
-  },
-)
+  })
 
 const {
   getReferenceId,
   getPathRoutingId,
+  getSectionId,
+  getTagId,
+  hash,
   isIntersectionEnabled,
   updateHash,
   replaceUrlState,
 } = navState
+
+/** If we have initially opened the sidebar */
+const sidebarOpened = ref(false)
+
+// Open a sidebar tag
+watch(dereferencedDocument, (newDoc) => {
+  if (sidebarOpened.value || !newDoc.tags?.length) {
+    return
+  }
+
+  if (hash.value) {
+    const hashSectionId = getSectionId(hash.value)
+    if (hashSectionId) {
+      setCollapsedSidebarItem(hashSectionId, true)
+    }
+  } else {
+    const firstTag = newDoc.tags?.[0]
+    if (firstTag) {
+      setCollapsedSidebarItem(getTagId(firstTag), true)
+    }
+  }
+
+  sidebarOpened.value = true
+})
 
 /**
  * Temporarily moved this here so we can use the sidebar items
