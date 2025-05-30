@@ -316,6 +316,33 @@ const resolveAndCopyReferences = (
 }
 
 /**
+ * Generates a short SHA-1 hash from a string value.
+ * This function is used to create unique identifiers for external references
+ * while keeping the hash length manageable. It uses the Web Crypto API to
+ * generate a SHA-1 hash and returns the first 7 characters of the hex string.
+ *
+ * @param value - The string to hash
+ * @returns A 7-character hexadecimal hash
+ * @example
+ * // Returns "a1b2c3d"
+ * getHash("https://example.com/schema.json")
+ */
+export async function getHash(value: string) {
+  // Convert string to ArrayBuffer
+  const encoder = new TextEncoder()
+  const data = encoder.encode(value)
+
+  // Hash the data
+  const hashBuffer = await crypto.subtle.digest('SHA-1', data)
+
+  // Convert buffer to hex string
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
+
+  return hashHex.slice(0, 7)
+}
+
+/**
  * Represents a plugin that handles resolving references from external sources.
  * Plugins are responsible for fetching and processing data from different sources
  * like URLs or the filesystem. Each plugin must implement validation to determine
@@ -436,6 +463,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(origin, prefix)
+      const hashPath = await getHash(resolvedPath)
 
       const seen = cache.has(resolvedPath)
 
@@ -457,7 +485,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // location, but when embedded, they need to be relative to their new location in
           // the main document's x-ext section. Without this update, internal references
           // would point to incorrect locations and break the document structure.
-          prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, resolvedPath])
+          prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
 
           // Recursively process the resolved content
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
@@ -472,10 +500,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // that are referenced, rather than the entire document
           resolveAndCopyReferences(
             documentRoot,
-            { [EXTERNAL_KEY]: { [resolvedPath]: result.data } },
-            prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath]).substring(1),
+            { [EXTERNAL_KEY]: { [hashPath]: result.data } },
+            prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath]).substring(1),
             EXTERNAL_KEY,
-            resolvedPath,
+            hashPath,
           )
         } else {
           // Store the external document in the main document's x-ext key
@@ -483,13 +511,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${EXTERNAL_KEY}/${escapeJsonPointer(resolvedPath)}`, result.data)
+          setValueAtPath(documentRoot, `/${EXTERNAL_KEY}/${hashPath}`, result.data)
         }
 
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, resolvedPath])
+        root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath])
         return
       }
 
