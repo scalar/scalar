@@ -80,8 +80,8 @@ const getSortedTagEntries = (
     else if (typeof operationsSorter === 'function') {
       entries.sort((a, b) =>
         operationsSorter(
-          { summary: a.title, method: a.httpVerb, path: a.path, operationId: a.operationId },
-          { summary: b.title, method: b.httpVerb, path: b.path, operationId: b.operationId },
+          { summary: a.title, method: a.httpVerb ?? '', path: a.path ?? '', operationId: a.operationId },
+          { summary: b.title, method: b.httpVerb ?? '', path: b.path ?? '', operationId: b.operationId },
         ),
       )
     }
