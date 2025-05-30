@@ -21,6 +21,7 @@ const createWebhookEntry = (
     id,
     title,
     httpVerb: method,
+    isWebhook: true,
     deprecated: operation.deprecated ?? false,
   }
 }

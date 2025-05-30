@@ -333,6 +333,7 @@ const themeStyleTag = computed(
         class="references-rendered">
         <Content
           :layout="configuration.layout"
+          :dereferencedDocument="dereferencedDocument"
           :parsedSpec="parsedDocument">
           <template #start>
             <slot

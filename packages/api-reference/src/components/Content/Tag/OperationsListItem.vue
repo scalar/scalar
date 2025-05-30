@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useWorkspace } from '@scalar/api-client/store'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Tag, TransformedOperation } from '@scalar/types/legacy'
+import type {
+  OpenAPIV3_1,
+  Tag,
+  TransformedOperation,
+} from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
@@ -22,11 +26,18 @@ const { transformedOperation, tag, collection } = defineProps<{
 const { getOperationId } = useNavState()
 const { scrollToOperation } = useSidebar()
 
-// TODO in V2 we need to do the same loading trick as the initial load
-const scrollHandler = async (givenOperation: TransformedOperation) => {
-  const operationId = getOperationId(givenOperation, tag)
-  scrollToOperation(operationId, true)
-}
+const operationId = computed(() =>
+  getOperationId(
+    {
+      path: transformedOperation.path,
+      method:
+        transformedOperation.httpVerb.toLowerCase() as OpenAPIV3_1.HttpMethods,
+      summary: transformedOperation.name,
+      operationId: transformedOperation.operationId,
+    },
+    tag,
+  ),
+)
 
 const store = useWorkspace()
 
@@ -55,7 +66,7 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
 <template>
   <li
     v-if="operation"
-    :key="getOperationId(transformedOperation, tag)"
+    :key="operationId"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
     <SectionHeaderTag
@@ -66,8 +77,8 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${getOperationId(transformedOperation, tag)}`"
-      @click.prevent="scrollHandler(transformedOperation)">
+      :href="`#${operationId}`"
+      @click.prevent="scrollToOperation(operationId, true)">
       <HttpMethod
         class="endpoint-method"
         :method="operation.method" />
