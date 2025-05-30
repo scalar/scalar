@@ -24,9 +24,9 @@ export function normalize(content: string | UnknownObject | Filesystem): Unknown
     } catch (_error) {
       // Does it look like YAML?
       const hasColon = /^[^:]+:/.test(content)
-      const isMultiLine = content.includes('\n')
+      const isJson = content.slice(0, 50).trimStart().startsWith('{')
 
-      if (!hasColon || !isMultiLine) {
+      if (!hasColon || isJson) {
         return undefined
       }
 
