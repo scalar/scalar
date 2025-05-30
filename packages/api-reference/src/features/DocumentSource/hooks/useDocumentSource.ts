@@ -5,7 +5,6 @@ import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from 
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
-import { useSidebar } from '@/features/Sidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 
 import { measure } from '@/helpers/measure'
@@ -147,7 +146,6 @@ export function useDocumentSource({
 
   /** Parsed document (legacy data structure) */
   const parsedDocument = ref<Spec>(createEmptySpecification())
-  const { setParsedSpec } = useSidebar()
 
   watch(
     () => toValue(dereferencedDocument),
@@ -158,7 +156,6 @@ export function useDocumentSource({
 
       const result = await parse(newDocument)
       parsedDocument.value = result
-      setParsedSpec(result)
     },
     { immediate: true },
   )
