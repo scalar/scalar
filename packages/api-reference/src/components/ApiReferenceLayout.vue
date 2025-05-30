@@ -48,7 +48,7 @@ import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
   ReferenceLayoutProps,
-  ReferenceLayoutSlot,
+  ReferenceLayoutSlots,
   ReferenceSlotProps,
 } from '@/types'
 
@@ -99,9 +99,7 @@ provide(OPENAPI_VERSION_SYMBOL, originalOpenApiVersion)
 provide(WORKSPACE_SYMBOL, workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
-defineSlots<{
-  [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
-}>()
+defineSlots<ReferenceLayoutSlots>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 
@@ -304,7 +302,7 @@ const themeStyleTag = computed(
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
-          <Sidebar :parsedSpec="parsedDocument">
+          <Sidebar :title="dereferencedDocument?.info?.title ?? 'the schema'">
             <template #sidebar-start>
               <slot
                 v-bind="referenceSlotProps"
