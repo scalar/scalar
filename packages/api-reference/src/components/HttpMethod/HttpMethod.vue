@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import {
+  getHttpMethodInfo,
+  normalizeRequestMethod,
+} from '@scalar/oas-utils/helpers'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, type Component } from 'vue'
-
-import { requestMethodAbbreviations, requestMethodColors } from './constants'
-import { isRequestMethod } from './utils/isRequestMethod'
 
 const props = defineProps<{
   /** The type of element to render as, defaults to `span` */
@@ -16,41 +17,18 @@ const props = defineProps<{
   method: OpenAPI.HttpMethod | string
 }>()
 
-/** A trimmed and uppercase version of the method */
-const normalized = computed(() => props.method.trim().toUpperCase())
+/** Grabs the method info object which contains abbreviation, color, and background color etc */
+const httpMethodInfo = computed(() => getHttpMethodInfo(props.method))
 
-/**
- * The abbreviated version of the method
- *
- * @example
- * ```
- * GET -> GET
- * DELETE -> DEL
- * PATCH -> PATCH
- * ```
- */
-const abbreviated = computed<string>(() => {
-  if (isRequestMethod(normalized.value)) {
-    return requestMethodAbbreviations[normalized.value]
-  }
-
-  return normalized.value.slice(0, 4)
-})
-
-const color = computed<string>(() => {
-  if (isRequestMethod(normalized.value)) {
-    return requestMethodColors[normalized.value]
-  }
-
-  return 'var(--scalar-color-ghost)'
-})
+/** Full method name */
+const normalized = computed(() => normalizeRequestMethod(props.method))
 </script>
+
 <template>
   <component
     :is="as ?? 'span'"
-    :style="{ [property || 'color']: color }">
-    <slot v-bind="{ normalized, abbreviated, color }">
-      {{ short ? abbreviated : normalized }}
-    </slot>
+    class="uppercase"
+    :style="{ [property || 'color']: httpMethodInfo.colorVar }">
+    {{ short ? httpMethodInfo.short : normalized }}
   </component>
 </template>

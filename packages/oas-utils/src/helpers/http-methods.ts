@@ -7,53 +7,63 @@ import { type RequestMethod, requestMethods } from '@/entities/spec/requests'
 export const REQUEST_METHODS: {
   [x in RequestMethod]: {
     short: string
-    color: string
+    colorClass: `text-${string}`
+    colorVar: `var(--scalar-color-${string})`
     backgroundColor: string
   }
 } = {
   get: {
     short: 'GET',
-    color: 'text-blue',
+    colorClass: 'text-blue',
+    colorVar: 'var(--scalar-color-blue)',
     backgroundColor: 'bg-blue/10',
   },
   post: {
     short: 'POST',
-    color: 'text-green',
+    colorClass: 'text-green',
+    colorVar: 'var(--scalar-color-green)',
     backgroundColor: 'bg-green/10',
   },
   put: {
     short: 'PUT',
-    color: 'text-orange',
+    colorClass: 'text-orange',
+    colorVar: 'var(--scalar-color-orange)',
     backgroundColor: 'bg-orange/10',
   },
   patch: {
     short: 'PATCH',
-    color: 'text-yellow',
+    colorClass: 'text-yellow',
+    colorVar: 'var(--scalar-color-yellow)',
     backgroundColor: 'bg-yellow/10',
   },
   delete: {
     short: 'DEL',
-    color: 'text-red',
+    colorClass: 'text-red',
+    colorVar: 'var(--scalar-color-red)',
     backgroundColor: 'bg-red/10',
   },
   options: {
     short: 'OPTS',
-    color: 'text-purple',
+    colorClass: 'text-purple',
+    colorVar: 'var(--scalar-color-purple)',
     backgroundColor: 'bg-purple/10',
   },
   head: {
     short: 'HEAD',
-    color: 'text-scalar-c-2',
+    colorClass: 'text-c-2',
+    colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
   connect: {
     short: 'CONN',
-    color: 'text-c-2',
+    colorClass: 'text-c-2',
+    colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
   trace: {
     short: 'TRACE',
-    color: 'text-c-2',
+    colorClass: 'text-c-2',
+    colorVar: 'var(--scalar-color-2)',
     backgroundColor: 'bg-c-2/10',
   },
 } as const
@@ -66,20 +76,38 @@ type BodyMethod = (typeof BODY_METHODS)[number]
 export const canMethodHaveBody = (method: RequestMethod): method is BodyMethod =>
   BODY_METHODS.includes(method as BodyMethod)
 
-/**
- * Accepts an HTTP Method name and returns some properties for the tag
- */
-export const getHttpMethodInfo = (methodName: string) => {
-  const normalizedMethod = methodName.trim().toLowerCase()
-  return (
-    REQUEST_METHODS[normalizedMethod as RequestMethod] ?? {
-      short: normalizedMethod,
-      color: 'text-c-2',
-      backgroundColor: 'bg-c-2',
-    }
-  )
-}
-
 /** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
 export const isHttpMethod = (method?: string | undefined): method is RequestMethod =>
-  method ? requestMethods.includes(method as RequestMethod) : false
+  method ? requestMethods.includes(method.toLowerCase() as RequestMethod) : false
+
+const DEFAULT_REQUEST_METHOD = 'get'
+
+/**
+ * Get a normalized request method (e.g. get, post, etc.)
+ * Lowercases the method and returns the default if it is not a valid method so you will always have a valid method
+ */
+export const normalizeRequestMethod = (method?: string): RequestMethod => {
+  // Make sure it’s a string
+  if (typeof method !== 'string') {
+    console.warn(`Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
+
+    return DEFAULT_REQUEST_METHOD
+  }
+
+  // Normalize the string
+  const normalizedMethod = method.trim().toLowerCase()
+
+  if (!isHttpMethod(normalizedMethod)) {
+    console.warn(`${method} is not a valid request method. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
+
+    return DEFAULT_REQUEST_METHOD
+  }
+
+  return normalizedMethod as RequestMethod
+}
+
+/**
+ * Accepts an HTTP Method name and returns some properties for the tag
+ * Defaults to get if the method is not valid
+ */
+export const getHttpMethodInfo = (methodName: string) => REQUEST_METHODS[normalizeRequestMethod(methodName)]

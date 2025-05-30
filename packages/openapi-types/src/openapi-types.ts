@@ -10,9 +10,7 @@
 /** any other attribute, for example x-* extensions */
 type AnyOtherAttribute = {
   /** OpenAPI extension */
-  [customExtension: `x-${string}`]: any
-  /** Unknown attribute */
-  [key: string]: any
+  [customExtension: `x-${string}`]: unknown
 }
 
 // biome-ignore lint/style/noNamespace: We want it to be a module here.
