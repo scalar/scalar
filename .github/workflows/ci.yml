@@ -265,7 +265,7 @@ jobs:
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
   npm-publish:
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    if: github.ref == 'refs/heads/main'
     runs-on: beefcake
     timeout-minutes: 15
     # Avoid running this job in parallel:
