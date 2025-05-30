@@ -145,11 +145,11 @@ export const filterHttpMethodsOnly = (paths: OpenAPIV3_1.PathsObject) => {
       continue
     }
 
-    const filteredMethods: Record<string, any> = {}
+    const filteredMethods: OpenAPIV3_1.PathItemObject = {}
 
     for (const [method, operation] of Object.entries(methods)) {
       if (isHttpMethod(method)) {
-        filteredMethods[method] = operation
+        filteredMethods[method] = operation as OpenAPIV3_1.OperationObject
       }
     }
 

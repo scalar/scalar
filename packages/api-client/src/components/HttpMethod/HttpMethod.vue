@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { cva, cx, ScalarListbox } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { getHttpMethodInfo, REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 const props = withDefaults(
@@ -14,14 +14,14 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'change', value: RequestMethod): void
+  (e: 'change', value: OpenAPIV3_1.HttpMethods): void
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
 const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
-  id: id as RequestMethod,
+  id: id as OpenAPIV3_1.HttpMethods,
   label: id.toUpperCase(),
-  color: getHttpMethodInfo(id).color,
+  color: getHttpMethodInfo(id).colorClass,
 }))
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
@@ -56,7 +56,7 @@ const httpLabel = computed(() => method.value.short)
       :class="{ 'pointer-events-none': !isEditable }">
       <button
         class="relative h-full"
-        :class="cx(variants({ isSquare, isEditable }), method.color)"
+        :class="cx(variants({ isSquare, isEditable }), method.colorClass)"
         type="button">
         <span>{{ httpLabel }}</span>
       </button>
@@ -66,7 +66,7 @@ const httpLabel = computed(() => method.value.short)
   <div
     v-else
     class="relative gap-1 whitespace-nowrap"
-    :class="cx(variants({ isSquare, isEditable }), method.color)"
+    :class="cx(variants({ isSquare, isEditable }), method.colorClass)"
     type="button">
     {{ method.short }}
   </div>
