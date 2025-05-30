@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.31.1
+
+### Patch Changes
+
+- e6c165c: feat: adds schema discriminator and example support
+- aeb94f0: fix(api-reference): size icons for Tailwind v4
+- 237cb44: chore: bump for tailwind fix
+
 ## 1.31.0
 
 ### Minor Changes
