@@ -6,13 +6,10 @@ import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
 import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 
-const props = defineProps<
-  {
-    parsedSpec: Spec
-  } & SorterOption
->()
+const props = defineProps<{
+  parsedSpec: Spec
+}>()
 
 const { hash, isIntersectionEnabled } = useNavState()
 

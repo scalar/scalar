@@ -1,13 +1,12 @@
-import type { SortOptions } from '@/features/Sidebar/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type InjectionKey, inject, provide } from 'vue'
-import { createSidebar } from '../helpers/create-sidebar'
+import { createSidebar, type CreateSidebarOptions } from '../helpers/create-sidebar'
 
 /**
  * Injection key for the sidebar instance.
  * This ensures type safety when injecting the sidebar.
  */
-export const SIDEBAR_SYMBOL: InjectionKey<ReturnType<typeof createSidebar>> = Symbol('sidebar')
+export const SIDEBAR_SYMBOL: InjectionKey<ReturnType<typeof createSidebar>> = Symbol()
 
 /**
  * Composable for managing the sidebar state.
@@ -17,15 +16,11 @@ export const SIDEBAR_SYMBOL: InjectionKey<ReturnType<typeof createSidebar>> = Sy
  */
 export function useSidebar(
   content?: OpenAPIV3_1.Document,
-  sortOptions?: SortOptions,
+  options?: CreateSidebarOptions,
 ): ReturnType<typeof createSidebar> {
   // If collection is provided, create and provide a new sidebar instance
-  if (content) {
-    const sidebar = createSidebar({
-      content,
-      ...sortOptions,
-    })
-
+  if (content && options) {
+    const sidebar = createSidebar(content, options)
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar
