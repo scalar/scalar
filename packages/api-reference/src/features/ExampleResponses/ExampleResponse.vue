@@ -1,10 +1,12 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 defineProps<{
-  response: OpenAPI.ResponseObject
+  response: OpenAPIV3_1.ResponseObject & { example?: unknown } & {
+    schema?: OpenAPIV3_1.SchemaObject
+  }
 }>()
 </script>
 <template>
