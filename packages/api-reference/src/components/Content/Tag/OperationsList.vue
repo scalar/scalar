@@ -35,7 +35,7 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
           :aria-label="`${tagName} endpoints`"
           class="endpoints">
           <OperationsListItem
-            v-for="operation in tag.operations"
+            v-for="operation in [...tag.operations, ...tag.webhooks]"
             :key="getOperationId(operationIdParams(operation), tag)"
             :collection="collection"
             :isCollapsed="isCollapsed"

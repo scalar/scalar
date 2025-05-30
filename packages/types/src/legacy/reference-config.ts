@@ -195,6 +195,7 @@ export type Schema = {
  */
 export type TransformedOperation = Operation & {
   pathParameters?: Parameter[]
+  isWebhook?: boolean
 }
 
 export type CollapsedSidebarItems = Record<string, boolean>
@@ -260,6 +261,7 @@ export type Tag = {
   'name': string
   'description': string
   'operations': TransformedOperation[]
+  'webhooks': TransformedOperation[]
   'x-displayName'?: string
 }
 
