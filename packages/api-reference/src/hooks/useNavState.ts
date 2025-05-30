@@ -143,7 +143,7 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     operation: {
       path: string
       method: OpenAPIV3_1.HttpMethods
-    } & Pick<OpenAPIV3_1.OperationObject, 'operationId' | 'summary'>,
+    } & OpenAPIV3_1.OperationObject,
     parentTag: OpenAPIV3_1.TagObject,
   ) => {
     if (typeof config.value.generateOperationSlug === 'function') {

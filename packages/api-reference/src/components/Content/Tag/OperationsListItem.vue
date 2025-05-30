@@ -13,6 +13,7 @@ import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
 import { useSidebar } from '@/features/Sidebar'
+import { operationIdParams } from '@/features/Sidebar/helpers/operation-id-params'
 import { useNavState } from '@/hooks/useNavState'
 import { isOperationDeprecated } from '@/libs/openapi'
 
@@ -27,16 +28,7 @@ const { getOperationId } = useNavState()
 const { scrollToOperation } = useSidebar()
 
 const operationId = computed(() =>
-  getOperationId(
-    {
-      path: transformedOperation.path,
-      method:
-        transformedOperation.httpVerb.toLowerCase() as OpenAPIV3_1.HttpMethods,
-      summary: transformedOperation.name,
-      operationId: transformedOperation.operationId,
-    },
-    tag,
-  ),
+  getOperationId(operationIdParams(transformedOperation), tag),
 )
 
 const store = useWorkspace()
