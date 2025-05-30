@@ -367,8 +367,8 @@ type Config = {
   root?: UnknownObject
   // Optional cache to store promises of resolved references to avoid duplicate fetches/reads
   cache?: Map<string, Promise<ResolveResult>>
-  // Optional flag to enable tree shaking, which removes unused references from the final bundle
-  treeShake?: boolean
+  // Enable tree shaking, which removes unused references from the final bundle
+  treeShake: boolean
 }
 
 /**

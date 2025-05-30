@@ -52,6 +52,7 @@ describe('bundle', () => {
 
       await bundle(input, {
         plugins: [fetchUrls(), readFiles()],
+        treeShake: false,
       })
 
       expect(input).toEqual({
@@ -109,7 +110,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       expect(input).toEqual({
         'x-ext': {
@@ -153,7 +154,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       expect(input).toEqual({
         'x-ext': {
@@ -193,7 +194,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       expect(input).toEqual({
         'x-ext': {
@@ -239,7 +240,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       expect(input).toEqual({
         'x-ext': {
@@ -283,7 +284,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       expect(input).toEqual({
         'x-ext': {
@@ -329,7 +330,7 @@ describe('bundle', () => {
       })
       await server.listen({ port: PORT })
 
-      const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()] })
+      const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()], treeShake: false })
 
       expect(output).toEqual({
         'x-ext': {
@@ -394,7 +395,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls()] })
+      await bundle(input, { plugins: [fetchUrls()], treeShake: false })
 
       expect(input).toEqual({
         a: {
@@ -456,6 +457,7 @@ describe('bundle', () => {
       }
       await bundle(input, {
         plugins: [fetchUrls()],
+        treeShake: false,
       })
 
       expect(input).toEqual({
@@ -509,6 +511,7 @@ describe('bundle', () => {
       // Bundle only partial
       await bundle(input.b, {
         plugins: [fetchUrls()],
+        treeShake: false,
         root: input,
         cache,
       })
@@ -535,6 +538,7 @@ describe('bundle', () => {
       // Bundle only partial
       await bundle(input.c, {
         plugins: [fetchUrls()],
+        treeShake: false,
         root: input,
         cache,
       })
@@ -770,7 +774,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
@@ -802,7 +806,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
       await fs.rm(chunk2Path)
@@ -845,7 +849,7 @@ describe('bundle', () => {
         },
       }
 
-      await bundle(input, { plugins: [fetchUrls(), readFiles()] })
+      await bundle(input, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(`./nested/${bName}`)
       await fs.rm(`./nested/${cName}`)
@@ -891,7 +895,7 @@ describe('bundle', () => {
       const inputName = randomUUID()
       await fs.writeFile(`./nested/${inputName}`, JSON.stringify(input))
 
-      const result = await bundle(`./nested/${bName}`, { plugins: [fetchUrls(), readFiles()] })
+      const result = await bundle(`./nested/${bName}`, { plugins: [fetchUrls(), readFiles()], treeShake: false })
 
       await fs.rm(`./nested/${bName}`)
       await fs.rm(`./nested/${cName}`)
