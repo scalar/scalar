@@ -12,10 +12,7 @@ import { oasSecurityRequirementSchema } from '@scalar/types/entities'
 import { oasParameterSchema } from './parameters'
 import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasExternalDocumentationSchema } from './spec-objects'
-
-export const requestMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
-
-export type RequestMethod = (typeof requestMethods)[number]
+import { type OpenAPIV3_1, HTTP_METHODS } from '@scalar/openapi-types'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -30,7 +27,7 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   /** The response status text */
   statusText: string
   /** The response method */
-  method: RequestMethod
+  method: OpenAPIV3_1.HttpMethods
   /** The request path */
   path: string
 } & (
@@ -140,7 +137,7 @@ const extendedRequestSchema = z.object({
   /** Path Key */
   path: z.string().optional().default(''),
   /** Request Method */
-  method: z.enum(requestMethods).default('get'),
+  method: z.enum(HTTP_METHODS).default('get'),
   /** List of server UIDs specific to the request */
   servers: z.string().brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** The currently selected server */
