@@ -349,7 +349,6 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      // @ts-expect-error - TODO: fix this
       const operation = path[method]
       if (!operation) {
         return

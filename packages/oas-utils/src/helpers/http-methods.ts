@@ -1,11 +1,14 @@
-import { type RequestMethod, requestMethods } from '@/entities/spec/requests'
+import { HTTP_METHODS, type OpenAPIV3_1 } from '@scalar/openapi-types'
+
+/** Use a set for unique plus slightly better perf */
+export const httpMethods = new Set(HTTP_METHODS)
 
 /**
  * HTTP methods in a specific order
  * Do not change the order
  */
 export const REQUEST_METHODS: {
-  [x in RequestMethod]: {
+  [x in OpenAPIV3_1.HttpMethods]: {
     short: string
     colorClass: `text-${string}`
     colorVar: `var(--scalar-color-${string})`
@@ -73,12 +76,12 @@ const BODY_METHODS = ['post', 'put', 'patch', 'delete'] as const
 type BodyMethod = (typeof BODY_METHODS)[number]
 
 /** Makes a check to see if this method CAN have a body */
-export const canMethodHaveBody = (method: RequestMethod): method is BodyMethod =>
+export const canMethodHaveBody = (method: OpenAPIV3_1.HttpMethods): method is BodyMethod =>
   BODY_METHODS.includes(method as BodyMethod)
 
 /** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
-export const isHttpMethod = (method?: string | undefined): method is RequestMethod =>
-  method ? requestMethods.includes(method.toLowerCase() as RequestMethod) : false
+export const isHttpMethod = (method?: string | undefined): method is OpenAPIV3_1.HttpMethods =>
+  method ? httpMethods.has(method.toLowerCase() as OpenAPIV3_1.HttpMethods) : false
 
 const DEFAULT_REQUEST_METHOD = 'get'
 
@@ -86,7 +89,7 @@ const DEFAULT_REQUEST_METHOD = 'get'
  * Get a normalized request method (e.g. get, post, etc.)
  * Lowercases the method and returns the default if it is not a valid method so you will always have a valid method
  */
-export const normalizeRequestMethod = (method?: string): RequestMethod => {
+export const normalizeRequestMethod = (method?: string): OpenAPIV3_1.HttpMethods => {
   // Make sure it’s a string
   if (typeof method !== 'string') {
     console.warn(`Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
@@ -103,7 +106,7 @@ export const normalizeRequestMethod = (method?: string): RequestMethod => {
     return DEFAULT_REQUEST_METHOD
   }
 
-  return normalizedMethod as RequestMethod
+  return normalizedMethod as OpenAPIV3_1.HttpMethods
 }
 
 /**
@@ -111,3 +114,49 @@ export const normalizeRequestMethod = (method?: string): RequestMethod => {
  * Defaults to get if the method is not valid
  */
 export const getHttpMethodInfo = (methodName: string) => REQUEST_METHODS[normalizeRequestMethod(methodName)]
+
+/**
+ * Filters an OpenAPI PathsObject to only include standard HTTP methods.
+ * Removes any vendor extensions or other non-HTTP properties.
+ *
+ * @param paths - The OpenAPI PathsObject to filter
+ * @returns A new PathsObject containing only standard HTTP methods
+ *
+ * @example
+ * Input: {
+ *   "/users": {
+ *     "get": {...},
+ *     "x-custom": {...},
+ *     "post": {...}
+ *   }
+ * }
+ * Output: {
+ *   "/users": {
+ *     "get": {...},
+ *     "post": {...}
+ *   }
+ * }
+ */
+export const filterHttpMethodsOnly = (paths: OpenAPIV3_1.PathsObject) => {
+  const result: OpenAPIV3_1.PathsObject = {}
+
+  for (const [path, methods] of Object.entries(paths)) {
+    if (!methods) {
+      continue
+    }
+
+    const filteredMethods: Record<string, any> = {}
+
+    for (const [method, operation] of Object.entries(methods)) {
+      if (isHttpMethod(method)) {
+        filteredMethods[method] = operation
+      }
+    }
+
+    if (Object.keys(filteredMethods).length > 0) {
+      result[path] = filteredMethods
+    }
+  }
+
+  return result
+}

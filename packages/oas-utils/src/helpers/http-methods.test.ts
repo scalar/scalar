@@ -5,8 +5,9 @@ import {
   getHttpMethodInfo,
   isHttpMethod,
   normalizeRequestMethod,
+  filterHttpMethodsOnly,
 } from './http-methods'
-import type { RequestMethod } from '@/entities/spec/requests'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 describe('HTTP Methods', () => {
   describe('REQUEST_METHODS', () => {
@@ -54,7 +55,7 @@ describe('HTTP Methods', () => {
     })
 
     it('should act as a type guard', () => {
-      const method: RequestMethod = 'post'
+      const method: OpenAPIV3_1.HttpMethods = 'post'
       if (canMethodHaveBody(method)) {
         // TypeScript should know method is BodyMethod here
         expect(method).toBe('post')
@@ -87,10 +88,10 @@ describe('HTTP Methods', () => {
 
     it('should return default info for invalid methods', () => {
       const invalidInfo = getHttpMethodInfo('invalid')
-      expect(invalidInfo.short).toBe('invalid')
-      expect(invalidInfo.colorClass).toBe('text-c-2')
-      expect(invalidInfo.colorVar).toBe('var(--scalar-color-2)')
-      expect(invalidInfo.backgroundColor).toBe('bg-c-2')
+      expect(invalidInfo.short).toBe('GET')
+      expect(invalidInfo.colorClass).toBe('text-blue')
+      expect(invalidInfo.colorVar).toBe('var(--scalar-color-blue)')
+      expect(invalidInfo.backgroundColor).toBe('bg-blue/10')
     })
   })
 
@@ -139,6 +140,69 @@ describe('HTTP Methods', () => {
       expect(normalizeRequestMethod(null)).toBe('get')
       // @ts-expect-error Testing invalid input
       expect(normalizeRequestMethod({})).toBe('get')
+    })
+  })
+
+  describe('filterHttpMethodsOnly', () => {
+    it('should filter out non-HTTP methods', () => {
+      const paths: OpenAPIV3_1.PathsObject = {
+        '/users': {
+          get: { summary: 'Get users' },
+          'x-custom': { foo: 'bar' },
+          post: { summary: 'Create user' },
+          'x-extension': { baz: 'qux' },
+        },
+        '/pets': {
+          put: { summary: 'Update pet' },
+          'x-another': { hello: 'world' },
+        },
+      }
+
+      const result = filterHttpMethodsOnly(paths)
+
+      expect(result).toEqual({
+        '/users': {
+          get: { summary: 'Get users' },
+          post: { summary: 'Create user' },
+        },
+        '/pets': {
+          put: { summary: 'Update pet' },
+        },
+      })
+    })
+
+    it('should handle empty paths object', () => {
+      const paths: OpenAPIV3_1.PathsObject = {}
+      const result = filterHttpMethodsOnly(paths)
+      expect(result).toEqual({})
+    })
+
+    it('should handle paths with no HTTP methods', () => {
+      const paths: OpenAPIV3_1.PathsObject = {
+        '/users': {
+          'x-custom': { foo: 'bar' },
+          'x-extension': { baz: 'qux' },
+        },
+      }
+
+      const result = filterHttpMethodsOnly(paths)
+      expect(result).toEqual({})
+    })
+
+    it('should handle undefined path methods', () => {
+      const paths: OpenAPIV3_1.PathsObject = {
+        '/users': undefined,
+        '/pets': {
+          get: { summary: 'Get pets' },
+        },
+      }
+
+      const result = filterHttpMethodsOnly(paths)
+      expect(result).toEqual({
+        '/pets': {
+          get: { summary: 'Get pets' },
+        },
+      })
     })
   })
 })

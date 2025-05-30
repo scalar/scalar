@@ -8,6 +8,8 @@ export {
   getHttpMethodInfo,
   normalizeRequestMethod,
   isHttpMethod,
+  httpMethods,
+  filterHttpMethodsOnly,
   REQUEST_METHODS,
 } from './http-methods'
 export { type HttpStatusCode, type HttpStatusCodes, httpStatusCodes } from './http-status-codes'

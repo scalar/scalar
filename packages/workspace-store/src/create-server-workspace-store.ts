@@ -1,5 +1,6 @@
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { filterHttpMethodsOnly, isHttpMethod } from '@scalar/oas-utils/helpers'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
@@ -29,54 +30,6 @@ type CreateServerWorkspaceStore =
       }[]
       meta?: WorkspaceMeta
     }
-
-const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
-
-/**
- * Filters an OpenAPI PathsObject to only include standard HTTP methods.
- * Removes any vendor extensions or other non-HTTP properties.
- *
- * @param paths - The OpenAPI PathsObject to filter
- * @returns A new PathsObject containing only standard HTTP methods
- *
- * @example
- * Input: {
- *   "/users": {
- *     "get": {...},
- *     "x-custom": {...},
- *     "post": {...}
- *   }
- * }
- * Output: {
- *   "/users": {
- *     "get": {...},
- *     "post": {...}
- *   }
- * }
- */
-export function filterHttpMethodsOnly(paths: OpenAPIV3_1.PathsObject) {
-  const result: OpenAPIV3_1.PathsObject = {}
-
-  for (const [path, methods] of Object.entries(paths)) {
-    if (!methods) {
-      continue
-    }
-
-    const filteredMethods: Record<string, any> = {}
-
-    for (const [method, operation] of Object.entries(methods)) {
-      if (httpMethods.has(method.toLowerCase())) {
-        filteredMethods[method] = operation
-      }
-    }
-
-    if (Object.keys(filteredMethods).length > 0) {
-      result[path] = filteredMethods
-    }
-  }
-
-  return result
-}
 
 /**
  * Escapes path keys in an OpenAPI PathsObject to be JSON Pointer compatible.
@@ -147,7 +100,7 @@ export function externalizePathReferences(
     const escapedPath = escapeJsonPointer(path)
 
     Object.keys(pathItem).forEach((type) => {
-      if (httpMethods.has(type)) {
+      if (isHttpMethod(type)) {
         const ref =
           meta.mode === 'ssr'
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`

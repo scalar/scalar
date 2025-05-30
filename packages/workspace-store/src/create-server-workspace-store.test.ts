@@ -4,7 +4,6 @@ import {
   escapePaths,
   externalizeComponentReferences,
   externalizePathReferences,
-  filterHttpMethodsOnly,
 } from './create-server-workspace-store'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
@@ -283,25 +282,6 @@ describe('create-server-store', () => {
       // clean up generated files
       await fs.rmdir(basePath, { recursive: true })
     })
-  })
-})
-
-describe('filter-http-methods-only', () => {
-  test('should only keep the http methods', () => {
-    const result = filterHttpMethodsOnly({
-      '/path': {
-        get: { description: 'some description' },
-        'x-scalar-test': 'test',
-        servers: [],
-        parameters: [{ name: 'name', in: 'path' }],
-      },
-    })
-
-    // check that all the other keys are filtered
-    expect(Object.keys(result['/path'] ?? {})).toEqual(['get'])
-
-    // check the contents of the operation
-    expect(result['/path']?.get).toEqual({ description: 'some description' })
   })
 })
 
