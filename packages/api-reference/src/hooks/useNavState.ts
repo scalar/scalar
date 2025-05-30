@@ -136,7 +136,7 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     if (typeof config.value.generateTagSlug === 'function') {
       return `tag/${config.value.generateTagSlug(tag)}`
     }
-    return `tag/${slug(tag.name)}`
+    return `tag/${slug(tag.name ?? '')}`
   }
 
   const getOperationId = (

@@ -12,7 +12,10 @@ export const traverseDocument = (
   { config, getHeadingId, getOperationId, getWebhookId, getModelId, getTagId }: CreateSidebarOptions,
 ) => {
   /** Dictionary of name to tags */
-  const tagsDict = new Map(document.tags?.map((tag) => [tag.name, tag]) ?? [])
+  // TODO: type: remove this when types are fixed
+  const tagsDict: Map<string, OpenAPIV3_1.TagObject> = new Map(
+    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [tag.name, tag]) ?? [],
+  )
 
   /** Map it ID to title for the mobile header */
   const titles = new Map<string, string>()

@@ -209,7 +209,7 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security = schema.components?.securitySchemes ?? {}
+  const security = schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
 
   // @ts-expect-error - Toss out a deprecated warning for the old authentication state
   if (authentication?.oAuth2 || authentication?.apiKey || authentication?.http) {
@@ -349,12 +349,9 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      const operation = path[method]
-      if (!operation) {
-        return
-      }
-
+      const operation: OpenAPIV3_1.OperationObject = path[method]
       const operationLevelServers = serverSchema.array().parse(operation.servers ?? [])
+
       for (const server of operationLevelServers) {
         operationServers.push(server)
       }
@@ -391,7 +388,7 @@ export async function importSpecToWorkspace(
           ? getSelectedSecuritySchemeUids(securityRequirements, preferredSecurityNames, securitySchemeMap)
           : []
 
-      const requestPayload = {
+      const requestPayload: RequestPayload = {
         ...operationWithoutSecurity,
         method,
         path: pathString,
@@ -401,7 +398,7 @@ export async function importSpecToWorkspace(
         // Merge path and operation level parameters
         parameters: [...(path?.parameters ?? []), ...(operation.parameters ?? [])] as RequestParameterPayload[],
         servers: [...pathServers, ...operationLevelServers].map((s) => s.uid),
-      } as RequestPayload
+      }
 
       // Remove any examples from the request payload as they conflict with our examples property and are not valid
       if (requestPayload.examples) {
@@ -506,7 +503,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   // Grab the security requirements for this operation
-  const securityRequirements = (schema.security ?? [])
+  const securityRequirements: SelectedSecuritySchemeUids = (schema.security ?? [])
     .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
       const keys = Object.keys(s)
       return keys.length > 1 ? keys : keys[0]
