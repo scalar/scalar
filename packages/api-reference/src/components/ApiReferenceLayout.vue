@@ -18,6 +18,7 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
+import type { Spec } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -40,10 +41,12 @@ import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { useSidebar } from '@/features/Sidebar/hooks/useSidebar'
+import { parse } from '@/helpers/parse'
 import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
+import { createEmptySpecification } from '@/libs/openapi'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
@@ -86,7 +89,6 @@ const {
   originalDocument,
   originalOpenApiVersion,
   dereferencedDocument,
-  parsedDocument,
   workspaceStore,
   activeEntitiesStore,
 } = useDocumentSource({
@@ -114,11 +116,14 @@ useResizeObserver(documentEl, (entries) => {
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const navState = useNavState(configuration)
-const { isSidebarOpen, scrollToOperation } = useSidebar(dereferencedDocument, {
-  ...navState,
-  config: configuration,
-  isSidebarOpen: providedIsSidebarOpen,
-})
+const { isSidebarOpen, scrollToOperation, items } = useSidebar(
+  dereferencedDocument,
+  {
+    ...navState,
+    config: configuration,
+    isSidebarOpen: providedIsSidebarOpen,
+  },
+)
 
 const {
   getReferenceId,
@@ -127,6 +132,25 @@ const {
   updateHash,
   replaceUrlState,
 } = navState
+
+/**
+ * Temporarily moved this here so we can use the sidebar items
+ * Parsed document (legacy data structure)
+ */
+const parsedDocument = ref<Spec>(createEmptySpecification())
+
+watch(
+  () => toValue(dereferencedDocument),
+  async (newDocument) => {
+    if (!newDocument) {
+      return
+    }
+
+    const result = await parse(newDocument, items.value.entries)
+    parsedDocument.value = result
+  },
+  { immediate: true },
+)
 
 // Front-end redirect
 if (configuration.value.redirect && typeof window !== 'undefined') {
@@ -333,7 +357,7 @@ const themeStyleTag = computed(
         class="references-rendered">
         <Content
           :layout="configuration.layout"
-          :dereferencedDocument="dereferencedDocument"
+          :document="dereferencedDocument"
           :parsedSpec="parsedDocument">
           <template #start>
             <slot
