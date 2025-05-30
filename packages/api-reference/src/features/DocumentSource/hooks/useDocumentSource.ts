@@ -5,7 +5,7 @@ import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from 
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
 import { parse } from '@/helpers/parse'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/Sidebar'
 import { createEmptySpecification } from '@/libs/openapi'
 
 import { measure } from '@/helpers/measure'

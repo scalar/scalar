@@ -6,7 +6,7 @@ import {
 } from '@scalar/components'
 import { getObjectKeys } from '@scalar/oas-utils/helpers'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, toRef, watch } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
@@ -58,7 +58,7 @@ const otherSlots = computed(() =>
         configuration.showSidebar ?? true,
     }"
     :configuration="configuration"
-    :isSidebarOpen="isSidebarOpen"
+    :isSidebarOpen="toRef(isSidebarOpen)"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @updateContent="$emit('updateContent', $event)">

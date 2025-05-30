@@ -21,6 +21,7 @@ export function useSidebar(
   // If collection is provided, create and provide a new sidebar instance
   if (content && options) {
     const sidebar = createSidebar(content, options)
+    console.log('prodivinding sidebar', sidebar)
     provide(SIDEBAR_SYMBOL, sidebar)
 
     return sidebar
