@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import { isHttpMethod } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { isDereferenced } from '@scalar/openapi-types/helpers'
 
 // import { snippetz, type HarRequest } from '@scalar/snippetz'
 
@@ -96,9 +98,12 @@ const { content } = defineProps<{
         v-for="path in Object.keys(content?.paths ?? {})"
         :key="path">
         <template
-          v-for="(operation, method) in content?.paths?.[path]"
+          v-for="(operation, method) in content?.paths?.[path] as Record<
+            string,
+            OpenAPIV3_1.OperationObject
+          >"
           :key="operation">
-          <section>
+          <section v-if="isHttpMethod(method) && operation">
             <header>
               <h3>
                 <template v-if="operation.summary">
@@ -139,7 +144,7 @@ const { content } = defineProps<{
               </template>
             </ul>
 
-            <ScalarMarkdown :value="operation.description" />
+            <ScalarMarkdown :value="operation.description ?? ''" />
 
             <!-- TODO: We need way more context to generate proper request examples -->
             <!-- <section>
@@ -150,7 +155,11 @@ const { content } = defineProps<{
               }) }}</code></pre>
             </section> -->
 
-            <template v-if="operation.requestBody?.content">
+            <template
+              v-if="
+                isDereferenced(operation.requestBody) &&
+                operation.requestBody?.content
+              ">
               <section>
                 <h4>Request Body</h4>
                 <template
@@ -179,7 +188,7 @@ const { content } = defineProps<{
                 <template
                   v-for="(response, statusCode) in operation.responses"
                   :key="statusCode">
-                  <section>
+                  <section v-if="isDereferenced(response)">
                     <header>
                       <h5>
                         Status: {{ statusCode }}
@@ -222,7 +231,10 @@ const { content } = defineProps<{
         v-for="(webhook, name) in content?.webhooks"
         :key="name">
         <template
-          v-for="(operation, method) in webhook"
+          v-for="(operation, method) in webhook as Record<
+            string,
+            OpenAPIV3_1.OperationObject
+          >"
           :key="operation">
           <section>
             <header>
@@ -262,7 +274,7 @@ const { content } = defineProps<{
               </template>
             </ul>
 
-            <ScalarMarkdown :value="operation.description" />
+            <ScalarMarkdown :value="operation.description ?? ''" />
 
             <!-- TODO: We need way more context to generate proper request examples -->
             <!-- <section>
@@ -286,7 +298,7 @@ const { content } = defineProps<{
       <template
         v-for="(schema, name) in content.components.schemas"
         :key="name">
-        <section>
+        <section v-if="typeof schema === 'object'">
           <header>
             <h3>{{ schema.title ?? name }}</h3>
           </header>

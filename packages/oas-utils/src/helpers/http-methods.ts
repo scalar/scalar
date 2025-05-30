@@ -1,5 +1,7 @@
 import { HTTP_METHODS, type OpenAPIV3_1 } from '@scalar/openapi-types'
 
+// TODO: this file is getting bloated, split it up into a lib
+
 /** Use a set for unique plus slightly better perf */
 export const httpMethods = new Set(HTTP_METHODS)
 
@@ -90,7 +92,7 @@ const DEFAULT_REQUEST_METHOD = 'get'
  * Lowercases the method and returns the default if it is not a valid method so you will always have a valid method
  */
 export const normalizeRequestMethod = (method?: string): OpenAPIV3_1.HttpMethods => {
-  // Make sure it’s a string
+  // Make sure it's a string
   if (typeof method !== 'string') {
     console.warn(`Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`)
 
