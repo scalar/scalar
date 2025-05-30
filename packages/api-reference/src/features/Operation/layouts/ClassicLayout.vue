@@ -96,11 +96,11 @@ const handleDiscriminatorChange = (type: string) => {
         :operation="operation" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
-        class="endpoint-try-hint"
+        class="endpoint-try-hint size-6"
         icon="Play"
         thickness="1.75px" />
       <ScalarIconButton
-        class="endpoint-copy"
+        class="endpoint-copy p-0.5"
         icon="Clipboard"
         label="Copy endpoint URL"
         size="xs"
@@ -237,13 +237,10 @@ const handleDiscriminatorChange = (type: string) => {
 
 .endpoint-try-hint {
   padding: 2px;
-  height: 24px;
-  width: 24px;
   flex-shrink: 0;
 }
 .endpoint-copy {
   color: currentColor;
-  padding: 2px;
 }
 .endpoint-copy :deep(svg) {
   stroke-width: 2px;

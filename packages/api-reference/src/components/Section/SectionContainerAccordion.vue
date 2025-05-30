@@ -11,7 +11,7 @@ import { ScalarIcon } from '@scalar/components'
       defaultOpen>
       <DisclosureButton class="section-accordion-button">
         <ScalarIcon
-          class="section-accordion-chevron"
+          class="section-accordion-chevron size-6"
           :icon="open ? 'ChevronDown' : 'ChevronRight'" />
         <div class="section-accordion-title">
           <slot name="title" />
@@ -51,10 +51,8 @@ import { ScalarIcon } from '@scalar/components'
   border-radius: var(--scalar-radius);
 }
 .section-accordion-chevron {
-  width: 24px;
   position: absolute;
   left: -24px;
-  height: auto;
   top: 10px;
   color: var(--scalar-color-3);
 }
