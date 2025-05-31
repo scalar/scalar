@@ -1,4 +1,5 @@
 import { REGEX } from '@scalar/oas-utils/helpers'
+import { isDefined } from '@scalar/oas-utils/helpers'
 
 /**
  * Get the nested value from a context object
@@ -27,7 +28,7 @@ export function replaceTemplateVariables(templateString: string, context: object
     const key = variable.trim()
     usedKeys.add(key)
     const value = getDotPathValue(key, context)
-    return value !== null && value !== undefined ? value : `{{${key}}}`
+    return isDefined(value) && value !== '' ? value : `{{${key}}}`
   })
 
   // Handle single curly braces, skipping already used keys
@@ -37,7 +38,7 @@ export function replaceTemplateVariables(templateString: string, context: object
       return `{${key}}`
     }
     const value = getDotPathValue(key, context)
-    return value !== null && value !== undefined ? value : `{${key}}`
+    return isDefined(value) && value !== '' ? value : `{${key}}`
   })
 
   // Handle colon format, skipping already used keys
@@ -48,7 +49,7 @@ export function replaceTemplateVariables(templateString: string, context: object
     }
     const value = getDotPathValue(key, context)
     // value can be an empty string but not null or undefined
-    return value !== null && value !== undefined ? value : match
+    return isDefined(value) && value !== '' ? value : match
   })
 
   return substitutedString
