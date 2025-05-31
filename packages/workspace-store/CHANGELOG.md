@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [ee3eb77]
+  - @scalar/openapi-parser@0.14.0
+
 ## 0.1.0
 
 ### Minor Changes
