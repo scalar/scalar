@@ -2406,6 +2406,9 @@ importers:
 
   packages/workspace-store:
     dependencies:
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser

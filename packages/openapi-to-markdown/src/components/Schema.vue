@@ -22,7 +22,7 @@ const sortProperties = (
 </script>
 
 <template>
-  <section v-if="schema">
+  <section v-if="schema && typeof schema === 'object'">
     <!-- Composition keywords -->
     <template v-if="schema.allOf">
       <section>
@@ -84,10 +84,10 @@ const sortProperties = (
               schema.required,
             )"
             :key="propName">
-            <li>
+            <li v-if="typeof propSchema === 'object'">
               <strong>
                 <code>{{ propName }}</code>
-                <span v-if="schema.required?.includes(propName)">
+                <span v-if="schema.required?.includes(propName as string)">
                   (required)
                 </span>
               </strong>

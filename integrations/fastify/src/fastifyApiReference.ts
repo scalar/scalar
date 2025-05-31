@@ -166,7 +166,6 @@ const fastifyApiReference = fp<
       if (fastify.hasPlugin('@fastify/swagger')) {
         return {
           type: 'swagger' as const,
-          // @ts-ignore We know that @fastify/swagger is loaded.
           get: () => fastify.swagger() as OpenAPI.Document,
         }
       }
@@ -198,20 +197,19 @@ const fastifyApiReference = fp<
 
     const getSpecFilenameSlug = async (spec: OpenAPI.Document) => {
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
-      return slug(spec?.specification?.info?.title ?? 'spec')
+      return slug(spec?.info?.title ?? 'spec')
     }
 
     const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlJson,
-      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
         const spec = normalize(specSource.get())
-        const filename: string = await getSpecFilenameSlug(spec)
+        const filename: string = await getSpecFilenameSlug(spec as OpenAPI.Document)
         const json = JSON.parse(toJson(spec)) // parsing minifies the JSON
 
         return reply
@@ -227,13 +225,12 @@ const fastifyApiReference = fp<
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlYaml,
-      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
         const spec = normalize(specSource.get())
-        const filename: string = await getSpecFilenameSlug(spec)
+        const filename: string = await getSpecFilenameSlug(spec as OpenAPI.Document)
         const yaml = toYaml(spec)
         return reply
           .header('Content-Type', 'application/yaml')
@@ -254,7 +251,6 @@ const fastifyApiReference = fp<
       fastify.route({
         method: 'GET',
         url: getRoutePrefix(options.routePrefix),
-        // @ts-ignore We don't know whether @fastify/swagger is loaded.
         schema: schemaToHideRoute,
         ...hooks,
         ...(options.logLevel && { logLevel: options.logLevel }),
@@ -269,7 +265,6 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: `${getRoutePrefix(options.routePrefix)}/`,
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),
@@ -312,7 +307,6 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getJavaScriptUrl(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       ...(options.logLevel && { logLevel: options.logLevel }),

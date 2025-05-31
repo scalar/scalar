@@ -21,8 +21,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "vite-node ./src/index.ts",
     "build": "scalar-build-esbuild",
+    "dev": "vite-node ./src/index.ts",
     "format": "scalar-format",
     "format:check": "scalar-format-check",
     "lint:check": "eslint .",
@@ -40,6 +40,7 @@
     }
   },
   "dependencies": {
+    "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
@@ -47,8 +48,8 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "fastify": "catalog:*",
     "vite": "catalog:*",
-    "vitest": "catalog:*",
-    "fastify": "catalog:*"
+    "vitest": "catalog:*"
   }
 }

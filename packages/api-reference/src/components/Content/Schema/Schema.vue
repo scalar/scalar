@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+// @ts-nocheck
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'

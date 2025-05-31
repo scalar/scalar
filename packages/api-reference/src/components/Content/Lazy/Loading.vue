@@ -63,6 +63,15 @@ const isLoading = ref(
   !hasLoaded.value && props.layout !== 'classic' && hash.value,
 )
 
+const getSchemaTitle = (
+  schema: OpenAPIV3_1.SchemaObject | undefined,
+): string | undefined => {
+  if (typeof schema === 'object' && schema !== null) {
+    return schema.title
+  }
+  return undefined
+}
+
 // Ensure we have a spec loaded
 watch(
   () => props.parsedSpec.tags?.length,
@@ -225,10 +234,7 @@ onMounted(() => {
             <SectionHeader>
               <Anchor :id="getModelId({ name })">
                 <SectionHeaderTag :level="2">
-                  {{
-                    (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)
-                      .title ?? name
-                  }}
+                  {{ getSchemaTitle(getModels(parsedSpec)?.[name]) ?? name }}
                 </SectionHeaderTag>
               </Anchor>
             </SectionHeader>

@@ -1,27 +1,31 @@
 <script setup lang="ts">
 import { cva, cx, ScalarListbox } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { getHttpMethodInfo, REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { Entries } from 'type-fest'
 import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     isSquare?: boolean
-    method: string
+    /** We give type hints for methods but we allow strings as we normalize it */
+    method: OpenAPIV3_1.HttpMethods | (string & {})
     isEditable?: boolean
   }>(),
   { isSquare: false, isDisable: false, isEditable: false },
 )
 
 const emit = defineEmits<{
-  (e: 'change', value: RequestMethod): void
+  (e: 'change', value: OpenAPIV3_1.HttpMethods): void
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
-const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
-  id: id as RequestMethod,
+const methodOptions = (
+  Object.entries(REQUEST_METHODS) as Entries<typeof REQUEST_METHODS>
+).map(([id]) => ({
+  id,
   label: id.toUpperCase(),
-  color: getHttpMethodInfo(id).color,
+  color: getHttpMethodInfo(id).colorClass,
 }))
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
@@ -56,7 +60,7 @@ const httpLabel = computed(() => method.value.short)
       :class="{ 'pointer-events-none': !isEditable }">
       <button
         class="relative h-full"
-        :class="cx(variants({ isSquare, isEditable }), method.color)"
+        :class="cx(variants({ isSquare, isEditable }), method.colorClass)"
         type="button">
         <span>{{ httpLabel }}</span>
       </button>
@@ -66,7 +70,7 @@ const httpLabel = computed(() => method.value.short)
   <div
     v-else
     class="relative gap-1 whitespace-nowrap"
-    :class="cx(variants({ isSquare, isEditable }), method.color)"
+    :class="cx(variants({ isSquare, isEditable }), method.colorClass)"
     type="button">
     {{ method.short }}
   </div>

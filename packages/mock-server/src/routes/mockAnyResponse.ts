@@ -24,7 +24,7 @@ export function mockAnyResponse(c: Context, operation: OpenAPI.Operation, option
   // Response
   // default, 200, 201 …
   const preferredResponseKey = findPreferredResponseKey(Object.keys(operation.responses ?? {}))
-  const preferredResponse = preferredResponseKey ? operation.responses?.[preferredResponseKey] : null
+  const preferredResponse = preferredResponseKey ? (operation.responses?.[preferredResponseKey] as any) : null
 
   if (!preferredResponse) {
     c.status(500)

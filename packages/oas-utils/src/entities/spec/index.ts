@@ -5,7 +5,6 @@ export {
   requestSchema,
   type Request,
   type RequestPayload,
-  type RequestMethod,
   type ResponseInstance,
   type RequestEvent,
 } from './requests'
