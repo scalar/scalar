@@ -12,35 +12,6 @@ import (
 	"strings"
 )
 
-// Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
-// behave like server-side requests (or let’s say like `curl`).
-func main() {
-	// The default port
-	port := ":1337"
-
-	// Allow to overwrite the port with an environment variable
-	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + p
-	}
-
-	// Create a new proxy server instance
-	proxyServer := NewProxyServer()
-
-	// Set up routing using the default HTTP multiplexer
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", proxyServer.handleRequest)
-
-	// Add our custom CORS middleware to handle cross-origin requests
-	handler := corsMiddleware(mux)
-
-	log.Println("🥤 Proxy Server listening on http://localhost" + port)
-
-	// Start the server and log any errors that occur
-	if err := http.ListenAndServe(port, handler); err != nil {
-		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
-	}
-}
-
 // Blocked network CIDRs: loopback, link-local, private, CGNAT, local IPv6
 var blockedCIDRs []*net.IPNet
 
@@ -93,17 +64,48 @@ func isBlockedHost(host string) bool {
 	return false
 }
 
+// Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
+// behave like server-side requests (or let’s say like `curl`).
+func main() {
+	// The default port
+	port := ":1337"
+
+	// Allow to overwrite the port with an environment variable
+	if p := os.Getenv("PORT"); p != "" {
+		port = ":" + p
+	}
+
+	// Create a new proxy server instance
+	proxyServer := NewProxyServer(false)
+
+	// Set up routing using the default HTTP multiplexer
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", proxyServer.handleRequest)
+
+	// Add our custom CORS middleware to handle cross-origin requests
+	handler := corsMiddleware(mux)
+
+	log.Println("🥤 Proxy Server listening on http://localhost" + port)
+
+	// Start the server and log any errors that occur
+	if err := http.ListenAndServe(port, handler); err != nil {
+		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
+	}
+}
+
 // ProxyServer encapsulates the proxy server configuration and handlers.
 //
 // It uses a custom transport to handle HTTPS connections, including those
 // with self-signed certificates for development environments.
 type ProxyServer struct {
-	transport *http.Transport
+	transport  *http.Transport
+	bypassCidr bool
 }
 
 // NewProxyServer creates a new proxy server instance
-func NewProxyServer() *ProxyServer {
+func NewProxyServer(bypassCidr bool) *ProxyServer {
 	return &ProxyServer{
+		bypassCidr: bypassCidr,
 		transport: &http.Transport{
 			// Skip TLS verification. This is useful for development environments
 			// where the target API might use self-signed certificates.
@@ -167,7 +169,7 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Deny any private, link-local, or loopback addresses
-	if isBlockedHost(remote.Host) {
+	if !ps.bypassCidr && isBlockedHost(remote.Host) {
 		http.Error(w, "Forbidden: access to private addresses is not allowed", http.StatusForbidden)
 		return
 	}
@@ -190,7 +192,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		Transport: ps.transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			// Handle private CIDR check again on redirect
-			if isBlockedHost(req.URL.Host) {
+			if !ps.bypassCidr && isBlockedHost(req.URL.Host) {
 				return fmt.Errorf("redirect to blocked host: %s", req.URL.Host)
 			}
 

@@ -2,7 +2,6 @@ package main
 
 import (
 	"io"
-	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,13 +21,8 @@ func setupTestServer(handler http.HandlerFunc) *proxyTestServer {
 	}
 }
 
-func init() {
-	// Remove all blocked CIDRs so our test server (on localhost) is allowed.
-	blockedCIDRs = []*net.IPNet{}
-}
-
 func TestBasicEndpoints(t *testing.T) {
-	proxyServer := NewProxyServer()
+	proxyServer := NewProxyServer(true)
 
 	t.Run("Ping returns pong", func(t *testing.T) {
 		// Create a new request
@@ -123,7 +117,7 @@ func TestBasicEndpoints(t *testing.T) {
 }
 
 func TestCORSHandling(t *testing.T) {
-	proxyServer := NewProxyServer()
+	proxyServer := NewProxyServer(true)
 
 	t.Run("Adds CORS headers to normal requests", func(t *testing.T) {
 		// Create a test handler
@@ -228,7 +222,7 @@ func TestCORSHandling(t *testing.T) {
 }
 
 func TestProxyBehavior(t *testing.T) {
-	proxyServer := NewProxyServer()
+	proxyServer := NewProxyServer(true)
 
 	t.Run("Follows redirects correctly", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
@@ -337,8 +331,8 @@ func TestProxyBehavior(t *testing.T) {
 
 		proxyServer.handleRequest(w, req)
 
-		if w.Code != http.StatusForbidden {
-			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
 		}
 	})
 
@@ -467,6 +461,52 @@ func TestProxyBehavior(t *testing.T) {
 		// Check response
 		if w.Code != http.StatusOK {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+}
+
+func TestCidrPolicy(t *testing.T) {
+	proxyServer := NewProxyServer(false)
+
+	t.Run("Should not authorize localhost", func(t *testing.T) {
+		// Create a new request
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=localhost", nil)
+		w := httptest.NewRecorder()
+
+		// Call the handler directly
+		proxyServer.handleRequest(w, req)
+
+		// Check the response
+		if w.Code != http.StatusForbidden {
+			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
+		}
+	})
+
+	t.Run("Should not authorize VPC metadata", func(t *testing.T) {
+		// Create a new request
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=https://metadata.google.internal", nil)
+		w := httptest.NewRecorder()
+
+		// Call the handler directly
+		proxyServer.handleRequest(w, req)
+
+		// Check the response
+		if w.Code != http.StatusForbidden {
+			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
+		}
+	})
+
+	t.Run("Should not authorize VPC metadata IP", func(t *testing.T) {
+		// Create a new request
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=http://169.254.169.254", nil)
+		w := httptest.NewRecorder()
+
+		// Call the handler directly
+		proxyServer.handleRequest(w, req)
+
+		// Check the response
+		if w.Code != http.StatusForbidden {
+			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
 		}
 	})
 }
