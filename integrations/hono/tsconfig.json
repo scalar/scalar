@@ -6,5 +6,5 @@
       "@test/*": ["./test/*"]
     }
   },
-  "include": ["src", "rollup.config.ts", "playground"]
+  "include": ["src", "playground"]
 }

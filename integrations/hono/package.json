@@ -15,7 +15,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
     "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
     "docker:run": "docker run -t scalar-hono-reference",

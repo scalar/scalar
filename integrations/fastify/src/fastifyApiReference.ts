@@ -7,7 +7,7 @@ import type { FastifyApiReferenceHooksOptions, FastifyApiReferenceOptions } from
 import { getJavaScriptFile } from './utils/getJavaScriptFile'
 
 import { normalize, toJson, toYaml } from '@scalar/openapi-parser'
-import { getHtmlDocument } from '../../../packages/core/dist/libs/html-rendering/index.js'
+import { getHtmlDocument } from '@scalar/core/libs/html-rendering'
 import type { ApiReferenceConfiguration } from './types'
 
 /**

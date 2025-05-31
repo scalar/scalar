@@ -22,7 +22,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-rollup && pnpm copy:standalone",
+    "build": "scalar-build-esbuild && pnpm copy:standalone",
     "build:playground": "cd playground && pnpm build",
     "copy:standalone": "shx mkdir -p ./dist/js && shx cp ../../packages/api-reference/dist/browser/standalone.js ./dist/js/standalone.js",
     "dev:doesnt-work": "cd playground && pnpm dev",
