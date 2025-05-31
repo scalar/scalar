@@ -425,8 +425,7 @@ app.MapScalarApiReference(options => options
                 .WithClientId("service-client-id")
                 .WithClientSecret("service-secret")
                 .WithSelectedScopes("read", "write")))
-        .WithDefaultScopes(["profile", "email"])
-    )
+        .WithDefaultScopes("profile", "email"))
     .AddApiKeyAuthentication("ApiKey", scheme => scheme.WithValue("my-api-key"))
 );
 ```
