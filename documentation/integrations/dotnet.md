@@ -198,7 +198,8 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
 > [!IMPORTANT]
-> **Prerequisites**: Authentication schemes must be defined in your OpenAPI document. Scalar can only pre-fill details for schemes that already exist in the specification.
+> **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+> The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 
 > [!WARNING]
 > **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
