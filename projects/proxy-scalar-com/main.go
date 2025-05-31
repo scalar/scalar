@@ -163,7 +163,14 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 						}
 					}
 
-					chosen := ip.String() + ":" + port
+					// Format chosen with brackets if IPv6
+					var chosen string
+					if ip.To4() == nil {
+						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
+					} else {
+						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
+					}
+
 					return dialer.DialContext(ctx, network, chosen)
 				}
 
@@ -195,7 +202,13 @@ func NewProxyServer(bypassCidr bool) *ProxyServer {
 						ip = v4
 					}
 
-					chosen := ip.String() + ":" + port
+					// Format with brackets if IPv6
+					var chosen string
+					if ip.To4() == nil {
+						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
+					} else {
+						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
+					}
 
 					return dialer.DialContext(ctx, network, chosen)
 				}
