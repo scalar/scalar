@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 // Blocked network CIDRs: loopback, link-local, private, CGNAT, local IPv6
@@ -104,12 +106,42 @@ type ProxyServer struct {
 
 // NewProxyServer creates a new proxy server instance
 func NewProxyServer(bypassCidr bool) *ProxyServer {
+	dialer := &net.Dialer{Timeout: 10 * time.Second}
+
 	return &ProxyServer{
 		bypassCidr: bypassCidr,
 		transport: &http.Transport{
 			// Skip TLS verification. This is useful for development environments
 			// where the target API might use self-signed certificates.
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				host, port, _ := net.SplitHostPort(addr)
+
+				// If bypassCidr is true, skip CIDR checks
+				if bypassCidr {
+					return dialer.DialContext(ctx, network, addr)
+				}
+
+				// Re-resolve hostname on every dial
+				ips, err := net.LookupIP(host)
+				if err != nil {
+					return nil, err
+				}
+
+				// Check all returned IPs against blocked ranges
+				for _, ip := range ips {
+					for _, block := range blockedCIDRs {
+						if block.Contains(ip) {
+							return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
+						}
+					}
+				}
+
+				// Pick the first allowed IP to dial
+				chosen := ips[0].String() + ":" + port
+
+				return dialer.DialContext(ctx, network, chosen)
+			},
 		},
 	}
 }
