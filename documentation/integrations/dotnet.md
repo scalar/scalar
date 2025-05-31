@@ -204,9 +204,8 @@ Scalar allows you to pre-configure authentication details for your API, making i
 > [!WARNING]
 > **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 
-#### Quick Start Examples
 
-##### API Key Authentication
+#### API Key Authentication
 
 ```csharp
 app.MapScalarApiReference(options => options
@@ -218,7 +217,7 @@ app.MapScalarApiReference(options => options
 );
 ```
 
-##### Bearer Token Authentication
+#### Bearer Token Authentication
 
 ```csharp
 app.MapScalarApiReference(options => options
@@ -230,7 +229,7 @@ app.MapScalarApiReference(options => options
 );
 ```
 
-##### Basic Authentication
+#### Basic Authentication
 
 ```csharp
 app.MapScalarApiReference(options => options
@@ -302,8 +301,6 @@ app.MapScalarApiReference(options => options
     })
 );
 ```
-
-#### Advanced OAuth2 Configuration
 
 ##### Adding Custom OAuth Parameters
 
