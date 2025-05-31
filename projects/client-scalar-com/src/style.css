@@ -1,0 +1,9 @@
+html,
+body {
+  overscroll-behavior: none;
+}
+
+/** Add background for iOS and Safari scroll overflow */
+body {
+  background-color: var(--scalar-background-1);
+}
