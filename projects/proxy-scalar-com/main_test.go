@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,6 +20,11 @@ func setupTestServer(handler http.HandlerFunc) *proxyTestServer {
 		server: server,
 		url:    server.URL,
 	}
+}
+
+func init() {
+	// Remove all blocked CIDRs so our test server (on localhost) is allowed.
+	blockedCIDRs = []*net.IPNet{}
 }
 
 func TestBasicEndpoints(t *testing.T) {
@@ -331,8 +337,8 @@ func TestProxyBehavior(t *testing.T) {
 
 		proxyServer.handleRequest(w, req)
 
-		if w.Code != http.StatusServiceUnavailable {
-			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		if w.Code != http.StatusForbidden {
+			t.Errorf("Expected status code %d, got %d", http.StatusForbidden, w.Code)
 		}
 	})
 
@@ -385,7 +391,7 @@ func TestProxyBehavior(t *testing.T) {
 
 		// Create a request to the proxy with scalar_url pointing to initial path
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url+"/initial", nil)
-		req.Host = "proxy-host.com"  // Set the original host
+		req.Host = "proxy-host.com" // Set the original host
 		w := httptest.NewRecorder()
 
 		// Call the proxy handler
@@ -399,7 +405,6 @@ func TestProxyBehavior(t *testing.T) {
 		if w.Body.String() != "final destination" {
 			t.Errorf("Expected X-Forwarded-Host header to be 'final destination', got '%s'", w.Body.String())
 		}
-
 
 		// Check if X-Forwarded-Host header contains the final URL
 		expectedFinalURL := targetServer.url + "/final"
