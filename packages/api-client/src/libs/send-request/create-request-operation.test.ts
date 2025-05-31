@@ -213,30 +213,6 @@ describe('create-request-operation', () => {
     })
   })
 
-  // TODO: this doesn't actually hit the proxy due to 127.0.0.1
-  it('reaches the echo server *with* the proxy', async () => {
-    const [error, requestOperation] = createRequestOperation(
-      createRequestPayload({
-        serverPayload: { url: VOID_URL },
-        proxyUrl: PROXY_URL,
-      }),
-    )
-    if (error) {
-      throw error
-    }
-
-    const [requestError, result] = await requestOperation.sendRequest()
-
-    expect(requestError).toBe(null)
-    if (!result || !('data' in result.response)) {
-      throw new Error('No data')
-    }
-    expect(JSON.parse(result?.response.data as string)).toMatchObject({
-      method: 'GET',
-      path: '/',
-    })
-  })
-
   it('replaces variables in urls', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
