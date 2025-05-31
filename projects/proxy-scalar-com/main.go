@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"time"
 )
 
 // Blocked network CIDRs: loopback, link-local, private, CGNAT, local IPv6
@@ -18,8 +20,10 @@ var blockedCIDRs []*net.IPNet
 func init() {
 	// Prevent unwanted traffic forwarding for the following
 	cidrs := []string{
+		"0.0.0.0/32",
 		"127.0.0.0/8",
 		"::1/128",
+		"::/128",
 		"169.254.0.0/16",
 		"fe80::/10",
 		"10.0.0.0/8",
@@ -31,36 +35,61 @@ func init() {
 
 	for _, cidr := range cidrs {
 		_, network, err := net.ParseCIDR(cidr)
+
 		if err != nil {
 			log.Fatalf("Invalid CIDR %s: %v", cidr, err)
 		}
+
 		blockedCIDRs = append(blockedCIDRs, network)
 	}
 }
 
 // Check if a given hostname or IP resolves to any blocked CIDR
 func isBlockedHost(host string) bool {
+	// Strip port if present
 	h := host
 
-	// Strip port
 	if hostOnly, _, err := net.SplitHostPort(host); err == nil {
 		h = hostOnly
 	}
 
+	// Try to parse literal IP first
+	if ip := net.ParseIP(h); ip != nil {
+		// Normalize IPv4-mapped IPv6 (e.g. ::ffff:169.254.169.254)
+		if v4 := ip.To4(); v4 != nil {
+			ip = v4
+		}
+
+		for _, network := range blockedCIDRs {
+			if network.Contains(ip) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	// Otherwise resolve via DNS
 	ips, err := net.LookupIP(h)
 
-	// On DNS errors, block
 	if err != nil {
+		// On DNS errors, block
 		return true
 	}
 
 	for _, ip := range ips {
+		// Normalize IPv4-mapped IPv6
+		if v4 := ip.To4(); v4 != nil {
+			ip = v4
+		}
+
 		for _, network := range blockedCIDRs {
 			if network.Contains(ip) {
 				return true
 			}
 		}
 	}
+
 	return false
 }
 
@@ -104,12 +133,88 @@ type ProxyServer struct {
 
 // NewProxyServer creates a new proxy server instance
 func NewProxyServer(bypassCidr bool) *ProxyServer {
+	dialer := &net.Dialer{Timeout: 10 * time.Second}
+
 	return &ProxyServer{
 		bypassCidr: bypassCidr,
 		transport: &http.Transport{
 			// Skip TLS verification. This is useful for development environments
 			// where the target API might use self-signed certificates.
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+			// Handle custom dial for cidr checks
+			DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
+				host, port, _ := net.SplitHostPort(addr)
+
+				// If bypassCidr is true, skip CIDR checks
+				if bypassCidr {
+					return dialer.DialContext(ctx, network, addr)
+				}
+
+				// Try to parse literal IP first
+				if ip := net.ParseIP(host); ip != nil {
+					// Normalize IPv4-mapped IPv6
+					if v4 := ip.To4(); v4 != nil {
+						ip = v4
+					}
+
+					for _, block := range blockedCIDRs {
+						if block.Contains(ip) {
+							return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
+						}
+					}
+
+					// Format chosen with brackets if IPv6
+					var chosen string
+					if ip.To4() == nil {
+						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
+					} else {
+						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
+					}
+
+					return dialer.DialContext(ctx, network, chosen)
+				}
+
+				// Re-resolve hostname on every dial
+				ips, err := net.LookupIP(host)
+
+				if err != nil {
+					return nil, err
+				}
+
+				// Check all returned IPs against blocked ranges
+				for _, ip := range ips {
+					if v4 := ip.To4(); v4 != nil {
+						ip = v4
+					}
+
+					for _, block := range blockedCIDRs {
+						if block.Contains(ip) {
+							return nil, fmt.Errorf("dial to blocked IP %s", ip.String())
+						}
+					}
+				}
+
+				// Pick the first allowed IP to dial
+				if len(ips) > 0 {
+					ip := ips[0]
+
+					if v4 := ip.To4(); v4 != nil {
+						ip = v4
+					}
+
+					// Format with brackets if IPv6
+					var chosen string
+					if ip.To4() == nil {
+						chosen = fmt.Sprintf("[%s]:%s", ip.String(), port)
+					} else {
+						chosen = fmt.Sprintf("%s:%s", ip.String(), port)
+					}
+
+					return dialer.DialContext(ctx, network, chosen)
+				}
+
+				return nil, fmt.Errorf("no IPs to dial for host %s", host)
+			},
 		},
 	}
 }
