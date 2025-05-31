@@ -63,6 +63,28 @@ describe('Replaces template vars with context values', () => {
     const res = replaceTemplateVariables('{{name}} and {single.name} which is {single.age}', ctx)
     expect(res).toEqual('Dave and Nolan which is 1 month')
   })
+
+  it('Preserves variable placeholders when value is empty string', () => {
+    const ctxWithEmpty = {
+      name: 'Dave',
+      emptyValue: '',
+      nullValue: null,
+      undefinedValue: undefined,
+    }
+
+    const res = replaceTemplateVariables('/api/{name}/{emptyValue}', ctxWithEmpty)
+    expect(res).toEqual('/api/Dave/{emptyValue}')
+  })
+
+  it('Preserves double curly variable placeholders when value is empty string', () => {
+    const ctxWithEmpty = {
+      name: 'Dave',
+      emptyValue: '',
+    }
+
+    const res = replaceTemplateVariables('{{name}} and {{emptyValue}}', ctxWithEmpty)
+    expect(res).toEqual('Dave and {{emptyValue}}')
+  })
 })
 
 describe('Gets dot nested paths for an environment', () => {
