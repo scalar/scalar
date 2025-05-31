@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.31.3
+
+### Patch Changes
+
+- 494f7f0: chore(api-reference): delete rogue Tailwind v3 config
+- Updated dependencies [ee3eb77]
+  - @scalar/openapi-parser@0.14.0
+  - @scalar/api-client@2.5.2
+  - @scalar/oas-utils@0.4.1
+
 ## 1.31.2
 
 ### Patch Changes

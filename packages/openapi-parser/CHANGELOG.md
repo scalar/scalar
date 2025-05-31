@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.14.0
+
+### Minor Changes
+
+- ee3eb77: feat(openapi-parser): bundle openapi documents
+
 ## 0.13.0
 
 ### Minor Changes
