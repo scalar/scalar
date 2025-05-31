@@ -195,161 +195,37 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 
 ### Authentication
 
-Scalar supports various authentication schemes, including API Key, OAuth2 (with multiple flows), and HTTP Basic/Bearer, by allowing you to pre-fill certain authentication details.
+Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
-These details can only be prefilled if the security schemes are defined in the OpenAPI document. Make sure your OpenAPI document includes the necessary security schemes for authentication to work correctly. The scheme is added by the OpenAPI generator, and the implementation may vary depending on the generator used (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). For more information, please refer to the documentation of the respective generator.
+> [!IMPORTANT]
+> **Prerequisites**: Authentication schemes must be defined in your OpenAPI document. Scalar can only pre-fill details for schemes that already exist in the specification.
 
 > [!WARNING]
-> Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
+> **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
 
-#### API Key Authentication
+#### Quick Start Examples
 
-To configure API key authentication:
+##### API Key Authentication
 
 ```csharp
 app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("ApiKey") // Optional: Sets the default security scheme
+    .AddPreferredSecuritySchemes("ApiKey") // Make this the default auth method
     .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
-        apiKey.Value = "your-api-key";
+        apiKey.Value = "your-api-key-here";
     })
 );
 ```
 
-#### OAuth2 Authentication
-
-Scalar supports various OAuth2 flows through specific helper methods, but all of these methods are built on top of a core configuration method called `AddOAuth2Authentication`. This method gives you direct control over the OAuth2 security scheme configuration:
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddOAuth2Authentication("OAuth2", scheme => 
-    {
-        // Configure flows manually
-        scheme.Flows = new ScalarFlows
-        {
-            AuthorizationCode = new AuthorizationCodeFlow
-            {
-                ClientId = "your-client-id",
-                RedirectUri = "https://your-app.com/callback"
-            },
-            ClientCredentials = new ClientCredentialsFlow
-            {
-                ClientId = "your-client-id",
-                ClientSecret = "your-client-secret"
-            }
-        };
-        
-        // Set default scopes
-        scheme.DefaultScopes = ["profile", "email"];
-    })
-);
-```
-
-> [!NOTE]
-> All the OAuth2 convenience methods (`AddClientCredentialsFlow`, `AddAuthorizationCodeFlow`, 
-> `AddImplicitFlow`, `AddPasswordFlow`, and `AddOAuth2Flows`) are wrappers around this core 
-> `AddOAuth2Authentication` method. These convenience methods make it easier to configure specific 
-> flows without having to set up the entire structure manually.
-
-##### Authorization Code Flow
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddAuthorizationCodeFlow("OAuth2", flow => flow
-        .WithClientId("your-client-id")
-        .WithClientSecret("your-client-secret")
-        .WithPkce(Pkce.Sha256)
-        .WithSelectedScopes("profile", "email"))
-);
-```
-
-##### Client Credentials Flow
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddClientCredentialsFlow("OAuth2", flow => flow
-        .WithClientId("your-client-id")
-        .WithClientSecret("your-client-secret"))
-);
-```
-
-##### Implicit Flow
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddImplicitFlow("OAuth2", flow => flow.WithClientId("your-client-id"))
-);
-```
-
-##### Password Flow
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddPasswordFlow("OAuth2", flow => flow
-        .WithClientId("your-client-id")
-        .WithUsername("default-username") // Pre-filled username
-        .WithPassword("default-password")) // Pre-filled password
-);
-```
-
-##### Additional Query Parameters
-
-All OAuth2 flows support additional query parameters that can be included in the OAuth request using the `AddQueryParameter` extension method. This is useful for adding custom parameters required by your OAuth provider, such as `audience`, `resource`, or other provider-specific parameters:
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddAuthorizationCodeFlow("OAuth2", flow => flow
-        .WithClientId("your-client-id")
-        .AddQueryParameter("audience", "https://api.example.com")
-        .AddQueryParameter("resource", "https://graph.microsoft.com")
-        .AddQueryParameter("custom_param", "custom_value"))
-);
-```
-
-##### Multiple OAuth2 Flows
-
-You can configure multiple OAuth2 flows for a single security scheme:
-
-```csharp
-app.MapScalarApiReference(options => options
-    .AddPreferredSecuritySchemes("OAuth2")
-    .AddOAuth2Flows("OAuth2", flows =>
-    {
-        // Authorization Code flow
-        flows.AuthorizationCode = new AuthorizationCodeFlow()
-            .WithClientId("your-client-id")
-            .WithAuthorizationUrl("https://auth.example.com/oauth2/authorize")
-            .WithTokenUrl("https://auth.example.com/oauth2/token")
-            .WithRedirectUri("https://your-app.com/callback");
-        
-        // Client Credentials flow
-        flows.ClientCredentials = new ClientCredentialsFlow()
-            .WithClientId("your-client-id")
-            .WithClientSecret("your-client-secret")
-            .WithTokenUrl("https://auth.example.com/oauth2/token");
-    })
-    // All OAuth flows will have preselected scopes
-    .AddDefaultScopes("OAuth2", ["profile", "email"])
-);
-```
-
-#### HTTP Authentication
-
-##### Bearer Authentication
+##### Bearer Token Authentication
 
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("BearerAuth")
     .AddHttpAuthentication("BearerAuth", auth =>
     {
-        auth.Token = "ey...";
+        auth.Token = "eyJhbGciOiJ...";
     })
-    .WithPersistentAuthentication() // Persists authentication between page refreshes
 );
 ```
 
@@ -360,8 +236,143 @@ app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("BasicAuth")
     .AddHttpAuthentication("BasicAuth", auth =>
     {
-        auth.Username = "your-username";
-        auth.Password = "your-password";
+        auth.Username = "demo-user";
+        auth.Password = "demo-password";
+    })
+);
+```
+
+#### OAuth2 Authentication
+
+Scalar provides convenience methods for each OAuth2 flow type to pre-fill authentication details in the API reference interface:
+
+##### Authorization Code Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.ClientSecret = "your-client-secret";
+        flow.Pkce = Pkce.Sha256; // Enable PKCE
+        flow.SelectedScopes = ["read", "write"]; // Pre-select scopes 
+    })
+);
+```
+
+##### Client Credentials Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddClientCredentialsFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-service-client-id";
+        flow.ClientSecret = "your-service-client-secret";
+        flow.SelectedScopes = ["read", "write"]; // Pre-select scopes
+    })
+);
+```
+
+##### Password Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddPasswordFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        flow.Username = "demo-user"; // Pre-fill username 
+        flow.Password = "demo-password"; // Pre-fill password 
+    })
+);
+```
+
+##### Implicit Flow
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddImplicitFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-spa-client-id";
+        flow.SelectedScopes = ["openid", "profile"]; // Pre-select scopes
+    })
+);
+```
+
+#### Advanced OAuth2 Configuration
+
+##### Adding Custom OAuth Parameters
+
+Many OAuth providers require additional parameters:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+        // Add provider-specific parameters
+        flow
+            .AddQueryParameter("audience", "https://api.example.com")
+            .AddQueryParameter("resource", "https://graph.microsoft.com");
+
+        // Alternatively, set query parameters using the property
+        flow.AdditionalQueryParameters = new Dictionary<string, string>
+        {
+            ["audience"] = "https://api.example.com",
+            ["resource"] = "https://graph.microsoft.com"
+        };
+    })
+);
+```
+
+##### Multiple OAuth2 Flows
+
+Configure multiple flows for the same OAuth2 scheme:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddOAuth2Flows("OAuth2", flows =>
+    {
+        flows.AuthorizationCode = new AuthorizationCodeFlow
+        {
+            ClientId = "web-client-id",
+            AuthorizationUrl = "https://auth.example.com/oauth2/authorize",
+            TokenUrl = "https://auth.example.com/oauth2/token"
+        };
+        
+        flows.ClientCredentials = new ClientCredentialsFlow
+        {
+            ClientId = "service-client-id",
+            ClientSecret = "service-client-secret",
+            TokenUrl = "https://auth.example.com/oauth2/token"
+        };
+    })
+    .AddDefaultScopes("OAuth2", ["read", "write"]) // Apply to all flows
+);
+```
+
+##### Manual OAuth2 Configuration
+
+For complete control over the OAuth2 configuration:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddOAuth2Authentication("OAuth2", scheme => 
+    {
+        scheme.Flows = new ScalarFlows
+        {
+            AuthorizationCode = new AuthorizationCodeFlow
+            {
+                ClientId = "your-client-id",
+                RedirectUri = "https://your-app.com/callback"
+            }
+        };
+        scheme.DefaultScopes = ["profile", "email"];
     })
 );
 ```
@@ -372,13 +383,14 @@ You can configure multiple security schemes at once:
 
 ```csharp
 app.MapScalarApiReference(options => options
-    // Set the preferred (default) schemes - you can specify multiple preferred schemes
-    .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
+    // Set multiple preferred schemes
+    .AddPreferredSecuritySchemes("OAuth2", "ApiKey", "BasicAuth")
     
     // Configure OAuth2
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
+        flow.SelectedScopes = ["read", "write"];
     })
     
     // Configure API Key
@@ -390,24 +402,49 @@ app.MapScalarApiReference(options => options
     // Configure HTTP Basic
     .AddHttpAuthentication("BasicAuth", auth =>
     {
-        auth.Username = "your-username";
-        auth.Password = "your-password";
-    });
+        auth.Username = "demo-user";
+        auth.Password = "demo-password";
+    })
 );
 ```
 
-> [!NOTE]
-> For more detailed information about authentication, including how to configure security schemes in your OpenAPI document, refer to the [authentication documentation](https://github.com/scalar/scalar/blob/main/integrations/aspnetcore/docs/authentication.md).
+#### Fluent API Configuration
 
-#### Persisting Authentication
-
-By default, authentication information is not persisted when the page is refreshed. To enable persistence of authentication data in the browser's local storage, use the `WithPersistentAuthentication` method:
+All authentication configuration shown above can also be configured using the fluent API syntax. Here is an example of how to set up multiple authentication schemes using the fluent API:
 
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2", "ApiKey")
-    // Configure your authentication schemes here
-    .WithPersistentAuthentication() // Enable persistence (default is true)
+    .AddOAuth2Authentication("OAuth2", scheme => scheme
+        .WithFlows(flows => flows
+            .WithAuthorizationCode(flow => flow
+                .WithAuthorizationUrl("https://example.com/oauth2/authorize")
+                .WithTokenUrl("https://example.com/oauth2/token")
+                .WithRefreshUrl("https://example.com/oauth2/refresh")
+                .WithClientId("web-client-id"))
+            .WithClientCredentials(flow => flow
+                .WithTokenUrl("https://example.com/oauth2/token")
+                .WithClientId("service-client-id")
+                .WithClientSecret("service-secret")
+                .WithSelectedScopes("read", "write")))
+        .WithDefaultScopes(["profile", "email"])
+    )
+    .AddApiKeyAuthentication("ApiKey", scheme => scheme.WithValue("my-api-key"))
+);
+```
+
+#### Persisting Authentication
+
+By default, authentication information is lost when the page is refreshed. To persist authentication data in the browser's local storage, use the `WithPersistentAuthentication()` method or the `PersistentAuthentication` property:
+
+```csharp
+app.MapScalarApiReference(options => options
+    .AddPreferredSecuritySchemes("OAuth2")
+    .AddAuthorizationCodeFlow("OAuth2", flow =>
+    {
+        flow.ClientId = "your-client-id";
+    })
+    .WithPersistentAuthentication() // Enable persistence
 );
 ```
 
