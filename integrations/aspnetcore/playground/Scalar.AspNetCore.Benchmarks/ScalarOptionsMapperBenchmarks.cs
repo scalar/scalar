@@ -1,11 +1,12 @@
 ﻿using System.Text.Json;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 
 namespace Scalar.AspNetCore.Benchmarks;
 
 [MemoryDiagnoser]
-[ShortRunJob]
-[MarkdownExporterAttribute.GitHub]
+[SimpleJob(RuntimeMoniker.Net90)]
+[SimpleJob(RuntimeMoniker.Net80)]
 public class ScalarOptionsMapperBenchmarks
 {
     private ScalarOptions _simpleOptions = null!;
@@ -13,7 +14,11 @@ public class ScalarOptionsMapperBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _simpleOptions = new ScalarOptions();
+        _simpleOptions = new ScalarOptions
+        {
+            EnabledClients = [ScalarClient.HttpClient, ScalarClient.RestSharp],
+            EnabledTargets = [ScalarTarget.CSharp]
+        };
     }
 
     [Benchmark(Baseline = true)]
