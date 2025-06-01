@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, provide, ref } from 'vue'
