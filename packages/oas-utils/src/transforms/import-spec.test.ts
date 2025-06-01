@@ -1045,6 +1045,7 @@ describe('parseSchema', () => {
         name: { type: 'string' },
       },
     })
+    // @ts-expect-error - shrug
     expect(schema.paths?.['/foobar']?.get?.responses?.['200']?.content?.['application/json']?.schema).toMatchObject({
       type: 'object',
       properties: {
