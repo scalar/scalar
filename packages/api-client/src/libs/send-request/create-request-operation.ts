@@ -179,9 +179,6 @@ export const createRequestOperation = ({
       headers,
     })
 
-    console.log('Proxied request', proxiedRequest)
-    console.log('Proxied headers', headers)
-
     const sendRequest = async (): Promise<
       ErrorResponse<{
         response: ResponseInstance
