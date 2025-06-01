@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
+  </ItemGroup>
+
+</Project>
