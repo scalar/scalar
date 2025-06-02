@@ -1738,9 +1738,9 @@ importers:
 
   packages/import:
     dependencies:
-      '@scalar/oas-utils':
+      '@scalar/helpers':
         specifier: workspace:*
-        version: link:../oas-utils
+        version: link:../helpers
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -2070,6 +2070,9 @@ importers:
 
   packages/postman-to-openapi:
     dependencies:
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils

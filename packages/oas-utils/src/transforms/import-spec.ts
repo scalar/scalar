@@ -1,8 +1,17 @@
+import { isDefined } from '@scalar/helpers/array/is-defined'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import { combineUrlAndPath } from '@scalar/helpers/url/merge-urls'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { type LoadResult, dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SecuritySchemeOauth2 } from '@scalar/types/entities'
+import {
+  type Oauth2FlowPayload,
+  type SecurityScheme,
+  type SecuritySchemePayload,
+  securitySchemeSchema,
+} from '@scalar/types/entities'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -13,16 +22,7 @@ import { type RequestExample, createExampleFromRequest } from '@/entities/spec/r
 import { type Request, type RequestPayload, requestSchema } from '@/entities/spec/requests'
 import { type Server, serverSchema } from '@/entities/spec/server'
 import { type Tag, tagSchema } from '@/entities/spec/spec-objects'
-import { isHttpMethod } from '@/helpers/http-methods'
-import { isDefined } from '@/helpers/is-defined'
-import { combineUrlAndPath } from '@/helpers/merge-urls'
 import { schemaModel } from '@/helpers/schema-model'
-import {
-  type Oauth2FlowPayload,
-  type SecurityScheme,
-  type SecuritySchemePayload,
-  securitySchemeSchema,
-} from '@scalar/types/entities'
 
 const dereferenceDocument = async (
   document: string | UnknownObject,

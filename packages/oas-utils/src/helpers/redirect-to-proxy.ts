@@ -1,4 +1,5 @@
-import { isLocalUrl } from './is-local-url'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 
 /**
  * Redirects the request to a proxy server with a given URL. But not for:

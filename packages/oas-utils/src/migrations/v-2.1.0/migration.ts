@@ -1,7 +1,8 @@
-import { camelToTitleWords, capitalize } from '@/helpers/string'
+import { capitalize } from '@scalar/helpers/string/capitalize'
+import { camelToTitleWords } from '@scalar/helpers/string/camel-to-title'
+
 import { parseLocalStorage } from '@/migrations/local-storage'
 import type { v_0_0_0 } from '@/migrations/v-0.0.0/types.generated'
-
 import type { v_2_1_0 } from './types.generated'
 
 /** V-0.0.0 to V-2.1.0 migration */
