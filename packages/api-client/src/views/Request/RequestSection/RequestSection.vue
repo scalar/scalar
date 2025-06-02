@@ -54,7 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
-  'Scripts',
+  // 'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
