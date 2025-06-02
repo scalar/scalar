@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { isMacOs } from './is-mac-os'
+import { isMacOS } from './is-mac-os'
 
-describe('isMacOs', () => {
+describe('isMacOS', () => {
   it('returns true when userAgentData indicates macOS', () => {
     // Mock modern userAgentData API
     Object.defineProperty(global, 'navigator', {
@@ -14,7 +14,7 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(true)
+    expect(isMacOS()).toBe(true)
   })
 
   it('returns true when userAgentData indicates MacIntel', () => {
@@ -28,7 +28,7 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(true)
+    expect(isMacOS()).toBe(true)
   })
 
   it('returns false when userAgentData indicates Windows', () => {
@@ -42,7 +42,7 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(false)
+    expect(isMacOS()).toBe(false)
   })
 
   it('falls back to userAgent when userAgentData is not available', () => {
@@ -54,7 +54,7 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(true)
+    expect(isMacOS()).toBe(true)
   })
 
   it('returns false when userAgent indicates Windows', () => {
@@ -66,7 +66,7 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(false)
+    expect(isMacOS()).toBe(false)
   })
 
   it('returns false when navigator is undefined', () => {
@@ -76,6 +76,6 @@ describe('isMacOs', () => {
       writable: true,
     })
 
-    expect(isMacOs()).toBe(false)
+    expect(isMacOS()).toBe(false)
   })
 })
