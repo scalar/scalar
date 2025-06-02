@@ -182,7 +182,7 @@ export function useModal() {
   box-shadow: none !important;
   border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-@variant zoomed {
+@variant md {
   .full-size-styles {
     width: 50dvw !important;
   }
