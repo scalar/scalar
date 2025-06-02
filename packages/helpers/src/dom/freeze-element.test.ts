@@ -129,10 +129,15 @@ describe('freezeElement', () => {
   it('cancels pending animation frame when new mutation occurs', async () => {
     const unfreeze = freezeElement(targetElement)
 
-    // Trigger multiple mutations in quick succession
+    // Trigger first mutation
     const child1 = document.createElement('div')
-    const child2 = document.createElement('div')
     targetElement.appendChild(child1)
+
+    // Small delay to ensure first mutation is processed
+    await new Promise((resolve) => setTimeout(resolve, 0))
+
+    // Trigger second mutation before the first frame executes
+    const child2 = document.createElement('div')
     targetElement.appendChild(child2)
 
     // Wait for the next frame
