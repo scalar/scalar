@@ -59,11 +59,9 @@ function hasSchema(
 
   align-self: flex-start;
 }
-
 .headers-card.headers-card--open {
   align-self: initial;
 }
-
 .headers-card-title {
   padding: 6px 10px;
 
@@ -86,15 +84,6 @@ button.headers-card-title:hover {
 .headers-card-title-icon--open {
   transform: rotate(45deg);
 }
-.headers-properties-open > .headers-card-title {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.headers-properties-open {
-  width: 100%;
-}
-
 .headers-properties {
   display: flex;
   flex-direction: column;
@@ -104,11 +93,18 @@ button.headers-card-title:hover {
   border-radius: 13.5px;
   width: fit-content;
 }
-
+.headers-properties-open > .headers-card-title {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.headers-properties-open {
+  border-radius: var(--scalar-radius-lg);
+  width: 100%;
+}
 .headers-card .property:last-of-type {
   padding-bottom: 10px;
 }
-
 .headers-card-title > .headers-card-title-icon {
   width: 10px;
   height: 10px;
