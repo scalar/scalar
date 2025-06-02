@@ -1,3 +1,10 @@
+/** Function overload for createApiReference to allow multiple different signatures */
+export type Measure = {
+  <T>(name: string, fn: () => T): T
+  <T>(name: string, fn: () => Promise<T>): Promise<T>
+  <T>(name: string, fn: () => T | Promise<T>): T | Promise<T>
+}
+
 /**
  * Measures the execution time of a function and logs it.
  * Works with both async and sync functions.
@@ -16,9 +23,7 @@
  * })
  * ```
  */
-export function measure<T>(name: string, fn: () => Promise<T>): Promise<T>
-export function measure<T>(name: string, fn: () => T): T
-export function measure<T>(name: string, fn: () => T | Promise<T>): T | Promise<T> {
+export const measure: Measure = (name, fn) => {
   const start = performance.now()
 
   const result = fn()

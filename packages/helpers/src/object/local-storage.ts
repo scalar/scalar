@@ -23,7 +23,7 @@ export const REFERENCE_LS_KEYS = {
 } as const
 
 /** SSR safe alias for localStorage */
-export const safeLocalStorage =
+export const safeLocalStorage = () =>
   typeof window === 'undefined'
     ? {
         getItem: () => null,

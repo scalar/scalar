@@ -1,5 +1,5 @@
-import { isRelativePath } from './is-relative-path'
 import { REGEX } from '@/regex/regex-helpers'
+import { isRelativePath } from './is-relative-path'
 import { ensureProtocol } from './ensure-protocol'
 
 /**
