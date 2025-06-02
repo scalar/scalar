@@ -128,7 +128,7 @@ describe('HTTP Status Codes', () => {
   describe('Edge Cases', () => {
     it("should handle special status codes like 418 I'm a teapot", () => {
       expect(httpStatusCodes['418']).toBeDefined()
-      expect(httpStatusCodes['418'].name).toBe("I'm a teapot")
+      expect(httpStatusCodes['418']?.name).toBe("I'm a teapot")
     })
 
     it('should handle status codes with special characters in names', () => {

@@ -4,9 +4,9 @@ export type HttpStatusCode = {
   color: string
 }
 
-export type HttpStatusCodes = Record<string, HttpStatusCode>
+export type HttpStatusCodes = Record<string | number, HttpStatusCode>
 
-export const httpStatusCodes = {
+export const httpStatusCodes: HttpStatusCodes = {
   100: {
     name: 'Continue',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100',
@@ -322,4 +322,4 @@ export const httpStatusCodes = {
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/511',
     color: 'var(--scalar-color-red)',
   },
-} as const satisfies HttpStatusCodes
+}

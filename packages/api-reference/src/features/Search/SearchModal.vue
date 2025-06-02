@@ -7,6 +7,7 @@ import {
   type Icon,
   type ModalState,
 } from '@scalar/components'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
@@ -19,7 +20,6 @@ import {
   type EntryType,
   type FuseData,
 } from '@/features/Search/useSearchIndex'
-import { scrollToId } from '@/helpers/scroll-to-id'
 import { useSidebar } from '@/hooks/useSidebar'
 
 const props = defineProps<{

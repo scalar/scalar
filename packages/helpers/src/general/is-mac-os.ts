@@ -2,7 +2,7 @@
  * Checks whether the user is on macOS
  * Uses the modern navigator.userAgentData API with a fallback to navigator.userAgent
  */
-export const isMacOs = () => {
+export const isMacOS = () => {
   if (typeof navigator === 'undefined') {
     return false
   }

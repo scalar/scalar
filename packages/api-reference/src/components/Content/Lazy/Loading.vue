@@ -3,6 +3,7 @@
 const hasLoaded = ref(false)
 </script>
 <script lang="ts" setup>
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type {
@@ -24,7 +25,6 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import { scrollToId } from '@/helpers/scroll-to-id'
 import { useNavState } from '@/hooks/useNavState'
 import { getModels } from '@/libs/openapi'
 

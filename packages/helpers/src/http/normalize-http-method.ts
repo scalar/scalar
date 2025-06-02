@@ -7,7 +7,7 @@ const DEFAULT_REQUEST_METHOD = 'get' as const
  * Get a normalized request method (e.g. get, post, etc.)
  * Lowercases the method and returns the default if it is not a valid method so you will always have a valid method
  */
-export const normalizeRequestMethod = (method?: string): HttpMethod => {
+export const normalizeHttpMethod = (method?: string): HttpMethod => {
   // Make sure it's a string
   if (typeof method !== 'string') {
     console.warn(`Request method is not a string. Using ${DEFAULT_REQUEST_METHOD} as the default.`)

@@ -1,35 +1,35 @@
 import { describe, it, expect } from 'vitest'
-import { normalizeRequestMethod } from './normalize-http-method'
+import { normalizeHttpMethod } from './normalize-http-method'
 import { HTTP_METHODS } from './http-methods'
 import { consoleWarnSpy } from '@/testing/console-spies'
 
-describe('normalizeRequestMethod', () => {
+describe('normalizeHttpMethod', () => {
   describe('valid HTTP methods', () => {
     it.each(HTTP_METHODS)('should normalize valid HTTP method: %s', (method) => {
       // Test lowercase
-      expect(normalizeRequestMethod(method)).toBe(method)
+      expect(normalizeHttpMethod(method)).toBe(method)
       expect(consoleWarnSpy).not.toHaveBeenCalled()
 
       // Test uppercase
-      expect(normalizeRequestMethod(method.toUpperCase())).toBe(method)
+      expect(normalizeHttpMethod(method.toUpperCase())).toBe(method)
       expect(consoleWarnSpy).not.toHaveBeenCalled()
 
       // Test mixed case
-      expect(normalizeRequestMethod(method.charAt(0).toUpperCase() + method.slice(1))).toBe(method)
+      expect(normalizeHttpMethod(method.charAt(0).toUpperCase() + method.slice(1))).toBe(method)
       expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
 
     it('should handle whitespace in valid methods', () => {
-      expect(normalizeRequestMethod(' get ')).toBe('get')
-      expect(normalizeRequestMethod('\tpost\n')).toBe('post')
-      expect(normalizeRequestMethod('  put  ')).toBe('put')
+      expect(normalizeHttpMethod(' get ')).toBe('get')
+      expect(normalizeHttpMethod('\tpost\n')).toBe('post')
+      expect(normalizeHttpMethod('  put  ')).toBe('put')
       expect(consoleWarnSpy).not.toHaveBeenCalled()
     })
   })
 
   describe('invalid inputs', () => {
     it('should return default method for undefined input', () => {
-      expect(normalizeRequestMethod(undefined)).toBe('get')
+      expect(normalizeHttpMethod(undefined)).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalledWith('Request method is not a string. Using get as the default.')
     })
 
@@ -37,7 +37,7 @@ describe('normalizeRequestMethod', () => {
       const nonStringInputs = [123, true, false, {}, [], () => {}, Symbol('test')]
 
       nonStringInputs.forEach((input) => {
-        expect(normalizeRequestMethod(input as unknown as string)).toBe('get')
+        expect(normalizeHttpMethod(input as unknown as string)).toBe('get')
         expect(consoleWarnSpy).toHaveBeenCalledWith('Request method is not a string. Using get as the default.')
       })
     })
@@ -60,7 +60,7 @@ describe('normalizeRequestMethod', () => {
       ]
 
       invalidMethods.forEach((method) => {
-        expect(normalizeRequestMethod(method)).toBe('get')
+        expect(normalizeHttpMethod(method)).toBe('get')
         expect(consoleWarnSpy).toHaveBeenCalledWith(
           `${method} is not a valid request method. Using get as the default.`,
         )
@@ -68,14 +68,14 @@ describe('normalizeRequestMethod', () => {
     })
 
     it('should handle empty string', () => {
-      expect(normalizeRequestMethod('')).toBe('get')
+      expect(normalizeHttpMethod('')).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Request method is not a valid request method. Using get as the default.',
       )
     })
 
     it('should handle whitespace-only strings', () => {
-      expect(normalizeRequestMethod('   ')).toBe('get')
+      expect(normalizeHttpMethod('   ')).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Request method is not a valid request method. Using get as the default.',
       )
@@ -84,22 +84,22 @@ describe('normalizeRequestMethod', () => {
 
   describe('edge cases', () => {
     it('should handle special characters in method names', () => {
-      expect(normalizeRequestMethod('get!')).toBe('get')
-      expect(normalizeRequestMethod('post?')).toBe('get')
-      expect(normalizeRequestMethod('put#')).toBe('get')
+      expect(normalizeHttpMethod('get!')).toBe('get')
+      expect(normalizeHttpMethod('post?')).toBe('get')
+      expect(normalizeHttpMethod('put#')).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
     it('should handle mixed case with special characters', () => {
-      expect(normalizeRequestMethod('GeT!')).toBe('get')
-      expect(normalizeRequestMethod('PoSt?')).toBe('get')
-      expect(normalizeRequestMethod('PuT#')).toBe('get')
+      expect(normalizeHttpMethod('GeT!')).toBe('get')
+      expect(normalizeHttpMethod('PoSt?')).toBe('get')
+      expect(normalizeHttpMethod('PuT#')).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
 
     it('should handle very long strings', () => {
       const longString = 'get'.repeat(100)
-      expect(normalizeRequestMethod(longString)).toBe('get')
+      expect(normalizeHttpMethod(longString)).toBe('get')
       expect(consoleWarnSpy).toHaveBeenCalled()
     })
   })

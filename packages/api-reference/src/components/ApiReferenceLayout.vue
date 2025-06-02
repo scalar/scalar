@@ -9,6 +9,7 @@ import {
   addScalarClassesToHeadless,
   ScalarErrorBoundary,
 } from '@scalar/components'
+import { sleep } from '@scalar/helpers/testing/sleep'
 import {
   getThemeStyles,
   hasObtrusiveScrollbars,
@@ -38,7 +39,6 @@ import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
-import { sleep } from '@/helpers/sleep'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'

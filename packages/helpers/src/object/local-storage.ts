@@ -22,6 +22,15 @@ export const REFERENCE_LS_KEYS = {
   SELECTED_CLIENT: 'scalar-reference-selected-client',
 } as const
 
+/**
+ * localStorage keys for all client resources
+ * to ensure we do not have any conflicts
+ */
+export const CLIENT_LS_KEYS = {
+  AUTH: 'scalar-client-auth',
+  SELECTED_SECURITY_SCHEMES: 'scalar-client-selected-security-schemes',
+} as const
+
 /** SSR safe alias for localStorage */
 export const safeLocalStorage = () =>
   typeof window === 'undefined'

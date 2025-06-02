@@ -14,4 +14,7 @@ build({
     'src/url/*.ts',
   ],
   platform: 'shared',
+  options: {
+    treeShaking: true,
+  },
 })

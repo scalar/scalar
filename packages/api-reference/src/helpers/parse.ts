@@ -3,13 +3,13 @@
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
 import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
-import { normalizeRequestMethod } from '@/legacy/helpers'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '@/libs/openapi'
+import { normalizeHttpMethod } from '@scalar/helpers/http/normalize-http-method'
 
 type AnyObject = Record<string, any>
 
@@ -113,7 +113,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
 
       newWebhooks[name][httpVerb] = {
         // Transformed data
-        httpVerb: normalizeRequestMethod(httpVerb),
+        httpVerb: normalizeHttpMethod(httpVerb),
         path: name,
         operationId: originalWebhook?.operationId || name,
         name: originalWebhook?.summary || name || '',
@@ -157,7 +157,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
 
       // Transform the operation
       const newOperation = {
-        httpVerb: normalizeRequestMethod(requestMethod),
+        httpVerb: normalizeHttpMethod(requestMethod),
         path,
         operationId: operation.operationId || path,
         name: operation.summary || path || '',

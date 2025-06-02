@@ -204,6 +204,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/import": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
