@@ -62,7 +62,7 @@ describe('scroll-to-id', () => {
 
     await scrollToId('test-element')
 
-    rafCallbacks[0](0)
+    rafCallbacks[0]?.(0)
 
     expect(document.getElementById).toHaveBeenCalledTimes(2)
     expect(mockElement.scrollIntoView).toHaveBeenCalledOnce()
@@ -84,12 +84,12 @@ describe('scroll-to-id', () => {
 
     scrollToId('non-existent-element')
 
-    rafCallbacks[0](0)
+    rafCallbacks[0]?.(0)
     expect(mockRaf).toHaveBeenCalledTimes(2)
 
     currentTime = 1001
 
-    rafCallbacks[1](0)
+    rafCallbacks[1]?.(0)
     expect(mockRaf).toHaveBeenCalledTimes(2)
   })
 

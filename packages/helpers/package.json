@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/oas-utils"
+    "directory": "packages/helpers"
   },
   "keywords": [
     "helpers",
@@ -29,7 +29,58 @@
   },
   "type": "module",
   "main": "dist/index.js",
-  "exports": {},
+  "exports": {
+    "./array/*": {
+      "import": "./dist/array/*.js",
+      "types": "./dist/array/*.d.ts",
+      "default": "./dist/array/*.js"
+    },
+    "./dom/*": {
+      "import": "./dist/dom/*.js",
+      "types": "./dist/dom/*.d.ts",
+      "default": "./dist/dom/*.js"
+    },
+    "./file/*": {
+      "import": "./dist/file/*.js",
+      "types": "./dist/file/*.d.ts",
+      "default": "./dist/file/*.js"
+    },
+    "./general/*": {
+      "import": "./dist/general/*.js",
+      "types": "./dist/general/*.d.ts",
+      "default": "./dist/general/*.js"
+    },
+    "./http/*": {
+      "import": "./dist/http/*.js",
+      "types": "./dist/http/*.d.ts",
+      "default": "./dist/http/*.js"
+    },
+    "./object/*": {
+      "import": "./dist/object/*.js",
+      "types": "./dist/object/*.d.ts",
+      "default": "./dist/object/*.js"
+    },
+    "./regex/*": {
+      "import": "./dist/regex/*.js",
+      "types": "./dist/regex/*.d.ts",
+      "default": "./dist/regex/*.js"
+    },
+    "./string/*": {
+      "import": "./dist/string/*.js",
+      "types": "./dist/string/*.d.ts",
+      "default": "./dist/string/*.js"
+    },
+    "./testing/*": {
+      "import": "./dist/testing/*.js",
+      "types": "./dist/testing/*.d.ts",
+      "default": "./dist/testing/*.js"
+    },
+    "./url/*": {
+      "import": "./dist/url/*.js",
+      "types": "./dist/url/*.d.ts",
+      "default": "./dist/url/*.js"
+    }
+  },
   "files": [
     "dist",
     "CHANGELOG.md"

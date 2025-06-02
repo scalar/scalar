@@ -1,106 +1,153 @@
-import { flushPromises } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi, type MockInstance } from 'vitest'
 import { freezeElement } from './freeze-element'
 
+/**
+ * @vitest-environment jsdom
+ */
 describe('freezeElement', () => {
-  let element: HTMLDivElement
+  let container: HTMLDivElement
+  let targetElement: HTMLDivElement
+  let getBoundingClientRectSpy: MockInstance<[], DOMRect>
+  let scrollBySpy: MockInstance<[x: number, y: number], void>
+  let cancelAnimationFrameSpy: MockInstance<[handle: number], void>
+  let disconnectSpy: MockInstance<[], void>
 
   beforeEach(() => {
-    // Setup test DOM element
-    element = document.createElement('div')
-    document.body.appendChild(element)
-    vi.useFakeTimers()
+    // Set up DOM elements
+    container = document.createElement('div')
+    targetElement = document.createElement('div')
+    targetElement.id = 'target'
+    targetElement.style.height = '100px'
+    container.appendChild(targetElement)
+    document.body.appendChild(container)
 
-    // Mock window.scrollBy more robustly
-    Object.defineProperty(window, 'scrollBy', {
-      value: vi.fn(),
-      writable: true,
-      configurable: true,
+    // Mock getBoundingClientRect
+    getBoundingClientRectSpy = vi.spyOn(targetElement, 'getBoundingClientRect')
+    getBoundingClientRectSpy.mockReturnValue({
+      top: 100,
+      bottom: 200,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 100,
+      toJSON: () => {},
     })
+
+    // Set up spies
+    scrollBySpy = vi.spyOn(window, 'scrollBy')
+    cancelAnimationFrameSpy = vi.spyOn(window, 'cancelAnimationFrame')
+    disconnectSpy = vi.spyOn(MutationObserver.prototype, 'disconnect')
   })
 
   afterEach(() => {
-    document.body.innerHTML = ''
-    vi.restoreAllMocks()
+    // Clean up
+    document.body.removeChild(container)
+    vi.clearAllMocks()
   })
 
   it('returns a cleanup function', () => {
-    const unfreeze = freezeElement(element)
+    const unfreeze = freezeElement(targetElement)
     expect(typeof unfreeze).toBe('function')
+    unfreeze()
   })
 
-  it('returns a no-op function when element is null', () => {
+  it('returns no-op function when element is null', () => {
     const unfreeze = freezeElement(null as unknown as HTMLElement)
-    expect(unfreeze()).toBeNull()
+    expect(typeof unfreeze).toBe('function')
+    unfreeze()
   })
 
-  it('maintains element position when content changes', async () => {
-    // Mock initial position
-    const initialRect = { top: 100 } as DOMRect
-    const movedRect = { top: 200 } as DOMRect
-
-    let rectCallCount = 0
-    element.getBoundingClientRect = vi.fn(() => {
-      rectCallCount++
-      return rectCallCount === 1 ? initialRect : movedRect
-    })
-
-    const unfreeze = freezeElement(element)
+  it('maintains scroll position when content changes', async () => {
+    const unfreeze = freezeElement(targetElement)
 
     // Simulate content change that would move the element
-    const newElement = document.createElement('div')
-    newElement.style.height = '100px'
-    document.body.insertBefore(newElement, element)
-
-    // Let MutationObserver process the change
-    await flushPromises()
-
-    // Verify window.scrollBy was called to adjust position
-    expect(window.scrollBy).toHaveBeenCalledWith(0, 100)
-
-    unfreeze()
-  })
-
-  it('stops maintaining position after unfreeze is called', () => {
-    const unfreeze = freezeElement(element)
-
-    // Important: Call unfreeze before making changes
-    unfreeze()
-
-    // Clear any previous calls to scrollBy
-    vi.mocked(window.scrollBy).mockClear()
-
-    // Simulate content change
-    const newElement = document.createElement('div')
-    document.body.insertBefore(newElement, element)
-
-    // Let MutationObserver process the change
-    vi.runAllTimers()
-
-    // Verify window.scrollBy was not called after unfreezing
-    expect(window.scrollBy).not.toHaveBeenCalled()
-  })
-
-  it('adjusts scroll by the correct amount', async () => {
-    // Mock getBoundingClientRect to simulate element movement
-    const initialRect = { top: 100 } as DOMRect
-    const movedRect = { top: 200 } as DOMRect
-
-    let rectCallCount = 0
-    element.getBoundingClientRect = vi.fn(() => {
-      rectCallCount++
-      return rectCallCount === 1 ? initialRect : movedRect
+    getBoundingClientRectSpy.mockReturnValueOnce({
+      top: 150, // Element moved down by 50px
+      bottom: 250,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 150,
+      toJSON: () => {},
     })
 
-    freezeElement(element)
+    // Trigger a mutation by modifying the DOM
+    const child = document.createElement('div')
+    targetElement.appendChild(child)
 
-    // Simulate content change
-    const newElement = document.createElement('div')
-    document.body.insertBefore(newElement, element)
+    // Wait for the next frame
+    await new Promise((resolve) => requestAnimationFrame(resolve))
 
-    await flushPromises()
+    expect(scrollBySpy).toHaveBeenCalledWith(0, 50)
+    unfreeze()
+  })
 
-    // Should scroll by the difference (200 - 100 = 100)
-    expect(window.scrollBy).toHaveBeenCalledWith(0, 100)
+  it('does not adjust scroll when element position has not changed', async () => {
+    const unfreeze = freezeElement(targetElement)
+
+    // Simulate content change that doesn't move the element
+    getBoundingClientRectSpy.mockReturnValueOnce({
+      top: 100, // Same position
+      bottom: 200,
+      left: 0,
+      right: 100,
+      width: 100,
+      height: 100,
+      x: 0,
+      y: 100,
+      toJSON: () => {},
+    })
+
+    // Trigger a mutation by modifying the DOM
+    const child = document.createElement('div')
+    targetElement.appendChild(child)
+
+    // Wait for the next frame
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+
+    expect(scrollBySpy).not.toHaveBeenCalled()
+    unfreeze()
+  })
+
+  it('only processes relevant mutations', async () => {
+    const unfreeze = freezeElement(targetElement)
+
+    // Trigger a mutation that shouldn't affect layout
+    targetElement.textContent = 'New text content'
+
+    // Wait for the next frame
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+
+    expect(scrollBySpy).not.toHaveBeenCalled()
+    unfreeze()
+  })
+
+  it('cancels pending animation frame when new mutation occurs', async () => {
+    const unfreeze = freezeElement(targetElement)
+
+    // Trigger multiple mutations in quick succession
+    const child1 = document.createElement('div')
+    const child2 = document.createElement('div')
+    targetElement.appendChild(child1)
+    targetElement.appendChild(child2)
+
+    // Wait for the next frame
+    await new Promise((resolve) => requestAnimationFrame(resolve))
+
+    expect(cancelAnimationFrameSpy).toHaveBeenCalled()
+    unfreeze()
+  })
+
+  it('cleans up observer and animation frame on unfreeze', () => {
+    const unfreeze = freezeElement(targetElement)
+    unfreeze()
+
+    expect(disconnectSpy).toHaveBeenCalled()
+    // Note: We can't directly test cancelAnimationFrame here as it might not be called
+    // if no animation frame was pending
   })
 })

@@ -1684,6 +1684,18 @@ importers:
         specifier: catalog:*
         version: 5.4.19(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
 
+  packages/helpers:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      vite:
+        specifier: catalog:*
+        version: 5.4.19(@types/node@22.15.3)(lightningcss@1.30.1)(terser@5.31.2)
+      vitest:
+        specifier: catalog:*
+        version: 1.6.0(@types/node@22.15.3)(jsdom@25.0.1)(lightningcss@1.30.1)(terser@5.31.2)
+
   packages/icons:
     dependencies:
       '@phosphor-icons/core':
@@ -1843,6 +1855,9 @@ importers:
       '@hyperjump/json-schema':
         specifier: ^1.9.6
         version: 1.9.8(@hyperjump/browser@1.1.6)
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils

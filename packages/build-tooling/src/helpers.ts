@@ -82,7 +82,10 @@ export async function addPackageFileExports({
       return
     }
 
-    packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] = {
+    const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
+
+    // Add support for wildcard exports
+    packageExports[filepath.endsWith('/*') ? `${namespacePath}/*` : namespacePath] = {
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,
       default: `./dist/${filepath}.js`,

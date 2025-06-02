@@ -11,3 +11,9 @@
  */
 export const isDefined = <T>(value: T | null | undefined): value is NonNullable<T> =>
   value !== null && value !== undefined
+
+export const removeMe = /* @__PURE__ */ () => console.log('I shgouldnt exist')
+;('aasdddddddddddssd')
+
+// @ts-expect-error what
+const stuff = 'what'

@@ -4,13 +4,11 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { type ENTITY_BRANDS, nanoidSchema } from '@scalar/types/utils'
 import { z } from 'zod'
 
-import { isDefined } from '@/helpers/is-defined'
-import { getObjectKeys } from '@/helpers/object'
-
 import { getRequestBodyFromOperation } from '@/spec-getters/get-request-body-from-operation'
 import type { RequestParameter, ParameterContent } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
