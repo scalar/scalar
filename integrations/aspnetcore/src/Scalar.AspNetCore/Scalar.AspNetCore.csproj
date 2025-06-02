@@ -21,6 +21,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="$(AssemblyName).Microsoft" />
     <InternalsVisibleTo Include="$(AssemblyName).Swashbuckle" />
+    <InternalsVisibleTo Include="$(AssemblyName).Benchmarks" />
   </ItemGroup>
 
   <ItemGroup>
