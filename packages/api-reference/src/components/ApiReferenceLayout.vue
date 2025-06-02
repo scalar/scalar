@@ -216,10 +216,11 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
 
 // Download documents
 onMounted(() =>
-  downloadEventBus.on(({ filename }) => {
+  downloadEventBus.on(({ filename, format }) => {
     downloadDocument(
       toValue(originalDocument) || toValue(rawSpec) || '',
       filename,
+      format,
     )
   }),
 )
