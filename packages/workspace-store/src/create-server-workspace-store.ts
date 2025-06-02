@@ -154,6 +154,8 @@ export function externalizePathReferences(
             : `${meta.directory}/chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
 
         result[path][type] = { '$ref': ref }
+      } else {
+        result[path][type] = pathItem[type]
       }
     })
   })

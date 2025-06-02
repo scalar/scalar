@@ -406,6 +406,35 @@ describe('externalize-path-references', () => {
     })
   })
 
+  test('should replace the http methods with the reference while preserving other properties', () => {
+    const result = externalizePathReferences(
+      {
+        paths: {
+          '/test': {
+            get: {
+              description: 'string',
+            },
+            otherProperty: {
+              description: 'I should still be in the output',
+            },
+          },
+        },
+      },
+      {
+        mode: 'ssr',
+        baseUrl: 'https://example.com',
+        name: 'name',
+      },
+    )
+
+    expect(result).toEqual({
+      '/test': {
+        get: { '$ref': 'https://example.com/name/operations/~1test/get#' },
+        otherProperty: { description: 'I should still be in the output' },
+      },
+    })
+  })
+
   test('should correctly replace the contents with a ref for ssg mode', () => {
     const result = externalizePathReferences(
       {
