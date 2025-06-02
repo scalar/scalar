@@ -320,12 +320,13 @@ const resolveAndCopyReferences = (
  * This function is used to create unique identifiers for external references
  * while keeping the hash length manageable. It uses the Web Crypto API to
  * generate a SHA-1 hash and returns the first 7 characters of the hex string.
+ * If the hash would be all numbers, it ensures at least one letter is included.
  *
  * @param value - The string to hash
- * @returns A 7-character hexadecimal hash
+ * @returns A 7-character hexadecimal hash with at least one letter
  * @example
- * // Returns "a1b2c3d"
- * getHash("https://example.com/schema.json")
+ * // Returns "2ae91d7"
+ * await getHash("https://example.com/schema.json")
  */
 export async function getHash(value: string) {
   // Convert string to ArrayBuffer
@@ -339,7 +340,9 @@ export async function getHash(value: string) {
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
-  return hashHex.slice(0, 7)
+  // Return first 7 characters of the hash, ensuring at least one letter
+  const hash = hashHex.substring(0, 7)
+  return hash.match(/^\d+$/) ? 'a' + hash.substring(1) : hash
 }
 
 /**
