@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isRelativePath, redirectToProxy } from './redirect-to-proxy'
+import { redirectToProxy } from './redirect-to-proxy'
 
 describe('redirectToProxy', () => {
   it('rewrites URLs', () => {
@@ -41,27 +41,5 @@ describe('redirectToProxy', () => {
     expect(redirectToProxy('http://localhost:3000/proxy', 'http://localhost:3000/api')).toBe(
       'http://localhost:3000/proxy?scalar_url=http%3A%2F%2Flocalhost%3A3000%2Fapi',
     )
-  })
-})
-
-describe('isRelativePath', () => {
-  it('returns true for relative paths starting with a slash', () => {
-    expect(isRelativePath('/api')).toBe(true)
-  })
-
-  it('returns true for relative paths without a slash', () => {
-    expect(isRelativePath('api')).toBe(true)
-  })
-
-  it('returns false for absolute URLs with http', () => {
-    expect(isRelativePath('http://example.com')).toBe(false)
-  })
-
-  it('returns false for absolute URLs with https', () => {
-    expect(isRelativePath('https://example.com')).toBe(false)
-  })
-
-  it('returns false for domain-like URLs without protocol', () => {
-    expect(isRelativePath('example.com/api')).toBe(false)
   })
 })
