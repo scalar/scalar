@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi, type MockInstance } from 'vitest'
 import { freezeElement } from './freeze-element'
 
-/**
- * @vitest-environment jsdom
- */
 describe('freezeElement', () => {
   let container: HTMLDivElement
   let targetElement: HTMLDivElement

@@ -10,6 +10,7 @@ export default defineConfig({
     port: 9000,
   },
   test: {
+    environment: 'jsdom',
     coverage: {
       reporter: ['text'],
     },
