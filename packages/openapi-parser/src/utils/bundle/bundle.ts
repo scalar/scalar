@@ -362,18 +362,58 @@ export type Plugin = {
   exec: (value: string) => Promise<ResolveResult>
 }
 
+/**
+ * Configuration options for the bundler.
+ * Controls how external references are resolved and processed during bundling.
+ */
 type Config = {
-  // Array of plugins that handle resolving references from different sources (URLs, files, etc.)
+  /**
+   * Array of plugins that handle resolving references from different sources.
+   * Each plugin is responsible for fetching and processing data from specific sources
+   * like URLs or the filesystem.
+   */
   plugins: Plugin[]
-  // Optional root object that serves as the base document when bundling a subpart of the document
-  // This allows resolving references relative to the root document's location
+
+  /**
+   * Optional root object that serves as the base document when bundling a subpart.
+   * This allows resolving references relative to the root document's location,
+   * ensuring proper path resolution for nested references.
+   */
   root?: UnknownObject
-  // Optional cache to store promises of resolved references to avoid duplicate fetches/reads
+
+  /**
+   * Optional cache to store promises of resolved references.
+   * Helps avoid duplicate fetches/reads of the same resource by storing
+   * the resolution promises for reuse.
+   */
   cache?: Map<string, Promise<ResolveResult>>
-  // Enable tree shaking, which removes unused references from the final bundle
+
+  /**
+   * Enable tree shaking to optimize the bundle size.
+   * When enabled, only the parts of external documents that are actually referenced
+   * will be included in the final bundle.
+   */
   treeShake: boolean
-  // Optional flag to generate a URL map that tracks the original source URLs of bundled references
+
+  /**
+   * Optional flag to generate a URL map.
+   * When enabled, tracks the original source URLs of bundled references
+   * in an x-ext-urls section for reference mapping.
+   */
   urlMap?: boolean
+
+  /**
+   * Optional hooks to monitor the bundler's lifecycle.
+   * Allows tracking the progress and status of reference resolution.
+   */
+  hooks?: Partial<{
+    /** Called when starting to resolve a reference */
+    onResolveStart: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+    /** Called when a reference resolution fails */
+    onResolveError: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+    /** Called when a reference is successfully resolved */
+    onResolveSuccess: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+  }>
 }
 
 /**
@@ -497,6 +537,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
       }
 
+      config?.hooks?.onResolveStart(root)
+
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
 
@@ -552,9 +594,11 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath])
+        config?.hooks?.onResolveSuccess(root)
         return
       }
 
+      config?.hooks?.onResolveError(root)
       return console.warn(
         `Failed to resolve external reference "${prefix}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )

@@ -1,7 +1,7 @@
 import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
 import { createMagicProxy } from './helpers/proxy'
-import { fetchUrl, isObject, readLocalFile } from '@/helpers/general'
+import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle, fetchUrls, readFiles } from '@scalar/openapi-parser'
 
@@ -37,11 +37,11 @@ type WorkspaceDocumentInput =
  */
 async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
-    return fetchUrl(workspaceDocument.url)
+    return fetchUrls().exec(workspaceDocument.url)
   }
 
   if ('path' in workspaceDocument) {
-    return readLocalFile(workspaceDocument.path)
+    return readFiles().exec(workspaceDocument.path)
   }
 
   return {
@@ -201,6 +201,14 @@ export async function createWorkspaceStore(workspaceProps?: {
         treeShake: false,
         plugins: [fetchUrls(), readFiles()],
         urlMap: false,
+        hooks: {
+          onResolveStart: (value) => {
+            value['$status'] = 'loading'
+          },
+          onResolveError: (value) => {
+            value['$status'] = 'error'
+          },
+        },
       })
     },
     /**
