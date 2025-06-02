@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import SchemaComposition from './SchemaComposition.vue'
 
 describe('SchemaComposition', () => {
-  describe('getModelNameFromSchema', () => {
+  describe('schema name display', () => {
     it('displays schema title when both title and name are present', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
@@ -249,6 +249,28 @@ describe('SchemaComposition', () => {
         type: 'string',
         enum: ['option1', 'option2', 'option3'],
       })
+    })
+
+    it('handles nested compositions with titles', () => {
+      const wrapper = mount(SchemaComposition, {
+        props: {
+          composition: 'oneOf',
+          value: {
+            oneOf: [
+              {
+                allOf: [
+                  { title: 'Planet', type: 'object' },
+                  { type: 'object', properties: { test: { type: 'string' } } },
+                ],
+              },
+            ],
+          },
+          level: 0,
+        },
+      })
+
+      const tab = wrapper.find('.composition-selector-label')
+      expect(tab.text()).toBe('Planet')
     })
   })
 

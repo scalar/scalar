@@ -5,10 +5,14 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import { stringify } from 'flatted'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
+import {
+  getCompositionDisplay,
+  getModelNameFromSchema,
+} from '@/components/Content/Schema/helpers/schema-name'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import {
@@ -29,11 +33,27 @@ const { schemas, value, composition } = defineProps<{
 
 const selectedIndex = ref(0)
 
+/** Get base schemas for label generation */
+const baseSchemas = computed(() => {
+  return value[composition] || []
+})
+
+/** Get the composition schemas to display in the composition panel */
+const compositionDisplay = computed(() => {
+  return getCompositionDisplay(
+    baseSchemas.value,
+    schemaComposition.value,
+    schemas,
+  )
+})
+
 const listboxOptions = computed(() =>
-  schemaComposition.value.map((schema: any, index: number) => ({
-    id: String(index),
-    label: getModelNameFromSchema(schema) || 'Schema',
-  })),
+  compositionDisplay.value.map(
+    (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
+      id: String(index),
+      label: getModelNameFromSchema(schema, schemas) || 'Schema',
+    }),
+  ),
 )
 
 const selectedOption = computed({
@@ -53,49 +73,6 @@ const hasNestedComposition = computed(() => {
 
   return isOneOfOrAnyOf || hasNestedComposition
 })
-
-/** Get model name from schema */
-const getModelNameFromSchema = (schema: any): string | null => {
-  if (!schema) {
-    return null
-  }
-
-  if (schema.title) {
-    return schema.title
-  }
-
-  if (schema.name) {
-    return schema.name
-  }
-
-  // returns a matching schema name based on the schema object
-  if (schemas && typeof schemas === 'object') {
-    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-      if (stringify(schemaValue) === stringify(schema)) {
-        return schemaName
-      }
-    }
-  }
-
-  // Handle array types with items
-  if (schema.type === 'array' && schema.items) {
-    const itemType = schema.items.type || 'any'
-    return `Array of ${itemType}`
-  }
-
-  if (schema.type) {
-    return schema.type
-  }
-
-  if (typeof schema === 'object') {
-    const keys = Object.keys(schema)
-    if (keys.length > 0) {
-      return keys[0]
-    }
-  }
-
-  return null
-}
 
 const getSchemaWithComposition = (schemas: any[]) => {
   return schemas.find((schema: any) => hasComposition(schema))
