@@ -21,7 +21,7 @@ public class ScalarOptionsMapperBenchmarks
         };
     }
 
-    [Benchmark(Baseline = true)]
+    [Benchmark]
     public void MapSimpleOptions()
     {
         var configuration = _simpleOptions.ToScalarConfiguration();
