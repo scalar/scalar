@@ -151,6 +151,16 @@ const requestSectionViews = pluginManager.getViewComponents('request.section')
 
 const updateOperationHandler = (key: keyof Operation, value: string) =>
   requestMutators.edit(operation.uid, key, value)
+
+// Sets to all when auth filter is hidden but was previously selected to prevent empty section
+watch(
+  () => isAuthHidden.value,
+  (authHidden) => {
+    if (authHidden && selectedFilter.value === 'Auth') {
+      selectedFilter.value = 'All'
+    }
+  },
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
