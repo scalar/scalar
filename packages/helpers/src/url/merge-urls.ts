@@ -1,6 +1,6 @@
 import { ensureProtocol } from './ensure-protocol'
 import { isRelativePath } from './redirect-to-proxy'
-import { REGEX } from './regex-helpers'
+import { REGEX } from './regex/regex-helpers'
 
 /**
  * Merges multiple URLSearchParams objects, preserving multiple values per param
