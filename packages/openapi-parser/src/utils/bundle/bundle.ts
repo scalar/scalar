@@ -456,15 +456,31 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // original URLs and their corresponding hashed keys in x-ext
   const EXTERNAL_URL_MAPPING = 'x-ext-urls'
 
-  const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
+  const processedNodes = new Set()
+
+  const bundler = async (
+    root: unknown,
+    origin: string = typeof input === 'string' ? input : '',
+    isChunkParent = false,
+  ) => {
     if (!isObject(root) && !Array.isArray(root)) {
       return
     }
 
+    if (processedNodes.has(root)) {
+      return
+    }
+    processedNodes.add(root)
+
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
+      const isChunk = ('$global' in root && typeof root['$global'] === 'boolean' && root['$global']) || isChunkParent
 
       if (isLocalRef(ref)) {
+        if (isChunk) {
+          // We reset the origin when dealing with chunks
+          await bundler(getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))), '', isChunk)
+        }
         return
       }
 
@@ -488,20 +504,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
-          // Update internal references in the resolved document to use the correct base path.
-          // When we embed external documents, their internal references need to be updated to
-          // maintain the correct path context relative to the main document. This is crucial
-          // because internal references in the external document are relative to its original
-          // location, but when embedded, they need to be relative to their new location in
-          // the main document's x-ext section. Without this update, internal references
-          // would point to incorrect locations and break the document structure.
-          prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
+          if (!isChunk) {
+            // Update internal references in the resolved document to use the correct base path.
+            // When we embed external documents, their internal references need to be updated to
+            // maintain the correct path context relative to the main document. This is crucial
+            // because internal references in the external document are relative to its original
+            // location, but when embedded, they need to be relative to their new location in
+            // the main document's x-ext section. Without this update, internal references
+            // would point to incorrect locations and break the document structure.
+            prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
+          }
 
           // Recursively process the resolved content
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, resolvedPath)
+          await bundler(result.data, resolvedPath, isChunk)
 
           // Store the mapping between original URLs and their hashed keys in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -551,7 +569,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin)
+        await bundler(value, origin, isChunkParent)
       }),
     )
   }

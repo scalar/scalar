@@ -117,7 +117,7 @@ export function externalizeComponentReferences(
           ? `${meta.baseUrl}/${meta.name}/components/${type}/${name}#`
           : `${meta.directory}/chunks/${meta.name}/components/${type}/${name}.json#`
 
-      result[type][name] = { '$ref': ref }
+      result[type][name] = { '$ref': ref, $global: true }
     })
   })
 
@@ -153,7 +153,7 @@ export function externalizePathReferences(
             ? `${meta.baseUrl}/${meta.name}/operations/${escapedPath}/${type}#`
             : `${meta.directory}/chunks/${meta.name}/operations/${escapedPath}/${type}.json#`
 
-        result[path][type] = { '$ref': ref }
+        result[path][type] = { '$ref': ref, $global: true }
       } else {
         result[path][type] = pathItem[type]
       }

@@ -813,6 +813,100 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('handles chunks', async () => {
+      const PORT = 8194
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        description: 'Chunk 1',
+        someRef: {
+          $ref: '#/components/User',
+        },
+      }
+
+      const chunk2 = {
+        description: 'Chunk 2',
+      }
+
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+      server.get('/chunk2', (_, reply) => {
+        reply.send(chunk2)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+          $global: true,
+        },
+        b: {
+          $ref: `${url}/chunk2#`,
+          $global: true,
+        },
+        c: {
+          $ref: `${url}/chunk1#`,
+          $global: true,
+        },
+        components: {
+          User: {
+            id: 'number',
+            name: {
+              $ref: '#/a',
+            },
+            another: {
+              $ref: '#/b',
+            },
+          },
+        },
+      }
+
+      // Bundle only partial
+      await bundle(input.a, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+      })
+
+      expect(input).toEqual({
+        a: {
+          $global: true,
+          $ref: '#/x-ext/a830164',
+        },
+        b: {
+          $global: true,
+          $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
+        },
+        c: {
+          $global: true,
+          $ref: 'http://localhost:8194/chunk1#',
+        },
+        components: {
+          User: {
+            another: {
+              $ref: '#/b',
+            },
+            id: 'number',
+            name: {
+              $ref: '#/a',
+            },
+          },
+        },
+        'x-ext': {
+          'a830164': {
+            description: 'Chunk 1',
+            someRef: {
+              $ref: '#/components/User',
+            },
+          },
+          [await getHash(`${url}/chunk2`)]: {
+            description: 'Chunk 2',
+          },
+        },
+      })
+    })
   })
 
   describe('local files', () => {

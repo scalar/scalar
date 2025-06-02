@@ -70,6 +70,7 @@ describe('create-server-store', () => {
           '/planets': {
             get: {
               '$ref': `https://example.com/${name}/operations/~1planets/get#`,
+              $global: true,
             },
           },
         },
@@ -77,6 +78,7 @@ describe('create-server-store', () => {
           parameters: {
             planetId: {
               '$ref': `https://example.com/${name}/components/parameters/planetId#`,
+              $global: true,
             },
           },
         },
@@ -148,13 +150,14 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': 'https://example.com/doc-1/operations/~1planets/get#' },
+            get: { '$ref': 'https://example.com/doc-1/operations/~1planets/get#', $global: true },
           },
         },
         'components': {
           'parameters': {
             planetId: {
               '$ref': 'https://example.com/doc-1/components/parameters/planetId#',
+              $global: true,
             },
           },
         },
@@ -169,13 +172,14 @@ describe('create-server-store', () => {
         },
         'paths': {
           '/planets': {
-            get: { '$ref': 'https://example.com/doc-3/operations/~1planets/get#' },
+            get: { '$ref': 'https://example.com/doc-3/operations/~1planets/get#', $global: true },
           },
         },
         'components': {
           'parameters': {
             planetId: {
               '$ref': 'https://example.com/doc-3/components/parameters/planetId#',
+              $global: true,
             },
           },
         },
@@ -231,11 +235,13 @@ describe('create-server-store', () => {
             },
             'paths': {
               '/planets': {
-                get: { '$ref': 'temp/chunks/doc-1/operations/~1planets/get.json#' },
+                get: { '$ref': 'temp/chunks/doc-1/operations/~1planets/get.json#', $global: true },
               },
             },
             'components': {
-              'parameters': { planetId: { '$ref': 'temp/chunks/doc-1/components/parameters/planetId.json#' } },
+              'parameters': {
+                planetId: { '$ref': 'temp/chunks/doc-1/components/parameters/planetId.json#', $global: true },
+              },
             },
           },
           'doc-2': {
@@ -248,11 +254,13 @@ describe('create-server-store', () => {
             },
             'paths': {
               '/planets': {
-                get: { '$ref': 'temp/chunks/doc-2/operations/~1planets/get.json#' },
+                get: { '$ref': 'temp/chunks/doc-2/operations/~1planets/get.json#', $global: true },
               },
             },
             'components': {
-              'parameters': { planetId: { '$ref': 'temp/chunks/doc-2/components/parameters/planetId.json#' } },
+              'parameters': {
+                planetId: { '$ref': 'temp/chunks/doc-2/components/parameters/planetId.json#', $global: true },
+              },
             },
           },
         },
@@ -348,7 +356,7 @@ describe('externalize-component-references', () => {
     )
 
     expect(result).toEqual({
-      schemas: { User: { '$ref': 'https://example.com/name/components/schemas/User#' } },
+      schemas: { User: { '$ref': 'https://example.com/name/components/schemas/User#', $global: true } },
     })
   })
 
@@ -378,7 +386,9 @@ describe('externalize-component-references', () => {
       },
     )
 
-    expect(result).toEqual({ schemas: { User: { '$ref': 'assets/chunks/name/components/schemas/User.json#' } } })
+    expect(result).toEqual({
+      schemas: { User: { '$ref': 'assets/chunks/name/components/schemas/User.json#', $global: true } },
+    })
   })
 })
 
@@ -402,7 +412,7 @@ describe('externalize-path-references', () => {
     )
 
     expect(result).toEqual({
-      '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get#' } },
+      '/test': { get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true } },
     })
   })
 
@@ -429,7 +439,7 @@ describe('externalize-path-references', () => {
 
     expect(result).toEqual({
       '/test': {
-        get: { '$ref': 'https://example.com/name/operations/~1test/get#' },
+        get: { '$ref': 'https://example.com/name/operations/~1test/get#', $global: true },
         otherProperty: { description: 'I should still be in the output' },
       },
     })
@@ -453,6 +463,8 @@ describe('externalize-path-references', () => {
       },
     )
 
-    expect(result).toEqual({ '/test': { get: { '$ref': 'assets/chunks/name/operations/~1test/get.json#' } } })
+    expect(result).toEqual({
+      '/test': { get: { '$ref': 'assets/chunks/name/operations/~1test/get.json#', $global: true } },
+    })
   })
 })

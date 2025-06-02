@@ -271,6 +271,7 @@ describe('create-workspace-store', () => {
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
       '$ref': 'http://localhost:9988/default/operations/~1users/get#',
+      $global: true,
     })
 
     // We resolve the ref
@@ -321,6 +322,7 @@ describe('create-workspace-store', () => {
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
       '$ref': `${path}/chunks/default/operations/~1users/get.json#`,
+      $global: true,
     })
 
     // We resolve the ref
@@ -334,8 +336,6 @@ describe('create-workspace-store', () => {
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
         .items,
     ).toEqual(document.components.schemas.User)
-
-    // clean up generated files
   })
 
   test('should load files form the remote url', async () => {
@@ -478,6 +478,7 @@ describe('create-workspace-store', () => {
     // The operation should not be resolved on the fly
     expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
       '$ref': `http://localhost:${PORT}/default/operations/~1users/get#`,
+      $global: true,
     })
 
     // We resolve the ref
