@@ -25,24 +25,28 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   <div
     v-if="!config?.hideDownloadButton"
     class="download-container">
-    <a
+    <button
+      type="button"
       class="download-button"
       @click.prevent="handleDownloadClick('json')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
       <Badge class="extension">json</Badge>
-    </a>
-    <a
+    </button>
+    <button
+      type="button"
       class="download-button"
       @click.prevent="handleDownloadClick('yaml')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
       <Badge class="extension">yaml</Badge>
-    </a>
+    </button>
   </div>
 </template>
 
 <style scoped>
+@reference '@/style.css';
+
 .download-container {
   display: flex;
   flex-direction: column;
@@ -52,6 +56,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   width: fit-content;
 }
 
+.download-container:has(:focus-visible)::before,
 .download-container:hover::before {
   content: '';
   width: calc(100% + 76px);
@@ -74,6 +79,8 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   padding: 0;
   position: relative;
   white-space: nowrap;
+
+  outline: none;
 }
 
 .download-button::before {
@@ -89,6 +96,12 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 .download-button:hover::before {
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+
+.download-button:focus-visible::before {
+  background: var(--scalar-background-2);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  @apply outline;
 }
 
 .download-button span {
@@ -109,13 +122,15 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 
 /* Second button displayed when hovering over the download container */
 .download-button:nth-of-type(2) {
-  display: none;
-  position: absolute;
-  top: 42px;
+  @apply sr-only;
 }
 
+.download-container:has(:focus-visible) .download-button:nth-of-type(2),
 .download-container:hover .download-button:nth-of-type(2) {
-  display: flex;
+  @apply not-sr-only;
+
+  position: absolute;
+  top: 42px;
 }
 
 .extension {
@@ -126,7 +141,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   transform: translateY(-50%);
   z-index: 1;
 }
-
+.download-container:has(:focus-visible) .extension,
 .download-container:hover .extension {
   opacity: 1;
 }
