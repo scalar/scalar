@@ -6,7 +6,7 @@ export type HttpStatusCode = {
 
 export type HttpStatusCodes = Record<string, HttpStatusCode>
 
-export const httpStatusCodes: HttpStatusCodes = {
+export const httpStatusCodes = {
   100: {
     name: 'Continue',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/100',
@@ -322,4 +322,4 @@ export const httpStatusCodes: HttpStatusCodes = {
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/511',
     color: 'var(--scalar-color-red)',
   },
-}
+} as const satisfies HttpStatusCodes

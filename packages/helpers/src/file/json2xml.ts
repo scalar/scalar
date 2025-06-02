@@ -43,9 +43,10 @@ export function json2xml(data: Record<string, any>, tab?: string) {
 
   let xml = ''
 
-  // biome-ignore lint/nursery/useGuardForIn: Yeah, it’s ok. But feel free to fix it.
   for (const key in data) {
-    xml += toXml(data[key], key, '')
+    if (Object.hasOwn(data, key)) {
+      xml += toXml(data[key], key, '')
+    }
   }
 
   return tab ? xml.replace(/\t/g, tab) : xml.replace(/\t|\n/g, '')
