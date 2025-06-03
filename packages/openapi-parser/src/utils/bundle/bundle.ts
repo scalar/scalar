@@ -432,11 +432,11 @@ type Config = {
    */
   hooks?: Partial<{
     /** Called when starting to resolve a reference */
-    onResolveStart: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+    onResolveStart: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
     /** Called when a reference resolution fails */
-    onResolveError: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+    onResolveError: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
     /** Called when a reference is successfully resolved */
-    onResolveSuccess: (value: Record<string, unknown> & Record<'$ref', unknown>) => void
+    onResolveSuccess: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
   }>
 }
 

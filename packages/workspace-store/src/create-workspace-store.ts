@@ -110,6 +110,10 @@ export async function createWorkspaceStore(workspaceProps?: {
     },
   }) as Workspace
 
+  // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
+  // This is needed because we are doing partial bundle operations
+  const visitedNodesCache = new Set()
+
   return {
     /**
      * Returns the raw (non-reactive) workspace object
@@ -180,10 +184,6 @@ export async function createWorkspaceStore(workspaceProps?: {
      * resolve(['paths', '/users', 'get', 'responses', '200'])
      */
     resolve: async (path: string[]) => {
-      if (path.length <= 1) {
-        throw 'Please provide a valid path'
-      }
-
       const activeDocument = workspace.activeDocument
 
       const target = getValueByPath(activeDocument, path)
@@ -195,19 +195,22 @@ export async function createWorkspaceStore(workspaceProps?: {
         return
       }
 
+      // Bundle the target document with the active document as root, resolving any external references
+      // and tracking resolution status through hooks
       return bundle(target, {
         root: activeDocument,
         treeShake: false,
         plugins: [fetchUrls(), readFiles()],
         urlMap: false,
         hooks: {
-          onResolveStart: (value) => {
-            value['$status'] = 'loading'
+          onResolveStart: (node) => {
+            node['$status'] = 'loading'
           },
-          onResolveError: (value) => {
-            value['$status'] = 'error'
+          onResolveError: (node) => {
+            node['$status'] = 'error'
           },
         },
+        visitedNodes: visitedNodesCache,
       })
     },
     /**
