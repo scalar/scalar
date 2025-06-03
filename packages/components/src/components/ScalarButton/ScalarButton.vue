@@ -29,7 +29,7 @@ const { cx } = useBindCx()
 </script>
 <template>
   <button
-    :ariaDisabled="disabled || undefined"
+    :aria-disabled="disabled || undefined"
     :type="type"
     v-bind="
       cx(variants({ fullWidth, disabled, size, variant }), {
