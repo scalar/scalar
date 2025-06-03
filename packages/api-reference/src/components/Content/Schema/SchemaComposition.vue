@@ -206,10 +206,10 @@ const shouldRenderSchema = computed(() => {
           class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
           type="button">
           <span class="text-c-2">{{ humanizeType(composition) }}</span>
-          <span class="composition-selector-label text-c-1 relative">
+          <span class="composition-selector-label text-c-1">
             {{ selectedOption?.label || 'Schema' }}
           </span>
-          <ScalarIconCaretDown class="z-1" />
+          <ScalarIconCaretDown />
         </button>
       </ScalarListbox>
       <div class="composition-panel">
