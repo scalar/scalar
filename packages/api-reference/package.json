@@ -75,6 +75,7 @@
     "@scalar/types": "workspace:*",
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@unhead/vue": "^1.11.11",
     "@vueuse/core": "catalog:*",
     "flatted": "^3.3.1",
