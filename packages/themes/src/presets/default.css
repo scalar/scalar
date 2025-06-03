@@ -64,6 +64,7 @@
   --scalar-tooltip-background: color-mix(in srgb, #1a1a1a, transparent 10%);
   --scalar-tooltip-color: color-mix(in srgb, #fff, transparent 15%);
 
+  --scalar-color-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-color-1) 20%);
   --scalar-color-danger: color-mix(in srgb, var(--scalar-color-red), var(--scalar-color-1) 20%);
 
   --scalar-background-alert: color-mix(in srgb, var(--scalar-color-orange), var(--scalar-background-1) 95%);
