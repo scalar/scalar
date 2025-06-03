@@ -596,7 +596,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
       }
 
-      config?.hooks?.onResolveStart(root)
+      config?.hooks?.onResolveStart?.(root)
 
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
@@ -657,11 +657,11 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath])
-        config?.hooks?.onResolveSuccess(root)
+        config?.hooks?.onResolveSuccess?.(root)
         return
       }
 
-      config?.hooks?.onResolveError(root)
+      config?.hooks?.onResolveError?.(root)
       return console.warn(
         `Failed to resolve external reference "${prefix}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
