@@ -18,9 +18,7 @@ export const styles: Record<string, Record<string, any>> = {
 export const variants = cva({
   base: 'scalar-button flex cursor-pointer items-center justify-center rounded font-medium -outline-offset-1',
   variants: {
-    disabled: {
-      true: 'bg-background-2 text-color-3 shadow-none',
-    },
+    disabled: { true: 'bg-b-2 text-color-3 shadow-none' },
     fullWidth: { true: 'w-full' },
     size: { sm: 'px-2 py-1 text-xs', md: 'h-10 px-6 text-sm' },
     variant: styles,
@@ -29,7 +27,8 @@ export const variants = cva({
     {
       disabled: true,
       variant: ['solid', 'outlined', 'ghost', 'danger'],
-      class: 'bg-b-2 text-c-3 shadow-none',
+      class:
+        'bg-b-2 text-c-3 shadow-none hover:bg-b-[_] cursor-not-allowed active:bg-b-[_] hover:text-c-[_] active:text-c-[_]',
     },
   ],
 })
