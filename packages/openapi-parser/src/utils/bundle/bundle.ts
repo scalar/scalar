@@ -86,6 +86,10 @@ export function getNestedValue(target: Record<string, any>, segments: string[]) 
  * or arrays based on the path segments. If the next segment is a numeric string, it creates
  * an array instead of an object.
  *
+ * ⚠️ Warning: Be careful with object keys that look like numbers (e.g. "123") as this function
+ * will interpret them as array indices and create arrays instead of objects. If you need to
+ * use numeric-looking keys, consider prefixing them with a non-numeric character.
+ *
  * @param obj - The target object to set the value in
  * @param path - The JSON pointer path where the value should be set
  * @param value - The value to set at the specified path
@@ -109,6 +113,19 @@ export function getNestedValue(target: Record<string, any>, segments: string[]) 
  * //   existing: {
  * //     path: 'new'
  * //   }
+ * // }
+ *
+ * @example
+ * // ⚠️ Warning: This will create an array instead of an object with key "123"
+ * setValueAtPath(obj, '/foo/123/bar', 'value')
+ * // Result:
+ * // {
+ * //   foo: [
+ * //     undefined,
+ * //     undefined,
+ * //     undefined,
+ * //     { bar: 'value' }
+ * //   ]
  * // }
  */
 export function setValueAtPath(obj: any, path: string, value: any): void {
@@ -320,12 +337,13 @@ const resolveAndCopyReferences = (
  * This function is used to create unique identifiers for external references
  * while keeping the hash length manageable. It uses the Web Crypto API to
  * generate a SHA-1 hash and returns the first 7 characters of the hex string.
+ * If the hash would be all numbers, it ensures at least one letter is included.
  *
  * @param value - The string to hash
- * @returns A 7-character hexadecimal hash
+ * @returns A 7-character hexadecimal hash with at least one letter
  * @example
- * // Returns "a1b2c3d"
- * getHash("https://example.com/schema.json")
+ * // Returns "2ae91d7"
+ * await getHash("https://example.com/schema.json")
  */
 export async function getHash(value: string) {
   // Convert string to ArrayBuffer
@@ -339,7 +357,9 @@ export async function getHash(value: string) {
   const hashArray = Array.from(new Uint8Array(hashBuffer))
   const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
 
-  return hashHex.slice(0, 7)
+  // Return first 7 characters of the hash, ensuring at least one letter
+  const hash = hashHex.substring(0, 7)
+  return hash.match(/^\d+$/) ? 'a' + hash.substring(1) : hash
 }
 
 /**
@@ -359,18 +379,65 @@ export type Plugin = {
   exec: (value: string) => Promise<ResolveResult>
 }
 
+/**
+ * Configuration options for the bundler.
+ * Controls how external references are resolved and processed during bundling.
+ */
 type Config = {
-  // Array of plugins that handle resolving references from different sources (URLs, files, etc.)
+  /**
+   * Array of plugins that handle resolving references from different sources.
+   * Each plugin is responsible for fetching and processing data from specific sources
+   * like URLs or the filesystem.
+   */
   plugins: Plugin[]
-  // Optional root object that serves as the base document when bundling a subpart of the document
-  // This allows resolving references relative to the root document's location
+
+  /**
+   * Optional root object that serves as the base document when bundling a subpart.
+   * This allows resolving references relative to the root document's location,
+   * ensuring proper path resolution for nested references.
+   */
   root?: UnknownObject
-  // Optional cache to store promises of resolved references to avoid duplicate fetches/reads
+
+  /**
+   * Optional cache to store promises of resolved references.
+   * Helps avoid duplicate fetches/reads of the same resource by storing
+   * the resolution promises for reuse.
+   */
   cache?: Map<string, Promise<ResolveResult>>
-  // Enable tree shaking, which removes unused references from the final bundle
+
+  /**
+   * Cache of visited nodes during partial bundling.
+   * Used to prevent re-bundling the same tree multiple times when doing partial bundling,
+   * improving performance by avoiding redundant processing of already bundled sections.
+   */
+  visitedNodes?: Set<unknown>
+
+  /**
+   * Enable tree shaking to optimize the bundle size.
+   * When enabled, only the parts of external documents that are actually referenced
+   * will be included in the final bundle.
+   */
   treeShake: boolean
-  // Optional flag to generate a URL map that tracks the original source URLs of bundled references
+
+  /**
+   * Optional flag to generate a URL map.
+   * When enabled, tracks the original source URLs of bundled references
+   * in an x-ext-urls section for reference mapping.
+   */
   urlMap?: boolean
+
+  /**
+   * Optional hooks to monitor the bundler's lifecycle.
+   * Allows tracking the progress and status of reference resolution.
+   */
+  hooks?: Partial<{
+    /** Called when starting to resolve a reference */
+    onResolveStart: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
+    /** Called when a reference resolution fails */
+    onResolveError: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
+    /** Called when a reference is successfully resolved */
+    onResolveSuccess: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
+  }>
 }
 
 /**
@@ -384,7 +451,7 @@ type Config = {
  * @param input - The OpenAPI specification object or string to bundle. If a string is provided,
  *                it should be a URL or file path that points to an OpenAPI specification.
  *                The string will be resolved using the provided plugins before bundling.
- * @param config - Configuration object containing plugins for resolving references
+ * @param config - Configuration object containing plugins and options for bundling OpenAPI specifications
  * @returns A promise that resolves to the bundled specification with all references embedded
  * @example
  * // Example with object input
@@ -396,23 +463,44 @@ type Config = {
  *   }
  * }
  *
- * const bundled = await bundle(spec, { plugins: [fetchUrls()] })
+ * const bundled = await bundle(spec, {
+ *   plugins: [fetchUrls()],
+ *   treeShake: true,
+ *   urlMap: true,
+ *   hooks: {
+ *     onResolveStart: (ref) => console.log('Resolving:', ref.$ref),
+ *     onResolveSuccess: (ref) => console.log('Resolved:', ref.$ref),
+ *     onResolveError: (ref) => console.log('Failed to resolve:', ref.$ref)
+ *   }
+ * })
  * // Result:
  * // {
  * //   paths: {
  * //     '/users': {
- * //       $ref: '#/x-ext/https~1~1example.com~1schemas~1users.yaml'
+ * //       $ref: '#/x-ext/abc123'
  * //     }
  * //   },
  * //   'x-ext': {
- * //     'https~1~1example.com~1schemas~1users.yaml': {
+ * //     'abc123': {
  * //       // Resolved content from users.yaml
  * //     }
+ * //   },
+ * //   'x-ext-urls': {
+ * //     'https://example.com/schemas/users.yaml': 'abc123'
  * //   }
  * // }
  *
  * // Example with URL input
- * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', { plugins: [fetchUrls()] })
+ * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', {
+ *   plugins: [fetchUrls()],
+ *   treeShake: true,
+ *   urlMap: true,
+ *   hooks: {
+ *     onResolveStart: (ref) => console.log('Resolving:', ref.$ref),
+ *     onResolveSuccess: (ref) => console.log('Resolved:', ref.$ref),
+ *     onResolveError: (ref) => console.log('Failed to resolve:', ref.$ref)
+ *   }
+ * })
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
@@ -436,9 +524,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return result.data
     }
 
-    throw 'Please provide a valid string value or pass a loader to process the input'
+    throw new Error(
+      'Failed to resolve input: Please provide a valid string value or pass a loader to process the input',
+    )
   }
 
+  // Resolve the input specification, which could be either a direct object or a string URL/path
   const rawSpecification = await resolveInput()
 
   // Document root used to write all external documents
@@ -453,15 +544,42 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // original URLs and their corresponding hashed keys in x-ext
   const EXTERNAL_URL_MAPPING = 'x-ext-urls'
 
-  const bundler = async (root: any, origin: string = typeof input === 'string' ? input : '') => {
+  // Indicates whether we're performing a partial bundle operation, which occurs when
+  // a root document is provided that differs from the raw specification being bundled
+  const isPartialBundling = config.root !== undefined && config.root !== rawSpecification
+
+  // Set of nodes that have already been processed during bundling to prevent duplicate processing
+  const processedNodes = config.visitedNodes ?? new Set()
+
+  const bundler = async (
+    root: unknown,
+    origin: string = typeof input === 'string' ? input : '',
+    isChunkParent = false,
+  ) => {
     if (!isObject(root) && !Array.isArray(root)) {
       return
     }
 
+    // Skip if this node has already been processed to prevent infinite recursion
+    // and duplicate processing of the same node
+    if (processedNodes.has(root)) {
+      return
+    }
+    // Mark this node as processed before continuing
+    processedNodes.add(root)
+
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
+      const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       if (isLocalRef(ref)) {
+        if (isPartialBundling) {
+          // When doing partial bundling, we need to recursively bundle all dependencies
+          // referenced by this local reference to ensure the partial bundle is complete.
+          // This includes not just the direct reference but also all its dependencies,
+          // creating a complete and self-contained partial bundle.
+          await bundler(getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))), origin, isChunkParent)
+        }
         return
       }
 
@@ -478,6 +596,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         cache.set(resolvedPath, resolveContents(resolvedPath, config.plugins))
       }
 
+      config?.hooks?.onResolveStart?.(root)
+
       // Resolve the remote document
       const result = await cache.get(resolvedPath)
 
@@ -485,20 +605,26 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
-          // Update internal references in the resolved document to use the correct base path.
-          // When we embed external documents, their internal references need to be updated to
-          // maintain the correct path context relative to the main document. This is crucial
-          // because internal references in the external document are relative to its original
-          // location, but when embedded, they need to be relative to their new location in
-          // the main document's x-ext section. Without this update, internal references
-          // would point to incorrect locations and break the document structure.
-          prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
+          // Skip prefixing for chunks since they are meant to be self-contained and their
+          // internal references should remain relative to their original location. Chunks
+          // are typically used for modular components that need to maintain their own
+          // reference context without being affected by the main document's structure.
+          if (!isChunk) {
+            // Update internal references in the resolved document to use the correct base path.
+            // When we embed external documents, their internal references need to be updated to
+            // maintain the correct path context relative to the main document. This is crucial
+            // because internal references in the external document are relative to its original
+            // location, but when embedded, they need to be relative to their new location in
+            // the main document's x-ext section. Without this update, internal references
+            // would point to incorrect locations and break the document structure.
+            prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
+          }
 
           // Recursively process the resolved content
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, resolvedPath)
+          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk)
 
           // Store the mapping between original URLs and their hashed keys in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
@@ -531,9 +657,11 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
         root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath])
+        config?.hooks?.onResolveSuccess?.(root)
         return
       }
 
+      config?.hooks?.onResolveError?.(root)
       return console.warn(
         `Failed to resolve external reference "${prefix}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
@@ -548,7 +676,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           return
         }
 
-        await bundler(value, origin)
+        await bundler(value, origin, isChunkParent)
       }),
     )
   }

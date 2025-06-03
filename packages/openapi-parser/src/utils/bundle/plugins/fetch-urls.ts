@@ -4,6 +4,7 @@ import { createLimiter } from '@/utils/bundle/create-limiter'
 
 type FetchConfig = Partial<{
   headers: { headers: HeadersInit; domains: string[] }[]
+  fetch: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
 }>
 
 /**
@@ -31,8 +32,10 @@ export async function fetchUrl(
     // Get the headers that match the domain
     const headers = config?.headers?.find((a) => a.domains.find((d) => d === domain) !== undefined)?.headers
 
+    const exec = config?.fetch ?? fetch
+
     const result = await limiter(() =>
-      fetch(url, {
+      exec(url, {
         headers,
       }),
     )
