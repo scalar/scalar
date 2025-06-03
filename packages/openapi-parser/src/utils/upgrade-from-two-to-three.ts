@@ -301,12 +301,83 @@ function transformItemsObject<T extends Record<PropertyKey, unknown>>(obj: T): O
   }, {} as OpenAPIV3.SchemaObject)
 }
 
-function transformParameterObject(parameter: OpenAPIV2.ParameterObject): OpenAPIV3.ParameterObject {
+function transformParameterObject(
+  parameter: OpenAPIV2.ParameterObject,
+): OpenAPIV3.ParameterObject {
+  // it is important to call getParameterSerializationStyle first because transformItemsObject modifies properties on which getParameterSerializationStyle rely on
+  const serializationStyle = getParameterSerializationStyle(parameter)
+  const schema = transformItemsObject(parameter)
+
   delete parameter.collectionFormat
   delete parameter.default
 
   return {
-    schema: transformItemsObject(parameter),
+    schema,
+    ...serializationStyle,
     ...parameter,
   }
+}
+
+type CollectionFormat = 'csv' | 'ssv' | 'tsv' | 'pipes' | 'multi'
+
+type ParameterSerializationStyle = { style?: string; explode?: boolean }
+
+const querySerialization: Record<
+  CollectionFormat,
+  ParameterSerializationStyle
+> = {
+  ssv: {
+    style: 'spaceDelimited',
+    explode: false,
+  },
+  pipes: {
+    style: 'pipeDelimited',
+    explode: false,
+  },
+  multi: {
+    style: 'form',
+    explode: true,
+  },
+  csv: {
+    style: 'form',
+    explode: false,
+  },
+  tsv: {},
+}
+
+const pathAndHeaderSerialization: Record<CollectionFormat, ParameterSerializationStyle> =
+  {
+    ssv: {},
+    pipes: {},
+    multi: {},
+    csv: {
+      style: 'simple',
+      explode: false,
+    },
+    tsv: {},
+  }
+
+const serializationStyles = {
+  header: pathAndHeaderSerialization,
+  query: querySerialization,
+  path: pathAndHeaderSerialization,
+} as const
+
+function getParameterSerializationStyle(
+  parameter: OpenAPIV2.ParameterObject,
+): ParameterSerializationStyle {
+  if (
+    parameter.type !== 'array' ||
+    !(
+      parameter.in === 'query' ||
+      parameter.in === 'path' ||
+      parameter.in === 'header'
+    )
+  ) {
+    return {}
+  }
+
+  const collectionFormat = parameter.collectionFormat ?? 'csv'
+
+  return serializationStyles[parameter.in][collectionFormat]
 }

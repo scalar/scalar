@@ -634,4 +634,202 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
   })
+
+  it('transform query parameter collectionFormat to new serialization keywords', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/planets': {
+          get: {
+            description:
+              'Get all planets from the system that the user has access to.',
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'tags',
+                in: 'query',
+                type: 'array',
+                collectionFormat: 'pipes',
+                items: {
+                  type: 'string',
+                },
+              },
+              {
+                name: 'queryParam',
+                in: 'query',
+                type: 'array',
+                collectionFormat: 'multi',
+                items: {
+                  type: 'string',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'A list of planets.',
+                headers: {
+                  next: {
+                    description: 'link to next page',
+                    type: 'string',
+                    maxLength: 100,
+                  },
+                },
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/planet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.parameters).toStrictEqual([
+      {
+        name: 'tags',
+        in: 'query',
+        style: 'pipeDelimited',
+        explode: false,
+        schema: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+      {
+        name: 'queryParam',
+        in: 'query',
+        style: 'form',
+        explode: true,
+        schema: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    ])
+  })
+
+  it('transform path parameter collectionFormat to new serialization keywords', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/planets/{id}': {
+          get: {
+            description:
+              'Get all planets from the system that the user has access to.',
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'id',
+                in: 'path',
+                type: 'array',
+                items: {
+                  type: 'string',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'A list of planets.',
+                headers: {
+                  next: {
+                    description: 'link to next page',
+                    type: 'string',
+                    maxLength: 100,
+                  },
+                },
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/planet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets/{id}'].get.parameters).toStrictEqual([
+      {
+        name: 'id',
+        in: 'path',
+        style: 'simple',
+        explode: false,
+        schema: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    ])
+  })
+
+  it('transform header parameter collectionFormat to new serialization keywords', () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json'],
+      paths: {
+        '/planets': {
+          get: {
+            description:
+              'Get all planets from the system that the user has access to.',
+            consumes: ['application/json'],
+            parameters: [
+              {
+                name: 'myHeader',
+                in: 'header',
+                type: 'array',
+                collectionFormat: 'pipes',
+                items: {
+                  type: 'string',
+                },
+              },
+            ],
+            responses: {
+              '200': {
+                description: 'A list of planets.',
+                headers: {
+                  next: {
+                    description: 'link to next page',
+                    type: 'string',
+                    maxLength: 100,
+                  },
+                },
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/planet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.parameters).toStrictEqual([
+      {
+        name: 'myHeader',
+        in: 'header',
+        schema: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    ])
+  })
 })
