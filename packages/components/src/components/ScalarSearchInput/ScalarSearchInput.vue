@@ -1,30 +1,36 @@
+<script lang="ts">
+/**
+ * Scalar search input component
+ *
+ * Provides an large input field with a loading state and a clear button,
+ * intended to be used with the ScalarSearchResults component.
+ *
+ * If you want a smaller input field for use in a sidebar, use
+ * the ScalarSidebarSearchInput component instead.
+ *
+ * @example
+ * <ScalarSearchInput v-model="search" />
+ */
+export default {}
+</script>
 <script setup lang="ts">
-import { cva, cx } from '@scalar/use-hooks/useBindCx'
-import { computed, ref, useAttrs } from 'vue'
+import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { ref } from 'vue'
 
-import { ScalarIcon } from '../ScalarIcon'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
 defineProps<{
   loading?: LoadingState
-  modelValue?: string
-  sidebar?: boolean
   label?: string
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: string): void
-}>()
+const model = defineModel<string>()
 
 const inputRef = ref<HTMLInputElement | null>(null)
 
-function handleInput(e: Event) {
-  emit('update:modelValue', (e.target as HTMLInputElement).value)
-}
-
 function handleClear() {
-  emit('update:modelValue', '')
+  model.value = ''
   // Push focus back to the input
   if (inputRef.value) {
     inputRef.value.focus()
@@ -32,43 +38,17 @@ function handleClear() {
 }
 
 defineOptions({ inheritAttrs: false })
-
-/* Extract the classes so they can be merged by `cx` */
-const attrs = computed(() => {
-  const { class: className, ...rest } = useAttrs()
-  return { class: className || '', rest }
-})
-
-const variants = cva({
-  base: 'search-background flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline',
-  variants: {
-    sidebar: {
-      true: 'h-8 gap-2 px-1.5',
-      false: 'h-10 p-3',
-    },
-  },
-})
-
-defineExpose({
-  focus: () => {
-    inputRef.value?.focus()
-  },
-  blur: () => {
-    inputRef.value?.blur()
-  },
-})
+const { classCx, otherAttrs } = useBindCx()
 </script>
 <template>
-  <label :class="cx(variants({ sidebar }), attrs.class)">
-    <ScalarIcon
-      v-if="sidebar"
-      class="text-c-2"
-      icon="Search"
-      size="xs"
-      thickness="2.5" />
+  <label
+    v-bind="
+      classCx(
+        'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 bg-b-1.5 has-[:focus-visible]:outline h-10 p-3',
+      )
+    ">
     <input
       ref="inputRef"
-      v-bind="attrs.rest"
       :aria-label="label ?? 'Enter search query'"
       autocapitalize="off"
       autocomplete="off"
@@ -77,31 +57,19 @@ defineExpose({
       placeholder="Search..."
       spellcheck="false"
       type="search"
-      :value="modelValue"
-      @input="handleInput" />
+      v-bind="otherAttrs"
+      v-model="model" />
     <ScalarLoading
       v-if="loading && loading.isLoading"
-      class="mr-3 self-center"
+      class="self-center"
       :loadingState="loading"
       size="md" />
     <ScalarIconButton
-      v-else-if="modelValue"
-      :class="cx('p-0', sidebar ? 'h-4 w-4' : 'h-5 w-5')"
+      v-else-if="model"
+      class="p-0 size-5"
       icon="Close"
       label="Clear Search"
-      :thickness="sidebar ? '1.75' : '1.5'"
+      thickness="1.5"
       @click.stop.prevent="handleClear" />
   </label>
 </template>
-<style scoped>
-.search-background {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    var(--scalar-background-2)
-  );
-}
-.search-background:focus-within {
-  background: transparent;
-}
-</style>
