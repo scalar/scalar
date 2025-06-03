@@ -12,6 +12,7 @@ import type { z } from 'zod'
 
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { createRequestOperation } from './create-request-operation'
+import * as electron from '../electron'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -371,6 +372,41 @@ describe('create-request-operation', () => {
     expect(JSON.parse(result?.response.data as string).query).toMatchObject({
       foo: ['foo', 'bar'],
     })
+  })
+
+  it('builds a request with User-Agent header', async () => {
+    const spy = vi.spyOn(electron, 'isElectron').mockReturnValue(true)
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestExamplePayload: {
+          parameters: {
+            headers: [
+              {
+                key: 'User-Agent',
+                value: 'custom-user-agent',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    })
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    if (!result || !('data' in result.response)) {
+      throw new Error('No data')
+    }
+    const responseHeaders = JSON.parse(result?.response.data as string).headers
+    expect(responseHeaders['x-scalar-user-agent']).toBe('custom-user-agent')
+
+    spy.mockRestore()
   })
 
   describe('merges query parameters', () => {

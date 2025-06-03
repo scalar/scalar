@@ -130,6 +130,12 @@ export const createRequestOperation = ({
     const cookieParams = [..._cookieParams, ...security.cookies]
     const urlParams = new URLSearchParams([..._urlParams, ...security.urlParams])
 
+    // If we are running in Electron, we need to add a custom header
+    // that’s then forwarded as a `User-Agent` header.
+    if (isElectron() && headers['user-agent']) {
+      headers['X-Scalar-User-Agent'] = headers['user-agent']
+    }
+
     // Combine the url with the path and server + query params
     url = mergeUrls(url, pathString, urlParams)
 

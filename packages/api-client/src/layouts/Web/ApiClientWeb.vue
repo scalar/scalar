@@ -87,16 +87,6 @@ const themeStyleTag = computed(
   </ScalarTeleportRoot>
 </template>
 <style>
-html,
-body {
-  overscroll-behavior: none;
-}
-
-/** Add background for iOS and Safari scroll overflow */
-body {
-  background-color: var(--scalar-background-1);
-}
-
 #scalar-client {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/playground/">
     <Project Path="playground/Scalar.AspNetCore.Playground/Scalar.AspNetCore.Playground.csproj" />
+    <Project Path="playground/Scalar.AspNetCore.Benchmarks/Scalar.AspNetCore.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Scalar.AspNetCore.Microsoft/Scalar.AspNetCore.Microsoft.csproj" />

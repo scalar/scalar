@@ -69,41 +69,35 @@ internal static class ScalarOptionsMapper
     private static IEnumerable<ScalarSource> GetSources(ScalarOptions options)
     {
         var trimmedOpenApiRoutePattern = options.OpenApiRoutePattern.TrimStart('/');
-        return options.Documents.Select(document =>
+
+        foreach (var (name, title, routePattern) in options.Documents)
         {
-            var openApiRoutePattern = document.RoutePattern is null ? trimmedOpenApiRoutePattern : document.RoutePattern.TrimStart('/');
-            return new ScalarSource
+            var openApiRoutePattern = routePattern is null ? trimmedOpenApiRoutePattern : routePattern.TrimStart('/');
+            yield return new ScalarSource
             {
-                Title = document.Title ?? document.Name,
-                Url = openApiRoutePattern.Replace(DocumentName, document.Name)
+                Title = title ?? name,
+                Url = openApiRoutePattern.Replace(DocumentName, name)
             };
-        });
+        }
     }
 
     private static Dictionary<string, IEnumerable<string>>? GetHiddenClients(ScalarOptions options)
-    {
-        var targets = ProcessOptions(options);
-
-        return targets?.ToDictionary(k =>
-                k.Key.ToStringFast(true),
-            k => k.Value.Select(v => v.ToStringFast(true))
-        );
-    }
-
-    private static Dictionary<ScalarTarget, ScalarClient[]>? ProcessOptions(ScalarOptions options)
     {
         if (options.EnabledTargets.Length == 0 && options.EnabledClients.Length == 0)
         {
             return null;
         }
 
-        var selected = new Dictionary<ScalarTarget, ScalarClient[]>();
+        var hiddenClients = new Dictionary<string, IEnumerable<string>>(ClientOptions.Count);
+
         foreach (var item in ClientOptions)
         {
-            if (options.EnabledTargets.Length != 0 &&
-                !options.EnabledTargets.Contains(item.Key))
+            if (options.EnabledTargets.Length > 0 && !options.EnabledTargets.Contains(item.Key))
             {
-                selected.Add(item.Key, item.Value);
+                var targetKey = item.Key.ToStringFast(true);
+                var values = item.Value.Select(x => x.ToStringFast(true));
+
+                hiddenClients[targetKey] = values;
                 continue;
             }
 
@@ -112,16 +106,21 @@ internal static class ScalarOptionsMapper
                 continue;
             }
 
-            var clients = item.Value
-                .Where(client => !options.EnabledClients.Contains(client))
-                .ToArray();
 
-            if (clients.Length != 0)
+            var clients = item.Value
+                .Where(x => !options.EnabledClients.Contains(x))
+                .Select(x => x.ToStringFast(true)).ToArray();
+
+            // Only add to hidden clients if there are actually clients to hide
+            if (clients.Length == 0)
             {
-                selected.Add(item.Key, clients);
+                continue;
             }
+
+            var key = item.Key.ToStringFast(true);
+            hiddenClients[key] = clients;
         }
 
-        return selected;
+        return hiddenClients.Count > 0 ? hiddenClients : null;
     }
 }

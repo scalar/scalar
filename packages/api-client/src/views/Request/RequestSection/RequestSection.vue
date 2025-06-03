@@ -54,7 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
-  'Scripts',
+  // 'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -87,9 +87,7 @@ const filterIds = computed(
 )
 
 // If security = [] or [{}] just hide it on readOnly mode
-const isAuthHidden = computed(
-  () => layout === 'modal' && operation.security?.length === 0,
-)
+const isAuthHidden = computed(() => layout === 'modal' && !operation.security)
 
 const selectedFilter = ref<Filter>('All')
 
@@ -153,6 +151,16 @@ const requestSectionViews = pluginManager.getViewComponents('request.section')
 
 const updateOperationHandler = (key: keyof Operation, value: string) =>
   requestMutators.edit(operation.uid, key, value)
+
+// Sets to all when auth filter is hidden but was previously selected to prevent empty section
+watch(
+  () => isAuthHidden.value,
+  (authHidden) => {
+    if (authHidden && selectedFilter.value === 'Auth') {
+      selectedFilter.value = 'All'
+    }
+  },
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">

@@ -11,7 +11,6 @@ import { REGEX } from './regex-helpers'
 export function redirectToProxy(proxyUrl?: string, url?: string): string {
   try {
     if (!shouldUseProxy(proxyUrl, url)) {
-      console.log('should not use proxy', proxyUrl, url)
       return url ?? ''
     }
 
