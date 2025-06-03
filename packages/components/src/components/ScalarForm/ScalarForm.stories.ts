@@ -105,18 +105,23 @@ export const WithErrors: Story = {
       return { args }
     },
     template: `
-      <ScalarForm>
-        <ScalarFormSection>
-          <template #label>Section Label</template>
-          <ScalarFormError v-bind="args">{{ args.message }}</ScalarFormError>
-          <ScalarFormField>
-            <template #label>Single Line Input</template>
-            <ScalarTextInput :class="args.variant === 'error' ? 'border-c-danger' : ''" />
-            <template #below>
-              <span :class="args.variant === 'error' ? 'text-c-danger' : 'text-c-alert'">This is a contextual message</span>
-            </template>
-        </ScalarFormField>
-      </ScalarForm>
-    `,
+<ScalarForm>
+  <ScalarFormSection>
+    <template #label>Section Label</template>
+    <ScalarFormError v-bind="args">{{ args.message }}</ScalarFormError>
+    <ScalarFormField>
+      <template #label>Single Line Input</template>
+      <ScalarTextInput
+        :class="args.variant === 'error' ? 'border-c-danger' : ''" />
+      <template #below>
+        <span
+          :class="args.variant === 'error' ? 'text-c-danger' : 'text-c-alert'"
+          >This is a contextual message</span
+        >
+      </template>
+    </ScalarFormField>
+  </ScalarFormSection>
+</ScalarForm>
+`,
   }),
 }
