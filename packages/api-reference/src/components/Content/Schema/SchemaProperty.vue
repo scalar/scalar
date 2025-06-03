@@ -457,13 +457,17 @@ const handleDiscriminatorChange = (type: string) => {
 .property:not(:last-of-type) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.property-description + .children {
+
+.property-description + .children,
+.children + .property-rule {
   margin-top: 9px;
 }
+
 .children {
   display: flex;
   flex-direction: column;
 }
+
 .children .property--compact.property--level-1 {
   padding: 12px;
 }
