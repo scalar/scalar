@@ -642,8 +642,7 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description:
-              'Get all planets from the system that the user has access to.',
+            description: 'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
@@ -723,8 +722,7 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets/{id}': {
           get: {
-            description:
-              'Get all planets from the system that the user has access to.',
+            description: 'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
@@ -782,8 +780,7 @@ describe('upgradeFromTwoToThree', () => {
       paths: {
         '/planets': {
           get: {
-            description:
-              'Get all planets from the system that the user has access to.',
+            description: 'Get all planets from the system that the user has access to.',
             consumes: ['application/json'],
             parameters: [
               {
