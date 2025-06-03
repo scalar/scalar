@@ -73,6 +73,7 @@
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
+    "get-port": "catalog:*",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
     "tinybench": "^2.8.0",

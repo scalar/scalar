@@ -32,6 +32,7 @@ catalogs:
     commander: 13.1.0
     express: ^5.1.0
     fastify: ^4.26.2
+    get-port: 7.1.0
     nanoid: ^5.1.5
     next: ^15.2.3
     postcss: ^8.4.38

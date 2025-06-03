@@ -14,6 +14,7 @@ import {
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
+import getPort from 'get-port'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -28,7 +29,7 @@ describe('bundle', () => {
     })
 
     it('bundles external urls', async () => {
-      const PORT = 6738
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const external = {
@@ -73,7 +74,7 @@ describe('bundle', () => {
     })
 
     it('bundles external urls from resolved external piece', async () => {
-      const PORT = 8890
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
       const chunk2 = {
         hey: 'hey',
@@ -136,7 +137,7 @@ describe('bundle', () => {
     })
 
     it('should correctly handle only urls without a pointer', async () => {
-      const PORT = 5678
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/', (_, reply) => {
@@ -172,7 +173,7 @@ describe('bundle', () => {
 
     it('caches results for same resource', async () => {
       const fn = vi.fn()
-      const PORT = 4402
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/', (_, reply) => {
@@ -216,7 +217,7 @@ describe('bundle', () => {
     })
 
     it('handles correctly external nested refs', async () => {
-      const PORT = 5578
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/nested/another-file.json', (_, reply) => {
@@ -260,7 +261,7 @@ describe('bundle', () => {
     })
 
     it('does not merge paths when we use absolute urls', async () => {
-      const PORT = 5579
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -304,7 +305,7 @@ describe('bundle', () => {
     })
 
     it('bundles from a url input', async () => {
-      const PORT = 5588
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -350,7 +351,7 @@ describe('bundle', () => {
     })
 
     it('generated a map when we turn the urlMap on', async () => {
-      const PORT = 4628
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -404,7 +405,7 @@ describe('bundle', () => {
     })
 
     it('prefixes the refs only once', async () => {
-      const PORT = 8896
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk2 = {
@@ -488,7 +489,7 @@ describe('bundle', () => {
     })
 
     it('bundles array references', async () => {
-      const PORT = 8893
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -531,7 +532,7 @@ describe('bundle', () => {
     })
 
     it('bundles subpart of the document', async () => {
-      const PORT = 8894
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -572,16 +573,16 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: 'http://localhost:8894/chunk1#',
+          $ref: `${url}/chunk1#`,
         },
         b: {
           $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
         },
         c: {
-          $ref: 'http://localhost:8894/chunk1#',
+          $ref: `${url}/chunk1#`,
         },
         'x-ext': {
-          [`${await getHash(`${url}/chunk1`)}`]: {
+          [await getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
@@ -599,7 +600,7 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: 'http://localhost:8894/chunk1#',
+          $ref: `${url}/chunk1#`,
         },
         b: {
           $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
@@ -620,7 +621,7 @@ describe('bundle', () => {
     })
 
     it('tree shakes the external documents correctly', async () => {
-      const PORT = 8898
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -675,7 +676,7 @@ describe('bundle', () => {
     })
 
     it('tree shakes correctly when working with nested external refs', async () => {
-      const PORT = 8672
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk2 = {
@@ -759,7 +760,7 @@ describe('bundle', () => {
     })
 
     it('handles circular references when we treeshake', async () => {
-      const PORT = 8772
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -815,7 +816,7 @@ describe('bundle', () => {
     })
 
     it('handles chunks', async () => {
-      const PORT = 8194
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -873,7 +874,7 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: {
           $global: true,
-          $ref: '#/x-ext/a830164',
+          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
         },
         b: {
           $global: true,
@@ -881,7 +882,7 @@ describe('bundle', () => {
         },
         c: {
           $global: true,
-          $ref: 'http://localhost:8194/chunk1#',
+          $ref: `${url}/chunk1#`,
         },
         components: {
           User: {
@@ -895,7 +896,7 @@ describe('bundle', () => {
           },
         },
         'x-ext': {
-          'a830164': {
+          [await getHash(`${url}/chunk1`)]: {
             description: 'Chunk 1',
             someRef: {
               $ref: '#/components/User',
@@ -909,7 +910,7 @@ describe('bundle', () => {
     })
 
     it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
-      const PORT = 8184
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -949,7 +950,7 @@ describe('bundle', () => {
 
       expect(input).toEqual({
         a: {
-          $ref: '#/x-ext/a850153',
+          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
         },
         b: {
           a: 'a',
@@ -958,10 +959,10 @@ describe('bundle', () => {
           },
         },
         c: {
-          $ref: 'http://localhost:8184/chunk2#',
+          $ref: `${url}/chunk2#`,
         },
         'x-ext': {
-          'a850153': {
+          [await getHash(`${url}/chunk1`)]: {
             a: {
               hello: 'hello',
             },
@@ -971,7 +972,7 @@ describe('bundle', () => {
     })
 
     it('should correctly handle nested chunk urls', async () => {
-      const PORT = 8164
+      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -1049,58 +1050,58 @@ describe('bundle', () => {
       expect(input).toEqual({
         a: {
           $global: true,
-          $ref: '#/x-ext/2e7a4dc',
+          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
         },
         b: {
           $global: true,
-          $ref: '#/x-ext/746c057',
+          $ref: `#/x-ext/${await getHash(`${url}/chunk2`)}`,
         },
         c: {
-          $ref: '#/x-ext/8d47732',
+          $ref: `#/x-ext/${await getHash(`${url}/external/document.json`)}`,
         },
 
         entry: {
           $ref: '#/a',
         },
         nonBundle: {
-          $ref: 'http://localhost:8164/chunk1#',
+          $ref: `http://localhost:${PORT}/chunk1#`,
         },
         'x-ext': {
-          '8d47732': {
+          [await getHash(`${url}/external/document.json`)]: {
             external: 'external',
             someChunk: {
-              $ref: '#/x-ext/f9d8a3d',
+              $ref: `#/x-ext/${await getHash(`${url}/external/chunk3`)}`,
               $global: true,
             },
           },
-          '2e7a4dc': {
+          [await getHash(`${url}/chunk1`)]: {
             chunk1: 'chunk1',
             someRef: {
               $ref: '#/b',
             },
           },
-          '746c057': {
+          [await getHash(`${url}/chunk2`)]: {
             chunk2: 'chunk2',
             someRef: {
               $ref: '#/c',
             },
           },
-          'f9d8a3d': {
+          [await getHash(`${url}/external/chunk3`)]: {
             chunk3: 'chunk3',
           },
         },
         'x-ext-urls': {
-          [`${url}/chunk1`]: '2e7a4dc',
-          [`${url}/chunk2`]: '746c057',
-          [`${url}/external/chunk3`]: 'f9d8a3d',
-          [`${url}/external/document.json`]: '8d47732',
+          [`${url}/chunk1`]: await getHash(`${url}/chunk1`),
+          [`${url}/chunk2`]: await getHash(`${url}/chunk2`),
+          [`${url}/external/chunk3`]: await getHash(`${url}/external/chunk3`),
+          [`${url}/external/document.json`]: await getHash(`${url}/external/document.json`),
         },
       })
     })
 
     describe('hooks', () => {
       it('run success hook', async () => {
-        const PORT = 8294
+        const PORT = await getPort()
         const url = `http://localhost:${PORT}`
 
         const chunk1 = {
@@ -1149,7 +1150,7 @@ describe('bundle', () => {
       })
 
       it('run success hook', async () => {
-        const PORT = 8394
+        const PORT = await getPort()
         const url = `http://localhost:${PORT}`
 
         server.get('/chunk1', (_, reply) => {
