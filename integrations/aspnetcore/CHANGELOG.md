@@ -1,5 +1,18 @@
 # @scalar/aspnetcore
 
+## 2.4.8
+
+### Patch Changes
+
+- 1d498e6: feat(Scalar.AspNetCore): add authentication extension methods
+- 99c4e8d: feat(Scalar.AspNetCore): improve mapper performance
+- Updated dependencies [dc6cd4c]
+- Updated dependencies [511bbc0]
+- Updated dependencies [bf2cb82]
+- Updated dependencies [7ca47ab]
+- Updated dependencies [494f7f0]
+  - @scalar/api-reference@1.31.3
+
 ## 2.4.7
 
 ### Patch Changes

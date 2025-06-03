@@ -1,5 +1,20 @@
 # scalar-app
 
+## 0.1.200
+
+### Patch Changes
+
+- a47fa60: fix: override Electron default User-Agent header
+- Updated dependencies [c06aa6a]
+- Updated dependencies [3ad9393]
+- Updated dependencies [f1c0c01]
+- Updated dependencies [b461b62]
+- Updated dependencies [a47fa60]
+- Updated dependencies [df7efac]
+  - @scalar/api-client@2.5.2
+  - @scalar/components@0.14.5
+  - @scalar/import@0.4.6
+
 ## 0.1.199
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.4.2
+
+### Patch Changes
+
+- 7ca47ab: fix: add ssr safe alias for local storage
+
 ## 0.4.1
 
 ### Patch Changes
