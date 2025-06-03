@@ -1,9 +1,9 @@
-import type { CommandChain, Merge, Queue, Task } from '../../../types/index'
-import { dereference } from '../../dereference'
-import { filter } from '../../filter'
-import { load } from '../../load/load'
-import { upgrade } from '../../upgrade'
-import { validate } from '../../validate'
+import type { CommandChain, Merge, Queue, Task } from '@/types/index'
+import { dereference } from '@/utils/dereference'
+import { filter } from '@/utils/filter'
+import { load } from '@/utils/load/load'
+import { upgrade } from '@/utils/upgrade'
+import { validate } from '@/utils/validate'
 
 /**
  * Takes a queue of tasks and works through them
