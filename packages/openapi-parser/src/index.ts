@@ -16,3 +16,4 @@ export { upgradeFromTwoToThree } from './utils/upgrade-from-two-to-three'
 export { validate } from './utils/validate'
 export { bundle, fetchUrls, readFiles } from './utils/bundle'
 export type { LoadResult, Filesystem, AnyObject, ErrorObject } from './types'
+export { openapi } from "./utils/openapi/openapi"
