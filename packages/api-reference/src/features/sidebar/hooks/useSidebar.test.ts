@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, provide } from 'vue'
-import { createSidebar } from '../helpers/create-sidebar'
+import { createSidebar } from '@/features/sidebar/helpers/create-sidebar'
 import { SIDEBAR_SYMBOL, useSidebar } from './useSidebar'
 
 const EXAMPLE_DOCUMENT = {

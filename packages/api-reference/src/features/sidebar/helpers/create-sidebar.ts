@@ -3,8 +3,8 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, reactive, ref, type Ref } from 'vue'
 import { lazyBus } from '@/components/Content/Lazy/lazyBus'
 
-import type { TraverseSpecOptions } from '@/features/traverse-schema/types'
-import { traverseDocument } from '@/features/traverse-schema/helpers/traverse-document'
+import type { TraverseSpecOptions } from '@/features/traverse-schema'
+import { traverseDocument } from '@/features/traverse-schema'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { measure } from '@scalar/helpers/testing/measure'
 

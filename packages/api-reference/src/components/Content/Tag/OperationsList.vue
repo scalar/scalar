@@ -5,6 +5,7 @@ import { computed } from 'vue'
 
 import { Card, CardContent, CardHeader } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { operationIdParams } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 
 import OperationsListItem from './OperationsListItem.vue'
@@ -35,7 +36,7 @@ const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
           class="endpoints">
           <OperationsListItem
             v-for="operation in tag.operations"
-            :key="getOperationId(operation, tag)"
+            :key="getOperationId(operationIdParams(operation), tag)"
             :collection="collection"
             :isCollapsed="isCollapsed"
             :tag="tag"

@@ -2,7 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type InjectionKey, type Ref, inject, provide } from 'vue'
 
 import { createSidebar } from '@/features/sidebar/helpers/create-sidebar'
-import type { TraverseSpecOptions } from '@/features/traverse-schema/types'
+import type { TraverseSpecOptions } from '@/features/traverse-schema'
 
 type Sidebar = ReturnType<typeof createSidebar>
 

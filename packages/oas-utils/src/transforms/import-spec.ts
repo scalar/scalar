@@ -349,7 +349,11 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      const operation: OpenAPIV3_1.OperationObject = path[method]
+      const operation = path[method]
+      if (!operation) {
+        return
+      }
+
       const operationLevelServers = serverSchema.array().parse(operation.servers ?? [])
 
       for (const server of operationLevelServers) {
