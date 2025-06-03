@@ -260,6 +260,7 @@ export type Tag = {
   'name': string
   'description': string
   'operations': TransformedOperation[]
+  'webhooks': Webhooks
   'x-displayName'?: string
 }
 
