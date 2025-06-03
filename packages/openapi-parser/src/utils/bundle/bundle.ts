@@ -570,7 +570,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
       const ref = root['$ref']
-      const isChunk = ('$global' in root && typeof root['$global'] === 'boolean' && root['$global']) || isChunkParent
+      const isChunk = '$global' in root && typeof root['$global'] === 'boolean' && root['$global']
 
       if (isLocalRef(ref)) {
         if (isPartialBundling) {
@@ -578,11 +578,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // referenced by this local reference to ensure the partial bundle is complete.
           // This includes not just the direct reference but also all its dependencies,
           // creating a complete and self-contained partial bundle.
-          await bundler(
-            getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))),
-            isChunkParent ? '' : origin,
-            isChunkParent,
-          )
+          await bundler(getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))), origin, isChunkParent)
         }
         return
       }
@@ -628,7 +624,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // to handle any nested references it may contain. We pass the resolvedPath as the new origin
           // to ensure any relative references within this content are resolved correctly relative to
           // their new location in the bundled document.
-          await bundler(result.data, resolvedPath, isChunk)
+          await bundler(result.data, isChunk ? origin : resolvedPath, isChunk)
 
           // Store the mapping between original URLs and their hashed keys in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations

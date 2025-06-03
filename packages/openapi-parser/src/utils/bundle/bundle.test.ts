@@ -908,6 +908,196 @@ describe('bundle', () => {
       })
     })
 
+    it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
+      const PORT = 8184
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+      }
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+        b: {
+          a: 'a',
+          someReference: {
+            $ref: '#/a',
+          },
+        },
+        c: {
+          $ref: `${url}/chunk2#`,
+        },
+      }
+
+      const cache = new Map()
+
+      // Bundle only partial
+      await bundle(input.b, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+        cache,
+      })
+
+      expect(input).toEqual({
+        a: {
+          $ref: '#/x-ext/a850153',
+        },
+        b: {
+          a: 'a',
+          someReference: {
+            $ref: '#/a',
+          },
+        },
+        c: {
+          $ref: 'http://localhost:8184/chunk2#',
+        },
+        'x-ext': {
+          'a850153': {
+            a: {
+              hello: 'hello',
+            },
+          },
+        },
+      })
+    })
+
+    it('should correctly handle nested chunk urls', async () => {
+      const PORT = 8164
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        chunk1: 'chunk1',
+        someRef: {
+          $ref: '#/b',
+        },
+      }
+
+      const chunk2 = {
+        chunk2: 'chunk2',
+        someRef: {
+          $ref: '#/c',
+        },
+      }
+
+      const chunk3 = {
+        chunk3: 'chunk3',
+      }
+      const external = {
+        external: 'external',
+        someChunk: {
+          $ref: '/chunk3',
+          $global: true,
+        },
+      }
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+      server.get('/chunk2', (_, reply) => {
+        reply.send(chunk2)
+      })
+      server.get('/external/chunk3', (_, reply) => {
+        reply.send(chunk3)
+      })
+      server.get('/chunk3', (_, reply) => {
+        reply.send(chunk3)
+      })
+      server.get('/external/document.json', (_, reply) => {
+        reply.send(external)
+      })
+      await server.listen({ port: PORT })
+
+      const input = {
+        c: {
+          $ref: `${url}/external/document.json`,
+        },
+        b: {
+          $ref: `${url}/chunk2#`,
+          $global: true,
+        },
+        a: {
+          $ref: `${url}/chunk1#`,
+          $global: true,
+        },
+        entry: {
+          $ref: '#/a',
+        },
+        nonBundle: {
+          $ref: `${url}/chunk1#`,
+        },
+      }
+
+      const cache = new Map()
+
+      // Bundle only partial
+      await bundle(input.entry, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+        cache,
+        urlMap: true,
+      })
+
+      expect(input).toEqual({
+        a: {
+          $global: true,
+          $ref: '#/x-ext/2e7a4dc',
+        },
+        b: {
+          $global: true,
+          $ref: '#/x-ext/746c057',
+        },
+        c: {
+          $ref: '#/x-ext/8d47732',
+        },
+
+        entry: {
+          $ref: '#/a',
+        },
+        nonBundle: {
+          $ref: 'http://localhost:8164/chunk1#',
+        },
+        'x-ext': {
+          '8d47732': {
+            external: 'external',
+            someChunk: {
+              $ref: '#/x-ext/f9d8a3d',
+              $global: true,
+            },
+          },
+          '2e7a4dc': {
+            chunk1: 'chunk1',
+            someRef: {
+              $ref: '#/b',
+            },
+          },
+          '746c057': {
+            chunk2: 'chunk2',
+            someRef: {
+              $ref: '#/c',
+            },
+          },
+          'f9d8a3d': {
+            chunk3: 'chunk3',
+          },
+        },
+        'x-ext-urls': {
+          [`${url}/chunk1`]: '2e7a4dc',
+          [`${url}/chunk2`]: '746c057',
+          [`${url}/external/chunk3`]: 'f9d8a3d',
+          [`${url}/external/document.json`]: '8d47732',
+        },
+      })
+    })
+
     describe('hooks', () => {
       it('run success hook', async () => {
         const PORT = 8294
