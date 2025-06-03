@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.14.5
+
+### Patch Changes
+
+- f1c0c01: fix(components): clean up ScalarButton disabled behaviour
+- df7efac: fix: reverts variant change zoomed to md in scalar modal
+- Updated dependencies [7ca47ab]
+  - @scalar/oas-utils@0.4.2
+
 ## 0.14.4
 
 ### Patch Changes

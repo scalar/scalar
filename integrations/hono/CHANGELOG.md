@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.9.2
+
+### Patch Changes
+
+- a90046a: chore: move to esbuild for integration packages
+
 ## 0.9.1
 
 ### Patch Changes

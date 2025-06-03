@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.8.2
+
+### Patch Changes
+
+- a90046a: chore: move to esbuild for integration packages
+
 ## 0.8.1
 
 ### Patch Changes

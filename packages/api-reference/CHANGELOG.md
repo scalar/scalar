@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.31.3
+
+### Patch Changes
+
+- dc6cd4c: feat: updates download link component
+- 511bbc0: fix: updates header properties style
+- bf2cb82: feat: updates schema composition name handling
+- 7ca47ab: fix: add ssr safe alias for local storage
+- 494f7f0: chore(api-reference): delete rogue Tailwind v3 config
+- Updated dependencies [c06aa6a]
+- Updated dependencies [3ad9393]
+- Updated dependencies [f1c0c01]
+- Updated dependencies [b461b62]
+- Updated dependencies [a47fa60]
+- Updated dependencies [ee3eb77]
+- Updated dependencies [df7efac]
+- Updated dependencies [7ca47ab]
+  - @scalar/api-client@2.5.2
+  - @scalar/components@0.14.5
+  - @scalar/openapi-parser@0.14.0
+  - @scalar/oas-utils@0.4.2
+
 ## 1.31.2
 
 ### Patch Changes

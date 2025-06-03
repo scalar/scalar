@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.5.2
+
+### Patch Changes
+
+- c06aa6a: fix(api-client): move global styles out of client layout
+- 3ad9393: fix: updates string template for empety values susbtitution
+- b461b62: fix: updates request section auth hidden logic"
+- a47fa60: fix: override Electron default User-Agent header
+- Updated dependencies [f1c0c01]
+- Updated dependencies [ee3eb77]
+- Updated dependencies [df7efac]
+- Updated dependencies [7ca47ab]
+  - @scalar/components@0.14.5
+  - @scalar/openapi-parser@0.14.0
+  - @scalar/oas-utils@0.4.2
+  - @scalar/use-codemirror@0.12.6
+  - @scalar/import@0.4.6
+  - @scalar/postman-to-openapi@0.3.5
+
 ## 2.5.1
 
 ### Patch Changes
