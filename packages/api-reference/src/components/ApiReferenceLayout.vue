@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
+import { OpenApiClientButton } from '@scalar/api-client/components'
 import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
@@ -7,7 +8,10 @@ import {
 } from '@scalar/api-client/store'
 import {
   addScalarClassesToHeadless,
+  ScalarColorModeToggleButton,
+  ScalarColorModeToggleIcon,
   ScalarErrorBoundary,
+  ScalarSidebarFooter,
 } from '@scalar/components'
 import { sleep } from '@scalar/helpers/testing/sleep'
 import {
@@ -19,6 +23,7 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -33,12 +38,15 @@ import {
   watch,
 } from 'vue'
 
+import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
+import MobileHeader from '@/components/MobileHeader.vue'
 import { Sidebar } from '@/components/Sidebar'
 import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { SearchButton } from '@/features/Search'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
@@ -56,7 +64,7 @@ const {
   configuration: providedConfiguration,
   originalDocument: providedOriginalDocument,
   dereferencedDocument: providedDereferencedDocument,
-} = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
+} = defineProps<ReferenceLayoutProps>()
 
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
@@ -95,9 +103,11 @@ provide(OPENAPI_VERSION_SYMBOL, originalOpenApiVersion)
 provide(WORKSPACE_SYMBOL, workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
-defineSlots<{
-  [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
-}>()
+defineSlots<
+  {
+    [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
+  } & { 'document-selector': any }
+>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
 
@@ -275,6 +285,27 @@ const themeStyleTag = computed(
     fonts: configuration.value.withDefaultFonts,
   })}</style>`,
 )
+
+// ---------------------------------------------------------------------------
+// TODO: Code below is copied from ModernLayout.vue. Find a better location for this.
+
+const { mediaQueries } = useBreakpoints()
+const isDevelopment = import.meta.env.MODE === 'development'
+
+watch(mediaQueries.lg, (newValue, oldValue) => {
+  // Close the drawer when we go from desktop to mobile
+  if (oldValue && !newValue) {
+    isSidebarOpen.value = false
+  }
+})
+
+watch(hash, (newHash, oldHash) => {
+  if (newHash && newHash !== oldHash) {
+    isSidebarOpen.value = false
+  }
+})
+
+// ---------------------------------------------------------------------------
 </script>
 <template>
   <div v-html="themeStyleTag" />
@@ -283,6 +314,8 @@ const themeStyleTag = computed(
     class="scalar-app scalar-api-reference references-layout"
     :class="[
       {
+        'scalar-api-references-standalone-mobile':
+          configuration.showSidebar ?? true,
         'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
         'references-editable': configuration.isEditable,
         'references-sidebar': configuration.showSidebar,
@@ -297,6 +330,9 @@ const themeStyleTag = computed(
     @scroll.passive="debouncedScroll">
     <!-- Header -->
     <div class="references-header">
+      <MobileHeader
+        v-if="configuration.showSidebar ?? true"
+        v-model:open="isSidebarOpen" />
       <slot
         v-bind="referenceSlotProps"
         name="header" />
@@ -309,19 +345,50 @@ const themeStyleTag = computed(
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
         <ScalarErrorBoundary>
+          <!-- TODO: @brynn should this be conditional based on classic/modern layout? -->
           <Sidebar
             :operationsSorter="configuration.operationsSorter"
             :parsedSpec="parsedDocument"
             :tagsSorter="configuration.tagsSorter">
             <template #sidebar-start>
+              <!-- Wrap in a div when slot is filled -->
+              <div v-if="$slots['document-selector']">
+                <slot name="document-selector" />
+              </div>
+              <!-- Search -->
+              <div
+                v-if="!configuration.hideSearch"
+                class="scalar-api-references-standalone-search">
+                <SearchButton
+                  :searchHotKey="configuration?.searchHotKey"
+                  :spec="parsedDocument" />
+              </div>
+              <!-- Sidebar Start -->
               <slot
-                v-bind="referenceSlotProps"
-                name="sidebar-start" />
+                name="sidebar-start"
+                v-bind="referenceSlotProps" />
             </template>
             <template #sidebar-end>
               <slot
                 v-bind="referenceSlotProps"
-                name="sidebar-end" />
+                name="sidebar-end">
+                <ScalarSidebarFooter class="darklight-reference">
+                  <OpenApiClientButton
+                    v-if="!configuration.hideClientButton"
+                    buttonSource="sidebar"
+                    :integration="configuration._integration"
+                    :isDevelopment="isDevelopment"
+                    :url="configuration.url" />
+                  <!-- Override the dark mode toggle slot to hide it -->
+                  <template #toggle>
+                    <ScalarColorModeToggleButton
+                      v-if="!configuration.hideDarkModeToggle"
+                      :modelValue="isDark"
+                      @update:modelValue="$emit('toggleDarkMode')" />
+                    <span v-else />
+                  </template>
+                </ScalarSidebarFooter>
+              </slot>
             </template>
           </Sidebar>
         </ScalarErrorBoundary>
@@ -348,7 +415,29 @@ const themeStyleTag = computed(
           <template #start>
             <slot
               v-bind="referenceSlotProps"
-              name="content-start" />
+              name="content-start">
+              <ClassicHeader v-if="configuration.layout === 'classic'">
+                <div
+                  v-if="$slots['document-selector']"
+                  class="w-64 empty:hidden">
+                  <slot name="document-selector" />
+                </div>
+                <SearchButton
+                  v-if="!configuration.hideSearch"
+                  class="t-doc__sidebar"
+                  :searchHotKey="configuration.searchHotKey"
+                  :spec="parsedDocument" />
+                <template #dark-mode-toggle>
+                  <ScalarColorModeToggleIcon
+                    v-if="!configuration.hideDarkModeToggle"
+                    class="text-c-2 hover:text-c-1"
+                    :mode="isDark ? 'dark' : 'light'"
+                    style="transform: scale(1.4)"
+                    variant="icon"
+                    @click="$emit('toggleDarkMode')" />
+                </template>
+              </ClassicHeader>
+            </slot>
           </template>
           <template
             v-if="configuration?.isEditable"
@@ -571,5 +660,28 @@ const themeStyleTag = computed(
     display: flex;
     flex-direction: column;
   }
+}
+</style>
+<style scoped>
+/** 
+* Sidebar CSS for standalone 
+* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component 
+* when the new elements are available
+*/
+@media (max-width: 1000px) {
+  .scalar-api-references-standalone-mobile {
+    --scalar-header-height: 50px;
+  }
+}
+</style>
+<style scoped>
+.scalar-api-references-standalone-search {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 6px 12px;
+}
+.darklight-reference {
+  width: 100%;
+  margin-top: auto;
 }
 </style>

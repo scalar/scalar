@@ -47,6 +47,25 @@ type PackageExports = Record<
 >
 
 /**
+ * Handles multiple formats for entry points
+ *
+ * To point to a folder barrel file use `./some/folder/index.ts`
+ * To include all files in a folder use `./some/folder/*`
+ * To point to a specific file use `./some/folder/file.ts`
+ */
+function formatEntry(filepath: string, namespacePath: string) {
+  if (filepath.endsWith('index')) {
+    return namespacePath
+  }
+
+  if (filepath.endsWith('/*')) {
+    return `${namespacePath}/*`
+  }
+
+  return `${namespacePath}/${filepath}`
+}
+
+/**
  * For a series of imports we add package.json exports to enable nested typescript definitions
  * and path nested imports
  *
@@ -84,8 +103,10 @@ export async function addPackageFileExports({
 
     const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
 
+    console.log('namespacePath', namespacePath, filename)
+
     // Add support for wildcard exports
-    packageExports[filepath.endsWith('/*') ? `${namespacePath}/*` : namespacePath] = {
+    packageExports[formatEntry(filepath, namespacePath)] = {
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,
       default: `./dist/${filepath}.js`,

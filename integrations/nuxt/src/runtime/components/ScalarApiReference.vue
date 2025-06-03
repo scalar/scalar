@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ModernLayout, parse } from '@scalar/api-reference'
+import { ApiReferenceLayout, parse } from '@scalar/api-reference'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useFetch, useHead, useRequestURL, useSeoMeta } from '#imports'
@@ -84,12 +84,13 @@ const { origin } = useRequestURL()
 const config: Partial<ApiReferenceConfiguration> = {
   baseServerURL: origin,
   _integration: 'nuxt',
+  layout: 'modern',
   ...props.configuration,
 }
 </script>
 
 <template>
-  <ModernLayout
+  <ApiReferenceLayout
     :configuration="config"
     :isDark="!!isDark"
     :parsedSpec="parsedSpec"

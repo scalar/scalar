@@ -1,6 +1,8 @@
 import { build } from '@scalar/build-tooling/esbuild'
 
-build({
-  entries: 'auto',
+const entries = ['./src/schemas.ts', './src/client.ts', './src/server.ts']
+
+await build({
+  entries,
   platform: 'node',
 })

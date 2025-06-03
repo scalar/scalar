@@ -1,5 +1,5 @@
-import { createServerWorkspaceStore, WORKSPACE_FILE_NAME } from '@/create-server-workspace-store'
-import { createWorkspaceStore } from '@/create-workspace-store'
+import { createServerWorkspaceStore, WORKSPACE_FILE_NAME } from '@/server'
+import { createWorkspaceStore } from '@/client'
 import { beforeEach, describe, expect, test } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach } from 'node:test'
