@@ -2,6 +2,7 @@ import { fastify, type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchUrl } from './fetch-urls'
 import assert from 'node:assert'
+import getPort from 'get-port'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
@@ -17,7 +18,7 @@ describe('fetchUrl', () => {
   })
 
   it('reads json response', async () => {
-    const PORT = 6677
+    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     const response = {
@@ -38,7 +39,7 @@ describe('fetchUrl', () => {
   })
 
   it('reads yaml response', async () => {
-    const PORT = 5726
+    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     server.get('/', (_, reply) => {
@@ -55,7 +56,7 @@ describe('fetchUrl', () => {
   })
 
   it('returns error on non-200 response', async () => {
-    const PORT = 6678
+    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     server.get('/', (_, reply) => {
@@ -70,7 +71,7 @@ describe('fetchUrl', () => {
   })
 
   it('send headers to the specified domain', async () => {
-    const PORT = 6688
+    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
     const fn = vi.fn()
 
@@ -95,14 +96,14 @@ describe('fetchUrl', () => {
       'accept-language': '*',
       'authorization': 'Bearer <TOKEN>',
       'connection': 'keep-alive',
-      'host': 'localhost:6688',
+      'host': `localhost:${PORT}`,
       'sec-fetch-mode': 'cors',
       'user-agent': 'node',
     })
   })
 
   it('does not send headers to other domains', async () => {
-    const PORT = 6688
+    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
     const fn = vi.fn()
 
@@ -126,9 +127,24 @@ describe('fetchUrl', () => {
       'accept-encoding': 'gzip, deflate',
       'accept-language': '*',
       'connection': 'keep-alive',
-      'host': 'localhost:6688',
+      'host': `localhost:${PORT}`,
       'sec-fetch-mode': 'cors',
       'user-agent': 'node',
     })
+  })
+
+  it('runs custom fetcher', async () => {
+    const fn = vi.fn()
+
+    await fetchUrl('https://example.com', (fn) => fn(), {
+      fetch: async (input, init) => {
+        fn(input, init)
+
+        return new Response('{}', { status: 200 })
+      },
+    })
+
+    expect(fn).toHaveBeenCalled()
+    expect(fn).toHaveBeenCalledWith('https://example.com', { headers: undefined })
   })
 })

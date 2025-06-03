@@ -1,8 +1,9 @@
 import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
-import { createMagicProxy, getRaw } from './helpers/proxy'
-import { fetchUrl, isObject, readLocalFile, resolveContents } from '@/helpers/general'
-import { getValueByPath, parseJsonPointer } from '@/helpers/json-path-utils'
+import { createMagicProxy } from './helpers/proxy'
+import { isObject } from '@/helpers/general'
+import { getValueByPath } from '@/helpers/json-path-utils'
+import { bundle, fetchUrls, readFiles } from '@scalar/openapi-parser'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
 type WorkspaceDocumentInput =
@@ -36,11 +37,11 @@ type WorkspaceDocumentInput =
  */
 async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
-    return fetchUrl(workspaceDocument.url)
+    return fetchUrls().exec(workspaceDocument.url)
   }
 
   if ('path' in workspaceDocument) {
-    return readLocalFile(workspaceDocument.path)
+    return readFiles().exec(workspaceDocument.path)
   }
 
   return {
@@ -108,6 +109,10 @@ export async function createWorkspaceStore(workspaceProps?: {
       return workspace.documents[activeDocumentKey]
     },
   }) as Workspace
+
+  // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
+  // This is needed because we are doing partial bundle operations
+  const visitedNodesCache = new Set()
 
   return {
     /**
@@ -179,74 +184,34 @@ export async function createWorkspaceStore(workspaceProps?: {
      * resolve(['paths', '/users', 'get', 'responses', '200'])
      */
     resolve: async (path: string[]) => {
-      if (path.length <= 1) {
-        throw 'Please provide a valid path'
+      const activeDocument = workspace.activeDocument
+
+      const target = getValueByPath(activeDocument, path)
+
+      if (!isObject(target)) {
+        console.error(
+          `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
+        )
+        return
       }
 
-      const lastPathSegment = path.pop()! // We are sure there is at least an element on the array
-
-      const activeDocument =
-        workspace.documents[workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '']
-
-      let parent = activeDocument as Record<string, any>
-
-      for (const p of path) {
-        parent = parent[p]
-      }
-
-      // Keep track of objects we've already processed to prevent infinite loops
-      const processedObjects = new WeakSet()
-
-      const resolveRecursive = async (root: unknown, targetKey: string) => {
-        if (!root && !isObject(root)) {
-          return
-        }
-
-        const target = (root as Record<string, unknown>)[targetKey]
-
-        if (!target || !isObject(target)) {
-          return
-        }
-
-        // Unwrap the target from the proxy
-        const rawTarget = getRaw(target)
-
-        // Skip if we've already processed this object
-        if (processedObjects.has(rawTarget)) {
-          return
-        }
-
-        // Mark this object as processed
-        processedObjects.add(rawTarget)
-
-        if (typeof target === 'object' && '$ref' in target && typeof target['$ref'] === 'string') {
-          const ref = target['$ref']
-
-          // Set the status to loading while we resolve the ref
-          Object.assign(target, { '$status': 'loading' })
-
-          const [path, pointer] = ref.split('#')
-          const result = await resolveContents(path)
-
-          if (result.ok) {
-            if (targetKey === '__proto__' || targetKey === 'constructor' || targetKey === 'prototype') {
-              throw new Error('Invalid key: cannot modify prototype')
-            }
-
-            Object.assign(root as object, { [targetKey]: getValueByPath(result.data, parseJsonPointer(pointer)) })
-
-            await resolveRecursive(root, targetKey)
-          } else {
-            Object.assign(target, { '$status': 'error' })
-          }
-
-          return
-        }
-
-        await Promise.all(Object.keys(target).map((key) => resolveRecursive(target, key)))
-      }
-
-      return resolveRecursive(parent, lastPathSegment)
+      // Bundle the target document with the active document as root, resolving any external references
+      // and tracking resolution status through hooks
+      return bundle(target, {
+        root: activeDocument,
+        treeShake: false,
+        plugins: [fetchUrls(), readFiles()],
+        urlMap: false,
+        hooks: {
+          onResolveStart: (node) => {
+            node['$status'] = 'loading'
+          },
+          onResolveError: (node) => {
+            node['$status'] = 'error'
+          },
+        },
+        visitedNodes: visitedNodesCache,
+      })
     },
     /**
      * Adds a new document to the workspace

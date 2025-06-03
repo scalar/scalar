@@ -128,6 +128,28 @@ await bundle(
 )
 ```
 
+###### Custom fetch function
+For advanced use cases like proxying requests or implementing custom network logic, you can provide your own fetch implementation. This allows you to handle things like CORS restrictions, custom authentication flows, or request/response transformations.
+
+```ts
+await bundle(
+  document,
+  {
+    plugins: [
+      fetchUrls({
+        // Custom fetcher function
+        fetch: async (input, init) => {
+          console.log('Custom fetch logic')
+          return fetch(input, init)
+        },
+      })
+      readFiles(),
+    ],
+    treeShake: false
+  },
+)
+```
+
 ###### Bundle from remote url
 
 ```ts
