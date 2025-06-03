@@ -131,4 +131,19 @@ describe('fetchUrl', () => {
       'user-agent': 'node',
     })
   })
+
+  it('runs custom fetcher', async () => {
+    const fn = vi.fn()
+
+    await fetchUrl('https://example.com', (fn) => fn(), {
+      fetch: async (input, init) => {
+        fn(input, init)
+
+        return new Response('{}', { status: 200 })
+      },
+    })
+
+    expect(fn).toHaveBeenCalled()
+    expect(fn).toHaveBeenCalledWith('https://example.com', { headers: undefined })
+  })
 })
