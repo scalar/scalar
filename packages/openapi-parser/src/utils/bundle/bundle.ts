@@ -389,6 +389,13 @@ type Config = {
   cache?: Map<string, Promise<ResolveResult>>
 
   /**
+   * Cache of visited nodes during partial bundling.
+   * Used to prevent re-bundling the same tree multiple times when doing partial bundling,
+   * improving performance by avoiding redundant processing of already bundled sections.
+   */
+  visitedNodes?: Set<unknown>
+
+  /**
    * Enable tree shaking to optimize the bundle size.
    * When enabled, only the parts of external documents that are actually referenced
    * will be included in the final bundle.
@@ -427,7 +434,7 @@ type Config = {
  * @param input - The OpenAPI specification object or string to bundle. If a string is provided,
  *                it should be a URL or file path that points to an OpenAPI specification.
  *                The string will be resolved using the provided plugins before bundling.
- * @param config - Configuration object containing plugins for resolving references
+ * @param config - Configuration object containing plugins and options for bundling OpenAPI specifications
  * @returns A promise that resolves to the bundled specification with all references embedded
  * @example
  * // Example with object input
@@ -439,23 +446,44 @@ type Config = {
  *   }
  * }
  *
- * const bundled = await bundle(spec, { plugins: [fetchUrls()] })
+ * const bundled = await bundle(spec, {
+ *   plugins: [fetchUrls()],
+ *   treeShake: true,
+ *   urlMap: true,
+ *   hooks: {
+ *     onResolveStart: (ref) => console.log('Resolving:', ref.$ref),
+ *     onResolveSuccess: (ref) => console.log('Resolved:', ref.$ref),
+ *     onResolveError: (ref) => console.log('Failed to resolve:', ref.$ref)
+ *   }
+ * })
  * // Result:
  * // {
  * //   paths: {
  * //     '/users': {
- * //       $ref: '#/x-ext/https~1~1example.com~1schemas~1users.yaml'
+ * //       $ref: '#/x-ext/abc123'
  * //     }
  * //   },
  * //   'x-ext': {
- * //     'https~1~1example.com~1schemas~1users.yaml': {
+ * //     'abc123': {
  * //       // Resolved content from users.yaml
  * //     }
+ * //   },
+ * //   'x-ext-urls': {
+ * //     'https://example.com/schemas/users.yaml': 'abc123'
  * //   }
  * // }
  *
  * // Example with URL input
- * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', { plugins: [fetchUrls()] })
+ * const bundledFromUrl = await bundle('https://example.com/openapi.yaml', {
+ *   plugins: [fetchUrls()],
+ *   treeShake: true,
+ *   urlMap: true,
+ *   hooks: {
+ *     onResolveStart: (ref) => console.log('Resolving:', ref.$ref),
+ *     onResolveSuccess: (ref) => console.log('Resolved:', ref.$ref),
+ *     onResolveError: (ref) => console.log('Failed to resolve:', ref.$ref)
+ *   }
+ * })
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
@@ -479,9 +507,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return result.data
     }
 
-    throw 'Please provide a valid string value or pass a loader to process the input'
+    throw new Error(
+      'Failed to resolve input: Please provide a valid string value or pass a loader to process the input',
+    )
   }
 
+  // Resolve the input specification, which could be either a direct object or a string URL/path
   const rawSpecification = await resolveInput()
 
   // Document root used to write all external documents
@@ -496,7 +527,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // original URLs and their corresponding hashed keys in x-ext
   const EXTERNAL_URL_MAPPING = 'x-ext-urls'
 
-  const processedNodes = new Set()
+  // Indicates whether we're performing a partial bundle operation, which occurs when
+  // a root document is provided that differs from the raw specification being bundled
+  const isPartialBundling = config.root !== undefined && config.root !== rawSpecification
+
+  // Set of nodes that have already been processed during bundling to prevent duplicate processing
+  const processedNodes = config.visitedNodes ?? new Set()
 
   const bundler = async (
     root: unknown,
@@ -507,9 +543,12 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       return
     }
 
+    // Skip if this node has already been processed to prevent infinite recursion
+    // and duplicate processing of the same node
     if (processedNodes.has(root)) {
       return
     }
+    // Mark this node as processed before continuing
     processedNodes.add(root)
 
     if (typeof root === 'object' && '$ref' in root && typeof root['$ref'] === 'string') {
@@ -517,9 +556,16 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       const isChunk = ('$global' in root && typeof root['$global'] === 'boolean' && root['$global']) || isChunkParent
 
       if (isLocalRef(ref)) {
-        if (isChunk) {
-          // We reset the origin when dealing with chunks
-          await bundler(getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))), '', isChunk)
+        if (isPartialBundling) {
+          // When doing partial bundling, we need to recursively bundle all dependencies
+          // referenced by this local reference to ensure the partial bundle is complete.
+          // This includes not just the direct reference but also all its dependencies,
+          // creating a complete and self-contained partial bundle.
+          await bundler(
+            getNestedValue(documentRoot, getSegmentsFromPath(ref.substring(1))),
+            isChunkParent ? '' : origin,
+            isChunkParent,
+          )
         }
         return
       }
@@ -546,6 +592,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
         // Process the result only once to avoid duplicate processing and prevent multiple prefixing
         // of internal references, which would corrupt the reference paths
         if (!seen) {
+          // Skip prefixing for chunks since they are meant to be self-contained and their
+          // internal references should remain relative to their original location. Chunks
+          // are typically used for modular components that need to maintain their own
+          // reference context without being affected by the main document's structure.
           if (!isChunk) {
             // Update internal references in the resolved document to use the correct base path.
             // When we embed external documents, their internal references need to be updated to

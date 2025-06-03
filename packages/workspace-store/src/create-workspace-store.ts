@@ -184,14 +184,13 @@ export async function createWorkspaceStore(workspaceProps?: {
         throw 'Please provide a valid path'
       }
 
-      const activeDocument =
-        workspace.documents[workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '']
+      const activeDocument = workspace.activeDocument
 
       const target = getValueByPath(activeDocument, path)
 
       if (!isObject(target)) {
         console.error(
-          `Please provide a valid path to resolve. Provided value: '[${path}]'. Type of value: ${typeof target}. Expected type: object`,
+          `Invalid path provided for resolution. Path: [${path.join(', ')}]. Found value of type: ${typeof target}. Expected an object.`,
         )
         return
       }
