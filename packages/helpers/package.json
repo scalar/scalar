@@ -1,0 +1,95 @@
+{
+  "name": "@scalar/helpers",
+  "description": "A collection of dependency free helpers",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "packages/helpers"
+  },
+  "keywords": [
+    "helpers",
+    "js"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "scalar-build-esbuild",
+    "lint:check": "biome lint --diagnostic-level=error",
+    "lint:fix": "biome lint --write",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "./array/*": {
+      "import": "./dist/array/*.js",
+      "types": "./dist/array/*.d.ts",
+      "default": "./dist/array/*.js"
+    },
+    "./dom/*": {
+      "import": "./dist/dom/*.js",
+      "types": "./dist/dom/*.d.ts",
+      "default": "./dist/dom/*.js"
+    },
+    "./file/*": {
+      "import": "./dist/file/*.js",
+      "types": "./dist/file/*.d.ts",
+      "default": "./dist/file/*.js"
+    },
+    "./general/*": {
+      "import": "./dist/general/*.js",
+      "types": "./dist/general/*.d.ts",
+      "default": "./dist/general/*.js"
+    },
+    "./http/*": {
+      "import": "./dist/http/*.js",
+      "types": "./dist/http/*.d.ts",
+      "default": "./dist/http/*.js"
+    },
+    "./object/*": {
+      "import": "./dist/object/*.js",
+      "types": "./dist/object/*.d.ts",
+      "default": "./dist/object/*.js"
+    },
+    "./regex/*": {
+      "import": "./dist/regex/*.js",
+      "types": "./dist/regex/*.d.ts",
+      "default": "./dist/regex/*.js"
+    },
+    "./string/*": {
+      "import": "./dist/string/*.js",
+      "types": "./dist/string/*.d.ts",
+      "default": "./dist/string/*.js"
+    },
+    "./testing/*": {
+      "import": "./dist/testing/*.js",
+      "types": "./dist/testing/*.d.ts",
+      "default": "./dist/testing/*.js"
+    },
+    "./url/*": {
+      "import": "./dist/url/*.js",
+      "types": "./dist/url/*.d.ts",
+      "default": "./dist/url/*.js"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "vite": "catalog:*",
+    "vitest": "catalog:*"
+  }
+}

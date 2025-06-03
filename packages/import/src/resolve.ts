@@ -1,4 +1,4 @@
-import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
+import { makeUrlAbsolute } from '@scalar/helpers/url/make-url-absolute'
 import { parse } from 'yaml'
 
 /**

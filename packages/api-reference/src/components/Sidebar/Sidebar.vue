@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { sleep } from '@scalar/helpers/testing/sleep'
 import type { Spec } from '@scalar/types/legacy'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
-import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 

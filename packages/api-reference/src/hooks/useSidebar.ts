@@ -1,5 +1,5 @@
 import { lazyBus } from '@/components/Content/Lazy/lazyBus'
-import { scrollToId } from '@/helpers/scroll-to-id'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import { useNavState } from '@/hooks/useNavState'
 import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/libs/markdown'
 import { getModels, hasModels, hasWebhooks } from '@/libs/openapi'

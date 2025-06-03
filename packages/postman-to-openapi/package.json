@@ -48,6 +48,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/helpers": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*"
   },

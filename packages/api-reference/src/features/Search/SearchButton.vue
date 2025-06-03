@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useModal } from '@scalar/components'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from '@/features/ApiClientModal'
 import SearchModal from '@/features/Search/SearchModal.vue'
-import { isMacOs } from '@/helpers/is-mac-os'
 
 const props = withDefaults(
   defineProps<{
@@ -24,7 +24,7 @@ const { client } = useApiClient()
 
 const handleHotKey = (e: KeyboardEvent) => {
   if (
-    (isMacOs() ? e.metaKey : e.ctrlKey) &&
+    (isMacOS() ? e.metaKey : e.ctrlKey) &&
     e.key === props.searchHotKey &&
     !client.value?.modalState.open
   ) {
@@ -77,7 +77,7 @@ function handleClick() {
       <span class="sidebar-search-shortcut">
         <span class="sr-only">Keyboard Shortcut:</span>
         <kbd class="sidebar-search-key">
-          <template v-if="isMacOs()">⌘</template>
+          <template v-if="isMacOS()">⌘</template>
           <template v-else>
             <span class="sr-only">CTRL</span>
             <span aria-hidden="true">⌃</span>

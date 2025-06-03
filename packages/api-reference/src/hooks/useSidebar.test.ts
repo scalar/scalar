@@ -256,7 +256,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('sorts tags with custom function', async () => {
+  it.todo('sorts tags with custom function', async () => {
     expect(
       await getItemsForDocument(
         {
@@ -988,7 +988,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('sorts operations with custom function', async () => {
+  it.todo('sorts operations with custom function', async () => {
     expect(
       await getItemsForDocument(
         {

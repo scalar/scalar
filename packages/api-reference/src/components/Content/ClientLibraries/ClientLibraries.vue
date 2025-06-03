@@ -2,8 +2,8 @@
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
-import { REFERENCE_LS_KEYS } from '@scalar/oas-utils/helpers'
-import { computed, onMounted, ref, toRaw, useId, watch } from 'vue'
+import { REFERENCE_LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 

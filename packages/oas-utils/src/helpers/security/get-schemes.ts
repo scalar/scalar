@@ -1,7 +1,7 @@
 import type { SecurityScheme } from '@scalar/types/entities'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 
 import type { Operation } from '@/entities/spec/operation'
-import { isDefined } from '@/helpers/is-defined'
 
 /** Parses a list of selected security scheme uids which may be an array or single uid and returns a flattened array of security schemes */
 export const getSchemes = (

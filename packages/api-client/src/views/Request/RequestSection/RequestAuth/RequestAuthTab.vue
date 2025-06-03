@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
+import {
+  CLIENT_LS_KEYS,
+  safeLocalStorage,
+} from '@scalar/helpers/object/local-storage'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
@@ -13,7 +17,6 @@ import type { Entries } from 'type-fest'
 import { capitalize, computed, onMounted, ref } from 'vue'
 
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
-import { CLIENT_LS_KEYS } from '@/libs/local-storage'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import {
@@ -101,7 +104,7 @@ onMounted(() => {
   }
 
   const auth: Auth<Path<SecurityScheme>> = JSON.parse(
-    localStorage.getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
+    safeLocalStorage().getItem(CLIENT_LS_KEYS.AUTH) ?? '{}',
   )
 
   /** Map the security scheme name key to the uid */
@@ -130,7 +133,8 @@ onMounted(() => {
   /** Restore the selected security scheme uids */
   try {
     const selectedSchemeUids: (string | string[])[] = JSON.parse(
-      localStorage.getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ?? '',
+      safeLocalStorage().getItem(CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES) ??
+        '',
     )
 
     // Convert back to uids

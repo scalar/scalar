@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/components'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
-import { isMacOS } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 
 const { modifier = ['Meta'], hotkey } = defineProps<{

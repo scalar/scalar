@@ -1,9 +1,9 @@
-import { objectMerge } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
+import { objectReplace } from '@scalar/helpers/object/object-replace'
 
 /**
  * Initialize Scalar References
@@ -51,7 +51,7 @@ export function createScalarReferences(
       if (mergeConfigs) {
         Object.assign(configuration, newConfig)
       } else {
-        objectMerge(configuration, newConfig)
+        objectReplace(configuration, newConfig)
       }
     },
     updateSpec(spec: SpecConfiguration) {

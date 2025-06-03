@@ -1,4 +1,4 @@
-import { REGEX } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/helpers/regex/regex-helpers'
 
 import type { ParsedUrl } from '../types'
 

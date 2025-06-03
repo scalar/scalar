@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { updateScheme } from './update-scheme'
-import { CLIENT_LS_KEYS } from '@/libs/local-storage'
+import { CLIENT_LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { securitySchemeSchema } from '@scalar/types/entities'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+
 import type { WorkspaceStore } from '@/store/store'
+import { updateScheme } from './update-scheme'
 
 describe('updateScheme', () => {
   // Mock localStorage

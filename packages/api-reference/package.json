@@ -65,6 +65,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

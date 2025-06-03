@@ -4,10 +4,10 @@ import {
   ScalarSidebarGroupToggle,
   type Icon,
 } from '@scalar/components'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 
-import { scrollToId } from '@/helpers/scroll-to-id'
-import { sleep } from '@/helpers/sleep'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 

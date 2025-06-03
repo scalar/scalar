@@ -1,4 +1,4 @@
-import { measure } from '@/helpers/measure'
+import { measure } from '@scalar/helpers/testing/measure'
 import { fetchDocument, prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 import type { SpecConfiguration } from '@scalar/types/api-reference'

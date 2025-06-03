@@ -7,6 +7,10 @@ import {
   type Icon,
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
+import {
+  CLIENT_LS_KEYS,
+  safeLocalStorage,
+} from '@scalar/helpers/object/local-storage'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
@@ -21,7 +25,6 @@ import { computed, ref, useId } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useLayout } from '@/hooks/useLayout'
-import { CLIENT_LS_KEYS } from '@/libs/local-storage'
 import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
@@ -187,7 +190,7 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
       return securitySchemes[uids]?.nameKey
     })
 
-    localStorage.setItem(
+    safeLocalStorage().setItem(
       CLIENT_LS_KEYS.SELECTED_SECURITY_SCHEMES,
       JSON.stringify(nameKeys),
     )

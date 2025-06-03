@@ -3,6 +3,7 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type {
   Collection,
   Operation,
@@ -24,7 +25,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
-import { freezeElement } from '@/helpers/freeze-element'
 import { useConfig } from '@/hooks/useConfig'
 import {
   DISCRIMINATOR_CONTEXT,

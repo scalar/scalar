@@ -1,13 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import ScalarHotkey from './ScalarHotkey.vue'
-import * as useTooltip from '@scalar/use-tooltip'
 
 describe('ScalarHotkey', () => {
-  beforeEach(() => {
-    vi.spyOn(useTooltip, 'isMacOS').mockReturnValue(false)
-  })
-
   describe('rendering', () => {
     it('renders with default modifier', () => {
       const wrapper = mount(ScalarHotkey, {
@@ -47,7 +42,16 @@ describe('ScalarHotkey', () => {
 
   describe('platform-specific behavior', () => {
     it('uses Command symbol (⌘) for macOS', () => {
-      vi.spyOn(useTooltip, 'isMacOS').mockReturnValue(true)
+      const oldUserAgent = global.navigator.userAgent
+
+      // Mock modern userAgentData API
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          userAgentData: {
+            platform: 'macOS',
+          },
+        },
+      })
 
       const wrapper = mount(ScalarHotkey, {
         props: {
@@ -58,6 +62,14 @@ describe('ScalarHotkey', () => {
 
       const visualText = wrapper.find('[aria-hidden="true"]')
       expect(visualText.text()).toBe('⌘ K')
+
+      Object.defineProperty(global, 'navigator', {
+        value: {
+          userAgentData: {
+            platform: oldUserAgent,
+          },
+        },
+      })
     })
 
     it('uses Control symbol (^) for non-macOS', () => {
