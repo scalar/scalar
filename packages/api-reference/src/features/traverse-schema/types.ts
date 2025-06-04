@@ -33,7 +33,7 @@ export type TraversedTag = {
   id: string
   title: string
   name: string
-  children?: TraversedEntry[]
+  children: TraversedEntry[]
   tag: OpenAPIV3_1.TagObject
   isGroup: boolean
 }

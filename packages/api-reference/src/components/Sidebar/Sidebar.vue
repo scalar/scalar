@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
-import { useSidebar } from '@/features/Sidebar'
-import { sleep } from '@/helpers/sleep'
+import { useSidebar } from '@/features/sidebar'
+import type { TraversedEntry } from '@/features/traverse-schema'
+import type {
+  TraversedDescription,
+  TraversedTag,
+} from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
 
 const { title } = defineProps<{
@@ -111,6 +116,11 @@ onMounted(() => {
     observer?.disconnect()
   })
 })
+
+const hasChildren = (
+  item: TraversedEntry,
+): item is TraversedTag | TraversedDescription =>
+  'children' in item && (item.children?.length ?? 0) > 0
 </script>
 <template>
   <div class="sidebar">
@@ -123,7 +133,7 @@ onMounted(() => {
         <template
           v-for="item in items.entries"
           :key="item.id">
-          <template v-if="item.isGroup">
+          <template v-if="'isGroup' in item && item.isGroup">
             <li class="sidebar-group-title">
               {{ item.title }}
             </li>
@@ -133,7 +143,7 @@ onMounted(() => {
               <SidebarElement
                 :id="`sidebar-${group.id}`"
                 data-sidebar-type="heading"
-                :hasChildren="group.children && group.children.length > 0"
+                :hasChildren="hasChildren(group)"
                 :isActive="isItemActive(group.id)"
                 :item="group"
                 :open="collapsedSidebarItems[group.id] ?? false"
@@ -145,7 +155,7 @@ onMounted(() => {
                     disableScroll = false
                   }
                 ">
-                <template v-if="group.children && group.children?.length > 0">
+                <template v-if="hasChildren(group)">
                   <SidebarGroup :level="1">
                     <template
                       v-for="child in group.children"
@@ -164,7 +174,7 @@ onMounted(() => {
             <SidebarElement
               :id="`sidebar-${item.id}`"
               data-sidebar-type="heading"
-              :hasChildren="item.children && item.children.length > 0"
+              :hasChildren="hasChildren(item)"
               :isActive="isItemActive(item.id)"
               :item="item"
               :open="collapsedSidebarItems[item.id] ?? false"
@@ -176,7 +186,7 @@ onMounted(() => {
                   disableScroll = false
                 }
               ">
-              <template v-if="item.children && item.children?.length > 0">
+              <template v-if="hasChildren(item)">
                 <SidebarGroup :level="1">
                   <template
                     v-for="child in item.children"

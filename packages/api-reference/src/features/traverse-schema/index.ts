@@ -1,4 +1,4 @@
-export type { TraverseSpecOptions, TraversedEntry } from './types'
+export type { TraverseSpecOptions, TraversedEntry, TraversedDescription, TraversedTag } from './types'
 
 export { traverseDocument } from './helpers/traverse-document'
 export { operationIdParams } from './helpers/operation-id-params'

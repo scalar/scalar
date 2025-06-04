@@ -1,19 +1,12 @@
 <script setup lang="ts">
-import {
-  ScalarIcon,
-  ScalarSidebarGroupToggle,
-  type Icon,
-} from '@scalar/components'
+import { ScalarSidebarGroupToggle } from '@scalar/components'
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
+import { sleep } from '@scalar/helpers/testing/sleep'
 import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 
-import {
-  requestMethodColors,
-  type RequestMethod,
-} from '@/components/HttpMethod/constants'
-import type { SidebarEntry } from '@/features/Sidebar'
-import { scrollToId } from '@/helpers/scroll-to-id'
-import { sleep } from '@/helpers/sleep'
+import type { TraversedEntry } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
@@ -21,7 +14,7 @@ import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
 const props = defineProps<{
   id: string
-  item: SidebarEntry
+  item: TraversedEntry
   isActive?: boolean
   hasChildren?: boolean
   open?: boolean
@@ -97,7 +90,7 @@ const onAnchorClick = async (ev: Event) => {
       :class="{
         'sidebar-group-item__folder': hasChildren,
         'active_page': isActive,
-        'deprecated': item.deprecated ?? false,
+        'deprecated': 'deprecated' in item && item.deprecated,
       }"
       @click="handleClick">
       <!-- If children are detected then show the nesting icon -->
@@ -127,21 +120,18 @@ const onAnchorClick = async (ev: Event) => {
           {{ item.title }}
         </p>
         <p
-          v-if="item.httpVerb && !hasChildren"
+          v-if="'method' in item && !hasChildren"
           class="sidebar-heading-link-method">
           &hairsp;
           <span class="sr-only">HTTP Method:&nbsp;</span>
           <ScalarIconWebhooksLogo
-            v-if="item.webhook"
+            v-if="'webhook' in item"
             :style="{
-              color:
-                requestMethodColors[
-                  item.httpVerb.toUpperCase() as RequestMethod
-                ] ?? 'var(--scalar-color-ghost)',
+              color: getHttpMethodInfo(item.method).colorVar,
             }" />
           <SidebarHttpBadge
             :active="isActive"
-            :method="item.httpVerb" />
+            :method="item.method" />
         </p>
       </a>
     </div>
