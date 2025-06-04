@@ -39,7 +39,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       )
     ">
     <ScalarIconMagnifyingGlass
-      class="text-c-2 size-3"
+      class="text-sidebar-c-search size-3"
       weight="bold" />
     <input
       ref="inputRef"

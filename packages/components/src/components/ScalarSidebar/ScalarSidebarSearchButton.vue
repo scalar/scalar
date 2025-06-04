@@ -20,7 +20,7 @@ const { cx } = useBindCx()
       )
     ">
     <ScalarIconMagnifyingGlass
-      class="text-c-2 size-3"
+      class="size-3"
       weight="bold" />
     <span class="flex-1 text-left leading-none">
       <slot>Search...</slot>
