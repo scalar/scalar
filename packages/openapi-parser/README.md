@@ -66,7 +66,7 @@ This plugins handles all external urls. It works for both node.js and browser en
 
 ```ts
 import { bundle } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/utils/plugins/fetch-urls'
+import { fetchUrls } from '@scalar/openapi-parser/utils/bundle/plugins/fetch-urls'
 
 const document = {
   openapi: '3.1.0',
