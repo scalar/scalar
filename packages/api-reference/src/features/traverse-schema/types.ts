@@ -55,9 +55,7 @@ export type TraversedEntry =
   | TraversedTag
   | TraversedWebhook
 
-/** Create sidebar options */
+/** Options for traversing the spec */
 export type TraverseSpecOptions = {
   config: Ref<ApiReferenceConfiguration>
-  /** You can optionally pass in these refs in case you need them before the hook is instantiated */
-  isSidebarOpen?: Ref<boolean>
 } & Pick<UseNavState, 'getHeadingId' | 'getModelId' | 'getOperationId' | 'getSectionId' | 'getTagId' | 'getWebhookId'>

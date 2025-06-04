@@ -11,6 +11,9 @@ import { measure } from '@scalar/helpers/testing/measure'
 /** Track which sidebar items are opened */
 type CollapsedSidebarItems = Record<string, boolean>
 
+/** Sidebar initialization options */
+export type SidebarOptions = TraverseSpecOptions & { isSidebarOpen?: Ref<boolean> }
+
 /**
  * Creating sidebar with only one traversal of the spec
  *
@@ -19,7 +22,7 @@ type CollapsedSidebarItems = Record<string, boolean>
  *  - update docs
  *  - tagged models
  */
-export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: TraverseSpecOptions) => {
+export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, options: SidebarOptions) => {
   const isSidebarOpen = options.isSidebarOpen ?? ref(false)
   const collapsedSidebarItems = reactive<CollapsedSidebarItems>({})
 
