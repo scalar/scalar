@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
-defineProps<{
+const { autofocus } = defineProps<{
+  autofocus?: boolean
   loading?: LoadingState
   label?: string
 }>()
@@ -26,10 +27,7 @@ function handleClear() {
 defineOptions({ inheritAttrs: false })
 const { classCx, otherAttrs } = useBindCx()
 
-defineExpose({
-  focus: () => inputRef.value?.focus(),
-  blur: () => inputRef.value?.blur(),
-})
+onMounted(() => autofocus && inputRef.value?.focus())
 </script>
 <template>
   <label
