@@ -27,6 +27,7 @@ export default defineConfig({
       rollupOptions: {
         plugins: [autoCSSInject('references')],
       },
+      target: ['chrome90', 'edge90', 'firefox90', 'safari15'],
     },
   }),
 })

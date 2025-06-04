@@ -24,13 +24,18 @@ import { computed, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import { onCustomEvent } from '@/v2/events'
 
-import { store } from './workspace-store'
-
 const { configuration } = defineProps<{
   configuration: Partial<ApiReferenceConfiguration>
 }>()
 
 const root = shallowRef<HTMLElement | null>(null)
+
+/**
+ * Initializes the new client workspace store
+ * WARNING: Documents are loaded asynchronously.
+ * We should expect to handle an empty document object until the documents are loaded.
+ */
+const store = createWorkspaceStore()
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
 //   console.log('scalar-update-sidebar', event)

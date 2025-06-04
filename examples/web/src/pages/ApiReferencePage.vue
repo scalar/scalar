@@ -3,6 +3,7 @@ import {
   ApiReferenceLayout,
   type ApiReferenceConfiguration,
 } from '@scalar/api-reference'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 
 import DevReferencesOptions from '../components/DevReferencesOptions.vue'
@@ -45,6 +46,11 @@ const configProxy = computed({
   set: (v) => Object.assign(configuration, v),
 })
 
+const { toggleColorMode, isDarkMode } = useColorMode({
+  initialColorMode: configuration.darkMode ? 'dark' : undefined,
+  overrideColorMode: configuration.forceDarkModeState,
+})
+
 watch(
   () => configuration.darkMode,
   (isDark) => {
@@ -55,6 +61,8 @@ watch(
 </script>
 <template>
   <ApiReferenceLayout
+    :isDark="isDarkMode"
+    @toggleDarkMode="() => toggleColorMode()"
     :configuration="configuration"
     @changeTheme="configuration.theme = $event.id"
     @updateContent="(v) => (content = v)">
