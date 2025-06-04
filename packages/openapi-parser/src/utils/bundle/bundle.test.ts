@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   bundle,
   getHash,
@@ -14,22 +14,21 @@ import {
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
-import getPort from 'get-port'
 
 describe('bundle', () => {
   describe('external urls', () => {
     let server: FastifyInstance
+    const PORT = 7289
 
     beforeEach(() => {
       server = fastify({ logger: false })
     })
 
-    afterAll(async () => {
+    afterEach(async () => {
       await server.close()
     })
 
     it('bundles external urls', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const external = {
@@ -74,7 +73,6 @@ describe('bundle', () => {
     })
 
     it('bundles external urls from resolved external piece', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
       const chunk2 = {
         hey: 'hey',
@@ -137,7 +135,6 @@ describe('bundle', () => {
     })
 
     it('should correctly handle only urls without a pointer', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/', (_, reply) => {
@@ -173,7 +170,6 @@ describe('bundle', () => {
 
     it('caches results for same resource', async () => {
       const fn = vi.fn()
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/', (_, reply) => {
@@ -217,7 +213,6 @@ describe('bundle', () => {
     })
 
     it('handles correctly external nested refs', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/nested/another-file.json', (_, reply) => {
@@ -261,7 +256,6 @@ describe('bundle', () => {
     })
 
     it('does not merge paths when we use absolute urls', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -305,7 +299,6 @@ describe('bundle', () => {
     })
 
     it('bundles from a url input', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -351,7 +344,6 @@ describe('bundle', () => {
     })
 
     it('generated a map when we turn the urlMap on', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       server.get('/top-level', (_, reply) => {
@@ -405,7 +397,6 @@ describe('bundle', () => {
     })
 
     it('prefixes the refs only once', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk2 = {
@@ -489,7 +480,6 @@ describe('bundle', () => {
     })
 
     it('bundles array references', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -532,7 +522,6 @@ describe('bundle', () => {
     })
 
     it('bundles subpart of the document', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -621,7 +610,6 @@ describe('bundle', () => {
     })
 
     it('tree shakes the external documents correctly', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -676,7 +664,6 @@ describe('bundle', () => {
     })
 
     it('tree shakes correctly when working with nested external refs', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk2 = {
@@ -760,7 +747,6 @@ describe('bundle', () => {
     })
 
     it('handles circular references when we treeshake', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -816,7 +802,6 @@ describe('bundle', () => {
     })
 
     it('handles chunks', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -910,7 +895,6 @@ describe('bundle', () => {
     })
 
     it('when bundle partial document we ensure all the dependencies references are resolved', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -972,7 +956,6 @@ describe('bundle', () => {
     })
 
     it('should correctly handle nested chunk urls', async () => {
-      const PORT = await getPort()
       const url = `http://localhost:${PORT}`
 
       const chunk1 = {
@@ -1101,7 +1084,6 @@ describe('bundle', () => {
 
     describe('hooks', () => {
       it('run success hook', async () => {
-        const PORT = await getPort()
         const url = `http://localhost:${PORT}`
 
         const chunk1 = {
@@ -1150,7 +1132,6 @@ describe('bundle', () => {
       })
 
       it('run success hook', async () => {
-        const PORT = await getPort()
         const url = `http://localhost:${PORT}`
 
         server.get('/chunk1', (_, reply) => {
