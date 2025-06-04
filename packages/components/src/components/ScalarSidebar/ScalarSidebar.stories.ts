@@ -7,6 +7,7 @@ import ScalarSidebarFooter from './ScalarSidebarFooter.vue'
 import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
 import ScalarSidebarItem from './ScalarSidebarItem.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
+import ScalarSidebarSearchButton from './ScalarSidebarSearchButton.vue'
 import ScalarSidebarSearchInput from './ScalarSidebarSearchInput.vue'
 
 const meta: Meta = {
@@ -195,6 +196,30 @@ export const WithSearchInput: Story = {
   <ScalarSidebar>
     <div class="p-1 pb-0">
       <ScalarSidebarSearchInput v-bind="args" />
+    </div>
+    <div class="placeholder flex-1">Sidebar content</div>
+  </ScalarSidebar>
+  <div class="placeholder flex-1">Main content</div>
+</div>
+`,
+  }),
+}
+
+export const WithSearchButton: Story = {
+  render: (args) => ({
+    components: { ScalarSidebar, ScalarSidebarSearchButton },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex h-screen">
+  <ScalarSidebar>
+    <div class="flex flex-col p-1 pb-0">
+      <ScalarSidebarSearchButton v-bind="args">
+        <template #shortcut>
+          <span>⌘ K</span>
+        </template>
+      </ScalarSidebarSearchButton>
     </div>
     <div class="placeholder flex-1">Sidebar content</div>
   </ScalarSidebar>
