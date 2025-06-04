@@ -40,11 +40,8 @@ const baseSchemas = computed(() => {
 
 /** Get the composition schemas to display in the composition panel */
 const compositionDisplay = computed(() => {
-  return getCompositionDisplay(
-    baseSchemas.value,
-    schemaComposition.value,
-    schemas,
-  )
+  // Always use the processed schemaComposition to ensure allOf schemas are properly merged
+  return schemaComposition.value
 })
 
 const listboxOptions = computed(() =>
@@ -67,55 +64,59 @@ const selectedOption = computed({
 /** Check if the composition keyword is oneOf or anyOf or allOf with nested composition keywords */
 const hasNestedComposition = computed(() => {
   const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(composition)
-  const hasNestedComposition =
+  const hasNestedCompositionInAllOf =
     composition === 'allOf' &&
     value[composition]?.some((schema: any) => hasComposition(schema))
 
-  return isOneOfOrAnyOf || hasNestedComposition
+  return isOneOfOrAnyOf || hasNestedCompositionInAllOf
 })
 
 const getSchemaWithComposition = (schemas: any[]) => {
   return schemas.find((schema: any) => hasComposition(schema))
 }
 
-const schemaComposition = computed(() => {
-  // If there's no nested composition, return the direct composition array
-  if (!getSchemaWithComposition(value[composition])) {
-    return value[composition]
+/** Checks if a schema contains nestd composition */
+const schemaHasNestedComposition = (schema: any): boolean => {
+  if (!schema.allOf || !Array.isArray(schema.allOf)) {
+    return false
   }
 
-  const schemaComposition = getSchemaWithComposition(value[composition])
+  return schema.allOf.some(
+    (subSchema: any) => subSchema.oneOf || subSchema.anyOf || subSchema.allOf,
+  )
+}
 
-  // Get schema with nested composition
-  const schemaNestedComposition =
-    schemaComposition.oneOf ||
-    schemaComposition.anyOf ||
-    schemaComposition.allOf
+/**
+ * Processes a single schema, merging allOf if it doesn't contain nested compositions.
+ */
+const processSchema = (schema: any): any => {
+  if (schema.allOf && Array.isArray(schema.allOf)) {
+    return schemaHasNestedComposition(schema)
+      ? schema
+      : mergeAllOfSchemas(schema.allOf)
+  }
+  return schema
+}
 
-  return schemaNestedComposition.map((schema: any) => {
-    if (schema.allOf) {
-      const titledSchema = schema.allOf.find((s: any) => s.title)
-      const referencedSchema = schema.allOf.find((s: any) => !s.title)
+const schemaComposition = computed(() => {
+  const schemas = value[composition]
+  const schemaWithComposition = getSchemaWithComposition(schemas)
 
-      if (titledSchema && referencedSchema) {
-        return {
-          ...titledSchema,
-          properties: {
-            ...titledSchema.properties,
-            ...referencedSchema.properties,
-          },
-          required: [
-            ...(titledSchema.required || []),
-            ...(referencedSchema.required || []),
-          ],
-          oneOf: referencedSchema.oneOf,
-          anyOf: referencedSchema.anyOf,
-        }
-      }
-      return titledSchema || schema
-    }
-    return schema
-  })
+  // No nested compositions, just process each schema
+  if (
+    !schemaWithComposition ||
+    (composition !== 'allOf' && schemaWithComposition.allOf)
+  ) {
+    return schemas.map(processSchema)
+  }
+
+  // Handle nested compositions (like allOf containing oneOf)
+  const nestedComposition =
+    schemaWithComposition.oneOf ||
+    schemaWithComposition.anyOf ||
+    schemaWithComposition.allOf
+
+  return nestedComposition.map(processSchema)
 })
 
 /** Humanizes composition keyword name e.g. oneOf -> One of */

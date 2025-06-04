@@ -1,5 +1,6 @@
 import type { UnknownObject } from '@scalar/types/utils'
 import type { CompositionKeyword } from './schema-composition'
+import { mergeAllOfSchemas } from './merge-all-of-schemas'
 
 export const compositions: CompositionKeyword[] = ['oneOf', 'anyOf', 'allOf', 'not']
 
@@ -34,13 +35,22 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
     return newValue
   }
 
-  // If there’s an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
-  if (schemas.some((schema: any) => schema.type === 'null')) {
+  // Process schemas to merge allOf and handle nulls
+  const processedSchemas = schemas.map((schema: any) => {
+    // If this schema has allOf, merge it
+    if (schema.allOf && Array.isArray(schema.allOf)) {
+      return mergeAllOfSchemas(schema.allOf)
+    }
+    return schema
+  })
+
+  // If there's an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
+  if (processedSchemas.some((schema: any) => schema.type === 'null')) {
     newValue.nullable = true
   }
 
   // Remove objects with type 'null' from the schemas
-  const newSchemas = schemas.filter((schema: any) => !(schema.type === 'null'))
+  const newSchemas = processedSchemas.filter((schema: any) => !(schema.type === 'null'))
 
   // If there’s only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.
