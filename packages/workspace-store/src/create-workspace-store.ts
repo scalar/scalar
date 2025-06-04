@@ -61,44 +61,14 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
  * @returns An object containing methods and getters for managing the workspace
  */
-export async function createWorkspaceStore(workspaceProps?: {
+export function createWorkspaceStoreSync(workspaceProps?: {
   meta?: WorkspaceMeta
-  documents?: WorkspaceDocumentInput[]
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive({
     ...workspaceProps?.meta,
-    documents: (
-      await Promise.all(
-        (workspaceProps?.documents ?? []).map<
-          Promise<{ name: string; meta?: WorkspaceDocumentMeta; document: Record<string, unknown> }>
-        >(async (data) => {
-          const resolved = await loadDocument(data)
-
-          if (!resolved.ok) {
-            console.error(`Can not load the document '${data.name}'`)
-            return {
-              name: data.name,
-              meta: data.meta,
-              document: {},
-            }
-          }
-
-          return {
-            name: data.name,
-            meta: data.meta,
-            document: isObject(resolved.data) ? (resolved.data as Record<string, unknown>) : {},
-          }
-        }),
-      )
-    ).reduce<Record<string, Record<string, unknown>>>((acc, { name, meta, document }) => {
-      /**
-       * We wrap each document in the magic proxy to enable auto-resolving of references
-       */
-      acc[name] = createMagicProxy({ ...document, ...meta })
-      return acc
-    }, {}),
+    documents: {},
     /**
      * Returns the currently active document from the workspace.
      * The active document is determined by the 'x-scalar-active-document' metadata field,
@@ -164,7 +134,7 @@ export async function createWorkspaceStore(workspaceProps?: {
       const currentDocument =
         workspace.documents[
           name === 'active'
-            ? (workspace['x-scalar-active-document'] ?? workspaceProps?.documents?.[0].name ?? '')
+            ? (workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '')
             : name
         ]
 
@@ -240,10 +210,24 @@ export async function createWorkspaceStore(workspaceProps?: {
 
       if (!resolve.ok || !isObject(resolve.data)) {
         console.error(`Can not load the document '${name}'`)
+        workspace.documents[name] = {
+          ...meta,
+        }
         return
       }
 
       workspace.documents[name] = createMagicProxy({ ...(resolve.data as Record<string, unknown>), ...meta })
     },
   }
+}
+
+export async function createWorkspaceStore(workspaceProps?: {
+  meta?: WorkspaceMeta
+  documents?: WorkspaceDocumentInput[]
+}) {
+  const store = createWorkspaceStoreSync({ meta: workspaceProps?.meta })
+
+  await Promise.all(workspaceProps?.documents?.map((it) => store.addDocument(it)) ?? [])
+
+  return store
 }
