@@ -114,6 +114,10 @@ export async function createWorkspaceStore(workspaceProps?: {
   // This is needed because we are doing partial bundle operations
   const visitedNodesCache = new Set()
 
+  // Map to keep hashes and their respective values
+  // Used when doing partial bundle of the document to ensure there is no collision on the output
+  const externalRefMap = new Map<string, string>()
+
   return {
     /**
      * Returns the raw (non-reactive) workspace object
@@ -211,6 +215,7 @@ export async function createWorkspaceStore(workspaceProps?: {
           },
         },
         visitedNodes: visitedNodesCache,
+        externalRefMap: externalRefMap,
       })
     },
     /**
