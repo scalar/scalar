@@ -260,7 +260,13 @@ export type Tag = {
   'name': string
   'description': string
   'operations': TransformedOperation[]
+  'components'?: TagComponent[]
   'x-displayName'?: string
+}
+
+export type TagComponent = {
+  name: string
+  schema: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
 }
 
 export type TagGroup = {
