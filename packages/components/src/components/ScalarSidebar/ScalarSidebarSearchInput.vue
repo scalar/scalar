@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { computed, ref, useAttrs } from 'vue'
+import { ref } from 'vue'
 
-import { ScalarIcon } from '../ScalarIcon'
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
@@ -36,14 +36,13 @@ defineExpose({
     v-bind="
       classCx(
         'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-2 px-1.5',
-        'bg-sidebar-b-search border-sidebar-border-search text-sidebar-c-search',
+        'bg-sidebar-b-search border-sidebar-border-search',
+        model ? 'text-c-1' : 'text-sidebar-c-search',
       )
     ">
-    <ScalarIcon
-      class="text-c-2"
-      icon="Search"
-      size="xs"
-      thickness="2.5" />
+    <ScalarIconMagnifyingGlass
+      class="text-c-2 size-3"
+      weight="bold" />
     <input
       ref="inputRef"
       :aria-label="label ?? 'Enter search query'"
@@ -63,10 +62,9 @@ defineExpose({
       size="md" />
     <ScalarIconButton
       v-else-if="model"
-      class="p-0 size-4"
-      icon="Close"
+      class="p-0.25 size-4"
+      :icon="ScalarIconX"
       label="Clear Search"
-      thickness="1.5"
       @click.stop.prevent="handleClear" />
   </label>
 </template>

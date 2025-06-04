@@ -3,6 +3,7 @@ import type { ScalarIconWeight } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
+import type { Component } from 'vue'
 
 import { styles } from '../ScalarButton'
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
