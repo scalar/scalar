@@ -562,6 +562,7 @@ describe('bundle', () => {
       }
 
       const cache = new Map()
+      const externalRefMap = new Map()
 
       // Bundle only partial
       await bundle(input.b, {
@@ -569,6 +570,7 @@ describe('bundle', () => {
         treeShake: false,
         root: input,
         cache,
+        externalRefMap,
       })
 
       expect(input).toEqual({
@@ -596,6 +598,7 @@ describe('bundle', () => {
         treeShake: false,
         root: input,
         cache,
+        externalRefMap,
       })
 
       expect(input).toEqual({
@@ -864,11 +867,14 @@ describe('bundle', () => {
         },
       }
 
+      const externalRefMap = new Map()
+
       // Bundle only partial
       await bundle(input.a, {
         plugins: [fetchUrls()],
         treeShake: false,
         root: input,
+        externalRefMap,
       })
 
       expect(input).toEqual({
@@ -939,6 +945,7 @@ describe('bundle', () => {
       }
 
       const cache = new Map()
+      const externalRefMap = new Map()
 
       // Bundle only partial
       await bundle(input.b, {
@@ -946,6 +953,7 @@ describe('bundle', () => {
         treeShake: false,
         root: input,
         cache,
+        externalRefMap,
       })
 
       expect(input).toEqual({
@@ -1037,6 +1045,7 @@ describe('bundle', () => {
       }
 
       const cache = new Map()
+      const externalRefMap = new Map()
 
       // Bundle only partial
       await bundle(input.entry, {
@@ -1045,6 +1054,7 @@ describe('bundle', () => {
         root: input,
         cache,
         urlMap: true,
+        externalRefMap,
       })
 
       expect(input).toEqual({

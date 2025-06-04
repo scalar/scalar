@@ -3,7 +3,7 @@ import { escapeJsonPointer } from '@/utils/escape-json-pointer'
 import path from '@/polyfills/path'
 import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
-import { getHash } from '@/utils/bundle/hash'
+import { getSafeHash } from '@/utils/bundle/hash'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -409,7 +409,33 @@ type Config = {
     /** Called when a reference is successfully resolved */
     onResolveSuccess: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
   }>
+
+  /**
+   * A map that tracks the mapping between hashed identifiers and their original URLs or file paths.
+   * Used to handle hash collisions during partial bundling by ensuring unique identifiers
+   * for external references while maintaining traceability to their source locations.
+   */
+  externalRefMap?: Map<string, string>
 }
+
+/**
+ * A utility type that makes certain properties required when the root property is defined.
+ * This type is used to enforce that specific properties must be provided when bundling
+ * a partial document (when root is defined).
+ *
+ * @example
+ * // When root is undefined, all properties are optional
+ * type Config1 = RequirePropsWhenRoot<{ root?: string, hashMap?: Map<string, string> }, 'hashMap'>
+ * const config1: Config1 = {} // Valid
+ *
+ * // When root is defined, hashMap becomes required
+ * type Config2 = RequirePropsWhenRoot<{ root?: string, hashMap?: Map<string, string> }, 'hashMap'>
+ * const config2: Config2 = { root: 'value' } // Error: hashMap is required
+ * const config3: Config2 = { root: 'value', hashMap: new Map() } // Valid
+ */
+export type RequirePropsWhenRoot<T extends { root?: unknown }, K extends keyof T> =
+  | (T & { root?: undefined }) // Case: root is undefined — other fields optional
+  | (T & { root: Exclude<T['root'], undefined> } & Required<Pick<T, K>>) // root is defined — K required
 
 /**
  * Bundles an OpenAPI specification by resolving all external references.
@@ -475,7 +501,7 @@ type Config = {
  * // The function will first fetch the OpenAPI spec from the URL,
  * // then bundle all its external references into the x-ext section
  */
-export async function bundle(input: UnknownObject | string, config: Config) {
+export async function bundle(input: UnknownObject | string, config: RequirePropsWhenRoot<Config, 'externalRefMap'>) {
   // Cache for storing promises of resolved external references (URLs and local files)
   // to avoid duplicate fetches/reads of the same resource
   const cache = config.cache ?? new Map<string, Promise<ResolveResult>>()
@@ -522,6 +548,8 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // Set of nodes that have already been processed during bundling to prevent duplicate processing
   const processedNodes = config.visitedNodes ?? new Set()
 
+  const externalRefMap = config.externalRefMap ?? new Map<string, string>()
+
   const bundler = async (
     root: unknown,
     origin: string = typeof input === 'string' ? input : '',
@@ -559,7 +587,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(origin, prefix)
-      const hashPath = await getHash(resolvedPath)
+      const hashPath = await getSafeHash(resolvedPath, externalRefMap)
 
       const seen = cache.has(resolvedPath)
 
