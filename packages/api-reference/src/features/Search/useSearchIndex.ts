@@ -5,10 +5,10 @@ import { type Ref, computed, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
 import { type ParamMap, useOperation } from '@/hooks/useOperation'
-import { useSidebar } from '@/hooks/useSidebar'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
 import { operationIdParams } from '@/features/traverse-schema'
+import { useConfig } from '@/hooks/useConfig'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -33,8 +33,8 @@ export function useSearchIndex({
 }: {
   specification: Ref<Spec>
 }) {
-  const { hideModels } = useSidebar()
   const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
+  const config = useConfig()
 
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])
@@ -184,7 +184,7 @@ export function useSearchIndex({
       }
 
       // Adding models as well
-      const schemas = hideModels.value ? {} : getModels(newSpec)
+      const schemas = config.value.hideModels ? {} : getModels(newSpec)
       const modelData: FuseData[] = []
 
       if (schemas) {
