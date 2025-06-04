@@ -60,9 +60,7 @@ describe('traversePaths', () => {
     expect(usersEntries[0]).toMatchObject({
       title: 'Get users',
       path: '/users',
-      httpVerb: 'get',
-      operationId: 'getUsers',
-      deprecated: false,
+      method: 'get',
     })
   })
 
@@ -87,8 +85,7 @@ describe('traversePaths', () => {
     expect(result.get('default')?.[0]).toMatchObject({
       title: 'Health check',
       path: '/health',
-      httpVerb: 'get',
-      operationId: 'healthCheck',
+      method: 'get',
     })
   })
 
@@ -99,7 +96,6 @@ describe('traversePaths', () => {
         get: {
           tags: ['Legacy'],
           summary: 'Old endpoint',
-          operationId: 'oldEndpoint',
           deprecated: true,
         },
       },

@@ -3,6 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagGroup } from '@scalar/types/legacy'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/features/traverse-schema/types'
 import { traverseTags } from './traverse-tags'
+import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
 describe('traverseTags', () => {
   // Helper function to create a mock OpenAPI document
@@ -20,10 +21,10 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock sidebar entry
-  const createMockEntry = (title: string, httpVerb?: OpenAPIV3_1.HttpMethods): TraversedEntry => ({
+  const createMockEntry = (title: string, method?: HttpMethod): TraversedEntry => ({
     id: `entry-${title}`,
     title,
-    ...(httpVerb && { httpVerb }),
+    ...(method && { method }),
   })
 
   it('should handle empty tags map', () => {
@@ -150,16 +151,17 @@ describe('traverseTags', () => {
 
   it('should handle custom operations sorter', () => {
     const document = createMockDocument()
-    const tagsMap = new Map([['default', [createMockEntry('Operation B'), createMockEntry('Operation A')]]])
+    const tagsMap = new Map([
+      ['default', [createMockEntry('Operation B', 'post'), createMockEntry('Operation A', 'get')]],
+    ])
     const tagsDict = new Map([['default', createMockTag('default')]])
     const titlesMap = new Map<string, string>()
+
     const options = {
       getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
-      operationsSorter: (
-        a: { path: string; method: string; operationId?: string; summary?: string },
-        b: { path: string; method: string; operationId?: string; summary?: string },
-      ) => (a.summary || '').localeCompare(b.summary || ''),
+      operationsSorter: (a: OpenAPIV3_1.OperationObject, b: OpenAPIV3_1.OperationObject) =>
+        (a.method || '').localeCompare(b.method || ''),
     }
 
     const result = traverseTags(document, tagsMap, tagsDict, titlesMap, options)

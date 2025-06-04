@@ -62,12 +62,26 @@ describe('traverseSchemas', () => {
       {
         id: 'model-User',
         title: 'User',
-        deprecated: false,
+        name: 'User',
+        schema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+          },
+        },
       },
       {
         id: 'model-Product',
         title: 'Product',
-        deprecated: false,
+        name: 'Product',
+        schema: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            price: { type: 'number' },
+          },
+        },
       },
     ])
 
@@ -162,7 +176,10 @@ describe('traverseSchemas', () => {
     expect(result[0]).toEqual({
       id: 'model-EmptySchema',
       title: 'EmptySchema',
-      deprecated: false,
+      name: 'EmptySchema',
+      schema: {
+        type: 'object',
+      },
     })
   })
 

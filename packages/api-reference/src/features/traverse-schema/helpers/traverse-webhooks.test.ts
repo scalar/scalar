@@ -60,10 +60,15 @@ describe('traverse-webhooks', () => {
       expect(tagsMap.get('webhook-tag')?.[0]).toEqual({
         id: 'webhook-tag-post-test-webhook',
         title: 'Test Webhook',
-        httpVerb: 'post',
-        deprecated: false,
+        name: 'test-webhook',
+        method: 'post',
+        webhook: {
+          summary: 'Test Webhook',
+          operationId: 'testWebhook',
+          tags: ['webhook-tag'],
+        },
       })
-      expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('test-webhook')
+      expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('Test Webhook')
     })
 
     it('should process untagged webhooks', () => {
@@ -90,10 +95,14 @@ describe('traverse-webhooks', () => {
       expect(result[0]).toEqual({
         id: 'untagged-post-untagged-webhook',
         title: 'Untagged Webhook',
-        httpVerb: 'post',
-        deprecated: false,
+        name: 'untagged-webhook',
+        method: 'post',
+        webhook: {
+          summary: 'Untagged Webhook',
+          operationId: 'untaggedWebhook',
+        },
       })
-      expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('untagged-webhook')
+      expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('Untagged Webhook')
     })
 
     it('should skip internal webhooks', () => {
@@ -173,8 +182,13 @@ describe('traverse-webhooks', () => {
       expect(result[0]).toEqual({
         id: 'untagged-post-deprecated-webhook',
         title: 'Deprecated Webhook',
-        httpVerb: 'post',
-        deprecated: true,
+        name: 'deprecated-webhook',
+        method: 'post',
+        webhook: {
+          deprecated: true,
+          summary: 'Deprecated Webhook',
+          operationId: 'deprecatedWebhook',
+        },
       })
     })
 
@@ -208,14 +222,22 @@ describe('traverse-webhooks', () => {
           {
             id: 'untagged-post-multi-method-webhook',
             title: 'POST Webhook',
-            httpVerb: 'post',
-            deprecated: false,
+            name: 'multi-method-webhook',
+            method: 'post',
+            webhook: {
+              summary: 'POST Webhook',
+              operationId: 'postWebhook',
+            },
           },
           {
             id: 'untagged-get-multi-method-webhook',
             title: 'GET Webhook',
-            httpVerb: 'get',
-            deprecated: false,
+            name: 'multi-method-webhook',
+            method: 'get',
+            webhook: {
+              summary: 'GET Webhook',
+              operationId: 'getWebhook',
+            },
           },
         ]),
       )

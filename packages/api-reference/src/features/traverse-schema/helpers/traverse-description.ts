@@ -25,7 +25,7 @@ export const traverseDescription = (
   let currentParent: TraversedDescription | null = null
 
   // Add "Introduction" as the first heading
-  if (description && !description.startsWith('#')) {
+  if (description && !description.trim().startsWith('#')) {
     const heading: Heading = {
       depth: 1,
       value: 'Introduction',

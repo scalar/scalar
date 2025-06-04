@@ -19,12 +19,12 @@ describe('traverseDescription', () => {
     expect(titlesMap.size).toBe(0)
   })
 
-  it('should return empty array for description with no headings', () => {
+  it('should return an introduction entry for description with no headings', () => {
     const titlesMap = new Map<string, string>()
     const description = 'This is a paragraph without any headings.'
     const result = traverseDescription(description, titlesMap, getHeadingId)
-    expect(result).toEqual([])
-    expect(titlesMap.size).toBe(0)
+    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction' }])
+    expect(titlesMap.size).toBe(1)
   })
 
   it('should create single level entries for h1 headings', () => {
