@@ -123,7 +123,7 @@ describe('useNavState', () => {
         description: 'Test Description',
         operations: [],
       } satisfies Tag
-      expect(navState.getOperationId(operationIdParams(operation), parentTag)).toBe('tag/test-tag/GET/test')
+      expect(navState.getOperationId(operationIdParams(operation), parentTag)).toBe('tag/test-tag/get/test')
     })
 
     it('should generate webhook ID', () => {
