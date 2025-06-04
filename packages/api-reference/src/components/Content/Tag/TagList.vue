@@ -7,9 +7,8 @@ import { computed } from 'vue'
 
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
-import { operationIdParams } from '@/features/traverse-schema'
+import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 
 import TagAccordion from './TagAccordion.vue'
 import TagSection from './TagSection.vue'
@@ -23,7 +22,7 @@ const { collection, tags, spec, layout, server } = defineProps<{
   schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
-const { getOperationId, getTagId, hash } = useNavState()
+const { getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
 
 const tagLayout = computed(() =>
@@ -58,15 +57,15 @@ const isLazy = (index: number) =>
       :tag="tag">
       <Lazy
         v-for="(operation, operationIndex) in tag.operations"
-        :id="getOperationId(operationIdParams(operation), tag)"
-        :key="`${operation.httpVerb}-${operation.operationId}`"
+        :id="operation.id"
+        :key="operation.id"
         :isLazy="
           isLazy(index) ||
           (collapsedSidebarItems[getTagId(tag)] && operationIndex > 0)
         ">
         <ScalarErrorBoundary>
           <Operation
-            :id="getOperationId(operationIdParams(operation), tag)"
+            :id="operation.id"
             :collection="collection"
             :layout="layout"
             :schemas="schemas"

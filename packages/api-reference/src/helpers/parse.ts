@@ -96,15 +96,13 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       // Operation
       else if ('operation' in child) {
         schema.tags[tagIndex].operations.push({
-          httpVerb: normalizeHttpMethod(child.method),
+          id: child.id,
+          method: normalizeHttpMethod(child.method),
           path: child.path,
-          operationId: child.operation.operationId || child.path,
           name: child.operation.summary || child.path || '',
           description: child.operation.description || '',
           isWebhook: false,
-          information: {
-            ...child.operation,
-          },
+          information: child.operation,
           pathParameters: schema.paths?.[child.path ?? '']?.parameters,
         })
       }
@@ -112,15 +110,13 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       // Webhook
       else if ('webhook' in child) {
         schema.tags[tagIndex].operations.push({
-          httpVerb: normalizeHttpMethod(child.method),
+          id: child.id,
+          method: normalizeHttpMethod(child.method),
           path: child.name,
-          operationId: child.webhook.operationId || child.name,
           name: child.webhook.summary || child.name || '',
           description: child.webhook.description || '',
           isWebhook: true,
-          information: {
-            ...child.webhook,
-          },
+          information: child.webhook,
           pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
         })
       }
@@ -146,17 +142,14 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
         if ('webhook' in child && child.name && child.method) {
           newWebhooks[child.name] ||= {}
           newWebhooks[child.name][child.method] = {
-            // Transformed data
-            httpVerb: normalizeHttpMethod(child.method),
+            id: child.id,
+            method: normalizeHttpMethod(child.method),
             path: child.name,
-            operationId: child.webhook.operationId || child.name,
             name: child.webhook.summary || child.name || '',
             description: child.webhook.description || '',
-            pathParameters: schema.paths?.[child.name]?.parameters,
-            // Original webhook
-            information: {
-              ...child.webhook,
-            },
+            isWebhook: true,
+            pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
+            information: child.webhook,
           }
         }
       })

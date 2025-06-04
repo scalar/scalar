@@ -1,28 +1,19 @@
 <script setup lang="ts">
-import { sleep } from '@scalar/helpers/testing/sleep'
-import type { Spec } from '@scalar/types/legacy'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
+import { useSidebar } from '@/features/Sidebar'
+import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 
-const props = defineProps<
-  {
-    parsedSpec: Spec
-  } & SorterOption
->()
+const { title } = defineProps<{
+  title: string
+}>()
 
 const { hash, isIntersectionEnabled } = useNavState()
-
-const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
-  {
-    parsedSpec: props.parsedSpec,
-    tagsSorter: props.tagsSorter,
-    operationsSorter: props.operationsSorter,
-  },
-)
+const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } =
+  useSidebar()
 
 // This offset determines how far down the sidebar the items scroll
 const SCROLL_OFFSET = -160
@@ -126,7 +117,7 @@ onMounted(() => {
     <slot name="sidebar-start" />
     <nav
       ref="scrollerEl"
-      :aria-label="`Table of contents for ${parsedSpec.info?.title}`"
+      :aria-label="`Table of contents for ${title}`"
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template
@@ -134,7 +125,7 @@ onMounted(() => {
           :key="item.id">
           <template v-if="item.isGroup">
             <li class="sidebar-group-title">
-              {{ item.displayTitle ?? item.title }}
+              {{ item.title }}
             </li>
             <template
               v-for="group in item.children"
@@ -144,13 +135,7 @@ onMounted(() => {
                 data-sidebar-type="heading"
                 :hasChildren="group.children && group.children.length > 0"
                 :isActive="isItemActive(group.id)"
-                :item="{
-                  id: group.id,
-                  title: group.displayTitle ?? group.title,
-                  select: group.select,
-                  httpVerb: group.httpVerb,
-                  deprecated: group.deprecated ?? false,
-                }"
+                :item="group"
                 :open="collapsedSidebarItems[group.id] ?? false"
                 @toggleOpen="
                   async () => {
@@ -166,16 +151,9 @@ onMounted(() => {
                       v-for="child in group.children"
                       :key="child.id">
                       <SidebarElement
-                        v-if="item.show"
                         :id="`sidebar-${child.id}`"
                         :isActive="isItemActive(child.id)"
-                        :item="{
-                          id: child.id,
-                          title: child.displayTitle ?? child.title,
-                          select: child.select,
-                          httpVerb: child.httpVerb,
-                          deprecated: child.deprecated ?? false,
-                        }" />
+                        :item="child" />
                     </template>
                   </SidebarGroup>
                 </template>
@@ -184,18 +162,11 @@ onMounted(() => {
           </template>
           <template v-else>
             <SidebarElement
-              v-if="item.show"
               :id="`sidebar-${item.id}`"
               data-sidebar-type="heading"
               :hasChildren="item.children && item.children.length > 0"
               :isActive="isItemActive(item.id)"
-              :item="{
-                id: item.id,
-                title: item.displayTitle ?? item.title,
-                select: item.select,
-                httpVerb: item.httpVerb,
-                deprecated: item.deprecated ?? false,
-              }"
+              :item="item"
               :open="collapsedSidebarItems[item.id] ?? false"
               @toggleOpen="
                 async () => {
@@ -211,16 +182,9 @@ onMounted(() => {
                     v-for="child in item.children"
                     :key="child.id">
                     <SidebarElement
-                      v-if="item.show"
                       :id="`sidebar-${child.id}`"
                       :isActive="isItemActive(child.id)"
-                      :item="{
-                        id: child.id,
-                        title: child.displayTitle ?? child.title,
-                        select: child.select,
-                        httpVerb: child.httpVerb,
-                        deprecated: child.deprecated ?? false,
-                      }" />
+                      :item="child" />
                   </template>
                 </SidebarGroup>
               </template>
