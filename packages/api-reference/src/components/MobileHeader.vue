@@ -3,23 +3,15 @@ import { ScalarIconButton } from '@scalar/components'
 
 import { useSidebar } from '@/hooks/useSidebar'
 
-defineProps<{
-  open?: boolean
-}>()
-
-defineEmits<{
-  (event: 'update:open', open: boolean): void
-}>()
-
-const { breadcrumb } = useSidebar()
+const { breadcrumb, isSidebarOpen } = useSidebar()
 </script>
 <template>
   <div class="references-mobile-header t-doc__header">
     <ScalarIconButton
-      :icon="open ? 'Close' : 'Menu'"
-      :label="open ? 'Close Menu' : 'Open Menu'"
+      :icon="isSidebarOpen ? 'Close' : 'Menu'"
+      :label="isSidebarOpen ? 'Close Menu' : 'Open Menu'"
       size="md"
-      @click="$emit('update:open', !open)" />
+      @click="isSidebarOpen = !isSidebarOpen" />
     <span class="references-mobile-breadcrumbs">{{ breadcrumb }}</span>
     <div class="references-mobile-header-actions">
       <slot name="actions" />

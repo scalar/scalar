@@ -10,6 +10,7 @@ import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '@/libs/openapi'
 import { normalizeHttpMethod } from '@scalar/helpers/http/normalize-http-method'
+import type { TraversedEntry } from '@/features/traverse-schema'
 
 type AnyObject = Record<string, any>
 
@@ -18,7 +19,7 @@ type AnyObject = Record<string, any>
  *
  * @deprecated Try to use a store instead.
  */
-export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec> => {
+export const parse = (dereferencedDocument: OpenAPIV3_1.Document, items?: TraversedEntry[]): Promise<Spec> => {
   // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
   return new Promise(async (resolve, reject) => {
     try {

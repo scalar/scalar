@@ -3,14 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed, inject, onMounted, type Ref } from 'vue'
 
-import { SpecificationExtension } from '@/components/SpecificationExtension'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
-import { useConfig } from '@/hooks/useConfig'
-import { useNavState } from '@/hooks/useNavState'
-import { DEFAULT_INTRODUCTION_SLUG } from '@/hooks/useSidebar'
-
-import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
-import { Badge } from '../../Badge'
+import { Badge } from '@/components/Badge'
 import {
   Section,
   SectionColumn,
@@ -19,7 +12,14 @@ import {
   SectionContent,
   SectionHeader,
   SectionHeaderTag,
-} from '../../Section'
+} from '@/components/Section'
+import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import DownloadLink from '@/features/DownloadLink/DownloadLink.vue'
+import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
+import { useConfig } from '@/hooks/useConfig'
+import { useNavState } from '@/hooks/useNavState'
+
 import Description from './Description.vue'
 
 const props = defineProps<{
