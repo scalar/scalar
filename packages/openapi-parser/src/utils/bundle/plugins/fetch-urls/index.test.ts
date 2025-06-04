@@ -1,6 +1,6 @@
 import { fastify, type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchUrl } from './fetch-urls'
+import { fetchUrl } from '.'
 import assert from 'node:assert'
 
 describe('fetchUrl', () => {
