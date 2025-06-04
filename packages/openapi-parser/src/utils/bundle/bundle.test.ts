@@ -1082,98 +1082,96 @@ describe('bundle', () => {
       })
     })
 
-    describe('hooks', () => {
-      it('run success hook', async () => {
-        const url = `http://localhost:${PORT}`
+    it('run success hook', async () => {
+      const url = `http://localhost:${PORT}`
 
-        const chunk1 = {
-          description: 'Chunk 1',
-        }
+      const chunk1 = {
+        description: 'Chunk 1',
+      }
 
-        server.get('/chunk1', (_, reply) => {
-          reply.send(chunk1)
-        })
-
-        await server.listen({ port: PORT })
-
-        const input = {
-          a: {
-            $ref: `${url}/chunk1#`,
-          },
-        }
-
-        const resolveStart = vi.fn()
-        const resolveError = vi.fn()
-        const resolveSuccess = vi.fn()
-
-        const refA = input.a
-
-        await bundle(input, {
-          plugins: [fetchUrls()],
-          treeShake: false,
-          hooks: {
-            onResolveStart(value) {
-              resolveStart(value)
-            },
-            onResolveError(value) {
-              resolveError(value)
-            },
-            onResolveSuccess(value) {
-              resolveSuccess(value)
-            },
-          },
-        })
-
-        expect(resolveStart).toHaveBeenCalledOnce()
-        expect(resolveStart).toHaveBeenCalledWith(refA)
-        expect(resolveSuccess).toHaveBeenCalledOnce()
-        expect(resolveSuccess).toHaveBeenCalledWith(refA)
-        expect(resolveError).not.toHaveBeenCalledOnce()
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
       })
 
-      it('run success hook', async () => {
-        const url = `http://localhost:${PORT}`
+      await server.listen({ port: PORT })
 
-        server.get('/chunk1', (_, reply) => {
-          reply.code(404).send()
-        })
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+      }
 
-        await server.listen({ port: PORT })
+      const resolveStart = vi.fn()
+      const resolveError = vi.fn()
+      const resolveSuccess = vi.fn()
 
-        const input = {
-          a: {
-            $ref: `${url}/chunk1#`,
+      const refA = input.a
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        hooks: {
+          onResolveStart(value) {
+            resolveStart(value)
           },
-        }
-
-        const resolveStart = vi.fn()
-        const resolveError = vi.fn()
-        const resolveSuccess = vi.fn()
-
-        const refA = input.a
-
-        await bundle(input, {
-          plugins: [fetchUrls()],
-          treeShake: false,
-          hooks: {
-            onResolveStart(value) {
-              resolveStart(value)
-            },
-            onResolveError(value) {
-              resolveError(value)
-            },
-            onResolveSuccess(value) {
-              resolveSuccess(value)
-            },
+          onResolveError(value) {
+            resolveError(value)
           },
-        })
-
-        expect(resolveStart).toHaveBeenCalledOnce()
-        expect(resolveStart).toHaveBeenCalledWith(refA)
-        expect(resolveSuccess).not.toHaveBeenCalledOnce()
-        expect(resolveError).toHaveBeenCalledOnce()
-        expect(resolveError).toHaveBeenCalledWith(refA)
+          onResolveSuccess(value) {
+            resolveSuccess(value)
+          },
+        },
       })
+
+      expect(resolveStart).toHaveBeenCalledOnce()
+      expect(resolveStart).toHaveBeenCalledWith(refA)
+      expect(resolveSuccess).toHaveBeenCalledOnce()
+      expect(resolveSuccess).toHaveBeenCalledWith(refA)
+      expect(resolveError).not.toHaveBeenCalledOnce()
+    })
+
+    it('run success hook', async () => {
+      const url = `http://localhost:${PORT}`
+
+      server.get('/chunk1', (_, reply) => {
+        reply.code(404).send()
+      })
+
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+      }
+
+      const resolveStart = vi.fn()
+      const resolveError = vi.fn()
+      const resolveSuccess = vi.fn()
+
+      const refA = input.a
+
+      await bundle(input, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        hooks: {
+          onResolveStart(value) {
+            resolveStart(value)
+          },
+          onResolveError(value) {
+            resolveError(value)
+          },
+          onResolveSuccess(value) {
+            resolveSuccess(value)
+          },
+        },
+      })
+
+      expect(resolveStart).toHaveBeenCalledOnce()
+      expect(resolveStart).toHaveBeenCalledWith(refA)
+      expect(resolveSuccess).not.toHaveBeenCalledOnce()
+      expect(resolveError).toHaveBeenCalledOnce()
+      expect(resolveError).toHaveBeenCalledWith(refA)
     })
   })
 
