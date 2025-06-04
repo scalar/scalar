@@ -3,6 +3,7 @@ import { escapeJsonPointer } from '@/utils/escape-json-pointer'
 import path from '@/polyfills/path'
 import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
+import { getHash } from '@/utils/bundle/hash'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -330,36 +331,6 @@ const resolveAndCopyReferences = (
   }
 
   traverse(referencedValue)
-}
-
-/**
- * Generates a short SHA-1 hash from a string value.
- * This function is used to create unique identifiers for external references
- * while keeping the hash length manageable. It uses the Web Crypto API to
- * generate a SHA-1 hash and returns the first 7 characters of the hex string.
- * If the hash would be all numbers, it ensures at least one letter is included.
- *
- * @param value - The string to hash
- * @returns A 7-character hexadecimal hash with at least one letter
- * @example
- * // Returns "2ae91d7"
- * await getHash("https://example.com/schema.json")
- */
-export async function getHash(value: string) {
-  // Convert string to ArrayBuffer
-  const encoder = new TextEncoder()
-  const data = encoder.encode(value)
-
-  // Hash the data
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data)
-
-  // Convert buffer to hex string
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-
-  // Return first 7 characters of the hash, ensuring at least one letter
-  const hash = hashHex.substring(0, 7)
-  return hash.match(/^\d+$/) ? 'a' + hash.substring(1) : hash
 }
 
 /**

@@ -4,7 +4,6 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   bundle,
-  getHash,
   getNestedValue,
   isLocalRef,
   isRemoteUrl,
@@ -15,6 +14,7 @@ import {
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 import getPort from 'get-port'
+import { getHash } from '@/utils/bundle/hash'
 
 describe('bundle', () => {
   describe('external urls', () => {
