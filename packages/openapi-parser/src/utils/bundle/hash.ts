@@ -59,19 +59,22 @@ export async function generateUniqueHash(
   valueHash?: string,
   depth = 0,
 ) {
+  // Maximum recursion depth to prevent infinite loops
   const MAX_DEPTH = 100
 
   if (depth >= MAX_DEPTH) {
     throw 'Can not generate unique hash values'
   }
 
-  // We hash the hashed value when provided
+  // Generate hash using either the provided valueHash or original value
   const hash = await hashFunction(valueHash ?? value)
 
+  // If hash exists and maps to a different value, recursively try again with the hash as input
   if (hashToValue.has(hash) && hashToValue.get(hash) !== value) {
     return generateUniqueHash(hashFunction, value, hashToValue, hash, depth + 1)
   }
 
+  // Store the hash-value mapping and return the unique hash
   hashToValue.set(hash, value)
   return hash
 }
