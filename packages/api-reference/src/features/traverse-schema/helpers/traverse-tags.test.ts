@@ -57,7 +57,7 @@ describe('traverseTags', () => {
     expect(result).toEqual([createMockEntry('Test Operation')])
   })
 
-  it.only('should handle a mix of tags and default tag', () => {
+  it('should handle a mix of tags and default tag', () => {
     const document = createMockDocument()
     const tagsMap = new Map([
       ['default', [createMockEntry('Test Operation')]],

@@ -4,6 +4,7 @@ import { computed, inject, provide, ref } from 'vue'
 import { createSidebar } from '../helpers/create-sidebar'
 import { SIDEBAR_SYMBOL, useSidebar } from './useSidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types'
+import type { Heading } from '@scalar/types/legacy'
 
 const EXAMPLE_DOCUMENT = {
   openapi: '3.1.1',
@@ -58,23 +59,26 @@ describe('useSidebar', () => {
 
       vi.mocked(createSidebar).mockReturnValue(mockSidebar)
 
+      const config = ref(apiReferenceConfigurationSchema.parse({}))
+      const options = {
+        config,
+        getSectionId: (hashStr?: string) => 'section-1',
+        getHeadingId: (heading: Heading) => heading.value,
+        getOperationId: (
+          operation: { path: string; method: OpenAPIV3_1.HttpMethods } & OpenAPIV3_1.OperationObject,
+          parentTag: OpenAPIV3_1.TagObject,
+        ) => operation.summary ?? '',
+        getWebhookId: (webhook?: { name: string; method?: string }, parentTag?: OpenAPIV3_1.TagObject) =>
+          webhook?.name ?? 'webhooks',
+        getModelId: (model?: { name: string }) => model?.name ?? '',
+        getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      }
+
       // Act
-      const result = useSidebar(ref(EXAMPLE_DOCUMENT), {
-        config: ref(apiReferenceConfigurationSchema.parse({})),
-        getSectionId: () => 'section-1',
-        getHeadingId: (heading) => heading.value,
-        getOperationId: (operation) => operation.summary ?? '',
-        getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
-        getModelId: (model) => model?.name ?? '',
-        getTagId: (tag) => tag.name ?? '',
-      })
+      const result = useSidebar(ref(EXAMPLE_DOCUMENT), options)
 
       // Assert
-      expect(createSidebar).toHaveBeenCalledWith({
-        content: EXAMPLE_DOCUMENT,
-        tagSort: 'alpha',
-        operationSort: 'alpha',
-      })
+      expect(createSidebar).toHaveBeenCalledWith(ref(EXAMPLE_DOCUMENT), options)
       expect(provide).toHaveBeenCalledWith(SIDEBAR_SYMBOL, mockSidebar)
       expect(result).toBe(mockSidebar)
     })

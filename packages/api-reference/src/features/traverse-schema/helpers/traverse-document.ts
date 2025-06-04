@@ -37,8 +37,6 @@ export const traverseDocument = (
     operationsSorter: config.value.operationsSorter,
   })
 
-  console.log(tags, tagsDict, titles)
-
   // Add tagged operations, webhooks and tagGroups
   entries.push(...tagsEntries)
 

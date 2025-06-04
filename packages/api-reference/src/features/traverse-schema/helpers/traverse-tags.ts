@@ -135,13 +135,13 @@ export const traverseTags = (
   }
 
   // Ungrouped regular tags
-  const keys =
-    content.tags?.map((tag: OpenAPIV3_1.TagObject) => tag.name ?? 'Untitled Tag') ?? Array.from(tagsMap.keys()) ?? []
+  const keys = Array.from(tagsMap.keys())
   const tags = getSortedTagEntries(keys, tagsMap, tagsDict, titlesMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
   if (tags.length === 1 && tags[0].title === 'default') {
     return tags[0].children ?? []
   }
+
   return tags
 }

@@ -361,36 +361,7 @@ describe('createSidebar', () => {
       })
     })
 
-    it.only('creates a default tag', () => {
-      // console.log(
-      //   createSidebar(
-      //     ref({
-      //       openapi: '3.1.0',
-      //       info: {
-      //         title: 'Hello World',
-      //         version: '1.0.0',
-      //       },
-      //       tags: [
-      //         {
-      //           name: 'Foobar',
-      //           description: 'Foobar',
-      //         },
-      //       ],
-      //       paths: {
-      //         '/hello': {
-      //           get: {
-      //             summary: 'Get Hello World',
-      //             tags: ['Foobar'],
-      //           },
-      //           post: {
-      //             summary: 'Post Hello World',
-      //           },
-      //         },
-      //       },
-      //     } as OpenAPIV3_1.Document),
-      //     mockOptions,
-      //   ).items.value,
-      // )
+    it('creates a default tag', () => {
       expect(
         createSidebar(
           ref({
