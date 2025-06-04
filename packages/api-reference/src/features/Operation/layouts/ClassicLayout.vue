@@ -128,7 +128,7 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :operation="transformedOperation"
+            :responses="transformedOperation.information?.responses"
             :schemas="schemas" />
         </div>
       </div>

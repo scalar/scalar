@@ -9,6 +9,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { isDereferenced } from '@scalar/openapi-types/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import {
@@ -172,11 +173,13 @@ const generatedCode = computed<string>(() => {
 
 /** Get all examples from the operation for any content type */
 const getExamplesFromOperation = computed(() => {
+  if (!isDereferenced(transformedOperation.information.requestBody)) {
+    return {}
+  }
   const content = transformedOperation.information?.requestBody?.content ?? {}
 
   // Return first content type examples by default
   const firstContentType = Object.values(content)[0]
-
   return firstContentType?.examples ?? {}
 })
 

@@ -98,7 +98,7 @@ const handleDiscriminatorChange = (type: string) => {
               @update:modelValue="handleDiscriminatorChange">
             </OperationParameters>
             <OperationResponses
-              :operation="transformedOperation"
+              :responses="transformedOperation.information?.responses"
               :schemas="schemas" />
 
             <!-- Callbacks -->
