@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
-import { readFile } from './read-files'
+import { readFile } from '.'
 import assert from 'node:assert'
 
 describe('readFile', () => {
