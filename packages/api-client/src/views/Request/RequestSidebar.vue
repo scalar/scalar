@@ -2,9 +2,9 @@
 import {
   ScalarButton,
   ScalarIcon,
-  ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
+  ScalarSidebarSearchInput,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons/library'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
@@ -317,12 +317,11 @@ const blurSearch = () => {
         v-show="isSearchVisible"
         class="search-button-fade sticky top-12 z-10 px-3 py-2.5 pt-0 focus-within:z-20"
         role="search">
-        <ScalarSearchInput
+        <ScalarSidebarSearchInput
           ref="searchInputRef"
           v-model="searchText"
           :aria-controls="searchResultsId"
           :label="srLabel"
-          sidebar
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
