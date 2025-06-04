@@ -87,7 +87,12 @@ const filterIds = computed(
 )
 
 // If security = [] or [{}] just hide it on readOnly mode
-const isAuthHidden = computed(() => layout === 'modal' && !operation.security)
+const isAuthHidden = computed(
+  () =>
+    layout === 'modal' &&
+    !operation.security &&
+    !Object.keys(securitySchemes ?? {}).length,
+)
 
 const selectedFilter = ref<Filter>('All')
 
