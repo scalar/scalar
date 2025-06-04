@@ -47,6 +47,16 @@
               "type": "page"
             },
             {
+              "name": "Django",
+              "path": "documentation/integrations/django.md",
+              "type": "page"
+            },
+            {
+              "name": "Django Ninja",
+              "path": "documentation/integrations/django-ninja.md",
+              "type": "page"
+            },
+            {
               "name": "Docusaurus",
               "path": "documentation/integrations/docusaurus.md",
               "type": "page"

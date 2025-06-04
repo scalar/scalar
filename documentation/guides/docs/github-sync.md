@@ -1,12 +1,12 @@
 # GitHub Sync
 
-Scalar GitHub Sync allows you to automatically publish your markdown files as a beautiful documentation website.
+Scalar GitHub Sync allows you to author your documentation as markdown in your own repository and automatically publish it as a beautiful website.
 
 ## Getting started
 
-The following guide takes you from zero to deployed documentation in just a few minutes ✨
+The following guide takes you from zero to deployed documentation in just a few minutes.
 
-### Set up docs your repository
+### Set up your docs repository
 
 Use your existing [GitHub](https://github.com/) repository, or create a new one from our [template repository](https://github.com/scalar/starter). If you're using the template repository, you can skip to "Configuration".
 
@@ -30,7 +30,7 @@ touch scalar.config.json
 
 #### Configuration
 
-Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉 Your docs site will be available at `https://<subdomain>.apidocumentation.com`.
+Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉 Your docs site will be automatically available at `https://<subdomain>.apidocumentation.com`, but you can also use a custom domain, see [Advanced configuration](#advanced-configuration__use-a-custom-domain) for more information.
 
 ```json
 {
@@ -57,7 +57,7 @@ Make sure to commit and push the changes to your repository.
 
 Create a free Scalar account here: https://dashboard.scalar.com/register
 
-Once signed in, click on “Link GitHub Account”. You’ll be redirected to GitHub, where you can connect your account. After connecting your account, you’ll be redirected back to Scalar.
+Once signed in, click on “Link GitHub Account”. You’ll be redirected to GitHub, where you can connect your account, then you’ll be redirected back to Scalar.
 
 Find your repository and click on “Link Repository”.
 
@@ -123,7 +123,7 @@ Available themes:
 
 ### Use a custom domain
 
-Okay, this requires a subscription, but it’s pretty neat: You can add a custom domain to stay fully on brand and we’ll make sure to deploy your documentation, get a SSL certificate and all that.
+Okay, this requires [a subscription](https://scalar.com#pricing), but it’s pretty neat: You can add a custom domain to stay fully on brand and we’ll make sure to deploy your documentation, get a SSL certificate and all that.
 
 ```json
 {
