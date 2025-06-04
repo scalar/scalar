@@ -207,7 +207,7 @@ onMounted(() => {
         :tag="tag">
         <Operation
           v-for="operation in tag.lazyOperations"
-          :key="`${operation.httpVerb}-${operation.operationId}`"
+          :key="operation.id"
           :collection="collection"
           :layout="layout"
           :server="server"

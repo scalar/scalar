@@ -99,7 +99,7 @@ export enum XScalarStability {
 
 export type Operation = {
   id: string
-  method: OpenAPIV3_1.HttpMethods
+  httpVerb: OpenAPIV3_1.HttpMethods
   path: string
   name: string
   isWebhook: boolean

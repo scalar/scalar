@@ -51,11 +51,11 @@ const title = computed(
         <ScalarIconWebhooksLogo
           v-if="transformedOperation.isWebhook"
           :style="{
-            color: getHttpMethodInfo(transformedOperation.method).colorVar,
+            color: getHttpMethodInfo(transformedOperation.httpVerb).colorVar,
           }" />
         <HttpMethod
           class="endpoint-method min-w-0"
-          :method="transformedOperation.method" />
+          :method="transformedOperation.httpVerb" />
       </div>
       <span
         class="endpoint-path"

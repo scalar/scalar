@@ -142,7 +142,7 @@ export function useSearchIndex({
               type: 'req',
               title: operation.name ?? operation.path,
               href: `#${getOperationId(operationIdParams(operation), tag)}`,
-              operationId: operation.operationId,
+              operationId: operation.information?.operationId,
               description: operation.description ?? '',
               httpVerb: operation.httpVerb,
               path: operation.path,

@@ -24,17 +24,14 @@ const operation = computed(() =>
   schemaModel({ ...callback, path: url, method }, requestSchema, false),
 )
 
-const transformedOperation = computed(
-  () =>
-    ({
-      ...callback,
-      httpVerb: method as TransformedOperation['httpVerb'],
-      path: url,
-      information: {
-        responses: callback.responses,
-      },
-    }) satisfies TransformedOperation,
-)
+const transformedOperation = computed(() => ({
+  ...callback,
+  httpVerb: method as TransformedOperation['httpVerb'],
+  path: url,
+  information: {
+    responses: callback.responses,
+  },
+}))
 </script>
 
 <template>
