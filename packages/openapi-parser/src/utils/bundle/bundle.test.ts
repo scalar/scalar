@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   bundle,
   getHash,
@@ -20,12 +20,11 @@ describe('bundle', () => {
     let server: FastifyInstance
     const PORT = 7289
 
-    beforeEach(() => {
+    beforeEach(async () => {
+      if (server) {
+        await server.close()
+      }
       server = fastify({ logger: false })
-    })
-
-    afterEach(async () => {
-      await server.close()
     })
 
     it('bundles external urls', async () => {
