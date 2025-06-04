@@ -168,6 +168,11 @@
       "types": "./dist/views/Request/consts/index.d.ts",
       "default": "./dist/views/Request/consts/index.js"
     },
+    "./views/Request/hooks": {
+      "import": "./dist/views/Request/hooks/index.js",
+      "types": "./dist/views/Request/hooks/index.d.ts",
+      "default": "./dist/views/Request/hooks/index.js"
+    },
     "./views/Request/libs": {
       "import": "./dist/views/Request/libs/index.js",
       "types": "./dist/views/Request/libs/index.d.ts",
