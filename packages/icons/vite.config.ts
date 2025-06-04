@@ -29,6 +29,6 @@ export default defineConfig({
     }),
   ],
   build: createViteBuildOptions({
-    entry: ['src/index.ts', 'src/library/index.ts'],
+    entry: ['src/index.ts', 'src/library/index.ts', 'src/types.ts'],
   }),
 })
