@@ -1,5 +1,5 @@
 export { createServerWorkspaceStore } from './create-server-workspace-store'
-export { createWorkspaceStore } from './create-workspace-store'
+export { createWorkspaceStore, createWorkspaceStoreSync } from './create-workspace-store'
 export {
   WorkspaceSchema,
   type Workspace,

@@ -60,6 +60,7 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
  * @param workspaceProps.meta - Optional metadata for the workspace
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
  * @returns An object containing methods and getters for managing the workspace
+ * @deprecated Use `createWorkspaceStore` instead.
  */
 export function createWorkspaceStoreSync(workspaceProps?: {
   meta?: WorkspaceMeta
@@ -221,6 +222,32 @@ export function createWorkspaceStoreSync(workspaceProps?: {
   }
 }
 
+/**
+ * Creates a reactive workspace store that manages documents and their metadata.
+ * The store provides functionality for accessing, updating, and resolving document references.
+ *
+ * @param workspaceProps - Configuration object for the workspace
+ * @param workspaceProps.meta - Optional metadata for the workspace
+ * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
+ * @returns An object containing methods and getters for managing the workspace
+ * @example
+ * // Create a workspace store with metadata and documents
+ * const store = await createWorkspaceStore({
+ *   meta: {
+ *     name: 'My Workspace',
+ *     description: 'A workspace for my API'
+ *   },
+ *   documents: [
+ *     {
+ *       name: 'petstore',
+ *       document: {
+ *         openapi: '3.0.0',
+ *         info: { title: 'Petstore API' }
+ *       }
+ *     }
+ *   ]
+ * })
+ */
 export async function createWorkspaceStore(workspaceProps?: {
   meta?: WorkspaceMeta
   documents?: WorkspaceDocumentInput[]
