@@ -96,6 +96,13 @@ function createWindow(): void {
       delete requestHeaders['X-Scalar-Cookie']
     }
 
+    if (requestHeaders['X-Scalar-User-Agent']) {
+      // replace the `User-Agent` header with the `X-Scalar-User-Agent`
+      requestHeaders['User-Agent'] = requestHeaders['X-Scalar-User-Agent']
+
+      delete requestHeaders['X-Scalar-User-Agent']
+    }
+
     callback({ requestHeaders })
   })
 

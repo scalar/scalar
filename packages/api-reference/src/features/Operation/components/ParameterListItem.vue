@@ -3,7 +3,7 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -20,11 +20,7 @@ const props = withDefaults(
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean
-    schemas?:
-      | OpenAPIV2.DefinitionsObject
-      | Record<string, OpenAPIV3.SchemaObject>
-      | Record<string, OpenAPIV3_1.SchemaObject>
-      | unknown
+    schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   }>(),
   {
     showChildren: false,
@@ -78,7 +74,7 @@ const shouldShowParameter = computed(() => {
         class="parameter-item-trigger flex"
         :class="{ 'parameter-item-trigger-open': open }">
         <ScalarIcon
-          class="parameter-item-icon"
+          class="parameter-item-icon size-4.5"
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
           thickness="1.5" />
         <span class="parameter-item-name">
@@ -122,7 +118,7 @@ const shouldShowParameter = computed(() => {
       </DisclosurePanel>
     </Disclosure>
     <div
-      class="absolute right-0 top-2.5 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
+      class="absolute top-2.5 right-0 opacity-0 group-focus-within/parameter-item:opacity-100 group-hover/parameter-item:opacity-100">
       <ContentTypeSelect
         v-if="shouldCollapse && props.parameter.content"
         class="parameter-item-content-type"
@@ -231,11 +227,9 @@ const shouldShowParameter = computed(() => {
 }
 .parameter-item-icon {
   color: var(--scalar-color-3);
-  height: 18px;
   left: -19px;
   position: absolute;
   top: 11px;
-  width: 18px;
 }
 .parameter-item-trigger:hover .parameter-item-icon,
 .parameter-item-trigger:focus-visible .parameter-item-icon {

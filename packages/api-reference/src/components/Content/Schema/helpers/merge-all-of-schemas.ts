@@ -1,6 +1,6 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-type SchemaObject = OpenAPI.SchemaObject
+type SchemaObject = OpenAPIV3_1.SchemaObject
 
 /**
  * This is a temporary limit to prevent infinite recursion
@@ -172,6 +172,16 @@ const mergeSchemaAttributes = (target: SchemaObject, source: SchemaObject, depth
   // Copy type if not already set
   if (source.type && !target.type) {
     merged.type = source.type
+  }
+
+  // Copy title if not already set (preserve from first schema that has it)
+  if (source.title && !target.title) {
+    merged.title = source.title
+  }
+
+  // Copy name if not already set (preserve from first schema that has it)
+  if (source.name && !target.name) {
+    merged.name = source.name
   }
 
   // Copy description if not already set

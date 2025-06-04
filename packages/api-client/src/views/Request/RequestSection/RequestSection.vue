@@ -54,7 +54,7 @@ const requestSections = [
   'Headers',
   'Query',
   'Body',
-  'Scripts',
+  // 'Scripts',
 ] as const
 
 type Filter = 'All' | (typeof requestSections)[number]
@@ -88,7 +88,10 @@ const filterIds = computed(
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () => layout === 'modal' && operation.security?.length === 0,
+  () =>
+    layout === 'modal' &&
+    !operation.security &&
+    !Object.keys(securitySchemes ?? {}).length,
 )
 
 const selectedFilter = ref<Filter>('All')
@@ -153,6 +156,16 @@ const requestSectionViews = pluginManager.getViewComponents('request.section')
 
 const updateOperationHandler = (key: keyof Operation, value: string) =>
   requestMutators.edit(operation.uid, key, value)
+
+// Sets to all when auth filter is hidden but was previously selected to prevent empty section
+watch(
+  () => isAuthHidden.value,
+  (authHidden) => {
+    if (authHidden && selectedFilter.value === 'Auth') {
+      selectedFilter.value = 'All'
+    }
+  },
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
@@ -161,12 +174,12 @@ const updateOperationHandler = (key: keyof Operation, value: string) =>
         class="group pointer-events-none flex flex-1 items-center gap-1 lg:pr-24">
         <label
           v-if="layout !== 'modal'"
-          class="pointer-events-auto absolute left-0 top-0 h-full w-full cursor-text opacity-0"
+          class="pointer-events-auto absolute top-0 left-0 h-full w-full cursor-text opacity-0"
           :for="labelRequestNameId" />
         <input
           v-if="layout !== 'modal'"
           :id="labelRequestNameId"
-          class="text-c-1 group-hover-input pl-1.25 md:-ml-1.25 pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded has-[:focus-visible]:outline"
+          class="text-c-1 group-hover-input pointer-events-auto relative z-10 -ml-0.5 h-8 w-full rounded pl-1.25 has-[:focus-visible]:outline md:-ml-1.25"
           :placeholder="handleRequestNamePlaceholder()"
           :value="operation.summary"
           @input="updateRequestNameHandler" />

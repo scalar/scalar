@@ -1,0 +1,16 @@
+/**
+ * API Reference Styles
+ */
+
+@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+@import "@scalar/components/style.css"; /* Component Library Styles */
+@import "@scalar/api-client/style.css"; /* API Client Styles */
+
+/* Search for Tailwind classes in the API Reference */
+@source "./";

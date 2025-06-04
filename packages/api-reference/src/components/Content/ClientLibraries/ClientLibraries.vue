@@ -2,7 +2,8 @@
 import { TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/vue'
 import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock, ScalarMarkdown } from '@scalar/components'
-import { computed, ref, toRaw, useId, watch } from 'vue'
+import { REFERENCE_LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { computed, onMounted, ref, useId, watch } from 'vue'
 
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 
@@ -49,6 +50,14 @@ function handleChange(i: number) {
   }
   setHttpClient(tab)
 }
+
+// Restore selected client from localStorage
+onMounted(() => {
+  const storedClient = localStorage.getItem(REFERENCE_LS_KEYS.SELECTED_CLIENT)
+  if (storedClient) {
+    setHttpClient(JSON.parse(storedClient))
+  }
+})
 
 const installationInstructions = computed(() => {
   // Get the current collection from the store

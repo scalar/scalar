@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as monaco from 'monaco-editor'
-import { defineModel, nextTick, onMounted, ref, watch, type Ref } from 'vue'
+import { nextTick, onMounted, ref, watch, type Ref } from 'vue'
 
 import OpenAPI30 from '../specifications/openapi-3.0.json'
 import OpenAPI31 from '../specifications/openapi-3.1.json'

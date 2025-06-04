@@ -1,5 +1,5 @@
-import { isLocalUrl } from './is-local-url'
-import { REGEX } from './regex-helpers'
+import { isLocalUrl } from '@scalar/helpers/url/is-local-url'
+import { isRelativePath } from '@scalar/helpers/url/is-relative-path'
 
 /**
  * Redirects the request to a proxy server with a given URL. But not for:
@@ -11,7 +11,6 @@ import { REGEX } from './regex-helpers'
 export function redirectToProxy(proxyUrl?: string, url?: string): string {
   try {
     if (!shouldUseProxy(proxyUrl, url)) {
-      console.log('should not use proxy', proxyUrl, url)
       return url ?? ''
     }
 
@@ -43,24 +42,6 @@ export function redirectToProxy(proxyUrl?: string, url?: string): string {
   } catch {
     return url ?? ''
   }
-}
-
-/**
- * Check if the URL is relative or if it's a domain without protocol
- **/
-export const isRelativePath = (url: string) => {
-  // Allow http:// https:// and other protocols such as file://
-  if (REGEX.PROTOCOL.test(url)) {
-    return false
-  }
-
-  // Check if it looks like a domain (contains dots and no spaces)
-  // This catches cases like "galaxy.scalar.com/planets"
-  if (/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(\/|$)/.test(url)) {
-    return false
-  }
-
-  return true
 }
 
 /**

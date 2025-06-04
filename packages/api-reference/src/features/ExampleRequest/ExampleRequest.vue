@@ -3,6 +3,7 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
+import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type {
   Collection,
   Operation,
@@ -10,13 +11,25 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
+import {
+  computed,
+  inject,
+  onMounted,
+  ref,
+  useId,
+  watch,
+  type ComponentPublicInstance,
+} from 'vue'
 
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
-import { freezeElement } from '@/helpers/freeze-element'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { useConfig } from '@/hooks/useConfig'
+import {
+  DISCRIMINATOR_CONTEXT,
+  EXAMPLE_CONTEXT,
+} from '@/hooks/useDiscriminator'
 import { useExampleStore } from '@/legacy/stores'
 import {
   useHttpClientStore,
@@ -34,6 +47,7 @@ const { transformedOperation, operation, collection, server } = defineProps<{
   fallback?: boolean
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
+  schemas?: Schemas
 }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
@@ -50,6 +64,19 @@ const {
 } = useHttpClientStore()
 
 const id = useId()
+/** Track example update to avoid maximum recursion */
+const isUpdating = ref(false)
+
+// Inject both contexts directly
+const exampleContext = inject(EXAMPLE_CONTEXT)
+
+const discriminatorContext = inject(DISCRIMINATOR_CONTEXT)
+
+const discriminator = computed(() => discriminatorContext?.value?.selectedType)
+
+const hasDiscriminator = computed(
+  () => discriminatorContext?.value?.hasDiscriminator || false,
+)
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
@@ -287,6 +314,82 @@ function handleExampleUpdate(value: string) {
     }
   }
 }
+
+// Display initial discriminator type selection
+onMounted(() => {
+  if (hasDiscriminator.value && discriminator.value && !isUpdating.value) {
+    handleDiscriminatorChange(discriminator.value)
+  }
+})
+
+const handleDiscriminatorChange = (type: string) => {
+  if (isUpdating.value) {
+    return
+  }
+
+  try {
+    isUpdating.value = true
+
+    // Update the example with the selected type and merged properties
+    const example = requestExamples[operation.examples[0]]
+    if (example && exampleContext?.generateExampleValue) {
+      // Generate the new example value
+      const currentValue = example.body?.raw?.value
+        ? JSON.parse(example.body.raw.value)
+        : undefined
+      const updatedValue = exampleContext.generateExampleValue(
+        Array.isArray(currentValue),
+      )
+
+      // Update the example body
+      requestExampleMutators.edit(
+        example.uid,
+        'body.raw.value',
+        JSON.stringify(updatedValue, null, 2),
+      )
+
+      // Update the operation's example value directly
+      if (operation.examples[0]) {
+        const exampleRef = requestExamples[operation.examples[0]]
+        if (exampleRef) {
+          requestExampleMutators.edit(
+            exampleRef.uid,
+            'body.raw.value',
+            JSON.stringify(updatedValue, null, 2),
+          )
+        }
+      }
+
+      // Also update the transformed operation's examples
+      if (
+        transformedOperation.information?.requestBody?.content?.[
+          'application/json'
+        ]?.examples
+      ) {
+        const examples =
+          transformedOperation.information.requestBody.content[
+            'application/json'
+          ].examples
+        Object.keys(examples).forEach((key) => {
+          if (examples[key]?.value) {
+            examples[key].value = updatedValue
+          }
+        })
+      }
+    }
+  } catch (error) {
+    console.error('[handleDiscriminatorChange]', error)
+  } finally {
+    isUpdating.value = false
+  }
+}
+
+// Watch for changes to discriminator type
+watch(discriminator, (newValue) => {
+  if (newValue && hasDiscriminator.value && !isUpdating.value) {
+    handleDiscriminatorChange(newValue)
+  }
+})
 </script>
 <template>
   <Card

@@ -1,14 +1,14 @@
-// @vitest-environment node
-import { parse } from '@/helpers/parse'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, test, vi } from 'vitest'
 import { createSSRApp, h } from 'vue'
 
+import { dereference, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import ApiReferenceLayout from './ApiReferenceLayout.vue'
 
 const EXAMPLE_API_DEFINITIONS = [
   {
-    title: "GitHub's v3 REST API.",
+    title: 'GitHub v3 REST API',
     url: 'https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json',
     name: 'githubs-v3-rest-api-0.json',
   },
@@ -53,7 +53,7 @@ const EXAMPLE_API_DEFINITIONS = [
     name: 'outline-8.yaml',
   },
   {
-    title: 'Sentry',
+    title: 'API Reference',
     url: 'https://raw.githubusercontent.com/getsentry/sentry/refs/heads/master/api-docs/openapi.json',
     name: 'sentry-9.json',
   },
@@ -66,20 +66,24 @@ const EXAMPLE_API_DEFINITIONS = [
 
 describe('ApiReferenceLayout', () => {
   it('has the title in the HTML output', async () => {
+    const document = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
+    }
+
+    const { specification: upgradedDocument } = upgrade(document)
+    const { schema } = await dereference(upgradedDocument)
+
     const app = createSSRApp({
       render: () =>
         h(ApiReferenceLayout, {
           configuration: {},
-          parsedSpec: {
-            info: {
-              title: 'Test API',
-            },
-          },
-          rawSpec: JSON.stringify({
-            info: {
-              title: 'Test API',
-            },
-          }),
+          dereferencedDocument: schema as OpenAPIV3_1.Document,
+          originalDocument: JSON.stringify(document),
         }),
     })
 
@@ -111,14 +115,16 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     throw new Error('Failed to fetch')
   }
 
-  const result = await parse(document)
+  const { specification: upgradedDocument } = upgrade(document)
+
+  const { schema } = await dereference(upgradedDocument)
 
   const app = createSSRApp({
     render: () =>
       h(ApiReferenceLayout, {
         configuration: {},
-        parsedSpec: result,
-        rawSpec: document,
+        dereferencedDocument: schema as OpenAPIV3_1.Document,
+        originalDocument: document,
       }),
   })
 

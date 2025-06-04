@@ -15,7 +15,7 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.12.1",
+  "version": "0.13.1",
   "engines": {
     "node": ">=20"
   },
@@ -37,18 +37,13 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./tailwind": {
-      "import": "./dist/tailwind.js",
-      "types": "./dist/tailwind.d.ts",
-      "default": "./dist/tailwind.js"
-    },
+    "./tailwind.css": "./dist/tailwind.css",
     "./style.css": "./dist/style.css",
     "./fonts.css": "./dist/fonts/fonts.css"
   },
   "files": [
     "dist",
-    "CHANGELOG.md",
-    "src/tailwind.ts"
+    "CHANGELOG.md"
   ],
   "module": "./dist/index.js",
   "dependencies": {

@@ -1,5 +1,23 @@
 # @scalar/openapi-parser
 
+## 0.14.0
+
+### Minor Changes
+
+- ee3eb77: feat(openapi-parser): bundle openapi documents
+
+## 0.13.0
+
+### Minor Changes
+
+- 1e87feb: fix: normalize doesn’t handle empty documents well
+
+## 0.12.0
+
+### Minor Changes
+
+- edf694b: feat: remove wildcard exports
+
 ## 0.11.1
 
 ### Patch Changes

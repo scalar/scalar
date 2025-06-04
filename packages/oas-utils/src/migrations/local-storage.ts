@@ -1,7 +1,8 @@
-import type { LS_KEYS } from '@/helpers/local-storage'
+import type { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { parse } from 'flatted'
+
 import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import type { v_2_1_0 } from '@/migrations/v-2.1.0/types.generated'
-import { parse } from 'flatted'
 
 /**
  * Supports pre-flatted local storage

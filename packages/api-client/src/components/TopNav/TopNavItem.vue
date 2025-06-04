@@ -9,8 +9,8 @@ import {
   ScalarTooltip,
   type Icon,
 } from '@scalar/components'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import { LibraryIcon } from '@scalar/icons/library'
-import { isMacOS } from '@scalar/use-tooltip'
 
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 

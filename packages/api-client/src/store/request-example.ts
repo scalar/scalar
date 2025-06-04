@@ -1,6 +1,7 @@
 import type { StoreContext } from '@/store/store-context'
 import { type Request, type RequestExample, createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
-import { LS_KEYS, iterateTitle } from '@scalar/oas-utils/helpers'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { iterateTitle } from '@scalar/helpers/string/iterate-title'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 

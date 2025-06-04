@@ -89,18 +89,14 @@ onBeforeUnmount(() => {
         </ScalarTeleportRoot>
       </div>
       <div
-        class="scalar-app-exit -z-1"
+        class="scalar-app-exit"
         @click="modalState.hide()" />
     </div>
   </div>
 </template>
-
-<style>
-@import '@scalar/components/style.css';
-@import '@/tailwind/tailwind.css';
-</style>
-
 <style scoped>
+@reference "@/style.css";
+
 .scalar .scalar-app-layout {
   background: var(--scalar-background-1);
   height: calc(100% - 120px);
@@ -118,7 +114,7 @@ onBeforeUnmount(() => {
   * Allow the modal to fill more space on
   * very short (or very zoomed in) screens
   */
-@screen zoomed {
+@variant zoomed {
   .scalar .scalar-app-layout {
     height: 100%;
     max-height: 90svh;
@@ -142,6 +138,7 @@ onBeforeUnmount(() => {
   transition: all 0.3s ease-in-out;
   cursor: pointer;
   animation: scalardrawerexitfadein 0.35s forwards;
+  z-index: -1;
 }
 .dark-mode .scalar .scalar-app-exit {
   background: rgba(0, 0, 0, 0.45);

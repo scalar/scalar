@@ -37,7 +37,7 @@ const isHovered = useElementHover(button)
             name="actions" />
         </div>
         <ScalarIcon
-          class="section-accordion-chevron"
+          class="section-accordion-chevron size-5"
           :icon="open ? 'ChevronDown' : 'ChevronRight'" />
       </DisclosureButton>
       <DisclosurePanel class="section-accordion-content">
@@ -96,7 +96,6 @@ const isHovered = useElementHover(button)
 
 .section-accordion-chevron {
   margin-right: 4px;
-  width: 20px;
   cursor: pointer;
   opacity: 1;
   color: var(--scalar-color-3);

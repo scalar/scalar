@@ -20,7 +20,7 @@
     "vue",
     "vue3"
   ],
-  "version": "1.29.3",
+  "version": "1.31.3",
   "engines": {
     "node": ">=20"
   },
@@ -65,6 +65,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
@@ -88,13 +89,12 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "@scalar/react-renderer": "workspace:*",
+    "@tailwindcss/vite": "catalog:*",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-vue": "catalog:*",
     "@vue/server-renderer": "^3.5.13",
     "@vue/test-utils": "^2.4.1",
-    "autoprefixer": "^10.4.19",
-    "postcss": "catalog:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "rollup-plugin-webpack-stats": "^0.2.5",

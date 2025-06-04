@@ -63,14 +63,14 @@ const startDrag = (event: MouseEvent) => {
   <aside
     v-show="isSidebarOpen"
     ref="sidebarRef"
-    class="sidebar bg-b-1 md:border-r-1/2 relative flex min-w-full flex-1 flex-col overflow-hidden leading-3 md:min-w-fit md:flex-none md:border-b-0"
+    class="sidebar bg-b-1 relative flex min-w-full flex-1 flex-col overflow-hidden leading-3 md:min-w-fit md:flex-none md:border-r md:border-b-0"
     :class="{ dragging: isDragging }"
     :style="{ width: breakpoints.lg ? sidebarWidth : '100%' }">
     <slot name="header" />
     <div
       v-if="layout !== 'modal' && title"
-      class="xl:min-h-client-header flex min-h-12 items-center justify-between px-3 py-1.5 text-sm md:px-[18px] md:py-2.5">
-      <h2 class="m-0 whitespace-nowrap text-sm font-medium">
+      class="xl:min-h-header flex min-h-12 items-center justify-between px-3 py-1.5 text-sm md:px-[18px] md:py-2.5">
+      <h2 class="m-0 text-sm font-medium whitespace-nowrap">
         {{ title }}
       </h2>
       <slot
@@ -86,7 +86,7 @@ const startDrag = (event: MouseEvent) => {
     </div>
     <template v-if="breakpoints.lg">
       <div
-        class="bg-b-1 has-[.empty-sidebar-item]:border-t-1/2 relative sticky bottom-0 z-10 w-[inherit] pt-0 md:px-2.5 md:pb-2.5">
+        class="bg-b-1 relative sticky bottom-0 z-10 w-[inherit] pt-0 has-[.empty-sidebar-item]:border-t md:px-2.5 md:pb-2.5">
         <slot name="button" />
       </div>
       <div
@@ -96,10 +96,12 @@ const startDrag = (event: MouseEvent) => {
   </aside>
 </template>
 <style scoped>
+@reference "@/style.css";
+
 .sidebar-height {
   min-height: 100%;
 }
-@screen md {
+@variant md {
   .sidebar-mask {
     mask-image: linear-gradient(
       0,

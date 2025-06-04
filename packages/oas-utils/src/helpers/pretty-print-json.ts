@@ -3,7 +3,7 @@ import { isJsonString } from './parse'
 /**
  * Takes JSON and formats it.
  */
-export const prettyPrintJson = (value: string | number | any[] | Record<any, any>) => {
+export const prettyPrintJson = (value: string | number | any[] | Record<any, any>): string => {
   if (typeof value === 'string') {
     // JSON string
     if (isJsonString(value)) {

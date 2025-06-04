@@ -294,4 +294,68 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('Planet')
     expect(detailsElement.text()).not.toContain('object')
   })
+
+  it('matches array schema to component schema by type and items', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'string' },
+          deprecated: false,
+        },
+        schemas: {
+          Planet: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+          Satellite: {
+            type: 'string',
+          },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array Planet[]')
+  })
+
+  it('doesn’t show model name when hideModelNames is true', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        hideModelNames: true,
+        schemas: {
+          Planet: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array string[]')
+    expect(detailsElement.text()).not.toContain('Planet')
+  })
+
+  it('shows model name when hideModelNames is false', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        hideModelNames: false,
+        schemas: {
+          Planet: {
+            type: 'array',
+            items: { type: 'string' },
+          },
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('array Planet[]')
+  })
 })

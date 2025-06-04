@@ -39,6 +39,20 @@ public static class EndpointConventionBuilderExtensions
     /// <param name="builder">The endpoint convention builder.</param>
     public static TBuilder Deprecated<TBuilder>(this TBuilder builder) where TBuilder : IEndpointConventionBuilder => builder.WithStability(Stability.Deprecated);
 
+    /// <summary>
+    /// Adds a code sample to the API endpoint.
+    /// </summary>
+    /// <typeparam name="TBuilder">The type of <see cref="IEndpointConventionBuilder" />.</typeparam>
+    /// <param name="builder">The endpoint convention builder.</param>
+    /// <param name="codeSample">The code sample to add.</param>
+    /// <param name="language">The language of the code sample.</param>
+    /// <param name="label">A label for the code sample.</param>
+    public static TBuilder CodeSample<TBuilder>(this TBuilder builder, string codeSample, ScalarTarget? language = null, string? label = null) where TBuilder : IEndpointConventionBuilder
+    {
+        builder.WithMetadata(new CodeSampleAttribute(codeSample, language, label));
+        return builder;
+    }
+
     private static TBuilder WithStability<TBuilder>(this TBuilder builder, Stability stability) where TBuilder : IEndpointConventionBuilder
     {
         builder.WithMetadata(new StabilityAttribute(stability));

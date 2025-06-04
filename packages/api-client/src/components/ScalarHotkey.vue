@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/components'
+import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
-import { isMacOS } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 
 const { modifier = ['Meta'], hotkey } = defineProps<{
@@ -49,7 +49,7 @@ const srLabel = computed(() => {
   <div
     v-bind="
       cx(
-        'border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase',
+        'border-(--scalar-background-3) inline-block overflow-hidden rounded border text-xxs rounded-b px-1 font-medium uppercase',
       )
     ">
     <span aria-hidden="true">{{ displayHotkey }}</span>

@@ -1,5 +1,104 @@
 # @scalar/api-reference
 
+## 1.31.3
+
+### Patch Changes
+
+- dc6cd4c: feat: updates download link component
+- 511bbc0: fix: updates header properties style
+- bf2cb82: feat: updates schema composition name handling
+- 7ca47ab: fix: add ssr safe alias for local storage
+- 494f7f0: chore(api-reference): delete rogue Tailwind v3 config
+- Updated dependencies [c06aa6a]
+- Updated dependencies [3ad9393]
+- Updated dependencies [f1c0c01]
+- Updated dependencies [b461b62]
+- Updated dependencies [a47fa60]
+- Updated dependencies [ee3eb77]
+- Updated dependencies [df7efac]
+- Updated dependencies [7ca47ab]
+  - @scalar/api-client@2.5.2
+  - @scalar/components@0.14.5
+  - @scalar/openapi-parser@0.14.0
+  - @scalar/oas-utils@0.4.2
+
+## 1.31.2
+
+### Patch Changes
+
+- Updated dependencies [85877aa]
+  - @scalar/themes@0.13.1
+  - @scalar/api-client@2.5.1
+  - @scalar/code-highlight@0.1.1
+  - @scalar/components@0.14.4
+  - @scalar/oas-utils@0.4.1
+
+## 1.31.1
+
+### Patch Changes
+
+- e6c165c: feat: adds schema discriminator and example support
+- aeb94f0: fix(api-reference): size icons for Tailwind v4
+- 237cb44: chore: bump for tailwind fix
+
+## 1.31.0
+
+### Minor Changes
+
+- 1e87feb: refactor!: use dereferenced documents as a content source
+
+### Patch Changes
+
+- a9a4f9f: fix: updates schema property heading logic
+- 8529040: fix: updates search button style
+- f5413ba: fix(api-reference): add tailwind plugin to standalone vite config
+- fea1d52: fix: passes required property to nested schema
+- 785939b: feat: adds id to markdown heading
+- 0113b84: fix(api-reference): add id prefix for useId
+- cad6277: feat(themes)!: migrate to tailwind v4
+- 3a24cf9: feat: save selected client on local storage
+- 0dfb39a: fix: updates schema description handling
+- fea1d52: fix: extracts render schema computed function
+- ffa93fa: feat(themes): use .scalar-app as the base class for all tailwind styles
+- 785939b: feat: updates scroll to hash to handle markdown heading
+- f1f9504: fix: increases z index for references header
+- 42e73ee: fix error when using complex type definitions
+- Updated dependencies [1e87feb]
+- Updated dependencies [785939b]
+- Updated dependencies [1e87feb]
+- Updated dependencies [0113b84]
+- Updated dependencies [cad6277]
+- Updated dependencies [ffa93fa]
+- Updated dependencies [cedca9b]
+  - @scalar/openapi-parser@0.13.0
+  - @scalar/code-highlight@0.1.1
+  - @scalar/components@0.14.3
+  - @scalar/api-client@2.5.0
+  - @scalar/oas-utils@0.4.0
+  - @scalar/themes@0.13.0
+  - @scalar/use-hooks@0.2.2
+  - @scalar/icons@0.4.2
+  - @scalar/openapi-types@0.3.1
+  - @scalar/snippetz@0.3.0
+  - @scalar/types@0.2.1
+  - @scalar/use-toasts@0.8.0
+
+## 1.30.0
+
+### Patch Changes
+
+- 5208e7a: fix: decreases level on single property schema
+- edb5490: feat: adds schema discriminator helper functions
+- 442c0a3: feat: added support for callbacks
+- edb5490: feat: adds schema discriminator support
+- Updated dependencies [151ef09]
+- Updated dependencies [442c0a3]
+- Updated dependencies [edf694b]
+  - @scalar/api-client@2.4.4
+  - @scalar/oas-utils@0.3.2
+  - @scalar/openapi-parser@0.12.0
+  - @scalar/components@0.14.2
+
 ## 1.29.3
 
 ### Patch Changes

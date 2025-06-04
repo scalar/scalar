@@ -7,6 +7,7 @@ import { defineConfig } from 'vitest/config'
 
 import licenseBannerTemplate from './license-banner-template.txt'
 import { name, version } from './package.json'
+import tailwindcss from '@tailwindcss/vite'
 
 function replaceVariables(template: string, variables: Record<string, string>) {
   return Object.entries(variables).reduce((content, [key, value]) => {
@@ -28,6 +29,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    tailwindcss(),
     cssInjectedByJsPlugin(),
     webpackStats(),
     banner({

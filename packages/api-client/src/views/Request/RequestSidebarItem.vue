@@ -202,7 +202,7 @@ const isDraftCollection = computed(
     item.value.entity.type === 'collection' && item.value.title === 'Drafts',
 )
 
-const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
+const highlightClasses = 'hover:bg-sidebar-b-active indent-padding-left'
 
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
@@ -391,7 +391,7 @@ const shouldShowItem = computed(() => {
     :class="[
       (layout === 'modal' && parentUids.length > 1) ||
       (layout !== 'modal' && parentUids.length)
-        ? 'before:bg-border indent-border-line-offset before:z-1 mb-[.5px] before:pointer-events-none before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full'
+        ? 'before:bg-border indent-border-line-offset mb-[.5px] before:pointer-events-none before:absolute before:top-0 before:left-[calc(.75rem_+_.5px)] before:z-1 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full'
         : '',
     ]">
     <Draggable
@@ -422,10 +422,10 @@ const shouldShowItem = computed(() => {
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
-              ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
+              ? 'bg-sidebar-b-active text-sidebar-c-active transition-none'
               : 'text-sidebar-c-2',
           ]">
-          <span class="line-clamp-1 w-full break-all pl-2 font-medium">
+          <span class="line-clamp-1 w-full pl-2 font-medium break-all">
             {{ item.title || 'Untitled' }}
           </span>
           <div class="flex flex-row items-center gap-1">
@@ -480,7 +480,7 @@ const shouldShowItem = computed(() => {
         :class="[
           highlightClasses,
           {
-            'bg-sidebar-active-b text-sidebar-active-c transition-none':
+            'bg-sidebar-b-active text-sidebar-c-active transition-none':
               typeof router.currentRoute.value.name === 'string' &&
               router.currentRoute.value.name.startsWith('collection') &&
               router.currentRoute.value.params[PathId.Collection] ===
@@ -500,7 +500,7 @@ const shouldShowItem = computed(() => {
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between font-medium">
-          <span class="line-clamp-1 w-full break-all text-left">
+          <span class="line-clamp-1 w-full text-left break-all">
             {{ item.title }}
           </span>
           <div class="relative flex h-fit justify-end">
@@ -583,7 +583,7 @@ const shouldShowItem = computed(() => {
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between">
-          <span class="line-clamp-1 w-full break-all text-left font-medium">
+          <span class="line-clamp-1 w-full text-left font-medium break-all">
             {{ item.title }}
           </span>
           <div class="relative flex h-fit justify-end">

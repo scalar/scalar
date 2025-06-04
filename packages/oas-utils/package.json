@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.3.1",
+  "version": "0.4.2",
   "engines": {
     "node": ">=20"
   },
@@ -96,6 +96,7 @@
   "dependencies": {
     "@hyperjump/browser": "^1.1.0",
     "@hyperjump/json-schema": "^1.9.6",
+    "@scalar/helpers": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",

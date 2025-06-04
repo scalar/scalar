@@ -3,8 +3,9 @@
 const hasLoaded = ref(false)
 </script>
 <script lang="ts" setup>
+import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type {
   Spec,
   Tag as TagType,
@@ -24,7 +25,6 @@ import {
   SectionHeaderTag,
 } from '@/components/Section'
 import { Operation } from '@/features/Operation'
-import { scrollToId } from '@/helpers/scroll-to-id'
 import { useNavState } from '@/hooks/useNavState'
 import { getModels } from '@/libs/openapi'
 
@@ -113,6 +113,14 @@ watch(
           operationIndex + 2,
         ),
       })
+
+      // Check if hash contains a markdown heading with the new description format
+      if (hash.value.includes('/description/')) {
+        if (typeof window !== 'undefined') {
+          scrollToId(hash.value)
+        }
+        setTimeout(() => (isIntersectionEnabled.value = true), 1000)
+      }
     }
     // Models
     else if (hash.value.startsWith('model')) {
@@ -218,7 +226,7 @@ onMounted(() => {
               <Anchor :id="getModelId({ name })">
                 <SectionHeaderTag :level="2">
                   {{
-                    (getModels(parsedSpec)?.[name] as OpenAPIV3.SchemaObject)
+                    (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)
                       .title ?? name
                   }}
                 </SectionHeaderTag>

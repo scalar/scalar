@@ -4,6 +4,7 @@ import { ERRORS } from '@/configuration'
 import type { AnyObject, ErrorObject, Filesystem, FilesystemEntry, ThrowOnErrorOption } from '@/types/index'
 import { getEntrypoint } from './get-entrypoint'
 import { getSegmentsFromPath } from './get-segments-from-path'
+import { isObject } from './is-object'
 import { makeFilesystem } from './make-filesystem'
 
 // TODO: Add support for all pointer words
@@ -54,6 +55,19 @@ export function resolveReferences(
   const entrypoint = getEntrypoint(filesystem)
 
   const finalInput = file?.specification ?? entrypoint.specification
+
+  // Does it look like an OpenAPI document?
+  if (!isObject(finalInput)) {
+    if (options?.throwOnError) {
+      throw new Error(ERRORS.NO_CONTENT)
+    }
+
+    return {
+      valid: false,
+      errors,
+      schema: finalInput as OpenAPI.Document,
+    }
+  }
 
   // Recursively resolve all references
   dereference(finalInput, filesystem, file ?? entrypoint, new WeakSet(), errors, options)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
@@ -10,12 +10,13 @@ import ContentTypeSelect from './ContentTypeSelect.vue'
 
 const { requestBody, schemas } = defineProps<{
   requestBody?: RequestBody
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
+
 const availableContentTypes = computed(() =>
   Object.keys(requestBody?.content ?? {}),
 )
@@ -59,6 +60,10 @@ const partitionedSchema = computed(() => {
     },
   }
 })
+
+const handleDiscriminatorChange = (type: string) => {
+  emit('update:modelValue', type)
+}
 </script>
 <template>
   <div v-if="requestBody">
@@ -93,7 +98,8 @@ const partitionedSchema = computed(() => {
         name="Request Body"
         noncollapsible
         :schemas="schemas"
-        :value="partitionedSchema.visibleProperties" />
+        :value="partitionedSchema.visibleProperties"
+        @update:modelValue="handleDiscriminatorChange" />
 
       <Schema
         additionalProperties
@@ -112,7 +118,8 @@ const partitionedSchema = computed(() => {
         name="Request Body"
         noncollapsible
         :schemas="schemas"
-        :value="requestBody.content?.[selectedContentType]?.schema" />
+        :value="requestBody.content?.[selectedContentType]?.schema"
+        @update:modelValue="handleDiscriminatorChange" />
     </div>
   </div>
 </template>

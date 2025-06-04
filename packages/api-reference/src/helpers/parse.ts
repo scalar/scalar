@@ -3,69 +3,31 @@
  * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
  */
 import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
-import { normalizeRequestMethod } from '@/legacy/helpers'
-import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
+import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '@/libs/openapi'
+import { normalizeHttpMethod } from '@scalar/helpers/http/normalize-http-method'
 
 type AnyObject = Record<string, any>
 
 /**
- * Parse the given specification and return a super custom transformed specification.
+ * Parse the given dereferencedDocument and return a super custom transformed dereferencedDocument.
  *
  * @deprecated Try to use a store instead.
  */
-export const parse = (
-  specification: UnknownObject | string | undefined,
-  {
-    proxyUrl,
-  }: {
-    proxyUrl?: string
-  } = {},
-): Promise<Spec> => {
+export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec> => {
   // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
   return new Promise(async (resolve, reject) => {
     try {
-      // Return an empty resolved specification if the given specification is empty
-      if (!specification) {
-        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
+      // Return an empty resolved dereferencedDocument if the given dereferencedDocument is empty
+      if (!dereferencedDocument) {
+        return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
       }
 
-      const start = performance.now()
-
-      const { filesystem } = await load(specification, {
-        plugins: [
-          fetchUrls({
-            fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
-          }),
-        ],
-      })
-
-      const { schema, errors } = await dereference(filesystem)
-
-      const end = performance.now()
-      console.log(`dereference: ${Math.round(end - start)} ms`)
-
-      if (errors?.length) {
-        console.warn(
-          'Please open an issue on https://github.com/scalar/scalar\n',
-          'Scalar OpenAPI Parser Warning:\n',
-          errors,
-        )
-      }
-
-      if (schema === undefined) {
-        reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
-
-        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
-      }
-
-      return resolve(transformResult(schema))
+      return resolve(transformResult(dereferencedDocument))
     } catch (error) {
       console.error('[@scalar/api-reference]', 'Failed to parse the OpenAPI document. It might be invalid?')
       console.error(error)
@@ -73,18 +35,18 @@ export const parse = (
       reject(error)
     }
 
-    return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
+    return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
   })
 }
 
-const transformResult = (originalSchema: OpenAPI.Document): Spec => {
+const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
   // Make it an object
   let schema = {} as AnyObject
 
   if (originalSchema && typeof originalSchema === 'object') {
-    schema = structuredClone(originalSchema)
+    schema = originalSchema
   } else {
-    schema = createEmptySpecification() as OpenAPI.Document
+    schema = createEmptySpecification() as OpenAPIV3_1.Document
   }
 
   // Create empty tags array
@@ -115,11 +77,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   // Security
   if (!schema.security) {
     schema.security = []
-  }
-
-  // External docs
-  if (!schema.externalDocs) {
-    schema.externalDocs = {}
   }
 
   // Webhooks
@@ -156,7 +113,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
       newWebhooks[name][httpVerb] = {
         // Transformed data
-        httpVerb: normalizeRequestMethod(httpVerb),
+        httpVerb: normalizeHttpMethod(httpVerb),
         path: name,
         operationId: originalWebhook?.operationId || name,
         name: originalWebhook?.summary || name || '',
@@ -200,7 +157,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
       // Transform the operation
       const newOperation = {
-        httpVerb: normalizeRequestMethod(requestMethod),
+        httpVerb: normalizeHttpMethod(requestMethod),
         path,
         operationId: operation.operationId || path,
         name: operation.summary || path || '',
@@ -214,7 +171,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       // If there are no tags, we’ll create a default one.
       if (!operation.tags || operation.tags.length === 0) {
         // Create the default tag.
-        if (!schema.tags?.find((tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default')) {
+        if (!schema.tags?.find((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')) {
           schema.tags?.push({
             name: 'default',
             description: '',
@@ -223,9 +180,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         }
 
         // find the index of the default tag
-        const indexOfDefaultTag = schema.tags?.findIndex(
-          (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default',
-        )
+        const indexOfDefaultTag = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')
 
         // Add the new operation to the default tag.
         if (indexOfDefaultTag >= 0) {

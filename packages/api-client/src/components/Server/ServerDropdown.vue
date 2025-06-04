@@ -103,7 +103,7 @@ const updateServerVariable = (key: string, value: string) => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="gap-0.75 z-context-plus h-6.5 hover:bg-b-2 font-code ml-0.75 text-c-2 whitespace-nowrap rounded border px-1.5 text-xs lg:text-sm"
+      class="z-context-plus hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-xs whitespace-nowrap lg:text-sm"
       variant="ghost">
       <template
         v-if="operation?.selectedServerUid || collection.selectedServerUid">
@@ -148,7 +148,7 @@ const updateServerVariable = (key: string, value: string) => {
         <!-- Add Server -->
         <template v-if="layout !== 'modal'">
           <button
-            class="text-xxs p-1.75 hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded"
+            class="text-xxs hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded p-1.75"
             type="button"
             @click="handleAddServer">
             <div class="flex h-4 w-4 items-center justify-center">
@@ -163,7 +163,7 @@ const updateServerVariable = (key: string, value: string) => {
     </template>
     <template #backdrop>
       <ScalarFloatingBackdrop
-        class="-top-[--scalar-address-bar-height] rounded-lg" />
+        class="-top-(--scalar-address-bar-height) rounded-lg" />
     </template>
   </ScalarPopover>
 </template>

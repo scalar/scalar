@@ -70,6 +70,9 @@ vi.mock('vue', () => ({
     use: vi.fn(),
     provide: vi.fn(),
     mount: vi.fn(),
+    config: {
+      idPrefix: '',
+    },
   })),
   ref: vi.fn((value) => ({ value })),
   watch: vi.fn((getter, callback) => {

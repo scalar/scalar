@@ -1,0 +1,19 @@
+/**
+ * Component Library Styles
+ */
+
+@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+/* Search for Tailwind classes in the Component Library */
+@source "./";
+
+/* Component Library Specific Tailwind Utilities */
+@import "./utilities.css";
+
+/* Plugins */
+@plugin "@headlessui/tailwindcss";

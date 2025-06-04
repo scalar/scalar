@@ -1,0 +1,29 @@
+/* Scalar Tailwind Utility Classes */
+
+/* 
+ * Tailwind doesn't support z-index the way it used to in v3 so this utility
+ * applies the z-index's from the theme variables
+ *
+ * @see ./theme.css
+ */
+@utility z-* {
+  z-index: --value(--z-\*);
+}
+
+/* Flex utility for centering */
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+/* Absolute centering utilities */
+@utility centered-x {
+  @apply absolute left-1/2 -translate-x-1/2;
+}
+
+@utility centered-y {
+  @apply absolute top-1/2 -translate-y-1/2;
+}
+
+@utility centered {
+  @apply centered-x centered-y;
+}

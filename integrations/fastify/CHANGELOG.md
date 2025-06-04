@@ -1,5 +1,38 @@
 # @scalar/fastify-api-reference
 
+## 1.31.3
+
+### Patch Changes
+
+- a90046a: chore: move to esbuild for integration packages
+- Updated dependencies [ee3eb77]
+  - @scalar/openapi-parser@0.14.0
+
+## 1.31.2
+
+## 1.31.1
+
+## 1.31.0
+
+### Patch Changes
+
+- Updated dependencies [1e87feb]
+  - @scalar/openapi-parser@0.13.0
+  - @scalar/core@0.3.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+
+## 1.30.0
+
+### Minor Changes
+
+- edf694b: refactor!: use openapi-parser utils, remove the deprecated pipeline syntax
+
+### Patch Changes
+
+- Updated dependencies [edf694b]
+  - @scalar/openapi-parser@0.12.0
+
 ## 1.29.3
 
 ## 1.29.2

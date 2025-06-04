@@ -1,0 +1,21 @@
+/**
+ * API Client Styles
+ */
+
+@import "@scalar/themes/style.css"; /* Theme Base Styles and Reset */
+@import "@scalar/components/style.css"; /* Component Library Styles */
+@import "@scalar/themes/tailwind.css"; /* Tailwind Theme + Config */
+
+.scalar-app {
+  @import "tailwindcss/utilities.css";
+}
+
+/* Search for Tailwind classes in the API Client */
+@source "./";
+@source "../node_modules/@scalar/oas-utils/src/";
+
+/* Client Specific Tailwind Utilities */
+@import "./utilities.css";
+
+/* Plugins */
+@plugin "@headlessui/tailwindcss";

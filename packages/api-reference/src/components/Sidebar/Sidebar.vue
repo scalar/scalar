@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { sleep } from '@scalar/helpers/testing/sleep'
 import type { Spec } from '@scalar/types/legacy'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
 import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
-import { sleep } from '@/helpers/sleep'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar, type SorterOption } from '@/hooks/useSidebar'
 
@@ -90,6 +90,23 @@ const observeSidebarElement = (id: string) => {
   return observer
 }
 
+/** Determines if an item is active based on the current hash */
+const isItemActive = (itemId: string) => {
+  // Exact match - this handles all normal cases
+  if (hash.value === itemId) {
+    return true
+  }
+
+  // Check if current hash is a markdown heading within this operation
+  if (hash.value.includes('/description/')) {
+    // Extract the operation ID (everything before /description/)
+    const operationId = hash.value.split('/description/')[0]
+    return operationId === itemId
+  }
+
+  return false
+}
+
 onMounted(() => {
   const observer = observeSidebarElement(hash.value)
 
@@ -126,7 +143,7 @@ onMounted(() => {
                 :id="`sidebar-${group.id}`"
                 data-sidebar-type="heading"
                 :hasChildren="group.children && group.children.length > 0"
-                :isActive="hash === group.id"
+                :isActive="isItemActive(group.id)"
                 :item="{
                   id: group.id,
                   title: group.displayTitle ?? group.title,
@@ -151,7 +168,7 @@ onMounted(() => {
                       <SidebarElement
                         v-if="item.show"
                         :id="`sidebar-${child.id}`"
-                        :isActive="hash === child.id"
+                        :isActive="isItemActive(child.id)"
                         :item="{
                           id: child.id,
                           title: child.displayTitle ?? child.title,
@@ -171,7 +188,7 @@ onMounted(() => {
               :id="`sidebar-${item.id}`"
               data-sidebar-type="heading"
               :hasChildren="item.children && item.children.length > 0"
-              :isActive="hash === item.id"
+              :isActive="isItemActive(item.id)"
               :item="{
                 id: item.id,
                 title: item.displayTitle ?? item.title,
@@ -196,7 +213,7 @@ onMounted(() => {
                     <SidebarElement
                       v-if="item.show"
                       :id="`sidebar-${child.id}`"
-                      :isActive="hash === child.id"
+                      :isActive="isItemActive(child.id)"
                       :item="{
                         id: child.id,
                         title: child.displayTitle ?? child.title,

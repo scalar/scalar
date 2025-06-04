@@ -5,11 +5,15 @@ import {
   type ScalarListboxOption,
 } from '@scalar/components'
 import { ScalarIconCaretDown } from '@scalar/icons'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { stringify } from 'flatted'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
+import {
+  getCompositionDisplay,
+  getModelNameFromSchema,
+} from '@/components/Content/Schema/helpers/schema-name'
+import type { Schemas } from '@/features/Operation/types/schemas'
 
 import {
   hasComposition,
@@ -19,11 +23,7 @@ import Schema from './Schema.vue'
 
 const { schemas, value, composition } = defineProps<{
   composition: CompositionKeyword
-  schemas?:
-    | OpenAPIV2.DefinitionsObject
-    | Record<string, OpenAPIV3.SchemaObject>
-    | Record<string, OpenAPIV3_1.SchemaObject>
-    | unknown
+  schemas?: Schemas
   name?: string
   value: Record<string, any>
   level: number
@@ -33,11 +33,24 @@ const { schemas, value, composition } = defineProps<{
 
 const selectedIndex = ref(0)
 
+/** Get base schemas for label generation */
+const baseSchemas = computed(() => {
+  return value[composition] || []
+})
+
+/** Get the composition schemas to display in the composition panel */
+const compositionDisplay = computed(() => {
+  // Always use the processed schemaComposition to ensure allOf schemas are properly merged
+  return schemaComposition.value
+})
+
 const listboxOptions = computed(() =>
-  schemaComposition.value.map((schema: any, index: number) => ({
-    id: String(index),
-    label: getModelNameFromSchema(schema) || 'Schema',
-  })),
+  compositionDisplay.value.map(
+    (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
+      id: String(index),
+      label: getModelNameFromSchema(schema, schemas) || 'Schema',
+    }),
+  ),
 )
 
 const selectedOption = computed({
@@ -51,96 +64,59 @@ const selectedOption = computed({
 /** Check if the composition keyword is oneOf or anyOf or allOf with nested composition keywords */
 const hasNestedComposition = computed(() => {
   const isOneOfOrAnyOf = ['oneOf', 'anyOf'].includes(composition)
-  const hasNestedComposition =
+  const hasNestedCompositionInAllOf =
     composition === 'allOf' &&
     value[composition]?.some((schema: any) => hasComposition(schema))
 
-  return isOneOfOrAnyOf || hasNestedComposition
+  return isOneOfOrAnyOf || hasNestedCompositionInAllOf
 })
-
-/** Get model name from schema */
-const getModelNameFromSchema = (schema: any): string | null => {
-  if (!schema) {
-    return null
-  }
-
-  if (schema.title) {
-    return schema.title
-  }
-
-  if (schema.name) {
-    return schema.name
-  }
-
-  // returns a matching schema name based on the schema object
-  if (schemas && typeof schemas === 'object') {
-    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-      if (stringify(schemaValue) === stringify(schema)) {
-        return schemaName
-      }
-    }
-  }
-
-  // Handle array types with items
-  if (schema.type === 'array' && schema.items) {
-    const itemType = schema.items.type || 'any'
-    return `Array of ${itemType}`
-  }
-
-  if (schema.type) {
-    return schema.type
-  }
-
-  if (typeof schema === 'object') {
-    const keys = Object.keys(schema)
-    if (keys.length > 0) {
-      return keys[0]
-    }
-  }
-
-  return null
-}
 
 const getSchemaWithComposition = (schemas: any[]) => {
   return schemas.find((schema: any) => hasComposition(schema))
 }
 
-const schemaComposition = computed(() => {
-  // If there's no nested composition, return the direct composition array
-  if (!getSchemaWithComposition(value[composition])) {
-    return value[composition]
+/** Checks if a schema contains nestd composition */
+const schemaHasNestedComposition = (schema: any): boolean => {
+  if (!schema.allOf || !Array.isArray(schema.allOf)) {
+    return false
   }
 
-  const schemaComposition = getSchemaWithComposition(value[composition])
+  return schema.allOf.some(
+    (subSchema: any) => subSchema.oneOf || subSchema.anyOf || subSchema.allOf,
+  )
+}
 
-  // Get schema with nested composition
-  const schemaNestedComposition =
-    schemaComposition.oneOf || schemaComposition.anyOf
+/**
+ * Processes a single schema, merging allOf if it doesn't contain nested compositions.
+ */
+const processSchema = (schema: any): any => {
+  if (schema.allOf && Array.isArray(schema.allOf)) {
+    return schemaHasNestedComposition(schema)
+      ? schema
+      : mergeAllOfSchemas(schema.allOf)
+  }
+  return schema
+}
 
-  return schemaNestedComposition.map((schema: any) => {
-    if (schema.allOf) {
-      const titledSchema = schema.allOf.find((s: any) => s.title)
-      const referencedSchema = schema.allOf.find((s: any) => !s.title)
+const schemaComposition = computed(() => {
+  const schemas = value[composition]
+  const schemaWithComposition = getSchemaWithComposition(schemas)
 
-      if (titledSchema && referencedSchema) {
-        return {
-          ...titledSchema,
-          properties: {
-            ...titledSchema.properties,
-            ...referencedSchema.properties,
-          },
-          required: [
-            ...(titledSchema.required || []),
-            ...(referencedSchema.required || []),
-          ],
-          oneOf: referencedSchema.oneOf,
-          anyOf: referencedSchema.anyOf,
-        }
-      }
-      return titledSchema || schema
-    }
-    return schema
-  })
+  // No nested compositions, just process each schema
+  if (
+    !schemaWithComposition ||
+    (composition !== 'allOf' && schemaWithComposition.allOf)
+  ) {
+    return schemas.map(processSchema)
+  }
+
+  // Handle nested compositions (like allOf containing oneOf)
+  const nestedComposition =
+    schemaWithComposition.oneOf ||
+    schemaWithComposition.anyOf ||
+    schemaWithComposition.allOf
+
+  return nestedComposition.map(processSchema)
 })
 
 /** Humanizes composition keyword name e.g. oneOf -> One of */
@@ -179,6 +155,26 @@ const compositionValue = computed(() => {
   const type = compositionType.value
   return compositionSchema.value?.[type]
 })
+
+/** Check if the composition schema should be rendered */
+const shouldRenderSchema = computed(() => {
+  const schema = compositionSchema.value
+  if (!schema) {
+    return false
+  }
+
+  return !!(
+    schema.properties ||
+    schema.type ||
+    schema.nullable ||
+    schema.const !== undefined ||
+    schema.enum ||
+    schema.allOf ||
+    schema.oneOf ||
+    schema.anyOf ||
+    schema.items
+  )
+})
 </script>
 
 <template>
@@ -208,13 +204,13 @@ const compositionValue = computed(() => {
         :options="listboxOptions"
         resize>
         <button
-          class="composition-selector bg-b-1.5 hover:bg-b-2 py-1.25 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 pr-3 text-left"
+          class="composition-selector bg-b-1.5 hover:bg-b-2 flex w-full cursor-pointer items-center gap-1 rounded-t-lg border border-b-0 px-2 py-1.25 pr-3 text-left"
           type="button">
           <span class="text-c-2">{{ humanizeType(composition) }}</span>
-          <span class="composition-selector-label text-c-1 relative">
+          <span class="composition-selector-label text-c-1">
             {{ selectedOption?.label || 'Schema' }}
           </span>
-          <ScalarIconCaretDown class="z-1" />
+          <ScalarIconCaretDown />
         </button>
       </ScalarListbox>
       <div class="composition-panel">
@@ -224,11 +220,7 @@ const compositionValue = computed(() => {
           <ScalarMarkdown :value="compositionSchema.description" />
         </div>
         <Schema
-          v-if="
-            compositionSchema?.properties ||
-            compositionSchema?.type ||
-            compositionSchema?.nullable
-          "
+          v-if="shouldRenderSchema"
           :compact="compact"
           :level="level + 1"
           :hideHeading="hideHeading"
@@ -240,6 +232,7 @@ const compositionValue = computed(() => {
               ? {
                   type: 'object',
                   properties: compositionSchema.properties,
+                  required: compositionSchema.required,
                 }
               : compositionSchema
           " />

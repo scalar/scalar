@@ -56,7 +56,7 @@ const navigateSection = (direction: 'next' | 'prev') => {
         {{ filter }}
       </SectionFilterButton>
       <div
-        class="context-bar-group-hover:text-c-1 absolute -right-[30px] top-1/2 flex -translate-y-1/2 items-center">
+        class="context-bar-group-hover:text-c-1 absolute top-1/2 -right-[30px] flex -translate-y-1/2 items-center">
         <span class="context-bar-group-hover:hidden mr-1.5">{{ model }}</span>
         <ScalarIcon
           icon="FilterList"

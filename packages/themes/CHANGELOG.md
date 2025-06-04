@@ -1,5 +1,21 @@
 # @scalar/themes
 
+## 0.13.1
+
+### Patch Changes
+
+- 85877aa: fix: handle none theme
+
+## 0.13.0
+
+### Minor Changes
+
+- cad6277: feat(themes)!: migrate to tailwind v4
+
+### Patch Changes
+
+- @scalar/types@0.2.1
+
 ## 0.12.1
 
 ### Patch Changes

@@ -278,7 +278,7 @@ describe('SchemaProperty sub-schema', () => {
     expect(enumValues).toHaveLength(3)
   })
 
-  it('renders compositions for array items', () => {
+  it('renders compositions for array items', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
         value: {
@@ -296,7 +296,10 @@ describe('SchemaProperty sub-schema', () => {
       },
     })
 
-    // Find 'foobar' only once
+    expect(wrapper.find('button[aria-expanded="false"]').exists()).toBe(true)
+
+    await wrapper.find('.schema-card-title').trigger('click')
+
     const foobar = wrapper.html().match(/foobar/g)
     expect(foobar).toHaveLength(1)
   })

@@ -2,13 +2,15 @@ import { WORKSPACE_SYMBOL } from '@/store/store'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import RequestSection from './RequestSection.vue'
+import { mockUseLayout } from '@/vitest.setup'
+import type { ClientLayout } from '@/hooks/useLayout'
 
 describe('RequestSection', () => {
-  it('has required classes', () => {
-    // TODO: Wow, there must be a better way to test this component, but we might need to refactor the component to get rid of the mocking.
+  const createWrapper = (props = {}, mockStore = {}, layout: ClientLayout = 'desktop') => {
+    // Mock the useLayout hook for this specific test
+    mockUseLayout.mockReturnValue({ layout })
 
-    // Mock the workspace store
-    const mockWorkspaceStore = {
+    const defaultMockStore = {
       requestMutators: {
         edit: () => {},
       },
@@ -17,47 +19,49 @@ describe('RequestSection', () => {
       },
       cookies: {},
       securitySchemes: {},
+      ...mockStore,
     }
 
-    const wrapper = mount(RequestSection, {
+    const defaultProps = {
+      collection: {},
+      environment: {},
+      envVariables: [],
+      example: {
+        body: {},
+        parameters: {
+          path: [],
+          cookies: [],
+          headers: [],
+          query: [],
+        },
+      },
+      invalidParams: new Set(),
+      operation: {
+        uid: '1',
+        method: 'post',
+        path: '/test',
+        summary: 'Test Operation',
+      },
+      selectedSecuritySchemeUids: [],
+      server: undefined,
+      workspace: {
+        cookies: [],
+      },
+      ...props,
+    }
+
+    return mount(RequestSection, {
       global: {
         provide: {
-          [WORKSPACE_SYMBOL]: mockWorkspaceStore,
+          [WORKSPACE_SYMBOL]: defaultMockStore,
         },
       },
-      props: {
-        // @ts-expect-error
-        collection: {},
-        // @ts-expect-error
-        environment: {},
-        envVariables: [],
-        example: {
-          // @ts-expect-error
-          body: {},
-          parameters: {
-            path: [],
-            cookies: [],
-            headers: [],
-            query: [],
-          },
-        },
-        // @ts-expect-error
-        invalidParams: new Set(),
-        operation: {
-          // @ts-expect-error
-          uid: '1',
-          method: 'post',
-          path: '/test',
-          summary: 'Test Operation',
-        },
-        selectedSecuritySchemeUids: [],
-        server: undefined,
-        // @ts-expect-error
-        workspace: {
-          cookies: [],
-        },
-      },
+      props: defaultProps as any,
     })
+  }
+
+  it('has required classes', () => {
+    const wrapper = createWrapper()
 
     const requiredClasses = [
       'request-section-content-auth',
@@ -71,6 +75,86 @@ describe('RequestSection', () => {
 
     requiredClasses.forEach((className) => {
       expect(wrapper.find(`.${className}`).exists()).toBe(true)
+    })
+  })
+
+  describe('Auth section visibility', () => {
+    it('shows Auth section when not in modal layout', () => {
+      const wrapper = createWrapper()
+
+      expect(wrapper.find('.request-section-content-auth').exists()).toBe(true)
+
+      const filterButtons = wrapper.findAll('button[role="tab"]')
+      const authButton = filterButtons.find((button) => button.text() === 'Auth')
+      expect(authButton?.exists()).toBe(true)
+    })
+
+    it('shows Auth section in modal layout when security schemes exist', () => {
+      const wrapper = createWrapper(
+        {},
+        {
+          securitySchemes: {
+            ApiKeyAuth: {
+              type: 'apiKey',
+              in: 'header',
+              name: 'X-API-Key',
+            },
+          },
+        },
+        'modal',
+      )
+
+      expect(wrapper.find('.request-section-content-auth').exists()).toBe(true)
+
+      const filterButtons = wrapper.findAll('button[role="tab"]')
+      const authButton = filterButtons.find((button) => button.text() === 'Auth')
+      expect(authButton?.exists()).toBe(true)
+    })
+
+    it('shows Auth section in modal layout when operation has security', () => {
+      const wrapper = createWrapper(
+        {
+          operation: {
+            uid: '1',
+            method: 'post',
+            path: '/test',
+            summary: 'Test Operation',
+            security: [{ ApiKeyAuth: [] }],
+          },
+        },
+        {
+          securitySchemes: {
+            ApiKeyAuth: {
+              type: 'apiKey',
+              in: 'header',
+              name: 'X-API-Key',
+            },
+          },
+        },
+        'modal',
+      )
+
+      expect(wrapper.find('.request-section-content-auth').exists()).toBe(true)
+
+      const filterButtons = wrapper.findAll('button[role="tab"]')
+      const authButton = filterButtons.find((button) => button.text() === 'Auth')
+      expect(authButton?.exists()).toBe(true)
+    })
+
+    it('hides Auth section in modal layout when no security schemes and no operation security', () => {
+      const wrapper = createWrapper(
+        {},
+        {
+          securitySchemes: {},
+        },
+        'modal',
+      )
+
+      expect(wrapper.find('.request-section-content-auth').exists()).toBe(false)
+
+      const filterButtons = wrapper.findAll('button[role="tab"]')
+      const authButton = filterButtons.find((button) => button.text() === 'Auth')
+      expect(authButton).toBeUndefined()
     })
   })
 })

@@ -243,7 +243,7 @@ export const getThemeStyles = (
 
   // Combined theme, base variables and default fonts if configured
   const styles = [
-    presets[(themeId as Exclude<ThemeId, 'none'>) || 'default'].theme ?? defaultTheme,
+    presets[(themeId as Exclude<ThemeId, 'none'>) || 'default']?.theme ?? defaultTheme,
     fonts ? defaultFonts : '',
   ].join('')
 

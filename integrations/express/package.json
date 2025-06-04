@@ -10,12 +10,12 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "integrations/express"
   },
-  "version": "0.8.1",
+  "version": "0.8.2",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
+    "build": "scalar-build-esbuild",
     "build:playground": "cd playground && pnpm build",
     "dev:doesnt-work": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",

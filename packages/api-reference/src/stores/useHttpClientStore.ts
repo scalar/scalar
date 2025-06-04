@@ -1,4 +1,5 @@
-import { objectMerge } from '@scalar/oas-utils/helpers'
+import { REFERENCE_LS_KEYS, safeLocalStorage } from '@scalar/helpers/object/local-storage'
+import { objectReplace } from '@scalar/helpers/object/object-replace'
 import { snippetz } from '@scalar/snippetz'
 import type { HiddenClients } from '@scalar/types/legacy'
 import type { Target, TargetId } from '@scalar/types/snippetz'
@@ -153,7 +154,7 @@ function isClientAvailable(httpClient?: HttpClientState): httpClient is HttpClie
 }
 
 function resetState() {
-  objectMerge(httpClient, getDefaultHttpClient())
+  objectReplace(httpClient, getDefaultHttpClient())
 }
 
 const httpClient = reactive<HttpClientState>(getDefaultHttpClient())
@@ -164,6 +165,9 @@ const setHttpClient = (newState: Partial<HttpClientState>) => {
     ...httpClient,
     ...newState,
   })
+
+  // Save to localStorage
+  safeLocalStorage().setItem(REFERENCE_LS_KEYS.SELECTED_CLIENT, JSON.stringify(httpClient))
 }
 
 /** Keep track of the available and the selected HTTP client(s) */
@@ -179,7 +183,7 @@ export const useHttpClientStore = () => {
       excludedClients.value = v
 
       // Reset the default state
-      objectMerge(httpClient, getDefaultHttpClient())
+      objectReplace(httpClient, getDefaultHttpClient())
     },
     availableTargets,
     getClientTitle,

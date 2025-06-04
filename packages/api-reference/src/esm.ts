@@ -1,9 +1,9 @@
-import { objectMerge } from '@scalar/oas-utils/helpers'
 import type { ApiReferenceConfiguration, SpecConfiguration } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 
 import ApiReference from './components/ApiReference.vue'
+import { objectReplace } from '@scalar/helpers/object/object-replace'
 
 /**
  * Initialize Scalar References
@@ -30,6 +30,9 @@ export function createScalarReferences(
   const head = createHead()
   app.use(head)
 
+  // Set an id prefix for useId so we don't have collisions with other Vue apps
+  app.config.idPrefix = 'scalar-refs'
+
   function mount(mountingEl = el) {
     if (!mountingEl) {
       console.warn('Invalid HTML element provided. Cannot mount Scalar References')
@@ -48,7 +51,7 @@ export function createScalarReferences(
       if (mergeConfigs) {
         Object.assign(configuration, newConfig)
       } else {
-        objectMerge(configuration, newConfig)
+        objectReplace(configuration, newConfig)
       }
     },
     updateSpec(spec: SpecConfiguration) {

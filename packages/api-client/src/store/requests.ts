@@ -7,7 +7,10 @@ import {
   createExampleFromRequest,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { LS_KEYS, iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
+import { schemaModel } from '@scalar/oas-utils/helpers'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
+import { iterateTitle } from '@scalar/helpers/string/iterate-title'
+
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 

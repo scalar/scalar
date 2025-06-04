@@ -8,7 +8,8 @@ import { ACTIVE_ENTITIES_SYMBOL, createActiveEntitiesStore } from '@/store/activ
 import { WORKSPACE_SYMBOL, type WorkspaceStore, createWorkspaceStore } from '@/store/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { LS_KEYS, prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { LS_KEYS } from '@scalar/helpers/object/local-storage'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { type ApiClientConfiguration, apiClientConfigurationSchema } from '@scalar/types/api-reference'
@@ -150,7 +151,7 @@ export const createApiClient = ({
     }
   }
   // Create the default store
-  else if (!isReadOnly || (!configuration.value.url && !configuration.value.content)) {
+  else if (!isReadOnly && !configuration.value.url && !configuration.value.content) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default' as Workspace['uid'],
@@ -190,6 +191,8 @@ export const createApiClient = ({
   app.provide(CLIENT_CONFIGURATION_SYMBOL, configuration)
   // Provide the plugin manager
   app.provide(PLUGIN_MANAGER_SYMBOL, pluginManager)
+  // Set an id prefix for useId so we don't have collisions with other Vue apps
+  app.config.idPrefix = 'scalar-client'
 
   const {
     collectionMutators,

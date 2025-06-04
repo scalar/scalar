@@ -1,6 +1,6 @@
+import { json2xml } from '@scalar/helpers/file/json2xml'
 import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
-import { json2xml } from '@/helpers/json2xml'
 import { normalizeMimeTypeObject } from '@/helpers/normalize-mime-type-object'
 import { prettyPrintJson } from '@/helpers/pretty-print-json'
 import { getExampleFromSchema } from './get-example-from-schema'

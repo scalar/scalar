@@ -5,7 +5,7 @@ import { useColorMode } from '@scalar/use-hooks/useColorMode'
 const { colorMode, setColorMode } = useColorMode()
 
 const buttonStyles = cva({
-  base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
+  base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border',
   variants: {
     active: {
       true: 'bg-primary text-c-1 hover:bg-inherit',

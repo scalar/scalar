@@ -1,5 +1,40 @@
 # @scalar/oas-utils
 
+## 0.4.2
+
+### Patch Changes
+
+- 7ca47ab: fix: add ssr safe alias for local storage
+
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [85877aa]
+  - @scalar/themes@0.13.1
+
+## 0.4.0
+
+### Minor Changes
+
+- 1e87feb: refactor!: use dereferenced documents as a content source
+
+### Patch Changes
+
+- cad6277: feat(themes)!: migrate to tailwind v4
+- Updated dependencies [cad6277]
+  - @scalar/themes@0.13.0
+  - @scalar/object-utils@1.2.1
+  - @scalar/openapi-types@0.3.1
+  - @scalar/types@0.2.1
+
+## 0.3.2
+
+### Patch Changes
+
+- 151ef09: fix(oas-utils): do not add content-type for multipart requests
+- 442c0a3: feat: added support for callbacks
+
 ## 0.3.1
 
 ### Patch Changes

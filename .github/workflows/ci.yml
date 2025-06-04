@@ -142,7 +142,7 @@ jobs:
       # You might ask why we need a GitHub Action to install Biome.
       # Well, it’s because GHA throws an error when it’s run through pnpm.# > Error: Cannot find module '@biomejs/cli-linux-x64/biome'
       - name: Setup Biome
-        uses: biomejs/setup-biome@f382a98e582959e6aaac8e5f8b17b31749018780
+        uses: biomejs/setup-biome@a9763ed3d2388f5746f9dc3e1a55df7f4609bc89
         with:
           version: 1.9.4
       - name: Lint code
@@ -267,7 +267,7 @@ jobs:
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: beefcake
-    timeout-minutes: 10
+    timeout-minutes: 15
     # Avoid running this job in parallel:
     # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
     # npm publish also shouldn’t happen in parallel.
@@ -329,7 +329,7 @@ jobs:
           method: 'GET'
 
   todesktop-build:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-4vcpu-ubuntu-2204
     timeout-minutes: 10
     needs: [build, test-packages]
@@ -548,7 +548,7 @@ jobs:
             **Preview Storybook**
 
             https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
-          comment_tag: 'netlify-preview'
+          comment_tag: 'storybook-preview'
 
   aspnetcore-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
