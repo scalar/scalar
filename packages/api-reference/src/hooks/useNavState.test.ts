@@ -1,9 +1,10 @@
 import { useConfig } from '@/hooks/useConfig'
 import type { Heading, Tag } from '@scalar/types/legacy'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, inject, ref } from 'vue'
+
+import { operationIdParams } from '@/features/traverse-schema'
 import { useNavState } from './useNavState'
 
 declare global {
@@ -122,7 +123,7 @@ describe('useNavState', () => {
         description: 'Test Description',
         operations: [],
       } satisfies Tag
-      expect(navState.getOperationId(operation, parentTag)).toBe('tag/test-tag/GET/test')
+      expect(navState.getOperationId(operationIdParams(operation), parentTag)).toBe('tag/test-tag/GET/test')
     })
 
     it('should generate webhook ID', () => {

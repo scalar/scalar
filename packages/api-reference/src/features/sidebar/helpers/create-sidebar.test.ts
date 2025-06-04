@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it, vi } from 'vitest'
-import { toRef, toValue } from 'vue'
+import { toRef, toValue, ref } from 'vue'
 import { createSidebar } from './create-sidebar'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useNavState } from '@/hooks/useNavState'
@@ -18,7 +18,7 @@ vi.mock('vue', () => {
   }
 })
 
-const config = apiReferenceConfigurationSchema.parse({})
+const config = ref(apiReferenceConfigurationSchema.parse({}))
 const mockOptions = {
   config,
   ...useNavState(toRef(config)),
@@ -27,7 +27,7 @@ const mockOptions = {
 describe('createSidebar', () => {
   describe('instance', () => {
     it('creates a new instance every time', () => {
-      const content = {
+      const content = ref({
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -40,7 +40,7 @@ describe('createSidebar', () => {
             },
           },
         },
-      } as OpenAPIV3_1.Document
+      } as OpenAPIV3_1.Document)
 
       const sidebar1 = createSidebar(content, mockOptions)
       const sidebar2 = createSidebar(content, mockOptions)
@@ -57,14 +57,14 @@ describe('createSidebar', () => {
     it("doesn't return any entries for an empty specification", () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
               version: '1.0.0',
             },
             paths: {},
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toStrictEqual({ entries: [], titles: new Map() })
@@ -75,7 +75,7 @@ describe('createSidebar', () => {
     it('has a tag', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -89,7 +89,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -109,7 +109,7 @@ describe('createSidebar', () => {
     it('has multiple tags', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -123,7 +123,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -151,7 +151,7 @@ describe('createSidebar', () => {
     it('shows operations without tags directly in the sidebar', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -172,7 +172,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -193,7 +193,7 @@ describe('createSidebar', () => {
     it('filters out both internal and ignored tags', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: { title: 'Test', version: '1.0.0' },
             tags: [
@@ -209,7 +209,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -218,9 +218,13 @@ describe('createSidebar', () => {
     })
 
     it('sorts tags alphabetically', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        tagsSorter: 'alpha' as const,
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -234,13 +238,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              tagsSorter: 'alpha',
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -266,9 +267,19 @@ describe('createSidebar', () => {
     })
 
     it('sorts tags with custom function', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        tagsSorter: (a: { name: string }) => {
+          if (a.name === 'Foobar') {
+            return -1
+          }
+
+          return 1
+        },
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -282,19 +293,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              tagsSorter: (a: { name: string }) => {
-                if (a.name === 'Foobar') {
-                  return -1
-                }
-
-                return 1
-              },
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -322,7 +324,7 @@ describe('createSidebar', () => {
     it('adds to existing tags', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -342,7 +344,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -362,7 +364,7 @@ describe('createSidebar', () => {
     it('creates a default tag', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -385,7 +387,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -415,7 +417,7 @@ describe('createSidebar', () => {
     it('groups tags by x-tagGroups', () => {
       expect(
         createSidebar(
-          {
+          ref({
             'openapi': '3.1.0',
             'info': {
               title: 'Example',
@@ -440,7 +442,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -465,7 +467,7 @@ describe('createSidebar', () => {
     it('groups tags by x-tagGroups and shows default webhook group', () => {
       expect(
         createSidebar(
-          {
+          ref({
             'openapi': '3.1.0',
             'info': {
               title: 'Example',
@@ -498,7 +500,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -526,7 +528,7 @@ describe('createSidebar', () => {
     it.todo('groups tags by x-tagGroups and adds the webhooks to the tag group', () => {
       expect(
         createSidebar(
-          {
+          ref({
             'openapi': '3.1.0',
             'info': {
               title: 'Example',
@@ -558,7 +560,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -591,7 +593,7 @@ describe('createSidebar', () => {
     it('groups tags by x-tagGroups and keeps the webhook default entry', () => {
       expect(
         createSidebar(
-          {
+          ref({
             'openapi': '3.1.0',
             'info': {
               title: 'Example',
@@ -623,7 +625,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -658,7 +660,7 @@ describe('createSidebar', () => {
     it('adds heading to the sidebar', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -666,7 +668,7 @@ describe('createSidebar', () => {
               description: '# Foobar',
             },
             paths: {},
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -684,7 +686,7 @@ describe('createSidebar', () => {
     it('adds two levels of headings to the sidebar', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -692,7 +694,7 @@ describe('createSidebar', () => {
               description: '# Foobar\n\n## Barfoo',
             },
             paths: {},
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -715,7 +717,7 @@ describe('createSidebar', () => {
     it("doesn't add third level of headings", () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -723,7 +725,7 @@ describe('createSidebar', () => {
               description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
             },
             paths: {},
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -748,7 +750,7 @@ describe('createSidebar', () => {
     it('has a single entry for a single operation', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -761,7 +763,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -772,7 +774,7 @@ describe('createSidebar', () => {
     it('has two entries for a single operation and a webhook', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -792,7 +794,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -813,7 +815,7 @@ describe('createSidebar', () => {
     it('hides operations with x-internal: true', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -831,7 +833,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -840,9 +842,13 @@ describe('createSidebar', () => {
     })
 
     it('sorts operations alphabetically with summary', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        operationsSorter: 'alpha' as const,
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -862,13 +868,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              operationsSorter: 'alpha',
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -889,9 +892,13 @@ describe('createSidebar', () => {
     })
 
     it('sorts operations alphabetically with paths', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        operationsSorter: 'alpha' as const,
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -909,13 +916,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              operationsSorter: 'alpha',
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -936,9 +940,13 @@ describe('createSidebar', () => {
     })
 
     it('sorts operations by method', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        operationsSorter: 'method' as const,
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -958,13 +966,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              operationsSorter: 'method',
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -985,9 +990,22 @@ describe('createSidebar', () => {
     })
 
     it('sorts operations with custom function', () => {
+      const configWithSorter = ref({
+        ...config.value,
+        operationsSorter: (a: { method: string; path: string }, b: { method: string; path: string }) => {
+          const methodOrder = ['get', 'post', 'delete']
+          const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
+
+          if (methodComparison !== 0) {
+            return methodComparison
+          }
+
+          return a.path.localeCompare(b.path)
+        },
+      })
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1019,22 +1037,10 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           {
             ...mockOptions,
-            config: {
-              ...mockOptions.config,
-              operationsSorter: (a, b) => {
-                const methodOrder = ['get', 'post', 'delete']
-                const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
-
-                if (methodComparison !== 0) {
-                  return methodComparison
-                }
-
-                return a.path.localeCompare(b.path)
-              },
-            },
+            config: configWithSorter,
           },
         ),
       ).toMatchObject({
@@ -1065,7 +1071,7 @@ describe('createSidebar', () => {
     it('shows webhooks', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1079,7 +1085,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -1090,7 +1096,7 @@ describe('createSidebar', () => {
     it('hides webhooks with x-internal: true', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1116,7 +1122,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -1127,7 +1133,7 @@ describe('createSidebar', () => {
     it('shows operations and webhooks', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1147,7 +1153,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -1160,7 +1166,7 @@ describe('createSidebar', () => {
     it('shows schemas', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1185,7 +1191,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({
@@ -1206,7 +1212,7 @@ describe('createSidebar', () => {
     it('hides schemas with x-internal: true', () => {
       expect(
         createSidebar(
-          {
+          ref({
             openapi: '3.1.0',
             info: {
               title: 'Hello World',
@@ -1241,7 +1247,7 @@ describe('createSidebar', () => {
                 },
               },
             },
-          },
+          } as OpenAPIV3_1.Document),
           mockOptions,
         ),
       ).toMatchObject({

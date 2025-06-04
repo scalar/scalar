@@ -1,8 +1,9 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { computed, inject, provide } from 'vue'
-import { createSidebar } from '@/features/sidebar/helpers/create-sidebar'
+import { computed, inject, provide, ref } from 'vue'
+import { createSidebar } from '../helpers/create-sidebar'
 import { SIDEBAR_SYMBOL, useSidebar } from './useSidebar'
+import { apiReferenceConfigurationSchema } from '@scalar/types'
 
 const EXAMPLE_DOCUMENT = {
   openapi: '3.1.1',
@@ -46,13 +47,27 @@ describe('useSidebar', () => {
       const mockSidebar = {
         items: computed(() => ({
           entries: [],
-          titles: {},
+          titles: new Map<string, string>(),
         })),
+        collapsedSidebarItems: {},
+        isSidebarOpen: ref(false),
+        scrollToOperation: vi.fn(),
+        setCollapsedSidebarItem: vi.fn(),
+        toggleCollapsedSidebarItem: vi.fn(),
       }
+
       vi.mocked(createSidebar).mockReturnValue(mockSidebar)
 
       // Act
-      const result = useSidebar(EXAMPLE_DOCUMENT, { tagSort: 'alpha', operationSort: 'alpha' })
+      const result = useSidebar(ref(EXAMPLE_DOCUMENT), {
+        config: ref(apiReferenceConfigurationSchema.parse({})),
+        getSectionId: () => 'section-1',
+        getHeadingId: (heading) => heading.value,
+        getOperationId: (operation) => operation.summary ?? '',
+        getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
+        getModelId: (model) => model?.name ?? '',
+        getTagId: (tag) => tag.name ?? '',
+      })
 
       // Assert
       expect(createSidebar).toHaveBeenCalledWith({
@@ -71,7 +86,7 @@ describe('useSidebar', () => {
       const mockSidebar = {
         items: computed(() => ({
           entries: [],
-          titles: {},
+          titles: new Map<string, string>(),
         })),
       }
       vi.mocked(inject).mockReturnValue(mockSidebar)
