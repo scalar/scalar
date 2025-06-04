@@ -1,8 +1,6 @@
 import { normalize } from '@/utils/normalize'
 import { isRemoteUrl, type Plugin, type ResolveResult } from '@/utils/bundle/bundle'
 
-const fs = typeof window === 'undefined' ? await import('node:fs/promises') : undefined
-
 /**
  * Reads and normalizes data from a local file
  * @param path - The file path to read from
@@ -18,6 +16,8 @@ const fs = typeof window === 'undefined' ? await import('node:fs/promises') : un
  * ```
  */
 export async function readFile(path: string): Promise<ResolveResult> {
+  const fs = typeof window === 'undefined' ? await import('node:fs/promises') : undefined
+
   if (fs === undefined) {
     throw 'Can not use readFiles plugin outside of a node environment'
   }
