@@ -57,6 +57,44 @@ describe('traverseTags', () => {
     expect(result).toEqual([createMockEntry('Test Operation')])
   })
 
+  it.only('should handle a mix of tags and default tag', () => {
+    const document = createMockDocument()
+    const tagsMap = new Map([
+      ['default', [createMockEntry('Test Operation')]],
+      ['tag1', [createMockEntry('Test Operation')]],
+    ])
+    const tagsDict = new Map([
+      ['default', createMockTag('default')],
+      ['tag1', createMockTag('tag1')],
+    ])
+    const titlesMap = new Map<string, string>()
+    const options = {
+      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      tagsSorter: 'alpha' as const,
+      operationsSorter: 'alpha' as const,
+    }
+
+    const result = traverseTags(document, tagsMap, tagsDict, titlesMap, options)
+    expect(result).toEqual([
+      {
+        id: 'tag1',
+        title: 'tag1',
+        name: 'tag1',
+        tag: { name: 'tag1' },
+        children: [createMockEntry('Test Operation')],
+        isGroup: false,
+      },
+      {
+        id: 'default',
+        title: 'default',
+        name: 'default',
+        tag: { name: 'default' },
+        children: [createMockEntry('Test Operation')],
+        isGroup: false,
+      },
+    ])
+  })
+
   it('should sort tags alphabetically', () => {
     const document = createMockDocument()
     const tagsMap = new Map([

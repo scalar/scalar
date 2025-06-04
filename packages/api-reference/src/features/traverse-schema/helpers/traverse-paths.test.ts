@@ -89,6 +89,36 @@ describe('traversePaths', () => {
     })
   })
 
+  it('should handle operations with tags', () => {
+    const spec = createBasicSpec()
+    spec.tags = [
+      {
+        name: 'Foobar',
+        description: 'Foobar',
+      },
+    ]
+    spec.paths = {
+      '/hello': {
+        get: {
+          summary: 'Get Hello World',
+          tags: ['Foobar'],
+        },
+        post: {
+          summary: 'Post Hello World',
+        },
+      },
+    }
+
+    const tagsDict = new Map<string, OpenAPIV3_1.TagObject>([['Foobar', { name: 'Foobar' }]])
+    const titlesMap = new Map<string, string>()
+
+    const result = traversePaths(spec, tagsDict, titlesMap, mockGetOperationId)
+    expect(result.get('Foobar')?.length).toBe(1)
+    expect(result.get('Foobar')?.[0].title).toBe('Get Hello World')
+    expect(result.get('default')?.length).toBe(1)
+    expect(result.get('default')?.[0].title).toBe('Post Hello World')
+  })
+
   it('should handle deprecated operations', () => {
     const spec = createBasicSpec()
     spec.paths = {

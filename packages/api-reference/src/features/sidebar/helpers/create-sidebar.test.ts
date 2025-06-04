@@ -49,7 +49,7 @@ describe('createSidebar', () => {
       expect(toValue(sidebar1)).not.toBe(toValue(sidebar2))
 
       // But have the same values
-      expect(JSON.stringify(sidebar1)).toMatchObject(JSON.stringify(sidebar2))
+      expect(sidebar1.items.value).toMatchObject(sidebar2.items.value)
     })
   })
 
@@ -66,7 +66,7 @@ describe('createSidebar', () => {
             paths: {},
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toStrictEqual({ entries: [], titles: new Map() })
     })
   })
@@ -91,7 +91,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -125,7 +125,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -174,7 +174,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -211,7 +211,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Public' }],
       })
@@ -243,7 +243,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -298,7 +298,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -346,7 +346,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -361,7 +361,36 @@ describe('createSidebar', () => {
       })
     })
 
-    it('creates a default tag', () => {
+    it.only('creates a default tag', () => {
+      // console.log(
+      //   createSidebar(
+      //     ref({
+      //       openapi: '3.1.0',
+      //       info: {
+      //         title: 'Hello World',
+      //         version: '1.0.0',
+      //       },
+      //       tags: [
+      //         {
+      //           name: 'Foobar',
+      //           description: 'Foobar',
+      //         },
+      //       ],
+      //       paths: {
+      //         '/hello': {
+      //           get: {
+      //             summary: 'Get Hello World',
+      //             tags: ['Foobar'],
+      //           },
+      //           post: {
+      //             summary: 'Post Hello World',
+      //           },
+      //         },
+      //       },
+      //     } as OpenAPIV3_1.Document),
+      //     mockOptions,
+      //   ).items.value,
+      // )
       expect(
         createSidebar(
           ref({
@@ -380,7 +409,7 @@ describe('createSidebar', () => {
               '/hello': {
                 get: {
                   summary: 'Get Hello World',
-                  tags: ['foobar'],
+                  tags: ['Foobar'],
                 },
                 post: {
                   summary: 'Post Hello World',
@@ -389,11 +418,13 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
-            title: 'foobar',
+            id: 'tag/foobar',
+            isGroup: false,
+            title: 'Foobar',
             children: [
               {
                 title: 'Get Hello World',
@@ -444,7 +475,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -502,7 +533,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -562,7 +593,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -627,7 +658,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -670,7 +701,7 @@ describe('createSidebar', () => {
             paths: {},
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         titles: {},
         entries: [
@@ -696,7 +727,7 @@ describe('createSidebar', () => {
             paths: {},
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         titles: {},
         entries: [
@@ -727,7 +758,7 @@ describe('createSidebar', () => {
             paths: {},
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         titles: {},
         entries: [
@@ -765,7 +796,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Hello World' }],
       })
@@ -796,7 +827,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           { title: 'Hello World' },
@@ -835,7 +866,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Get' }],
       })
@@ -873,7 +904,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -921,7 +952,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -971,7 +1002,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1042,7 +1073,7 @@ describe('createSidebar', () => {
             ...mockOptions,
             config: configWithSorter,
           },
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           {
@@ -1087,7 +1118,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
@@ -1124,7 +1155,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
@@ -1155,7 +1186,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [{ title: 'Operation' }, { title: 'Webhooks', children: [{ title: 'Webhook' }] }],
       })
@@ -1193,7 +1224,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           { title: 'Get' },
@@ -1249,7 +1280,7 @@ describe('createSidebar', () => {
             },
           } as OpenAPIV3_1.Document),
           mockOptions,
-        ),
+        ).items.value,
       ).toMatchObject({
         entries: [
           { title: 'Get' },

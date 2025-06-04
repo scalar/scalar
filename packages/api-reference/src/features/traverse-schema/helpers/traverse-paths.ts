@@ -24,8 +24,6 @@ const createOperationEntry = (
   }
 }
 
-const defaultTag = { name: 'default' }
-
 /**
  * Traverse the paths of the spec and build a map of tags and operations
  *
@@ -65,9 +63,8 @@ export const traversePaths = (
       }
       // Add to default tag
       else {
-        tagsMap
-          .get('default')
-          ?.push(createOperationEntry(operation, method, path, defaultTag, titlesMap, getOperationId))
+        const tag = getTag(tagsDict, 'default')
+        tagsMap.get('default')?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
       }
     })
   })
