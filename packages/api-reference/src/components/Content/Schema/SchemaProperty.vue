@@ -179,6 +179,42 @@ const displayPropertyHeading = (
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
+
+/**
+ * Checks if array items have complex structure
+ * like: objects, references, discriminators, or compositions
+ */
+const hasComplexArrayItems = computed(() => {
+  const value = optimizedValue.value
+  if (!value?.items || typeof value.items !== 'object') {
+    return false
+  }
+
+  const items = value.items
+  return (
+    ('type' in items && ['object'].includes(items.type)) ||
+    '$ref' in items ||
+    'discriminator' in items ||
+    'allOf' in items ||
+    'oneOf' in items ||
+    'anyOf' in items
+  )
+})
+
+const shouldRenderArrayItemComposition = (composition: string): boolean => {
+  const value = optimizedValue.value
+  if (
+    !value?.items ||
+    typeof value.items !== 'object' ||
+    !(composition in value.items)
+  ) {
+    return false
+  }
+
+  return !hasComplexArrayItems.value
+}
+
+const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
 </script>
 <template>
   <component
@@ -314,15 +350,7 @@ const handleDiscriminatorChange = (type: string) => {
     <template
       v-if="optimizedValue?.items && typeof optimizedValue.items === 'object'">
       <div
-        v-if="
-          ('type' in optimizedValue.items &&
-            ['object'].includes(optimizedValue?.items?.type)) ||
-          '$ref' in optimizedValue.items ||
-          'discriminator' in optimizedValue.items ||
-          'allOf' in optimizedValue.items ||
-          'oneOf' in optimizedValue.items ||
-          'anyOf' in optimizedValue.items
-        "
+        v-if="shouldRenderArrayOfObjects"
         class="children">
         <Schema
           :compact="compact"
@@ -350,7 +378,16 @@ const handleDiscriminatorChange = (type: string) => {
       v-for="composition in compositions"
       :key="composition">
       <!-- Property composition -->
-      <template v-if="optimizedValue?.[composition]">
+      <template
+        v-if="
+          optimizedValue?.[composition] &&
+          !(
+            optimizedValue?.items &&
+            typeof composition === 'string' &&
+            typeof optimizedValue.items === 'object' &&
+            composition in optimizedValue.items
+          )
+        ">
         <SchemaComposition
           :compact="compact"
           :composition="composition"
@@ -364,13 +401,8 @@ const handleDiscriminatorChange = (type: string) => {
 
       <!-- Array item composition -->
       <template
-        v-else-if="
-          optimizedValue?.items &&
-          typeof composition === 'string' &&
-          typeof optimizedValue.items === 'object' &&
-          !('type' in optimizedValue.items) &&
-          composition in optimizedValue.items
-        ">
+        v-else-if="shouldRenderArrayItemComposition(composition)"
+        :key="composition">
         <SchemaComposition
           :compact="compact"
           :composition="composition"
@@ -379,7 +411,7 @@ const handleDiscriminatorChange = (type: string) => {
           :name="name"
           :noncollapsible="noncollapsible"
           :schemas="schemas"
-          :value="optimizedValue.items" />
+          :value="optimizedValue?.items" />
       </template>
     </template>
     <SchemaDiscriminator
