@@ -33,7 +33,6 @@ import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
 const { request, transformedOperation } = defineProps<{
-  id?: string
   collection: Collection
   server: Server | undefined
   request: Request | undefined
@@ -53,7 +52,7 @@ const handleDiscriminatorChange = (type: string) => {
 </script>
 <template>
   <SectionAccordion
-    :id="id"
+    :id="transformedOperation.id"
     class="reference-endpoint"
     transparent>
     <template #title>
@@ -64,7 +63,7 @@ const handleDiscriminatorChange = (type: string) => {
             :method="transformedOperation.httpVerb"
             short />
           <Anchor
-            :id="id ?? ''"
+            :id="transformedOperation.id"
             class="endpoint-anchor">
             <h3 class="endpoint-label">
               <div class="endpoint-label-path">
@@ -120,7 +119,7 @@ const handleDiscriminatorChange = (type: string) => {
         withImages
         withAnchors
         transformType="heading"
-        :anchorPrefix="id" />
+        :anchorPrefix="transformedOperation.id" />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">

@@ -14,14 +14,12 @@ import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
-  id,
   layout = 'modern',
   transformedOperation,
   collection,
   server,
   schemas,
 } = defineProps<{
-  id?: string
   layout?: 'modern' | 'classic'
   transformedOperation: TransformedOperation
   collection: Collection
@@ -77,7 +75,6 @@ const operationServer = computed(() => {
   <template v-if="collection">
     <template v-if="layout === 'classic'">
       <ClassicLayout
-        :id="id"
         :collection="collection"
         :request="operation"
         :transformedOperation="transformedOperation"
@@ -87,7 +84,6 @@ const operationServer = computed(() => {
     </template>
     <template v-else>
       <ModernLayout
-        :id="id"
         :collection="collection"
         :request="operation"
         :transformedOperation="transformedOperation"

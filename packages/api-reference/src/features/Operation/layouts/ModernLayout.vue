@@ -36,7 +36,6 @@ import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
 const { request, transformedOperation } = defineProps<{
-  id?: string
   collection: Collection
   server: Server | undefined
   request: Request | undefined
@@ -58,7 +57,7 @@ const handleDiscriminatorChange = (type: string) => {
 
 <template>
   <Section
-    :id="id"
+    :id="transformedOperation.id"
     :aria-labelledby="labelId"
     :label="transformedOperation.name"
     tabindex="-1">
@@ -81,7 +80,7 @@ const handleDiscriminatorChange = (type: string) => {
             : ''
         ">
         <SectionHeader>
-          <Anchor :id="id ?? ''">
+          <Anchor :id="transformedOperation.id">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
@@ -98,7 +97,7 @@ const handleDiscriminatorChange = (type: string) => {
               withImages
               withAnchors
               transformType="heading"
-              :anchorPrefix="id" />
+              :anchorPrefix="transformedOperation.id" />
             <OperationParameters
               :parameters="transformedOperation.information.parameters"
               :requestBody="transformedOperation.information.requestBody"

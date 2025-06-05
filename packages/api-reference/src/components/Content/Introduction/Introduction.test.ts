@@ -18,12 +18,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: {
-          title: 'Hello World',
-          description: 'Example description',
-          version: '1.0.0',
-        },
+        document: example,
       },
     })
 
@@ -44,8 +39,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -68,8 +62,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -90,8 +83,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -111,8 +103,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -131,8 +122,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -152,8 +142,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -174,9 +163,7 @@ describe('Introduction', () => {
     const wrapper = mount(Introduction, {
       props: {
         // @ts-expect-error testing invalid type
-        parsedSpec: example,
-        // @ts-expect-error testing invalid type
-        info: example.info,
+        document: example,
       },
     })
 
@@ -197,9 +184,7 @@ describe('Introduction', () => {
     const wrapper = mount(Introduction, {
       props: {
         // @ts-expect-error testing invalid type
-        parsedSpec: example,
-        // @ts-expect-error testing invalid type
-        info: example.info,
+        document: example,
       },
     })
 

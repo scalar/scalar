@@ -65,7 +65,6 @@ const isLazy = (index: number) =>
         ">
         <ScalarErrorBoundary>
           <Operation
-            :id="operation.id"
             :collection="collection"
             :layout="layout"
             :schemas="schemas"
