@@ -28,14 +28,14 @@ public static class ScalarEndpointRouteBuilderExtensions
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
 
     /// <summary>
-    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>'/scalar'</c>.
+    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>"/scalar"</c>.
     /// </summary>
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
+    /// <returns>An <see cref="IEndpointConventionBuilder" /> that can be used to further customize the endpoint.</returns>
     /// <remarks>
-    /// Redirects to the trailing from <c>'/scalar'</c> to <c>'/scalar/'</c>.
-    /// This ensures that the relative paths in the generated HTML are correct.
+    /// Redirects to the trailing slash from <c>"/scalar"</c> to <c>"/scalar/"</c>.
     /// <br />
-    /// This method overload is compatible with the obsolete <see cref="ScalarOptions.EndpointPathPrefix" /> property.
+    /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints)
     {
@@ -50,15 +50,15 @@ public static class ScalarEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>'/scalar'</c> and custom options.
+    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>"/scalar"</c> and custom options.
     /// </summary>
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
     /// <param name="configureOptions">An action to configure <see cref="ScalarOptions" />.</param>
+    /// <returns>An <see cref="IEndpointConventionBuilder" /> that can be used to further customize the endpoint.</returns>
     /// <remarks>
-    /// Redirects to the trailing from <c>'/scalar'</c> to <c>'/scalar/'</c>.
-    /// This ensures that the relative paths in the generated HTML are correct.
+    /// Redirects to the trailing slash from <c>"/scalar"</c> to <c>"/scalar/"</c>.
     /// <br />
-    /// This method overload is compatible with the obsolete <see cref="ScalarOptions.EndpointPathPrefix" /> property.
+    /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
     {
@@ -74,13 +74,15 @@ public static class ScalarEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>'/scalar'</c> and custom options, providing access to the <see cref="HttpContext" />.
+    /// Maps the Scalar API reference endpoint with the default endpoint prefix <c>"/scalar"</c> and custom options, providing access to the <see cref="HttpContext" />.
     /// </summary>
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
     /// <param name="configureOptions">An optional action to configure <see cref="ScalarOptions" />, which includes access to the <see cref="HttpContext" />.</param>
+    /// <returns>An <see cref="IEndpointConventionBuilder" /> that can be used to further customize the endpoint.</returns>
     /// <remarks>
-    /// Redirects to the trailing from <c>'/scalar'</c> to <c>'/scalar/'</c>.
-    /// This ensures that the relative paths in the generated HTML are correct.
+    /// Redirects to the trailing slash from <c>"/scalar"</c> to <c>"/scalar/"</c>.
+    /// <br />
+    /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions, HttpContext>? configureOptions) =>
         endpoints.MapScalarApiReference(DefaultEndpointPrefix, configureOptions);
@@ -91,12 +93,14 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
     /// <param name="endpointPrefix">The prefix for the endpoint.</param>
     /// <param name="configureOptions">An action to configure <see cref="ScalarOptions" />.</param>
+    /// <returns>An <see cref="IEndpointConventionBuilder" /> that can be used to further customize the endpoint.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="endpointPrefix" /> contains the <c>'{documentName}'</c> placeholder.</exception>
     /// <remarks>
-    /// Redirects to the trailing slash if <paramref name="endpointPrefix" /> does not end with a slash (e.g., from <c>'/scalar'</c> to <c>'/scalar/'</c>).
-    /// This ensures that the relative paths in the generated HTML are correct.
+    /// Redirects to the trailing slash if <paramref name="endpointPrefix" /> does not end with a slash (e.g., from <c>"/scalar"</c> to <c>"/scalar/"</c>).
     /// <br />
-    /// It's also possible to provide a document name as a route parameter in the browser (e.g., <c>'/scalar/v1'</c>).
+    /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
+    /// <br />
+    /// The <paramref name="endpointPrefix" /> parameter allows you to customize the base path where the Scalar API reference will be served.
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions> configureOptions)
     {
@@ -109,12 +113,12 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <param name="endpoints">The <see cref="IEndpointRouteBuilder" /> to which the endpoint will be added.</param>
     /// <param name="endpointPrefix">The prefix for the endpoint.</param>
     /// <param name="configureOptions">An optional action to configure <see cref="ScalarOptions" />, which includes access to the <see cref="HttpContext" />.</param>
+    /// <returns>An <see cref="IEndpointConventionBuilder" /> that can be used to further customize the endpoint.</returns>
     /// <exception cref="ArgumentException">Thrown when the <paramref name="endpointPrefix" /> contains the <c>'{documentName}'</c> placeholder.</exception>
     /// <remarks>
-    /// Redirects to the trailing slash if <paramref name="endpointPrefix" /> does not end with a slash (e.g., from <c>'/scalar'</c> to <c>'/scalar/'</c>).
-    /// This ensures that the relative paths in the generated HTML are correct.
+    /// Redirects to the trailing slash if <paramref name="endpointPrefix" /> does not end with a slash (e.g., from <c>"/scalar"</c> to <c>"/scalar/"</c>).
     /// <br />
-    /// It's also possible to provide a document name as a route parameter in the browser (e.g., <c>'/scalar/v1'</c>).
+    /// You can also provide a document name as a route parameter in the browser (e.g., <c>"/scalar/v1"</c>).
     /// </remarks>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions, HttpContext>? configureOptions = null)
     {
@@ -187,7 +191,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     }
 
     /// <summary>
-    /// Maps the endpoint for serving static assets.
+    /// Maps the endpoints for serving static assets required by the Scalar API reference.
     /// </summary>
     private static void MapStaticAssetsEndpoint(this IEndpointRouteBuilder endpoints)
     {
