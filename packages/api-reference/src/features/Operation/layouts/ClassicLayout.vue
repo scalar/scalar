@@ -4,15 +4,14 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type {
   Collection,
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -84,6 +83,12 @@ const handleDiscriminatorChange = (type: string) => {
                   getOperationStabilityColor(transformedOperation.information)
                 ">
                 {{ getOperationStability(transformedOperation.information) }}
+              </Badge>
+
+              <Badge
+                v-if="transformedOperation.isWebhook"
+                class="font-code text-green flex w-fit items-center justify-center gap-1">
+                <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
             </h3>
           </Anchor>

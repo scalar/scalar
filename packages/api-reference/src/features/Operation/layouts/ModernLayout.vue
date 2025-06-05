@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type {
   Collection,
   Request,
@@ -66,6 +67,12 @@ const handleDiscriminatorChange = (type: string) => {
         v-if="getOperationStability(transformedOperation.information)"
         :class="getOperationStabilityColor(transformedOperation.information)">
         {{ getOperationStability(transformedOperation.information) }}
+      </Badge>
+
+      <Badge
+        v-if="transformedOperation.isWebhook"
+        class="font-code text-green flex w-fit items-center justify-center gap-1">
+        <ScalarIconWebhooksLogo weight="bold" />Webhook
       </Badge>
       <div
         :class="
