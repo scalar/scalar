@@ -14,6 +14,7 @@ import {
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
+import { setTimeout } from 'node:timers/promises'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -36,7 +37,9 @@ describe('bundle', () => {
       server.get('/', (_, reply) => {
         reply.send(external)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -96,7 +99,9 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -141,7 +146,9 @@ describe('bundle', () => {
           a: 'a',
         })
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -179,7 +186,8 @@ describe('bundle', () => {
         })
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -227,7 +235,9 @@ describe('bundle', () => {
           },
         })
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -270,7 +280,9 @@ describe('bundle', () => {
           },
         })
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -321,7 +333,9 @@ describe('bundle', () => {
           },
         })
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()], treeShake: false })
 
@@ -366,7 +380,9 @@ describe('bundle', () => {
           },
         })
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const output = await bundle(`${url}/base/openapi.json`, {
         plugins: [fetchUrls()],
@@ -419,7 +435,9 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -490,7 +508,9 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: [
@@ -535,7 +555,9 @@ describe('bundle', () => {
         fn()
         reply.send(chunk1)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -630,7 +652,9 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -700,7 +724,9 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -767,7 +793,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -820,7 +847,9 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -904,7 +933,9 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -996,7 +1027,9 @@ describe('bundle', () => {
       server.get('/external/document.json', (_, reply) => {
         reply.send(external)
       })
-      await server.listen({ port: PORT })
+
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         c: {
@@ -1092,7 +1125,8 @@ describe('bundle', () => {
         reply.send(chunk1)
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
@@ -1136,7 +1170,8 @@ describe('bundle', () => {
         reply.code(404).send()
       })
 
-      await server.listen({ port: PORT })
+      await server.listen({ port: PORT, host: '0.0.0.0' })
+      await setTimeout(100)
 
       const input = {
         a: {
