@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [8bc9f20]
+  - @scalar/helpers@0.0.3
+
 ## 0.4.7
 
 ### Patch Changes
