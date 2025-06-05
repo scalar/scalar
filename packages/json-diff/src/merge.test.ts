@@ -2,8 +2,7 @@ import { merge } from '@/merge'
 import { diff } from '@/diff'
 import { describe, expect, test } from 'vitest'
 
-const deepClone = <T extends object>(obj: T) =>
-  JSON.parse(JSON.stringify(obj)) as T
+const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
 
 type DeepPartial<T> = T extends object
   ? {
@@ -933,14 +932,7 @@ describe('mergeDiff', () => {
             {
               type: 'update',
               changes: doc2.paths['/users'].get.responses[200].description,
-              path: [
-                'paths',
-                '/users',
-                'get',
-                'responses',
-                '200',
-                'description',
-              ],
+              path: ['paths', '/users', 'get', 'responses', '200', 'description'],
             },
             {
               type: 'add',
@@ -966,14 +958,7 @@ describe('mergeDiff', () => {
             {
               type: 'update',
               changes: doc2.paths['/pets'].get.responses[200].description,
-              path: [
-                'paths',
-                '/pets',
-                'get',
-                'responses',
-                '200',
-                'description',
-              ],
+              path: ['paths', '/pets', 'get', 'responses', '200', 'description'],
             },
             {
               type: 'add',
@@ -998,14 +983,7 @@ describe('mergeDiff', () => {
             {
               type: 'update',
               changes: doc2.paths['/users'].get.responses[200].description,
-              path: [
-                'paths',
-                '/users',
-                'get',
-                'responses',
-                '200',
-                'description',
-              ],
+              path: ['paths', '/users', 'get', 'responses', '200', 'description'],
             },
             {
               type: 'add',
@@ -1031,14 +1009,7 @@ describe('mergeDiff', () => {
             {
               type: 'update',
               changes: doc2.paths['/pets'].get.responses[200].description,
-              path: [
-                'paths',
-                '/pets',
-                'get',
-                'responses',
-                '200',
-                'description',
-              ],
+              path: ['paths', '/pets', 'get', 'responses', '200', 'description'],
             },
             {
               type: 'add',

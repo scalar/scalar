@@ -17,9 +17,7 @@ describe('diff', () => {
         },
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['address'], changes: doc2.address, type: 'add' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['address'], changes: doc2.address, type: 'add' }])
     })
 
     test('should correctly get added properties in nested objects between two json objects', () => {
@@ -102,9 +100,7 @@ describe('diff', () => {
         age: 26,
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['age'], changes: doc2.age, type: 'update' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['age'], changes: doc2.age, type: 'update' }])
     })
 
     test('should correctly get updates on nested objects between two objects', () => {
@@ -150,9 +146,7 @@ describe('diff', () => {
         isStudent: true,
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['isStudent'], changes: doc2.isStudent, type: 'update' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['isStudent'], changes: doc2.isStudent, type: 'update' }])
     })
   })
 
@@ -171,9 +165,7 @@ describe('diff', () => {
         },
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['address'], changes: doc1.address, type: 'delete' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['address'], changes: doc1.address, type: 'delete' }])
     })
 
     test('should correctly get removed properties on deeply nested objects', () => {
@@ -220,9 +212,7 @@ describe('diff', () => {
         hobbies: ['reading', 'running', 'swimming'],
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' }])
     })
 
     test('detect adding elements on arrays of objects', () => {
@@ -240,9 +230,7 @@ describe('diff', () => {
         hobbies: [...doc1.hobbies, { name: 'swimming', duration: 3 }],
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '2'], changes: doc2.hobbies[2], type: 'add' }])
     })
 
     test('detects updates on objects on array of objects', () => {
@@ -289,9 +277,7 @@ describe('diff', () => {
         hobbies: [doc1.hobbies[0]],
       }
 
-      expect(diff(doc1, doc2)).toEqual([
-        { path: ['hobbies', '1'], changes: doc1.hobbies[1], type: 'delete' },
-      ])
+      expect(diff(doc1, doc2)).toEqual([{ path: ['hobbies', '1'], changes: doc1.hobbies[1], type: 'delete' }])
     })
   })
 
@@ -317,11 +303,7 @@ describe('diff', () => {
         ...doc1.address,
         city: 'Los Angeles',
       },
-      hobbies: [
-        doc1.hobbies[0],
-        { name: 'swimming', duration: 3 },
-        { name: 'running', duration: 2 },
-      ],
+      hobbies: [doc1.hobbies[0], { name: 'swimming', duration: 3 }, { name: 'running', duration: 2 }],
     }
 
     delete doc2.isStudent

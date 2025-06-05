@@ -1,8 +1,7 @@
 import { apply, InvalidChangesDetectedError } from '@/apply'
 import { describe, expect, test } from 'vitest'
 
-const deepClone = <T extends object>(obj: T) =>
-  JSON.parse(JSON.stringify(obj)) as T
+const deepClone = <T extends object>(obj: T) => JSON.parse(JSON.stringify(obj)) as T
 
 describe('apply', () => {
   describe('should apply `add` operations', () => {
@@ -15,9 +14,7 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const location = { city: 'New York', street: '5th Avenue' }
 
-      expect(
-        apply(doc, [{ path: ['location'], changes: location, type: 'add' }]),
-      ).toEqual({
+      expect(apply(doc, [{ path: ['location'], changes: location, type: 'add' }])).toEqual({
         ...docCopy,
         location,
       })
@@ -67,9 +64,10 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const updatedAge = 26
 
-      expect(
-        apply(doc, [{ path: ['age'], changes: updatedAge, type: 'update' }]),
-      ).toEqual({ ...docCopy, age: updatedAge })
+      expect(apply(doc, [{ path: ['age'], changes: updatedAge, type: 'update' }])).toEqual({
+        ...docCopy,
+        age: updatedAge,
+      })
     })
 
     test('should apply `update` operation correctly on nested objects', () => {
@@ -85,11 +83,7 @@ describe('apply', () => {
       const docCopy = deepClone(doc)
       const updatedCity = 'Boston'
 
-      expect(
-        apply(doc, [
-          { path: ['location', 'city'], changes: updatedCity, type: 'update' },
-        ]),
-      ).toEqual({
+      expect(apply(doc, [{ path: ['location', 'city'], changes: updatedCity, type: 'update' }])).toEqual({
         ...docCopy,
         location: { ...docCopy.location, city: updatedCity },
       })
@@ -111,11 +105,7 @@ describe('apply', () => {
         },
       }
 
-      expect(
-        apply(doc1, [
-          { path: ['location'], changes: doc1.location, type: 'delete' },
-        ]),
-      ).toEqual(doc2)
+      expect(apply(doc1, [{ path: ['location'], changes: doc1.location, type: 'delete' }])).toEqual(doc2)
     })
 
     test('should apply `delete` operation correctly on nested objects', () => {

@@ -86,7 +86,6 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
-  "dependencies": {},
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vite": "catalog:*",
