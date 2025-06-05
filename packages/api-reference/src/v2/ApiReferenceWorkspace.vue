@@ -16,7 +16,7 @@
  */
 import type { ApiReferenceConfiguration } from '@scalar/types'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
-import { createWorkspaceStore } from '@scalar/workspace-store/client'
+import { createWorkspaceStoreSync } from '@scalar/workspace-store/client'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
@@ -35,7 +35,7 @@ const root = shallowRef<HTMLElement | null>(null)
  * WARNING: Documents are loaded asynchronously.
  * We should expect to handle an empty document object until the documents are loaded.
  */
-const store = createWorkspaceStore()
+const store = createWorkspaceStoreSync()
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
 //   console.log('scalar-update-sidebar', event)

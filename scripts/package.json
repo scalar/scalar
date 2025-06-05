@@ -4,7 +4,7 @@
   "description": "Scalar OSS Scripts. Packaged for easy dependency installation.",
   "scripts": {
     "start": "vite-node src/cli.ts",
-    "test:unit": "vitest ."
+    "test": "vitest ."
   },
   "type": "module",
   "keywords": [],

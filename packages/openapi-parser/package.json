@@ -28,7 +28,6 @@
     "lint:fix": "eslint .  --fix",
     "test": "NODE_OPTIONS=--max_old_space_size=8192 vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
-    "test:unit": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
