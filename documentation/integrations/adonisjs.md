@@ -14,7 +14,7 @@ npm init adonisjs@latest my-awesome-app
 
 You’ll be asked a few questions. Pick whatever feels right to you. If you’re feeling overwhelmed, use the following options for the sake of this guide:
 
-```
+```plaintext
 Which starter kit would you like to use?
 ❯ API Starter Kit
 

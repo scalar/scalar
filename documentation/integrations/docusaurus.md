@@ -4,7 +4,7 @@ Docusaurus helps you to ship a beautiful documentation site in no time. For ever
 
 ## Create a new Docusaurus project (optional)
 
-If you’re starting ~~on a green field~~ fresh, let’s install Docusaurus first:
+If you’re starting fresh, let’s install Docusaurus first:
 
 > Note: It seems there are some issues with Docusaurus and npm. We’d recommend to [use pnpm](https://pnpm.io/installation), which is an awesome alternative to npm.
 
@@ -12,9 +12,9 @@ If you’re starting ~~on a green field~~ fresh, let’s install Docusaurus firs
 pnpm create create-docusaurus@latest my-awesome-website classic
 ```
 
-If the installer asks you which language you prefer, pick whatever feels right. If you don’t know what TypeScript is, just use JavaScript. Both options will work great:
+If the installer asks you which language you prefer, pick whatever feels right. If you don’t know what TypeScript is, use JavaScript. Both options will work great:
 
-```bash
+```plaintext
 ? Which language do you want to use?
 ❯   JavaScript
     TypeScript
@@ -31,7 +31,9 @@ Boom, that’s it. Open <http://localhost:3000/> to see the Docusaurus example d
 
 ## Render your OpenAPI reference with Scalar
 
-Okay, you’re ready to render your API reference with Docusaurus? Install our plugin:
+Okay, you’re ready to render your API reference with Docusaurus?
+
+First, install our plugin:
 
 > Note: It seems there are some issues with Docusaurus and npm. We’d recommend to [use pnpm](https://pnpm.io/installation), which is an awesome alternative to npm.
 >
@@ -43,7 +45,7 @@ Okay, you’re ready to render your API reference with Docusaurus? Install our p
 pnpm add @scalar/docusaurus
 ```
 
-Done! There’s just one more step required: Adding the plugin to your Docusaurus configuration.
+There’s just one more step required: Adding the plugin to your Docusaurus configuration.
 
 ```ts
 // docusaurus.config.js
@@ -68,7 +70,7 @@ const config = {
 }
 ```
 
-That’s it, you made it! This should render our Scalar Galaxy example on <http://localhost:3000/scalar>.
+That’s it, you made it! This should render our Scalar Galaxy example on <http://localhost:3000/scalar> if you used the OpenAPI url shown above, or your own APIs if you supplied your own.
 
 ## Alternative: Docusaurus Configuration in TypeScript
 

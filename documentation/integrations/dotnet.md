@@ -86,7 +86,7 @@ if (app.Environment.IsDevelopment())
 
 You’re all set! 🎉 Visit `/scalar` to see the API Reference for the default OpenAPI document (`v1`).
 
-If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)).  
+If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)).
 To view a specific document, go to `/scalar/{documentName}` (like `/scalar/v1` or `/scalar/v2-beta`).
 
 ## Configuration Options
@@ -150,20 +150,24 @@ Scalar allows you to configure multiple OpenAPI documents using the `AddDocument
 #### Add a Single Document
 
 ```csharp
-// Basic usage with default route pattern /openapi/{documentName}.json. Only document name is required
+// Basic usage with default route pattern /openapi/{documentName}.json.
+//Only document name is required
 app.MapScalarApiReference(options => options.AddDocument("v1"));
 
 // Optional title parameter
 app.MapScalarApiReference(options => options.AddDocument("v1", "Production API"));
 
 // Skip title but specify routePattern
-app.MapScalarApiReference(options => options.AddDocument("v1", routePattern: "api-specs/{documentName}/openapi.json"));
+app.MapScalarApiReference(options => options.AddDocument("v1",
+  routePattern: "api-specs/{documentName}/openapi.json"));
 
 // All parameters specified
-app.MapScalarApiReference(options => options.AddDocument("v1", "Production API", "api-specs/v1/openapi.json"));
+app.MapScalarApiReference(options => options.AddDocument("v1",
+  "Production API", "api-specs/v1/openapi.json"));
 
 // Using external URL without title
-app.MapScalarApiReference(options => options.AddDocument("external", routePattern: "https://api.example.com/v1/openapi.json"));
+app.MapScalarApiReference(options => options.AddDocument("external",
+  routePattern: "https://api.example.com/v1/openapi.json"));
 ```
 
 #### Add Multiple Documents
@@ -197,12 +201,16 @@ The `routePattern` parameter in `AddDocument` allows you to customize the URL pa
 
 Scalar allows you to pre-configure authentication details for your API, making it easier for developers to test your endpoints. Scalar supports API Key, OAuth2, and HTTP authentication schemes.
 
-> [!IMPORTANT]
-> **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
-> The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 
-> [!WARNING]
-> **Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
+:::scalar-callout{ type=warning }
+**Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
+
+The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
+:::
+
+:::scalar-callout{ type=danger }
+**Security Notice**: Pre-filled authentication details are visible in the browser and should **never** be used in production environments. Only use this feature for development and testing.
+:::
 
 
 #### API Key Authentication
@@ -256,7 +264,7 @@ app.MapScalarApiReference(options => options
         flow.ClientId = "your-client-id";
         flow.ClientSecret = "your-client-secret";
         flow.Pkce = Pkce.Sha256; // Enable PKCE
-        flow.SelectedScopes = ["read", "write"]; // Pre-select scopes 
+        flow.SelectedScopes = ["read", "write"]; // Pre-select scopes
     })
 );
 ```
@@ -283,8 +291,8 @@ app.MapScalarApiReference(options => options
     .AddPasswordFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
-        flow.Username = "demo-user"; // Pre-fill username 
-        flow.Password = "demo-password"; // Pre-fill password 
+        flow.Username = "demo-user"; // Pre-fill username
+        flow.Password = "demo-password"; // Pre-fill password
     })
 );
 ```
@@ -341,7 +349,7 @@ app.MapScalarApiReference(options => options
             AuthorizationUrl = "https://auth.example.com/oauth2/authorize",
             TokenUrl = "https://auth.example.com/oauth2/token"
         };
-        
+
         flows.ClientCredentials = new ClientCredentialsFlow
         {
             ClientId = "service-client-id",
@@ -360,7 +368,7 @@ For complete control over the OAuth2 configuration:
 ```csharp
 app.MapScalarApiReference(options => options
     .AddPreferredSecuritySchemes("OAuth2")
-    .AddOAuth2Authentication("OAuth2", scheme => 
+    .AddOAuth2Authentication("OAuth2", scheme =>
     {
         scheme.Flows = new ScalarFlows
         {
@@ -383,20 +391,20 @@ You can configure multiple security schemes at once:
 app.MapScalarApiReference(options => options
     // Set multiple preferred schemes
     .AddPreferredSecuritySchemes("OAuth2", "ApiKey", "BasicAuth")
-    
+
     // Configure OAuth2
     .AddAuthorizationCodeFlow("OAuth2", flow =>
     {
         flow.ClientId = "your-client-id";
         flow.SelectedScopes = ["read", "write"];
     })
-    
+
     // Configure API Key
     .AddApiKeyAuthentication("ApiKey", apiKey =>
     {
         apiKey.Value = "your-api-key";
     })
-    
+
     // Configure HTTP Basic
     .AddHttpAuthentication("BasicAuth", auth =>
     {
@@ -447,8 +455,9 @@ app.MapScalarApiReference(options => options
 
 With this configuration, users won't need to re-enter their authentication credentials after refreshing the page.
 
-> [!WARNING]
-> Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
+:::scalar-callout{ type=danger }
+Persisting authentication information in the browser's local storage may present security risks in certain environments. Use this feature with caution based on your security requirements.
+:::
 
 ### Custom HTTP Client
 
@@ -476,8 +485,9 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-> [!NOTE]
-> Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
+:::scalar-callout{ type=info }
+Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
+:::
 
 ### Custom JavaScript Configuration
 
@@ -501,17 +511,18 @@ Create a JavaScript module in your static files directory (e.g. `wwwroot/scalar/
 export default {
   // Custom slug generation for operations
   generateOperationSlug: (operation) => `custom-${operation.method.toLowerCase()}${operation.path}`,
-  
+
   // Hook into document selection events
   onDocumentSelect: () => console.log('Document changed'),
-  
+
   // Add any other custom configuration options supported by Scalar
   // Checkout https://github.com/scalar/scalar/blob/main/documentation/configuration.md)
 }
 ```
 
-> [!NOTE]
-> Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
+:::scalar-callout{ type=info }
+Make sure to expose the directory that contains your JavaScript module through static file middleware using `app.MapStaticAssets()` or `app.UseStaticFiles()`.
+:::
 
 ### Dependency Injection
 
@@ -523,8 +534,9 @@ builder.Services.Configure<ScalarOptions>(options => options.Title = "My API");
 builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 ```
 
-> [!NOTE]
-> Options set via the `MapScalarApiReference` method override those set through dependency injection.
+:::scalar-callout{ type=info }
+Options set via the `MapScalarApiReference` method override those set through dependency injection.
+:::
 
 ## Additional information
 
@@ -615,8 +627,9 @@ public IActionResult CreateProduct() { }
 
 Prevents an endpoint from appearing in the Scalar API Reference while keeping it in the OpenAPI document.
 
-> [!NOTE]
-> This only affects display in the Scalar API Reference. Endpoints remain in the OpenAPI document and are accessible via the API.
+:::scalar-callout{ type=info }
+This only affects display in the Scalar API Reference. Endpoints remain in the OpenAPI document and are accessible via the API.
+:::
 
 ```csharp
 // Extension method
@@ -658,7 +671,7 @@ app.MapGet("/internal/health", GetHealth)
     .ExcludeFromApiReference();
 
 // Using attributes with delegate handlers
-app.MapPost("/orders", [Stability(Stability.Experimental)] 
+app.MapPost("/orders", [Stability(Stability.Experimental)]
     (CreateOrderRequest request) => { /* Implementation */ });
 ```
 
@@ -675,7 +688,7 @@ public class ProductsController : ControllerBase
     [Stability(Stability.Stable)]
     [CodeSample("GET /api/products", ScalarTarget.Shell)]
     public IActionResult GetProducts() { }
-    
+
     [HttpPost]
     [Stability(Stability.Experimental)]
     [ExcludeFromApiReference]
@@ -698,13 +711,13 @@ This guide explains how to integrate Scalar API Reference into .NET Framework an
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddControllers();
-    
+
     // Using Swashbuckle
     services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
     });
-    
+
     // OR using NSwag
     services.AddOpenApiDocument();
 }
@@ -713,10 +726,10 @@ public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 {
     // Enable the endpoint for generating the OpenAPI documents
     app.UseSwagger();
-    
+
     // Required for serving static scalar files
     app.UseStaticFiles();
-    
+
     // Other middleware
     app.UseRouting();
     app.UseEndpoints(endpoints =>
@@ -751,7 +764,7 @@ Create `index.html` in the `wwwroot/scalar` directory with:
 </head>
 <body>
     <div id="app"></div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
     <script src="./scalar.config.js"></script>
 </body>

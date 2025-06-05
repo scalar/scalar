@@ -12,7 +12,7 @@ npx create-next-app@latest my-awesome-app
 
 You’ll get some questions, you can leave all the default answers – or pick what you prefer:
 
-```bash
+```plaintext
 ? Would you like to use TypeScript? › No
 ? Would you like to use ESLint? › No
 ? Would you like to use Tailwind CSS? … No
