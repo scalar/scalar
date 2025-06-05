@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.31.6
+
+### Patch Changes
+
+- c584dcd: Fix classic layout mobile header
+
 ## 1.31.5
 
 ### Patch Changes
