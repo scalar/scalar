@@ -82,9 +82,17 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
     }
 
     item.children.forEach((child) => {
-      const tagIndex = schema.tags?.findIndex(
-        (tag: OpenAPIV3_1.TagObject) => 'tag' in item && tag.name === item.tag.name,
-      )
+      let tagIndex = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => 'tag' in item && tag.name === item.tag.name)
+
+      // If we couldn't find the tag, we add it
+      if (tagIndex === -1 && 'tag' in item) {
+        schema.tags.push({
+          name: item.tag.name,
+          operations: [],
+        })
+        tagIndex = schema.tags.length - 1
+      }
+
       schema.tags[tagIndex].webhooks ||= []
       schema.tags[tagIndex].operations ||= []
 
