@@ -55,6 +55,7 @@ const operation = computed(() =>
 
       <!-- Responses -->
       <OperationResponses
+        :collapsableItems="false"
         :responses="callback.responses"
         :schemas="schemas" />
     </div>

@@ -53,8 +53,6 @@ const { operation, request, collection, server, method } = defineProps<{
   schemas?: Schemas
 }>()
 
-console.log({ method })
-
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes, requestExampleMutators } =
   useWorkspace()
@@ -206,7 +204,6 @@ const getExamplesFromOperation = computed(() => {
   const content = operation.requestBody?.content ?? {}
 
   // Return first content type examples by default
-  console.log({ content })
   const firstContentType = Object.values(content)[0]
   return firstContentType?.examples ?? {}
 })

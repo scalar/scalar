@@ -74,15 +74,13 @@ const operationServer = computed(() => {
 </script>
 
 <template>
-  <template v-if="collection && operation">
+  <template v-if="collection">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
         :collection="collection"
-        :operation="transformedOperation.information"
         :request="operation"
-        :path="transformedOperation.path"
-        :method="transformedOperation.httpVerb"
+        :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
@@ -91,10 +89,8 @@ const operationServer = computed(() => {
       <ModernLayout
         :id="id"
         :collection="collection"
-        :operation="transformedOperation.information"
         :request="operation"
-        :path="transformedOperation.path"
-        :method="transformedOperation.httpVerb"
+        :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />

@@ -5,9 +5,8 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed, useId } from 'vue'
+import { useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -35,14 +34,12 @@ import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation, request } = defineProps<{
+const { request, transformedOperation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
   request: Request | undefined
-  path: string
-  operation: OpenAPIV3_1.OperationObject
-  method: OpenAPIV3_1.HttpMethods
+  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
 
@@ -53,9 +50,6 @@ const emit = defineEmits<{
 const labelId = useId()
 const config = useConfig()
 
-/** The title of the operation (summary or path) */
-const title = computed(() => operation.summary || operation.path)
-
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
@@ -65,21 +59,26 @@ const handleDiscriminatorChange = (type: string) => {
   <Section
     :id="id"
     :aria-labelledby="labelId"
-    :label="title"
+    :label="transformedOperation.name"
     tabindex="-1">
     <SectionContent :loading="config.isLoading">
       <Badge
-        v-if="getOperationStability(operation)"
-        :class="getOperationStabilityColor(operation)">
-        {{ getOperationStability(operation) }}
+        v-if="getOperationStability(transformedOperation.information)"
+        :class="getOperationStabilityColor(transformedOperation.information)">
+        {{ getOperationStability(transformedOperation.information) }}
       </Badge>
-      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
+      <div
+        :class="
+          isOperationDeprecated(transformedOperation.information)
+            ? 'deprecated'
+            : ''
+        ">
         <SectionHeader>
           <Anchor :id="id ?? ''">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
-              {{ title }}
+              {{ transformedOperation.name }}
             </SectionHeaderTag>
           </Anchor>
         </SectionHeader>
@@ -88,26 +87,26 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="operation.description"
+              :value="transformedOperation.information.description"
               withImages
               withAnchors
               transformType="heading"
               :anchorPrefix="id" />
             <OperationParameters
-              :parameters="operation.parameters"
-              :requestBody="operation.requestBody"
+              :parameters="transformedOperation.information.parameters"
+              :requestBody="transformedOperation.information.requestBody"
               :schemas="schemas"
               @update:modelValue="handleDiscriminatorChange">
             </OperationParameters>
             <OperationResponses
-              :responses="operation.responses"
+              :responses="transformedOperation.information.responses"
               :schemas="schemas" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>
               <Callbacks
-                v-if="operation.callbacks"
-                :callbacks="operation.callbacks"
+                v-if="transformedOperation.information.callbacks"
+                :callbacks="transformedOperation.information.callbacks"
                 :collection="collection"
                 :schemas="schemas" />
             </ScalarErrorBoundary>
@@ -118,18 +117,18 @@ const handleDiscriminatorChange = (type: string) => {
             <ScalarErrorBoundary>
               <ExampleRequest
                 :request="request"
-                :method="method"
+                :method="transformedOperation.httpVerb"
                 :collection="collection"
                 fallback
-                :operation="operation"
+                :operation="transformedOperation.information"
                 :server="server"
                 :schemas="schemas"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="operation.deprecated"
-                    :path="path" />
+                    :deprecated="transformedOperation.information.deprecated"
+                    :path="transformedOperation.path" />
                 </template>
                 <template
                   #footer
@@ -140,7 +139,7 @@ const handleDiscriminatorChange = (type: string) => {
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses
-                :responses="operation.responses"
+                :responses="transformedOperation.information.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>

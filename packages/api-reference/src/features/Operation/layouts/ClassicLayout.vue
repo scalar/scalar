@@ -10,6 +10,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -32,22 +33,16 @@ import {
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation, request } = defineProps<{
+const { request, transformedOperation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
   request: Request | undefined
-  path: string
-  method: OpenAPIV3_1.HttpMethods
-  operation: OpenAPIV3_1.OperationObject
+  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
-
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
-
-/** The title of the operation (summary or path) */
-const title = computed(() => operation.summary || operation.path)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -67,7 +62,7 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
-            :method="operation.method"
+            :method="transformedOperation.httpVerb"
             short />
           <Anchor
             :id="id ?? ''"
@@ -75,16 +70,20 @@ const handleDiscriminatorChange = (type: string) => {
             <h3 class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="isOperationDeprecated(operation)"
-                  :path="path" />
+                  :deprecated="
+                    isOperationDeprecated(transformedOperation.information)
+                  "
+                  :path="transformedOperation.path" />
               </div>
               <div class="endpoint-label-name">
-                {{ title }}
+                {{ transformedOperation.name }}
               </div>
               <Badge
-                v-if="getOperationStability(operation)"
-                :class="getOperationStabilityColor(operation)">
-                {{ getOperationStability(operation) }}
+                v-if="getOperationStability(transformedOperation.information)"
+                :class="
+                  getOperationStabilityColor(transformedOperation.information)
+                ">
+                {{ getOperationStability(transformedOperation.information) }}
               </Badge>
             </h3>
           </Anchor>
@@ -106,13 +105,13 @@ const handleDiscriminatorChange = (type: string) => {
         label="Copy endpoint URL"
         size="xs"
         variant="ghost"
-        @click.stop="copyToClipboard(operation.path)" />
+        @click.stop="copyToClipboard(transformedOperation.path)" />
     </template>
     <template
-      v-if="operation?.description"
+      v-if="transformedOperation.information?.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
+        :value="transformedOperation.information.description"
         withImages
         withAnchors
         transformType="heading"
@@ -122,23 +121,24 @@ const handleDiscriminatorChange = (type: string) => {
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :operation="operation"
+            :operation="transformedOperation.information"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="operation.responses"
+            :responses="transformedOperation.information.responses"
             :schemas="schemas" />
         </div>
       </div>
-      <ExampleResponses :responses="operation.responses" />
+      <ExampleResponses
+        :responses="transformedOperation.information.responses" />
       <ExampleRequest
         :request="request"
-        :method="method"
+        :method="transformedOperation.httpVerb"
         :collection="collection"
-        :operation="operation"
+        :operation="transformedOperation.information"
         :server="server"
         @update:modelValue="handleDiscriminatorChange" />
     </div>
