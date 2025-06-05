@@ -79,20 +79,20 @@ const operationServer = computed(() => {
       <ClassicLayout
         :id="id"
         :collection="collection"
-        :operation="operation"
+        :operation="transformedOperation.information"
+        :request="operation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
     <template v-else>
       <ModernLayout
         :id="id"
         :collection="collection"
-        :operation="operation"
+        :operation="transformedOperation.information"
+        :request="operation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
   </template>

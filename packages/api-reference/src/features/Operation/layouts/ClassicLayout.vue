@@ -6,11 +6,10 @@ import {
 } from '@scalar/components'
 import type {
   Collection,
-  Operation,
+  Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
@@ -21,6 +20,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -32,14 +32,13 @@ import {
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation } = defineProps<{
+const { operation, request } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
-  operation: Operation
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  request: Request | undefined
+  operation: OpenAPIV3_1.OperationObject
+  schemas?: Schemas
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -92,8 +91,8 @@ const handleDiscriminatorChange = (type: string) => {
     </template>
     <template #actions="{ active }">
       <TestRequestButton
-        v-if="active"
-        :operation="operation" />
+        v-if="active && request"
+        :operation="request" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-6"
@@ -128,16 +127,16 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :responses="transformedOperation.information?.responses"
+            :responses="operation.responses"
             :schemas="schemas" />
         </div>
       </div>
       <ExampleResponses :responses="operation.responses" />
       <ExampleRequest
+        :request="request"
         :collection="collection"
         :operation="operation"
         :server="server"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </div>
   </SectionAccordion>

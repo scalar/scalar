@@ -41,8 +41,6 @@ const { operation, request } = defineProps<{
   server: Server | undefined
   request: Request | undefined
   operation: OpenAPIV3_1.OperationObject
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
 
@@ -117,12 +115,11 @@ const handleDiscriminatorChange = (type: string) => {
           <div class="examples">
             <ScalarErrorBoundary>
               <ExampleRequest
-                v-if="request"
+                :request="request"
                 :collection="collection"
                 fallback
-                :operation="request"
+                :operation="operation"
                 :server="server"
-                :transformedOperation="transformedOperation"
                 :schemas="schemas"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>

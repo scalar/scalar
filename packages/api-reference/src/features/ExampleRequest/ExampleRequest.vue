@@ -4,10 +4,12 @@ import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
-import type {
-  Collection,
-  Request,
-  Server,
+import {
+  createExampleFromRequest,
+  requestSchema,
+  type Collection,
+  type Request,
+  type Server,
 } from '@scalar/oas-utils/entities/spec'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
@@ -125,21 +127,49 @@ const hasMultipleExamples = computed(() => {
   return Object.keys(examples).length > 1
 })
 
-/** When we have a request object (operations) */
-const generateSnippetFromRequest = (
-  request: Request,
-  targetKey: TargetId,
-  clientKey: ClientId<TargetId>,
-) => {
+const generateSnippet = () => {
+  // Use the selected custom example
+  if (localHttpClient.value.targetKey === 'customExamples') {
+    return (
+      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
+    )
+  }
+
+  const clientKey = httpClient.clientKey as ClientId<TargetId>
+  const targetKey = httpClient.targetKey
+
+  // Create a hacky request if we are a webhook
+  const _request =
+    request ||
+    requestSchema.parse({
+      uid: operation.operationId || 'temp-request',
+      method: operation.method,
+      path: operation.path,
+      parameters: operation.parameters || [],
+      requestBody: operation.requestBody,
+      examples: [],
+      type: 'request',
+      selectedSecuritySchemeUids: [],
+      selectedServerUid: '',
+      servers: [],
+      summary: operation.summary || 'Example Request',
+    })
+
   // TODO: Currently we just grab the first one but we should sync up the store with the example picker
-  const example = requestExamples[request.examples[0]]
+  let example = requestExamples[request?.examples?.[0] ?? '']
+
+  // This is for webhooks, super hacky code then we should redo this whole component with the new store
   if (!example) {
-    return ''
+    const examples = getExamplesFromOperation.value
+    const firstExampleKey = Object.keys(examples)[0]
+
+    // Create the example from the request
+    example = createExampleFromRequest(_request, firstExampleKey)
   }
 
   // Ensure the selected security is in the security requirements
   const schemes = filterSecurityRequirements(
-    request.security || collection.security,
+    operation.security || collection.security,
     collection.selectedSecuritySchemeUids,
     securitySchemes,
   )
@@ -154,32 +184,6 @@ const generateSnippetFromRequest = (
     return error.message ?? ''
   }
   return payload
-}
-
-/** Webhooks do not currently have a request object so we gotta go old school */
-const generateSnippetFromWebhook = () => {
-  const clientKey = httpClient.clientKey as ClientId<TargetId>
-  const targetKey = httpClient.targetKey
-}
-
-const generateSnippet = () => {
-  // Use the selected custom example
-  if (localHttpClient.value.targetKey === 'customExamples') {
-    return (
-      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
-    )
-  }
-
-  const clientKey = httpClient.clientKey as ClientId<TargetId>
-  const targetKey = httpClient.targetKey
-
-  // For operations we have a request object
-  if (request) {
-    return generateSnippetFromRequest(request, targetKey, clientKey)
-  }
-
-  // For webhooks we don't
-  return generateSnippetFromWebhook()
 }
 
 const generatedCode = computed<string>(() => {
@@ -384,7 +388,7 @@ const handleDiscriminatorChange = (type: string) => {
       }
 
       // Also update the transformed operation's examples
-      if (operation?.requestBody.content?.['application/json']?.examples) {
+      if (operation.requestBody?.content?.['application/json']?.examples) {
         const examples =
           operation.requestBody.content['application/json'].examples
         Object.keys(examples).forEach((key) => {
