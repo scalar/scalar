@@ -1,5 +1,21 @@
 # @scalar/components
 
+## 0.14.6
+
+### Patch Changes
+
+- ba84a3c: feat(components): add ScalarFormError
+- Updated dependencies [00fc827]
+- Updated dependencies [ba84a3c]
+- Updated dependencies [8165b3b]
+- Updated dependencies [358eb63]
+  - @scalar/code-highlight@0.1.2
+  - @scalar/themes@0.13.2
+  - @scalar/oas-utils@0.4.3
+  - @scalar/icons@0.4.2
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.5
 
 ### Patch Changes

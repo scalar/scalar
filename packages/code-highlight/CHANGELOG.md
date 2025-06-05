@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.1.2
+
+### Patch Changes
+
+- 00fc827: feat: updates markdown overall style
+- 358eb63: fix(api-reference): fix markdown styles pt2
+
 ## 0.1.1
 
 ### Patch Changes

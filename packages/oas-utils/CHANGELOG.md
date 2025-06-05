@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.4.3
+
+### Patch Changes
+
+- 8165b3b: feat(helpers): added new helpers package
+- Updated dependencies [ba84a3c]
+- Updated dependencies [8165b3b]
+- Updated dependencies [358eb63]
+- Updated dependencies [05c22c7]
+  - @scalar/themes@0.13.2
+  - @scalar/helpers@0.0.2
+  - @scalar/openapi-types@0.3.2
+  - @scalar/object-utils@1.2.1
+  - @scalar/types@0.2.2
+
 ## 0.4.2
 
 ### Patch Changes

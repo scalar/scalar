@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.2
+
+### Patch Changes
+
+- 05c22c7: chore: removed enum from http methods
+
 ## 0.3.1
 
 ### Patch Changes
