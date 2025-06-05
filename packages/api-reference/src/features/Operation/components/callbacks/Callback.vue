@@ -49,7 +49,8 @@ const operation = computed(() =>
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
-        :operation="operation"
+        :requestBody="callback.requestBody"
+        :parameters="callback.parameters"
         :schemas="schemas" />
 
       <!-- Responses -->

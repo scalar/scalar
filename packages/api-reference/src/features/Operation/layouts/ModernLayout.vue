@@ -40,7 +40,9 @@ const { operation, request } = defineProps<{
   collection: Collection
   server: Server | undefined
   request: Request | undefined
+  path: string
   operation: OpenAPIV3_1.OperationObject
+  method: OpenAPIV3_1.HttpMethods
   schemas?: Schemas
 }>()
 
@@ -116,6 +118,7 @@ const handleDiscriminatorChange = (type: string) => {
             <ScalarErrorBoundary>
               <ExampleRequest
                 :request="request"
+                :method="method"
                 :collection="collection"
                 fallback
                 :operation="operation"
@@ -126,12 +129,12 @@ const handleDiscriminatorChange = (type: string) => {
                   <OperationPath
                     class="example-path"
                     :deprecated="operation.deprecated"
-                    :path="operation.path" />
+                    :path="path" />
                 </template>
                 <template
                   #footer
                   v-if="request">
-                  <TestRequestButton :request="request" />
+                  <TestRequestButton :operation="request" />
                 </template>
               </ExampleRequest>
             </ScalarErrorBoundary>

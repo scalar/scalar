@@ -42,15 +42,18 @@ import {
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { operation, request, collection, server } = defineProps<{
+const { operation, request, collection, server, method } = defineProps<{
   server: Server | undefined
   collection: Collection
   operation: OpenAPIV3_1.OperationObject
   request: Request | undefined
+  method: OpenAPIV3_1.HttpMethods
   /** Show a simplified card if no example are available */
   fallback?: boolean
   schemas?: Schemas
 }>()
+
+console.log({ method })
 
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes, requestExampleMutators } =
@@ -143,7 +146,7 @@ const generateSnippet = () => {
     request ||
     requestSchema.parse({
       uid: operation.operationId || 'temp-request',
-      method: operation.method,
+      method: method,
       path: operation.path,
       parameters: operation.parameters || [],
       requestBody: operation.requestBody,
@@ -203,6 +206,7 @@ const getExamplesFromOperation = computed(() => {
   const content = operation.requestBody?.content ?? {}
 
   // Return first content type examples by default
+  console.log({ content })
   const firstContentType = Object.values(content)[0]
   return firstContentType?.examples ?? {}
 })
@@ -325,7 +329,7 @@ function handleExampleUpdate(value: string) {
   selectedExampleKey.value = value
   operationId.value = operation.operationId
 
-  const example = requestExamples[operation.examples[0]]
+  const example = requestExamples[request?.examples?.[0] ?? '']
   const selectedExample = getExamplesFromOperation.value[value]
 
   // Update the example body
@@ -427,7 +431,7 @@ watch(discriminator, (newValue) => {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.method" />
+          :method="method" />
         <slot name="header" />
       </div>
       <template #actions>
@@ -494,7 +498,7 @@ watch(discriminator, (newValue) => {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.method" />
+          :method="method" />
         <slot name="header" />
       </div>
       <slot name="footer" />

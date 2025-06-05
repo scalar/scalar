@@ -37,6 +37,8 @@ const { operation, request } = defineProps<{
   collection: Collection
   server: Server | undefined
   request: Request | undefined
+  path: string
+  method: OpenAPIV3_1.HttpMethods
   operation: OpenAPIV3_1.OperationObject
   schemas?: Schemas
 }>()
@@ -74,7 +76,7 @@ const handleDiscriminatorChange = (type: string) => {
               <div class="endpoint-label-path">
                 <OperationPath
                   :deprecated="isOperationDeprecated(operation)"
-                  :path="operation.path" />
+                  :path="path" />
               </div>
               <div class="endpoint-label-name">
                 {{ title }}
@@ -134,6 +136,7 @@ const handleDiscriminatorChange = (type: string) => {
       <ExampleResponses :responses="operation.responses" />
       <ExampleRequest
         :request="request"
+        :method="method"
         :collection="collection"
         :operation="operation"
         :server="server"

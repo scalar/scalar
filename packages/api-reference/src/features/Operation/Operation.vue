@@ -81,6 +81,8 @@ const operationServer = computed(() => {
         :collection="collection"
         :operation="transformedOperation.information"
         :request="operation"
+        :path="transformedOperation.path"
+        :method="transformedOperation.httpVerb"
         :schemas="schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
@@ -91,6 +93,8 @@ const operationServer = computed(() => {
         :collection="collection"
         :operation="transformedOperation.information"
         :request="operation"
+        :path="transformedOperation.path"
+        :method="transformedOperation.httpVerb"
         :schemas="schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
