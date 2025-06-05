@@ -27,7 +27,7 @@ export default {}
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 
-import { ScalarIcon } from '../ScalarIcon'
+import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 
@@ -66,14 +66,10 @@ const { cx } = useBindCx()
         v-if="icon || $slots.icon"
         class="size-3.5">
         <slot name="icon">
-          <ScalarIcon
-            v-if="typeof icon === 'string'"
-            :icon="icon" />
-          <component
-            v-else
-            :is="icon"
-            weight="bold"
-            class="size-full" />
+          <ScalarIconLegacyAdapter
+            v-if="icon"
+            :icon="icon"
+            weight="bold" />
         </slot>
       </div>
       <slot />

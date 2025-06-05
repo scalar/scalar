@@ -1,6 +1,9 @@
+> [!IMPORTANT]  
+> Use `@scalar/icons` instead of this component for all new work
+
 # Adding Icons to ScalarIcons
 
-This component holds the collection of ScalarIcons.
+This component holds the legacy collection of ScalarIcons.
 
 When adding a new icon, the icon...
 
