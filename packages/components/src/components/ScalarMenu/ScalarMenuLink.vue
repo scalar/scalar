@@ -7,7 +7,7 @@ import { type Icon, ScalarIcon } from '../ScalarIcon'
 
 const { is = DropdownMenu.Item } = defineProps<{
   is?: string | Component
-  icon?: Icon
+  icon?: Icon | Component
   strong?: boolean
 }>()
 </script>
@@ -15,12 +15,20 @@ const { is = DropdownMenu.Item } = defineProps<{
   <ScalarDropdownButton
     :is="is"
     as="a">
-    <ScalarIcon
-      v-if="icon"
-      :class="strong ? 'text-c-1' : 'text-c-2'"
-      :icon="icon"
-      size="xs"
-      :thickness="strong ? '2.5' : '2'" />
+    <template v-if="icon">
+      <ScalarIcon
+        v-if="typeof icon === 'string'"
+        :class="strong ? 'text-c-1' : 'text-c-2'"
+        :icon="icon"
+        size="xs"
+        :thickness="strong ? '2.5' : '2'" />
+      <component
+        v-else
+        :is="icon"
+        :class="strong ? 'text-c-1' : 'text-c-2'"
+        :weight="strong ? 'bold' : 'regular'"
+        class="size-3.5 -mx-0.25" />
+    </template>
     <div
       v-else
       class="size-3" />

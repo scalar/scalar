@@ -12,18 +12,15 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { ScalarIconWarningCircle } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-
-import { ScalarIcon } from '../ScalarIcon'
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
   <div v-bind="cx('flex items-center gap-1 text-c-danger')">
-    <ScalarIcon
-      icon="Error"
-      size="sm" />
+    <ScalarIconWarningCircle class="size-3.5" />
     <slot />
   </div>
 </template>

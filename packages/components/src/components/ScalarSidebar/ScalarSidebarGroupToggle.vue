@@ -10,6 +10,7 @@
 export default {}
 </script>
 <script setup lang="ts">
+import { ScalarIconCaretRight } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
@@ -19,14 +20,14 @@ import { type Icon, ScalarIcon } from '../ScalarIcon'
 const {
   is = 'div',
   open = false,
-  icon = 'ChevronRight',
+  icon = ScalarIconCaretRight,
 } = defineProps<{
   /** Override the element tag */
   is?: Component | string
   /** Whether or not the toggle is open */
   open?: boolean
   /** Overrides the icon */
-  icon?: Icon
+  icon?: Icon | Component
 }>()
 
 defineSlots<{
@@ -37,7 +38,7 @@ defineSlots<{
 }>()
 
 const variants = cva({
-  base: 'size-4 -m-px transition-transform duration-100',
+  base: 'size-3.5 -m-px transition-transform duration-100',
   variants: { open: { true: 'rotate-90' } },
   defaultVariants: { open: false },
 })
@@ -50,7 +51,14 @@ const { cx } = useBindCx()
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ open }))">
     <slot :open="open">
-      <ScalarIcon :icon="icon" />
+      <ScalarIcon
+        v-if="typeof icon === 'string'"
+        :icon="icon" />
+      <component
+        v-else
+        :is="icon"
+        weight="bold"
+        class="size-full" />
     </slot>
     <span class="sr-only">
       <slot

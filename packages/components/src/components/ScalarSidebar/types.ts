@@ -8,7 +8,7 @@ export type ScalarSidebarItemProps = {
   /** Overrides the rendered element */
   is?: Component | string
   /** Sets the icon for the item */
-  icon?: Icon
+  icon?: Icon | Component
   /** Wether or not the item is selected */
   selected?: boolean
   disabled?: boolean

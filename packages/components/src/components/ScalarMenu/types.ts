@@ -16,7 +16,7 @@ export type ScalarMenuTeamOption = ScalarListboxOption & {
 export type ScalarMenuButtonSlots = {
   /**
    * Overrides the logo in the menu button
-   * @default <ScalarIcon icon="Logo" />
+   * @default The Scalar logo
    * @example <img class="h-full aspect-square bg-b-3 rounded" :src="..." />
    */
   logo?: () => any

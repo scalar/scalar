@@ -1,4 +1,11 @@
 <script setup lang="ts">
+import {
+  ScalarIconBookOpenText,
+  ScalarIconEnvelope,
+  ScalarIconEnvelopeSimple,
+  ScalarIconFileText,
+} from '@scalar/icons'
+
 import ScalarMenuLink from './ScalarMenuLink.vue'
 import ScalarMenuSection from './ScalarMenuSection.vue'
 </script>
@@ -7,19 +14,19 @@ import ScalarMenuSection from './ScalarMenuSection.vue'
     <template #title>Resources</template>
     <ScalarMenuLink
       href="mailto:support@scalar.com"
-      icon="Email"
+      :icon="ScalarIconEnvelopeSimple"
       target="_blank">
       Sales & Support
     </ScalarMenuLink>
     <ScalarMenuLink
       href="https://scalar.com/terms-and-conditions"
-      icon="DocsPage"
+      :icon="ScalarIconFileText"
       target="_blank">
       Terms & Conditions
     </ScalarMenuLink>
     <ScalarMenuLink
       href="https://scalar.com/privacy-policy"
-      icon="Changelog"
+      :icon="ScalarIconBookOpenText"
       target="_blank">
       Privacy Policy
     </ScalarMenuLink>
