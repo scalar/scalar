@@ -85,18 +85,11 @@ watch(
           (tag) => getTagId(tag) === sectionId,
         ) ?? 0
 
-      // Grab specific operation to load
-      const operationMatches = hash.value.match(/tag\/([^/]+)\/([^/]+)\/(.+)/)
-      if (operationMatches?.length === 4) {
-        const matchedVerb = operationMatches[2]
-        const matchedPath = '/' + operationMatches[3]
+      // TODO: hash prefix, path routing etc
+      operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
+        ({ id }) => id === hash.value,
+      )
 
-        operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
-          ({ httpVerb, path }) =>
-            matchedVerb.toLowerCase() === httpVerb.toLowerCase() &&
-            matchedPath === path,
-        )
-      }
       // Add a few tags to the loading section
       const tag = props.parsedSpec.tags[tagIndex]
 
