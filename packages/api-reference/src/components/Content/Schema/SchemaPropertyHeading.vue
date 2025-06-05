@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { stringify } from 'flatted'
 import { computed } from 'vue'
 
 import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
@@ -230,26 +229,26 @@ const modelName = computed(() => {
         {{ value.format }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
-        v-if="value.minimum !== undefined && value.exclusiveMinimum">
+        v-if="isDefined(value.minimum) && value.exclusiveMinimum">
         <template #prefix>greater than:</template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
-        v-if="value.minimum !== undefined && !value.exclusiveMinimum">
+        v-if="isDefined(value.minimum) && !value.exclusiveMinimum">
         <template #prefix>min:</template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
-        v-if="value.maximum !== undefined && value.exclusiveMaximum">
+        v-if="isDefined(value.maximum) && value.exclusiveMaximum">
         <template #prefix>less than:</template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
-        v-if="value.maximum !== undefined && !value.exclusiveMaximum">
+        v-if="isDefined(value.maximum) && !value.exclusiveMaximum">
         <template #prefix>max:</template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
-      <SchemaPropertyDetail v-if="value.multipleOf !== undefined">
+      <SchemaPropertyDetail v-if="isDefined(value.multipleOf)">
         <template #prefix>multiple of:</template>
         {{ value.multipleOf }}
       </SchemaPropertyDetail>
