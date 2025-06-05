@@ -24,6 +24,7 @@ describe('bundle', () => {
     beforeEach(async () => {
       if (server) {
         await server.close()
+        await setTimeout(100)
       }
       server = fastify({ logger: false })
     })
