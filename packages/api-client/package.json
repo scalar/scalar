@@ -220,7 +220,7 @@
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "catalog:*",
-    "@vueuse/integrations": "^11.2.0",
+    "@vueuse/integrations": "catalog:*",
     "focus-trap": "^7",
     "fuse.js": "^7.0.0",
     "microdiff": "^1.4.0",

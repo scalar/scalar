@@ -21,6 +21,7 @@ catalogs:
     '@types/node': ^20.17.10
     '@vitejs/plugin-vue': ^5.0.4
     '@vueuse/core': ^10.10.0
+    '@vueuse/integrations': ^11.2.0
     '@tailwindcss/vite': ^4.1.7
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
