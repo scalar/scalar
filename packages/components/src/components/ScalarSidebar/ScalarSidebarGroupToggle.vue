@@ -15,7 +15,7 @@ import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
-import { type Icon, ScalarIcon } from '../ScalarIcon'
+import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 const {
   is = 'div',
@@ -51,14 +51,9 @@ const { cx } = useBindCx()
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ open }))">
     <slot :open="open">
-      <ScalarIcon
-        v-if="typeof icon === 'string'"
-        :icon="icon" />
-      <component
-        v-else
-        :is="icon"
-        weight="bold"
-        class="size-full" />
+      <ScalarIconLegacyAdapter
+        :icon="icon"
+        weight="bold" />
     </slot>
     <span class="sr-only">
       <slot

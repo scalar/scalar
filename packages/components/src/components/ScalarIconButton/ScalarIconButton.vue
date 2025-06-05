@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ScalarIconWeight } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
@@ -16,6 +17,7 @@ withDefaults(
     variant?: Variants['variant']
     size?: Variants['size']
     thickness?: string
+    weight?: ScalarIconWeight
   }>(),
   {
     variant: 'ghost',
@@ -48,9 +50,10 @@ const variants = cva({
     :ariaDisabled="disabled || undefined"
     type="button"
     v-bind="cx(variants({ size, variant, disabled }))">
-    <ScalarIcon
+    <ScalarIconLegacyAdapter
       :icon="icon"
-      :thickness="thickness" />
+      :thickness="thickness"
+      :weight="weight" />
     <span class="sr-only">{{ label }}</span>
   </button>
 </template>

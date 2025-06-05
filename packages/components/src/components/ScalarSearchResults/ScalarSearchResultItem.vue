@@ -2,7 +2,7 @@
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
-import { type Icon, ScalarIcon } from '../ScalarIcon'
+import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 defineProps<{
   icon?: Icon | Component
@@ -28,17 +28,11 @@ const { cx } = useBindCx()
       v-if="icon"
       class="flex h-fit items-center text-sm font-medium text-c-3 group-hover:text-c-1">
       <slot name="icon">
-        <template v-if="icon">
-          <ScalarIcon
-            v-if="typeof icon === 'string'"
-            :icon="icon"
-            size="sm" />
-          <component
-            v-else
-            :is="icon"
-            weight="bold"
-            class="size-3.5" />
-        </template>
+        <ScalarIconLegacyAdapter
+          v-if="icon"
+          :icon="icon"
+          size="sm"
+          weight="bold" />
       </slot>
       <span>&hairsp;</span>
     </div>
