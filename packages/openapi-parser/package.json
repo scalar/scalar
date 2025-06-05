@@ -50,6 +50,16 @@
       "import": "./dist/plugins/read-files/index.js",
       "types": "./dist/plugins/read-files/index.d.ts",
       "default": "./dist/plugins/read-files/index.js"
+    },
+    "./utils/bundle/plugins/fetch-urls": {
+      "import": "./dist/utils/bundle/plugins/fetch-urls/index.js",
+      "types": "./dist/utils/bundle/plugins/fetch-urls/index.d.ts",
+      "default": "./dist/utils/bundle/plugins/fetch-urls/index.js"
+    },
+    "./utils/bundle/plugins/read-files": {
+      "import": "./dist/utils/bundle/plugins/read-files/index.js",
+      "types": "./dist/utils/bundle/plugins/read-files/index.d.ts",
+      "default": "./dist/utils/bundle/plugins/read-files/index.js"
     }
   },
   "files": [
@@ -73,7 +83,6 @@
     "@scalar/types": "workspace:*",
     "@types/node": "catalog:*",
     "fastify": "catalog:*",
-    "get-port": "catalog:*",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
     "tinybench": "^2.8.0",

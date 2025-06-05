@@ -1,4 +1,8 @@
 /* basic theme */
+:root {
+  --scalar-text-decoration: underline;
+  --scalar-text-decoration-hover: underline;
+}
 .light-mode {
   --scalar-background-1: #fff;
   --scalar-background-2: #f6f6f6;
@@ -9,7 +13,7 @@
   --scalar-color-2: #757575;
   --scalar-color-3: #8e8e8e;
 
-  --scalar-color-accent: #0099ff;
+  --scalar-color-accent: var(--scalar-color-1);
   --scalar-border-color: #dfdfdf;
 }
 .dark-mode {
@@ -21,7 +25,7 @@
   --scalar-color-2: #a4a4a4;
   --scalar-color-3: #797979;
 
-  --scalar-color-accent: #3ea6ff;
+  --scalar-color-accent: var(--scalar-color-1);
   --scalar-background-accent: #3ea6ff1f;
 
   --scalar-border-color: #2d2d2d;
@@ -92,7 +96,7 @@
 }
 @supports (color: color(display-p3 1 1 1)) {
   .light-mode {
-    --scalar-color-accent: color(display-p3 0.0 0.6 1.0 / 1.0);
+    --scalar-color-accent: var(--scalar-color-1);
     --scalar-color-green: color(display-p3 0.023529 0.564706 0.380392 / 1.0);
     --scalar-color-red: color(display-p3 0.937255 0.0 0.023529 / 1.0);
     --scalar-color-yellow: color(display-p3 0.929412 0.745098 0.12549 / 1.0);
@@ -101,7 +105,7 @@
     --scalar-color-purple: color(display-p3 0.321569 0.011765 0.819608 / 1.0);
   }
   .dark-mode {
-    --scalar-color-accent: color(display-p3 0.243137 0.65098 1.0 / 1.0);
+    --scalar-color-accent: var(--scalar-color-1);
     --scalar-color-green: color(display-p3 0.0 0.713725 0.282353 / 1.0);
     --scalar-color-red: color(display-p3 0.862745 0.105882 0.098039 / 1.0);
     --scalar-color-yellow: color(display-p3 1.0 0.788235 0.05098 / 1.0);

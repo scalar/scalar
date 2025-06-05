@@ -6,7 +6,9 @@
 
 There are [tons of ways to set up a new React project](https://react.dev/learn/start-a-new-react-project). Here is an easy one using [Vite](https://vitejs.dev/) to get you started:
 
-> Note: We’re using [pnpm](https://pnpm.io/installation) here. You can also just use npm, yarn or whatever you're used to. ✌️
+:::scalar-callout{ type=info }
+We’re using [pnpm](https://pnpm.io/installation) here. You can also just use npm, yarn or whatever you're used to. ✌️
+:::
 
 ```bash
 pnpm create vite my-awesome-app

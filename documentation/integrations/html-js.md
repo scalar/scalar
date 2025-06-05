@@ -1,7 +1,6 @@
 # HTML
 
-To get started, you can just use a simple HTML file. It’s the easiest, and probably also the quickest way to get up
-and running, literally in seconds.
+To get started, you can use a simple HTML file. It’s the easiest, and probably also the quickest way to get up and running, literally in seconds.
 
 ```html
 <!doctype html>
@@ -49,9 +48,11 @@ If you really want to stick to a specific version, that’s possible, too. You c
 <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.28.5"></script>
 ```
 
-# JavaScript API
+## JavaScript API
 
-## Automatic Mounting
+The HTML sample above showed how to integrate Scalar using automatic mounting and an ID selector. More information on the JavaScript API is provided below.
+
+### Automatic Mounting
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -59,7 +60,7 @@ Scalar.createApiReference('#app', {
 })
 ```
 
-## Manual Mounting
+### Manual Mounting
 
 ```ts
 const app = Scalar.createApiReference({
@@ -78,7 +79,7 @@ const element = getElementById('app')
 app.mount(element)
 ```
 
-## Update the Configuration
+### Update the Configuration
 
 ```ts
 const app = Scalar.createApiReference('#app', {
@@ -91,7 +92,7 @@ app.updateConfiguration({
 })
 ```
 
-## Unmount
+### Unmount
 
 ```ts
 const app = Scalar.createApiReference('#app', {
@@ -101,7 +102,7 @@ const app = Scalar.createApiReference('#app', {
 app.destroy()
 ```
 
-## ESM
+### ESM
 
 When using the package in (modern) ECMAScript environment, you can just import the `createApiReference` method from the
 package.
@@ -117,4 +118,3 @@ createApiReference('#app', {
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
 })
 ```
-

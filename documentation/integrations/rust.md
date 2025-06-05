@@ -31,6 +31,7 @@ let router: ApiRouter = ApiRouter::new()
 ```
 
 If you want to use Scalar with Actix or any other web framework, you can do that too with the crate [scalar-doc](https://crates.io/crates/scalar-doc).
+
 To get started with Actix, first install the crate and activate `actix` feature :
 
 ```bash

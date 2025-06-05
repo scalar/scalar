@@ -24,14 +24,14 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 <template>
   <div
     v-if="!config?.hideDownloadButton"
-    class="download-container">
+    class="download-container group">
     <button
       type="button"
       class="download-button"
       @click.prevent="handleDownloadClick('json')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
-      <Badge class="extension">json</Badge>
+      <Badge class="extension hidden group-hover:flex">json</Badge>
     </button>
     <button
       type="button"
@@ -39,7 +39,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
       @click.prevent="handleDownloadClick('yaml')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
-      <Badge class="extension">yaml</Badge>
+      <Badge class="extension hidden group-hover:flex">yaml</Badge>
     </button>
   </div>
 </template>
@@ -51,15 +51,16 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin: 4px 0 24px;
+  margin: 0 0 24px;
   position: relative;
   width: fit-content;
+  z-index: 0;
 }
 
 .download-container:has(:focus-visible)::before,
 .download-container:hover::before {
   content: '';
-  width: calc(100% + 76px);
+  width: calc(100% + 24px);
   height: 90px;
   position: absolute;
   top: -11px;
@@ -74,11 +75,13 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   color: var(--scalar-link-color);
   cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
   gap: 4px;
   height: fit-content;
   padding: 0;
   position: relative;
-  white-space: nowrap;
+  white-space: nowrap !important;
 
   outline: none;
 }
@@ -90,7 +93,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   left: -9px;
   position: absolute;
   top: -8px;
-  width: calc(100% + 70px);
+  width: calc(100% + 18px);
 }
 
 .download-button:hover::before {
@@ -105,19 +108,27 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 }
 
 .download-button span {
+  --font-color: var(--scalar-link-color, var(--scalar-color-accent));
+  --font-visited: var(--scalar-link-color-visited, var(--scalar-color-2));
+
+  text-decoration: var(--scalar-text-decoration);
+  color: var(--font-color);
+  font-weight: var(--scalar-link-font-weight, var(--scalar-semibold));
+  text-underline-offset: 0.25rem;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, var(--font-color) 30%, transparent);
   align-items: center;
-  color: var(--scalar-link-color);
   display: flex;
-  font-size: var(--scalar-font-size-2);
-  font-weight: var(--scalar-regular);
   gap: 6px;
   line-height: 1.625;
   z-index: 1;
 }
 
 .download-button:hover span {
+  text-decoration-color: var(currentColor, var(--scalar-color-1));
+  color: var(--scalar-link-color-hover, var(--scalar-color-accent));
+  -webkit-text-decoration: var(--scalar-text-decoration-hover);
   text-decoration: var(--scalar-text-decoration-hover);
-  text-underline-offset: 2px;
 }
 
 /* Second button displayed when hovering over the download container */
@@ -134,12 +145,9 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 }
 
 .extension {
-  left: calc(100% + 8px);
-  opacity: 0;
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   z-index: 1;
+  background: var(--scalar-link-color, var(--scalar-color-accent));
+  color: var(--scalar-background-1);
 }
 .download-container:has(:focus-visible) .extension,
 .download-container:hover .extension {

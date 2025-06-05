@@ -174,6 +174,16 @@ const mergeSchemaAttributes = (target: SchemaObject, source: SchemaObject, depth
     merged.type = source.type
   }
 
+  // Copy title if not already set (preserve from first schema that has it)
+  if (source.title && !target.title) {
+    merged.title = source.title
+  }
+
+  // Copy name if not already set (preserve from first schema that has it)
+  if (source.name && !target.name) {
+    merged.name = source.name
+  }
+
   // Copy description if not already set
   if (source.description && !target.description) {
     merged.description = source.description

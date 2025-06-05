@@ -1,13 +1,13 @@
 import { fastify, type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { fetchUrl } from './fetch-urls'
+import { fetchUrl } from '.'
 import assert from 'node:assert'
-import getPort from 'get-port'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
 
   let server: FastifyInstance
+  const PORT = 7291
 
   beforeEach(() => {
     server = fastify({ logger: false })
@@ -18,7 +18,6 @@ describe('fetchUrl', () => {
   })
 
   it('reads json response', async () => {
-    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     const response = {
@@ -39,7 +38,6 @@ describe('fetchUrl', () => {
   })
 
   it('reads yaml response', async () => {
-    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     server.get('/', (_, reply) => {
@@ -56,7 +54,6 @@ describe('fetchUrl', () => {
   })
 
   it('returns error on non-200 response', async () => {
-    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
 
     server.get('/', (_, reply) => {
@@ -71,7 +68,6 @@ describe('fetchUrl', () => {
   })
 
   it('send headers to the specified domain', async () => {
-    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
     const fn = vi.fn()
 
@@ -103,7 +99,6 @@ describe('fetchUrl', () => {
   })
 
   it('does not send headers to other domains', async () => {
-    const PORT = await getPort()
     const url = `http://localhost:${PORT}`
     const fn = vi.fn()
 

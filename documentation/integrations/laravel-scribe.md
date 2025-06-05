@@ -2,7 +2,9 @@
 
 Laravel Scribe is an amazing package to generate OpenAPI files from your existing code base. Clumsy annotations aren’t required, the package will just analyze your code.
 
-> Note: There’s also [Scalar for Laravel](https://github.com/scalar/laravel), which doesn’t come with OpenAPI generation, but renders existing OpenAPI documents.
+:::scalar-callout{ type=info }
+There’s also [Scalar for Laravel](https://github.com/scalar/laravel), which doesn’t come with OpenAPI generation, but renders existing OpenAPI documents.
+:::
 
 ## Create a new Laravel project (optional)
 
@@ -20,8 +22,7 @@ laravel new my-new-app
 
 Those are the presets we’re using here, but all other presets should work just fine, too:
 
-```bash
-
+```plaintext
  ┌ Would you like to install a starter kit? ────────────────────┐
  │ Laravel Breeze                                               │
  └──────────────────────────────────────────────────────────────┘
@@ -49,7 +50,7 @@ The setup will take a minute or so. Once it’s done, jump in your new directory
 cd my-new-app
 ```
 
-I’ve selected SQLite, so I need to create an empty database:
+In our example, we selected SQLite, so we need to create an empty database:
 
 ```bash
 touch database/database.sqlite
@@ -94,7 +95,7 @@ php artisan scribe:generate
 
 If you’re curioius how it looks, take a peek at the file (`storage/app/scribe/openapi.yaml`). The YAML file should describe you’re API. If you’ve just set up a new Laravel project, it has probably one route (`/api/user`).
 
-Anyway, time to look at your new API reference. Start the PHP server again (`php artisan serve`) and open the following URL in your browser:
+Time to look at your new API reference. Start the PHP server again (`php artisan serve`) and open the following URL in your browser:
 
 http://127.0.0.1:8000/docs
 

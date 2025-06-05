@@ -1,4 +1,5 @@
 {
+  "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
   "siteMeta": {
     "title": "Scalar Documentation",
     "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
@@ -12,6 +13,8 @@
       "name": "Scalar",
       "sidebar": [
         {
+          "name": "Introduction",
+          "description": "Introduction to Scalar",
           "path": "documentation/guides/introduction.md",
           "type": "page"
         },
@@ -41,6 +44,16 @@
             {
               "name": "AdonisJS",
               "path": "documentation/integrations/adonisjs.md",
+              "type": "page"
+            },
+            {
+              "name": "Django",
+              "path": "documentation/integrations/django.md",
+              "type": "page"
+            },
+            {
+              "name": "Django Ninja",
+              "path": "documentation/integrations/django-ninja.md",
               "type": "page"
             },
             {

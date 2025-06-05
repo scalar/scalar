@@ -11,7 +11,7 @@ npm init
 npm install fastify
 ```
 
-To actually use it, we need to create a JavaScript file (`index.js`):
+Then, to use it, we need to create a JavaScript file (`index.js`):
 
 ```js
 // index.js
@@ -38,7 +38,7 @@ fastify.listen({ port: 3000 }, function (err, address) {
 })
 ```
 
-If you start to run this script, it’ll fail though, because we’re using the “new” way to _import_ EcmaScript Modules here. Anyway, the fix should be straight-forward. We need to add the highlighted lines to our package.json:
+If you start to run this script, it’ll fail though, because we’re using the “new” way to _import_ EcmaScript Modules here. The fix should be straight-forward. We need to add the highlighted lines to our package.json:
 
 ```diff
 {
@@ -69,7 +69,7 @@ Congratulations, you’ve set up your (first?) Fastify project!
 
 ## Set up Fastify Swagger (optional)
 
-Wait … _Swagger_, isn’t that the outdated standard? Yes, you’re right! Anyway, this is what the official package is called to generate OpenAPI 3.0 files.
+Wait … _Swagger_, isn’t that the outdated standard? Yes, you’re right! Rest assured, this is what the official package is called to generate OpenAPI 3.0 files.
 
 In order to use it, we need to install the official package first:
 
@@ -191,7 +191,7 @@ Your server should be restarted automatically (that’s what we added `nodemon` 
 npm run dev
 ```
 
-I cross my fingers for you, but this should give you a pretty decent OpenAPI file on <http://localhost:3000/openapi.json>
+If all went well, this should give you a pretty decent OpenAPI file on <http://localhost:3000/openapi.json>
 
 Did it work? OMG, this is so cool! It didn’t? [Create a new issue](https://github.com/scalar/scalar/issues/new/choose) so we can improve this guide here — I mean, that’s the beauty of open source, isn’t it?
 
@@ -226,7 +226,9 @@ await fastify.register(ScalarApiReference, {
 // …
 ```
 
-_Note: It’s not really a problem to have an `import` statement in the middle of your file, it’s not really common, though. Feel free to move it to the top of your files, where `import` statements usually live._
+:::scalar-callout{ type=info }
+It’s not really a problem to have an `import` statement in the middle of your file, it’s not really common, though. Feel free to move it to the top of your files, where `import` statements usually live.
+:::
 
 Wow, this is it already. Restart the server, if it didn’t already and take a look at your new API reference:
 
@@ -259,8 +261,9 @@ TypeScript should give you a nice autocomplete for all options. If you’re more
 
 Auto-generated OpenAPI files are great, but some OpenAPI purists argue it’s worth to handcraft your OpenAPI files. If you’re one of them, feel free to just pass an URL to your existing OpenAPI file:
 
-> Note: If you don’t use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it
-> manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
+:::scalar-callout{ type=info }
+If you don’t use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
+:::
 
 ```js
 import ScalarApiReference from '@scalar/fastify-api-reference'

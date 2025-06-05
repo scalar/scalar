@@ -555,4 +555,35 @@ describe('mergeAllOfSchemas', () => {
       },
     })
   })
+
+  it('preserves title and name from first schema that has them', () => {
+    const schemas: SchemaObject[] = [
+      {
+        title: 'Planet',
+        name: 'PlanetModel',
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+        },
+      },
+      {
+        title: 'Should be ignored',
+        name: 'ShouldBeIgnored',
+        type: 'object',
+        properties: {
+          size: { type: 'number' },
+        },
+      },
+    ]
+
+    expect(mergeAllOfSchemas(schemas)).toEqual({
+      title: 'Planet',
+      name: 'PlanetModel',
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        size: { type: 'number' },
+      },
+    })
+  })
 })
