@@ -22,8 +22,8 @@ export function useResponses(responses: OpenAPIV3_1.ResponseObject | undefined) 
     Object.entries(responses).forEach(([statusCode, response]) => {
       res.push({
         name: statusCode,
-        description: response.description ?? '',
-        content: response.content ?? {},
+        description: response.description,
+        content: response.content,
         headers: response.headers,
         schema: response.content?.schema,
       })
