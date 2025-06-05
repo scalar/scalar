@@ -110,7 +110,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showSidebar">Whether to show the sidebar.</param>
-    public static ScalarOptions WithSidebar(this ScalarOptions options, bool showSidebar)
+    public static ScalarOptions WithSidebar(this ScalarOptions options, bool showSidebar = true)
     {
         options.ShowSidebar = showSidebar;
         return options;
@@ -121,7 +121,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showModels">Whether to show models.</param>
-    public static ScalarOptions WithModels(this ScalarOptions options, bool showModels)
+    public static ScalarOptions WithModels(this ScalarOptions options, bool showModels = true)
     {
         options.HideModels = !showModels;
         return options;
@@ -132,7 +132,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showDownloadButton">Whether to show the download button.</param>
-    public static ScalarOptions WithDownloadButton(this ScalarOptions options, bool showDownloadButton)
+    public static ScalarOptions WithDownloadButton(this ScalarOptions options, bool showDownloadButton = true)
     {
         options.HideDownloadButton = !showDownloadButton;
         return options;
@@ -143,7 +143,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showTestRequestButton">Whether to show the test request button.</param>
-    public static ScalarOptions WithTestRequestButton(this ScalarOptions options, bool showTestRequestButton)
+    public static ScalarOptions WithTestRequestButton(this ScalarOptions options, bool showTestRequestButton = true)
     {
         options.HideTestRequestButton = !showTestRequestButton;
         return options;
@@ -154,7 +154,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="darkMode">Whether dark mode is on or off initially.</param>
-    public static ScalarOptions WithDarkMode(this ScalarOptions options, bool darkMode)
+    public static ScalarOptions WithDarkMode(this ScalarOptions options, bool darkMode = true)
     {
         options.DarkMode = darkMode;
         return options;
@@ -176,7 +176,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showDarkModeToggle">Whether to show the dark mode toggle.</param>
-    public static ScalarOptions WithDarkModeToggle(this ScalarOptions options, bool showDarkModeToggle)
+    public static ScalarOptions WithDarkModeToggle(this ScalarOptions options, bool showDarkModeToggle = true)
     {
         options.HideDarkModeToggle = !showDarkModeToggle;
         return options;
@@ -723,7 +723,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="expose">Whether to expose 'dotnet'.</param>
-    public static ScalarOptions WithDotNetFlag(this ScalarOptions options, bool expose)
+    public static ScalarOptions WithDotNetFlag(this ScalarOptions options, bool expose = true)
     {
         options.DotNetFlag = expose;
         return options;
@@ -734,7 +734,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showButton">Whether to show the client button.</param>
-    public static ScalarOptions WithClientButton(this ScalarOptions options, bool showButton)
+    public static ScalarOptions WithClientButton(this ScalarOptions options, bool showButton = true)
     {
         options.HideClientButton = !showButton;
         return options;
