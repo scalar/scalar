@@ -33,13 +33,13 @@ onMounted(() => autofocus && inputRef.value?.focus())
   <label
     v-bind="
       classCx(
-        'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-2 px-1.5',
+        'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1.5 pl-1.5 pr-1.75',
         'bg-sidebar-b-search border-sidebar-border-search',
         model ? 'text-c-1' : 'text-sidebar-c-search',
       )
     ">
     <ScalarIconMagnifyingGlass
-      class="text-sidebar-c-search size-3"
+      class="text-sidebar-c-search size-3.5"
       weight="bold" />
     <input
       ref="inputRef"
@@ -62,6 +62,7 @@ onMounted(() => autofocus && inputRef.value?.focus())
       v-else-if="model"
       class="p-0.25 size-4"
       :icon="ScalarIconX"
+      weight="bold"
       label="Clear Search"
       @click.stop.prevent="handleClear" />
   </label>

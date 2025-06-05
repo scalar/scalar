@@ -39,13 +39,13 @@ const selectedOption = computed({
         :options="listboxOptions"
         resize>
         <div
-          class="group/dropdown-label hover:bg-b-2 text-c-2 flex w-full cursor-pointer items-center rounded border py-1.75 pr-1.5 pl-1.75"
+          class="group/dropdown-label hover:bg-b-2 text-c-2 flex w-full cursor-pointer items-center rounded border py-1.5 pr-1.5 pl-1.5"
           tabindex="0">
           <ScalarIconCaretUpDown
             class="mr-1.5 h-3 w-3 text-current"
             weight="bold" />
           <span
-            class="text-c-1 overflow-hidden text-sm font-medium text-ellipsis">
+            class="text-c-1 overflow-hidden text-sm leading-4.75 font-medium text-ellipsis">
             {{ selectedOption?.label || 'Select API' }}
           </span>
         </div>
