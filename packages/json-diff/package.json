@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/mock-server"
+    "directory": "packages/json-diff"
   },
   "engines": {
     "node": ">=20"
