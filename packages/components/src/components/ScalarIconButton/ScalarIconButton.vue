@@ -5,7 +5,7 @@ import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
 
 import { styles } from '../ScalarButton'
-import { type Icon, ScalarIcon } from '../ScalarIcon'
+import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 type Variants = VariantProps<typeof variants>
 
