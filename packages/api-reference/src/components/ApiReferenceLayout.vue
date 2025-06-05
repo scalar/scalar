@@ -331,7 +331,10 @@ watch(hash, (newHash, oldHash) => {
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
-        v-if="configuration.showSidebar ?? true"
+        v-if="
+          configuration.layout === 'modern' &&
+          (configuration.showSidebar ?? true)
+        "
         v-model:open="isSidebarOpen" />
       <slot
         v-bind="referenceSlotProps"
