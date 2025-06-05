@@ -2,7 +2,7 @@
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type {
   Collection,
-  Operation,
+  Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
@@ -35,11 +35,12 @@ import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation } = defineProps<{
+const { operation, request } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
-  operation: Operation
+  request: Request | undefined
+  operation: OpenAPIV3_1.OperationObject
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
   schemas?: Schemas
@@ -93,12 +94,13 @@ const handleDiscriminatorChange = (type: string) => {
               transformType="heading"
               :anchorPrefix="id" />
             <OperationParameters
-              :operation="operation"
+              :parameters="operation.parameters"
+              :requestBody="operation.requestBody"
               :schemas="schemas"
               @update:modelValue="handleDiscriminatorChange">
             </OperationParameters>
             <OperationResponses
-              :responses="transformedOperation.information?.responses"
+              :responses="operation.responses"
               :schemas="schemas" />
 
             <!-- Callbacks -->
@@ -115,9 +117,10 @@ const handleDiscriminatorChange = (type: string) => {
           <div class="examples">
             <ScalarErrorBoundary>
               <ExampleRequest
+                v-if="request"
                 :collection="collection"
                 fallback
-                :operation="operation"
+                :operation="request"
                 :server="server"
                 :transformedOperation="transformedOperation"
                 :schemas="schemas"
@@ -125,11 +128,13 @@ const handleDiscriminatorChange = (type: string) => {
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="transformedOperation.information?.deprecated"
-                    :path="transformedOperation.path" />
+                    :deprecated="operation.deprecated"
+                    :path="operation.path" />
                 </template>
-                <template #footer>
-                  <TestRequestButton :operation="operation" />
+                <template
+                  #footer
+                  v-if="request">
+                  <TestRequestButton :request="request" />
                 </template>
               </ExampleRequest>
             </ScalarErrorBoundary>

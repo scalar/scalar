@@ -6,12 +6,12 @@ import { ScalarCodeBlock } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type {
   Collection,
-  Operation,
+  Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import { isDereferenced } from '@scalar/openapi-types/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import {
   computed,
   inject,
@@ -40,14 +40,13 @@ import {
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { transformedOperation, operation, collection, server } = defineProps<{
-  operation: Operation
+const { operation, request, collection, server } = defineProps<{
   server: Server | undefined
   collection: Collection
+  operation: OpenAPIV3_1.OperationObject
+  request: Request | undefined
   /** Show a simplified card if no example are available */
   fallback?: boolean
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
 
@@ -83,8 +82,8 @@ const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (transformedOperation.information?.[key]) {
-      const examples = [...transformedOperation.information[key]]
+    if (operation?.[key]) {
+      const examples = [...operation[key]]
       return examples
     }
   }
@@ -126,6 +125,43 @@ const hasMultipleExamples = computed(() => {
   return Object.keys(examples).length > 1
 })
 
+/** When we have a request object (operations) */
+const generateSnippetFromRequest = (
+  request: Request,
+  targetKey: TargetId,
+  clientKey: ClientId<TargetId>,
+) => {
+  // TODO: Currently we just grab the first one but we should sync up the store with the example picker
+  const example = requestExamples[request.examples[0]]
+  if (!example) {
+    return ''
+  }
+
+  // Ensure the selected security is in the security requirements
+  const schemes = filterSecurityRequirements(
+    request.security || collection.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  )
+
+  const [error, payload] = getSnippet(targetKey, clientKey, {
+    operation: request,
+    example,
+    server,
+    securitySchemes: schemes,
+  })
+  if (error) {
+    return error.message ?? ''
+  }
+  return payload
+}
+
+/** Webhooks do not currently have a request object so we gotta go old school */
+const generateSnippetFromWebhook = () => {
+  const clientKey = httpClient.clientKey as ClientId<TargetId>
+  const targetKey = httpClient.targetKey
+}
+
 const generateSnippet = () => {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
@@ -137,29 +173,13 @@ const generateSnippet = () => {
   const clientKey = httpClient.clientKey as ClientId<TargetId>
   const targetKey = httpClient.targetKey
 
-  // TODO: Currently we just grab the first one but we should sync up the store with the example picker
-  const example = requestExamples[operation.examples[0]]
-  if (!example) {
-    return ''
+  // For operations we have a request object
+  if (request) {
+    return generateSnippetFromRequest(request, targetKey, clientKey)
   }
 
-  // Ensure the selected security is in the security requirements
-  const schemes = filterSecurityRequirements(
-    operation.security || collection.security,
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  )
-
-  const [error, payload] = getSnippet(targetKey, clientKey, {
-    operation,
-    example,
-    server,
-    securitySchemes: schemes,
-  })
-  if (error) {
-    return error.message ?? ''
-  }
-  return payload
+  // For webhooks we don't
+  return generateSnippetFromWebhook()
 }
 
 const generatedCode = computed<string>(() => {
@@ -173,10 +193,10 @@ const generatedCode = computed<string>(() => {
 
 /** Get all examples from the operation for any content type */
 const getExamplesFromOperation = computed(() => {
-  if (!isDereferenced(transformedOperation.information.requestBody)) {
+  if (!isDereferenced(operation.requestBody)) {
     return {}
   }
-  const content = transformedOperation.information?.requestBody?.content ?? {}
+  const content = operation.requestBody?.content ?? {}
 
   // Return first content type examples by default
   const firstContentType = Object.values(content)[0]
@@ -352,8 +372,8 @@ const handleDiscriminatorChange = (type: string) => {
       )
 
       // Update the operation's example value directly
-      if (operation.examples[0]) {
-        const exampleRef = requestExamples[operation.examples[0]]
+      if (request?.examples?.[0]) {
+        const exampleRef = requestExamples[request?.examples?.[0]]
         if (exampleRef) {
           requestExampleMutators.edit(
             exampleRef.uid,
@@ -364,15 +384,9 @@ const handleDiscriminatorChange = (type: string) => {
       }
 
       // Also update the transformed operation's examples
-      if (
-        transformedOperation.information?.requestBody?.content?.[
-          'application/json'
-        ]?.examples
-      ) {
+      if (operation?.requestBody.content?.['application/json']?.examples) {
         const examples =
-          transformedOperation.information.requestBody.content[
-            'application/json'
-          ].examples
+          operation.requestBody.content['application/json'].examples
         Object.keys(examples).forEach((key) => {
           if (examples[key]?.value) {
             examples[key].value = updatedValue

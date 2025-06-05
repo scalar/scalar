@@ -97,7 +97,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       else if ('operation' in child) {
         schema.tags[tagIndex].operations.push({
           id: child.id,
-          method: normalizeHttpMethod(child.method),
+          httpVerb: normalizeHttpMethod(child.method),
           path: child.path,
           name: child.operation.summary || child.path || '',
           description: child.operation.description || '',
@@ -111,7 +111,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       else if ('webhook' in child) {
         schema.tags[tagIndex].operations.push({
           id: child.id,
-          method: normalizeHttpMethod(child.method),
+          httpVerb: normalizeHttpMethod(child.method),
           path: child.name,
           name: child.webhook.summary || child.name || '',
           description: child.webhook.description || '',
@@ -143,7 +143,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
           newWebhooks[child.name] ||= {}
           newWebhooks[child.name][child.method] = {
             id: child.id,
-            method: normalizeHttpMethod(child.method),
+            httpVerb: normalizeHttpMethod(child.method),
             path: child.name,
             name: child.webhook.summary || child.name || '',
             description: child.webhook.description || '',

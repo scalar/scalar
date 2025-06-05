@@ -7,7 +7,6 @@ import { useNavState } from '@/hooks/useNavState'
 import { type ParamMap, useOperation } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
-import { operationIdParams } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
@@ -33,7 +32,7 @@ export function useSearchIndex({
 }: {
   specification: Ref<Spec>
 }) {
-  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
+  const { getHeadingId, getModelId, getTagId } = useNavState()
   const config = useConfig()
 
   const fuseDataArray = ref<FuseData[]>([])
@@ -141,7 +140,7 @@ export function useSearchIndex({
             const operationData: FuseData = {
               type: 'req',
               title: operation.name ?? operation.path,
-              href: `#${getOperationId(operationIdParams(operation), tag)}`,
+              href: `#${operation.id}`,
               operationId: operation.information?.operationId,
               description: operation.description ?? '',
               httpVerb: operation.httpVerb,
@@ -171,7 +170,7 @@ export function useSearchIndex({
             webhookData.push({
               type: 'webhook',
               title: 'Webhook',
-              href: `#${getWebhookId({ name, method: httpVerb })}`,
+              href: `#${webhooks[name][httpVerb]?.id}`,
               description: `${webhooks[name][httpVerb]?.name}`,
               httpVerb,
               tag: name,

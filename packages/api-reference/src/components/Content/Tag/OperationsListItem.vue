@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import type {
   OpenAPIV3_1,
@@ -82,9 +83,6 @@ const title = computed(
 .endpoint:hover .endpoint-path,
 .endpoint:focus-visible .endpoint-path {
   text-decoration: underline;
-}
-.endpoint span:first-of-type {
-  text-transform: uppercase;
 }
 .endpoint .post,
 .endpoint .get,
