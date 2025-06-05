@@ -249,6 +249,10 @@ const modelName = computed(() => {
         <template #prefix>max:</template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
+      <SchemaPropertyDetail v-if="value.multipleOf !== undefined">
+        <template #prefix>multiple of:</template>
+        {{ value.multipleOf }}
+      </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="value.pattern"
         code

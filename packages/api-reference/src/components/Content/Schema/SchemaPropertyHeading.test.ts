@@ -358,4 +358,18 @@ describe('SchemaPropertyHeading', () => {
     const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('array Planet[]')
   })
+
+  it('renders multipleOf property', () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        value: {
+          type: 'number',
+          multipleOf: 0.001,
+        },
+      },
+    })
+    const detailsElement = wrapper.find('.property-heading')
+    expect(detailsElement.text()).toContain('multiple of:')
+    expect(detailsElement.text()).toContain('0.001')
+  })
 })
