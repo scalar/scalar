@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.3.0
+
+### Minor Changes
+
+- bbad7c7: feat(workspace-store): create a sync client store
+
 ## 0.2.0
 
 ### Minor Changes

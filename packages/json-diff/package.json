@@ -1,7 +1,7 @@
 {
   "name": "@scalar/json-diff",
   "description": "Diffing and conflict resolution tool for JSON objects",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",

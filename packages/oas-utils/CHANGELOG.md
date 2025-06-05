@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.4.4
+
+### Patch Changes
+
+- Updated dependencies [8bc9f20]
+  - @scalar/helpers@0.0.3
+
 ## 0.4.3
 
 ### Patch Changes

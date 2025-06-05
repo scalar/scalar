@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.31.5
+
+### Patch Changes
+
+- ec97505: Flatten layouts and add workspace store
+- Updated dependencies [bbad7c7]
+- Updated dependencies [8bc9f20]
+  - @scalar/workspace-store@0.3.0
+  - @scalar/helpers@0.0.3
+  - @scalar/api-client@2.5.4
+  - @scalar/oas-utils@0.4.4
+  - @scalar/components@0.14.7
+
 ## 1.31.4
 
 ### Patch Changes
