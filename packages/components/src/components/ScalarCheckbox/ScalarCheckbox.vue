@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import { ScalarIconCheck } from '@scalar/icons'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import { nanoid } from 'nanoid'
-
-import { ScalarIcon } from '../ScalarIcon'
 
 withDefaults(
   defineProps<{
@@ -48,11 +47,9 @@ const sizeClass = cva({
             !!($event.target as HTMLInputElement)?.checked,
           )
         " />
-      <ScalarIcon
-        class="pointer-events-none opacity-0 peer-checked:text-c-2 peer-checked:opacity-100"
-        icon="Checkmark"
-        size="xs"
-        thickness="2.5" />
+      <ScalarIconCheck
+        class="pointer-events-none opacity-0 peer-checked:text-c-2 peer-checked:opacity-100 size-3"
+        weight="bold" />
     </div>
     <label
       v-if="label"

@@ -1,3 +1,11 @@
+<script lang="ts">
+/**
+ * Scalar Icon Wrapper
+ *
+ * @deprecated Use the icons from the `@scalar/icons` package instead.
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'

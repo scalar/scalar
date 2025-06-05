@@ -9,7 +9,7 @@ import { ScalarMenuLink } from './'
 const { is = 'a' } = defineProps<{
   is?: string | Component
   selected?: boolean
-  icon: Icon
+  icon: Icon | Component
 }>()
 
 defineOptions({ inheritAttrs: false })

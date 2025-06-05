@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { computed, onMounted, ref, useId, watch } from 'vue'
 
-import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
 import ComboboxOptionGroup from './ScalarComboboxOptionGroup.vue'
 import {
@@ -131,10 +131,8 @@ function moveActive(dir: 1 | -1) {
 </script>
 <template>
   <div class="relative flex">
-    <ScalarIcon
-      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3"
-      icon="Search"
-      size="md" />
+    <ScalarIconMagnifyingGlass
+      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
       v-model="query"
       :aria-activedescendant="active ? getOptionId(active) : undefined"

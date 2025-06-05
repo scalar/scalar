@@ -66,7 +66,14 @@ const { cx } = useBindCx()
         v-if="icon || $slots.icon"
         class="size-3.5">
         <slot name="icon">
-          <ScalarIcon :icon="icon" />
+          <ScalarIcon
+            v-if="typeof icon === 'string'"
+            :icon="icon" />
+          <component
+            v-else
+            :is="icon"
+            weight="bold"
+            class="size-full" />
         </slot>
       </div>
       <slot />
