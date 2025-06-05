@@ -442,10 +442,11 @@ export function createExampleFromRequest(request: Request, name: string, server?
   }
 
   // If we have a request body or a content type header
+  // TODO: we don't even handle path parameters here
   if (request.requestBody || contentTypeHeader?.value) {
     const requestBody = getRequestBodyFromOperation({
-      path: request.path,
       information: {
+        parameters: request.parameters ?? [],
         requestBody: request.requestBody,
       },
     })

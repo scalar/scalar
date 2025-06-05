@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
-const props = defineProps<{
-  operation?: Pick<RequestEntity, 'parameters' | 'requestBody'>
+const {
+  parameters = [],
+  requestBody,
+  schemas,
+} = defineProps<{
+  parameters?: OpenAPIV3_1.ParameterObject[]
+  requestBody?: OpenAPIV3_1.RequestBodyObject | undefined
   schemas?: Schemas
 }>()
 
@@ -20,8 +26,7 @@ const handleDiscriminatorChange = (type: string) => {
 }
 
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
-  props.operation?.parameters?.filter((parameter) => parameter.in === where) ??
-  []
+  parameters?.filter((parameter) => parameter.in === where) ?? []
 </script>
 <template>
   <!-- Path parameters-->
@@ -54,8 +59,8 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
 
   <!-- Request body -->
   <RequestBody
-    v-if="operation?.requestBody"
-    :requestBody="operation.requestBody"
+    v-if="requestBody"
+    :requestBody="requestBody"
     :schemas="schemas"
     @update:modelValue="handleDiscriminatorChange">
     <template #title>Body</template>

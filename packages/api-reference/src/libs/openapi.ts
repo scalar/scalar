@@ -1,4 +1,3 @@
-import type { Operation } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { XScalarStability } from '@scalar/types/legacy'
@@ -179,7 +178,7 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
 /**
  * Returns if an operation is considered deprecated.
  */
-export function isOperationDeprecated(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): boolean {
+export function isOperationDeprecated(operation: OpenAPIV3_1.OperationObject): boolean {
   if (operation.deprecated !== undefined) {
     return operation.deprecated
   }
@@ -192,9 +191,7 @@ export function isOperationDeprecated(operation: Pick<Operation, 'deprecated' | 
 /**
  * Get operation stability.
  */
-export function getOperationStability(
-  operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>,
-): XScalarStability | undefined {
+export function getOperationStability(operation: OpenAPIV3_1.OperationObject): XScalarStability | undefined {
   if (operation.deprecated) {
     return XScalarStability.Deprecated
   }
@@ -204,7 +201,7 @@ export function getOperationStability(
 /**
  * Get Operation stability color
  */
-export function getOperationStabilityColor(operation: Pick<Operation, 'deprecated' | 'x-scalar-stability'>): string {
+export function getOperationStabilityColor(operation: OpenAPIV3_1.OperationObject): string {
   const stability = getOperationStability(operation)
   if (stability === XScalarStability.Deprecated) {
     return 'text-red'

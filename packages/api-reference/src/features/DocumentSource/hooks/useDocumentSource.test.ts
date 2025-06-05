@@ -1,6 +1,4 @@
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
-import { createEmptySpecification } from '@/libs/openapi'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -15,12 +13,6 @@ vi.mock('vue', () => {
     inject: vi.fn(),
   }
 })
-
-vi.mock('@/hooks/useSidebar', () => ({
-  useSidebar: vi.fn().mockReturnValue({
-    setParsedSpec: vi.fn(),
-  }),
-}))
 
 describe('useDocumentSource', () => {
   const mockOpenApiDocument: OpenAPIV3_1.Document = {
@@ -83,7 +75,7 @@ describe('useDocumentSource', () => {
     })
 
     it('creates empty document when no document is provided', () => {
-      const { dereferencedDocument, parsedDocument } = useDocumentSource({})
+      const { dereferencedDocument } = useDocumentSource({})
 
       expect(dereferencedDocument.value).toMatchObject({
         openapi: '3.1.0',
@@ -93,8 +85,6 @@ describe('useDocumentSource', () => {
         },
         paths: {},
       })
-
-      expect(parsedDocument.value).toMatchObject(createEmptySpecification())
     })
 
     it('handles document upgrades for outdated OpenAPI versions', async () => {
@@ -163,39 +153,6 @@ describe('useDocumentSource', () => {
     })
   })
 
-  describe('document processing', () => {
-    it('updates parsed document when dereferenced document changes', async () => {
-      const { parsedDocument } = useDocumentSource({
-        dereferencedDocument: ref(mockOpenApiDocument),
-      })
-
-      await nextTick()
-
-      expect(parsedDocument.value).toBeDefined()
-      expect(parsedDocument.value).not.toMatchObject(createEmptySpecification())
-    })
-
-    it('handles document normalization', async () => {
-      const { dereferencedDocument } = useDocumentSource({
-        originalDocument: JSON.stringify(mockOpenApiDocument),
-      })
-
-      await nextTick()
-      expect(dereferencedDocument.value).toBeDefined()
-    })
-
-    it('updates sidebar when parsed document changes', async () => {
-      const { setParsedSpec } = useSidebar()
-      useDocumentSource({
-        dereferencedDocument: ref(mockOpenApiDocument),
-      })
-
-      await nextTick()
-
-      expect(setParsedSpec).toHaveBeenCalled()
-    })
-  })
-
   describe('error handling', () => {
     it('handles invalid JSON in original document', async () => {
       const { dereferencedDocument } = useDocumentSource({
@@ -215,25 +172,23 @@ describe('useDocumentSource', () => {
     })
 
     it('handles missing document gracefully', async () => {
-      const { dereferencedDocument, parsedDocument } = useDocumentSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: undefined,
       })
 
       await nextTick()
 
       expect(dereferencedDocument.value).toBeDefined()
-      expect(parsedDocument.value).toBeDefined()
     })
 
     it('handles empty document gracefully', async () => {
-      const { dereferencedDocument, parsedDocument } = useDocumentSource({
+      const { dereferencedDocument } = useDocumentSource({
         originalDocument: '',
       })
 
       await nextTick()
 
       expect(dereferencedDocument.value).toBeDefined()
-      expect(parsedDocument.value).toBeDefined()
     })
   })
 
@@ -255,27 +210,6 @@ describe('useDocumentSource', () => {
 
       await nextTick()
       expect(dereferencedDocument.value).not.toEqual(initialValue)
-    })
-
-    it('reacts to changes in dereferenced document', async () => {
-      const providedDereferencedDocument = ref(mockOpenApiDocument)
-
-      const { parsedDocument } = useDocumentSource({
-        dereferencedDocument: providedDereferencedDocument,
-      })
-
-      await nextTick()
-      const initialValue = parsedDocument.value
-
-      // Change the document
-      providedDereferencedDocument.value = {
-        ...mockOpenApiDocument,
-        info: { ...mockOpenApiDocument.info, title: 'Updated API' },
-      }
-
-      await nextTick()
-
-      expect(parsedDocument.value).not.toMatchObject(initialValue)
     })
   })
 })

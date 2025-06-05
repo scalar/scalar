@@ -3,6 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { getTag } from './get-tag'
+import { httpMethods } from '@scalar/helpers/http/http-methods'
 
 const createOperationEntry = (
   operation: OpenAPIV3_1.OperationObject,
@@ -47,7 +48,7 @@ export const traversePaths = (
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+      if (operation['x-internal'] || operation['x-scalar-ignore'] || !httpMethods.has(method)) {
         return
       }
 

@@ -23,18 +23,6 @@ const { callback, collection, method, name, schemas, url } = defineProps<{
 const operation = computed(() =>
   schemaModel({ ...callback, path: url, method }, requestSchema, false),
 )
-
-const transformedOperation = computed(
-  () =>
-    ({
-      ...callback,
-      httpVerb: method as TransformedOperation['httpVerb'],
-      path: url,
-      information: {
-        responses: callback.responses,
-      },
-    }) satisfies TransformedOperation,
-)
 </script>
 
 <template>
@@ -61,12 +49,14 @@ const transformedOperation = computed(
     <!-- Body -->
     <div class="callback-operation-container flex flex-col gap-2">
       <OperationParameters
-        :operation="operation"
+        :requestBody="callback.requestBody"
+        :parameters="callback.parameters"
         :schemas="schemas" />
 
       <!-- Responses -->
       <OperationResponses
-        :operation="transformedOperation"
+        :collapsableItems="false"
+        :responses="callback.responses"
         :schemas="schemas" />
     </div>
   </details>

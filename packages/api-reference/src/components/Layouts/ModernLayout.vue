@@ -5,14 +5,11 @@ import {
   ScalarSidebarFooter,
 } from '@scalar/components'
 import { getObjectKeys } from '@scalar/oas-utils/helpers'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
 import { SearchButton } from '@/features/Search'
-import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import type {
   DocumentSelectorSlot,
   ReferenceLayoutProps,
@@ -27,23 +24,7 @@ defineEmits<{
 
 const slots = defineSlots<ReferenceLayoutSlots & DocumentSelectorSlot>()
 
-const { mediaQueries } = useBreakpoints()
-const { isSidebarOpen } = useSidebar()
 const isDevelopment = import.meta.env.MODE === 'development'
-
-watch(mediaQueries.lg, (newValue, oldValue) => {
-  // Close the drawer when we go from desktop to mobile
-  if (oldValue && !newValue) {
-    isSidebarOpen.value = false
-  }
-})
-
-const { hash } = useNavState()
-watch(hash, (newHash, oldHash) => {
-  if (newHash && newHash !== oldHash) {
-    isSidebarOpen.value = false
-  }
-})
 
 /** So we do not override the sidebar-start slot */
 const otherSlots = computed(() =>
@@ -69,9 +50,7 @@ const otherSlots = computed(() =>
     </template>
 
     <template #header>
-      <MobileHeader
-        v-if="configuration.showSidebar ?? true"
-        v-model:open="isSidebarOpen" />
+      <MobileHeader v-if="configuration.showSidebar ?? true" />
     </template>
 
     <template #sidebar-start="sidebarStartProps">

@@ -1,13 +1,14 @@
-import type { Parameter, TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
+import { isDereferenced } from '@scalar/openapi-types/helpers'
 import { computed } from 'vue'
 
 export type ParamMap = {
-  path: Parameter[]
-  query: Parameter[]
-  header: Parameter[]
-  cookie: Parameter[]
-  body: Parameter[]
-  formData: Parameter[]
+  path: OpenAPIV3_1.ParameterObject[]
+  query: OpenAPIV3_1.ParameterObject[]
+  header: OpenAPIV3_1.ParameterObject[]
+  cookie: OpenAPIV3_1.ParameterObject[]
+  body: OpenAPIV3_1.ParameterObject[]
+  formData: OpenAPIV3_1.ParameterObject[]
 }
 
 /**
@@ -25,7 +26,7 @@ export function useOperation(operation: TransformedOperation) {
     }
 
     if (operation.pathParameters) {
-      operation.pathParameters.forEach((parameter: Parameter) => {
+      operation.pathParameters.forEach((parameter: OpenAPIV3_1.ParameterObject) => {
         if (parameter.in === 'path') {
           map.path.push(parameter)
         } else if (parameter.in === 'query') {
@@ -46,6 +47,10 @@ export function useOperation(operation: TransformedOperation) {
 
     if (parameters) {
       parameters.forEach((parameter) => {
+        if (!isDereferenced(parameter)) {
+          return
+        }
+
         if (parameter.in === 'path') {
           map.path.push(parameter)
         } else if (parameter.in === 'query') {

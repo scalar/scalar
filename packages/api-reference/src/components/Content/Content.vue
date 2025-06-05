@@ -3,12 +3,12 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { getSlugUid } from '@scalar/oas-utils/transforms'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/BaseUrl'
 import { useConfig } from '@/hooks/useConfig'
-import { useSidebar } from '@/hooks/useSidebar'
 import { getModels, hasModels } from '@/libs/openapi'
 
 import { ClientLibraries } from './ClientLibraries'
@@ -20,6 +20,7 @@ import { Webhooks } from './Webhooks'
 
 const props = withDefaults(
   defineProps<{
+    document: OpenAPIV3_1.Document
     parsedSpec: Spec
     layout?: 'modern' | 'classic'
   }>(),
@@ -29,7 +30,6 @@ const props = withDefaults(
 )
 
 const config = useConfig()
-const { hideModels } = useSidebar()
 const { collections, securitySchemes, servers } = useWorkspace()
 const {
   activeCollection: _activeCollection,
@@ -91,9 +91,8 @@ const introCardsSlot = computed(() =>
       :server="activeServer" />
 
     <Introduction
-      v-if="parsedSpec?.info?.title || parsedSpec?.info?.description"
-      :info="parsedSpec.info"
-      :parsedSpec="parsedSpec">
+      v-if="document?.info?.title || document?.info?.description"
+      :document="document">
       <template #[introCardsSlot]>
         <ScalarErrorBoundary>
           <div
@@ -164,7 +163,7 @@ const introCardsSlot = computed(() =>
       <Webhooks :webhooks="parsedSpec.webhooks" />
     </template>
 
-    <template v-if="hasModels(parsedSpec) && !hideModels">
+    <template v-if="hasModels(parsedSpec) && !config.hideModels">
       <ModelsAccordion
         v-if="layout === 'classic'"
         :schemas="getModels(parsedSpec)" />

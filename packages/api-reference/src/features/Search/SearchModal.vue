@@ -20,7 +20,7 @@ import {
   type EntryType,
   type FuseData,
 } from '@/features/Search/useSearchIndex'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/sidebar'
 
 const props = defineProps<{
   parsedSpec: Spec

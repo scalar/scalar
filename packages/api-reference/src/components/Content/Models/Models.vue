@@ -3,8 +3,8 @@ import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, useId } from 'vue'
 
+import { useSidebar } from '@/features/sidebar'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 
 import {
   CompactSection,

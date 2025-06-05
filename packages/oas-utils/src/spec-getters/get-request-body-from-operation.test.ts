@@ -5,7 +5,6 @@ import { getRequestBodyFromOperation } from './get-request-body-from-operation'
 describe('getRequestBodyFromOperation', () => {
   it('creates a JSON body from a requestBody schema', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           content: {
@@ -37,7 +36,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('ignores charset in mimetypes', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           content: {
@@ -69,7 +67,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('creates a JSON body from body parameters', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         parameters: [
           {
@@ -102,7 +99,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('uses example', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           description: 'Sample request body',
@@ -137,7 +133,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('uses examples', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           description: 'Sample request body',
@@ -178,7 +173,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('creates key-value pair examples from object schema', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           description: 'Sample request body',
@@ -239,7 +233,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('adds parameters from a requestBody schema', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           content: {
@@ -280,7 +273,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('handles vendor-specific MIME types', () => {
     const body = getRequestBodyFromOperation({
-      path: '/foobar',
       information: {
         requestBody: {
           content: {
