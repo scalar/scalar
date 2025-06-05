@@ -14,6 +14,7 @@ import {
 } from './bundle'
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
+import { setTimeout } from 'node:timers/promises'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -26,6 +27,7 @@ describe('bundle', () => {
 
     afterEach(async () => {
       await server.close()
+      await setTimeout(100)
     })
 
     it('bundles external urls', async () => {
@@ -37,6 +39,7 @@ describe('bundle', () => {
       server.get('/', (_, reply) => {
         reply.send(external)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -97,6 +100,7 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -142,6 +146,7 @@ describe('bundle', () => {
           a: 'a',
         })
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -228,6 +233,7 @@ describe('bundle', () => {
           },
         })
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -271,6 +277,7 @@ describe('bundle', () => {
           },
         })
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -322,6 +329,7 @@ describe('bundle', () => {
           },
         })
       })
+
       await server.listen({ port: PORT })
 
       const output = await bundle(`${url}/base/openapi.json`, { plugins: [fetchUrls()], treeShake: false })
@@ -367,6 +375,7 @@ describe('bundle', () => {
           },
         })
       })
+
       await server.listen({ port: PORT })
 
       const output = await bundle(`${url}/base/openapi.json`, {
@@ -420,6 +429,7 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -491,6 +501,7 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -536,6 +547,7 @@ describe('bundle', () => {
         fn()
         reply.send(chunk1)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -631,6 +643,7 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -701,6 +714,7 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -821,6 +835,7 @@ describe('bundle', () => {
       server.get('/chunk2', (_, reply) => {
         reply.send(chunk2)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -905,6 +920,7 @@ describe('bundle', () => {
       server.get('/chunk1', (_, reply) => {
         reply.send(chunk1)
       })
+
       await server.listen({ port: PORT })
 
       const input = {
@@ -997,6 +1013,7 @@ describe('bundle', () => {
       server.get('/external/document.json', (_, reply) => {
         reply.send(external)
       })
+
       await server.listen({ port: PORT })
 
       const input = {

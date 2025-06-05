@@ -1,5 +1,18 @@
 # @scalar/openapi-parser
 
+## 0.15.0
+
+### Minor Changes
+
+- b9dacba: fix(openapi-parser): multi entry build for bundler plugins
+- a73e9be: chore(openapi-parser): bring back pipeline syntax
+- f4332eb: feat: external reference resolution and partial bundle of the openapi document
+
+### Patch Changes
+
+- 17bc0d8: fix: collectionFormat is not migrated to new style and explode keywords
+- 49c04cf: fix(openapi-parser): use dynamic imports inside the plugin
+
 ## 0.14.0
 
 ### Minor Changes

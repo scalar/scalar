@@ -2,6 +2,7 @@ import { fastify, type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchUrl } from '.'
 import assert from 'node:assert'
+import { setTimeout } from 'node:timers/promises'
 
 describe('fetchUrl', () => {
   const noLimit = <T>(fn: () => Promise<T>) => fn()
@@ -15,6 +16,7 @@ describe('fetchUrl', () => {
 
   afterEach(async () => {
     await server.close()
+    await setTimeout(100)
   })
 
   it('reads json response', async () => {

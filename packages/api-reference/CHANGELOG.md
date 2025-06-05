@@ -1,5 +1,41 @@
 # @scalar/api-reference
 
+## 1.31.4
+
+### Patch Changes
+
+- 00fc827: feat: updates markdown overall style
+- 14d1d55: fix: enhances allof within anyof handling
+- 8165b3b: feat(helpers): added new helpers package
+- 8dcab87: fix: z-index of download button
+- 358eb63: fix(api-reference): fix markdown styles pt2
+- 335a25c: fix: updates schema composition and propertuy style
+- Updated dependencies [00fc827]
+- Updated dependencies [79975dd]
+- Updated dependencies [17bc0d8]
+- Updated dependencies [b9dacba]
+- Updated dependencies [a73e9be]
+- Updated dependencies [ba84a3c]
+- Updated dependencies [8165b3b]
+- Updated dependencies [49c04cf]
+- Updated dependencies [ba84a3c]
+- Updated dependencies [f4332eb]
+- Updated dependencies [358eb63]
+- Updated dependencies [05c22c7]
+  - @scalar/code-highlight@0.1.2
+  - @scalar/api-client@2.5.3
+  - @scalar/openapi-parser@0.15.0
+  - @scalar/themes@0.13.2
+  - @scalar/oas-utils@0.4.3
+  - @scalar/helpers@0.0.2
+  - @scalar/components@0.14.6
+  - @scalar/openapi-types@0.3.2
+  - @scalar/icons@0.4.2
+  - @scalar/snippetz@0.3.0
+  - @scalar/types@0.2.2
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+
 ## 1.31.3
 
 ### Patch Changes

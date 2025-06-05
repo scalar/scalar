@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 2.5.3
+
+### Patch Changes
+
+- 79975dd: fix: updates auth section display logic
+- 8165b3b: feat(helpers): added new helpers package
+- Updated dependencies [17bc0d8]
+- Updated dependencies [b9dacba]
+- Updated dependencies [a73e9be]
+- Updated dependencies [ba84a3c]
+- Updated dependencies [8165b3b]
+- Updated dependencies [49c04cf]
+- Updated dependencies [ba84a3c]
+- Updated dependencies [f4332eb]
+- Updated dependencies [358eb63]
+- Updated dependencies [05c22c7]
+  - @scalar/openapi-parser@0.15.0
+  - @scalar/themes@0.13.2
+  - @scalar/postman-to-openapi@0.3.6
+  - @scalar/oas-utils@0.4.3
+  - @scalar/helpers@0.0.2
+  - @scalar/import@0.4.7
+  - @scalar/components@0.14.6
+  - @scalar/openapi-types@0.3.2
+  - @scalar/use-codemirror@0.12.7
+  - @scalar/draggable@0.2.0
+  - @scalar/icons@0.4.2
+  - @scalar/object-utils@1.2.1
+  - @scalar/snippetz@0.3.0
+  - @scalar/types@0.2.2
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+  - @scalar/use-tooltip@1.1.0
+
 ## 2.5.2
 
 ### Patch Changes
