@@ -54,6 +54,7 @@ describe('OpenAPI', () => {
   it('types a custom extension', () => {
     const specification: OpenAPI.Document<{
       'x-custom'?: boolean
+      'random-attribute'?: any
     }> = {}
 
     expectTypeOf(specification['random-attribute']).toEqualTypeOf<any>()

@@ -11,7 +11,13 @@ await convertSchema('2.0')
 await convertSchema('3.0')
 await convertSchema('3.1')
 
-const entries = ['./src/index.ts', './src/plugins/fetch-urls/index.ts', './src/plugins/read-files/index.ts']
+const entries = [
+  './src/index.ts',
+  './src/plugins/fetch-urls/index.ts',
+  './src/plugins/read-files/index.ts',
+  './src/utils/bundle/plugins/fetch-urls/index.ts',
+  './src/utils/bundle/plugins/read-files/index.ts',
+]
 
 build({
   entries,

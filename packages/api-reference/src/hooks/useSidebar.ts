@@ -8,6 +8,7 @@ import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed, reactive, ref, watch } from 'vue'
+import { operationIdParams } from '@/features/traverse-schema'
 
 export type SidebarEntry = {
   id: string
@@ -169,7 +170,7 @@ const items = computed(() => {
               displayTitle: tag['x-displayName'] ?? tag.name,
               show: true,
               children: tag.operations?.map((operation: TransformedOperation) => {
-                const id = getOperationId(operation, tag)
+                const id = getOperationId(operationIdParams(operation), tag)
                 const title = operation.name ?? operation.path
                 titlesById[id] = title
 
@@ -191,7 +192,7 @@ const items = computed(() => {
             }
           })
       : firstTag?.operations?.map((operation) => {
-          const id = getOperationId(operation, firstTag)
+          const id = getOperationId(operationIdParams(operation), firstTag)
           const title = operation.name ?? operation.path
           titlesById[id] = title
 

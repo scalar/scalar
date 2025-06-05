@@ -8,6 +8,7 @@ import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
+import { operationIdParams } from '@/features/traverse-schema'
 import { useNavState } from '@/hooks/useNavState'
 import { useSidebar } from '@/hooks/useSidebar'
 import { isOperationDeprecated } from '@/libs/openapi'
@@ -24,7 +25,7 @@ const { scrollToOperation } = useSidebar()
 
 // TODO in V2 we need to do the same loading trick as the initial load
 const scrollHandler = async (givenOperation: TransformedOperation) => {
-  const operationId = getOperationId(givenOperation, tag)
+  const operationId = getOperationId(operationIdParams(givenOperation), tag)
   scrollToOperation(operationId, true)
 }
 
@@ -55,7 +56,7 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
 <template>
   <li
     v-if="operation"
-    :key="getOperationId(transformedOperation, tag)"
+    :key="getOperationId(operationIdParams(transformedOperation), tag)"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
     <SectionHeaderTag
@@ -66,7 +67,7 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${getOperationId(transformedOperation, tag)}`"
+      :href="`#${getOperationId(operationIdParams(transformedOperation), tag)}`"
       @click.prevent="scrollHandler(transformedOperation)">
       <HttpMethod
         class="endpoint-method"

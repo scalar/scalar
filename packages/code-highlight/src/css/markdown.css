@@ -3,7 +3,7 @@
 .scalar-app {
   /* Base container and variables */
   .markdown {
-    --scalar-heading-spacing: 44px;
+    --scalar-refs-heading-spacing: 24px;
     --markdown-border: var(--scalar-border-width) solid var(--scalar-border-color);
     --markdown-spacing-sm: 12px;
     --markdown-spacing-md: 16px;
@@ -17,6 +17,10 @@
     margin-bottom: var(--markdown-spacing-md);
   }
 
+  /* margin gets doubled between heading + non heading elements if we don't do this*/
+  .markdown > *:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6):last-child {
+    margin-bottom: 0;
+  }
   /* Headings (h1-h6) */
   .markdown h1 {
     --font-size: 1.5rem;
@@ -44,7 +48,7 @@
     display: block;
     font-size: var(--font-size);
     font-weight: var(--scalar-bold);
-    margin-top: var(--scalar-heading-spacing);
+    margin-top: var(--scalar-refs-heading-spacing);
     margin-bottom: var(--markdown-spacing-sm);
     scroll-margin-top: 1rem;
   }
@@ -298,18 +302,22 @@
 
   /* Links */
   .markdown a {
-    --font-color: var(--scalar-color-1);
-    --font-visited: var(--scalar-color-2);
+    --font-color: var(--scalar-link-color, var(--scalar-color-accent));
+    --font-visited: var(--scalar-link-color-visited, var(--scalar-color-2));
+    text-decoration: var(--scalar-text-decoration);
 
     color: var(--font-color);
-    font-weight: var(--scalar-semibold);
+    font-weight: var(--scalar-link-font-weight, var(--scalar-semibold));
     text-underline-offset: 0.25rem;
     text-decoration-thickness: 1px;
-    text-decoration-color: color-mix(in srgb, var(--font-color, var(--scalar-color-1)) 30%, transparent);
+    text-decoration-color: color-mix(in srgb, var(--font-color) 30%, transparent);
   }
 
   .markdown a:hover {
-    text-decoration-color: var(--scalar-color-1);
+    text-decoration-color: var(currentColor, var(--scalar-color-1));
+    color: var(--scalar-link-color-hover, var(--scalar-color-accent));
+    -webkit-text-decoration: var(--scalar-text-decoration-hover);
+    text-decoration: var(--scalar-text-decoration-hover);
   }
 
   .markdown a:visited {

@@ -432,6 +432,11 @@ const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
   font-size: var(--scalar-mini);
   position: relative;
 }
+.property.property--level-0:has(
+    .property-rule .schema-properties.schema-properties-open > ul li.property
+  ) {
+  padding-top: 0;
+}
 /* increase z-index for example hovers */
 .property:hover {
   z-index: 1;
