@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.7.11
+
+### Patch Changes
+
+- c584dcd: Fix classic layout mobile header
+- Updated dependencies [c584dcd]
+  - @scalar/api-reference@1.31.6
+
 ## 0.7.10
 
 ### Patch Changes
