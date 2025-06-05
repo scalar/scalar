@@ -15,7 +15,7 @@
     "css-variables",
     "scalar"
   ],
-  "version": "0.13.1",
+  "version": "0.13.2",
   "engines": {
     "node": ">=20"
   },

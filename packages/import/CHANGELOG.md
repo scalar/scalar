@@ -1,5 +1,19 @@
 # @scalar/import
 
+## 0.4.7
+
+### Patch Changes
+
+- 8165b3b: feat(helpers): added new helpers package
+- Updated dependencies [17bc0d8]
+- Updated dependencies [b9dacba]
+- Updated dependencies [a73e9be]
+- Updated dependencies [8165b3b]
+- Updated dependencies [49c04cf]
+- Updated dependencies [f4332eb]
+  - @scalar/openapi-parser@0.15.0
+  - @scalar/helpers@0.0.2
+
 ## 0.4.6
 
 ### Patch Changes

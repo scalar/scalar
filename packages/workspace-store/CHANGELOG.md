@@ -1,5 +1,22 @@
 # @scalar/workspace-store
 
+## 0.2.0
+
+### Minor Changes
+
+- f4332eb: feat: external reference resolution and partial bundle of the openapi document
+
+### Patch Changes
+
+- Updated dependencies [17bc0d8]
+- Updated dependencies [b9dacba]
+- Updated dependencies [a73e9be]
+- Updated dependencies [49c04cf]
+- Updated dependencies [f4332eb]
+- Updated dependencies [05c22c7]
+  - @scalar/openapi-parser@0.15.0
+  - @scalar/openapi-types@0.3.2
+
 ## 0.1.1
 
 ### Patch Changes
