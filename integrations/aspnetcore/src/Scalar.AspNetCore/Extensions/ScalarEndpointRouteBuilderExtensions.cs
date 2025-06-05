@@ -102,10 +102,9 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <br />
     /// The <paramref name="endpointPrefix" /> parameter allows you to customize the base path where the Scalar API reference will be served.
     /// </remarks>
-    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions> configureOptions)
-    {
-        return endpoints.MapScalarApiReference(endpointPrefix, (options, _) => configureOptions(options));
-    }
+    public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, [StringSyntax("Route")] string endpointPrefix, Action<ScalarOptions> configureOptions) =>
+        endpoints.MapScalarApiReference(endpointPrefix, (options, _) => configureOptions(options));
+
 
     /// <summary>
     /// Maps the Scalar API reference endpoint with a custom endpoint prefix and options, providing access to the <see cref="HttpContext" />.
