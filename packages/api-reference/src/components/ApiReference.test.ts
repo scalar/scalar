@@ -30,8 +30,8 @@ describe('ApiReference', () => {
       // Wait for the API reference to be rendered
       await wrapper.vm.$nextTick()
 
-      // Check whether it renders the SingleApiReference component only once
-      expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      // Check whether it renders the ApiReferenceWorkspace component only once
+      expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
       wrapper.unmount()
     })
 
@@ -55,8 +55,8 @@ describe('ApiReference', () => {
       // Wait for the API reference to be rendered
       await wrapper.vm.$nextTick()
 
-      // Check whether it renders the SingleApiReference component
-      expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      // Check whether it renders the ApiReferenceWorkspace component
+      expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
       // Check whether it doesn’t render the select
@@ -93,8 +93,8 @@ describe('ApiReference', () => {
       // Wait for the API reference to be rendered
       await wrapper.vm.$nextTick()
 
-      // Check whether it renders the SingleApiReference component
-      expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      // Check whether it renders the ApiReferenceWorkspace component
+      expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
       // Ensure the select is rendered
@@ -133,8 +133,8 @@ describe('ApiReference', () => {
       // Wait for the API reference to be rendered
       await flushPromises()
 
-      // Check whether it renders the SingleApiReference component
-      expect(wrapper.findAllComponents({ name: 'SingleApiReference' })).toHaveLength(1)
+      // Check whether it renders the ApiReferenceWorkspace component
+      expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
 
       // Check whether it renders the select
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })

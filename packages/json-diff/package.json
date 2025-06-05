@@ -16,7 +16,7 @@
   },
   "scripts": {
     "build": "scalar-build-esbuild",
-    "test:unit": "vitest test",
+    "test": "vitest test",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },

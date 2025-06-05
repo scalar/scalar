@@ -5,7 +5,7 @@ import {
   externalizeComponentReferences,
   externalizePathReferences,
   filterHttpMethodsOnly,
-} from './create-server-workspace-store'
+} from './server'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { allFilesMatch } from '../test/helpers'

@@ -27,16 +27,26 @@
     "format:check": "scalar-format-check",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test:unit": "vitest",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
   "type": "module",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./client": {
+      "import": "./dist/client.js",
+      "types": "./dist/client.d.ts",
+      "default": "./dist/client.js"
+    },
+    "./schemas": {
+      "import": "./dist/schemas.js",
+      "types": "./dist/schemas.d.ts",
+      "default": "./dist/schemas.js"
+    },
+    "./server": {
+      "import": "./dist/server.js",
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
     }
   },
   "dependencies": {

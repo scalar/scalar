@@ -172,7 +172,7 @@
       "performance": {
         "noDelete": "off",
         "noReExportAll": "warn",
-        "noBarrelFile": "warn"
+        "noBarrelFile": "off"
       },
       "nursery": {
         "noDescendingSpecificity": "warn",

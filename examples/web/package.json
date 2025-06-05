@@ -28,6 +28,7 @@
     "@scalar/galaxy": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@vueuse/core": "catalog:*",
     "monaco-editor": "^0.47.0",
     "vue": "catalog:*",

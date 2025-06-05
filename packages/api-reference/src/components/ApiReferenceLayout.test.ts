@@ -82,6 +82,7 @@ describe('ApiReferenceLayout', () => {
       render: () =>
         h(ApiReferenceLayout, {
           configuration: {},
+          isDark: false,
           dereferencedDocument: schema as OpenAPIV3_1.Document,
           originalDocument: JSON.stringify(document),
         }),
@@ -123,6 +124,7 @@ test.concurrent.each(files)('$title ($url)', { timeout: 45 * 1000 }, async ({ ti
     render: () =>
       h(ApiReferenceLayout, {
         configuration: {},
+        isDark: false,
         dereferencedDocument: schema as OpenAPIV3_1.Document,
         originalDocument: document,
       }),
