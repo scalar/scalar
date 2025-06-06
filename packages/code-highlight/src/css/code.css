@@ -165,20 +165,12 @@
   color: var(--scalar-color-2);
 }
 
-.hljs.language-curl .hljs-keyword {
-  color: var(--scalar-color-orange);
-}
-
 .hljs.language-curl .hljs-string {
+  color: var(--scalar-color-blue);
+}
+
+.hljs.language-curl .hljs-literal {
   color: var(--scalar-color-1);
-}
-
-.hljs.language-curl .hljs-literal {
-  color: var(--scalar-color-blue);
-}
-
-.hljs.language-curl .hljs-literal {
-  color: var(--scalar-color-blue);
 }
 
 /** Compromise here */
