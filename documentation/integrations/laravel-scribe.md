@@ -93,7 +93,7 @@ Done! Are you ready to generate your (first?) OpenAPI file like this:
 php artisan scribe:generate
 ```
 
-If you’re curioius how it looks, take a peek at the file (`storage/app/scribe/openapi.yaml`). The YAML file should describe you’re API. If you’ve just set up a new Laravel project, it has probably one route (`/api/user`).
+If you’re curious how it looks, take a peek at the file (`storage/app/scribe/openapi.yaml`). The YAML file should describe your API. If you’ve just set up a new Laravel project, it has probably one route (`/api/user`).
 
 Time to look at your new API reference. Start the PHP server again (`php artisan serve`) and open the following URL in your browser:
 
