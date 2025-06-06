@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.5.5
+
+### Patch Changes
+
+- Updated dependencies [11fabae]
+  - @scalar/openapi-parser@0.16.0
+  - @scalar/import@0.4.9
+  - @scalar/oas-utils@0.4.4
+
 ## 2.5.4
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/workspace-store
 
+## 0.3.2
+
+### Patch Changes
+
+- 11fabae: fix(openapi-parser): webpack bundle errors because of the barrel files
+- Updated dependencies [11fabae]
+  - @scalar/openapi-parser@0.16.0
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 2.4.13
+
+### Patch Changes
+
+- @scalar/api-reference@1.31.8
+
 ## 2.4.12
 
 ### Patch Changes
