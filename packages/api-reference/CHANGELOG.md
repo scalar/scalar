@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.31.7
+
+### Patch Changes
+
+- 24cfdfe: feat: adds multiple of in schema property heading
+- Updated dependencies [373214a]
+  - @scalar/workspace-store@0.3.1
+
 ## 1.31.6
 
 ### Patch Changes
