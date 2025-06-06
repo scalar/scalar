@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 2.4.12
+
+### Patch Changes
+
+- ad25353: docs(Scalar.AspNetCore): improve xml comments
+- Updated dependencies [24cfdfe]
+  - @scalar/api-reference@1.31.7
+
 ## 2.4.11
 
 ### Patch Changes
