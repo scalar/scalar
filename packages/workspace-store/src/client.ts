@@ -173,7 +173,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
       return bundle(target, {
         root: activeDocument,
         treeShake: false,
-        plugins: [fetchUrls(), readFiles()],
+        plugins: [fetchUrls()],
         urlMap: false,
         hooks: {
           onResolveStart: (node) => {
