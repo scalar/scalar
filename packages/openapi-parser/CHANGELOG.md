@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.16.0
+
+### Minor Changes
+
+- 11fabae: fix(openapi-parser): webpack bundle errors because of the barrel files
+
 ## 0.15.0
 
 ### Minor Changes
