@@ -61,7 +61,7 @@ The OpenAPI specification allows to point to external files (URLs or files). But
 
 #### Plugins
 
-If you are on a broswer enviroment import plugins from `@scalar/openapi-parser/plugins-browser` while if you are on a node enviroment you can import from `@scalar/openapi-parser/plugins`
+If you are on a browser environment import plugins from `@scalar/openapi-parser/plugins-browser` while if you are on a node environment you can import from `@scalar/openapi-parser/plugins`
 
 ##### fetchUrls
 This plugins handles all external urls. It works for both node.js and browser environment
