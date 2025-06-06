@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
+import { useOpenApiWatcher } from '@scalar/api-client/views/Request/hooks'
+import {
+  combineRenameDiffs,
+  mutateSecuritySchemeDiff,
+} from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
 import { useExampleStore } from '@/legacy/stores'
@@ -40,7 +44,45 @@ onMounted(() => {
   })
 })
 
-// Update the config on change
+// We aren't using the watcher here, but just want this method
+const { applyDiff } = useOpenApiWatcher()
+
+// Ensure we have a document when doing the initial import
+watchDebounced(
+  () => dereferencedDocument,
+  (newDocument, oldDocument) => {
+    if (!newDocument) {
+      return
+    }
+
+    // If we already have a collection, we can apply the diffing mechanism from live sync
+    if (activeEntities.activeCollection.value) {
+      const diff = microdiff(newDocument, oldDocument)
+
+      // Combines add/remove diffs into single rename diffs
+      const combined = combineRenameDiffs(diff)
+
+      try {
+        // Transform and apply the diffs to our mutators
+        combined.forEach(applyDiff)
+      } catch (e) {
+        console.error('[ApiClientModal Watcher] Error:', e)
+      }
+    }
+    // Import for the first time
+    else {
+      store.importSpecFile(undefined, 'default', {
+        dereferencedDocument: newDocument,
+        shouldLoad: false,
+        documentUrl: configuration?.url,
+        useCollectionSecurity: true,
+        ...configuration,
+      })
+    }
+  },
+)
+
+// Update the config (non doucment related) on change
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
@@ -60,7 +102,7 @@ watchDebounced(
 
     // If the document source has changed, we re-create the whole store anyway.
     if (documentSourceHasChanged) {
-      // Do nothing.
+      // Taken care of above
     }
     // Or we handle the specific diff changes, just auth and servers for now
     else {

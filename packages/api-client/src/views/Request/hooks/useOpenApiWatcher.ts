@@ -157,4 +157,8 @@ export const useOpenApiWatcher = () => {
     },
     { immediate: true },
   )
+
+  return {
+    applyDiff,
+  }
 }
