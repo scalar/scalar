@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import {
+  ScalarIconCaretRight,
+  ScalarIconPlus,
+  ScalarIconUserSwitch,
+} from '@scalar/icons'
 import { DropdownMenu } from 'radix-vue/namespaced'
 import { computed } from 'vue'
 
 import {
   ScalarDropdownButton,
   ScalarDropdownMenu,
-  ScalarIcon,
   ScalarListboxCheckbox,
 } from '../..'
 import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
@@ -41,13 +45,12 @@ defineOptions({ inheritAttrs: false })
   <DropdownMenu.Sub>
     <ScalarMenuLink
       :is="DropdownMenu.SubTrigger"
-      icon="UserSwitch"
+      :icon="ScalarIconUserSwitch"
       v-bind="$attrs">
       <div>Change team</div>
-      <ScalarIcon
-        class="ml-auto text-c-2 -mr-0.25"
-        icon="ChevronRight"
-        size="sm" />
+      <ScalarIconCaretRight
+        class="ml-auto text-c-2 -mr-0.25 size-3"
+        weight="bold" />
     </ScalarMenuLink>
     <DropdownMenu.Portal>
       <DropdownMenu.SubContent
@@ -75,10 +78,9 @@ defineOptions({ inheritAttrs: false })
         <DropdownMenu.Item
           :as="ScalarDropdownButton"
           @click="emit('add')">
-          <ScalarIcon
-            class="bg-b-3 -ml-0.75 rounded p-0.75 size-5 text-c-3"
-            icon="Add"
-            thickness="1.75" />
+          <ScalarIconPlus
+            class="bg-b-3 -ml-0.75 rounded p-1 size-5 text-c-3"
+            weight="bold" />
           Create new team
         </DropdownMenu.Item>
       </DropdownMenu.SubContent>

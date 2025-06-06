@@ -1,8 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-
-import { ScalarIcon } from '../ScalarIcon'
 import { useLoadingState } from '../ScalarLoading'
 import ScalarButton from './ScalarButton.vue'
+import { ScalarIconAcorn } from '@scalar/icons'
 
 /**
  * - Default slot must be text only as it becomes the [aria]-label
@@ -79,14 +78,14 @@ export const LoadingFullWidth: Story = {
 
 export const WithIcon: Story = {
   render: (args) => ({
-    components: { ScalarButton, ScalarIcon },
+    components: { ScalarButton, ScalarIconAcorn },
     setup() {
       return { args }
     },
     template: `
       <ScalarButton :variant="args.variant">
         <template #icon>
-          <ScalarIcon icon="Logo"/>
+          <ScalarIconAcorn class="size-full" />
         </template>
         Button
       </ScalarButton>

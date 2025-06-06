@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIconTrash } from '@scalar/icons'
 import { cva, cx } from '@scalar/use-hooks/useBindCx'
 
 import { ScalarIcon } from '../ScalarIcon'
@@ -45,13 +46,10 @@ const variants = cva({
       :selected="selected"
       :style="style" />
     <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
-    <ScalarIcon
+    <ScalarIconTrash
       v-if="isDeletable"
       aria-label="Delete"
-      class="text-c-2 opacity-0 group-hover/item:opacity-100"
-      icon="Delete"
-      size="md"
-      thickness="1.5"
+      class="text-c-2 opacity-0 group-hover/item:opacity-100 size-4"
       @click.stop="$emit('delete')" />
   </li>
 </template>

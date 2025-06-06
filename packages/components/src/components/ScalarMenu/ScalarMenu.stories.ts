@@ -11,6 +11,7 @@ import {
   ScalarMenuTeamPicker,
   ScalarMenuTeamProfile,
 } from './'
+import { ScalarIconGear, ScalarIconSignOut } from '@scalar/icons'
 
 const meta = {
   component: ScalarMenu,
@@ -64,7 +65,7 @@ export const TeamPicker: Story = {
       const team = ref(teams[0])
       const handleAddTeam = () => alert('Add team!')
 
-      return { args, teams, team, handleAddTeam }
+      return { args, teams, team, handleAddTeam, ScalarIconGear, ScalarIconSignOut }
     },
     template: `
 <ScalarMenu v-bind="args">
@@ -75,8 +76,8 @@ export const TeamPicker: Story = {
     <ScalarMenuSection>
       <template #title>Account</template>
       <ScalarMenuTeamPicker :teams="teams" v-model:team="team" @add="handleAddTeam" />
-      <ScalarMenuLink icon="Cog" >Settings</ScalarMenuLink>
-      <ScalarMenuLink icon="Leave">Logout</ScalarMenuLink>
+      <ScalarMenuLink :icon="ScalarIconGear" >Settings</ScalarMenuLink>
+      <ScalarMenuLink :icon="ScalarIconSignOut">Logout</ScalarMenuLink>
     </ScalarMenuSection>
     <ScalarMenuResources />
   </template>
