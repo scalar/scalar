@@ -4,14 +4,12 @@ import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
-import { readFiles } from '@scalar/openapi-parser/utils/bundle/plugins/read-files'
 import { fetchUrls } from '@scalar/openapi-parser/utils/bundle/plugins/fetch-urls'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
 type WorkspaceDocumentInput =
   | ({ document: Record<string, unknown> } & WorkspaceDocumentMetaInput)
   | ({ url: string } & WorkspaceDocumentMetaInput)
-  | ({ path: string } & WorkspaceDocumentMetaInput)
 
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
@@ -40,10 +38,6 @@ type WorkspaceDocumentInput =
 async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
     return fetchUrls().exec(workspaceDocument.url)
-  }
-
-  if ('path' in workspaceDocument) {
-    return readFiles().exec(workspaceDocument.path)
   }
 
   return {
