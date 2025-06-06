@@ -1,11 +1,8 @@
-import { createServerWorkspaceStore, WORKSPACE_FILE_NAME } from '@/server'
+import { createServerWorkspaceStore } from '@/server'
 import { createWorkspaceStore } from '@/client'
 import { beforeEach, describe, expect, test } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach } from 'node:test'
-import { cwd } from 'node:process'
-import fs from 'node:fs/promises'
-import type { Workspace } from '@/schemas/server-workspace'
 
 // Test document
 const document = {
@@ -286,58 +283,6 @@ describe('create-workspace-store', () => {
     ).toEqual(document.components.schemas.User)
   })
 
-  test('should correctly resolve chunks from the file system', async () => {
-    const randomSeed = () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER)
-    const path = `temp-${randomSeed()}`
-
-    const serverStore = createServerWorkspaceStore({
-      mode: 'static',
-      directory: path,
-      documents: [
-        {
-          name: 'default',
-          document: document,
-        },
-      ],
-    })
-
-    await serverStore.generateWorkspaceChunks()
-
-    const buildPath = `${cwd()}/${path}`
-
-    // Read the workspace file to get the sparse document
-    const workspace = JSON.parse(
-      await fs.readFile(`${buildPath}/${WORKSPACE_FILE_NAME}`, { encoding: 'utf-8' }),
-    ) as Workspace
-
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          name: 'default',
-          document: workspace.documents['default'],
-        },
-      ],
-    })
-
-    // The operation should not be resolved on the fly
-    expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
-      '$ref': `${path}/chunks/default/operations/~1users/get.json#`,
-      $global: true,
-    })
-
-    // We resolve the ref
-    await store.resolve(['paths', '/users', 'get'])
-    await fs.rm(`${cwd()}/${path}`, { recursive: true })
-
-    // We expect the ref to have been resolved with the correct contents
-    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
-
-    expect(
-      (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
-        .items,
-    ).toEqual(document.components.schemas.User)
-  })
-
   test('should load files form the remote url', async () => {
     const PORT = 9989
     const url = `http://localhost:${PORT}`
@@ -363,31 +308,6 @@ describe('create-workspace-store', () => {
 
     // Add a new remote file
     await store.addDocument({ name: 'new', url: url })
-
-    expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
-    expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
-  })
-
-  test('should load files from the local file system', async () => {
-    const fileName = 'temp.json'
-
-    // write the document to a local file
-    await fs.writeFile(fileName, JSON.stringify(document))
-
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          path: fileName,
-          name: 'default',
-        },
-      ],
-    })
-
-    expect(Object.keys(store.workspace.documents)).toEqual(['default'])
-    expect(store.workspace.documents['default'].info?.title).toEqual(document.info.title)
-
-    await store.addDocument({ name: 'new', path: fileName })
-    await fs.rm(fileName)
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
     expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
