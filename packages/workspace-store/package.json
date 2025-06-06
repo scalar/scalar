@@ -31,6 +31,10 @@
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "type": "module",
   "exports": {
     "./client": {

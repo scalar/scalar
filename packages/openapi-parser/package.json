@@ -40,6 +40,16 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./plugins": {
+      "import": "./dist/plugins.js",
+      "types": "./dist/plugins.d.ts",
+      "default": "./dist/plugins.js"
+    },
+    "./plugins-browser": {
+      "import": "./dist/plugins-browser.js",
+      "types": "./dist/plugins-browser.d.ts",
+      "default": "./dist/plugins-browser.js"
+    },
     "./plugins/fetch-urls": {
       "import": "./dist/plugins/fetch-urls/index.js",
       "types": "./dist/plugins/fetch-urls/index.d.ts",
@@ -49,16 +59,6 @@
       "import": "./dist/plugins/read-files/index.js",
       "types": "./dist/plugins/read-files/index.d.ts",
       "default": "./dist/plugins/read-files/index.js"
-    },
-    "./utils/bundle/plugins/fetch-urls": {
-      "import": "./dist/utils/bundle/plugins/fetch-urls/index.js",
-      "types": "./dist/utils/bundle/plugins/fetch-urls/index.d.ts",
-      "default": "./dist/utils/bundle/plugins/fetch-urls/index.js"
-    },
-    "./utils/bundle/plugins/read-files": {
-      "import": "./dist/utils/bundle/plugins/read-files/index.js",
-      "types": "./dist/utils/bundle/plugins/read-files/index.d.ts",
-      "default": "./dist/utils/bundle/plugins/read-files/index.js"
     }
   },
   "files": [

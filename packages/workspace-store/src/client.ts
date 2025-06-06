@@ -4,7 +4,7 @@ import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/utils/bundle/plugins/fetch-urls'
+import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
 type WorkspaceDocumentInput =
