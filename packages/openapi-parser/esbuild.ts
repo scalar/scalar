@@ -13,10 +13,11 @@ await convertSchema('3.1')
 
 const entries = [
   './src/index.ts',
+  './src/plugins.ts',
+  './src/plugins-browser.ts',
+
   './src/plugins/fetch-urls/index.ts',
   './src/plugins/read-files/index.ts',
-  './src/utils/bundle/plugins/fetch-urls/index.ts',
-  './src/utils/bundle/plugins/read-files/index.ts',
 ]
 
 build({

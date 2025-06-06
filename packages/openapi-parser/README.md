@@ -61,12 +61,14 @@ The OpenAPI specification allows to point to external files (URLs or files). But
 
 #### Plugins
 
+If you are on a browser environment import plugins from `@scalar/openapi-parser/plugins-browser` while if you are on a node environment you can import from `@scalar/openapi-parser/plugins`
+
 ##### fetchUrls
 This plugins handles all external urls. It works for both node.js and browser environment
 
 ```ts
 import { bundle } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/utils/bundle/plugins/fetch-urls'
+import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 
 const document = {
   openapi: '3.1.0',
