@@ -13,7 +13,7 @@ type Variants = VariantProps<typeof variants>
 withDefaults(
   defineProps<{
     label: string
-    icon: Icon
+    icon: Icon | Component
     disabled?: boolean
     variant?: Variants['variant']
     size?: Variants['size']

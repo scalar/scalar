@@ -12,6 +12,9 @@ defineProps<{
 </template>
 <style scoped>
 .sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5px;
   list-style: none;
   width: 100%;
   margin: 0;
@@ -21,7 +24,7 @@ defineProps<{
 /* We indent each level of nesting further */
 .sidebar-indent-nested :deep(.sidebar-heading) {
   /* prettier-ignore */
-  padding-left: calc((var(--scalar-sidebar-level) * var(--scalar-sidebar-indent-base)) + 12px) !important;
+  padding-left: calc((var(--scalar-sidebar-level) * var(--scalar-sidebar-indent-base)) + 10px) !important;
 }
 
 /* Collapse/expand icons must also be offset */

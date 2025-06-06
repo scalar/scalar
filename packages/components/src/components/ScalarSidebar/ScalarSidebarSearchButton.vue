@@ -15,12 +15,12 @@ const { cx } = useBindCx()
     role="search"
     v-bind="
       cx(
-        'flex items-center rounded border text-sm font-medium h-8 gap-1.25 pl-1.75 pr-1',
+        'flex items-center rounded border text-sm font-medium h-8 gap-1.5 pl-1.5 pr-1',
         'bg-sidebar-b-search border-sidebar-border-search text-sidebar-c-search',
       )
     ">
     <ScalarIconMagnifyingGlass
-      class="size-3"
+      class="size-3.5"
       weight="bold" />
     <span class="flex-1 text-left leading-none">
       <slot>Search...</slot>
