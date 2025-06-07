@@ -4,7 +4,6 @@
 }
 
 :8080 {
-	encode gzip
 	root /usr/share/caddy
 	templates
 	file_server {
