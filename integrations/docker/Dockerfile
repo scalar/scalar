@@ -4,11 +4,8 @@ FROM caddy:2-alpine
 # Create a non-root user
 RUN adduser -D -u 1000 caddy
 
-# Set the working directory in the container
-WORKDIR /usr/share/caddy
-
-# Copy the HTML file into the container
-COPY ./assets .
+# Copy the files into the container
+COPY ./assets /usr/share/caddy
 
 # Copy the Caddyfile into the container
 COPY Caddyfile /etc/caddy/Caddyfile
