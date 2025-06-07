@@ -12,6 +12,7 @@ on:
 
 jobs:
   test:
+    if: github.repository == 'scalar/scalar' || github.event_name != 'schedule'
     runs-on: ubuntu-22.04
     timeout-minutes: 15
     strategy:
