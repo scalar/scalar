@@ -1,26 +1,28 @@
 import { describe, expect, it } from 'vitest'
-import { pythonRequests } from './requests'
+import { pythonHttpxAsync } from './async'
 
-describe('pythonRequests', () => {
+describe('pythonHttpxAsync', () => {
   it('returns a basic request', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe('requests.get("https://example.com")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com")`)
   })
 
   it('returns a POST request', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(result).toBe('requests.post("https://example.com")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com")`)
   })
 
   it('has headers', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -30,24 +32,26 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        }
+    )`)
   })
 
   it('doesn’t add empty headers', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(result).toBe('requests.get("https://example.com")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com")`)
   })
 
   it('has JSON body', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -64,18 +68,19 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "hello": "world"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        },
+        json={
+          "hello": "world"
+        }
+    )`)
   })
 
   it('has query string', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -89,16 +94,17 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    params={
-      "foo": "bar",
-      "bar": "foo"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        params={
+          "foo": "bar",
+          "bar": "foo"
+        }
+    )`)
   })
 
   it('has cookies', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -112,25 +118,27 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    cookies={
-      "foo": "bar",
-      "bar": "foo"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        cookies={
+          "foo": "bar",
+          "bar": "foo"
+        }
+    )`)
   })
 
   it('doesn’t add empty cookies', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(result).toBe('requests.get("https://example.com")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com")`)
   })
 
   it('adds basic auth credentials', () => {
-    const result = pythonRequests.generate(
+    const result = pythonHttpxAsync.generate(
       {
         url: 'https://example.com',
       },
@@ -142,13 +150,14 @@ describe('pythonRequests', () => {
       },
     )
 
-    expect(result).toBe(`requests.get("https://example.com",
-    auth=("user", "pass")
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        auth=("user", "pass")
+    )`)
   })
 
   it('handles multipart form data with files', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -166,18 +175,19 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    files=[
-      ("file", open("test.txt", "rb"))
-    ],
-    data={
-      "field": "value"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        files=[
+          ("file", open("test.txt", "rb"))
+        ],
+        data={
+          "field": "value"
+        }
+    )`)
   })
 
   it('handles multipart form data with multiple files', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -195,16 +205,17 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    files=[
-      ("file", open("test.txt", "rb")),
-      ("file", open("another.txt", "rb"))
-    ]
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        files=[
+          ("file", open("test.txt", "rb")),
+          ("file", open("another.txt", "rb"))
+        ]
+    )`)
   })
 
   it('handles url-encoded form data', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -218,15 +229,16 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    data={
-      "special chars!@#": "value"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        data={
+          "special chars!@#": "value"
+        }
+    )`)
   })
 
   it('handles binary data flag', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -235,13 +247,14 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    data=b"binary content"
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        data=b"binary content"
+    )`)
   })
 
   it('handles compressed response', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -251,25 +264,27 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    headers={
-      "Accept-Encoding": "gzip, deflate"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        headers={
+          "Accept-Encoding": "gzip, deflate"
+        }
+    )`)
   })
 
   it('handles special characters in URL', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(`requests.get(
-    "https://example.com/path with spaces/[brackets]"
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get(
+        "https://example.com/path with spaces/[brackets]"
+    )`)
   })
 
   it('handles special characters in query parameters', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -283,42 +298,46 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    params={
-      "q": "hello world & more",
-      "special": "!@#$%^&*()"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        params={
+          "q": "hello world & more",
+          "special": "!@#$%^&*()"
+        }
+    )`)
   })
 
   it('handles empty URL', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: '',
     })
 
-    expect(result).toBe('requests.get("")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("")`)
   })
 
   it('doesn’t add a line break for a short URL', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
     })
 
-    expect(result).toBe('requests.get("https://example.com")')
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com")`)
   })
 
   it('handles extremely long URLs', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com/' + 'a'.repeat(2000),
     })
 
-    expect(result).toBe(`requests.get(
-    "https://example.com/${'a'.repeat(2000)}"
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get(
+        "https://example.com/${'a'.repeat(2000)}"
+    )`)
   })
 
   it('handles multiple headers with same name', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [
         { name: 'X-Custom', value: 'value1' },
@@ -326,28 +345,30 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    headers={
-      "X-Custom": "value1"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        headers={
+          "X-Custom": "value1"
+        }
+    )`)
   })
 
   it('handles headers with empty values', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    headers={
-      "X-Empty": ""
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        headers={
+          "X-Empty": ""
+        }
+    )`)
   })
 
   it('handles multipart form data with empty file names', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -361,15 +382,16 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    files=[
-      ("file", open("", "rb"))
-    ]
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        files=[
+          ("file", open("", "rb"))
+        ]
+    )`)
   })
 
   it('handles JSON body with special characters', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -389,25 +411,26 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "key": "\\"quotes\\" and \\\\backslashes\\\\",
-      "nested": {
-        "array": [
-          "item1",
-          None,
-          None
-        ]
-      }
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        },
+        json={
+          "key": "\\"quotes\\" and \\\\backslashes\\\\",
+          "nested": {
+            "array": [
+              "item1",
+              None,
+              None
+            ]
+          }
+        }
+    )`)
   })
 
   it('handles cookies with special characters', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -417,15 +440,16 @@ describe('pythonRequests', () => {
       ],
     })
 
-    expect(result).toBe(`requests.get("https://example.com",
-    cookies={
-      "special;cookie": "value with spaces"
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.get("https://example.com",
+        cookies={
+          "special;cookie": "value with spaces"
+        }
+    )`)
   })
 
   it('prettifies JSON body', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -446,28 +470,29 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "nested": {
-        "array": [
-          1,
-          2,
-          3
-        ],
-        "object": {
-          "foo": "bar"
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        },
+        json={
+          "nested": {
+            "array": [
+              1,
+              2,
+              3
+            ],
+            "object": {
+              "foo": "bar"
+            }
+          },
+          "simple": "value"
         }
-      },
-      "simple": "value"
-    }
-)`)
+    )`)
   })
 
   it('converts true/false/null to Python syntax', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -485,33 +510,32 @@ describe('pythonRequests', () => {
           nested: {
             boolArray: [true, false, null],
           },
-          nullValue2: null,
         }),
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "boolTrue": True,
-      "boolFalse": False,
-      "nullValue": None,
-      "nested": {
-        "boolArray": [
-          True,
-          False,
-          None
-        ]
-      },
-      "nullValue2": None
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        },
+        json={
+          "boolTrue": True,
+          "boolFalse": False,
+          "nullValue": None,
+          "nested": {
+            "boolArray": [
+              True,
+              False,
+              None
+            ]
+          }
+        }
+    )`)
   })
 
   it('does not replace true/false/null in string literals', () => {
-    const result = pythonRequests.generate({
+    const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -530,19 +554,20 @@ describe('pythonRequests', () => {
       },
     })
 
-    expect(result).toBe(`requests.post("https://example.com",
-    headers={
-      "Content-Type": "application/json"
-    },
-    json={
-      "stringWithTrue": "This string contains true",
-      "stringWithTrue2": "aaa   true,   aa",
-      "array": [
-        "true,",
-        "     true\\n",
-        "true"
-      ]
-    }
-)`)
+    expect(result).toBe(`with httpx.AsyncClient() as client:
+    await client.post("https://example.com",
+        headers={
+          "Content-Type": "application/json"
+        },
+        json={
+          "stringWithTrue": "This string contains true",
+          "stringWithTrue2": "aaa   true,   aa",
+          "array": [
+            "true,",
+            "     true\\n",
+            "true"
+          ]
+        }
+    )`)
   })
 })
