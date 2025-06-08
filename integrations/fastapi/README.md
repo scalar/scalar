@@ -44,6 +44,7 @@ Currently available [configuration options](https://github.com/scalar/scalar/blo
 - `servers` (default `[]`)
 - `default_open_all_tags` (default `false`)
 - `authentication` (default `{}`)
+- `hide_client_button`(default `false`)
 
 ## Example
 
