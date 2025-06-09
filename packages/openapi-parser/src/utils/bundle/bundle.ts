@@ -16,8 +16,13 @@ import { isObject } from '@/utils/is-object'
  * isRemoteUrl('./local-schema.json') // false
  * ```
  */
-export function isRemoteUrl(value: string): boolean {
-  return value.startsWith('http://') || value.startsWith('https://')
+export function isRemoteUrl(value: string) {
+  try {
+    const url = new URL(value)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -448,9 +453,10 @@ type Config = {
  * If the input is an object, it will be modified in place by adding an x-ext
  * property to store resolved external references.
  *
- * @param input - The OpenAPI specification object or string to bundle. If a string is provided,
- *                it should be a URL or file path that points to an OpenAPI specification.
- *                The string will be resolved using the provided plugins before bundling.
+ * @param input - The OpenAPI specification to bundle. Can be either an object or string.
+ *                If a string is provided, it will be resolved using the provided plugins.
+ *                If no plugin can process the input, the onReferenceError hook will be invoked
+ *                and an error will be emitted to the console.
  * @param config - Configuration object containing plugins and options for bundling OpenAPI specifications
  * @returns A promise that resolves to the bundled specification with all references embedded
  * @example

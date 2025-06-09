@@ -174,7 +174,8 @@ console.log(result)
 This plugins handles local files. Only works on node.js environment
 
 ```ts
-import { bundle, readFiles } from '@scalar/openapi-parser'
+import { bundle } from '@scalar/openapi-parser'
+import { readFiles } from '@scalar/openapi-parser/plugins-browser'
 
 const document = {
   openapi: '3.1.0',
@@ -205,6 +206,48 @@ const result = await bundle(
   {
     plugins: [
       readFiles(),
+    ],
+    treeShake: false
+  },
+)
+
+// Bundled document
+console.log(result)
+```
+
+##### parseJson
+
+You can pass raw json string as input
+```ts
+import { bundle } from '@scalar/openapi-parser'
+import { parseJson } from '@scalar/openapi-parser/plugins-browser'
+
+const result = await bundle(
+  '{ "openapi": "3.1.1" }',
+  {
+    plugins: [
+      parseJson(),
+    ],
+    treeShake: false
+  },
+)
+
+// Bundled document
+console.log(result)
+```
+
+##### parseYaml
+
+You can pass raw yaml string as input
+```ts
+import { bundle } from '@scalar/openapi-parser'
+import { parseYaml } from '@scalar/openapi-parser/plugins-browser'
+
+const result = await bundle(
+  'openapi: "3.1.1"\n',
+  {
+    plugins: [
+      parseYaml(),
     ],
     treeShake: false
   },

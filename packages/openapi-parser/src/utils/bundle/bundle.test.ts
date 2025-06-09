@@ -15,6 +15,8 @@ import {
 import { fetchUrls } from './plugins/fetch-urls'
 import { readFiles } from './plugins/read-files'
 import { setTimeout } from 'node:timers/promises'
+import { parseJson } from '@/utils/bundle/plugins/parse-json'
+import { parseYaml } from '@/utils/bundle/plugins/parse-yaml'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -1345,12 +1347,48 @@ describe('bundle', () => {
       })
     })
   })
+
+  describe('json inputs', () => {
+    it('should process json inputs', async () => {
+      const result = await bundle('{ "openapi": "3.1", "info": { "title": "Simple API", "version": "1.0" } }', {
+        treeShake: false,
+        plugins: [parseJson()],
+      })
+
+      expect(result).toEqual({
+        openapi: '3.1',
+        info: {
+          title: 'Simple API',
+          version: '1.0',
+        },
+      })
+    })
+  })
+
+  describe('yaml inputs', () => {
+    it('should process yaml inputs', async () => {
+      const result = await bundle('openapi: "3.1"\ninfo:\n  title: Simple API\n  version: "1.0"\n', {
+        treeShake: false,
+        plugins: [parseYaml()],
+      })
+
+      expect(result).toEqual({
+        openapi: '3.1',
+        info: {
+          title: 'Simple API',
+          version: '1.0',
+        },
+      })
+    })
+  })
 })
 
 describe('isRemoteUrl', () => {
   it.each([
     ['https://example.com/schema.json', true],
     ['http://api.example.com/schemas/user.json', true],
+    ['file://some/path', false],
+    ['random-string', false],
     ['#/components/schemas/User', false],
     ['./local-schema.json', false],
   ])('detects remote urls', (a, b) => {
