@@ -20,8 +20,8 @@
 **/.output/**
 **/.vite-ssg-temp/**
 **/.docusaurus/**
-**/aspnetcore/**/obj/**
-**/aspnetcore/**/bin/**
+**/obj/**
+**/bin/**
 integrations/docker/assets/**
 
 **/vite.config.ts.timestamp-*.mjs
