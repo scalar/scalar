@@ -11,4 +11,8 @@
 	}
 	header -Server
 	header Cache-Control "no-cache"
+
+	handle /health {
+		respond "OK" 200
+	}
 }
