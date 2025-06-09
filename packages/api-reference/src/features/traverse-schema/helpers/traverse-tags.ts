@@ -139,10 +139,9 @@ export const traverseTags = (
   const tags = getSortedTagEntries(keys, tagsMap, tagsDict, titlesMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
-  // TODO: bring this back later when we remove parsedSpec
-  // if (tags.length === 1 && tags[0].title === 'default') {
-  //   return tags[0].children ?? []
-  // }
+  if (tags.length === 1 && tags[0].title === 'default') {
+    return tags[0].children ?? []
+  }
 
   return tags
 }
