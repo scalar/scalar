@@ -134,7 +134,7 @@ function updateRequestMethod(method: RequestMethod) {
 
 function getBackgroundColor() {
   const { method } = operation
-  return REQUEST_METHODS[method].backgroundColor
+  return REQUEST_METHODS[method].colorVar
 }
 
 function handleExecuteRequest() {
@@ -173,8 +173,10 @@ function updateRequestPath(url: string) {
         class="pointer-events-none absolute top-0 left-0 block h-full w-full overflow-hidden rounded-lg border">
         <div
           class="absolute top-0 left-0 z-[1002] h-full w-full"
-          :class="getBackgroundColor()"
-          :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
+          :style="{
+            backgroundColor: `color-mix(in srgb, transparent 90%, ${getBackgroundColor()})`,
+            transform: `translate3d(-${percentage}%,0,0)`,
+          }" />
       </div>
       <div class="z-context-plus flex gap-1">
         <HttpMethod
