@@ -23,7 +23,6 @@ const createTagEntry = (
   return {
     id,
     title,
-    name: tag.name || title,
     tag,
     children,
     isGroup,

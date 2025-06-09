@@ -24,7 +24,6 @@ export type TraversedOperation = {
 export type TraversedSchema = {
   id: string
   title: string
-  name: string
   schema: OpenAPIV3_1.SchemaObject
 }
 
@@ -32,7 +31,6 @@ export type TraversedSchema = {
 export type TraversedTag = {
   id: string
   title: string
-  name: string
   children: TraversedEntry[]
   tag: OpenAPIV3_1.TagObject
   isGroup: boolean
