@@ -283,6 +283,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = {},
+    hide_client_button: Annotated[
+        bool,
+        Doc(
+            """
+            Whether to show the client button from the reference sidebar and modal
+            Default is False which means the client button is shown.
+            """
+        ),
+    ] = False,
     integration: Annotated[
         str | None,
         Doc(
@@ -332,6 +341,7 @@ def get_scalar_api_reference(
         servers: {json.dumps(servers)},
         defaultOpenAllTags: {json.dumps(default_open_all_tags)},
         authentication: {json.dumps(authentication)},
+        hideClientButton: {json.dumps(hide_client_button)},
         _integration: {json.dumps(integration)},
       }}
 
