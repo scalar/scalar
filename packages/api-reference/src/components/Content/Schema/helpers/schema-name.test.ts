@@ -138,6 +138,15 @@ describe('schema-name', () => {
       const schema: OpenAPIV3_1.SchemaObject = { type: 'object' }
       expect(getSchemaNameFromSchemas(schema)).toBe(null)
     })
+
+    it('does not return schema name for simple primitive types', () => {
+      const schema: OpenAPIV3_1.SchemaObject = { type: 'string' }
+      const schemas = {
+        foo: { type: 'string' },
+        bar: { type: 'number' },
+      }
+      expect(getSchemaNameFromSchemas(schema, schemas)).toBe(null)
+    })
   })
 
   describe('getModelName', () => {
