@@ -1,4 +1,5 @@
-import type { TraversedSchema } from '@/features/traverse-schema/types'
+import { getTag } from '@/features/traverse-schema/helpers/get-tag'
+import type { TagsMap, TraversedSchema } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
@@ -8,8 +9,9 @@ const createModelEntry = (
   name = 'Unkown',
   titlesMap: Map<string, string>,
   getModelId: UseNavState['getModelId'],
+  tag?: OpenAPIV3_1.TagObject,
 ): TraversedSchema => {
-  const id = getModelId({ name })
+  const id = getModelId({ name }, tag)
   titlesMap.set(id, name)
 
   return {
@@ -23,6 +25,7 @@ const createModelEntry = (
 /** Traverse components.schemas to create entries for models */
 export const traverseSchemas = (
   content: OpenAPIV3_1.Document,
+  tagsMap: TagsMap,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   getModelId: UseNavState['getModelId'],
@@ -35,7 +38,17 @@ export const traverseSchemas = (
       continue
     }
 
-    untagged.push(createModelEntry(schemas[name], name, titlesMap, getModelId))
+    // Add to tags
+    if (schemas[name]['x-tags']?.length) {
+      schemas[name]['x-tags'].forEach((tagName: string) => {
+        const { tag } = getTag(tagsMap, tagName)
+        tagsMap.get(tagName)?.entries.push(createModelEntry(schemas[name], name, titlesMap, getModelId, tag))
+      })
+    }
+    // Add to untagged
+    else {
+      untagged.push(createModelEntry(schemas[name], name, titlesMap, getModelId))
+    }
   }
 
   return untagged

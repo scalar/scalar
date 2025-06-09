@@ -121,15 +121,18 @@ export const useNavState = (_config?: Ref<ApiReferenceConfiguration>) => {
     return ''
   }
 
-  const getModelId = (model?: { name: string }) => {
+  const getModelId = (model?: { name: string }, parentTag?: OpenAPIV3_1.TagObject) => {
     if (!model?.name) {
       return 'models'
     }
 
+    /** Prefix with the tag if we have one */
+    const prefixTag = parentTag ? `${getTagId(parentTag)}/` : ''
+
     if (typeof config.value.generateModelSlug === 'function') {
-      return `model/${config.value.generateModelSlug(model)}`
+      return `${prefixTag}model/${config.value.generateModelSlug(model)}`
     }
-    return `model/${slug(model.name)}`
+    return `${prefixTag}model/${slug(model.name)}`
   }
 
   const getTagId = (tag: OpenAPIV3_1.TagObject) => {

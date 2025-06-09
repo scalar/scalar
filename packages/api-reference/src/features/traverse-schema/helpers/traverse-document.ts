@@ -51,7 +51,7 @@ export const traverseDocument = (
 
   // Add models if they are not hidden
   if (!config.value.hideModels && document.components?.schemas) {
-    const models = traverseSchemas(document, titles, getModelId)
+    const models = traverseSchemas(document, tagsMap, titles, getModelId)
 
     if (models.length) {
       entries.push({
