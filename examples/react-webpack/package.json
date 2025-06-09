@@ -1,0 +1,39 @@
+{
+  "name": "@scalar-examples/react-webpack",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "examples/react-webpack"
+  },
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve --allowed-hosts all"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@10.5.2",
+  "devDependencies": {
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "css-loader": "^6.7.3",
+    "ts-loader": "^9.4.2",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^4.11.1",
+    "style-loader": "^3.3.4",
+    "webpack": "^5.75.0"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "@scalar/api-reference-react": "workspace:*"
+  }
+}
