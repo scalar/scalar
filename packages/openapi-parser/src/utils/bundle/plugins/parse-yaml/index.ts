@@ -1,4 +1,4 @@
-import type { Plugin } from '@/utils/bundle/bundle'
+import type { Plugin, ResolveResult } from '@/utils/bundle/bundle'
 import { isYaml } from '@/utils/is-yaml'
 import YAML from 'yaml'
 
@@ -15,6 +15,17 @@ import YAML from 'yaml'
 export function parseYaml(): Plugin {
   return {
     validate: (value) => isYaml(value),
-    exec: (value) => YAML.parse(value),
+    exec: async (value): Promise<ResolveResult> => {
+      try {
+        return {
+          ok: true,
+          data: YAML.parse(value),
+        }
+      } catch {
+        return {
+          ok: false,
+        }
+      }
+    },
   }
 }
