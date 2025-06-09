@@ -19,7 +19,7 @@ import { parseJson } from '@/utils/bundle/plugins/parse-json'
 import { parseYaml } from '@/utils/bundle/plugins/parse-yaml'
 
 describe('bundle', () => {
-  describe.skip('external urls', () => {
+  describe('external urls', () => {
     let server: FastifyInstance
     const PORT = 7289
 
@@ -1194,7 +1194,7 @@ describe('bundle', () => {
     })
   })
 
-  describe.skip('local files', () => {
+  describe('local files', () => {
     it('resolves from local files', async () => {
       const chunk1 = { a: 'a', b: 'b' }
       const chunk1Path = randomUUID()
@@ -1383,7 +1383,7 @@ describe('bundle', () => {
   })
 })
 
-describe.skip('isRemoteUrl', () => {
+describe('isRemoteUrl', () => {
   it.each([
     ['https://example.com/schema.json', true],
     ['http://api.example.com/schemas/user.json', true],
@@ -1396,7 +1396,7 @@ describe.skip('isRemoteUrl', () => {
   })
 })
 
-describe.skip('isLocalRef', () => {
+describe('isLocalRef', () => {
   it.each([
     ['#/components/schemas/User', true],
     ['https://example.com/schema.json', false],
@@ -1406,7 +1406,7 @@ describe.skip('isLocalRef', () => {
   })
 })
 
-describe.skip('getNestedValue', () => {
+describe('getNestedValue', () => {
   it.each([
     [{ a: { b: { c: 'hello' } } }, ['a', 'b', 'c'], 'hello'],
     [{ a: { b: { c: 'hello' } } }, [], { a: { b: { c: 'hello' } } }],
@@ -1417,7 +1417,7 @@ describe.skip('getNestedValue', () => {
   })
 })
 
-describe.skip('prefixInternalRef', () => {
+describe('prefixInternalRef', () => {
   it.each([
     ['#/hello', ['prefix'], '#/prefix/hello'],
     ['#/a/b/c', ['prefixA', 'prefixB'], '#/prefixA/prefixB/a/b/c'],
@@ -1430,7 +1430,7 @@ describe.skip('prefixInternalRef', () => {
   })
 })
 
-describe.skip('prefixInternalRefRecursive', () => {
+describe('prefixInternalRefRecursive', () => {
   it.each([
     [
       { a: { $ref: '#/a/b' }, b: { $ref: '#' } },
@@ -1448,7 +1448,7 @@ describe.skip('prefixInternalRefRecursive', () => {
   })
 })
 
-describe.skip('setValueAtPath', () => {
+describe('setValueAtPath', () => {
   it.each([
     [{}, '/a/b/c', { hello: 'hi' }, { a: { b: { c: { hello: 'hi' } } } }],
     [{ a: { b: 'b' } }, '/a/c', { hello: 'hi' }, { a: { b: 'b', c: { hello: 'hi' } } }],
