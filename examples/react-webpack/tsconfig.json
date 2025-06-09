@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "lib": ["es6", "dom"],
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "jsx": "react",
+    "module": "es6",
+    "target": "es5",
+    "allowJs": false,
+    "moduleResolution": "node",
+    "resolveJsonModule": true
+  }
+}
