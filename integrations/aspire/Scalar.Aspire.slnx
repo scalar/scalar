@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/playground/">
+    <Project Path="playground/Scalar.Aspire.AppHost/Scalar.Aspire.AppHost.csproj" />
+    <Project Path="playground/Scalar.Aspire.BookService/Scalar.Aspire.BookService.csproj" />
+    <File Path="playground/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Scalar.Aspire.Service/Scalar.Aspire.Service.csproj" />
+    <Project Path="src/Scalar.Aspire/Scalar.Aspire.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Scalar.Aspire.Tests/Scalar.Aspire.Tests.csproj" />
+    <Project Path="tests/Scalar.Aspire.Service.Tests/Scalar.Aspire.Service.Tests.csproj" />
+    <File Path="tests/Directory.Build.props" />
+    <File Path="tests/Directory.Packages.props" />
+    <File Path="tests/xunit.runner.json" />
+    <File Path="tests/.editorconfig" />
+  </Folder>
+</Solution>

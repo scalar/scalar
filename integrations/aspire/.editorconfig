@@ -1,0 +1,42 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[*.{csproj,props,targets,json,js,slnx}]
+indent_size = 2
+
+[*.cs]
+# Microsoft .NET properties
+csharp_new_line_before_members_in_object_initializers = false
+csharp_preferred_modifier_order = public, protected, private, file, internal, static, required, async, virtual, abstract, sealed, override, extern, unsafe, volatile, readonly:warning
+csharp_space_after_cast = true
+
+# ReSharper properties
+resharper_blank_lines_around_single_line_auto_property = 1
+resharper_braces_for_foreach = required
+resharper_braces_for_ifelse = not_required
+resharper_braces_redundant = false
+resharper_csharp_blank_lines_around_single_line_invocable = 1
+resharper_csharp_max_line_length = 270
+resharper_instance_members_qualify_declared_in =
+resharper_method_or_operator_body = expression_body
+resharper_parentheses_redundancy_style = remove
+resharper_place_accessorholder_attribute_on_same_line = false
+resharper_place_field_attribute_on_same_line = false
+resharper_place_simple_anonymousmethod_on_single_line = false
+resharper_place_simple_initializer_on_single_line = false
+resharper_wrap_chained_binary_expressions = chop_if_long
+resharper_wrap_object_and_collection_initializer_style = chop_always
+resharper_check_namespace_highlighting = none
+
+
+[*.{csproj,slnx,props}]
+ij_xml_space_inside_empty_tag = true
+
+
