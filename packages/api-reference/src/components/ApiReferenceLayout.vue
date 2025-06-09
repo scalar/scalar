@@ -370,8 +370,7 @@ watch(hash, (newHash, oldHash) => {
         v-if="
           configuration.layout === 'modern' &&
           (configuration.showSidebar ?? true)
-        "
-        v-model:open="isSidebarOpen" />
+        " />
       <slot
         v-bind="referenceSlotProps"
         name="header" />
