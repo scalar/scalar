@@ -41,5 +41,6 @@ const { cx } = useBindCx()
     v-else
     :is="icon"
     :label="label"
+    :weight="weight"
     v-bind="cx(variants({ size }))" />
 </template>
