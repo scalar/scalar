@@ -10,7 +10,7 @@
 
   <body>
     <div id="app"></div>
-    <script src="standalone.js"></script>
+    <script src="{{env "CDN_URL"}}"></script>
     <script>
       const configuration = {{env "API_REFERENCE_CONFIG"}}
       if(configuration) {
