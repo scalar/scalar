@@ -1351,6 +1351,8 @@ describe('isRemoteUrl', () => {
   it.each([
     ['https://example.com/schema.json', true],
     ['http://api.example.com/schemas/user.json', true],
+    ['file://some/path', false],
+    ['random-string', false],
     ['#/components/schemas/User', false],
     ['./local-schema.json', false],
   ])('detects remote urls', (a, b) => {
