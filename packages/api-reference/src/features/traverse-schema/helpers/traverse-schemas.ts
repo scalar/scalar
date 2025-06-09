@@ -30,7 +30,6 @@ export const traverseSchemas = (
   const schemas = content.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
-  // For loop has 2x the performance of forEach here
   for (const name in schemas) {
     if (schemas[name]['x-internal'] || schemas[name]['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
       continue

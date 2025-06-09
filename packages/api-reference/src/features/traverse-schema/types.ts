@@ -4,6 +4,9 @@ import type { UseNavState } from '@/hooks/useNavState'
 import type { Ref } from 'vue'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+/** Map of tagNames and their entries */
+export type TagsMap = Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>
+
 /** Description entry returned form traversing the document */
 export type TraversedDescription = {
   id: string
@@ -24,6 +27,7 @@ export type TraversedOperation = {
 export type TraversedSchema = {
   id: string
   title: string
+  name: string
   schema: OpenAPIV3_1.SchemaObject
 }
 

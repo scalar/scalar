@@ -1,6 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { TraversedOperation } from '@/features/traverse-schema/types'
+import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { getTag } from './get-tag'
 import { httpMethods } from '@scalar/helpers/http/http-methods'
@@ -29,18 +29,15 @@ const createOperationEntry = (
  * Traverse the paths of the spec and build a map of tags and operations
  *
  * Default tag is to match what we have now we can improve later
- * TODO: filter out internal and scalar-ignore tags
  */
 export const traversePaths = (
   content: OpenAPIV3_1.Document,
-  /** Dictionary of tags from the spec */
-  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  /** Map of tags and their entries */
+  tagsMap: Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   getOperationId: UseNavState['getOperationId'],
-): Map<string, TraversedOperation[]> => {
-  const tagsMap = new Map<string, TraversedOperation[]>([['default', []]])
-
+) => {
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
     const pathEntries = Object.entries(pathItem ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
@@ -55,20 +52,19 @@ export const traversePaths = (
       // Traverse tags
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          if (!tagsMap.has(tagName)) {
-            tagsMap.set(tagName, [])
-          }
-          const tag = getTag(tagsDict, tagName)
-          tagsMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
+          const { tag } = getTag(tagsMap, tagName)
+          tagsMap
+            .get(tagName)
+            ?.entries.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
         })
       }
       // Add to default tag
       else {
-        const tag = getTag(tagsDict, 'default')
-        tagsMap.get('default')?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
+        const { tag } = getTag(tagsMap, 'default')
+        tagsMap
+          .get('default')
+          ?.entries.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
       }
     })
   })
-
-  return tagsMap
 }
