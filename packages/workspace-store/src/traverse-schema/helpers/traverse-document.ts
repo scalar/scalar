@@ -55,6 +55,7 @@ export const traverseDocument = (
       id: getWebhookId(),
       title: 'Webhooks',
       children: webhooks,
+      type: 'webhook',
     })
   }
 
@@ -67,6 +68,7 @@ export const traverseDocument = (
         id: getModelId(),
         title: 'Models',
         children: models,
+        type: 'model',
       })
     }
   }

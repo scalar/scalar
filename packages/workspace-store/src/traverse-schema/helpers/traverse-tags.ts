@@ -25,6 +25,7 @@ const createTagEntry = (
     tag,
     children,
     isGroup,
+    type: 'tag',
   }
 }
 

@@ -22,6 +22,7 @@ const createWebhookEntry = (
     name,
     webhook: operation,
     method: method,
+    type: 'webhook',
   }
 }
 

@@ -20,6 +20,7 @@ const createOperationEntry = (
     path,
     method: method,
     operation,
+    type: 'operation',
   }
 }
 
