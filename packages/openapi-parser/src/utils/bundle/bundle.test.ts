@@ -1371,14 +1371,13 @@ describe('bundle', () => {
 
       await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
 
-      const input = {
+      const input = JSON.stringify({
         a: {
           '$ref': `./${chunk1Path}#/a`,
         },
-      }
+      })
 
-      // We pass the input as json string and not as an object
-      const result = await bundle(JSON.stringify(input), { plugins: [readFiles(), parseJson()], treeShake: false })
+      const result = await bundle(input, { plugins: [readFiles(), parseJson()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
@@ -1417,14 +1416,13 @@ describe('bundle', () => {
 
       await fs.writeFile(chunk1Path, YAML.stringify(chunk1))
 
-      const input = {
+      const input = YAML.stringify({
         a: {
           '$ref': `./${chunk1Path}#/a`,
         },
-      }
+      })
 
-      // We pass the input as json string and not as an object
-      const result = await bundle(YAML.stringify(input), { plugins: [parseYaml(), readFiles()], treeShake: false })
+      const result = await bundle(input, { plugins: [parseYaml(), readFiles()], treeShake: false })
 
       await fs.rm(chunk1Path)
 
