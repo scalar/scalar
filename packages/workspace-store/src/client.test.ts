@@ -294,13 +294,11 @@ describe('create-workspace-store', () => {
 
     await server.listen({ port: PORT })
 
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          url: url,
-          name: 'default',
-        },
-      ],
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      url: url,
+      name: 'default',
     })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default'])
