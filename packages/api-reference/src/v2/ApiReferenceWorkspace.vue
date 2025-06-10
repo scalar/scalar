@@ -69,8 +69,8 @@ watch(
 
 // Temporary mapping of isDarkMode until we update the standalone component
 watch(
-  () => isDarkMode,
-  () => store.update('x-scalar-dark-mode', isDarkMode.value),
+  () => isDarkMode.value,
+  (newValue) => store.update('x-scalar-dark-mode', newValue),
 )
 
 if (configuration.metaData) {
