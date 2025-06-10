@@ -6,7 +6,15 @@ import type { TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/traver
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 
-/** Handles creating entries for tags */
+/** Creates a traversed tag entry from an OpenAPI tag object.
+ *
+ * @param tag - The OpenAPI tag object
+ * @param titlesMap - Map to store tag IDs and titles for mobile header navigation
+ * @param getTagId - Function to generate unique IDs for tags
+ * @param children - Array of child entries (operations, webhooks, etc.)
+ * @param isGroup - Whether this tag represents a group of tags
+ * @returns A traversed tag entry with ID, title, name and children
+ */
 const createTagEntry = (
   tag: OpenAPIV3_1.TagObject,
   titlesMap: Map<string, string>,
@@ -28,7 +36,22 @@ const createTagEntry = (
   }
 }
 
-/** Sorts tags and returns entries */
+/** Sorts and processes tags to create a hierarchical structure of tag entries.
+ *
+ * This function handles:
+ * - Sorting tags alphabetically or using a custom sort function
+ * - Ensuring the default tag appears last
+ * - Sorting operations within tags by title, method, or custom function
+ * - Filtering out internal and ignored tags
+ * - Creating tag entries with their associated operations
+ *
+ * @param _keys - Array of tag keys to process
+ * @param tagsMap - Map of tags and their entries
+ * @param tagsDict - Dictionary of OpenAPI tags by name
+ * @param titlesMap - Map of titles for the mobile header
+ * @param options - Sorting and ID generation options
+ * @returns Array of processed and sorted tag entries
+ */
 const getSortedTagEntries = (
   _keys: string[],
   /** Map of tags and their entries */
@@ -61,8 +84,10 @@ const getSortedTagEntries = (
   }
 
   /**
-   * Loop on tags and add to array if entries
-   * Because tagGroups can mix operations as well as tags we ensure we are sorting the correct entity in the sort
+   * Process each tag and its entries:
+   * - Skip internal and ignored tags
+   * - Sort operations within tags
+   * - Create tag entries with sorted operations
    */
   return keys.flatMap((key) => {
     const tag = getTag(tagsDict, key)
@@ -104,7 +129,15 @@ const getSortedTagEntries = (
   })
 }
 
-/** Traverses our tags map creates entries, also handles sorting and tagGroups */
+/**
+ * Traverses the tags map to create navigation entries, handling both grouped and ungrouped tags.
+ *
+ * This function processes the OpenAPI document's tags to:
+ * - Handle tag groups if specified via x-tagGroups
+ * - Sort tags and their operations according to provided sorters
+ * - Create navigation entries for each tag or tag group
+ * - Flatten default tag entries if it's the only tag present
+ */
 export const traverseTags = (
   content: OpenAPIV3_1.Document,
   /** Map of tags and their entries */

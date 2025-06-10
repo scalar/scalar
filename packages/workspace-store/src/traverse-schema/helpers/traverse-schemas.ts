@@ -1,7 +1,14 @@
 import type { TraversedSchema, TraverseSpecOptions } from '@/traverse-schema/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-/** Handles creating entries for components.schemas */
+/** Creates a traversed schema entry from an OpenAPI schema object.
+ *
+ * @param ref - JSON pointer reference to the schema in the OpenAPI document
+ * @param name - Name of the schema, defaults to 'Unknown'
+ * @param titlesMap - Map to store schema IDs and titles for mobile header navigation
+ * @param getModelId - Function to generate unique IDs for schemas
+ * @returns A traversed schema entry with ID, title, name and reference
+ */
 const createModelEntry = (
   ref: string,
   name = 'Unknown',
@@ -20,7 +27,18 @@ const createModelEntry = (
   }
 }
 
-/** Traverse components.schemas to create entries for models */
+/** Traverses the schemas in an OpenAPI document to build an array of model entries.
+ *
+ * This function processes each schema in components.schemas to:
+ * - Filter out internal schemas (marked with x-internal) and schemas to ignore (marked with x-scalar-ignore)
+ * - Create model entries with unique references and IDs
+ * - Store model IDs and titles for mobile header navigation
+ *
+ * @param content - The OpenAPI document to traverse
+ * @param titlesMap - Map to store schema IDs and titles for mobile header navigation
+ * @param getModelId - Function to generate unique IDs for schemas
+ * @returns Array of traversed schema entries
+ */
 export const traverseSchemas = (
   content: OpenAPIV3_1.Document,
   /** Map of titles for the mobile header */

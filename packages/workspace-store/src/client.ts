@@ -5,7 +5,8 @@ import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
-import { SCALAR_NAVIGATION_EXTENSION_KEY, traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { extensions } from '@/extensions'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: TraverseSpecOptions }
 type WorkspaceDocumentInput =
@@ -70,7 +71,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
      * @returns The active document or undefined if no document is found
      */
     get activeDocument(): (typeof workspace.documents)[number] | undefined {
-      const activeDocumentKey = workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? ''
+      const activeDocumentKey = workspace[extensions.document.active] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
   }) as Workspace
@@ -127,7 +128,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
       const currentDocument =
         workspace.documents[
           name === 'active'
-            ? (workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '')
+            ? (workspace[extensions.document.active] ?? Object.keys(workspace.documents)[0] ?? '')
             : name
         ]
 
@@ -212,8 +213,8 @@ export function createWorkspaceStoreSync(workspaceProps?: {
       const document = resolve.data
 
       // Skip navigation generation if the document already has a server-side generated navigation structure
-      if (document[SCALAR_NAVIGATION_EXTENSION_KEY] === undefined) {
-        document[SCALAR_NAVIGATION_EXTENSION_KEY] = traverseDocument(document, input.config ?? {}).entries
+      if (document[extensions.document.navigation] === undefined) {
+        document[extensions.document.navigation] = traverseDocument(document, input.config ?? {}).entries
       }
 
       workspace.documents[name] = createMagicProxy({ ...document, ...meta })
@@ -238,10 +239,10 @@ export function createWorkspaceStoreSync(workspaceProps?: {
  *   },
  *   documents: [
  *     {
- *       name: 'petstore',
+ *       name: 'pet store',
  *       document: {
  *         openapi: '3.0.0',
- *         info: { title: 'Petstore API' }
+ *         info: { title: 'Pet Store API' }
  *       }
  *     }
  *   ]

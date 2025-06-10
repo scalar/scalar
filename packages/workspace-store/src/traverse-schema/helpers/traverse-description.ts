@@ -5,8 +5,19 @@ import type { Heading } from '@scalar/types/legacy'
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'
 
 /**
- * Creates sidebar entries from markdown headings in the OpenAPI description.
- * Only includes the top two levels of headings for a clean hierarchy.
+ * Creates a hierarchical navigation structure from markdown headings in an OpenAPI description.
+ *
+ * The function processes markdown headings to create a two-level navigation tree:
+ * - Level 1: Main sections (based on the lowest heading level found)
+ * - Level 2: Subsections (one level deeper than the main sections)
+ *
+ * If the description starts with content rather than a heading, an "Introduction" section
+ * is automatically added as the first entry.
+ *
+ * @param description - The markdown description text to process
+ * @param titlesMap - Map to store heading IDs and titles for mobile header navigation
+ * @param getHeadingId - Function to generate unique IDs for headings
+ * @returns Array of navigation entries with their hierarchy
  */
 export const traverseDescription = (
   description: string | undefined,

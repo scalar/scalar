@@ -3,7 +3,17 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getTag } from './get-tag'
 import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/traverse-schema/types'
 
-/** Handles creating entries for webhooks */
+/** Creates a traversed webhook entry from an OpenAPI webhook object.
+ *
+ * @param ref - JSON pointer reference to the webhook in the OpenAPI document
+ * @param method - HTTP method of the webhook
+ * @param name - Name of the webhook, defaults to 'Unknown'
+ * @param title - Title of the webhook, defaults to 'Unknown'
+ * @param titlesMap - Map to store webhook IDs and titles for mobile header navigation
+ * @param getWebhookId - Function to generate unique IDs for webhooks
+ * @param tag - Optional tag object associated with the webhook
+ * @returns A traversed webhook entry with ID, title, name, method and reference
+ */
 const createWebhookEntry = (
   ref: string,
   method: OpenAPIV3_1.HttpMethods,
@@ -26,7 +36,21 @@ const createWebhookEntry = (
   }
 }
 
-/** When traversing webhooks, we pass in the tags in from operations to save on memory */
+/** Traverses the webhooks in an OpenAPI document to build an array of webhook entries.
+ *
+ * This function processes each webhook in the document to:
+ * - Filter out internal webhooks (marked with x-internal) and webhooks to ignore (marked with x-scalar-ignore)
+ * - Group webhooks by their tags
+ * - Create webhook entries with unique references and IDs
+ * - Store webhook IDs and titles for mobile header navigation
+ *
+ * @param content - The OpenAPI document to traverse
+ * @param tagsMap - Map of tag names to arrays of traversed entries from operations
+ * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
+ * @param titlesMap - Map to store webhook IDs and titles for mobile header navigation
+ * @param getWebhookId - Function to generate unique IDs for webhooks
+ * @returns Array of untagged webhook entries
+ */
 export const traverseWebhooks = (
   content: OpenAPIV3_1.Document,
   /** The tag map from from traversing paths */

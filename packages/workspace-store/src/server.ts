@@ -4,7 +4,8 @@ import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
-import { SCALAR_NAVIGATION_EXTENSION_KEY, traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { extensions } from '@/extensions'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -212,7 +213,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       // Here we create the sidebar
       const { entries } = traverseDocument(document, workspaceProps.config ?? {})
 
-      acc[name] = { ...meta, ...document, components, paths, [SCALAR_NAVIGATION_EXTENSION_KEY]: entries }
+      acc[name] = { ...meta, ...document, components, paths, [extensions.document.navigation]: entries }
       return acc
     }, {}),
   }
@@ -345,7 +346,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
         ...documentV3,
         components,
         paths,
-        [SCALAR_NAVIGATION_EXTENSION_KEY]: entries,
+        [extensions.document.navigation]: entries,
       }
     },
   }

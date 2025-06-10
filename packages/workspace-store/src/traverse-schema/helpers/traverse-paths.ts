@@ -4,6 +4,18 @@ import { getTag } from './get-tag'
 import type { TraversedOperation, TraverseSpecOptions } from '@/traverse-schema/types'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
 
+/**
+ * Creates a traversed operation entry from an OpenAPI operation object.
+ *
+ * @param ref - JSON pointer reference to the operation in the OpenAPI document
+ * @param operation - The OpenAPI operation object
+ * @param method - HTTP method of the operation
+ * @param path - API path of the operation, defaults to 'Unknown'
+ * @param tag - Tag object associated with the operation
+ * @param titlesMap - Map to store operation IDs and titles for mobile header navigation
+ * @param getOperationId - Function to generate unique IDs for operations
+ * @returns A traversed operation entry with ID, title, path, method and reference
+ */
 const createOperationEntry = (
   ref: string,
   operation: OpenAPIV3_1.OperationObject,
@@ -27,10 +39,21 @@ const createOperationEntry = (
 }
 
 /**
- * Traverse the paths of the spec and build a map of tags and operations
+ * Traverses the paths in an OpenAPI document to build a map of operations organized by tags.
  *
- * Default tag is to match what we have now we can improve later
+ * This function processes each path and its operations to:
+ * - Filter out internal operations (marked with x-internal) and operations to ignore (marked with x-scalar-ignore)
+ * - Group operations by their tags
+ * - Create a default tag group for untagged operations
+ * - Generate unique references and IDs for each operation
+ *
  * TODO: filter out internal and scalar-ignore tags
+ *
+ * @param content - The OpenAPI document to traverse
+ * @param tagsDict - Dictionary mapping tag names to their OpenAPI tag objects
+ * @param titlesMap - Map to store operation IDs and titles for mobile header navigation
+ * @param getOperationId - Function to generate unique IDs for operations
+ * @returns Map of tag names to arrays of traversed operations
  */
 export const traversePaths = (
   content: OpenAPIV3_1.Document,

@@ -1,4 +1,3 @@
-import type { Heading } from '@scalar/types/legacy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 type TraverseEntryBase = {
@@ -54,12 +53,31 @@ export type TraversedEntry =
 
 type OperationSortValue = { method: string; path: string; ref: string }
 
-/** Create sidebar options */
+/** Configuration options for traversing an OpenAPI specification document.
+ *
+ * These options control how the document is processed and organized, including:
+ * - Sorting of tags and operations
+ * - Visibility of models
+ * - ID generation for various elements (headings, operations, webhooks, models, tags)
+ */
 export type TraverseSpecOptions = {
+  /** Controls how tags are sorted - either alphabetically or using a custom sort function */
   tagsSorter: 'alpha' | ((a: OpenAPIV3_1.TagObject, b: OpenAPIV3_1.TagObject) => number)
+
+  /** Controls how operations are sorted - alphabetically, by method, or using a custom sort function */
   operationsSorter: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
+
+  /** Whether to hide model schemas from the navigation */
   hideModels: boolean
-  getHeadingId: (heading: Heading) => string
+
+  /** Function to generate unique IDs for markdown headings */
+  getHeadingId: (heading: {
+    depth: number
+    value: string
+    slug?: string
+  }) => string
+
+  /** Function to generate unique IDs for operations */
   getOperationId: (
     operation: {
       path: string
@@ -67,6 +85,8 @@ export type TraverseSpecOptions = {
     } & OpenAPIV3_1.OperationObject,
     parentTag: OpenAPIV3_1.TagObject,
   ) => string
+
+  /** Function to generate unique IDs for webhooks */
   getWebhookId: (
     webhook?: {
       name: string
@@ -74,8 +94,12 @@ export type TraverseSpecOptions = {
     },
     parentTag?: OpenAPIV3_1.TagObject,
   ) => string
+
+  /** Function to generate unique IDs for models/schemas */
   getModelId: (model?: {
     name: string
   }) => string
+
+  /** Function to generate unique IDs for tags */
   getTagId: (tag: OpenAPIV3_1.TagObject) => string
 }

@@ -8,13 +8,13 @@ import { traverseWebhooks } from './traverse-webhooks'
 import type { TraversedEntry, TraverseSpecOptions } from '@/traverse-schema/types'
 
 /**
- * Traverse the OpenAPI Document and ensure we only do it once
+ * Traverses an OpenAPI Document to generate navigation structure and metadata.
  *
- * We are generating the following:
- * - the sidebar
- * - the search index (todo)
- *
- * Currently its called by createSidebar, but we can move this into the de-reference process as a plugin for even more gains
+ * This function processes the OpenAPI document to create:
+ * - A hierarchical navigation structure for the sidebar
+ * - A mapping of IDs to titles for mobile header navigation
+ * - Tag-based organization of operations and webhooks
+ * - Optional schema/model documentation
  */
 export const traverseDocument = (
   document: OpenAPIV3_1.Document,
