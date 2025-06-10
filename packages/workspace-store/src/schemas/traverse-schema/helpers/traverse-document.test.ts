@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseDocument } from './traverse-document'
-import type { TraversedTag, TraverseSpecOptions } from '@/traverse-schema/types'
+import type { TraversedTag, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 describe('traverseDocument', () => {
   const mockOptions: TraverseSpecOptions = {

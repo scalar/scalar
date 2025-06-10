@@ -4,7 +4,7 @@ import type { TagGroup } from '@scalar/types/legacy'
 
 import { traverseTags } from './traverse-tags'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/traverse-schema/types'
+import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/traverse-schema/types'
 
 describe('traverseTags', () => {
   // Helper function to create a mock OpenAPI document

@@ -1,10 +1,10 @@
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
-import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
+import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
-import { traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { traverseDocument, type TraverseSpecOptions } from '@/schemas/traverse-schema'
 import { extensions } from '@/extensions'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'

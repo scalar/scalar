@@ -1,10 +1,11 @@
 import { type Static, Type } from '@sinclair/typebox'
-import { OpenAPIDocumentSchema } from './openapi-document'
+import { OpenAPIDocumentSchema } from './openapi-v3/openapi-document'
+import { extensions } from '@/extensions'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
-    'x-scalar-active-auth': Type.String(),
-    'x-scalar-active-server': Type.String(),
+    [extensions.document.activeAuth]: Type.String(),
+    [extensions.document.activeServer]: Type.String(),
   }),
 )
 
@@ -16,10 +17,10 @@ export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 
 const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
-    'x-scalar-dark-mode': Type.Boolean(),
-    'x-scalar-default-client': Type.String(),
-    'x-scalar-active-document': Type.String(),
-    'x-scalar-theme': Type.String(),
+    [extensions.workspace.darkMode]: Type.Boolean(),
+    [extensions.workspace.defaultClient]: Type.String(),
+    [extensions.workspace.activeDocument]: Type.String(),
+    [extensions.workspace.theme]: Type.String(),
   }),
 )
 

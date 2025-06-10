@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { traverseSchemas } from './traverse-schemas'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TraverseSpecOptions } from '@/traverse-schema/types'
+import type { TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 describe('traverseSchemas', () => {
   // Mock getModelId function

@@ -1,11 +1,11 @@
 import { reactive, toRaw } from 'vue'
-import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
+import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
 import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
-import { traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
+import { traverseDocument, type TraverseSpecOptions } from '@/schemas/traverse-schema'
 import { extensions } from '@/extensions'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: TraverseSpecOptions }
@@ -71,7 +71,8 @@ export function createWorkspaceStoreSync(workspaceProps?: {
      * @returns The active document or undefined if no document is found
      */
     get activeDocument(): (typeof workspace.documents)[number] | undefined {
-      const activeDocumentKey = workspace[extensions.document.active] ?? Object.keys(workspace.documents)[0] ?? ''
+      const activeDocumentKey =
+        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
   }) as Workspace
@@ -128,7 +129,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
       const currentDocument =
         workspace.documents[
           name === 'active'
-            ? (workspace[extensions.document.active] ?? Object.keys(workspace.documents)[0] ?? '')
+            ? (workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? '')
             : name
         ]
 

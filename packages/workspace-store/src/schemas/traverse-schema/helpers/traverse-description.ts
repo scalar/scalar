@@ -1,5 +1,5 @@
-import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/traverse-schema/helpers/utils'
-import type { TraversedDescription } from '@/traverse-schema/types'
+import { getHeadingsFromMarkdown, getLowestHeadingLevel } from '@/schemas/traverse-schema/helpers/utils'
+import type { TraversedDescription } from '@/schemas/traverse-schema/types'
 import type { Heading } from '@scalar/types/legacy'
 
 export const DEFAULT_INTRODUCTION_SLUG = 'introduction'

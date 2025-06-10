@@ -1,4 +1,4 @@
-import type { TraversedSchema, TraverseSpecOptions } from '@/traverse-schema/types'
+import type { TraversedSchema, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.

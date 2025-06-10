@@ -2,7 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagGroup } from '@scalar/types/legacy'
 
 import { getTag } from './get-tag'
-import type { TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/traverse-schema/types'
+import type { TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 

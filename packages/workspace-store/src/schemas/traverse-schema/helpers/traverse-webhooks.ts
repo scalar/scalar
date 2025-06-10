@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
-import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/traverse-schema/types'
+import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
