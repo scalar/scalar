@@ -211,7 +211,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
 
       const document = resolve.data
 
-      // If we already have a sparse document with already build sidebar server side we can skip this step
+      // Skip navigation generation if the document already has a server-side generated navigation structure
       if (document[SCALAR_NAVIGATION_EXTENSION_KEY] === undefined) {
         document[SCALAR_NAVIGATION_EXTENSION_KEY] = traverseDocument(document, input.config ?? {}).entries
       }

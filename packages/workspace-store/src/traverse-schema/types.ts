@@ -36,7 +36,7 @@ export type TraversedTag = TraverseEntryBase & {
   isGroup: boolean
 }
 
-/** Webhook entry returned form traversing the document, basically the same as an operaation but with name instead of path */
+/** Webhook entry returned form traversing the document, basically the same as an operation but with name instead of path */
 export type TraversedWebhook = TraverseEntryBase & {
   type: 'webhook'
   ref: string

@@ -9,29 +9,25 @@ import { SCALAR_NAVIGATION_EXTENSION_KEY, traverseDocument, type TraverseSpecOpt
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
+// TODO: support input document from different sources
+type CreateServerWorkspaceStoreBase = {
+  documents: {
+    name: string
+    document: Record<string, unknown> | string
+    meta?: WorkspaceDocumentMeta
+  }[]
+  meta?: WorkspaceMeta
+  config?: TraverseSpecOptions
+}
 type CreateServerWorkspaceStore =
-  | {
+  | ({
       directory?: string
       mode: 'static'
-      documents: {
-        name: string
-        document: Record<string, unknown> | string
-        meta?: WorkspaceDocumentMeta
-      }[]
-      meta?: WorkspaceMeta
-      config?: TraverseSpecOptions
-    }
-  | {
+    } & CreateServerWorkspaceStoreBase)
+  | ({
       baseUrl: string
       mode: 'ssr'
-      documents: {
-        name: string
-        document: Record<string, unknown> | string
-        meta?: WorkspaceDocumentMeta
-      }[]
-      meta?: WorkspaceMeta
-      config?: TraverseSpecOptions
-    }
+    } & CreateServerWorkspaceStoreBase)
 
 const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
