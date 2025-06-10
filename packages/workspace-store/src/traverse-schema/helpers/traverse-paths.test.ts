@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traversePaths } from './traverse-paths'
-import type { UseNavState } from '@/hooks/useNavState'
+import type { TraverseSpecOptions } from '@/traverse-schema/types'
 
 describe('traversePaths', () => {
   // Mock getOperationId function
-  const mockGetOperationId: UseNavState['getOperationId'] = ({ path, method }) => `${method.toUpperCase()}-${path}`
+  const mockGetOperationId: TraverseSpecOptions['getOperationId'] = ({ path, method }) =>
+    `${method.toUpperCase()}-${path}`
 
   // Helper to create a basic OpenAPI document
   const createBasicSpec = (): OpenAPIV3_1.Document => ({

@@ -8,7 +8,7 @@ describe('traverseDocument', () => {
     hideModels: false,
     operationsSorter: 'alpha',
     tagsSorter: 'alpha',
-    getHeadingId: (heading: { value: string }) => heading.value,
+    getHeadingId: (heading) => heading.value,
     getOperationId: (operation) => operation.summary ?? '',
     getWebhookId: (webhook) => webhook?.name ?? 'webhooks',
     getModelId: (model) => model?.name ?? '',

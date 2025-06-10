@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { traverseSchemas } from './traverse-schemas'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { UseNavState } from '@/hooks/useNavState'
+import type { TraverseSpecOptions } from '@/traverse-schema/types'
 
 describe('traverseSchemas', () => {
   // Mock getModelId function
-  const mockGetModelId: UseNavState['getModelId'] = (params) => {
+  const mockGetModelId: TraverseSpecOptions['getModelId'] = (params) => {
     if (!params) {
       return 'model'
     }

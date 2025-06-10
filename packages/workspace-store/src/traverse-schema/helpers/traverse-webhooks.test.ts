@@ -1,11 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TraversedEntry } from '@/features/traverse-schema/types'
-import type { UseNavState } from '@/hooks/useNavState'
 import { traverseWebhooks } from './traverse-webhooks'
+import type { TraversedEntry, TraverseSpecOptions } from '@/traverse-schema/types'
 
 describe('traverse-webhooks', () => {
-  const mockGetWebhookId: UseNavState['getWebhookId'] = (params, tag) => {
+  const mockGetWebhookId: TraverseSpecOptions['getWebhookId'] = (params, tag) => {
     if (!params) {
       return 'untagged-unknown-unknown'
     }

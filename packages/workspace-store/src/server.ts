@@ -4,7 +4,7 @@ import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
-import type { TraverseSpecOptions } from '@/traverse-schema'
+import { SCALAR_NAVIGATION_EXTENSION_KEY, traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -19,7 +19,7 @@ type CreateServerWorkspaceStore =
         meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
-      config: TraverseSpecOptions
+      config?: TraverseSpecOptions
     }
   | {
       baseUrl: string
@@ -30,7 +30,7 @@ type CreateServerWorkspaceStore =
         meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
-      config: TraverseSpecOptions
+      config?: TraverseSpecOptions
     }
 
 const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
@@ -173,9 +173,6 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
   const documents = workspaceProps.documents.map((el) => {
     const document = upgrade(el.document).specification
 
-    // Here we create the sidebar
-    // TODO: run the sidebar creation
-
     return { ...el, document }
   })
 
@@ -216,7 +213,10 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const components = externalizeComponentReferences(document, options)
       const paths = externalizePathReferences(document, options)
 
-      acc[name] = { ...meta, ...document, components, paths }
+      // Here we create the sidebar
+      const { entries } = traverseDocument(document, workspaceProps.config ?? {})
+
+      acc[name] = { ...meta, ...document, components, paths, [SCALAR_NAVIGATION_EXTENSION_KEY]: entries }
       return acc
     }, {}),
   }
@@ -339,9 +339,18 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const components = externalizeComponentReferences(documentV3, options)
       const paths = externalizePathReferences(documentV3, options)
 
+      // Build the sidebar entries
+      const { entries } = traverseDocument(document, workspaceProps.config ?? {})
+
       // The document is now a minimal version with externalized references to components and operations.
       // These references will be resolved asynchronously when needed through the workspace's get() method.
-      workspace.documents[meta.name] = { ...documentMeta, ...documentV3, components, paths }
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentV3,
+        components,
+        paths,
+        [SCALAR_NAVIGATION_EXTENSION_KEY]: entries,
+      }
     },
   }
 }

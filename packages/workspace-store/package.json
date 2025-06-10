@@ -60,6 +60,7 @@
     "vue": "catalog:*",
     "@scalar/types": "workspace:*",
     "@scalar/code-highlight": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "github-slugger": "^2.0.0"
   },
   "devDependencies": {

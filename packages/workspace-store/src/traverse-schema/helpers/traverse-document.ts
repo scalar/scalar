@@ -19,15 +19,15 @@ import type { TraversedEntry, TraverseSpecOptions } from '@/traverse-schema/type
 export const traverseDocument = (
   document: OpenAPIV3_1.Document,
   {
-    hideModels,
-    tagsSorter,
-    operationsSorter,
-    getHeadingId,
-    getOperationId,
-    getWebhookId,
-    getModelId,
-    getTagId,
-  }: TraverseSpecOptions,
+    hideModels = false,
+    tagsSorter = 'alpha',
+    operationsSorter = 'alpha',
+    getHeadingId = (heading) => heading.value,
+    getOperationId = (operation) => operation.summary ?? '',
+    getWebhookId = (webhook) => webhook?.name ?? 'webhooks',
+    getModelId = (model) => model?.name ?? '',
+    getTagId = (tag) => tag.name ?? '',
+  }: Partial<TraverseSpecOptions>,
 ) => {
   /** Dictionary of name to tags */
   const tagsDict: Map<string, OpenAPIV3_1.TagObject> = new Map(

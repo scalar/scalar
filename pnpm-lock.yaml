@@ -2488,6 +2488,9 @@ importers:
       '@scalar/code-highlight':
         specifier: workspace:*
         version: link:../code-highlight
+      '@scalar/helpers':
+        specifier: workspace:*
+        version: link:../helpers
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
