@@ -263,7 +263,7 @@
     display: flex;
     align-items: top;
     height: 40px;
-    padding: 11px 0px 11px 40px;
+    padding: 11px 0px 11px 37px;
     position: relative;
     font-weight: var(--scalar-semibold);
     cursor: pointer;
@@ -285,7 +285,7 @@
     content: "";
     position: absolute;
     top: calc(var(--markdown-spacing-sm) + 1px);
-    left: 14px;
+    left: 10px;
     width: var(--markdown-spacing-md);
     height: var(--markdown-spacing-md);
     background-color: var(--scalar-color-3);
