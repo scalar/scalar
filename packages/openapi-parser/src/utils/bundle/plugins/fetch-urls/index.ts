@@ -75,7 +75,7 @@ export function fetchUrls(config?: FetchConfig & Partial<{ limit: number | null 
   const limiter = config?.limit ? createLimiter(config.limit) : <T>(fn: () => Promise<T>) => fn()
 
   return {
-    validate: (value) => isRemoteUrl(value),
+    validate: isRemoteUrl,
     exec: (value) => fetchUrl(value, limiter, config),
   }
 }
