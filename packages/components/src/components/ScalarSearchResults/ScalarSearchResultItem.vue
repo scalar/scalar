@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import type { Component } from 'vue'
 
-import { type Icon, ScalarIcon } from '../ScalarIcon'
+import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 defineProps<{
-  icon?: Icon
+  icon?: Icon | Component
   selected?: boolean
 }>()
 
@@ -27,10 +28,11 @@ const { cx } = useBindCx()
       v-if="icon"
       class="flex h-fit items-center text-sm font-medium text-c-3 group-hover:text-c-1">
       <slot name="icon">
-        <ScalarIcon
+        <ScalarIconLegacyAdapter
           v-if="icon"
           :icon="icon"
-          size="sm" />
+          size="sm"
+          weight="bold" />
       </slot>
       <span>&hairsp;</span>
     </div>
