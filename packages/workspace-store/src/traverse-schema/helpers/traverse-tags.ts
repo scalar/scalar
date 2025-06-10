@@ -47,7 +47,7 @@ const getSortedTagEntries = (
   // Alpha sort
   if (tagsSorter === 'alpha') {
     keys.sort((a, b) => {
-      const nameA = getTag(tagsDict, a)['x-displayName'] || a || 'Untitle Tag'
+      const nameA = getTag(tagsDict, a)['x-displayName'] || a || 'Untitled Tag'
       const nameB = getTag(tagsDict, b)['x-displayName'] || b || 'Untitled Tag'
       return nameA.localeCompare(nameB)
     })
@@ -63,7 +63,7 @@ const getSortedTagEntries = (
 
   /**
    * Loop on tags and add to array if entries
-   * Because tagGroups can mix operations as well as tags we ensure we are sorting the correct entitiy in the sort
+   * Because tagGroups can mix operations as well as tags we ensure we are sorting the correct entity in the sort
    */
   return keys.flatMap((key) => {
     const tag = getTag(tagsDict, key)
@@ -86,16 +86,16 @@ const getSortedTagEntries = (
     else if (typeof operationsSorter === 'function') {
       entries.sort((a, b) => {
         // Guard against tags
-        if (!('method' in a) || !('method' in b)) {
+        if ((a.type !== 'operation' && a.type !== 'webhook') || (b.type !== 'operation' && b.type !== 'webhook')) {
           return 0
         }
 
         // Handle webhooks as well as operations
-        const pathA = 'path' in a ? a.path : a.name
-        const pathB = 'path' in b ? b.path : b.name
+        const pathA = a.type === 'operation' ? a.path : a.name
+        const pathB = b.type === 'operation' ? b.path : b.name
 
-        const operationA = 'operation' in a ? a.operation : a.webhook
-        const operationB = 'operation' in b ? b.operation : b.webhook
+        const operationA = a.type === 'operation' ? a.operation : a.webhook
+        const operationB = b.type === 'operation' ? b.operation : b.webhook
 
         return operationsSorter(
           { method: a.method, path: pathA, operation: operationA },

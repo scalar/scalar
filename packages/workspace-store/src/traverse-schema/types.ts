@@ -2,14 +2,15 @@ import type { Heading } from '@scalar/types/legacy'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 type TraverseEntryBase = {
-  type: 'operation' | 'model' | 'tag' | 'webhook'
+  type: 'text' | 'operation' | 'model' | 'tag' | 'webhook'
   id: string
   title: string
 }
 
 /** Description entry returned form traversing the document */
 export type TraversedDescription = TraverseEntryBase & {
-  children?: TraversedDescription[]
+  type: 'text'
+  children?: TraverseEntryBase[]
 }
 
 /** Operation entry returned form traversing the document */
