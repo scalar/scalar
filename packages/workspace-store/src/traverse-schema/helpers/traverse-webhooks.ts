@@ -1,0 +1,69 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+
+import { getTag } from './get-tag'
+import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/traverse-schema/types'
+
+/** Handles creating entries for webhooks */
+const createWebhookEntry = (
+  operation: OpenAPIV3_1.OperationObject,
+  method: OpenAPIV3_1.HttpMethods,
+  name = 'Unknown',
+  titlesMap: Map<string, string>,
+  getWebhookId: TraverseSpecOptions['getWebhookId'],
+  tag?: OpenAPIV3_1.TagObject,
+): TraversedWebhook => {
+  const title = operation.summary || name
+  const id = getWebhookId({ name, method }, tag)
+  titlesMap.set(id, title)
+
+  return {
+    id,
+    title,
+    name,
+    webhook: operation,
+    method: method,
+  }
+}
+
+/** When traversing webhooks, we pass in the tags in from operations to save on memory */
+export const traverseWebhooks = (
+  content: OpenAPIV3_1.Document,
+  /** The tag map from from traversing paths */
+  tagsMap: Map<string, TraversedEntry[]>,
+  /** The tag dictionary of tags from the spec */
+  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  /** Map of titles for the mobile title */
+  titlesMap: Map<string, string>,
+  getWebhookId: TraverseSpecOptions['getWebhookId'],
+): TraversedWebhook[] => {
+  const untagged: TraversedWebhook[] = []
+
+  // Traverse webhooks
+  Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
+    const pathEntries = Object.entries(pathItemObject ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
+
+    pathEntries.forEach(([method, operation]) => {
+      // Skip if the operation is internal or scalar-ignore
+      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+        return
+      }
+
+      if (operation.tags?.length) {
+        operation.tags.forEach((tagName: string) => {
+          if (!tagsMap.has(tagName)) {
+            tagsMap.set(tagName, [])
+          }
+
+          const tag = getTag(tagsDict, tagName)
+          tagsMap.get(tagName)?.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId, tag))
+        })
+      }
+      // Add to untagged
+      else {
+        untagged.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId))
+      }
+    })
+  })
+
+  return untagged
+}

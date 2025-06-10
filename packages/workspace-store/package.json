@@ -57,7 +57,10 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "@scalar/types": "workspace:*",
+    "@scalar/code-highlight": "workspace:*",
+    "github-slugger": "^2.0.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

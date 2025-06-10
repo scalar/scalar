@@ -4,6 +4,7 @@ import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
+import type { TraverseSpecOptions } from '@/traverse-schema'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -18,6 +19,7 @@ type CreateServerWorkspaceStore =
         meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
+      config: TraverseSpecOptions
     }
   | {
       baseUrl: string
@@ -28,6 +30,7 @@ type CreateServerWorkspaceStore =
         meta?: WorkspaceDocumentMeta
       }[]
       meta?: WorkspaceMeta
+      config: TraverseSpecOptions
     }
 
 const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
@@ -169,6 +172,9 @@ export function externalizePathReferences(
 export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   const documents = workspaceProps.documents.map((el) => {
     const document = upgrade(el.document).specification
+
+    // Here we create the sidebar
+    // TODO: run the sidebar creation
 
     return { ...el, document }
   })

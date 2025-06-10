@@ -26,9 +26,6 @@ type WorkspaceDocumentInput =
  * // Resolve from URL
  * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
  *
- * // Resolve from local file
- * const fileDoc = await loadDocument({ name: 'local', path: './openapi.json' })
- *
  * // Resolve direct document
  * const directDoc = await loadDocument({
  *   name: 'inline',

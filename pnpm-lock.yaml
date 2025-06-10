@@ -2485,15 +2485,24 @@ importers:
 
   packages/workspace-store:
     dependencies:
+      '@scalar/code-highlight':
+        specifier: workspace:*
+        version: link:../code-highlight
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
         version: 0.34.3
+      github-slugger:
+        specifier: ^2.0.0
+        version: 2.0.0
       vue:
         specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
