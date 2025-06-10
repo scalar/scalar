@@ -5,8 +5,9 @@ import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+import { SCALAR_NAVIGATION_EXTENSION_KEY, traverseDocument, type TraverseSpecOptions } from '@/traverse-schema'
 
-type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
+type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: TraverseSpecOptions }
 type WorkspaceDocumentInput =
   | ({ document: Record<string, unknown> } & WorkspaceDocumentMetaInput)
   | ({ url: string } & WorkspaceDocumentMetaInput)
@@ -208,7 +209,14 @@ export function createWorkspaceStoreSync(workspaceProps?: {
         return
       }
 
-      workspace.documents[name] = createMagicProxy({ ...(resolve.data as Record<string, unknown>), ...meta })
+      const document = resolve.data
+
+      // If we already have a sparse document with already build sidebar server side we can skip this step
+      if (document[SCALAR_NAVIGATION_EXTENSION_KEY] === undefined) {
+        document[SCALAR_NAVIGATION_EXTENSION_KEY] = traverseDocument(document, input.config ?? {}).entries
+      }
+
+      workspace.documents[name] = createMagicProxy({ ...document, ...meta })
     },
   }
 }

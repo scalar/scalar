@@ -148,7 +148,15 @@ describe('create-workspace-store', () => {
     expect(store.workspace.activeDocument?.info?.title).toBe('Second API')
 
     // Correctly get a specific document
-    expect(store.workspace.documents['default'].info?.title).toBe('My API')
+    expect(store.workspace.documents['default']).toEqual({
+      info: {
+        title: 'My API',
+      },
+      openapi: '3.0.0',
+      'x-scalar-active-auth': 'Bearer',
+      'x-scalar-active-server': 'server-1',
+      'x-scalar-navigation': [],
+    })
   })
 
   test('should correctly add new documents', async () => {
@@ -165,7 +173,13 @@ describe('create-workspace-store', () => {
     })
 
     store.update('x-scalar-active-document', 'default')
-    expect(store.workspace.activeDocument?.info?.title).toBe('My API')
+    expect(store.workspace.activeDocument).toEqual({
+      info: {
+        title: 'My API',
+      },
+      openapi: '3.0.0',
+      'x-scalar-navigation': [],
+    })
   })
 
   test('should correctly resolve refs on the fly', async () => {
@@ -405,5 +419,135 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)?.type).toBe('object')
+  })
+
+  test('should build the sidebar client side', async () => {
+    const store = await createWorkspaceStore({
+      documents: [],
+    })
+
+    await store.addDocument({
+      document: {
+        openapi: '3.0.3',
+        info: {
+          title: 'Todo API',
+          version: '1.0.0',
+        },
+        paths: {
+          '/todos': {
+            get: {
+              summary: 'List all todos',
+              responses: {
+                200: {
+                  description: 'A list of todos',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'array',
+                        items: {
+                          $ref: '#/components/schemas/Todo',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        components: {
+          schemas: {
+            Todo: {
+              type: 'object',
+              properties: {
+                id: { 'type': 'string' },
+                title: { 'type': 'string' },
+                completed: { 'type': 'boolean' },
+              },
+            },
+          },
+        },
+      },
+      name: 'default',
+    })
+
+    store.update('x-scalar-active-document', 'default')
+    expect(store.workspace.activeDocument).toEqual({
+      'components': {
+        'schemas': {
+          'Todo': {
+            'properties': {
+              'completed': {
+                'type': 'boolean',
+              },
+              'id': {
+                'type': 'string',
+              },
+              'title': {
+                'type': 'string',
+              },
+            },
+            'type': 'object',
+          },
+        },
+      },
+      'info': {
+        'title': 'Todo API',
+        'version': '1.0.0',
+      },
+      'openapi': '3.0.3',
+      'paths': {
+        '/todos': {
+          'get': {
+            'responses': {
+              '200': {
+                'content': {
+                  'application/json': {
+                    'schema': {
+                      'items': {
+                        'properties': {
+                          'completed': {
+                            'type': 'boolean',
+                          },
+                          'id': {
+                            'type': 'string',
+                          },
+                          'title': {
+                            'type': 'string',
+                          },
+                        },
+                        'type': 'object',
+                      },
+                      'type': 'array',
+                    },
+                  },
+                },
+                'description': 'A list of todos',
+              },
+            },
+            'summary': 'List all todos',
+          },
+        },
+      },
+      'x-scalar-navigation': [
+        {
+          'id': 'List all todos',
+          'method': 'get',
+          'path': '/todos',
+          'title': 'List all todos',
+        },
+        {
+          'children': [
+            {
+              'id': 'Todo',
+              'name': 'Todo',
+              'title': 'Todo',
+            },
+          ],
+          'id': '',
+          'title': 'Models',
+        },
+      ],
+    })
   })
 })
