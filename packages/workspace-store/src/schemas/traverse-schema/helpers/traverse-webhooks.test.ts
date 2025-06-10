@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TraversedEntry, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TraversedEntry, TagsMap, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 describe('traverse-webhooks', () => {
   const mockGetWebhookId: TraverseSpecOptions['getWebhookId'] = (params, tag) => {
@@ -11,10 +11,6 @@ describe('traverse-webhooks', () => {
     return `${tag?.name || 'untagged'}-${params.method || 'unknown'}-${params.name}`
   }
 
-  const mockTagsDict = new Map<string, OpenAPIV3_1.TagObject>([
-    ['webhook-tag', { name: 'webhook-tag', description: 'Webhook tag' }],
-  ])
-
   describe('traverseWebhooks', () => {
     it('should handle empty webhooks', () => {
       const content: OpenAPIV3_1.Document = {
@@ -23,10 +19,10 @@ describe('traverse-webhooks', () => {
         paths: {},
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -49,20 +45,23 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap: TagsMap = new Map()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([]) // Should be empty as webhook has a tag
-      expect(tagsMap.get('webhook-tag')).toHaveLength(1)
-      expect(tagsMap.get('webhook-tag')?.[0]).toEqual({
+      expect(tagsMap.get('webhook-tag')?.entries).toHaveLength(1)
+      expect(tagsMap.get('webhook-tag')?.entries[0]).toEqual({
         id: 'webhook-tag-post-test-webhook',
         title: 'Test Webhook',
         name: 'test-webhook',
         method: 'post',
-        ref: '#/webhooks/test-webhook/post',
-        type: 'webhook',
+        webhook: {
+          summary: 'Test Webhook',
+          operationId: 'testWebhook',
+          tags: ['webhook-tag'],
+        },
       })
       expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('Test Webhook')
     })
@@ -82,10 +81,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -93,8 +92,10 @@ describe('traverse-webhooks', () => {
         title: 'Untagged Webhook',
         name: 'untagged-webhook',
         method: 'post',
-        ref: '#/webhooks/untagged-webhook/post',
-        type: 'webhook',
+        webhook: {
+          summary: 'Untagged Webhook',
+          operationId: 'untaggedWebhook',
+        },
       })
       expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('Untagged Webhook')
     })
@@ -115,10 +116,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -141,10 +142,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -167,10 +168,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -178,8 +179,11 @@ describe('traverse-webhooks', () => {
         title: 'Deprecated Webhook',
         name: 'deprecated-webhook',
         method: 'post',
-        ref: '#/webhooks/deprecated-webhook/post',
-        type: 'webhook',
+        webhook: {
+          deprecated: true,
+          summary: 'Deprecated Webhook',
+          operationId: 'deprecatedWebhook',
+        },
       })
     })
 
@@ -202,10 +206,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(2)
       expect(result).toEqual(
@@ -215,16 +219,20 @@ describe('traverse-webhooks', () => {
             title: 'POST Webhook',
             name: 'multi-method-webhook',
             method: 'post',
-            ref: '#/webhooks/multi-method-webhook/post',
-            type: 'webhook',
+            webhook: {
+              summary: 'POST Webhook',
+              operationId: 'postWebhook',
+            },
           },
           {
             id: 'untagged-get-multi-method-webhook',
             title: 'GET Webhook',
             name: 'multi-method-webhook',
             method: 'get',
-            ref: '#/webhooks/multi-method-webhook/get',
-            type: 'webhook',
+            webhook: {
+              summary: 'GET Webhook',
+              operationId: 'getWebhook',
+            },
           },
         ]),
       )

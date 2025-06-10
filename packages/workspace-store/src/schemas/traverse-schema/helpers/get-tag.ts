@@ -1,4 +1,6 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { TagsMap } from '@/schemas/traverse-schema/types'
+
+type TagMapValue = NonNullable<TagsMap extends Map<string, infer V> ? V : never>
 
 /**
  * Gets or creates a tag in the tags dictionary.
@@ -8,10 +10,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
  * @param name - Name of the tag to get or create
  * @returns The tag object for the given name
  */
-export const getTag = (tagsDict: Map<string, OpenAPIV3_1.TagObject>, name: string) => {
-  if (!tagsDict.get(name)) {
-    tagsDict.set(name, { name })
+export const getTag = (tagsMap: TagsMap, name: string): TagMapValue => {
+  if (!tagsMap.get(name)) {
+    tagsMap.set(name, { entries: [], tag: { name } })
   }
 
-  return tagsDict.get(name)! // We can safely assert non-null since we just set the value if it didn't exist
+  return tagsMap.get(name)! // We can safely assert non-null since we just set the value if it didn't exist
 }

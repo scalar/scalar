@@ -1,60 +1,61 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getTag } from './get-tag'
+import type { TraversedEntry } from '@/schemas/traverse-schema/types'
 
 describe('getTag', () => {
   it('returns existing tag from the dictionary', () => {
-    const tagsDict = new Map<string, OpenAPIV3_1.TagObject>()
+    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
     const existingTag = { name: 'test-tag', description: 'Test description' }
-    tagsDict.set('test-tag', existingTag)
+    tagsMap.set('test-tag', { tag: existingTag, entries: [] })
 
-    const result = getTag(tagsDict, 'test-tag')
+    const result = getTag(tagsMap, 'test-tag')
 
-    expect(result).toBe(existingTag)
-    expect(tagsDict.size).toBe(1)
+    expect(result).toEqual({ tag: existingTag, entries: [] })
+    expect(tagsMap.size).toBe(1)
   })
 
   it('creates and returns a new tag if it does not exist', () => {
-    const tagsDict = new Map<string, OpenAPIV3_1.TagObject>()
+    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
     const tagName = 'new-tag'
 
-    const result = getTag(tagsDict, tagName)
+    const result = getTag(tagsMap, tagName)
 
-    expect(result).toEqual({ name: tagName })
-    expect(tagsDict.size).toBe(1)
-    expect(tagsDict.get(tagName)).toEqual({ name: tagName })
+    expect(result).toEqual({ tag: { name: tagName }, entries: [] })
+    expect(tagsMap.size).toBe(1)
+    expect(tagsMap.get(tagName)).toEqual({ tag: { name: tagName }, entries: [] })
   })
 
   it('handles multiple tags in the dictionary', () => {
-    const tagsDict = new Map<string, OpenAPIV3_1.TagObject>()
+    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
     const tag1 = { name: 'tag1', description: 'First tag' }
     const tag2 = { name: 'tag2', description: 'Second tag' }
-    tagsDict.set('tag1', tag1)
-    tagsDict.set('tag2', tag2)
+    tagsMap.set('tag1', { tag: tag1, entries: [] })
+    tagsMap.set('tag2', { tag: tag2, entries: [] })
 
-    const result1 = getTag(tagsDict, 'tag1')
-    const result2 = getTag(tagsDict, 'tag2')
-    const result3 = getTag(tagsDict, 'tag3')
+    const result1 = getTag(tagsMap, 'tag1')
+    const result2 = getTag(tagsMap, 'tag2')
+    const result3 = getTag(tagsMap, 'tag3')
 
-    expect(result1).toBe(tag1)
-    expect(result2).toBe(tag2)
-    expect(result3).toEqual({ name: 'tag3' })
-    expect(tagsDict.size).toBe(3)
+    expect(result1).toEqual({ tag: tag1, entries: [] })
+    expect(result2).toEqual({ tag: tag2, entries: [] })
+    expect(result3).toEqual({ tag: { name: 'tag3' }, entries: [] })
+    expect(tagsMap.size).toBe(3)
   })
 
   it('preserves existing tag properties when retrieving', () => {
-    const tagsDict = new Map<string, OpenAPIV3_1.TagObject>()
+    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
     const existingTag = {
       name: 'test-tag',
       description: 'Test description',
       externalDocs: { url: 'https://example.com' },
     }
-    tagsDict.set('test-tag', existingTag)
+    tagsMap.set('test-tag', { tag: existingTag, entries: [] })
 
-    const result = getTag(tagsDict, 'test-tag')
+    const result = getTag(tagsMap, 'test-tag')
 
-    expect(result).toEqual(existingTag)
-    expect(result.description).toBe('Test description')
-    expect(result.externalDocs?.url).toBe('https://example.com')
+    expect(result).toEqual({ tag: existingTag, entries: [] })
+    expect(result.tag.description).toBe('Test description')
+    expect(result.tag.externalDocs?.url).toBe('https://example.com')
   })
 })

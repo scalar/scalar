@@ -1,4 +1,5 @@
-import type { TraversedSchema, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import { getTag } from '@/schemas/traverse-schema/helpers/get-tag'
+import type { TagsMap, TraversedSchema, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
@@ -14,8 +15,9 @@ const createModelEntry = (
   name = 'Unknown',
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
+  tag?: OpenAPIV3_1.TagObject,
 ): TraversedSchema => {
-  const id = getModelId({ name })
+  const id = getModelId({ name }, tag)
   titlesMap.set(id, name)
 
   return {
@@ -41,6 +43,8 @@ const createModelEntry = (
  */
 export const traverseSchemas = (
   content: OpenAPIV3_1.Document,
+  /** Map of tagNames and their entries */
+  tagsMap: TagsMap,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
@@ -48,7 +52,6 @@ export const traverseSchemas = (
   const schemas = content.components?.schemas ?? {}
   const untagged: TraversedSchema[] = []
 
-  // For loop has 2x the performance of forEach here
   for (const name in schemas) {
     if (schemas[name]['x-internal'] || schemas[name]['x-scalar-ignore'] || !Object.hasOwn(schemas, name)) {
       continue
@@ -56,7 +59,17 @@ export const traverseSchemas = (
 
     const ref = `#/content/components/schemas/${name}`
 
-    untagged.push(createModelEntry(ref, name, titlesMap, getModelId))
+    // Add to tags
+    if (schemas[name]['x-tags']?.length) {
+      schemas[name]['x-tags'].forEach((tagName: string) => {
+        const { tag } = getTag(tagsMap, tagName)
+        tagsMap.get(tagName)?.entries.push(createModelEntry(ref, name, titlesMap, getModelId, tag))
+      })
+    }
+    // Add to untagged
+    else {
+      untagged.push(createModelEntry(ref, name, titlesMap, getModelId))
+    }
   }
 
   return untagged

@@ -5,7 +5,7 @@ import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TraversedEntry, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 /**
  * Traverses an OpenAPI Document to generate navigation structure and metadata.
@@ -29,45 +29,46 @@ export const traverseDocument = (
     getTagId = (tag) => tag.name ?? '',
   }: Partial<TraverseSpecOptions>,
 ) => {
-  /** Dictionary of name to tags */
-  const tagsDict: Map<string, OpenAPIV3_1.TagObject> = new Map(
-    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [tag.name ?? 'Untitled Tag', tag]) ?? [],
-  )
-
   /** Map it ID to title for the mobile header */
   const titles = new Map<string, string>()
 
+  /** Map of tags and their entries */
+  const tagsMap: TagsMap = new Map(
+    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [tag.name ?? 'Untitled Tag', { tag, entries: [] }]) ?? [],
+  )
+  traversePaths(document, tagsMap, titles, getOperationId)
+
   const entries: TraversedEntry[] = traverseDescription(document.info?.description, titles, getHeadingId)
-  const tags = traversePaths(document, tagsDict, titles, getOperationId)
-  const webhooks = traverseWebhooks(document, tags, tagsDict, titles, getWebhookId)
-  const tagsEntries = traverseTags(document, tags, tagsDict, titles, {
+  traversePaths(document, tagsMap, titles, getOperationId)
+  const untaggedWebhooks = traverseWebhooks(document, tagsMap, titles, getWebhookId)
+  const tagsEntries = traverseTags(document, tagsMap, titles, {
     getTagId,
-    tagsSorter: tagsSorter,
-    operationsSorter: operationsSorter,
+    tagsSorter,
+    operationsSorter,
   })
 
   // Add tagged operations, webhooks and tagGroups
   entries.push(...tagsEntries)
 
   // Add untagged webhooks
-  if (webhooks.length) {
+  if (untaggedWebhooks.length) {
     entries.push({
       id: getWebhookId(),
       title: 'Webhooks',
-      children: webhooks,
+      children: untaggedWebhooks,
       type: 'text',
     })
   }
 
   // Add models if they are not hidden
   if (!hideModels && document.components?.schemas) {
-    const models = traverseSchemas(document, titles, getModelId)
+    const untaggedModels = traverseSchemas(document, tagsMap, titles, getModelId)
 
-    if (models.length) {
+    if (untaggedModels.length) {
       entries.push({
         id: getModelId(),
         title: 'Models',
-        children: models,
+        children: untaggedModels,
         type: 'text',
       })
     }

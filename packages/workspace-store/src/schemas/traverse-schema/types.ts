@@ -1,5 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+/** Map of tagNames and their entries */
+export type TagsMap = Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>
+
 type TraverseEntryBase = {
   type: 'text' | 'operation' | 'model' | 'tag' | 'webhook'
   id: string
@@ -96,9 +99,12 @@ export type TraverseSpecOptions = {
   ) => string
 
   /** Function to generate unique IDs for models/schemas */
-  getModelId: (model?: {
-    name: string
-  }) => string
+  getModelId: (
+    model?: {
+      name: string
+    },
+    parentTag?: OpenAPIV3_1.TagObject,
+  ) => string
 
   /** Function to generate unique IDs for tags */
   getTagId: (tag: OpenAPIV3_1.TagObject) => string

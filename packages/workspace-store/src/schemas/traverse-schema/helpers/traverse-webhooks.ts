@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
-import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedWebhook, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
@@ -54,9 +54,7 @@ const createWebhookEntry = (
 export const traverseWebhooks = (
   content: OpenAPIV3_1.Document,
   /** The tag map from from traversing paths */
-  tagsMap: Map<string, TraversedEntry[]>,
-  /** The tag dictionary of tags from the spec */
-  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  tagsMap: TagsMap,
   /** Map of titles for the mobile title */
   titlesMap: Map<string, string>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
@@ -77,14 +75,12 @@ export const traverseWebhooks = (
 
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          if (!tagsMap.has(tagName)) {
-            tagsMap.set(tagName, [])
-          }
-
-          const tag = getTag(tagsDict, tagName)
+          const { tag } = getTag(tagsMap, tagName)
           tagsMap
             .get(tagName)
-            ?.push(createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId, tag))
+            ?.entries.push(
+              createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId, tag),
+            )
         })
       }
       // Add to untagged

@@ -1,8 +1,9 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
-import type { TraversedOperation, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedOperation, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.
@@ -57,14 +58,12 @@ const createOperationEntry = (
  */
 export const traversePaths = (
   content: OpenAPIV3_1.Document,
-  /** Dictionary of tags from the spec */
-  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  /** Map of tags and their entries */
+  tagsMap: TagsMap,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   getOperationId: TraverseSpecOptions['getOperationId'],
-): Map<string, TraversedOperation[]> => {
-  const tagsMap = new Map<string, TraversedOperation[]>([['default', []]])
-
+) => {
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
     const pathEntries = Object.entries(pathItem ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
@@ -72,7 +71,7 @@ export const traversePaths = (
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {
       // Skip if the operation is internal or scalar-ignore
-      if (operation['x-internal'] || operation['x-scalar-ignore']) {
+      if (operation['x-internal'] || operation['x-scalar-ignore'] || !isHttpMethod(method)) {
         return
       }
 
@@ -81,20 +80,19 @@ export const traversePaths = (
       // Traverse tags
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
-          if (!tagsMap.has(tagName)) {
-            tagsMap.set(tagName, [])
-          }
-          const tag = getTag(tagsDict, tagName)
-          tagsMap.get(tagName)?.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
+          const { tag } = getTag(tagsMap, tagName)
+          tagsMap
+            .get(tagName)
+            ?.entries.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
         })
       }
       // Add to default tag
       else {
-        const tag = getTag(tagsDict, 'default')
-        tagsMap.get('default')?.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
+        const { tag } = getTag(tagsMap, 'default')
+        tagsMap
+          .get('default')
+          ?.entries.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
       }
     })
   })
-
-  return tagsMap
 }
