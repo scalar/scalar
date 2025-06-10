@@ -55,7 +55,6 @@
     "@scalar/core": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "@scalar/types": "workspace:*",
     "fastify-plugin": "^4.5.1",
     "github-slugger": "^2.0.0"
   },
