@@ -15,34 +15,33 @@ export type TraversedDescription = TraverseEntryBase & {
 
 /** Operation entry returned form traversing the document */
 export type TraversedOperation = TraverseEntryBase & {
+  type: 'operation'
+  ref: string
   method: OpenAPIV3_1.HttpMethods
   path: string
-  operation: OpenAPIV3_1.OperationObject
-  type: 'operation'
 }
 
 /** Model entry returned form traversing the document */
 export type TraversedSchema = TraverseEntryBase & {
-  name: string
-  schema: OpenAPIV3_1.SchemaObject
   type: 'model'
+  ref: string
+  name: string
 }
 
 /** Tag entry returned form traversing the document, includes tagGroups */
 export type TraversedTag = TraverseEntryBase & {
+  type: 'tag'
   name: string
   children?: TraversedEntry[]
-  tag: OpenAPIV3_1.TagObject
   isGroup: boolean
-  type: 'tag'
 }
 
 /** Webhook entry returned form traversing the document, basically the same as an operaation but with name instead of path */
 export type TraversedWebhook = TraverseEntryBase & {
+  type: 'webhook'
+  ref: string
   method: OpenAPIV3_1.HttpMethods
   name: string
-  webhook: OpenAPIV3_1.OperationObject
-  type: 'webhook'
 }
 
 /** Entries returned form traversing the document */
@@ -53,7 +52,7 @@ export type TraversedEntry =
   | TraversedTag
   | TraversedWebhook
 
-type OperationSortValue = { method: string; path: string; operation: OpenAPIV3_1.OperationObject }
+type OperationSortValue = { method: string; path: string; ref: string }
 
 /** Create sidebar options */
 export type TraverseSpecOptions = {

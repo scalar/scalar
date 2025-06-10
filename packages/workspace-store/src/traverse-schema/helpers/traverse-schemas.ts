@@ -3,8 +3,8 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Handles creating entries for components.schemas */
 const createModelEntry = (
-  schema: OpenAPIV3_1.SchemaObject,
-  name = 'Unkown',
+  ref: string,
+  name = 'Unknown',
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
 ): TraversedSchema => {
@@ -15,7 +15,8 @@ const createModelEntry = (
     id,
     title: name,
     name,
-    schema,
+    ref,
+    type: 'model',
   }
 }
 
@@ -35,7 +36,9 @@ export const traverseSchemas = (
       continue
     }
 
-    untagged.push(createModelEntry(schemas[name], name, titlesMap, getModelId))
+    const ref = `#/content/components/schemas/${name}`
+
+    untagged.push(createModelEntry(ref, name, titlesMap, getModelId))
   }
 
   return untagged

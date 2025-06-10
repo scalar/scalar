@@ -63,25 +63,15 @@ describe('traverseSchemas', () => {
         id: 'model-User',
         title: 'User',
         name: 'User',
-        schema: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
-          },
-        },
+        type: 'model',
+        'ref': '#/content/components/schemas/User',
       },
       {
         id: 'model-Product',
         title: 'Product',
         name: 'Product',
-        schema: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            price: { type: 'number' },
-          },
-        },
+        type: 'model',
+        'ref': '#/content/components/schemas/Product',
       },
     ])
 
@@ -177,9 +167,8 @@ describe('traverseSchemas', () => {
       id: 'model-EmptySchema',
       title: 'EmptySchema',
       name: 'EmptySchema',
-      schema: {
-        type: 'object',
-      },
+      type: 'model',
+      'ref': '#/content/components/schemas/EmptySchema',
     })
   })
 

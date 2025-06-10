@@ -22,7 +22,6 @@ const createTagEntry = (
     id,
     title,
     name: tag.name || title,
-    tag,
     children,
     isGroup,
     type: 'tag',
@@ -94,12 +93,9 @@ const getSortedTagEntries = (
         const pathA = a.type === 'operation' ? a.path : a.name
         const pathB = b.type === 'operation' ? b.path : b.name
 
-        const operationA = a.type === 'operation' ? a.operation : a.webhook
-        const operationB = b.type === 'operation' ? b.operation : b.webhook
-
         return operationsSorter(
-          { method: a.method, path: pathA, operation: operationA },
-          { method: b.method, path: pathB, operation: operationB },
+          { method: a.method, path: pathA, ref: a.ref },
+          { method: b.method, path: pathB, ref: b.ref },
         )
       })
     }

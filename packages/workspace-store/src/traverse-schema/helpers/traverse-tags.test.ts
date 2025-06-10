@@ -25,7 +25,10 @@ describe('traverseTags', () => {
   const createMockEntry = (title: string, method?: HttpMethod): TraversedEntry => ({
     id: `entry-${title}`,
     title,
-    ...(method && { method }),
+    method: method ?? 'get',
+    type: 'operation',
+    path: '',
+    ref: '',
   })
 
   it('should handle empty tags map', () => {
@@ -81,17 +84,17 @@ describe('traverseTags', () => {
         id: 'tag1',
         title: 'tag1',
         name: 'tag1',
-        tag: { name: 'tag1' },
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        type: 'tag',
       },
       {
         id: 'default',
         title: 'default',
         name: 'default',
-        tag: { name: 'default' },
         children: [createMockEntry('Test Operation')],
         isGroup: false,
+        type: 'tag',
       },
     ])
   })

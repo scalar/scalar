@@ -86,9 +86,8 @@ describe('create-server-store', () => {
           {
             id: 'List planets',
             method: 'get',
-            operation: {
-              summary: 'List planets',
-            },
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
             path: '/planets',
             title: 'List planets',
           },
@@ -177,9 +176,8 @@ describe('create-server-store', () => {
           {
             id: 'List planets',
             method: 'get',
-            operation: {
-              summary: 'List planets',
-            },
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
             path: '/planets',
             title: 'List planets',
           },
@@ -210,9 +208,8 @@ describe('create-server-store', () => {
           {
             id: 'List planets',
             method: 'get',
-            operation: {
-              summary: 'List planets',
-            },
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
             path: '/planets',
             title: 'List planets',
           },
@@ -282,11 +279,10 @@ describe('create-server-store', () => {
               {
                 id: 'List planets',
                 method: 'get',
-                operation: {
-                  summary: 'List planets',
-                },
                 path: '/planets',
                 title: 'List planets',
+                type: 'operation',
+                'ref': '#/paths/~1planets/get',
               },
             ],
           },
@@ -312,9 +308,8 @@ describe('create-server-store', () => {
               {
                 id: 'List planets',
                 method: 'get',
-                operation: {
-                  summary: 'List planets',
-                },
+                type: 'operation',
+                'ref': '#/paths/~1planets/get',
                 path: '/planets',
                 title: 'List planets',
               },

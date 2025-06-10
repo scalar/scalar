@@ -137,7 +137,16 @@ describe('traversePaths', () => {
 
     const result = traversePaths(spec, tagsDict, titlesMap, mockGetOperationId)
 
-    expect(result.get('Legacy')?.[0].operation.deprecated).toBe(true)
+    expect(result.get('Legacy')).toEqual([
+      {
+        id: 'GET-/old-endpoint',
+        method: 'get',
+        path: '/old-endpoint',
+        ref: '#/paths/~1old-endpoint/get',
+        title: 'Old endpoint',
+        type: 'operation',
+      },
+    ])
   })
 
   it('should skip internal operations', () => {

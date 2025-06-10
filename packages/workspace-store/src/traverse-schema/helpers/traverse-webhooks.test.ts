@@ -61,11 +61,8 @@ describe('traverse-webhooks', () => {
         title: 'Test Webhook',
         name: 'test-webhook',
         method: 'post',
-        webhook: {
-          summary: 'Test Webhook',
-          operationId: 'testWebhook',
-          tags: ['webhook-tag'],
-        },
+        ref: '#/webhooks/test-webhook/post',
+        type: 'webhook',
       })
       expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('Test Webhook')
     })
@@ -96,10 +93,8 @@ describe('traverse-webhooks', () => {
         title: 'Untagged Webhook',
         name: 'untagged-webhook',
         method: 'post',
-        webhook: {
-          summary: 'Untagged Webhook',
-          operationId: 'untaggedWebhook',
-        },
+        ref: '#/webhooks/untagged-webhook/post',
+        type: 'webhook',
       })
       expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('Untagged Webhook')
     })
@@ -183,11 +178,8 @@ describe('traverse-webhooks', () => {
         title: 'Deprecated Webhook',
         name: 'deprecated-webhook',
         method: 'post',
-        webhook: {
-          deprecated: true,
-          summary: 'Deprecated Webhook',
-          operationId: 'deprecatedWebhook',
-        },
+        ref: '#/webhooks/deprecated-webhook/post',
+        type: 'webhook',
       })
     })
 
@@ -223,20 +215,16 @@ describe('traverse-webhooks', () => {
             title: 'POST Webhook',
             name: 'multi-method-webhook',
             method: 'post',
-            webhook: {
-              summary: 'POST Webhook',
-              operationId: 'postWebhook',
-            },
+            ref: '#/webhooks/multi-method-webhook/post',
+            type: 'webhook',
           },
           {
             id: 'untagged-get-multi-method-webhook',
             title: 'GET Webhook',
             name: 'multi-method-webhook',
             method: 'get',
-            webhook: {
-              summary: 'GET Webhook',
-              operationId: 'getWebhook',
-            },
+            ref: '#/webhooks/multi-method-webhook/get',
+            type: 'webhook',
           },
         ]),
       )

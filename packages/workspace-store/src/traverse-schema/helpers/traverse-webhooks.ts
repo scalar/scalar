@@ -5,14 +5,14 @@ import type { TraversedEntry, TraversedWebhook, TraverseSpecOptions } from '@/tr
 
 /** Handles creating entries for webhooks */
 const createWebhookEntry = (
-  operation: OpenAPIV3_1.OperationObject,
+  ref: string,
   method: OpenAPIV3_1.HttpMethods,
   name = 'Unknown',
+  title = 'Unknown',
   titlesMap: Map<string, string>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
   tag?: OpenAPIV3_1.TagObject,
 ): TraversedWebhook => {
-  const title = operation.summary || name
   const id = getWebhookId({ name, method }, tag)
   titlesMap.set(id, title)
 
@@ -20,7 +20,7 @@ const createWebhookEntry = (
     id,
     title,
     name,
-    webhook: operation,
+    ref,
     method: method,
     type: 'webhook',
   }
@@ -44,6 +44,8 @@ export const traverseWebhooks = (
     const pathEntries = Object.entries(pathItemObject ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
 
     pathEntries.forEach(([method, operation]) => {
+      const ref = `#/webhooks/${name}/${method}`
+
       // Skip if the operation is internal or scalar-ignore
       if (operation['x-internal'] || operation['x-scalar-ignore']) {
         return
@@ -56,12 +58,14 @@ export const traverseWebhooks = (
           }
 
           const tag = getTag(tagsDict, tagName)
-          tagsMap.get(tagName)?.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId, tag))
+          tagsMap
+            .get(tagName)
+            ?.push(createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId, tag))
         })
       }
       // Add to untagged
       else {
-        untagged.push(createWebhookEntry(operation, method, name, titlesMap, getWebhookId))
+        untagged.push(createWebhookEntry(ref, method, name, operation.summary ?? name, titlesMap, getWebhookId))
       }
     })
   })

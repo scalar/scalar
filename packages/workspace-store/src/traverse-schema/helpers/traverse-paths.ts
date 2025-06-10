@@ -2,8 +2,10 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
 import type { TraversedOperation, TraverseSpecOptions } from '@/traverse-schema/types'
+import { escapeJsonPointer } from '@scalar/openapi-parser'
 
 const createOperationEntry = (
+  ref: string,
   operation: OpenAPIV3_1.OperationObject,
   method: OpenAPIV3_1.HttpMethods,
   path = 'Unknown',
@@ -19,7 +21,7 @@ const createOperationEntry = (
     title: operation.summary ?? path,
     path,
     method: method,
-    operation,
+    ref,
     type: 'operation',
   }
 }
@@ -51,6 +53,8 @@ export const traversePaths = (
         return
       }
 
+      const ref = `#/paths/${escapeJsonPointer(path)}/${method}`
+
       // Traverse tags
       if (operation.tags?.length) {
         operation.tags.forEach((tagName: string) => {
@@ -58,13 +62,13 @@ export const traversePaths = (
             tagsMap.set(tagName, [])
           }
           const tag = getTag(tagsDict, tagName)
-          tagsMap.get(tagName)?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
+          tagsMap.get(tagName)?.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
         })
       }
       // Add to default tag
       else {
         const tag = getTag(tagsDict, 'default')
-        tagsMap.get('default')?.push(createOperationEntry(operation, method, path, tag, titlesMap, getOperationId))
+        tagsMap.get('default')?.push(createOperationEntry(ref, operation, method, path, tag, titlesMap, getOperationId))
       }
     })
   })
