@@ -535,6 +535,8 @@ describe('create-workspace-store', () => {
           'method': 'get',
           'path': '/todos',
           'title': 'List all todos',
+          ref: '#/paths/~1todos/get',
+          type: 'operation',
         },
         {
           'children': [
@@ -542,10 +544,13 @@ describe('create-workspace-store', () => {
               'id': 'Todo',
               'name': 'Todo',
               'title': 'Todo',
+              ref: '#/content/components/schemas/Todo',
+              type: 'model',
             },
           ],
           'id': '',
           'title': 'Models',
+          type: 'text',
         },
       ],
     })

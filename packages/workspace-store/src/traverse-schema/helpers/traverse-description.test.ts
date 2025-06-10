@@ -23,7 +23,7 @@ describe('traverseDescription', () => {
     const titlesMap = new Map<string, string>()
     const description = 'This is a paragraph without any headings.'
     const result = traverseDescription(description, titlesMap, getHeadingId)
-    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction' }])
+    expect(result).toEqual([{ id: 'heading-introduction', title: 'Introduction', type: 'text' }])
     expect(titlesMap.size).toBe(1)
   })
 
@@ -44,16 +44,19 @@ Final content
       id: 'heading-first-heading',
       title: 'First Heading',
       children: [],
+      type: 'text',
     })
     expect(result[1]).toEqual({
       id: 'heading-second-heading',
       title: 'Second Heading',
       children: [],
+      type: 'text',
     })
     expect(result[2]).toEqual({
       id: 'heading-third-heading',
       title: 'Third Heading',
       children: [],
+      type: 'text',
     })
     expect(titlesMap.size).toBe(3)
     expect(titlesMap.get('heading-first-heading')).toBe('First Heading')
@@ -79,24 +82,29 @@ Final content
     expect(result[0]).toEqual({
       id: 'heading-main-section',
       title: 'Main Section',
+      type: 'text',
       children: [
         {
           id: 'heading-subsection-1',
           title: 'Subsection 1',
+          type: 'text',
         },
         {
           id: 'heading-subsection-2',
           title: 'Subsection 2',
+          type: 'text',
         },
       ],
     })
     expect(result[1]).toEqual({
       id: 'heading-another-section',
       title: 'Another Section',
+      type: 'text',
       children: [
         {
           id: 'heading-another-subsection',
           title: 'Another Subsection',
+          type: 'text',
         },
       ],
     })
@@ -123,24 +131,29 @@ Content
     expect(result[0]).toEqual({
       id: 'heading-section-1',
       title: 'Section 1',
+      type: 'text',
       children: [
         {
           id: 'heading-subsection-1.1',
           title: 'Subsection 1.1',
+          type: 'text',
         },
         {
           id: 'heading-subsection-1.2',
           title: 'Subsection 1.2',
+          type: 'text',
         },
       ],
     })
     expect(result[1]).toEqual({
       id: 'heading-section-2',
       title: 'Section 2',
+      type: 'text',
       children: [
         {
           id: 'heading-subsection-2.1',
           title: 'Subsection 2.1',
+          type: 'text',
         },
       ],
     })
@@ -163,10 +176,12 @@ Content
     expect(result[0]).toEqual({
       id: 'heading-level-1',
       title: 'Level 1',
+      type: 'text',
       children: [
         {
           id: 'heading-level-2',
           title: 'Level 2',
+          type: 'text',
         },
       ],
     })
@@ -189,8 +204,10 @@ Content
         {
           id: 'heading-sub-section-with-!@#$%^&*()-chars',
           title: 'Sub-section with !@#$%^&*() chars',
+          type: 'text',
         },
       ],
+      type: 'text',
     })
     expect(titlesMap.size).toBe(2)
   })
