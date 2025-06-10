@@ -54,6 +54,6 @@ export function readFiles(): Plugin {
     validate: (value) => {
       return !isRemoteUrl(value) && !isYaml(value) && !isJson(value)
     },
-    exec: (value) => readFile(value),
+    exec: readFile,
   }
 }

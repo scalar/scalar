@@ -17,6 +17,7 @@ import { readFiles } from './plugins/read-files'
 import { setTimeout } from 'node:timers/promises'
 import { parseJson } from '@/utils/bundle/plugins/parse-json'
 import { parseYaml } from '@/utils/bundle/plugins/parse-yaml'
+import YAML from 'yaml'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -1363,6 +1364,35 @@ describe('bundle', () => {
         },
       })
     })
+
+    it('should correctly resolve refs for json inputs', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = randomUUID()
+
+      await fs.writeFile(chunk1Path, JSON.stringify(chunk1))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk1Path}#/a`,
+        },
+      }
+
+      // We pass the input as json string and not as an object
+      const result = await bundle(JSON.stringify(input), { plugins: [readFiles(), parseJson()], treeShake: false })
+
+      await fs.rm(chunk1Path)
+
+      expect(result).toEqual({
+        'x-ext': {
+          [await getHash(chunk1Path)]: {
+            ...chunk1,
+          },
+        },
+        a: {
+          $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
+        },
+      })
+    })
   })
 
   describe('yaml inputs', () => {
@@ -1377,6 +1407,35 @@ describe('bundle', () => {
         info: {
           title: 'Simple API',
           version: '1.0',
+        },
+      })
+    })
+
+    it('should correctly resolve refs for yaml inputs', async () => {
+      const chunk1 = { a: 'a', b: 'b' }
+      const chunk1Path = randomUUID()
+
+      await fs.writeFile(chunk1Path, YAML.stringify(chunk1))
+
+      const input = {
+        a: {
+          '$ref': `./${chunk1Path}#/a`,
+        },
+      }
+
+      // We pass the input as json string and not as an object
+      const result = await bundle(YAML.stringify(input), { plugins: [parseYaml(), readFiles()], treeShake: false })
+
+      await fs.rm(chunk1Path)
+
+      expect(result).toEqual({
+        'x-ext': {
+          [await getHash(chunk1Path)]: {
+            ...chunk1,
+          },
+        },
+        a: {
+          $ref: `#/x-ext/${await getHash(chunk1Path)}/a`,
         },
       })
     })
