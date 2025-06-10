@@ -2,6 +2,7 @@ import type { NavState } from '@/hooks/useNavState'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import {
   type AnyApiReferenceConfiguration,
+  type ApiReferenceConfiguration,
   type SpecConfiguration,
   isConfigurationWithSources,
 } from '@scalar/types/api-reference'
@@ -100,13 +101,25 @@ const addSlugAndTitle = (_source: SpecConfiguration, index = 0): SpecConfigurati
   }
 }
 
+/**
+ * DEPRECATED: This is a temporary state solution while we migrate to the new workspace store
+ *
+ * @deprecated
+ */
 export const useMultipleDocuments = ({
   configuration,
   initialIndex,
   isIntersectionEnabled,
   hash,
   hashPrefix,
-}: UseMultipleDocumentsProps) => {
+}: UseMultipleDocumentsProps): {
+  selectedConfiguration: Ref<Partial<ApiReferenceConfiguration> & SpecConfiguration>
+  availableDocuments: Ref<SpecConfiguration[]>
+  selectedDocumentIndex: Ref<number>
+  isIntersectionEnabled: Ref<boolean>
+  hash: Ref<string>
+  hashPrefix: Ref<string>
+} => {
   /**
    * All available documents that can be selected
    */
@@ -235,17 +248,5 @@ export const useMultipleDocuments = ({
     isIntersectionEnabled,
     hash,
     hashPrefix,
-  } as
-    /**
-     * This was needed for a the bug: The inferred type of 'useMultipleDocuments' cannot be named without a reference to
-     * A limitation of typescript
-     */
-    {
-      selectedConfiguration: Ref<SpecConfiguration>
-      availableDocuments: Ref<SpecConfiguration[]>
-      selectedDocumentIndex: Ref<number>
-      isIntersectionEnabled: Ref<boolean>
-      hash: Ref<string>
-      hashPrefix: Ref<string>
-    }
+  }
 }

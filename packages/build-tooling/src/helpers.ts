@@ -103,8 +103,6 @@ export async function addPackageFileExports({
 
     const namespacePath = namespace.length ? `./${namespace.join('/')}` : '.'
 
-    console.log('namespacePath', namespacePath, filename)
-
     // Add support for wildcard exports
     packageExports[formatEntry(filepath, namespacePath)] = {
       import: `./dist/${filepath}.js`,
