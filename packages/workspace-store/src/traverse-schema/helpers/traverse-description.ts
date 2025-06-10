@@ -38,6 +38,7 @@ export const traverseDescription = (
     entries.push({
       id,
       title,
+      type: 'text',
     })
     titlesMap.set(id, title)
   }
@@ -51,6 +52,7 @@ export const traverseDescription = (
     const entry: TraversedDescription = {
       id: getHeadingId(heading),
       title: heading.value,
+      type: 'text',
     }
     titlesMap.set(entry.id, entry.title)
 
