@@ -52,7 +52,7 @@ const selectedDiscriminatorOption = computed({
     :options="discriminatorListboxOptions"
     resize>
     <button
-      class="bg-b-1.5 hover:bg-b-2 flex w-full items-center gap-1 rounded border px-2 py-1.25"
+      class="bg-b-1.5 hover:bg-b-2 mt-2 flex w-full items-center gap-1 rounded border px-2 py-1.25"
       type="button">
       <span class="composition-selector-label text-c-1 relative">
         {{ selectedDiscriminatorOption?.label || 'Schema' }}

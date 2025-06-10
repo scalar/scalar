@@ -277,7 +277,7 @@ const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
     </div>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(optimizedValue)?.length > 0"
+      v-if="getEnumFromValue(optimizedValue)?.length > 0 && !isDiscriminator"
       class="property-enum">
       <template v-if="Array.isArray(optimizedValue?.['x-enumDescriptions'])">
         <div class="property-list">
