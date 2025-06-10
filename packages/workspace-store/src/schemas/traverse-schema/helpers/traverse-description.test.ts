@@ -1,9 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { traverseDescription } from './traverse-description'
-import type { Heading } from '@scalar/types/legacy'
 
 describe('traverseDescription', () => {
-  const getHeadingId = (heading: Heading) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
+  const getHeadingId = (heading: { value: string }) => `heading-${heading.value.toLowerCase().replace(/\s+/g, '-')}`
 
   it('should return empty array for undefined description', () => {
     const titlesMap = new Map<string, string>()

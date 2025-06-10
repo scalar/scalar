@@ -1,5 +1,4 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TagGroup } from '@scalar/types/legacy'
 
 import { getTag } from './get-tag'
 import type { TagsMap, TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
@@ -146,7 +145,7 @@ export const traverseTags = (
 ): TraversedEntry[] => {
   // x-tagGroups
   if (content['x-tagGroups']) {
-    const tagGroups = content['x-tagGroups'] as TagGroup[]
+    const tagGroups = content['x-tagGroups'] as { tags: string[] }[]
 
     return tagGroups.flatMap((tagGroup) => {
       const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, titlesMap, {

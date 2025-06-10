@@ -109,3 +109,5 @@ export type TraverseSpecOptions = {
   /** Function to generate unique IDs for tags */
   getTagId: (tag: OpenAPIV3_1.TagObject) => string
 }
+
+export type Heading = { depth: number; value: string; slug?: string }

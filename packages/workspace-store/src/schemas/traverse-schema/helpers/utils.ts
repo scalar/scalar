@@ -1,5 +1,5 @@
+import type { Heading } from '@/schemas/traverse-schema/types'
 import { getHeadings } from '@scalar/code-highlight/markdown'
-import type { Heading } from '@scalar/types/legacy'
 import GithubSlugger from 'github-slugger'
 
 /**
