@@ -1,8 +1,7 @@
 import { createServerWorkspaceStore } from '@/server'
 import { createWorkspaceStore } from '@/client'
-import { beforeEach, describe, expect, test } from 'vitest'
+import { beforeEach, afterEach, describe, expect, test } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
-import { afterEach } from 'node:test'
 
 // Test document
 const document = {
