@@ -95,7 +95,8 @@ const schema = computed(() => {
   // If the merged schema is an object schema and the original schema is an object schema, return the merged schema
   if (
     mergedSchema &&
-    (props.level === 0 || props.hasDiscriminator) &&
+    props.level === 0 &&
+    props.hasDiscriminator &&
     isObjectSchema(originalSchema) &&
     isObjectSchema(mergedSchema)
   ) {
