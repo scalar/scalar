@@ -23,7 +23,7 @@ npm -g install @scalar/cli
 
 Otherwise just prefix all commands with `npx @scalar/cli` instead of `scalar`. That’s fine, too.
 
-### Conflict: EEXIST: file already exists
+### Conflict: EXIST: file already exists
 
 There’s another `scalar` CLI, which is bundled with `git`. If you run into naming conflicts, but never use the other CLI anyway, you can replace it like this:
 
