@@ -84,11 +84,11 @@ export const processParameters = (
             break
           }
           case 'spaceDelimited': {
-            // SpaceDelimited array: color=blue%20black%20brown
+            // SpaceDelimited array: color=blue black brown
             if (Array.isArray(paramValue)) {
               newQueryString.push({ name: param.name, value: (paramValue as unknown[]).join(' ') })
             }
-            // SpaceDelimited object: color=R%20100%20G%20200%20B%20150
+            // SpaceDelimited object: color=R 100 G 200 B 150
             else if (typeof paramValue === 'object' && paramValue !== null) {
               const values = Object.entries(paramValue as Record<string, unknown>)
                 .map(([k, v]) => `${k} ${v}`)
@@ -98,11 +98,11 @@ export const processParameters = (
             break
           }
           case 'pipeDelimited': {
-            // PipeDelimited array: color=blue%7Cblack%7Cbrown
+            // PipeDelimited array: color=blue|black|brown
             if (Array.isArray(paramValue)) {
               newQueryString.push({ name: param.name, value: (paramValue as unknown[]).join('|') })
             }
-            // PipeDelimited object: color=R%7C100%7CG%7C200%7CB%7C150
+            // PipeDelimited object: color=R|100|G|200|B|150
             else if (typeof paramValue === 'object' && paramValue !== null) {
               const values = Object.entries(paramValue as Record<string, unknown>)
                 .flat()
