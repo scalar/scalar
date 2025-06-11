@@ -5,6 +5,7 @@ import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
 import { isYaml } from '@/utils/is-yaml'
 import { isJson } from '@/utils/is-json'
+import { getSafeHash } from '@/utils/bundle/hash'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -358,36 +359,6 @@ const resolveAndCopyReferences = (
 }
 
 /**
- * Generates a short SHA-1 hash from a string value.
- * This function is used to create unique identifiers for external references
- * while keeping the hash length manageable. It uses the Web Crypto API to
- * generate a SHA-1 hash and returns the first 7 characters of the hex string.
- * If the hash would be all numbers, it ensures at least one letter is included.
- *
- * @param value - The string to hash
- * @returns A 7-character hexadecimal hash with at least one letter
- * @example
- * // Returns "2ae91d7"
- * await getHash("https://example.com/schema.json")
- */
-export async function getHash(value: string) {
-  // Convert string to ArrayBuffer
-  const encoder = new TextEncoder()
-  const data = encoder.encode(value)
-
-  // Hash the data
-  const hashBuffer = await crypto.subtle.digest('SHA-1', data)
-
-  // Convert buffer to hex string
-  const hashArray = Array.from(new Uint8Array(hashBuffer))
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
-
-  // Return first 7 characters of the hash, ensuring at least one letter
-  const hash = hashHex.substring(0, 7)
-  return hash.match(/^\d+$/) ? 'a' + hash.substring(1) : hash
-}
-
-/**
  * Represents a plugin that handles resolving references from external sources.
  * Plugins are responsible for fetching and processing data from different sources
  * like URLs or the filesystem. Each plugin must implement validation to determine
@@ -464,6 +435,27 @@ type Config = {
     onResolveSuccess: (node: Record<string, unknown> & Record<'$ref', unknown>) => void
   }>
 }
+
+/**
+ * Extension keys used for bundling external references in OpenAPI documents.
+ * These custom extensions help maintain the structure and traceability of bundled documents.
+ */
+const extensions = {
+  /**
+   * Custom OpenAPI extension key used to store external references.
+   * This key will contain all bundled external documents.
+   * The x-ext key is used to maintain a clean separation between the main
+   * OpenAPI document and its bundled external references.
+   */
+  externalDocuments: 'x-ext',
+
+  /**
+   * Custom OpenAPI extension key used to maintain a mapping between
+   * hashed keys and their original URLs in x-ext.
+   * This mapping is essential for tracking the source of bundled references
+   */
+  externalDocumentsMappings: 'x-ext-urls',
+} as const
 
 /**
  * Bundles an OpenAPI specification by resolving all external references.
@@ -546,7 +538,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     }
     const result = await resolveContents(input, config.plugins)
 
-    if (result.ok) {
+    if (result.ok && typeof result.data === 'object') {
       return result.data
     }
 
@@ -561,14 +553,6 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // Document root used to write all external documents
   // We need this when we want to do a partial bundle of a document
   const documentRoot = config.root ?? rawSpecification
-
-  // Custom OpenAPI extension key used to store external references
-  // This key will contain all bundled external documents
-  const EXTERNAL_KEY = 'x-ext'
-
-  // Custom OpenAPI extension key used to maintain a mapping between
-  // original URLs and their corresponding hashed keys in x-ext
-  const EXTERNAL_URL_MAPPING = 'x-ext-urls'
 
   // Indicates whether we're performing a partial bundle operation, which occurs when
   // a root document is provided that differs from the raw specification being bundled
@@ -625,7 +609,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(origin, prefix)
-      const hashPath = await getHash(resolvedPath)
+      const hashPath = await getSafeHash(resolvedPath, documentRoot[extensions.externalDocumentsMappings] ?? {})
 
       const seen = cache.has(resolvedPath)
 
@@ -654,7 +638,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             // location, but when embedded, they need to be relative to their new location in
             // the main document's x-ext section. Without this update, internal references
             // would point to incorrect locations and break the document structure.
-            prefixInternalRefRecursive(result.data, [EXTERNAL_KEY, hashPath])
+            prefixInternalRefRecursive(result.data, [extensions.externalDocuments, hashPath])
           }
 
           // Recursively process the resolved content
@@ -663,11 +647,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // their new location in the bundled document.
           await bundler(result.data, isChunk ? origin : resolvedPath, isChunk)
 
-          // Store the mapping between original URLs and their hashed keys in x-ext-urls
+          // Store the mapping between hashed keys and original URLs in x-ext-urls
           // This allows tracking which external URLs were bundled and their corresponding locations
-          if (config.urlMap) {
-            setValueAtPath(documentRoot, `/${EXTERNAL_URL_MAPPING}/${escapeJsonPointer(resolvedPath)}`, hashPath)
-          }
+          setValueAtPath(
+            documentRoot,
+            `/${extensions.externalDocumentsMappings}/${escapeJsonPointer(hashPath)}`,
+            resolvedPath,
+          )
         }
 
         if (config.treeShake === true) {
@@ -676,9 +662,9 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // that are referenced, rather than the entire document
           resolveAndCopyReferences(
             documentRoot,
-            { [EXTERNAL_KEY]: { [hashPath]: result.data } },
-            prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath]).substring(1),
-            EXTERNAL_KEY,
+            { [extensions.externalDocuments]: { [hashPath]: result.data } },
+            prefixInternalRef(`#${path}`, [extensions.externalDocuments, hashPath]).substring(1),
+            extensions.externalDocuments,
             hashPath,
           )
         } else if (!seen) {
@@ -687,13 +673,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${EXTERNAL_KEY}/${hashPath}`, result.data)
+          setValueAtPath(documentRoot, `/${extensions.externalDocuments}/${hashPath}`, result.data)
         }
 
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [EXTERNAL_KEY, hashPath])
+        root.$ref = prefixInternalRef(`#${path}`, [extensions.externalDocuments, hashPath])
         config?.hooks?.onResolveSuccess?.(root)
         return
       }
@@ -709,7 +695,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     // We skip EXTERNAL_KEY to avoid processing already bundled content
     await Promise.all(
       Object.entries(root).map(async ([key, value]) => {
-        if (key === EXTERNAL_KEY) {
+        if (key === extensions.externalDocuments) {
           return
         }
 
@@ -719,5 +705,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   }
 
   await bundler(rawSpecification)
+
+  // Keep urlMappings when doing partial bundling to track hash values and handle collisions
+  // For full bundling without urlMap config, remove the mappings to clean up the output
+  if (!config.urlMap && !isPartialBundling) {
+    // Remove the external document mappings from the output when doing a full bundle without urlMap config
+    delete documentRoot[extensions.externalDocumentsMappings]
+  }
+
   return rawSpecification
 }
