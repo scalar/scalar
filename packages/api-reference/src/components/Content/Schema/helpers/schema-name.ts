@@ -64,6 +64,122 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
 }
 
 /**
+ * Find schema name by matching against component schemas
+ */
+export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
+  if (!schema || !schemas || typeof schemas !== 'object') {
+    return null
+  }
+
+  for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+    if (schemaValue.type === schema.type) {
+      if (schema.type === 'array' && schemaValue.items?.type === schema.items?.type) {
+        return schemaName
+      }
+
+      if (
+        schema.type === 'object' &&
+        schemaValue.properties &&
+        schema.properties &&
+        stringify(schemaValue.properties) === stringify(schema.properties)
+      ) {
+        return schemaName
+      }
+
+      // Only return schema name if it has model name
+      if (schema.type !== 'array' && schema.type !== 'object') {
+        const hasAdditionalProperties = Object.keys(schemaValue).some(
+          (key) => key !== 'type' && !['title', 'description'].includes(key),
+        )
+
+        if (hasAdditionalProperties || hasName(schemaName)) {
+          return schemaName
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+/**
+ * Format the type and model name for display
+ */
+export function formatTypeWithModel(type: string, modelName: string): string {
+  return type === 'array' ? `${type} ${modelName}[]` : `${type} ${modelName}`
+}
+
+/**
+ * Get the model name for a schema property
+ * e.g. User | Admin | array of User | array of Admin
+ */
+export function getModelName(
+  value: Record<string, any>,
+  schemas?: Schemas,
+  hideModelNames = false,
+  getDiscriminatorSchemaName?: (schema: any, schemas?: Schemas) => string | null,
+): string | null {
+  if (!value?.type) {
+    return null
+  }
+
+  if (hideModelNames) {
+    if (value.type === 'array' && value.items?.type) {
+      return `array ${value.items.type}[]`
+    }
+    return null
+  }
+
+  // First check if the entire schema matches a component schema
+  const modelName = getModelNameFromSchema(value, schemas)
+  if (modelName && (value.title || value.name)) {
+    return value.type === 'array' ? `array ${modelName}[]` : modelName
+  }
+
+  const schemaName = getSchemaNameFromSchemas(value, schemas)
+  if (schemaName) {
+    return value.type === 'array' ? `array ${schemaName}[]` : schemaName
+  }
+
+  // Handle array types with item references only if no full schema match was found
+  if (value.type === 'array' && value.items) {
+    // Check if items reference a discriminator schema
+    if (getDiscriminatorSchemaName) {
+      const baseSchemaName = getDiscriminatorSchemaName(value.items, schemas)
+      if (baseSchemaName) {
+        return formatTypeWithModel(value.type, baseSchemaName)
+      }
+    }
+
+    // Handle title/name
+    if (value.items.title || value.items.name) {
+      return formatTypeWithModel(value.type, value.items.title || value.items.name)
+    }
+
+    const itemModelName = getModelNameFromSchema(value.items, schemas)
+    if (itemModelName && itemModelName !== value.items.type) {
+      return formatTypeWithModel(value.type, itemModelName)
+    }
+
+    if (value.items.type) {
+      return formatTypeWithModel(value.type, value.items.type)
+    }
+
+    return formatTypeWithModel(value.type, 'object')
+  }
+
+  if (modelName && modelName !== value.type) {
+    if (modelName.startsWith('Array of ')) {
+      const itemType = modelName.replace('Array of ', '')
+      return `array ${itemType}[]`
+    }
+    return modelName
+  }
+
+  return null
+}
+
+/**
  * Check if a schema has a name (title, name, or custom identifier)
  */
 export function hasName(name: string | null): boolean {
