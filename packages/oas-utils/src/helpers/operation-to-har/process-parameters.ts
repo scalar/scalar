@@ -10,6 +10,8 @@ type ProcessedParameters = {
 /**
  * Process OpenAPI parameters and return the updated properties.
  * Handles path, query, and header parameters with various styles and explode options.
+ *
+ * @see https://spec.openapis.org/oas/latest.html#style-values
  */
 export const processParameters = (
   harRequest: HarRequest,
