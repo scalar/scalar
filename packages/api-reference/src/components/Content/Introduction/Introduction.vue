@@ -80,8 +80,10 @@ onMounted(() => config.value.onLoaded?.())
         </SectionHeader>
         <SectionColumns>
           <SectionColumn>
-            <DownloadLink :title="document.info?.title" />
-            <ExternalDocs :value="externalDocs" />
+            <div class="links">
+              <DownloadLink :title="document.info?.title" />
+              <ExternalDocs :value="externalDocs" />
+            </div>
             <Description :value="document.info?.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
