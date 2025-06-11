@@ -191,7 +191,6 @@ const introCardsSlot = computed(() =>
 .introduction-card {
   display: flex;
   flex-direction: column;
-  background: var(--scalar-background-1);
 }
 .introduction-card-item {
   display: flex;
