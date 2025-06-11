@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
 
 /**
  * Describes a single operation parameter.
@@ -7,7 +7,7 @@ import { Type } from '@sinclair/typebox'
  *
  * See Appendix E for a detailed examination of percent-encoding concerns, including interactions with the application/x-www-form-urlencoded query string format.
  */
-export const ParameterObject = Type.Object({
+export const ParameterObjectSchema = Type.Object({
   /** REQUIRED. The name of the parameter. Parameter names are case sensitive.
    *    - If in is "path", the name field MUST correspond to a template expression occurring within the path field in the Paths Object. See Path Templating for further information.
    *    - If in is "header" and the name field is "Accept", "Content-Type" or "Authorization", the parameter definition SHALL be ignored.
@@ -24,3 +24,5 @@ export const ParameterObject = Type.Object({
   /** If true, clients MAY pass a zero-length string value in place of parameters that would otherwise be omitted entirely, which the server SHOULD interpret as the parameter being unused. Default value is false. If style is used, and if behavior is n/a (cannot be serialized), the value of allowEmptyValue SHALL be ignored. Interactions between this field and the parameter's Schema Object are implementation-defined. This field is valid only for query parameters. Use of this field is NOT RECOMMENDED, and it is likely to be removed in a later revision. */
   allowEmptyValue: Type.Optional(Type.Boolean()),
 })
+
+export type ParameterObject = Static<typeof ParameterObjectSchema>

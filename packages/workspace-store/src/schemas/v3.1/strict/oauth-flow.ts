@@ -1,7 +1,7 @@
-import { Type } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
 
 /** Configuration details for a supported OAuth Flow */
-export const OAuthFlowObject = Type.Object({
+export const OAuthFlowObjectSchema = Type.Object({
   /** REQUIRED. The authorization URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
   authorizationUrl: Type.String(),
   /** REQUIRED. The token URL to be used for this flow. This MUST be in the form of a URL. The OAuth2 standard requires the use of TLS. */
@@ -11,3 +11,5 @@ export const OAuthFlowObject = Type.Object({
   /** REQUIRED. The available scopes for the OAuth2 security scheme. A map between the scope name and a short description for it. The map MAY be empty. */
   scopes: Type.Record(Type.String(), Type.String()),
 })
+
+export type OAuthFlowObject = Static<typeof OAuthFlowObjectSchema>

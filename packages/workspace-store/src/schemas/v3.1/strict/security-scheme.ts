@@ -1,5 +1,5 @@
-import { Type } from '@sinclair/typebox'
-import { OAuthFlowsObject } from './oauthflows'
+import { Type, type Static } from '@sinclair/typebox'
+import { OAuthFlowsObjectSchema } from './oauthflows'
 
 export const DescriptionSchema = Type.Object({
   /** A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
@@ -36,7 +36,7 @@ export const OAuth2 = Type.Intersect([
     /** REQUIRED. The type of the security scheme. Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect". */
     type: Type.Literal('oauth2'),
     /** REQUIRED. An object containing configuration information for the flow types supported. */
-    flows: OAuthFlowsObject,
+    flows: OAuthFlowsObjectSchema,
   }),
 ])
 
@@ -55,4 +55,6 @@ export const OpenIdConnect = Type.Intersect([
  *
  * Supported schemes are HTTP authentication, an API key (either as a header, a cookie parameter or as a query parameter), mutual TLS (use of a client certificate), OAuth2's common flows (implicit, password, client credentials and authorization code) as defined in RFC6749, and [[OpenID-Connect-Core]]. Please note that as of 2020, the implicit flow is about to be deprecated by OAuth 2.0 Security Best Current Practice. Recommended for most use cases is Authorization Code Grant flow with PKCE.
  */
-export const SecuritySchemeObject = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
+export const SecuritySchemeObjectSchema = Type.Union([ApiKeySchema, HttpSchema, OAuth2, OpenIdConnect])
+
+export type SecuritySchemeObject = Static<typeof SecuritySchemeObjectSchema>

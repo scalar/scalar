@@ -1,5 +1,5 @@
 import { type Static, Type } from '@sinclair/typebox'
-import { OpenAPIDocumentSchema } from './openapi-v3/openapi-document'
+import { OpenAPIDocumentSchema } from './v3.1/strict/openapi-document'
 import { extensions } from '@/schemas/extensions'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(

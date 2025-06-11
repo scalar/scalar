@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
 
 /**
  * A simple object to allow referencing other components in the OpenAPI Description, internally and externally.
@@ -6,7 +6,7 @@ import { Type } from '@sinclair/typebox'
  * The $ref string value contains a URI RFC3986, which identifies the value being referenced.
  *
  * See the rules for resolving Relative References. */
-export const ReferenceObject = Type.Object({
+export const ReferenceObjectSchema = Type.Object({
   /** REQUIRED. The reference identifier. This MUST be in the form of a URI. */
   '$ref': Type.String(),
   /** Indicates the current status of the reference resolution. Can be either 'loading' while fetching the reference or 'error' if the resolution failed. */
@@ -18,3 +18,5 @@ export const ReferenceObject = Type.Object({
   /** A description which by default SHOULD override that of the referenced component. CommonMark syntax MAY be used for rich text representation. If the referenced object-type does not allow a description field, then this field has no effect. */
   description: Type.Optional(Type.String()),
 })
+
+export type ReferenceObject = Static<typeof ReferenceObjectSchema>

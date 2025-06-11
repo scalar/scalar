@@ -1,6 +1,6 @@
-import { Type } from '@sinclair/typebox'
-import { ReferenceObject } from './reference'
-import { ResponseObject } from './response'
+import { Type, type Static } from '@sinclair/typebox'
+import { ReferenceObjectSchema } from './reference'
+import { ResponseObjectSchema } from './response'
 
 /**
  * A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.
@@ -11,4 +11,9 @@ import { ResponseObject } from './response'
  *
  * The Responses Object MUST contain at least one response code, and if only one response code is provided it SHOULD be the response for a successful operation call.
  */
-export const ResponsesObject = Type.Record(Type.String(), Type.Union([ResponseObject, ReferenceObject]))
+export const ResponsesObjectSchema = Type.Record(
+  Type.String(),
+  Type.Union([ResponseObjectSchema, ReferenceObjectSchema]),
+)
+
+export type ResponsesObject = Static<typeof ResponsesObjectSchema>
