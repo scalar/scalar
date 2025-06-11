@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getTag } from './get-tag'
-import type { TraversedEntry } from '@/schemas/traverse-schema/types'
+import type { TraversedEntry } from '@/navigation/types'
 
 describe('getTag', () => {
   it('returns existing tag from the dictionary', () => {

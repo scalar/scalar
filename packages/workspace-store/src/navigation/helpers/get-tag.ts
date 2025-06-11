@@ -1,4 +1,4 @@
-import type { TagsMap } from '@/schemas/traverse-schema/types'
+import type { TagsMap } from '@/navigation/types'
 
 type TagMapValue = NonNullable<TagsMap extends Map<string, infer V> ? V : never>
 

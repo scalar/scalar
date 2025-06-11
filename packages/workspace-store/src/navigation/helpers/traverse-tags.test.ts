@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/schemas/traverse-schema/types'
+import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/navigation/types'
 import { traverseTags } from './traverse-tags'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 

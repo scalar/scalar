@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TraversedEntry, TagsMap, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TraversedEntry, TagsMap, TraverseSpecOptions } from '@/navigation/types'
 
 describe('traverse-webhooks', () => {
   const mockGetWebhookId: TraverseSpecOptions['getWebhookId'] = (params, tag) => {

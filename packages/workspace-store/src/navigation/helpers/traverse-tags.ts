@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
-import type { TagsMap, TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/navigation/types'
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 

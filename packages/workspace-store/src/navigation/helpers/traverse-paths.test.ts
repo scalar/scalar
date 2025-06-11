@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traversePaths } from './traverse-paths'
-import type { TagsMap, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
 
 describe('traversePaths', () => {
   // Mock getOperationId function

@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { getTag } from './get-tag'
-import type { TagsMap, TraversedOperation, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedOperation, TraverseSpecOptions } from '@/navigation/types'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 

@@ -4,8 +4,8 @@ import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
-import { traverseDocument, type TraverseSpecOptions } from '@/schemas/traverse-schema'
-import { extensions } from '@/extensions'
+import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { extensions } from '@/schemas/extensions'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -18,7 +18,7 @@ type CreateServerWorkspaceStoreBase = {
     meta?: WorkspaceDocumentMeta
   }[]
   meta?: WorkspaceMeta
-  config?: TraverseSpecOptions
+  config?: createNavigationOptions
 }
 type CreateServerWorkspaceStore =
   | ({
@@ -211,7 +211,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const paths = externalizePathReferences(document, options)
 
       // Here we create the sidebar
-      const { entries } = traverseDocument(document, workspaceProps.config ?? {})
+      const { entries } = createNavigation(document, workspaceProps.config ?? {})
 
       acc[name] = { ...meta, ...document, components, paths, [extensions.document.navigation]: entries }
       return acc
@@ -337,7 +337,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const paths = externalizePathReferences(documentV3, options)
 
       // Build the sidebar entries
-      const { entries } = traverseDocument(document, workspaceProps.config ?? {})
+      const { entries } = createNavigation(document, workspaceProps.config ?? {})
 
       // The document is now a minimal version with externalized references to components and operations.
       // These references will be resolved asynchronously when needed through the workspace's get() method.

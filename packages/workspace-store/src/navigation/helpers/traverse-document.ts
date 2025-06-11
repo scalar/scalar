@@ -5,7 +5,7 @@ import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
-import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/navigation/types'
 
 /**
  * Traverses an OpenAPI Document to generate navigation structure and metadata.

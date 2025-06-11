@@ -4,10 +4,10 @@ import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
-import { traverseDocument, type TraverseSpecOptions } from '@/schemas/traverse-schema'
-import { extensions } from '@/extensions'
+import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { extensions } from '@/schemas/extensions'
 
-type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: TraverseSpecOptions }
+type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
 
 type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
 type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
@@ -87,7 +87,7 @@ export function createWorkspaceStore(workspaceProps?: {
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
-      document[extensions.document.navigation] = traverseDocument(document, input.config ?? {}).entries
+      document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })

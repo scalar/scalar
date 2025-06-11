@@ -1,5 +1,5 @@
-import { getTag } from '@/schemas/traverse-schema/helpers/get-tag'
-import type { TagsMap, TraversedSchema, TraverseSpecOptions } from '@/schemas/traverse-schema/types'
+import { getTag } from '@/navigation/helpers/get-tag'
+import type { TagsMap, TraversedSchema, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
