@@ -1,7 +1,5 @@
 import { normalize } from '@/utils/normalize'
-import { isRemoteUrl, type Plugin, type ResolveResult } from '@/utils/bundle/bundle'
-import { isYaml } from '@/utils/is-yaml'
-import { isJson } from '@/utils/is-json'
+import { isFilePath, type Plugin, type ResolveResult } from '@/utils/bundle/bundle'
 
 /**
  * Reads and normalizes data from a local file
@@ -51,9 +49,7 @@ export async function readFile(path: string): Promise<ResolveResult> {
  */
 export function readFiles(): Plugin {
   return {
-    validate: (value) => {
-      return !isRemoteUrl(value) && !isYaml(value) && !isJson(value)
-    },
-    exec: (value) => readFile(value),
+    validate: isFilePath,
+    exec: readFile,
   }
 }
