@@ -5,6 +5,7 @@ import type { Request as HarRequest } from 'har-format'
 import { processServerUrl } from './process-server-url'
 import { processParameters } from './process-parameters'
 import { processBody } from './process-body'
+import { processSecuritySchemes } from './process-security-schemes'
 
 export type OperationToHarProps = {
   /** OpenAPI Operation object */
@@ -21,19 +22,36 @@ export type OperationToHarProps = {
   path: string
   /** OpenAPI Server object */
   server?: OpenAPIV3_1.ServerObject
-  /** OpenAPI SecurityScheme objects */
+  /** OpenAPI SecurityScheme objects which are applicable to the operation */
   securitySchemes?: OpenAPIV3_1.SecuritySchemeObject[]
   /**
-   * requestBody.example to use for the request, it should be pre-selected and discriminated
+   * requestBody.content[contentType].example to use for the request, it should be pre-selected and discriminated
    */
   example?: unknown
 }
 
 /**
- * Converts an OpenAPI Operation to a HarRequest so we can create a snippet for it using the snippetz package
+ * Converts an OpenAPI Operation to a HarRequest format for generating HTTP request snippets.
+ *
+ * This function transforms OpenAPI 3.1 operation objects into HAR (HTTP Archive) format requests,
+ * which can be used to generate code snippets for various programming languages and HTTP clients.
+ *
+ * The conversion handles:
+ * - Server URL processing and path parameter substitution
+ * - Query parameter formatting based on OpenAPI parameter styles
+ * - Request body processing with content type handling
+ * - Security scheme integration (API keys, etc.)
+ *
+ * The resulting HarRequest object follows the HAR specification and includes:
+ * - HTTP method and URL
+ * - Headers and query parameters
+ * - Request body (if present)
+ * - Cookie information
+ * - Size calculations for headers and body
  *
  * @see https://w3c.github.io/web-performance/specs/HAR/Overview.html
- * */
+ * @see https://spec.openapis.org/oas/v3.1.0#operation-object
+ */
 export const operationToHar = ({
   operation,
   contentType,
@@ -77,12 +95,12 @@ export const operationToHar = ({
   }
 
   // Handle security schemes
-  // if (securitySchemes) {
-  //   for (const scheme of securitySchemes) {
-  //     if (scheme.type === 'apiKey' && scheme.name) {
-  //     }
-  //   }
-  // }
+  if (securitySchemes) {
+    const { headers, queryString, cookies } = processSecuritySchemes(securitySchemes)
+    harRequest.headers.push(...headers)
+    harRequest.queryString.push(...queryString)
+    harRequest.cookies.push(...cookies)
+  }
 
   // Calculate headers size
   const headerText = harRequest.headers.map((h) => `${h.name}: ${h.value}`).join('\r\n')

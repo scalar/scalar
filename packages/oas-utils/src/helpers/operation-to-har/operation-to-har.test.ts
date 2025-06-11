@@ -284,43 +284,43 @@ describe('operationToHar', () => {
     })
   })
 
-  // describe('security handling', () => {
-  //   it('should include security headers when provided', () => {
-  //     const operation: OpenAPIV3_1.OperationObject = {
-  //       security: [
-  //         {
-  //           apiKey: [],
-  //         },
-  //       ],
-  //       responses: {
-  //         '200': {
-  //           description: 'OK',
-  //         },
-  //       },
-  //     }
+  describe('security handling', () => {
+    it('should include security headers when provided', () => {
+      const operation: OpenAPIV3_1.OperationObject = {
+        security: [
+          {
+            apiKey: [],
+          },
+        ],
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
 
-  //     const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
-  //       {
-  //         type: 'apiKey',
-  //         name: 'X-API-Key',
-  //         in: 'header',
-  //       },
-  //     ]
+      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+        {
+          type: 'apiKey',
+          name: 'X-API-Key',
+          in: 'header',
+          'x-scalar-secret-token': 'test-key',
+        },
+      ]
 
-  //     const result = operationToHar({
-  //       operation,
-  //       method: 'get',
-  //       path: '/api/users',
-  //       securitySchemes,
-  //       example: { apiKey: 'test-key' },
-  //     })
+      const result = operationToHar({
+        operation,
+        method: 'get',
+        path: '/api/users',
+        securitySchemes,
+      })
 
-  //     expect(result.headers).toContainEqual({
-  //       name: 'X-API-Key',
-  //       value: 'test-key',
-  //     })
-  //   })
-  // })
+      expect(result.headers).toContainEqual({
+        name: 'X-API-Key',
+        value: 'test-key',
+      })
+    })
+  })
 
   describe('data type handling', () => {
     it('should handle various data types in example', () => {

@@ -561,14 +561,14 @@ export namespace OpenAPIV3 {
     description?: string
     scheme?: string
     bearerFormat?: string
-  }
+  } & AnyOtherAttribute
 
   export type ApiKeySecurityScheme = {
     type?: 'apiKey'
     description?: string
     name?: string
     in?: string
-  }
+  } & AnyOtherAttribute
 
   export type OAuth2SecurityScheme = {
     type?: 'oauth2'
@@ -578,23 +578,23 @@ export namespace OpenAPIV3 {
         authorizationUrl?: string
         refreshUrl?: string
         scopes?: { [scope: string]: string }
-      }
+      } & AnyOtherAttribute
       password?: {
         tokenUrl?: string
         refreshUrl?: string
         scopes?: { [scope: string]: string }
-      }
+      } & AnyOtherAttribute
       clientCredentials?: {
         tokenUrl?: string
         refreshUrl?: string
         scopes?: { [scope: string]: string }
-      }
+      } & AnyOtherAttribute
       authorizationCode?: {
         authorizationUrl?: string
         tokenUrl?: string
         refreshUrl?: string
         scopes?: { [scope: string]: string }
-      }
+      } & AnyOtherAttribute
     }
   }
 
@@ -602,7 +602,7 @@ export namespace OpenAPIV3 {
     type?: 'openIdConnect'
     description?: string
     openIdConnectUrl?: string
-  }
+  } & AnyOtherAttribute
 
   export type TagObject = {
     name?: string
