@@ -1,5 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { HarRequest } from '@scalar/snippetz'
+import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
   url: string
@@ -10,11 +10,6 @@ type ProcessedParameters = {
 /**
  * Process OpenAPI parameters and return the updated properties.
  * Handles path, query, and header parameters with various styles and explode options.
- *
- * @param harRequest - The HAR request object to process
- * @param parameters - Array of OpenAPI parameters to process
- * @param example - Example values for the parameters
- * @returns Object containing the updated url, headers, and queryString
  */
 export const processParameters = (
   harRequest: HarRequest,

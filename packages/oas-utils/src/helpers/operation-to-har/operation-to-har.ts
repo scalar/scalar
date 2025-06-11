@@ -1,11 +1,12 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { HarRequest } from '@scalar/snippetz'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { Request as HarRequest } from 'har-format'
 
 import { processServerUrl } from './process-server-url'
 import { processParameters } from './process-parameters'
+import { processBody } from './process-body'
 
-type Props = {
+export type OperationToHarProps = {
   /** OpenAPI Operation object */
   operation: OpenAPIV3_1.OperationObject
   /** HTTP method of the operation */
@@ -22,7 +23,9 @@ type Props = {
   server?: OpenAPIV3_1.ServerObject
   /** OpenAPI SecurityScheme objects */
   securitySchemes?: OpenAPIV3_1.SecuritySchemeObject[]
-  /** requestBody.example to use for the request */
+  /**
+   * requestBody.example to use for the request, it should be pre-selected and discriminated
+   */
   example?: unknown
 }
 
@@ -39,7 +42,7 @@ export const operationToHar = ({
   server,
   securitySchemes,
   example,
-}: Props): HarRequest => {
+}: OperationToHarProps): HarRequest => {
   // Initialize the HAR request with basic properties
   const harRequest: HarRequest = {
     method,
@@ -68,16 +71,9 @@ export const operationToHar = ({
 
   // Handle request body
   if (operation.requestBody?.content && example) {
-    const _contentType = contentType || Object.keys(operation.requestBody.content)[0]
-
-    const text = JSON.stringify(example)
-    harRequest.postData = {
-      mimeType: _contentType,
-      text,
-    }
-
-    // Update body size
-    harRequest.bodySize = text.length
+    const postData = processBody({ operation, contentType, example })
+    harRequest.postData = postData
+    harRequest.bodySize = postData.text?.length ?? -1
   }
 
   // Handle security schemes

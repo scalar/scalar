@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { HarRequest } from '@scalar/snippetz'
+import type { Request as HarRequest } from 'har-format'
+import { describe, it, expect } from 'vitest'
+
 import { processParameters } from './process-parameters'
 
 describe('parameter styles', () => {
