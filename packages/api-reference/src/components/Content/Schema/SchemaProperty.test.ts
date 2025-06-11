@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
+import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import Schema from './Schema.vue'
 import SchemaProperty from './SchemaProperty.vue'
@@ -389,5 +390,65 @@ describe('SchemaProperty sub-schema', () => {
     // Check that the titles are displayed correctly
     expect(wrapper.html()).toContain('foo (1)')
     expect(wrapper.html()).toContain('bar (1)')
+  })
+})
+
+describe('SchemaProperty discriminator handling', () => {
+  it('prevents discriminator context recursion for child properties', async () => {
+    const mockDiscriminatorContext = {
+      value: {
+        mergedSchema: {
+          type: 'object',
+          properties: {
+            satellites: {
+              type: 'string',
+              description: 'Satellites surrounding the planet',
+            },
+          },
+          required: ['satellites'],
+        },
+        selectedType: 'Planet',
+        discriminatorMapping: { Planet: 'PlanetSatellites' },
+        discriminatorPropertyName: 'type',
+      },
+    }
+
+    const childPropertySchema = {
+      type: 'object',
+      properties: {
+        galaxy: {
+          type: 'string',
+          description: 'Galaxy of the planet',
+        },
+      },
+      required: ['galaxy'],
+    }
+
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: childPropertySchema,
+        name: 'Satellites',
+        level: 1,
+      },
+      global: {
+        provide: {
+          [DISCRIMINATOR_CONTEXT]: mockDiscriminatorContext,
+        },
+      },
+    })
+
+    const expandButton = wrapper.find('.schema-card-title')
+    if (expandButton.exists()) {
+      await expandButton.trigger('click')
+      await wrapper.vm.$nextTick()
+    }
+
+    const html = wrapper.html()
+
+    expect(html).toContain('galaxy')
+    expect(html).toContain('Galaxy of the planet')
+
+    expect(html).not.toContain('satellites')
+    expect(html).not.toContain('Satellites surrounding the planet')
   })
 })
