@@ -33,6 +33,20 @@
           ]
         },
         {
+          "name": "Scalar CLI",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/cli/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/cli/commands.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
           "name": "Scalar API References",
           "type": "folder",
           "children": [
