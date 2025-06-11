@@ -82,7 +82,7 @@ onMounted(() => config.value.onLoaded?.())
           <SectionColumn>
             <div class="links">
               <DownloadLink :title="info.title" />
-              <ExternalDocs :value="parsedSpec.externalDocs" />
+              <ExternalDocs :value="externalDocs" />
             </div>
             <Description :value="info.description" />
           </SectionColumn>

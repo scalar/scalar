@@ -93,7 +93,8 @@ const introCardsSlot = computed(() =>
     <Introduction
       v-if="parsedSpec?.info?.title || parsedSpec?.info?.description"
       :info="parsedSpec.info"
-      :parsedSpec="parsedSpec">
+      :parsedSpec="parsedSpec"
+      :externalDocs="activeCollection?.externalDocs">
       <template #[introCardsSlot]>
         <ScalarErrorBoundary>
           <div
