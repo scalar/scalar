@@ -85,6 +85,8 @@ tags:
       all the required endpoints to create an account and authorize yourself.
   - name: Planets
     description: Everything about planets
+  - name: Celestial Bodies
+    description: Celestial bodies are the planets and satellites in the Scalar Galaxy.
 paths:
   '/planets':
     get:
@@ -296,6 +298,25 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+  '/celestial-bodies':
+    post:
+      tags:
+        - Celestial Bodies
+      summary: Create a celestial body
+      operationId: createCelestialBody
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CelestialBody'
+      responses:
+        '201':
+          description: Celestial body created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CelestialBody'
   '/user/signup':
     post:
       tags:
@@ -512,6 +533,16 @@ components:
         format: int64
         examples:
           - 1
+    satelliteId:
+      name: satelliteId
+      description: The ID of the satellite to get
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+        examples:
+          - 1
     limit:
       name: limit
       description: The number of items to return
@@ -561,7 +592,7 @@ components:
           schema:
             $ref: '#/components/schemas/ForbiddenError'
     NotFound:
-      description: NotFound
+      description: Not Found
       content:
         application/json:
           schema:
@@ -640,6 +671,16 @@ components:
           type: string
           examples:
             - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    CelestialBody:
+      oneOf:
+        - $ref: '#/components/schemas/Planet'
+        - $ref: '#/components/schemas/Satellite'
+      discriminator:
+        propertyName: type
+        mapping:
+          planet: '#/components/schemas/Planet'
+          satellite: '#/components/schemas/Satellite'
+      description: A celestial body which can be either a planet or a satellite
     Planet:
       description: A planet in the Scalar Galaxy
       type: object
@@ -785,6 +826,63 @@ components:
           description: URL which gets invoked upon a failed operation
           examples:
             - https://example.com/webhook
+    Satellite:
+      description: Every satellite in the Scalar Galaxy
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          examples:
+            - 1
+        name:
+          type: string
+          examples:
+            - Phobos
+        description:
+          type:
+            - string
+            - 'null'
+          examples:
+            - Phobos is the larger and innermost of the two moons of Mars.
+        diameter:
+          type: number
+          format: float
+          description: Diameter in kilometers
+          examples:
+            - 22.2
+        type:
+          type: string
+          enum:
+            - moon
+            - asteroid
+            - comet
+          examples:
+            - moon
+        orbit:
+          type: object
+          properties:
+            planetId:
+              type: integer
+              format: int64
+              description: The ID of the planet this satellite orbits
+              examples:
+                - 1
+            orbitalPeriod:
+              type: number
+              format: float
+              description: Orbital period in Earth days
+              examples:
+                - 0.319
+            distance:
+              type: number
+              format: float
+              description: Average distance from the planet in kilometers
+              examples:
+                - 9376
     PaginatedResource:
       description: A paginated resource
       type: object
@@ -976,19 +1074,3 @@ components:
           type: string
           examples:
             - The request was invalid.
-    Satellite:
-      description: A natural satellite (moon) orbiting a planet
-      type: object
-      required:
-        - name
-      properties:
-        name:
-          type: string
-          examples:
-            - Phobos
-        diameter:
-          type: number
-          format: float
-          description: Diameter in kilometers
-          examples:
-            - 22.2
