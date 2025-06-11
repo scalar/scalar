@@ -1,12 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
-
-import { ICONS } from '..//ScalarIcon/icons'
 import ScalarSidebar from './ScalarSidebar.vue'
 import ScalarSidebarFooter from './ScalarSidebarFooter.vue'
 import ScalarSidebarGroup from './ScalarSidebarGroup.vue'
 import ScalarSidebarItem from './ScalarSidebarItem.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
+import { ScalarIconFileArchive, ScalarIconFileAudio, ScalarIconFileText } from '@scalar/icons'
 
 const meta: Meta = {
   component: ScalarSidebar,
@@ -14,7 +13,15 @@ const meta: Meta = {
   parameters: { layout: 'fullscreen' },
   argTypes: {
     class: { control: 'text' },
-    icon: { control: 'select', options: ICONS },
+    icon: {
+      control: 'select',
+      options: ['Text', 'Archive', 'Audio'],
+      mapping: {
+        Text: ScalarIconFileText,
+        Archive: ScalarIconFileArchive,
+        Audio: ScalarIconFileAudio,
+      },
+    },
   },
   render: (args) => ({
     components: { ScalarSidebar },

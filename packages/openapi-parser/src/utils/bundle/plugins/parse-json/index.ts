@@ -13,7 +13,7 @@ import { isJson } from '@/utils/is-json'
  */
 export function parseJson(): Plugin {
   return {
-    validate: (value) => isJson(value),
+    validate: isJson,
     exec: async (value): Promise<ResolveResult> => {
       try {
         return {

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
+import { ScalarIconCopy } from '@scalar/icons'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
@@ -59,9 +60,7 @@ const isContentValid = computed(() => {
         type="button"
         @click="copyToClipboard(prettyPrintJson(props.content))">
         <span class="sr-only">Copy content</span>
-        <ScalarIcon
-          icon="Clipboard"
-          size="md" />
+        <ScalarIconCopy class="size-4" />
       </button>
     </div>
     <pre
@@ -116,7 +115,7 @@ const isContentValid = computed(() => {
   height: 30px;
   margin-bottom: -30px;
   opacity: 0;
-  padding: 6px;
+  padding: 5px;
   transition:
     opacity 0.15s ease-in-out,
     color 0.15s ease-in-out;

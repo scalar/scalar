@@ -135,6 +135,11 @@ const discriminatorContext = inject(DISCRIMINATOR_CONTEXT, null)
 
 /** Handle schema value according to discriminator context */
 const schema = computed(() => {
+  // Prevent recursion in discriminator context presence
+  if (props.level > 0) {
+    return optimizedValue.value
+  }
+
   if (discriminatorContext?.value?.mergedSchema) {
     return discriminatorContext.value.mergedSchema
   }
@@ -272,7 +277,7 @@ const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
     </div>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(optimizedValue)?.length > 0"
+      v-if="getEnumFromValue(optimizedValue)?.length > 0 && !isDiscriminator"
       class="property-enum">
       <template v-if="Array.isArray(optimizedValue?.['x-enumDescriptions'])">
         <div class="property-list">

@@ -9,6 +9,7 @@ import type { Schemas } from '@/features/Operation/types/schemas'
 import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
 import { Badge } from '../../Badge'
+import { getModelName } from './helpers/schema-name'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
 
 const {
@@ -44,55 +45,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   return value?.default
 }
 
-// Get model name from schema
-const getModelNameFromSchema = (
-  schema: OpenAPIV3_1.Document,
-): string | null => {
-  if (!schema) {
-    return null
-  }
-
-  if (schema.title) {
-    return schema.title
-  }
-
-  if (schema.name) {
-    return schema.name
-  }
-
-  if (schemas && typeof schemas === 'object') {
-    // Handle direct schema match
-    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-      if (schemaValue.type === schema.type) {
-        // For arrays, also check items type
-        if (
-          schema.type === 'array' &&
-          schemaValue.items?.type === schema.items?.type
-        ) {
-          return schemaName
-        }
-
-        // Handle case where schema is a reference to a component schema
-        if (
-          schema.type === 'object' &&
-          schemaValue.properties &&
-          schema.properties
-        ) {
-          return schemaName
-        }
-
-        // For simple types, match if they're the same
-        if (schema.type !== 'array' && schema.type !== 'object') {
-          return schemaName
-        }
-      }
-    }
-  }
-
-  return null
-}
-
-/** Get the const value from the schema */
 const constValue = computed(() => {
   if (isDefined(value?.const)) {
     return value?.const
@@ -131,56 +83,18 @@ const displayType = computed(() => {
   return value?.type ?? ''
 })
 
-/** Format the type and model name */
-const formatTypeWithModel = (type: string, modelName: string) => {
-  return type === 'array' ? `${type} ${modelName}[]` : `${type} ${modelName}`
-}
-
 /** Gets the model name */
 const modelName = computed(() => {
-  if (!value?.type) {
+  if (!value) {
     return null
   }
 
-  // Handle array types with item references
-  if (hideModelNames) {
-    // When hiding model names, still show item types for arrays
-    if (value.type === 'array' && value.items?.type) {
-      return `array ${value.items.type}[]`
-    }
-    return null
-  }
-
-  // First check if the entire schema matches a component schema
-  const schemaModelName = getModelNameFromSchema(value)
-  if (schemaModelName) {
-    return value.type === 'array'
-      ? `array ${schemaModelName}[]`
-      : schemaModelName
-  }
-
-  // Handle array types with item references only if no full schema match was found
-  if (value.type === 'array' && value.items?.type) {
-    // Check if items reference a discriminator schema
-    const baseSchemaName = getDiscriminatorSchemaName(value.items, schemas)
-    if (baseSchemaName) {
-      return formatTypeWithModel(value.type, baseSchemaName)
-    }
-
-    // Handle title/name
-    if (value.items.title || value.items.name) {
-      return formatTypeWithModel(
-        value.type,
-        value.items.title || value.items.name,
-      )
-    }
-
-    const itemModelName =
-      getModelNameFromSchema(value.items) || value.items.type || 'object'
-    return formatTypeWithModel(value.type, itemModelName)
-  }
-
-  return null
+  return getModelName(
+    value,
+    schemas,
+    hideModelNames,
+    getDiscriminatorSchemaName,
+  )
 })
 </script>
 <template>

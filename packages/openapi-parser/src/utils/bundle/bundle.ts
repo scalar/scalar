@@ -3,6 +3,8 @@ import { escapeJsonPointer } from '@/utils/escape-json-pointer'
 import path from '@/polyfills/path'
 import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
+import { isYaml } from '@/utils/is-yaml'
+import { isJson } from '@/utils/is-json'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -23,6 +25,24 @@ export function isRemoteUrl(value: string) {
   } catch {
     return false
   }
+}
+
+/**
+ * Checks if a string represents a file path by ensuring it's not a remote URL,
+ * YAML content, or JSON content.
+ *
+ * @param value - The string to check
+ * @returns true if the string appears to be a file path, false otherwise
+ * @example
+ * ```ts
+ * isFilePath('./schemas/user.json') // true
+ * isFilePath('https://example.com/schema.json') // false
+ * isFilePath('{"type": "object"}') // false
+ * isFilePath('type: object') // false
+ * ```
+ */
+export function isFilePath(value: string) {
+  return !isRemoteUrl(value) && !isYaml(value) && !isJson(value)
 }
 
 /**
@@ -557,11 +577,22 @@ export async function bundle(input: UnknownObject | string, config: Config) {
   // Set of nodes that have already been processed during bundling to prevent duplicate processing
   const processedNodes = config.visitedNodes ?? new Set()
 
-  const bundler = async (
-    root: unknown,
-    origin: string = typeof input === 'string' ? input : '',
-    isChunkParent = false,
-  ) => {
+  // Determines the initial origin path for the bundler based on the input type.
+  // For string inputs that are URLs or file paths, uses the input as the origin.
+  // For non-string inputs or other string types, returns an empty string.
+  const defaultOrigin = () => {
+    if (typeof input !== 'string') {
+      return ''
+    }
+
+    if (isRemoteUrl(input) || isFilePath(input)) {
+      return input
+    }
+
+    return ''
+  }
+
+  const bundler = async (root: unknown, origin: string = defaultOrigin(), isChunkParent = false) => {
     if (!isObject(root) && !Array.isArray(root)) {
       return
     }
@@ -669,7 +700,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
 
       config?.hooks?.onResolveError?.(root)
       return console.warn(
-        `Failed to resolve external reference "${prefix}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
+        `Failed to resolve external reference "${resolvedPath}". The reference may be invalid, inaccessible, or missing a loader for this type of reference.`,
       )
     }
 

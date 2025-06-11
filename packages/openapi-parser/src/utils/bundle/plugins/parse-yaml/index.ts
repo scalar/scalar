@@ -14,7 +14,7 @@ import YAML from 'yaml'
  */
 export function parseYaml(): Plugin {
   return {
-    validate: (value) => isYaml(value),
+    validate: isYaml,
     exec: async (value): Promise<ResolveResult> => {
       try {
         return {

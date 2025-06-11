@@ -2,9 +2,10 @@ import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import { ScalarButton, ScalarIcon } from '../..'
+import { ScalarButton } from '../..'
 import ScalarListbox from './ScalarListbox.vue'
 import type { Option } from './types'
+import { ScalarIconCaretDown } from '@scalar/icons'
 
 const meta = {
   component: ScalarListbox,
@@ -32,7 +33,7 @@ export const Base: Story = {
     components: {
       ScalarListbox,
       ScalarButton,
-      ScalarIcon,
+      ScalarIconCaretDown,
     },
     setup() {
       const selected = ref<Option>()
@@ -46,7 +47,7 @@ export const Base: Story = {
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.label ?? 'Select an option' }}
         </span>
-        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
+        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
       </div>
     </ScalarButton>
   </ScalarListbox>
@@ -68,7 +69,7 @@ export const Multiselect: Story = {
     components: {
       ScalarListbox,
       ScalarButton,
-      ScalarIcon,
+      ScalarIconCaretDown,
     },
     setup() {
       const selected = ref<Option[]>([])
@@ -82,7 +83,7 @@ export const Multiselect: Story = {
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.length ? selected.map(o => o.label).join(', ') : 'Select an option' }}
         </span>
-        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
+        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
       </div>
     </ScalarButton>
   </ScalarListbox>
@@ -104,7 +105,7 @@ export const CustomClasses: Story = {
     components: {
       ScalarListbox,
       ScalarButton,
-      ScalarIcon,
+      ScalarIconCaretDown,
     },
     setup() {
       const selected = ref<Option>()
@@ -118,7 +119,7 @@ export const CustomClasses: Story = {
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.label ?? 'Select an option' }}
         </span>
-        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
+        <ScalarIconCaretDown class="ml-1 ui-open:rotate-180 size-3" weight="bold" />
       </div>
     </ScalarButton>
   </ScalarListbox>

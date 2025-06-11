@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ScalarIconUsers } from '@scalar/icons'
+
 import { ScalarIcon, useBindCx } from '../..'
 
 defineProps<{
@@ -23,10 +25,10 @@ const { cx } = useBindCx()
       <template v-if="label && label.length > 0">
         {{ label[0] }}
       </template>
-      <ScalarIcon
+      <ScalarIconUsers
         v-else
-        icon="Users"
-        size="xs" />
+        class="size-3"
+        weight="bold" />
     </div>
     <div
       v-if="label && label.length > 0"

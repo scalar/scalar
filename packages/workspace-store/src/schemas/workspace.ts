@@ -30,7 +30,8 @@ export const WorkspaceSchema = Type.Intersect([
   WorkspaceMetaSchema,
   Type.Object({
     documents: Type.Record(Type.String(), Type.Partial(WorkspaceDocumentSchema)),
-    activeDocument: Type.Partial(WorkspaceDocumentSchema),
+    /** Active document is possibly undefined if we attempt to lookup with an invalid key */
+    activeDocument: Type.Union([Type.Undefined(), Type.Partial(WorkspaceDocumentSchema)]),
   }),
 ])
 

@@ -51,7 +51,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin: 0 0 24px;
+  margin: 0 0.5px 24px;
   position: relative;
   width: fit-content;
   z-index: 0;

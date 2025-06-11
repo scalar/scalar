@@ -1,4 +1,3 @@
-import { reactive, toRaw } from 'vue'
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
 import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
@@ -9,9 +8,11 @@ import { traverseDocument, type TraverseSpecOptions } from '@/schemas/traverse-s
 import { extensions } from '@/extensions'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: TraverseSpecOptions }
-type WorkspaceDocumentInput =
-  | ({ document: Record<string, unknown> } & WorkspaceDocumentMetaInput)
-  | ({ url: string } & WorkspaceDocumentMetaInput)
+
+type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
+type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
+
+type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
@@ -52,15 +53,18 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
  * @param workspaceProps - Configuration object for the workspace
  * @param workspaceProps.meta - Optional metadata for the workspace
  * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
+ *  Documents that require asynchronous loading must be added using `addDocument` after the store is created
+ *  this allows atomic awaiting and does not block page load for the store initialization
  * @returns An object containing methods and getters for managing the workspace
- * @deprecated Use `createWorkspaceStore` instead.
  */
-export function createWorkspaceStoreSync(workspaceProps?: {
+export function createWorkspaceStore(workspaceProps?: {
   meta?: WorkspaceMeta
+  /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
+  documents?: ObjectDoc[]
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
-  const workspace = reactive({
+  const workspace: Workspace = {
     ...workspaceProps?.meta,
     documents: {},
     /**
@@ -75,19 +79,28 @@ export function createWorkspaceStoreSync(workspaceProps?: {
         workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
-  }) as Workspace
+  }
+
+  // Add a document to the store synchronously from and in-mem open api document
+  function addDocumentSync(input: ObjectDoc) {
+    const { name, meta, document } = input
+
+    // Skip navigation generation if the document already has a server-side generated navigation structure
+    if (document[extensions.document.navigation] === undefined) {
+      document[extensions.document.navigation] = traverseDocument(document, input.config ?? {}).entries
+    }
+
+    workspace.documents[name] = createMagicProxy({ ...document, ...meta })
+  }
+
+  // Add any initial documents to the store
+  workspaceProps?.documents?.forEach(addDocumentSync)
 
   // Cache to track visited nodes during reference resolution to prevent bundling the same subtree multiple times
   // This is needed because we are doing partial bundle operations
   const visitedNodesCache = new Set()
 
   return {
-    /**
-     * Returns the raw (non-reactive) workspace object
-     */
-    get rawWorkspace() {
-      return toRaw(workspace)
-    },
     /**
      * Returns the reactive workspace object with an additional activeDocument getter
      */
@@ -199,7 +212,7 @@ export function createWorkspaceStoreSync(workspaceProps?: {
      * })
      */
     addDocument: async (input: WorkspaceDocumentInput) => {
-      const { name, meta } = input
+      const { name, meta, config } = input
 
       const resolve = await loadDocument(input)
 
@@ -211,51 +224,28 @@ export function createWorkspaceStoreSync(workspaceProps?: {
         return
       }
 
-      const document = resolve.data
-
-      // Skip navigation generation if the document already has a server-side generated navigation structure
-      if (document[extensions.document.navigation] === undefined) {
-        document[extensions.document.navigation] = traverseDocument(document, input.config ?? {}).entries
-      }
-
-      workspace.documents[name] = createMagicProxy({ ...document, ...meta })
+      addDocumentSync({ document: resolve.data, name, meta, config })
     },
+    /**
+     * Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously
+     * @param document - The document content to add. This should be a valid OpenAPI/Swagger document or other supported format
+     * @param meta - Metadata for the document, including its name and other properties defined in WorkspaceDocumentMeta
+     * @example
+     * // Add a new OpenAPI document to the workspace
+     * store.addDocument({
+     *   name: 'name',
+     *   document: {
+     *     openapi: '3.0.0',
+     *     info: { title: 'title' },
+     *   },
+     *   meta: {
+     *     'x-scalar-active-auth': 'Bearer',
+     *     'x-scalar-active-server': 'production'
+     *   }
+     * })
+     */
+    addDocumentSync,
   }
 }
 
-/**
- * Creates a reactive workspace store that manages documents and their metadata.
- * The store provides functionality for accessing, updating, and resolving document references.
- *
- * @param workspaceProps - Configuration object for the workspace
- * @param workspaceProps.meta - Optional metadata for the workspace
- * @param workspaceProps.documents - Optional record of documents to initialize the workspace with
- * @returns An object containing methods and getters for managing the workspace
- * @example
- * // Create a workspace store with metadata and documents
- * const store = await createWorkspaceStore({
- *   meta: {
- *     name: 'My Workspace',
- *     description: 'A workspace for my API'
- *   },
- *   documents: [
- *     {
- *       name: 'pet store',
- *       document: {
- *         openapi: '3.0.0',
- *         info: { title: 'Pet Store API' }
- *       }
- *     }
- *   ]
- * })
- */
-export async function createWorkspaceStore(workspaceProps?: {
-  meta?: WorkspaceMeta
-  documents?: WorkspaceDocumentInput[]
-}) {
-  const store = createWorkspaceStoreSync({ meta: workspaceProps?.meta })
-
-  await Promise.all(workspaceProps?.documents?.map((it) => store.addDocument(it)) ?? [])
-
-  return store
-}
+export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>

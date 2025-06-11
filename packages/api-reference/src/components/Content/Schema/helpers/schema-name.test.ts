@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { getModelNameFromSchema, getCompositionDisplay } from './schema-name'
+import { getModelNameFromSchema, getCompositionDisplay, getSchemaNameFromSchemas, getModelName } from './schema-name'
 
 describe('schema-name', () => {
   describe('getModelNameFromSchema', () => {
@@ -68,6 +68,187 @@ describe('schema-name', () => {
     it('returns null for empty object', () => {
       const schema: OpenAPIV3_1.SchemaObject = {}
       expect(getModelNameFromSchema(schema)).toBe(null)
+    })
+  })
+
+  describe('getSchemaNameFromSchemas', () => {
+    it('finds schema name by matching object properties', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          username: { type: 'string' },
+          deletedAt: { type: 'string', format: 'date-time', nullable: true },
+        },
+      }
+      const schemas = {
+        UserRequest: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            username: { type: 'string' },
+            deletedAt: { type: 'string', format: 'date-time', nullable: true },
+          },
+        },
+        ProblemDetails: {
+          type: 'object',
+          properties: {
+            type: { type: 'string', format: 'uri' },
+            title: { type: 'string' },
+            status: { type: 'integer', format: 'int32' },
+          },
+        },
+      }
+      expect(getSchemaNameFromSchemas(schema, schemas)).toBe('UserRequest')
+    })
+
+    it('finds schema name by matching array types', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'array',
+        items: { type: 'string' },
+      }
+      const schemas = {
+        StringArray: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        NumberArray: {
+          type: 'array',
+          items: { type: 'number' },
+        },
+      }
+      expect(getSchemaNameFromSchemas(schema, schemas)).toBe('StringArray')
+    })
+
+    it('returns null when no matching schema found', () => {
+      const schema: OpenAPIV3_1.SchemaObject = {
+        type: 'object',
+        properties: { id: { type: 'string' } },
+      }
+      const schemas = {
+        User: {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+        },
+      }
+      expect(getSchemaNameFromSchemas(schema, schemas)).toBe(null)
+    })
+
+    it('returns null when schemas is undefined', () => {
+      const schema: OpenAPIV3_1.SchemaObject = { type: 'object' }
+      expect(getSchemaNameFromSchemas(schema)).toBe(null)
+    })
+
+    it('does not return schema name for simple primitive types', () => {
+      const schema: OpenAPIV3_1.SchemaObject = { type: 'string' }
+      const schemas = {
+        foo: { type: 'string' },
+        bar: { type: 'number' },
+      }
+      expect(getSchemaNameFromSchemas(schema, schemas)).toBe(null)
+    })
+  })
+
+  describe('getModelName', () => {
+    it('returns null when value has no type', () => {
+      const value = { properties: { name: { type: 'string' } } }
+      expect(getModelName(value)).toBe(null)
+    })
+
+    it('returns array type when hideModelNames is true', () => {
+      const value = {
+        type: 'array',
+        items: { type: 'string' },
+      }
+      expect(getModelName(value, {}, true)).toBe('array string[]')
+    })
+
+    it('returns null when hideModelNames is true and not array', () => {
+      const value = { type: 'object' }
+      expect(getModelName(value, {}, true)).toBe(null)
+    })
+
+    it('returns model name with title', () => {
+      const value = {
+        type: 'object',
+        title: 'Planet',
+      }
+      expect(getModelName(value)).toBe('Planet')
+    })
+
+    it('returns array model name with title', () => {
+      const value = {
+        type: 'array',
+        title: 'PlanetArray',
+      }
+      expect(getModelName(value)).toBe('array PlanetArray[]')
+    })
+
+    it('finds schema name from component schemas', () => {
+      const value = {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          email: { type: 'string' },
+        },
+      }
+      const schemas = {
+        User: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            email: { type: 'string' },
+          },
+        },
+      }
+      expect(getModelName(value, schemas)).toBe('User')
+    })
+
+    it('handles array with item title', () => {
+      const value = {
+        type: 'array',
+        items: {
+          type: 'object',
+          title: 'Planet',
+        },
+      }
+      expect(getModelName(value)).toBe('array Planet[]')
+    })
+
+    it('handles array with item name', () => {
+      const value = {
+        type: 'array',
+        items: {
+          type: 'object',
+          name: 'Planet',
+        },
+      }
+      expect(getModelName(value)).toBe('array Planet[]')
+    })
+
+    it('handles array with basic item type', () => {
+      const value = {
+        type: 'array',
+        items: { type: 'string' },
+      }
+      expect(getModelName(value)).toBe('array string[]')
+    })
+
+    it('handles array with object items fallback', () => {
+      const value = {
+        type: 'array',
+        items: {},
+      }
+      expect(getModelName(value)).toBe('array object[]')
+    })
+
+    it('handles discriminator schema names', () => {
+      const value = {
+        type: 'array',
+        items: { type: 'object' },
+      }
+      const mockGetDiscriminatorSchemaName = () => 'DiscriminatorModel'
+      expect(getModelName(value, {}, false, mockGetDiscriminatorSchemaName)).toBe('array DiscriminatorModel[]')
     })
   })
 

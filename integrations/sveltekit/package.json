@@ -49,8 +49,7 @@
   ],
   "svelte": "./dist/index.js",
   "dependencies": {
-    "@scalar/core": "workspace:*",
-    "@scalar/types": "workspace:*"
+    "@scalar/core": "workspace:*"
   },
   "devDependencies": {
     "@sveltejs/kit": "^2.20.6",

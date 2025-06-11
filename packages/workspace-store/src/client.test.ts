@@ -76,8 +76,8 @@ describe('create-workspace-store', () => {
     store.update('x-scalar-dark-mode', true)
     store.update('x-scalar-theme', 'saturn')
 
-    expect(store.rawWorkspace['x-scalar-dark-mode']).toBe(true)
-    expect(store.rawWorkspace['x-scalar-theme']).toBe('saturn')
+    expect(store.workspace['x-scalar-dark-mode']).toBe(true)
+    expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
   test('should correctly update document metadata', async () => {
@@ -100,14 +100,14 @@ describe('create-workspace-store', () => {
     // Should update the active document
     store.updateDocument('active', 'x-scalar-active-server', 'server-2')
     store.updateDocument('active', 'x-scalar-active-auth', undefined)
-    expect(store.rawWorkspace.documents['default']['x-scalar-active-auth']).toBe(undefined)
-    expect(store.rawWorkspace.documents['default']['x-scalar-active-server']).toBe('server-2')
+    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe(undefined)
+    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-2')
 
     // Should update a specific document
     store.updateDocument('default', 'x-scalar-active-server', 'server-3')
     store.updateDocument('default', 'x-scalar-active-auth', 'Bearer')
-    expect(store.rawWorkspace.documents['default']['x-scalar-active-auth']).toBe('Bearer')
-    expect(store.rawWorkspace.documents['default']['x-scalar-active-server']).toBe('server-3')
+    expect(store.workspace.documents['default']['x-scalar-active-auth']).toBe('Bearer')
+    expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-3')
   })
 
   test('should correctly get the correct document', async () => {
@@ -308,13 +308,11 @@ describe('create-workspace-store', () => {
 
     await server.listen({ port: PORT })
 
-    const store = await createWorkspaceStore({
-      documents: [
-        {
-          url: url,
-          name: 'default',
-        },
-      ],
+    const store = createWorkspaceStore()
+
+    await store.addDocument({
+      url: url,
+      name: 'default',
     })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default'])
