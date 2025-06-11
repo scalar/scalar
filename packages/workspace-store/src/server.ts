@@ -1,34 +1,34 @@
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
-import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/server-workspace'
+import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
+import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { extensions } from '@/schemas/extensions'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
+// TODO: support input document from different sources
+type CreateServerWorkspaceStoreBase = {
+  documents: {
+    name: string
+    document: Record<string, unknown> | string
+    meta?: WorkspaceDocumentMeta
+  }[]
+  meta?: WorkspaceMeta
+  config?: createNavigationOptions
+}
 type CreateServerWorkspaceStore =
-  | {
+  | ({
       directory?: string
       mode: 'static'
-      documents: {
-        name: string
-        document: Record<string, unknown> | string
-        meta?: WorkspaceDocumentMeta
-      }[]
-      meta?: WorkspaceMeta
-    }
-  | {
+    } & CreateServerWorkspaceStoreBase)
+  | ({
       baseUrl: string
       mode: 'ssr'
-      documents: {
-        name: string
-        document: Record<string, unknown> | string
-        meta?: WorkspaceDocumentMeta
-      }[]
-      meta?: WorkspaceMeta
-    }
+    } & CreateServerWorkspaceStoreBase)
 
 const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
@@ -210,7 +210,10 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const components = externalizeComponentReferences(document, options)
       const paths = externalizePathReferences(document, options)
 
-      acc[name] = { ...meta, ...document, components, paths }
+      // Here we create the sidebar
+      const { entries } = createNavigation(document, workspaceProps.config ?? {})
+
+      acc[name] = { ...meta, ...document, components, paths, [extensions.document.navigation]: entries }
       return acc
     }, {}),
   }
@@ -333,9 +336,18 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const components = externalizeComponentReferences(documentV3, options)
       const paths = externalizePathReferences(documentV3, options)
 
+      // Build the sidebar entries
+      const { entries } = createNavigation(document, workspaceProps.config ?? {})
+
       // The document is now a minimal version with externalized references to components and operations.
       // These references will be resolved asynchronously when needed through the workspace's get() method.
-      workspace.documents[meta.name] = { ...documentMeta, ...documentV3, components, paths }
+      workspace.documents[meta.name] = {
+        ...documentMeta,
+        ...documentV3,
+        components,
+        paths,
+        [extensions.document.navigation]: entries,
+      }
     },
   }
 }
