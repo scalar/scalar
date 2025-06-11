@@ -89,28 +89,18 @@ describe('traverseSchemas', () => {
     expect(result).toHaveLength(2)
     expect(result).toEqual([
       {
+        type: 'model',
+        ref: '#/content/components/schemas/User',
         id: 'model-User',
         title: 'User',
         name: 'User',
-        schema: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            name: { type: 'string' },
-          },
-        },
       },
       {
+        type: 'model',
+        ref: '#/content/components/schemas/Product',
         id: 'model-Product',
         title: 'Product',
         name: 'Product',
-        schema: {
-          type: 'object',
-          properties: {
-            id: { type: 'string' },
-            price: { type: 'number' },
-          },
-        },
       },
     ])
 
@@ -203,12 +193,11 @@ describe('traverseSchemas', () => {
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
+      type: 'model',
+      ref: '#/content/components/schemas/EmptySchema',
       id: 'model-EmptySchema',
       title: 'EmptySchema',
       name: 'EmptySchema',
-      schema: {
-        type: 'object',
-      },
     })
   })
 

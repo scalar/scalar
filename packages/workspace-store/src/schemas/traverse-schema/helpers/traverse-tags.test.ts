@@ -77,16 +77,18 @@ describe('traverseTags', () => {
     const result = traverseTags(document, tagsMap, titlesMap, options)
     expect(result).toEqual([
       {
+        type: 'tag',
         id: 'tag1',
         title: 'tag1',
-        tag: { name: 'tag1' },
+        name: 'tag1',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
       },
       {
+        type: 'tag',
         id: 'default',
         title: 'default',
-        tag: { name: 'default' },
+        name: 'default',
         children: [createMockEntry('Test Operation')],
         isGroup: false,
       },

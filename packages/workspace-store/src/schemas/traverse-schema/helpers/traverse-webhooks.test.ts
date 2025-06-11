@@ -53,15 +53,12 @@ describe('traverse-webhooks', () => {
       expect(result).toEqual([]) // Should be empty as webhook has a tag
       expect(tagsMap.get('webhook-tag')?.entries).toHaveLength(1)
       expect(tagsMap.get('webhook-tag')?.entries[0]).toEqual({
+        type: 'webhook',
+        ref: '#/webhooks/test-webhook/post',
         id: 'webhook-tag-post-test-webhook',
         title: 'Test Webhook',
         name: 'test-webhook',
         method: 'post',
-        webhook: {
-          summary: 'Test Webhook',
-          operationId: 'testWebhook',
-          tags: ['webhook-tag'],
-        },
       })
       expect(titlesMap.get('webhook-tag-post-test-webhook')).toBe('Test Webhook')
     })
@@ -92,10 +89,8 @@ describe('traverse-webhooks', () => {
         title: 'Untagged Webhook',
         name: 'untagged-webhook',
         method: 'post',
-        webhook: {
-          summary: 'Untagged Webhook',
-          operationId: 'untaggedWebhook',
-        },
+        type: 'webhook',
+        ref: '#/webhooks/untagged-webhook/post',
       })
       expect(titlesMap.get('untagged-post-untagged-webhook')).toBe('Untagged Webhook')
     })
@@ -175,15 +170,12 @@ describe('traverse-webhooks', () => {
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
+        type: 'webhook',
+        ref: '#/webhooks/deprecated-webhook/post',
         id: 'untagged-post-deprecated-webhook',
         title: 'Deprecated Webhook',
         name: 'deprecated-webhook',
         method: 'post',
-        webhook: {
-          deprecated: true,
-          summary: 'Deprecated Webhook',
-          operationId: 'deprecatedWebhook',
-        },
       })
     })
 
@@ -215,24 +207,20 @@ describe('traverse-webhooks', () => {
       expect(result).toEqual(
         expect.arrayContaining([
           {
+            type: 'webhook',
+            ref: '#/webhooks/multi-method-webhook/post',
             id: 'untagged-post-multi-method-webhook',
             title: 'POST Webhook',
             name: 'multi-method-webhook',
             method: 'post',
-            webhook: {
-              summary: 'POST Webhook',
-              operationId: 'postWebhook',
-            },
           },
           {
+            type: 'webhook',
+            ref: '#/webhooks/multi-method-webhook/get',
             id: 'untagged-get-multi-method-webhook',
             title: 'GET Webhook',
             name: 'multi-method-webhook',
             method: 'get',
-            webhook: {
-              summary: 'GET Webhook',
-              operationId: 'getWebhook',
-            },
           },
         ]),
       )

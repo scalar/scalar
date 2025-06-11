@@ -36,7 +36,6 @@ export const traverseDocument = (
   const tagsMap: TagsMap = new Map(
     document.tags?.map((tag: OpenAPIV3_1.TagObject) => [tag.name ?? 'Untitled Tag', { tag, entries: [] }]) ?? [],
   )
-  traversePaths(document, tagsMap, titles, getOperationId)
 
   const entries: TraversedEntry[] = traverseDescription(document.info?.description, titles, getHeadingId)
   traversePaths(document, tagsMap, titles, getOperationId)
