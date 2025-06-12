@@ -1,7 +1,7 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import { getTag } from './get-tag'
 import type { TagsMap, TraversedEntry, TraversedTag, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operationsSorter'>
 
@@ -15,7 +15,7 @@ type Options = Pick<TraverseSpecOptions, 'getTagId' | 'tagsSorter' | 'operations
  * @returns A traversed tag entry with ID, title, name and children
  */
 const createTagEntry = (
-  tag: OpenAPIV3_1.TagObject,
+  tag: TagObject,
   titlesMap: Map<string, string>,
   getTagId: TraverseSpecOptions['getTagId'],
   children: TraversedEntry[],
@@ -136,7 +136,7 @@ const getSortedTagEntries = (
  * - Flatten default tag entries if it's the only tag present
  */
 export const traverseTags = (
-  content: OpenAPIV3_1.Document,
+  content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
   /** Map of titles for the mobile title */
@@ -145,7 +145,8 @@ export const traverseTags = (
 ): TraversedEntry[] => {
   // x-tagGroups
   if (content['x-tagGroups']) {
-    const tagGroups = content['x-tagGroups'] as { tags: string[] }[]
+    // Todo: validate the schema
+    const tagGroups = content['x-tagGroups'] as { name: string; tags: string[] }[]
 
     return tagGroups.flatMap((tagGroup) => {
       const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, titlesMap, {

@@ -6,6 +6,10 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { PathsObject } from '@/schemas/v3.1/strict/paths'
+import { keyOf } from '@/helpers/general'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -54,7 +58,7 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  *   }
  * }
  */
-export function filterHttpMethodsOnly(paths: OpenAPIV3_1.PathsObject) {
+export function filterHttpMethodsOnly(paths: PathsObject) {
   const result: OpenAPIV3_1.PathsObject = {}
 
   for (const [path, methods] of Object.entries(paths)) {
@@ -100,7 +104,7 @@ export function escapePaths(paths: OpenAPIV3_1.PathsObject) {
  * Externalizes components by turning them into refs.
  */
 export function externalizeComponentReferences(
-  document: OpenAPIV3_1.Document,
+  document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -128,7 +132,7 @@ export function externalizeComponentReferences(
  * Externalizes paths operations by turning them into refs.
  */
 export function externalizePathReferences(
-  document: OpenAPIV3_1.Document,
+  document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -146,7 +150,7 @@ export function externalizePathReferences(
 
     const escapedPath = escapeJsonPointer(path)
 
-    Object.keys(pathItem).forEach((type) => {
+    keyOf(pathItem).forEach((type) => {
       if (httpMethods.has(type)) {
         const ref =
           meta.mode === 'ssr'
@@ -170,7 +174,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
   const documents = workspaceProps.documents.map((el) => {
     const document = upgrade(el.document).specification
 
-    return { ...el, document }
+    return { ...el, document: coerceValue(OpenAPIDocumentSchema, document) }
   })
 
   /**
@@ -320,7 +324,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
     addDocument: (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
       const { name, ...documentMeta } = meta
 
-      const documentV3 = upgrade(document).specification
+      const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
 
       // add the assets
       assets[meta.name] = {
@@ -337,7 +341,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       const paths = externalizePathReferences(documentV3, options)
 
       // Build the sidebar entries
-      const { entries } = createNavigation(document, workspaceProps.config ?? {})
+      const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
 
       // The document is now a minimal version with externalized references to components and operations.
       // These references will be resolved asynchronously when needed through the workspace's get() method.

@@ -2,10 +2,12 @@ import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/
 import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
-import { bundle } from '@scalar/openapi-parser'
+import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
 
@@ -85,9 +87,11 @@ export function createWorkspaceStore(workspaceProps?: {
   function addDocumentSync(input: ObjectDoc) {
     const { name, meta, document } = input
 
+    const validatedDocument = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
+
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
-      document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
+      document[extensions.document.navigation] = createNavigation(validatedDocument, input.config ?? {}).entries
     }
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })

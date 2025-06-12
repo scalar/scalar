@@ -22,6 +22,6 @@ import { Value } from '@sinclair/typebox/value'
  * const value = "true"
  * const coerced = coerceValue(schema, value) // Returns true
  */
-export const coerceValue = (schema: TSchema, value: unknown) => {
+export const coerceValue = <T extends TSchema>(schema: T, value: unknown) => {
   return Value.Cast(schema, Value.Convert(schema, value))
 }
