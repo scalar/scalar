@@ -1,5 +1,5 @@
 import { Type, type Static } from '@sinclair/typebox'
-import { OperationObjectWithoutCallbackSchema } from './operation-without-callback'
+import { OperationObjectWithoutCallbackSchema } from './operation'
 import { ParameterObjectSchema } from './parameter'
 import { ReferenceObjectSchema } from './reference'
 import { ServerObjectSchema } from './server'
