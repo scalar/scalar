@@ -44,6 +44,7 @@ export const traverseDocument = (
   if (untaggedWebhooks.length) {
     entries.push({
       id: getWebhookId(),
+      isWebhooks: true,
       title: 'Webhooks',
       children: untaggedWebhooks,
     })

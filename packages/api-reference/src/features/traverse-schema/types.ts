@@ -38,6 +38,7 @@ export type TraversedTag = {
   children: TraversedEntry[]
   tag: OpenAPIV3_1.TagObject
   isGroup: boolean
+  isWebhooks?: boolean
 }
 
 /** Webhook entry returned form traversing the document, basically the same as an operaation but with name instead of path */

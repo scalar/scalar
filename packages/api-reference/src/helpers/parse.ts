@@ -1,7 +1,5 @@
-import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
-import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '@/libs/openapi'
 import type { TraversedEntry } from '@/features/traverse-schema'
@@ -93,7 +91,6 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
         tagIndex = schema.tags.length - 1
       }
 
-      schema.tags[tagIndex].webhooks ||= []
       schema.tags[tagIndex].operations ||= []
 
       // Tag
@@ -145,7 +142,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       parseTag(item)
     }
     // Webhooks
-    if (item.title === 'Webhooks' && 'children' in item && item.children?.length) {
+    if ('isWebhooks' in item && item.isWebhooks && item.children?.length) {
       item.children.forEach((child) => {
         if ('webhook' in child && child.name && child.method) {
           newWebhooks[child.name] ||= {}
@@ -163,16 +160,6 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       })
     }
   })
-
-  Object.keys(schema.components?.schemas ?? {}).forEach((name) => {
-    // Delete all schemas where `shouldIgnoreEntity` returns true
-    if (shouldIgnoreEntity(schema.components?.schemas?.[name])) {
-      delete schema.components?.schemas?.[name]
-    }
-  })
-
-  // Remove tags with `x-internal` set to true
-  schema.tags = schema.tags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
 
   const returnedResult = {
     ...schema,

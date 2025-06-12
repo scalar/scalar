@@ -102,10 +102,13 @@ watch(
 
       tags.value.push({
         ...tag,
-        lazyOperations: tag.operations.slice(
-          operationIndex,
-          operationIndex + 2,
-        ),
+        lazyOperations: tag.operations
+          .slice(operationIndex, operationIndex + 2)
+          .map((operation) => ({
+            ...operation,
+            // Prefix the id with lazy- to avoid collisions with the real ids
+            id: 'lazy-' + operation.id,
+          })),
       })
 
       // Check if hash contains a markdown heading with the new description format
