@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { mutateSecuritySchemeDiff } from '@scalar/api-client/views/Request/libs'
+import {
+  combineRenameDiffs,
+  mutateSecuritySchemeDiff,
+} from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
 import { useExampleStore } from '@/legacy/stores'
@@ -40,7 +43,32 @@ onMounted(() => {
   })
 })
 
-// Update the config on change
+// Ensure we have a document when doing the initial import
+watchDebounced(
+  () => dereferencedDocument,
+  (newDocument) => {
+    if (!newDocument) {
+      return
+    }
+
+    // If we already have a collection, remove the store
+    // TODO: add @redis diffing here... or just upgrade to the new store
+    if (activeEntities.activeCollection.value) {
+      client.value?.resetStore()
+    }
+
+    // [re]Import the store
+    store.importSpecFile(undefined, 'default', {
+      dereferencedDocument: newDocument,
+      shouldLoad: false,
+      documentUrl: configuration?.url,
+      useCollectionSecurity: true,
+      ...configuration,
+    })
+  },
+)
+
+// Update the config (non doucment related) on change
 watchDebounced(
   () => configuration,
   (newConfig, oldConfig) => {
@@ -60,7 +88,7 @@ watchDebounced(
 
     // If the document source has changed, we re-create the whole store anyway.
     if (documentSourceHasChanged) {
-      // Do nothing.
+      // Taken care of above
     }
     // Or we handle the specific diff changes, just auth and servers for now
     else {

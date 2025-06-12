@@ -245,9 +245,21 @@ export const createApiClient = ({
     }
   }
 
+  /** Reset the client store */
+  const resetStore = () => {
+    store.collectionMutators.reset()
+    store.requestMutators.reset()
+    store.requestExampleMutators.reset()
+    store.securitySchemeMutators.reset()
+    store.serverMutators.reset()
+    store.tagMutators.reset()
+    workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
+  }
+
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
+    resetStore,
     /**
      * Update the API client config
      *
@@ -270,13 +282,7 @@ export const createApiClient = ({
         newConfig.showSidebar
       ) {
         // Update the spec, reset the store first
-        store.collectionMutators.reset()
-        store.requestMutators.reset()
-        store.requestExampleMutators.reset()
-        store.securitySchemeMutators.reset()
-        store.serverMutators.reset()
-        store.tagMutators.reset()
-        workspaceMutators.edit(activeWorkspace.value?.uid, 'collections', [])
+        resetStore()
 
         /** Add any extra properties to the config */
         const config = {
