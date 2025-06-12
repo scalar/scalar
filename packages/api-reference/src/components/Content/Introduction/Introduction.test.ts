@@ -24,12 +24,17 @@ describe('Introduction', () => {
           description: 'Example description',
           version: '1.0.0',
         },
+        externalDocs: {
+          description: 'Documentation',
+          url: 'https://scalar.com',
+        },
       },
     })
 
     expect(wrapper.html()).toContain('Hello World')
     expect(wrapper.html()).toContain('Example description')
     expect(wrapper.html()).toContain('v1.0.0')
+    expect(wrapper.html()).toContain('Documentation')
   })
 
   it('renders loading state when info is empty', () => {
