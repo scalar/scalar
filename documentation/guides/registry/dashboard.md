@@ -1,5 +1,5 @@
 # Dashboard
-This guide will help you interact with our registry with our dashboard on scalar.com, which can be done alongside our CLI.
+This guide will help you interact with our registry with our dashboard on scalar.com, which can be done alongside our [CLI](/scalar/scalar-cli/getting-started).
 
 Make sure you have created a Scalar Account & are logged in ([see create account guide](/scalar/scalar-registry/getting-started#create-your-scalar-account))
 
