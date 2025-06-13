@@ -489,4 +489,51 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
   })
+
+  describe('webhooks', () => {
+    it('correctly upgrades x-webhooks to webhooks', async () => {
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        'x-webhooks': {
+          'test': {
+            post: {
+              requestBody: {
+                required: true,
+                content: {
+                  'multipart/form-data': {
+                    schema: {
+                      type: 'string',
+                      example: 'test',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(result['webhooks']).toEqual({
+        'test': {
+          post: {
+            requestBody: {
+              required: true,
+              content: {
+                'multipart/form-data': {
+                  schema: {
+                    type: 'string',
+                    examples: ['test'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+    })
+  })
 })

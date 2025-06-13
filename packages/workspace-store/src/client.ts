@@ -1,12 +1,13 @@
-import { toRaw } from 'vue'
-import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/server-workspace'
+import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
 import { createMagicProxy } from './helpers/proxy'
 import { isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
+import { createNavigation, type createNavigationOptions } from '@/navigation'
+import { extensions } from '@/schemas/extensions'
 
-type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string }
+type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
 
 type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
 type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
@@ -27,9 +28,6 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  * @example
  * // Resolve from URL
  * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
- *
- * // Resolve from local file
- * const fileDoc = await loadDocument({ name: 'local', path: './openapi.json' })
  *
  * // Resolve direct document
  * const directDoc = await loadDocument({
@@ -77,16 +75,22 @@ export function createWorkspaceStore(workspaceProps?: {
      * @returns The active document or undefined if no document is found
      */
     get activeDocument(): (typeof workspace.documents)[number] | undefined {
-      const activeDocumentKey = workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? ''
+      const activeDocumentKey =
+        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
   }
 
   // Add a document to the store synchronously from and in-mem open api document
   function addDocumentSync(input: ObjectDoc) {
-    const { name, meta } = input
+    const { name, meta, document } = input
 
-    workspace.documents[name] = createMagicProxy({ ...(input.document as Record<string, unknown>), ...meta })
+    // Skip navigation generation if the document already has a server-side generated navigation structure
+    if (document[extensions.document.navigation] === undefined) {
+      document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
+    }
+
+    workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
 
   // Add any initial documents to the store
@@ -97,12 +101,6 @@ export function createWorkspaceStore(workspaceProps?: {
   const visitedNodesCache = new Set()
 
   return {
-    /**
-     * Returns the raw (non-reactive) workspace object
-     */
-    get rawWorkspace() {
-      return toRaw(workspace)
-    },
     /**
      * Returns the reactive workspace object with an additional activeDocument getter
      */
@@ -144,7 +142,7 @@ export function createWorkspaceStore(workspaceProps?: {
       const currentDocument =
         workspace.documents[
           name === 'active'
-            ? (workspace['x-scalar-active-document'] ?? Object.keys(workspace.documents)[0] ?? '')
+            ? (workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? '')
             : name
         ]
 
@@ -214,7 +212,7 @@ export function createWorkspaceStore(workspaceProps?: {
      * })
      */
     addDocument: async (input: WorkspaceDocumentInput) => {
-      const { name, meta } = input
+      const { name, meta, config } = input
 
       const resolve = await loadDocument(input)
 
@@ -226,7 +224,7 @@ export function createWorkspaceStore(workspaceProps?: {
         return
       }
 
-      workspace.documents[name] = createMagicProxy({ ...(resolve.data as Record<string, unknown>), ...meta })
+      addDocumentSync({ document: resolve.data, name, meta, config })
     },
     /**
      * Similar to addDocument but requires and in-mem object to be provided and loads the document synchronously

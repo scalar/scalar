@@ -140,6 +140,7 @@ describe('importSpecToWorkspace', () => {
         'updatePlanet',
         'deletePlanet',
         'uploadImage',
+        'createCelestialBody',
         'createUser',
         'getToken',
         'getMe',

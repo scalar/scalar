@@ -82,6 +82,16 @@ describe('create-server-store', () => {
             },
           },
         },
+        'x-scalar-navigation': [
+          {
+            id: 'List planets',
+            method: 'get',
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
+            path: '/planets',
+            title: 'List planets',
+          },
+        ],
       })
 
       expect(store.getWorkspace()).toEqual({
@@ -162,6 +172,16 @@ describe('create-server-store', () => {
           },
         },
         'x-scalar-active-auth': 'test',
+        'x-scalar-navigation': [
+          {
+            id: 'List planets',
+            method: 'get',
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
+            path: '/planets',
+            title: 'List planets',
+          },
+        ],
       })
 
       expect(workspace.documents['doc-3']).toEqual({
@@ -184,6 +204,16 @@ describe('create-server-store', () => {
           },
         },
         'x-scalar-active-auth': 'test',
+        'x-scalar-navigation': [
+          {
+            id: 'List planets',
+            method: 'get',
+            type: 'operation',
+            'ref': '#/paths/~1planets/get',
+            path: '/planets',
+            title: 'List planets',
+          },
+        ],
       })
     })
   })
@@ -222,8 +252,10 @@ describe('create-server-store', () => {
 
       const basePath = `${cwd()}/${dir}`
 
+      const sparseWorkspace = await fs.readFile(`${basePath}/scalar-workspace.json`, { encoding: 'utf-8' })
+
       // check the workspace is the correct format
-      expect(JSON.parse(await fs.readFile(`${basePath}/scalar-workspace.json`, { encoding: 'utf-8' }))).toEqual({
+      expect(JSON.parse(sparseWorkspace)).toEqual({
         documents: {
           'doc-1': {
             'x-scalar-active-auth': 'test',
@@ -243,6 +275,16 @@ describe('create-server-store', () => {
                 planetId: { '$ref': 'temp/chunks/doc-1/components/parameters/planetId.json#', $global: true },
               },
             },
+            'x-scalar-navigation': [
+              {
+                id: 'List planets',
+                method: 'get',
+                path: '/planets',
+                title: 'List planets',
+                type: 'operation',
+                'ref': '#/paths/~1planets/get',
+              },
+            ],
           },
           'doc-2': {
             'x-scalar-active-auth': 'test',
@@ -262,6 +304,16 @@ describe('create-server-store', () => {
                 planetId: { '$ref': 'temp/chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
+            'x-scalar-navigation': [
+              {
+                id: 'List planets',
+                method: 'get',
+                type: 'operation',
+                'ref': '#/paths/~1planets/get',
+                path: '/planets',
+                title: 'List planets',
+              },
+            ],
           },
         },
         'x-scalar-active-document': 'test',
@@ -288,7 +340,6 @@ describe('create-server-store', () => {
         ]),
       ).toBe(true)
 
-      // clean up generated files
       await fs.rmdir(basePath, { recursive: true })
     })
   })

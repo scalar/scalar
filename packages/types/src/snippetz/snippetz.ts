@@ -34,6 +34,8 @@ export const AVAILABLE_CLIENTS = [
   'powershell/webrequest',
   'python/python3',
   'python/requests',
+  'python/httpx_sync',
+  'python/httpx_async',
   'r/httr',
   'ruby/native',
   'shell/curl',

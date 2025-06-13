@@ -391,6 +391,46 @@ describe('SchemaProperty sub-schema', () => {
     expect(wrapper.html()).toContain('foo (1)')
     expect(wrapper.html()).toContain('bar (1)')
   })
+
+  it('renders array type object with properties correctly', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          type: ['object', 'null'],
+          properties: {
+            galaxy: {
+              type: 'string',
+              description: 'Galaxy where the planet is located',
+            },
+            satellites: {
+              type: 'array',
+              items: {
+                type: 'string',
+              },
+              description: 'List of satellites orbiting the planet',
+            },
+            habitable: {
+              type: 'boolean',
+              description: 'Whether the planet can support life',
+            },
+          },
+        },
+      },
+    })
+
+    const button = wrapper.find('.schema-card-title')
+    await button.trigger('click')
+    await wrapper.vm.$nextTick()
+
+    const html = wrapper.html()
+
+    expect(html).toContain('galaxy')
+    expect(html).toContain('Galaxy where the planet is located')
+    expect(html).toContain('satellites')
+    expect(html).toContain('List of satellites orbiting the planet')
+    expect(html).toContain('habitable')
+    expect(html).toContain('Whether the planet can support life')
+  })
 })
 
 describe('SchemaProperty discriminator handling', () => {

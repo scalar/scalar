@@ -31,10 +31,6 @@
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
-  "files": [
-    "dist",
-    "CHANGELOG.md"
-  ],
   "type": "module",
   "exports": {
     "./client": {
@@ -53,10 +49,17 @@
       "default": "./dist/server.js"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
   "dependencies": {
+    "@scalar/code-highlight": "workspace:*",
+    "@scalar/helpers": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
+    "github-slugger": "^2.0.0",
     "vue": "catalog:*"
   },
   "devDependencies": {

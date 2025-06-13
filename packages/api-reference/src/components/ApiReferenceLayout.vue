@@ -199,6 +199,9 @@ onMounted(() => {
   window.onpopstate = () =>
     configuration.value.pathRouting &&
     scrollToSection(getPathRoutingId(window.location.pathname))
+
+  // Add window scroll listener
+  window.addEventListener('scroll', debouncedScroll, { passive: true })
 })
 
 const showRenderedContent = computed(
@@ -206,14 +209,9 @@ const showRenderedContent = computed(
 )
 
 // To clear hash when scrolled to the top
-const debouncedScroll = useDebounceFn((value) => {
-  const scrollDistance = value.target.scrollTop ?? 0
-  if (scrollDistance < 50) {
-    const basePath = configuration.value.pathRouting
-      ? configuration.value.pathRouting.basePath
-      : window.location.pathname
-
-    replaceUrlState('', basePath + window.location.search)
+const debouncedScroll = useDebounceFn(() => {
+  if (window.scrollY < 50) {
+    replaceUrlState('')
   }
 })
 
@@ -233,7 +231,11 @@ onMounted(() =>
   }),
 )
 
-onUnmounted(() => downloadEventBus.reset())
+onUnmounted(() => {
+  // Remove window scroll listener
+  window.removeEventListener('scroll', debouncedScroll)
+  downloadEventBus.reset()
+})
 
 /**
  * Due to a bug in headless UI, we need to set an ID here that can be shared across server/client
@@ -326,8 +328,7 @@ watch(hash, (newHash, oldHash) => {
     ]"
     :style="{
       '--scalar-y-offset': `var(--scalar-custom-header-height, ${yPosition}px)`,
-    }"
-    @scroll.passive="debouncedScroll">
+    }">
     <!-- Header -->
     <div class="references-header">
       <MobileHeader

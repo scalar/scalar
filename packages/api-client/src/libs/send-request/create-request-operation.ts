@@ -227,7 +227,10 @@ export const createRequestOperation = ({
         // This is missing in HTTP/2 requests. But we need it for the post-clonedResponse scripts.
         const statusText = clonedResponse.statusText || httpStatusCodes[clonedResponse.status]?.name || ''
 
-        const normalizedResponse = new Response(clonedResponse.body, {
+        // Skip the body when creating the normalized response if the status is 204, 205, 304
+        const shouldSkipBody = [204, 205, 304].includes(clonedResponse.status)
+
+        const normalizedResponse = new Response(!shouldSkipBody ? clonedResponse.body : null, {
           status: clonedResponse.status,
           statusText,
           headers: clonedResponse.headers,

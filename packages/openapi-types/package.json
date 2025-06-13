@@ -24,8 +24,8 @@
     "build": "scalar-build-esbuild",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test:prepare": "vite-node scripts/load-files.ts",
     "test": "vite-node scripts/load-files.ts && vitest",
+    "test:prepare": "vite-node scripts/load-files.ts",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },

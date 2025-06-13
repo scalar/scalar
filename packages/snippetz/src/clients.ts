@@ -27,6 +27,7 @@ import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
+import { pythonHttpxSync, pythonHttpxAsync } from '@/plugins/python/httpx'
 import { rHttr } from '@/plugins/r/httr'
 import { rubyNative } from '@/plugins/ruby/native'
 import { shellCurl } from '@/plugins/shell/curl'
@@ -127,7 +128,7 @@ export const clients: Target[] = [
     key: 'python',
     title: 'Python',
     default: 'python3',
-    clients: [pythonPython3, pythonRequests],
+    clients: [pythonPython3, pythonRequests, pythonHttpxSync, pythonHttpxAsync],
   },
   {
     key: 'r',

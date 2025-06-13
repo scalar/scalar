@@ -220,6 +220,25 @@ const shouldRenderArrayItemComposition = (composition: string): boolean => {
 }
 
 const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
+
+/**
+ * Determine if object properties should be displayed
+ * Handles both single type ('object') and array types (['object', 'null'])
+ */
+const shouldRenderObjectProperties = computed(() => {
+  if (!optimizedValue.value) {
+    return false
+  }
+
+  const value = optimizedValue.value
+  const isObjectType =
+    value.type === 'object' ||
+    (Array.isArray(value.type) && value.type.includes('object'))
+
+  const hasPropertiesToRender = value.properties || value.additionalProperties
+
+  return isObjectType && hasPropertiesToRender
+})
 </script>
 <template>
   <component
@@ -334,10 +353,7 @@ const shouldRenderArrayOfObjects = computed(() => hasComplexArrayItems.value)
     </div>
     <!-- Object -->
     <div
-      v-if="
-        optimizedValue?.type === 'object' &&
-        (optimizedValue?.properties || optimizedValue?.additionalProperties)
-      "
+      v-if="shouldRenderObjectProperties"
       class="children">
       <Schema
         :compact="compact"
