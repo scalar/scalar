@@ -15,12 +15,14 @@
         {
           "name": "Introduction",
           "description": "Introduction to Scalar",
+          "icon": "solid/interface-home-house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
         },
         {
           "name": "Scalar Docs",
           "type": "folder",
+          "icon": "solid/interface-content-book-open-pages",
           "children": [
             {
               "path": "documentation/guides/docs/getting-started.md",
@@ -28,6 +30,44 @@
             },
             {
               "path": "documentation/guides/docs/github-sync.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Scalar Registry",
+          "type": "folder",
+          "icon": "solid/programming-script-code",
+          "children": [
+            {
+              "path": "documentation/guides/registry/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/registry/dashboard.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/registry/cli.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/registry/github-workflows.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Scalar CLI",
+          "type": "folder",
+          "icon": "brand/programming-language-shell",
+          "children": [
+            {
+              "path": "documentation/guides/cli/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/cli/commands.md",
               "type": "page"
             }
           ]

@@ -126,22 +126,6 @@ export function useDocumentSource({
     ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
   })
 
-  watch(
-    () => toValue(dereferencedDocument),
-    (newDocument) => {
-      return (
-        newDocument &&
-        workspaceStore.importSpecFile(undefined, 'default', {
-          dereferencedDocument: newDocument,
-          shouldLoad: false,
-          documentUrl: toValue(configuration)?.url,
-          useCollectionSecurity: true,
-          ...(toValue(configuration) ?? apiReferenceConfigurationSchema.parse({})),
-        })
-      )
-    },
-  )
-
   /** Active Entities Store */
   const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
 

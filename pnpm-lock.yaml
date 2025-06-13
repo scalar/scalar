@@ -1922,6 +1922,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
       flatted:
         specifier: ^3.3.1
         version: 3.3.1

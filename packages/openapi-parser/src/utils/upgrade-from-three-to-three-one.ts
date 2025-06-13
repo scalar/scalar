@@ -147,5 +147,11 @@ const applyChangesToDocument = (schema: UnknownObject, path: string[]) => {
     }
   }
 
+  // 6. Handle x-webhooks
+  if (schema['x-webhooks'] !== undefined) {
+    schema.webhooks = schema['x-webhooks']
+    delete schema['x-webhooks']
+  }
+
   return schema
 }

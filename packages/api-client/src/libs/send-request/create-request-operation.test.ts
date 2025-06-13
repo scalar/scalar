@@ -826,6 +826,52 @@ describe('create-request-operation', () => {
     })
   })
 
+  it('should safely create a new response when body is empty', async () => {
+    const originalFetch = global.fetch
+    try {
+      const mockEmptyStream = new ReadableStream({
+        start(controller) {
+          controller.close()
+        },
+      })
+
+      const mockResponse = {
+        status: 204,
+        headers: new Headers(),
+        body: mockEmptyStream,
+        ok: true,
+        statusText: 'No Content',
+        // Add the methods your code uses
+        clone: () => mockResponse,
+        text: async () => '',
+        json: async () => ({}),
+        arrayBuffer: async () => new ArrayBuffer(0),
+      } as unknown as Response
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+      })
+
+      if (error) {
+        throw error
+      }
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      if (!result || !('data' in result.response)) {
+        throw new Error('No data')
+      }
+      expect(result?.response.data).toBe('')
+    } finally {
+      global.fetch = originalFetch
+    }
+  })
+
   describe('authentication', () => {
     it('adds apiKey auth in header', async () => {
       const [error, requestOperation] = createRequestOperation({

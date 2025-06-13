@@ -398,8 +398,8 @@ describe('pythonRequests', () => {
       "nested": {
         "array": [
           "item1",
-          null,
-          null
+          None,
+          None
         ]
       }
     }
@@ -462,6 +462,86 @@ describe('pythonRequests', () => {
         }
       },
       "simple": "value"
+    }
+)`)
+  })
+
+  it('converts true/false/null to Python syntax', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          boolTrue: true,
+          boolFalse: false,
+          nullValue: null,
+          nested: {
+            boolArray: [true, false, null],
+          },
+          nullValue2: null,
+        }),
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    headers={
+      "Content-Type": "application/json"
+    },
+    json={
+      "boolTrue": True,
+      "boolFalse": False,
+      "nullValue": None,
+      "nested": {
+        "boolArray": [
+          True,
+          False,
+          None
+        ]
+      },
+      "nullValue2": None
+    }
+)`)
+  })
+
+  it('does not replace true/false/null in string literals', () => {
+    const result = pythonRequests.generate({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          stringWithTrue: 'This string contains true',
+          stringWithTrue2: 'aaa   true,   aa',
+          array: ['true,', '     true\n', 'true'],
+        }),
+      },
+    })
+
+    expect(result).toBe(`requests.post("https://example.com",
+    headers={
+      "Content-Type": "application/json"
+    },
+    json={
+      "stringWithTrue": "This string contains true",
+      "stringWithTrue2": "aaa   true,   aa",
+      "array": [
+        "true,",
+        "     true\\n",
+        "true"
+      ]
     }
 )`)
   })

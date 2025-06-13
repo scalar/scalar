@@ -164,6 +164,11 @@
       "types": "./dist/plugins/powershell/webrequest/index.d.ts",
       "default": "./dist/plugins/powershell/webrequest/index.js"
     },
+    "./plugins/python/httpx": {
+      "import": "./dist/plugins/python/httpx/index.js",
+      "types": "./dist/plugins/python/httpx/index.d.ts",
+      "default": "./dist/plugins/python/httpx/index.js"
+    },
     "./plugins/python/python3": {
       "import": "./dist/plugins/python/python3/index.js",
       "types": "./dist/plugins/python/python3/index.d.ts",
