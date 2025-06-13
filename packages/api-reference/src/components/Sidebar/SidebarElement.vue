@@ -124,14 +124,18 @@ const onAnchorClick = async (ev: Event) => {
           class="sidebar-heading-link-method">
           &hairsp;
           <span class="sr-only">HTTP Method:&nbsp;</span>
-          <ScalarIconWebhooksLogo
-            v-if="'webhook' in item"
-            :style="{
-              color: getHttpMethodInfo(item.method).colorVar,
-            }" />
           <SidebarHttpBadge
             :active="isActive"
-            :method="item.method" />
+            :method="item.method">
+            <template #default>
+              <ScalarIconWebhooksLogo
+                weight="bold"
+                v-if="'webhook' in item"
+                :style="{
+                  color: getHttpMethodInfo(item.method).colorVar,
+                }" />
+            </template>
+          </SidebarHttpBadge>
         </p>
       </a>
     </div>
