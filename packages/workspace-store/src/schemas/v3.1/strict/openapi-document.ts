@@ -1,4 +1,13 @@
-import { Type, type Static } from '@sinclair/typebox'
+import {
+  Type,
+  type Static,
+  type TArray,
+  type TIntersect,
+  type TObject,
+  type TOptional,
+  type TRecord,
+  type TString,
+} from '@sinclair/typebox'
 import { InfoObjectSchema } from './info'
 import { ServerObjectSchema } from './server'
 import { PathsObjectSchema } from './paths'
@@ -23,7 +32,31 @@ const OpenApiExtensionsSchema = Type.Partial(
   }),
 )
 
-export const OpenAPIDocumentSchema = compose(
+/**
+ * The type annotation is needed because the inferred type of this node exceeds the maximum length the compiler will serialize.
+ * This is due to the complex nested structure of the OpenAPI document schema, which includes multiple optional fields,
+ * arrays, and nested objects. The explicit type annotation helps TypeScript handle this large type definition.
+ */
+export type OpenApiDocumentSchemaType = TIntersect<
+  [
+    TObject<{
+      openapi: TString
+      info: typeof InfoObjectSchema
+      jsonSchemaDialect: TOptional<TString>
+      servers: TOptional<TArray<typeof ServerObjectSchema>>
+      paths: TOptional<typeof PathsObjectSchema>
+      webhooks: TOptional<TRecord<TString, typeof PathItemObjectSchema>>
+      components: TOptional<typeof ComponentsObjectSchema>
+      security: TOptional<TArray<typeof SecurityRequirementObjectSchema>>
+      tags: TOptional<TArray<typeof TagObjectSchema>>
+      externalDocs: TOptional<typeof ExternalDocumentationObjectSchema>
+    }>,
+    typeof ExtensionsSchema,
+    typeof OpenApiExtensionsSchema,
+  ]
+>
+
+export const OpenAPIDocumentSchema: OpenApiDocumentSchemaType = compose(
   Type.Object({
     /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
     openapi: Type.String(),
