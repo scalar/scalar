@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.5.7
+
+### Patch Changes
+
+- a5d010c: feat: implement deleteRow function for RequestBody form data
+- b12cd8e: fix: updates introduction auth table style
+  - @scalar/components@0.14.9
+  - @scalar/use-codemirror@0.12.10
+
 ## 2.5.6
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.4
+
+### Patch Changes
+
+- 7913193: feat: updates hljs curl language style
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.31.10
+
+### Patch Changes
+
+- b12cd8e: fix: updates introduction auth table style
+- 38f0989: fix: only fetch document if we dont have content
+- 85feb90: fix: x-enumDescriptions should be an object
+- Updated dependencies [a5d010c]
+- Updated dependencies [7913193]
+- Updated dependencies [b12cd8e]
+  - @scalar/api-client@2.5.7
+  - @scalar/code-highlight@0.1.4
+  - @scalar/components@0.14.9
+  - @scalar/workspace-store@0.4.1
+
 ## 1.31.9
 
 ### Patch Changes
