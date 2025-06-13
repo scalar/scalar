@@ -21,7 +21,6 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  *
  * @param workspaceDocument - The document input to resolve, which can be:
  *   - A URL to fetch the document from
- *   - A local file path to read the document from
  *   - A direct document object
  * @returns A promise that resolves to an object containing:
  *   - ok: boolean indicating if the resolution was successful
