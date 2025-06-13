@@ -265,4 +265,105 @@ describe('RequestBody.vue', () => {
 
     wrapper.unmount()
   })
+
+  describe('delete row from form-data and urlencoded', () => {
+    it('deletes a row from form-data', async () => {
+      mockActiveExample.body = {
+        activeBody: 'formData',
+        formData: {
+          encoding: 'form-data',
+          value: [
+            { key: 'field1', value: 'value1', enabled: true },
+            { key: 'field2', value: 'value2', enabled: true },
+            { key: '', value: '', enabled: false },
+          ],
+        },
+      }
+
+      const wrapper = mount(RequestBody, props)
+
+      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
+      await requestTable.vm.$emit('deleteRow', 1) // Delete the second row (index 1)
+
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
+        { key: 'field1', value: 'value1', enabled: true },
+        { key: '', value: '', enabled: false },
+      ])
+
+      wrapper.unmount()
+    })
+
+    it('does not delete row with invalid index', async () => {
+      mockActiveExample.body = {
+        activeBody: 'formData',
+        formData: {
+          encoding: 'form-data',
+          value: [{ key: 'field1', value: 'value1', enabled: true }],
+        },
+      }
+
+      const wrapper = mount(RequestBody, props)
+      const initialCallCount = mockRequestExampleMutators.edit.mock.calls.length
+
+      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
+      await requestTable.vm.$emit('deleteRow', 5) // Invalid index
+
+      // Verify that edit was not called for the invalid deletion
+      expect(mockRequestExampleMutators.edit.mock.calls.length).toBe(initialCallCount)
+
+      wrapper.unmount()
+    })
+
+    it('deletes a row from form urlencoded', async () => {
+      mockActiveExample.body = {
+        activeBody: 'formData',
+        formData: {
+          encoding: 'urlencoded',
+          value: [
+            { key: 'field1', value: 'value1', enabled: true },
+            { key: '', value: '', enabled: false },
+          ],
+        },
+      }
+
+      const wrapper = mount(RequestBody, props)
+
+      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
+      await requestTable.vm.$emit('deleteRow', 0)
+
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
+        { key: '', value: '', enabled: false },
+      ])
+
+      wrapper.unmount()
+    })
+
+    it('deletes row with file attachment', async () => {
+      const mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' })
+
+      mockActiveExample.body = {
+        activeBody: 'formData',
+        formData: {
+          encoding: 'form-data',
+          value: [
+            { key: 'field1', value: 'value1', enabled: true },
+            { key: 'file_field', value: 'test.txt', enabled: true, file: mockFile },
+            { key: 'field3', value: 'value3', enabled: true },
+          ],
+        },
+      }
+
+      const wrapper = mount(RequestBody, props)
+
+      const requestTable = wrapper.findComponent({ name: 'RequestTable' })
+      await requestTable.vm.$emit('deleteRow', 1)
+
+      expect(mockRequestExampleMutators.edit).toHaveBeenCalledWith('mockExampleUid', 'body.formData.value', [
+        { key: 'field1', value: 'value1', enabled: true },
+        { key: 'field3', value: 'value3', enabled: true },
+      ])
+
+      wrapper.unmount()
+    })
+  })
 })
