@@ -11,13 +11,13 @@ import {
 import { InfoObjectSchema } from './info'
 import { ServerObjectSchema } from './server'
 import { PathsObjectSchema } from './paths'
-import { PathItemObjectSchema } from './path-item'
 import { ComponentsObjectSchema } from './components'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { TagObjectSchema } from './tag'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
+import { PathItemObjectSchema } from '@/schemas/v3.1/strict/recursive'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({

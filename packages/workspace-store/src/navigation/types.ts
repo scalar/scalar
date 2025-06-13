@@ -1,4 +1,4 @@
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@/schemas/v3.1/strict/recursive'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 /** Map of tagNames and their entries */

@@ -7,11 +7,9 @@ import { ExampleObjectSchema } from './example'
 import { RequestBodyObjectSchema } from './request-body'
 import { SecuritySchemeObjectSchema } from './security-scheme'
 import { LinkObjectSchema } from './link'
-import { CallbackObjectSchema } from './callback'
-import { PathItemObjectSchema } from './path-item'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
-import { HeaderObjectSchema } from '@/schemas/v3.1/strict/recursive'
+import { CallbackObjectSchema, HeaderObjectSchema, PathItemObjectSchema } from '@/schemas/v3.1/strict/recursive'
 
 /** Holds a set of reusable objects for different aspects of the OAS. All objects defined within the Components Object will have no effect on the API unless they are explicitly referenced from outside the Components Object. */
 export const ComponentsObjectSchema = compose(

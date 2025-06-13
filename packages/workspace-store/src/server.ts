@@ -10,7 +10,7 @@ import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/stri
 import type { PathsObject } from '@/schemas/v3.1/strict/paths'
 import { keyOf } from '@/helpers/general'
 import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
+import type { OperationObject } from '@/schemas/v3.1/strict/recursive'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -60,8 +60,9 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  * }
  */
 export function filterHttpMethodsOnly(paths: PathsObject) {
-  const result: PathsObject = {}
+  const result: Record<string, Record<string, OperationObject>> = {}
 
+  // Todo: skip extension properties
   for (const [path, methods] of Object.entries(paths)) {
     if (!methods) {
       continue
@@ -92,8 +93,8 @@ export function filterHttpMethodsOnly(paths: PathsObject) {
  * Input: { "/users/{id}": { ... } }
  * Output: { "/users~1{id}": { ... } }
  */
-export function escapePaths(paths: PathsObject) {
-  const result: PathsObject = {}
+export function escapePaths(paths: Record<string, Record<string, OperationObject>>) {
+  const result: Record<string, Record<string, OperationObject>> = {}
   Object.keys(paths).forEach((path) => {
     result[escapeJsonPointer(path)] = paths[path]
   })
@@ -192,16 +193,15 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
    * The keys are document names and values contain the components and operations
    * for that document.
    */
-  const assets = documents.reduce<Record<string, { components?: ComponentsObject; operations?: OperationObject }>>(
-    (acc, { name, document }) => {
-      acc[name] = {
-        components: document.components,
-        operations: document.paths && escapePaths(filterHttpMethodsOnly(document.paths)),
-      }
-      return acc
-    },
-    {},
-  )
+  const assets = documents.reduce<
+    Record<string, { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }>
+  >((acc, { name, document }) => {
+    acc[name] = {
+      components: document.components,
+      operations: document.paths && escapePaths(filterHttpMethodsOnly(document.paths)),
+    }
+    return acc
+  }, {})
 
   /**
    * Base workspace document containing essential metadata and document references.
@@ -273,7 +273,7 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
 
         // Write the operations chunks
         if (operations) {
-          for (const [path, methods] of Object.entries(operations as Record<string, Record<string, unknown>>)) {
+          for (const [path, methods] of Object.entries(operations)) {
             const operationPath = `${basePath}/chunks/${name}/operations/${path}`
             await fs.mkdir(operationPath, { recursive: true })
 
