@@ -150,6 +150,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default']).toEqual({
       info: {
         title: 'My API',
+        version: '',
       },
       openapi: '3.1.1',
       'x-scalar-active-auth': 'Bearer',
@@ -175,6 +176,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.activeDocument).toEqual({
       info: {
         title: 'My API',
+        version: '',
       },
       openapi: '3.1.1',
       'x-scalar-navigation': [],

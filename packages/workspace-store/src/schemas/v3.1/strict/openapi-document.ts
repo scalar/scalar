@@ -10,6 +10,19 @@ import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
 
+const OpenApiExtensionsSchema = Type.Partial(
+  Type.Object({
+    'x-tagGroups': Type.Array(
+      compose(
+        Type.Object({
+          tags: Type.Array(Type.String()),
+        }),
+        TagObjectSchema,
+      ),
+    ),
+  }),
+)
+
 export const OpenAPIDocumentSchema = compose(
   Type.Object({
     /** REQUIRED. This string MUST be the version number of the OpenAPI Specification that the OpenAPI Document uses. The openapi field SHOULD be used by tooling to interpret the OpenAPI Document. This is not related to the API info.version string. */
@@ -34,6 +47,7 @@ export const OpenAPIDocumentSchema = compose(
     externalDocs: Type.Optional(ExternalDocumentationObjectSchema),
   }),
   ExtensionsSchema,
+  OpenApiExtensionsSchema,
 )
 
 export type OpenApiDocument = Static<typeof OpenAPIDocumentSchema>

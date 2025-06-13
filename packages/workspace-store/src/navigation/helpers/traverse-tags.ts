@@ -145,8 +145,7 @@ export const traverseTags = (
 ): TraversedEntry[] => {
   // x-tagGroups
   if (content['x-tagGroups']) {
-    // Todo: validate the schema
-    const tagGroups = content['x-tagGroups'] as { name: string; tags: string[] }[]
+    const tagGroups = content['x-tagGroups']
 
     return tagGroups.flatMap((tagGroup) => {
       const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, titlesMap, {

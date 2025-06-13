@@ -84,13 +84,13 @@ export function createWorkspaceStore(workspaceProps?: {
 
   // Add a document to the store synchronously from and in-mem open api document
   function addDocumentSync(input: ObjectDoc) {
-    const { name, meta, document } = input
+    const { name, meta } = input
 
-    const validatedDocument = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
+    const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
-      document[extensions.document.navigation] = createNavigation(validatedDocument, input.config ?? {}).entries
+      document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
