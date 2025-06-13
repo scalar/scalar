@@ -1,5 +1,12 @@
 # @scalar/workspace-store
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [7913193]
+  - @scalar/code-highlight@0.1.4
+
 ## 0.4.0
 
 ### Minor Changes
