@@ -105,7 +105,7 @@ func main() {
 	}
 
 	// Create a new proxy server instance
-	proxyServer := NewProxyServer(false)
+	proxyServer := NewProxyServer(os.Getenv("ENV") == "dev")
 
 	// Set up routing using the default HTTP multiplexer
 	mux := http.NewServeMux()
