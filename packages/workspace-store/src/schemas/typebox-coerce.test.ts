@@ -1,4 +1,5 @@
 import { coerceValue } from '@/schemas/typebox-coerce'
+import { compose } from '@/schemas/v3.1/compose'
 import { Type } from '@sinclair/typebox'
 import { describe, expect, it } from 'vitest'
 
@@ -96,5 +97,29 @@ describe('should correctly cast/default values to make the input schema complian
     })
 
     expect(coerceValue(schema, {})).toEqual({ age: 0 })
+  })
+
+  it('does not default everything when we have some missing fields', () => {
+    const schema = compose(
+      Type.Record(Type.TemplateLiteral('x-${string}'), Type.Unknown()),
+      Type.Object({
+        name: Type.String(),
+        age: Type.Optional(Type.Number()),
+        location: Type.Object({
+          lat: Type.Number(),
+          long: Type.Number(),
+        }),
+        greeting: Type.String(),
+      }),
+    )
+
+    expect(coerceValue(schema, { location: {}, greeting: 'Hello' })).toEqual({
+      name: '',
+      location: {
+        lat: 0,
+        long: 0,
+      },
+      greeting: 'Hello',
+    })
   })
 })

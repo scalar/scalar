@@ -172,7 +172,7 @@ describe('traverseTags', () => {
     const titlesMap = new Map<string, string>()
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
-      tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] || '').localeCompare(b['x-displayName'] || ''),
+      tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] ?? '').localeCompare(b['x-displayName'] || ''),
       operationsSorter: 'alpha' as const,
     }
 

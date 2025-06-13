@@ -61,7 +61,7 @@ export const traverseSchemas = (
     const ref = `#/content/components/schemas/${name}`
 
     // Add to tags
-    if (schemas[name]['x-tags']?.length) {
+    if (schemas[name]['x-tags']) {
       schemas[name]['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
         tagsMap.get(tagName)?.entries.push(createModelEntry(ref, name, titlesMap, getModelId, tag))

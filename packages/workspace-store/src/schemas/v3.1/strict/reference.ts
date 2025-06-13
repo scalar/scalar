@@ -1,3 +1,5 @@
+import { compose } from '@/schemas/v3.1/compose'
+import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { Type, type Static } from '@sinclair/typebox'
 
 export const ReferenceObjectExtensionsSchema = Type.Object({
@@ -13,7 +15,7 @@ export const ReferenceObjectExtensionsSchema = Type.Object({
  * The $ref string value contains a URI RFC3986, which identifies the value being referenced.
  *
  * See the rules for resolving Relative References. */
-export const ReferenceObjectSchema = Type.Intersect([
+export const ReferenceObjectSchema = compose(
   Type.Object({
     /** REQUIRED. The reference identifier. This MUST be in the form of a URI. */
     '$ref': Type.String(),
@@ -23,6 +25,7 @@ export const ReferenceObjectSchema = Type.Intersect([
     description: Type.Optional(Type.String()),
   }),
   ReferenceObjectExtensionsSchema,
-])
+  ExtensionsSchema,
+)
 
 export type ReferenceObject = Static<typeof ReferenceObjectSchema>

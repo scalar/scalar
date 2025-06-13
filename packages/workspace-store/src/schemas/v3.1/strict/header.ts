@@ -1,19 +1,24 @@
+import { compose } from '@/schemas/v3.1/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
+import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { MediaTypeObjectSchemaWithoutEncoding } from '@/schemas/v3.1/strict/media-type'
 import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { Type, type Static } from '@sinclair/typebox'
 
-export const HeaderObjectSchemaBase = Type.Object({
-  /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
-  description: Type.Optional(Type.String()),
-  /** Determines whether this header is mandatory. The default value is false. */
-  required: Type.Optional(Type.Boolean()),
-  /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
-  deprecated: Type.Optional(Type.Boolean()),
-})
+export const HeaderObjectSchemaBase = compose(
+  Type.Object({
+    /** A brief description of the header. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
+    description: Type.Optional(Type.String()),
+    /** Determines whether this header is mandatory. The default value is false. */
+    required: Type.Optional(Type.Boolean()),
+    /** Specifies that the header is deprecated and SHOULD be transitioned out of usage. Default value is false. */
+    deprecated: Type.Optional(Type.Boolean()),
+  }),
+  ExtensionsSchema,
+)
 
-export const HeaderObjectWithSchemaSchema = Type.Intersect([
+export const HeaderObjectWithSchemaSchema = compose(
   HeaderObjectSchemaBase,
   Type.Object({
     /** Describes how the header value will be serialized. The default (and only legal value for headers) is "simple". */
@@ -27,14 +32,14 @@ export const HeaderObjectWithSchemaSchema = Type.Intersect([
     /** Examples of the header's potential value; see Working With Examples. https://swagger.io/specification/#working-with-examples */
     examples: Type.Optional(Type.Record(Type.String(), Type.Union([ExampleObjectSchema, ReferenceObjectSchema]))),
   }),
-])
+)
 
-export const HeaderObjectWithContentSchema = Type.Intersect([
+export const HeaderObjectWithContentSchema = compose(
   HeaderObjectSchemaBase,
   Type.Object({
     content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectSchemaWithoutEncoding)),
   }),
-])
+)
 
 /**
  * Describes a single header for HTTP responses and for individual parts in multipart representations; see the relevant Response Object and Encoding Object documentation for restrictions on which headers can be described.

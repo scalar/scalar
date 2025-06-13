@@ -22,7 +22,7 @@ const createTagEntry = (
   isGroup = false,
 ): TraversedTag => {
   const id = getTagId(tag)
-  const title = tag['x-displayName'] || tag.name || 'Untitled Tag'
+  const title = tag['x-displayName'] ?? tag.name ?? 'Untitled Tag'
   titlesMap.set(id, title)
 
   return {
@@ -67,7 +67,7 @@ const getSortedTagEntries = (
   // Alpha sort
   if (tagsSorter === 'alpha') {
     keys.sort((a, b) => {
-      const nameA = getTag(tagsMap, a).tag['x-displayName'] || a || 'Untitle Tag'
+      const nameA = getTag(tagsMap, a).tag['x-displayName'] || a || 'Untitled Tag'
       const nameB = getTag(tagsMap, b).tag['x-displayName'] || b || 'Untitled Tag'
       return nameA.localeCompare(nameB)
     })

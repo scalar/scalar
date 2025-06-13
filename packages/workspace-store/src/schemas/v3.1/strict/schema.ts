@@ -2,6 +2,14 @@ import { Type, type Static } from '@sinclair/typebox'
 import { DiscriminatorObjectSchema } from './discriminator'
 import { XMLObjectSchema } from './xml'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
+import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
+import { compose } from '@/schemas/v3.1/compose'
+
+const SchemaExtensionsSchema = Type.Partial(
+  Type.Object({
+    'x-tags': Type.Array(Type.String()),
+  }),
+)
 
 /**
  * The Schema Object allows the definition of input and output data types. These types can be objects, but also primitives and arrays. This object is a superset of the JSON Schema Specification Draft 2020-12. The empty schema (which allows any instance to validate) MAY be represented by the boolean value true and a schema which allows no instance to validate MAY be represented by the boolean value false.
@@ -10,7 +18,7 @@ import { ExternalDocumentationObjectSchema } from './external-documentation'
  *
  * Unless stated otherwise, the keyword definitions follow those of JSON Schema and do not add any additional semantics; this includes keywords such as $schema, $id, $ref, and $dynamicRef being URIs rather than URLs. Where JSON Schema indicates that behavior is defined by the application (e.g. for annotations), OAS also defers the definition of semantics to the application consuming the OpenAPI document.
  */
-export const SchemaObjectSchema = Type.Intersect([
+export const SchemaObjectSchema = compose(
   Type.Object({
     /** Adds support for polymorphism. The discriminator is used to determine which of a set of schemas a payload is expected to satisfy. See Composition and Inheritance for more details. */
     discriminator: Type.Optional(DiscriminatorObjectSchema),
@@ -25,7 +33,9 @@ export const SchemaObjectSchema = Type.Intersect([
      */
     example: Type.Optional(Type.Any()),
   }),
+  ExtensionsSchema,
+  SchemaExtensionsSchema,
   Type.Record(Type.String(), Type.Unknown()),
-])
+)
 
 export type SchemaObject = Static<typeof SchemaObjectSchema>

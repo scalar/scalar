@@ -4,9 +4,9 @@ import { beforeEach, afterEach, describe, expect, test } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 
 // Test document
-const document = {
+const getDocument = () => ({
   openapi: '3.0.0',
-  info: { title: 'My API' },
+  info: { title: 'My API', version: '1.0.0' },
   components: {
     schemas: {
       User: {
@@ -51,7 +51,7 @@ const document = {
       },
     },
   },
-}
+})
 
 describe('create-workspace-store', () => {
   let server: FastifyInstance
@@ -151,7 +151,7 @@ describe('create-workspace-store', () => {
       info: {
         title: 'My API',
       },
-      openapi: '3.0.0',
+      openapi: '3.1.1',
       'x-scalar-active-auth': 'Bearer',
       'x-scalar-active-server': 'server-1',
       'x-scalar-navigation': [],
@@ -176,7 +176,7 @@ describe('create-workspace-store', () => {
       info: {
         title: 'My API',
       },
-      openapi: '3.0.0',
+      openapi: '3.1.1',
       'x-scalar-navigation': [],
     })
   })
@@ -264,12 +264,12 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document,
+          document: getDocument(),
         },
       ],
     })
 
-    const store = await createWorkspaceStore({
+    const store = createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -279,7 +279,7 @@ describe('create-workspace-store', () => {
     })
 
     // The operation should not be resolved on the fly
-    expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
+    expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
       '$ref': 'http://localhost:9988/default/operations/~1users/get#',
       $global: true,
     })
@@ -288,12 +288,14 @@ describe('create-workspace-store', () => {
     await store.resolve(['paths', '/users', 'get'])
 
     // We expect the ref to have been resolved with the correct contents
-    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(document.paths['/users'].get.summary)
+    expect(store.workspace.activeDocument?.paths?.['/users'].get?.summary).toEqual(
+      getDocument().paths['/users'].get.summary,
+    )
 
     expect(
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
         .items,
-    ).toEqual(document.components.schemas.User)
+    ).toEqual(getDocument().components.schemas.User)
   })
 
   test('should load files form the remote url', async () => {
@@ -302,7 +304,7 @@ describe('create-workspace-store', () => {
 
     // Send the default document
     server.get('/', (_, reply) => {
-      reply.send(document)
+      reply.send(getDocument())
     })
 
     await server.listen({ port: PORT })
@@ -315,19 +317,19 @@ describe('create-workspace-store', () => {
     })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default'])
-    expect(store.workspace.documents['default'].info?.title).toEqual(document.info.title)
+    expect(store.workspace.documents['default'].info?.title).toEqual(getDocument().info.title)
 
     // Add a new remote file
     await store.addDocument({ name: 'new', url: url })
 
     expect(Object.keys(store.workspace.documents)).toEqual(['default', 'new'])
-    expect(store.workspace.documents['new'].info?.title).toEqual(document.info.title)
+    expect(store.workspace.documents['new'].info?.title).toEqual(getDocument().info.title)
   })
 
   test('should handle circular references when we try to resolve all remote chunks recursively', async () => {
-    const document = {
+    const getDocument = () => ({
       openapi: '3.0.0',
-      info: { title: 'My API' },
+      info: { title: 'My API', version: '1.0.0' },
       components: {
         schemas: {
           User: {
@@ -374,7 +376,7 @@ describe('create-workspace-store', () => {
           },
         },
       },
-    }
+    })
 
     server.get('/*', (req, res) => {
       const path = req.url
@@ -392,12 +394,12 @@ describe('create-workspace-store', () => {
       documents: [
         {
           name: 'default',
-          document,
+          document: getDocument(),
         },
       ],
     })
 
-    const store = await createWorkspaceStore({
+    const store = createWorkspaceStore({
       documents: [
         {
           name: 'default',
@@ -407,7 +409,7 @@ describe('create-workspace-store', () => {
     })
 
     // The operation should not be resolved on the fly
-    expect(store.workspace.activeDocument?.paths?.['/users'].get).toEqual({
+    expect(store.workspace.activeDocument?.paths?.['/users']?.get).toEqual({
       '$ref': `http://localhost:${PORT}/default/operations/~1users/get#`,
       $global: true,
     })
@@ -492,7 +494,7 @@ describe('create-workspace-store', () => {
         'title': 'Todo API',
         'version': '1.0.0',
       },
-      'openapi': '3.0.3',
+      'openapi': '3.1.1',
       'paths': {
         '/todos': {
           'get': {

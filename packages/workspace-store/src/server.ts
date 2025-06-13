@@ -1,5 +1,4 @@
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
@@ -10,6 +9,8 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { PathsObject } from '@/schemas/v3.1/strict/paths'
 import { keyOf } from '@/helpers/general'
+import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
+import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -59,7 +60,7 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  * }
  */
 export function filterHttpMethodsOnly(paths: PathsObject) {
-  const result: OpenAPIV3_1.PathsObject = {}
+  const result: PathsObject = {}
 
   for (const [path, methods] of Object.entries(paths)) {
     if (!methods) {
@@ -91,8 +92,8 @@ export function filterHttpMethodsOnly(paths: PathsObject) {
  * Input: { "/users/{id}": { ... } }
  * Output: { "/users~1{id}": { ... } }
  */
-export function escapePaths(paths: OpenAPIV3_1.PathsObject) {
-  const result: OpenAPIV3_1.PathsObject = {}
+export function escapePaths(paths: PathsObject) {
+  const result: PathsObject = {}
   Object.keys(paths).forEach((path) => {
     result[escapeJsonPointer(path)] = paths[path]
   })
@@ -114,6 +115,10 @@ export function externalizeComponentReferences(
   }
 
   Object.entries(document.components).forEach(([type, component]) => {
+    if (!component || typeof component !== 'object') {
+      return result
+    }
+
     result[type] = {}
     Object.keys(component).forEach((name) => {
       const ref =
@@ -142,15 +147,17 @@ export function externalizePathReferences(
   }
 
   Object.entries(document.paths).forEach(([path, pathItem]) => {
-    if (!pathItem) {
+    if (!pathItem || typeof pathItem !== 'object') {
       return result
     }
+
+    const pathItemRecord = pathItem as Record<string, unknown>
 
     result[path] = {}
 
     const escapedPath = escapeJsonPointer(path)
 
-    keyOf(pathItem).forEach((type) => {
+    keyOf(pathItemRecord).forEach((type) => {
       if (httpMethods.has(type)) {
         const ref =
           meta.mode === 'ssr'
@@ -159,7 +166,7 @@ export function externalizePathReferences(
 
         result[path][type] = { '$ref': ref, $global: true }
       } else {
-        result[path][type] = pathItem[type]
+        result[path][type] = pathItemRecord[type]
       }
     })
   })
@@ -174,7 +181,9 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
   const documents = workspaceProps.documents.map((el) => {
     const document = upgrade(el.document).specification
 
-    return { ...el, document: coerceValue(OpenAPIDocumentSchema, document) }
+    const castedDocument = coerceValue(OpenAPIDocumentSchema, document)
+
+    return { ...el, document: castedDocument }
   })
 
   /**
@@ -183,15 +192,16 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
    * The keys are document names and values contain the components and operations
    * for that document.
    */
-  const assets = documents.reduce<
-    Record<string, { components?: OpenAPIV3_1.ComponentsObject; operations?: Record<string, unknown> }>
-  >((acc, { name, document }) => {
-    acc[name] = {
-      components: document.components,
-      operations: document.paths && escapePaths(filterHttpMethodsOnly(document.paths)),
-    }
-    return acc
-  }, {})
+  const assets = documents.reduce<Record<string, { components?: ComponentsObject; operations?: OperationObject }>>(
+    (acc, { name, document }) => {
+      acc[name] = {
+        components: document.components,
+        operations: document.paths && escapePaths(filterHttpMethodsOnly(document.paths)),
+      }
+      return acc
+    },
+    {},
+  )
 
   /**
    * Base workspace document containing essential metadata and document references.
