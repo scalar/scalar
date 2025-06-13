@@ -2,10 +2,17 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { compose } from '@/schemas/v3.1/compose'
 import { Type } from '@sinclair/typebox'
 import { describe, expect, it } from 'vitest'
-import { yamlFiles } from '@test/documents'
-import { parseYaml } from '@scalar/openapi-parser/plugins-browser'
-import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { Storage } from '@google-cloud/storage'
 import { Value } from '@sinclair/typebox/value'
+import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+
+const storage = new Storage()
+const bucket = storage.bucket('scalar-test-fixtures')
+
+async function listFiles(folder: string, limit: number) {
+  const [files] = await bucket.getFiles({ prefix: folder, maxResults: limit })
+  return files
+}
 
 describe('should correctly cast/default values to make the input schema compliant', () => {
   it.each([
@@ -127,26 +134,19 @@ describe('should correctly cast/default values to make the input schema complian
     })
   })
 
-  it('should pass strict validation after coerce values', async () => {
-    const files = await Promise.all(
-      yamlFiles.map(async (it) => {
-        const result = await parseYaml().exec(it.content)
+  it('should pass strict validation after coerce values', { timeout: 100_000 }, async () => {
+    // Get first 300 files to run the tests
+    const files = await Promise.all((await listFiles('oas/files', 300)).map((it) => it.download()))
 
-        if (result.ok) {
-          return result.data
-        }
-        return {}
-      }),
-    )
+    const result = files.every((file) => {
+      const [buffer] = file
 
-    expect(
-      files
-        .map((it) => {
-          const coerceDocument = coerceValue(OpenAPIDocumentSchema, it)
+      const content = buffer.toString()
 
-          return Value.Check(OpenAPIDocumentSchema, coerceDocument)
-        })
-        .every((it) => it === true),
-    ).toBe(true)
+      // validate after we coerce the document
+      return Value.Check(OpenAPIDocumentSchema, coerceValue(OpenAPIDocumentSchema, content))
+    })
+
+    expect(result).toBe(true)
   })
 })
