@@ -1,5 +1,11 @@
 # @scalar/scripts
 
+## 0.0.10
+
+### Patch Changes
+
+- @scalar/components@0.14.9
+
 ## 0.0.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.11
+
+### Patch Changes
+
+- @scalar/components@0.14.9
+
 ## 0.2.10
 
 ### Patch Changes
