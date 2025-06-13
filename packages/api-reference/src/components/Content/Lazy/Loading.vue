@@ -220,7 +220,7 @@ onMounted(() => {
         <template v-if="getModels(parsedSpec)?.[name]">
           <SectionContent>
             <SectionHeader>
-              <Anchor :id="getModelId({ name })">
+              <Anchor :id="'lazy-' + getModelId({ name })">
                 <SectionHeaderTag :level="2">
                   {{
                     (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)

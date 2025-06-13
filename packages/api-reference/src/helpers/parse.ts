@@ -133,6 +133,31 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
    * TODO: this is an extreme hack just temp while we move over to use the sidebar items
    */
   items?.forEach((item) => {
+    // Default tag operations
+    if (item.id.startsWith('tag/default') && 'operation' in item) {
+      let tagIndex = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')
+
+      // If we couldn't find the tag, we add it
+      if (tagIndex === -1) {
+        schema.tags.push({
+          name: 'default',
+          description: '',
+          operations: [],
+        })
+        tagIndex = schema.tags.length - 1
+      }
+
+      schema.tags[tagIndex].operations.push({
+        id: item.id,
+        httpVerb: normalizeHttpMethod(item.method),
+        path: item.path,
+        name: item.operation.summary || item.path || '',
+        description: item.operation.description || '',
+        isWebhook: false,
+        information: item.operation,
+        pathParameters: schema.paths?.[item.path ?? '']?.parameters,
+      })
+    }
     // Tag groups
     if ('tag' in item && item.isGroup && item.children?.length) {
       item.children.forEach(parseTag)
