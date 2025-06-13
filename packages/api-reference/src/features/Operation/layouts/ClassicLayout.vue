@@ -4,15 +4,14 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type {
   Collection,
-  Operation,
+  Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -21,6 +20,7 @@ import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -32,21 +32,15 @@ import {
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation } = defineProps<{
-  id?: string
+const { request, transformedOperation } = defineProps<{
   collection: Collection
   server: Server | undefined
-  operation: Operation
-  /** @deprecated Use `operation` instead */
+  request: Request | undefined
   transformedOperation: TransformedOperation
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
+  schemas?: Schemas
 }>()
-
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
-
-/** The title of the operation (summary or path) */
-const title = computed(() => operation.summary || operation.path)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -58,7 +52,7 @@ const handleDiscriminatorChange = (type: string) => {
 </script>
 <template>
   <SectionAccordion
-    :id="id"
+    :id="transformedOperation.id"
     class="reference-endpoint"
     transparent>
     <template #title>
@@ -66,24 +60,34 @@ const handleDiscriminatorChange = (type: string) => {
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
-            :method="operation.method"
+            :method="transformedOperation.httpVerb"
             short />
           <Anchor
-            :id="id ?? ''"
+            :id="transformedOperation.id"
             class="endpoint-anchor">
             <h3 class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="isOperationDeprecated(operation)"
-                  :path="operation.path" />
+                  :deprecated="
+                    isOperationDeprecated(transformedOperation.information)
+                  "
+                  :path="transformedOperation.path" />
               </div>
               <div class="endpoint-label-name">
-                {{ title }}
+                {{ transformedOperation.name }}
               </div>
               <Badge
-                v-if="getOperationStability(operation)"
-                :class="getOperationStabilityColor(operation)">
-                {{ getOperationStability(operation) }}
+                v-if="getOperationStability(transformedOperation.information)"
+                :class="
+                  getOperationStabilityColor(transformedOperation.information)
+                ">
+                {{ getOperationStability(transformedOperation.information) }}
+              </Badge>
+
+              <Badge
+                v-if="transformedOperation.isWebhook"
+                class="font-code text-green flex w-fit items-center justify-center gap-1">
+                <ScalarIconWebhooksLogo weight="bold" />Webhook
               </Badge>
             </h3>
           </Anchor>
@@ -92,8 +96,8 @@ const handleDiscriminatorChange = (type: string) => {
     </template>
     <template #actions="{ active }">
       <TestRequestButton
-        v-if="active"
-        :operation="operation" />
+        v-if="active && request"
+        :operation="request" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint size-6"
@@ -105,39 +109,41 @@ const handleDiscriminatorChange = (type: string) => {
         label="Copy endpoint URL"
         size="xs"
         variant="ghost"
-        @click.stop="copyToClipboard(operation.path)" />
+        @click.stop="copyToClipboard(transformedOperation.path)" />
     </template>
     <template
-      v-if="operation?.description"
+      v-if="transformedOperation.information?.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
+        :value="transformedOperation.information.description"
         withImages
         withAnchors
         transformType="heading"
-        :anchorPrefix="id" />
+        :anchorPrefix="transformedOperation.id" />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
           <OperationParameters
-            :operation="operation"
+            :operation="transformedOperation.information"
             :schemas="schemas"
             @update:modelValue="handleDiscriminatorChange" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :operation="transformedOperation"
+            :responses="transformedOperation.information.responses"
             :schemas="schemas" />
         </div>
       </div>
-      <ExampleResponses :responses="operation.responses" />
+      <ExampleResponses
+        :responses="transformedOperation.information.responses" />
       <ExampleRequest
+        :request="request"
+        :method="transformedOperation.httpVerb"
         :collection="collection"
-        :operation="operation"
+        :operation="transformedOperation.information"
         :server="server"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </div>
   </SectionAccordion>

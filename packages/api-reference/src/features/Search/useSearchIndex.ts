@@ -1,14 +1,12 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
 import { type ParamMap, useOperation } from '@/hooks/useOperation'
-import { useSidebar } from '@/hooks/useSidebar'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
-import { operationIdParams } from '@/features/traverse-schema'
+import { useConfig } from '@/hooks/useConfig'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -33,8 +31,8 @@ export function useSearchIndex({
 }: {
   specification: Ref<Spec>
 }) {
-  const { hideModels } = useSidebar()
-  const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } = useNavState()
+  const { getHeadingId, getModelId, getTagId } = useNavState()
+  const config = useConfig()
 
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])
@@ -141,8 +139,8 @@ export function useSearchIndex({
             const operationData: FuseData = {
               type: 'req',
               title: operation.name ?? operation.path,
-              href: `#${getOperationId(operationIdParams(operation), tag)}`,
-              operationId: operation.operationId,
+              href: `#${operation.id}`,
+              operationId: operation.information?.operationId,
               description: operation.description ?? '',
               httpVerb: operation.httpVerb,
               path: operation.path,
@@ -164,19 +162,15 @@ export function useSearchIndex({
       const webhookData: FuseData[] = []
 
       if (webhooks) {
-        Object.keys(webhooks).forEach((name) => {
-          const httpVerbs = Object.keys(webhooks[name]) as OpenAPIV3_1.HttpMethods[]
-
-          httpVerbs.forEach((httpVerb) => {
-            webhookData.push({
-              type: 'webhook',
-              title: 'Webhook',
-              href: `#${getWebhookId({ name, method: httpVerb })}`,
-              description: `${webhooks[name][httpVerb]?.name}`,
-              httpVerb,
-              tag: name,
-              body: '',
-            })
+        webhooks.forEach((webhook) => {
+          webhookData.push({
+            type: 'webhook',
+            title: 'Webhook',
+            href: `#${webhook.id}`,
+            description: `${webhook.name}`,
+            httpVerb: webhook.httpVerb,
+            tag: webhook.name,
+            body: '',
           })
 
           fuseDataArray.value = fuseDataArray.value.concat(webhookData)
@@ -184,7 +178,7 @@ export function useSearchIndex({
       }
 
       // Adding models as well
-      const schemas = hideModels.value ? {} : getModels(newSpec)
+      const schemas = config.value.hideModels ? {} : getModels(newSpec)
       const modelData: FuseData[] = []
 
       if (schemas) {

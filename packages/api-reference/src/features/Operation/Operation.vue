@@ -7,21 +7,18 @@ import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
-  id,
   layout = 'modern',
   transformedOperation,
   collection,
   server,
   schemas,
 } = defineProps<{
-  id?: string
   layout?: 'modern' | 'classic'
   transformedOperation: TransformedOperation
   collection: Collection
@@ -74,25 +71,23 @@ const operationServer = computed(() => {
 </script>
 
 <template>
-  <template v-if="collection && operation">
+  <template v-if="collection">
     <template v-if="layout === 'classic'">
       <ClassicLayout
-        :id="id"
         :collection="collection"
-        :operation="operation"
+        :request="operation"
+        :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
     <template v-else>
       <ModernLayout
-        :id="id"
         :collection="collection"
-        :operation="operation"
+        :request="operation"
+        :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
-        :transformedOperation="transformedOperation"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
   </template>

@@ -13,7 +13,6 @@ export { Card, CardHeader, CardContent, CardFooter, CardTabHeader, CardTab } fro
 export { parse } from '@/helpers/parse'
 export { createEmptySpecification } from '@/libs/openapi'
 export { useNavState } from '@/hooks/useNavState'
-export { useSidebar } from '@/hooks/useSidebar'
 export { useHttpClientStore } from '@/stores/useHttpClientStore'
 export type {
   ApiReferenceConfiguration,

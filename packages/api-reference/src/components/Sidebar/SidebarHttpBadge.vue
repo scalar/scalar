@@ -9,13 +9,16 @@ defineProps<{
 <template>
   <HttpMethod
     :class="[
+      'flex items-center justify-end gap-1',
       'sidebar-heading-type',
       `sidebar-heading-type--${method.toLowerCase()}`,
       { 'sidebar-heading-type-active': active },
     ]"
     :method="method"
     property="--method-color"
-    short />
+    short>
+    <slot />
+  </HttpMethod>
 </template>
 <style scoped>
 .sidebar-heading-type {

@@ -1,14 +1,16 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { TagsMap } from '@/features/traverse-schema/types'
+
+type TagMapValue = NonNullable<TagsMap extends Map<string, infer V> ? V : never>
 
 /** Grabs the tag from the dict or creates one if it doesn't exist */
-export const getTag = (tagsDict: Map<string, OpenAPIV3_1.TagObject>, name: string) => {
+export const getTag = (tagsMap: TagsMap, name: string): TagMapValue => {
   // Ensure the tag exists in the spec
-  let tag = tagsDict.get(name)
+  let tag = tagsMap.get(name)
 
   // If not we add it
   if (!tag) {
-    tag = { name }
-    tagsDict.set(name, tag)
+    tag = { entries: [], tag: { name } }
+    tagsMap.set(name, tag)
   }
 
   return tag

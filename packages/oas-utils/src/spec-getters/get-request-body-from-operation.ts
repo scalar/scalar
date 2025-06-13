@@ -49,7 +49,7 @@ const standardMimeTypes: ContentType[] = [
  * Get the request body from the operation.
  */
 export function getRequestBodyFromOperation(
-  operation: Omit<TransformedOperation, 'httpVerb'>,
+  operation: Pick<TransformedOperation, 'pathParameters' | 'information'>,
   selectedExampleKey?: string | number,
   omitEmptyAndOptionalProperties?: boolean,
 ): {
@@ -92,7 +92,12 @@ export function getRequestBodyFromOperation(
    * for documentation purposes only. Since Form parameters are also in the payload, body and form
    * parameters cannot exist together for the same operation.”
    */
-  const bodyParameters = getParametersFromOperation(operation, 'body', false)
+  const bodyParameters = getParametersFromOperation(
+    operation.information?.parameters ?? [],
+    operation.pathParameters ?? [],
+    'body',
+    false,
+  )
 
   if (bodyParameters.length > 0) {
     return {
@@ -118,7 +123,12 @@ export function getRequestBodyFromOperation(
    *   submit-name. This type of form parameters is more commonly used for file transfers.”
    */
 
-  const formDataParameters = getParametersFromOperation(operation, 'formData', false)
+  const formDataParameters = getParametersFromOperation(
+    operation.information?.parameters ?? [],
+    operation.pathParameters ?? [],
+    'formData',
+    false,
+  )
 
   if (formDataParameters.length > 0) {
     return {

@@ -1,14 +1,8 @@
-/**
- * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
- * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
- */
-import { type RequestMethod, validRequestMethods } from '@/legacy/fixtures'
-import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
-import type { UnknownObject } from '@scalar/types/utils'
+import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 
 import { createEmptySpecification } from '@/libs/openapi'
+import type { TraversedEntry } from '@/features/traverse-schema'
 import { normalizeHttpMethod } from '@scalar/helpers/http/normalize-http-method'
 
 type AnyObject = Record<string, any>
@@ -18,16 +12,15 @@ type AnyObject = Record<string, any>
  *
  * @deprecated Try to use a store instead.
  */
-export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec> => {
-  // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
-  return new Promise(async (resolve, reject) => {
+export const parse = (dereferencedDocument: OpenAPIV3_1.Document, items?: TraversedEntry[]): Promise<Spec> =>
+  new Promise((resolve, reject) => {
     try {
       // Return an empty resolved dereferencedDocument if the given dereferencedDocument is empty
       if (!dereferencedDocument) {
         return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
       }
 
-      return resolve(transformResult(dereferencedDocument))
+      return resolve(transformResult(dereferencedDocument, items))
     } catch (error) {
       console.error('[@scalar/api-reference]', 'Failed to parse the OpenAPI document. It might be invalid?')
       console.error(error)
@@ -37,9 +30,8 @@ export const parse = (dereferencedDocument: OpenAPIV3_1.Document): Promise<Spec>
 
     return resolve(transformResult(createEmptySpecification() as OpenAPIV3_1.Document))
   })
-}
 
-const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
+const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: TraversedEntry[]): Spec => {
   // Make it an object
   let schema = {} as AnyObject
 
@@ -80,145 +72,118 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document): Spec => {
   }
 
   // Webhooks
-  const newWebhooks: AnyObject = {}
+  const newWebhooks: TransformedOperation[] = []
 
-  Object.keys(schema.webhooks ?? {}).forEach((name) => {
-    // prettier-ignore
-    ;(Object.keys(schema.webhooks?.[name] ?? {}) as string[]).forEach((httpVerb) => {
-      const originalWebhook = schema.webhooks?.[name][httpVerb]
-
-      // Filter out webhooks marked as internal
-      if (!originalWebhook || shouldIgnoreEntity(originalWebhook)) {
-        return
-      }
-
-      if (Array.isArray(originalWebhook.tags)) {
-        // Resolve the whole tag object
-        const resolvedTags = originalWebhook.tags?.map((tag: string) =>
-          schema.tags?.find((t: UnknownObject) => t.name === tag),
-        )
-
-        // Filter out tags marked as internal
-        originalWebhook.tags = resolvedTags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
-
-        if (resolvedTags?.some((tag: UnknownObject) => shouldIgnoreEntity(tag))) {
-          // Skip this webhook if it has tags marked as internal
-          return
-        }
-      }
-
-      if (newWebhooks[name] === undefined) {
-        newWebhooks[name] = {}
-      }
-
-      newWebhooks[name][httpVerb] = {
-        // Transformed data
-        httpVerb: normalizeHttpMethod(httpVerb),
-        path: name,
-        operationId: originalWebhook?.operationId || name,
-        name: originalWebhook?.summary || name || '',
-        description: originalWebhook?.description || '',
-        pathParameters: schema.paths?.[name]?.parameters,
-        // Original webhook
-        information: {
-          ...originalWebhook,
-        },
-      }
-    })
-  })
-
-  Object.keys(schema.components?.schemas ?? {}).forEach((name) => {
-    // Delete all schemas where `shouldIgnoreEntity` returns true
-    if (shouldIgnoreEntity(schema.components?.schemas?.[name])) {
-      delete schema.components?.schemas?.[name]
+  const parseTag = (item: TraversedEntry) => {
+    if (!('children' in item) || !item.children?.length) {
+      return
     }
-  })
 
-  /**
-   * { '/pet': { … } }
-   */
-  Object.keys(schema.paths).forEach((path: string) => {
-    const requestMethods = Object.keys(schema.paths[path]).filter((key) =>
-      validRequestMethods.includes(key.toUpperCase() as RequestMethod),
-    )
+    item.children.forEach((child) => {
+      let tagIndex = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => 'tag' in item && tag.name === item.tag.name)
 
-    requestMethods.forEach((requestMethod) => {
-      const operation = schema.paths[path][requestMethod]
-
-      // Skip if the operation is undefined
-      if (operation === undefined) {
-        return
+      // If we couldn't find the tag, we add it
+      if (tagIndex === -1 && 'tag' in item) {
+        schema.tags.push({
+          name: item.tag.name,
+          operations: [],
+        })
+        tagIndex = schema.tags.length - 1
       }
 
-      // Filter out operations marked as internal
-      if (shouldIgnoreEntity(operation)) {
-        return
+      schema.tags[tagIndex].operations ||= []
+
+      // Tag
+      if ('tag' in child) {
+        parseTag(child)
       }
 
-      // Transform the operation
-      const newOperation = {
-        httpVerb: normalizeHttpMethod(requestMethod),
-        path,
-        operationId: operation.operationId || path,
-        name: operation.summary || path || '',
-        description: operation.description || '',
-        information: {
-          ...operation,
-        },
-        pathParameters: schema.paths?.[path]?.parameters,
+      // Operation
+      else if ('operation' in child) {
+        schema.tags[tagIndex].operations.push({
+          id: child.id,
+          httpVerb: normalizeHttpMethod(child.method),
+          path: child.path,
+          name: child.operation.summary || child.path || '',
+          description: child.operation.description || '',
+          isWebhook: false,
+          information: child.operation,
+          pathParameters: schema.paths?.[child.path ?? '']?.parameters,
+        })
       }
 
-      // If there are no tags, we’ll create a default one.
-      if (!operation.tags || operation.tags.length === 0) {
-        // Create the default tag.
-        if (!schema.tags?.find((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')) {
-          schema.tags?.push({
-            name: 'default',
-            description: '',
-            operations: [],
-          })
-        }
-
-        // find the index of the default tag
-        const indexOfDefaultTag = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')
-
-        // Add the new operation to the default tag.
-        if (indexOfDefaultTag >= 0) {
-          // Add the new operation to the default tag.
-          schema.tags[indexOfDefaultTag]?.operations.push(newOperation)
-        }
-      }
-      // If the operation has tags, loop through them.
-      else {
-        operation.tags.forEach((operationTag: string) => {
-          // Try to find the tag in the schema
-          const indexOfExistingTag = schema.tags?.findIndex((tag: UnknownObject) => tag.name === operationTag)
-
-          // Create tag if it doesn’t exist yet
-          if (indexOfExistingTag === -1) {
-            schema.tags?.push({
-              name: operationTag,
-              description: '',
-            })
-          }
-
-          // Decide where to store the new operation
-          const tagIndex = indexOfExistingTag !== -1 ? indexOfExistingTag : schema.tags.length - 1
-
-          // Create operations array if it doesn’t exist yet
-          if (typeof schema.tags[tagIndex]?.operations === 'undefined') {
-            schema.tags[tagIndex].operations = []
-          }
-
-          // Add the new operation
-          schema.tags[tagIndex].operations.push(newOperation)
+      // Webhook
+      else if ('webhook' in child) {
+        schema.tags[tagIndex].operations.push({
+          id: child.id,
+          httpVerb: normalizeHttpMethod(child.method),
+          path: child.name,
+          name: child.webhook.summary || child.name || '',
+          description: child.webhook.description || '',
+          isWebhook: true,
+          information: child.webhook,
+          pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
         })
       }
     })
-  })
+  }
 
-  // Remove tags with `x-internal` set to true
-  schema.tags = schema.tags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
+  /**
+   * Use the sidebar items as the source of truth as they have been filtered
+   * TODO: this is an extreme hack just temp while we move over to use the sidebar items
+   */
+  items?.forEach((item) => {
+    // Default tag operations
+    if (item.id.startsWith('tag/default') && 'operation' in item) {
+      let tagIndex = schema.tags?.findIndex((tag: OpenAPIV3_1.TagObject) => tag.name === 'default')
+
+      // If we couldn't find the tag, we add it
+      if (tagIndex === -1) {
+        schema.tags.push({
+          name: 'default',
+          description: '',
+          operations: [],
+        })
+        tagIndex = schema.tags.length - 1
+      }
+
+      schema.tags[tagIndex].operations.push({
+        id: item.id,
+        httpVerb: normalizeHttpMethod(item.method),
+        path: item.path,
+        name: item.operation.summary || item.path || '',
+        description: item.operation.description || '',
+        isWebhook: false,
+        information: item.operation,
+        pathParameters: schema.paths?.[item.path ?? '']?.parameters,
+      })
+    }
+    // Tag groups
+    if ('tag' in item && item.isGroup && item.children?.length) {
+      item.children.forEach(parseTag)
+    }
+    // Tags
+    if ('tag' in item) {
+      parseTag(item)
+    }
+    // Webhooks
+    if ('isWebhooks' in item && item.isWebhooks && item.children?.length) {
+      item.children.forEach((child) => {
+        if ('webhook' in child && child.name && child.method) {
+          newWebhooks.push({
+            id: child.id,
+            httpVerb: normalizeHttpMethod(child.method),
+            path: child.name,
+            name: child.webhook.summary || child.name || '',
+            description: child.webhook.description || '',
+            isWebhook: true,
+            information: child.webhook,
+            pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
+          })
+        }
+      })
+    }
+  })
 
   const returnedResult = {
     ...schema,

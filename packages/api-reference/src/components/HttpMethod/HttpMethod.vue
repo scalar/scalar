@@ -27,6 +27,7 @@ const normalized = computed(() => normalizeHttpMethod(props.method))
     :is="as ?? 'span'"
     class="uppercase"
     :style="{ [property || 'color']: httpMethodInfo.colorVar }">
+    <slot />
     {{ short ? httpMethodInfo.short : normalized }}
   </component>
 </template>

@@ -36,6 +36,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
+    },
     "./schemas/3.1/processed": {
       "import": "./dist/schemas/3.1/processed/index.js",
       "types": "./dist/schemas/3.1/processed/index.d.ts",

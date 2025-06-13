@@ -4,6 +4,9 @@ import type { UseNavState } from '@/hooks/useNavState'
 import type { Ref } from 'vue'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
+/** Map of tagNames and their entries */
+export type TagsMap = Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>
+
 /** Description entry returned form traversing the document */
 export type TraversedDescription = {
   id: string
@@ -32,10 +35,10 @@ export type TraversedSchema = {
 export type TraversedTag = {
   id: string
   title: string
-  name: string
-  children?: TraversedEntry[]
+  children: TraversedEntry[]
   tag: OpenAPIV3_1.TagObject
   isGroup: boolean
+  isWebhooks?: boolean
 }
 
 /** Webhook entry returned form traversing the document, basically the same as an operaation but with name instead of path */
@@ -55,9 +58,7 @@ export type TraversedEntry =
   | TraversedTag
   | TraversedWebhook
 
-/** Create sidebar options */
+/** Options for traversing the spec */
 export type TraverseSpecOptions = {
   config: Ref<ApiReferenceConfiguration>
-  /** You can optionally pass in these refs in case you need them before the hook is instantiated */
-  isSidebarOpen?: Ref<boolean>
 } & Pick<UseNavState, 'getHeadingId' | 'getModelId' | 'getOperationId' | 'getSectionId' | 'getTagId' | 'getWebhookId'>
