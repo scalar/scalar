@@ -158,7 +158,8 @@ const introCardsSlot = computed(() =>
         :tags="parsedSpec.tags" />
     </template>
 
-    <template v-if="parsedSpec.webhooks && activeCollection">
+    <!-- Webhooks -->
+    <template v-if="parsedSpec.webhooks?.length && activeCollection">
       <TagList
         id="webhooks"
         :collection="activeCollection"

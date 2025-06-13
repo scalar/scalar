@@ -7,7 +7,6 @@ import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { useOperationDiscriminator } from '@/hooks/useOperationDiscriminator'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
