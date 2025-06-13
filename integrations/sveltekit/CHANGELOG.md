@@ -1,5 +1,13 @@
 # @scalar/sveltekit
 
+## 0.1.8
+
+### Patch Changes
+
+- 6ead9cd: chore: remove unused dependencies
+- 4156f1d: Expand workspace store integration
+  - @scalar/core@0.3.3
+
 ## 0.1.7
 
 ### Patch Changes

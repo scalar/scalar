@@ -1,5 +1,12 @@
 # @scalar/icons
 
+## 0.4.3
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- 177438d: feat(components): deprecate ScalarIcon component
+
 ## 0.4.2
 
 ### Patch Changes

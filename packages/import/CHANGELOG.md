@@ -1,5 +1,18 @@
 # @scalar/import
 
+## 0.4.10
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- Updated dependencies [221e35f]
+- Updated dependencies [166e298]
+- Updated dependencies [4156f1d]
+- Updated dependencies [f823d45]
+- Updated dependencies [37c90b8]
+  - @scalar/helpers@0.0.4
+  - @scalar/openapi-parser@0.17.0
+
 ## 0.4.9
 
 ### Patch Changes

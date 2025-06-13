@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.8.5
+
+### Patch Changes
+
+- 6ead9cd: chore: remove unused dependencies
+- 4156f1d: Expand workspace store integration
+  - @scalar/core@0.3.3
+
 ## 0.8.4
 
 ### Patch Changes

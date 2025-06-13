@@ -1,5 +1,12 @@
 # @scalar/code-highlight
 
+## 0.1.3
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- a37df33: fix: enhances introduction optical alignment
+
 ## 0.1.2
 
 ### Patch Changes

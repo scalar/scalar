@@ -1,5 +1,39 @@
 # @scalar/api-client
 
+## 2.5.6
+
+### Patch Changes
+
+- 282129b: fix: safely create a new response when there is no content
+- a5b399d: fix: updates address bar background style
+- 4156f1d: Expand workspace store integration
+- 711b435: fix: re-create client store on document change
+- Updated dependencies [2974dd6]
+- Updated dependencies [221e35f]
+- Updated dependencies [166e298]
+- Updated dependencies [b6ed440]
+- Updated dependencies [4156f1d]
+- Updated dependencies [f823d45]
+- Updated dependencies [177438d]
+- Updated dependencies [37c90b8]
+  - @scalar/oas-utils@0.4.5
+  - @scalar/openapi-types@0.3.3
+  - @scalar/helpers@0.0.4
+  - @scalar/types@0.2.3
+  - @scalar/openapi-parser@0.17.0
+  - @scalar/snippetz@0.3.1
+  - @scalar/components@0.14.8
+  - @scalar/import@0.4.10
+  - @scalar/icons@0.4.3
+  - @scalar/postman-to-openapi@0.3.8
+  - @scalar/themes@0.13.3
+  - @scalar/draggable@0.2.0
+  - @scalar/object-utils@1.2.1
+  - @scalar/use-codemirror@0.12.9
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+  - @scalar/use-tooltip@1.1.0
+
 ## 2.5.5
 
 ### Patch Changes

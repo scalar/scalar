@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.2.3
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+
 ## 0.2.2
 
 ### Patch Changes
