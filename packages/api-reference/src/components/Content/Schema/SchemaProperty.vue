@@ -239,6 +239,18 @@ const shouldRenderObjectProperties = computed(() => {
 
   return isObjectType && hasPropertiesToRender
 })
+
+const shouldShowEnumDescriptions = computed(() => {
+  if (!optimizedValue.value?.['x-enumDescriptions']) {
+    return false
+  }
+
+  const enumDescriptions = optimizedValue.value['x-enumDescriptions']
+
+  return (
+    typeof enumDescriptions === 'object' && !Array.isArray(enumDescriptions)
+  )
+})
 </script>
 <template>
   <component
@@ -298,7 +310,7 @@ const shouldRenderObjectProperties = computed(() => {
     <div
       v-if="getEnumFromValue(optimizedValue)?.length > 0 && !isDiscriminator"
       class="property-enum">
-      <template v-if="Array.isArray(optimizedValue?.['x-enumDescriptions'])">
+      <template v-if="shouldShowEnumDescriptions">
         <div class="property-list">
           <div
             v-for="enumValue in getEnumFromValue(optimizedValue)"
@@ -311,7 +323,7 @@ const shouldRenderObjectProperties = computed(() => {
             </div>
             <div class="property-description">
               <ScalarMarkdown
-                :value="optimizedValue['x-enumDescriptions'][enumValue]" />
+                :value="optimizedValue?.['x-enumDescriptions']?.[enumValue]" />
             </div>
           </div>
         </div>
