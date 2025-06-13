@@ -256,6 +256,7 @@ watch(
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   spec: parsedDocument.value,
+  breadcrumb: items.value?.titles.get(hash.value) ?? '',
 }))
 
 // Download documents
@@ -367,6 +368,7 @@ watch(hash, (newHash, oldHash) => {
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
+        :breadcrumb="referenceSlotProps.breadcrumb"
         v-if="
           configuration.layout === 'modern' &&
           (configuration.showSidebar ?? true)
