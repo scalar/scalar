@@ -29,72 +29,63 @@ export async function getHash(value: string) {
 }
 
 /**
- * Generates a unique hash for a value, handling hash collisions by recursively hashing
- * until a unique hash is found. This is used to create unique identifiers for external
+ * Generates a unique compressed value for a string, handling collisions by recursively compressing
+ * until a unique value is found. This is used to create unique identifiers for external
  * references in the bundled OpenAPI document.
  *
- * @param hashFunction - Function that generates a hash from a string value
- * @param value - The original string value to hash
- * @param hashToValue - Object mapping hashes to their original values
- * @param valueHash - Optional previous hash to use as input for generating a new hash
+ * @param compress - Function that generates a compressed value from a string
+ * @param value - The original string value to compress
+ * @param compressedToValue - Object mapping compressed values to their original values
+ * @param prevCompressedValue - Optional previous compressed value to use as input for generating a new value
  * @param depth - Current recursion depth to prevent infinite loops
- * @returns A unique hash that doesn't conflict with existing values
+ * @returns A unique compressed value that doesn't conflict with existing values
  *
  * @example
- * const hashMap = {}
- * // First call generates hash for "example.com/schema.json"
- * const hash1 = await generateUniqueHash("example.com/schema.json", hashMap)
+ * const valueMap = {}
+ * // First call generates compressed value for "example.com/schema.json"
+ * const value1 = await generateUniqueValue("example.com/schema.json", valueMap)
  * // Returns something like "2ae91d7"
  *
- * // Second call with same value returns same hash
- * const hash2 = await generateUniqueHash("example.com/schema.json", hashMap)
- * // Returns same hash as hash1
+ * // Second call with same value returns same compressed value
+ * const value2 = await generateUniqueValue("example.com/schema.json", valueMap)
+ * // Returns same value as value1
  *
- * // Call with different value generates new unique hash
- * const hash3 = await generateUniqueHash("example.com/other.json", hashMap)
- * // Returns different hash like "3bf82e9"
+ * // Call with different value generates new unique compressed value
+ * const value3 = await generateUniqueValue("example.com/other.json", valueMap)
+ * // Returns different value like "3bf82e9"
  */
-export async function generateUniqueHash(
-  hashFunction: (value: string) => Promise<string>,
+export async function generateUniqueValue(
+  compress: (value: string) => Promise<string> | string,
   value: string,
-  hashToValue: Record<string, string>,
-  valueHash?: string,
+  compressedToValue: Record<string, string>,
+  prevCompressedValue?: string,
   depth = 0,
 ) {
   // Maximum recursion depth to prevent infinite loops
   const MAX_DEPTH = 100
 
   if (depth >= MAX_DEPTH) {
-    throw 'Can not generate unique hash values'
+    throw 'Can not generate unique compressed values'
   }
 
-  // Generate hash using either the provided valueHash or original value
-  const hash = await hashFunction(valueHash ?? value)
+  // First time we check if the value is present
+  if (depth === 0) {
+    const result = Object.entries(compressedToValue).find(([_, originalValue]) => originalValue === value)
 
-  // If hash exists and maps to a different value, recursively try again with the hash as input
-  if (hashToValue[hash] !== undefined && hashToValue[hash] !== value) {
-    return generateUniqueHash(hashFunction, value, hashToValue, hash, depth + 1)
+    if (result) {
+      return result[0]
+    }
   }
 
-  // Store the hash-value mapping and return the unique hash
-  hashToValue[hash] = value
-  return hash
-}
+  // Generate compressed value using either the provided prevCompressedValue or original value
+  const compressedValue = await compress(prevCompressedValue ?? value)
 
-/**
- * Generates a safe hash for a value that is guaranteed to be unique within the provided hash map.
- * This is a convenience wrapper around generateUniqueHash that uses the default getHash function.
- * The hash is used to create unique identifiers for external references in bundled OpenAPI documents.
- *
- * @param value - The string value to hash (typically a URL or file path)
- * @param hashToValue - Object mapping hashes to their original values to prevent collisions
- * @returns A unique hash that doesn't conflict with existing values
- *
- * @example
- * const hashMap = {}
- * const hash = await getSafeHash("example.com/schema.json", hashMap)
- * // Returns something like "2ae91d7"
- */
-export async function getSafeHash(value: string, hashToValue: Record<string, string>) {
-  return generateUniqueHash(getHash, value, hashToValue)
+  // If compressed value exists and maps to a different value, recursively try again with the compressed value as input
+  if (compressedToValue[compressedValue] !== undefined && compressedToValue[compressedValue] !== value) {
+    return generateUniqueValue(compress, value, compressedToValue, compressedValue, depth + 1)
+  }
+
+  // Store the [compressed value] => [value] mapping and return the unique compressed value
+  compressedToValue[compressedValue] = value
+  return compressedValue
 }

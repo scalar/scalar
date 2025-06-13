@@ -5,7 +5,7 @@ import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
 import { isYaml } from '@/utils/is-yaml'
 import { isJson } from '@/utils/is-json'
-import { getSafeHash } from '@/utils/bundle/hash'
+import { generateUniqueValue, getHash } from '@/utils/bundle/hash'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -609,7 +609,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Combine the current origin with the new path to resolve relative references
       // correctly within the context of the external file being processed
       const resolvedPath = resolveReferencePath(origin, prefix)
-      const hashPath = await getSafeHash(resolvedPath, documentRoot[extensions.externalDocumentsMappings] ?? {})
+
+      // Generate a unique compressed path for the external document
+      // This is used as a key to store and reference the bundled external document
+      // The compression helps reduce the overall file size of the bundled document
+      const compressedPath = await generateUniqueValue(
+        getHash,
+        resolvedPath,
+        documentRoot[extensions.externalDocumentsMappings] ?? {},
+      )
 
       const seen = cache.has(resolvedPath)
 
@@ -638,7 +646,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
             // location, but when embedded, they need to be relative to their new location in
             // the main document's x-ext section. Without this update, internal references
             // would point to incorrect locations and break the document structure.
-            prefixInternalRefRecursive(result.data, [extensions.externalDocuments, hashPath])
+            prefixInternalRefRecursive(result.data, [extensions.externalDocuments, compressedPath])
           }
 
           // Recursively process the resolved content
@@ -651,7 +659,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This allows tracking which external URLs were bundled and their corresponding locations
           setValueAtPath(
             documentRoot,
-            `/${extensions.externalDocumentsMappings}/${escapeJsonPointer(hashPath)}`,
+            `/${extensions.externalDocumentsMappings}/${escapeJsonPointer(compressedPath)}`,
             resolvedPath,
           )
         }
@@ -662,10 +670,10 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // that are referenced, rather than the entire document
           resolveAndCopyReferences(
             documentRoot,
-            { [extensions.externalDocuments]: { [hashPath]: result.data } },
-            prefixInternalRef(`#${path}`, [extensions.externalDocuments, hashPath]).substring(1),
+            { [extensions.externalDocuments]: { [compressedPath]: result.data } },
+            prefixInternalRef(`#${path}`, [extensions.externalDocuments, compressedPath]).substring(1),
             extensions.externalDocuments,
-            hashPath,
+            compressedPath,
           )
         } else if (!seen) {
           // Store the external document in the main document's x-ext key
@@ -673,13 +681,13 @@ export async function bundle(input: UnknownObject | string, config: Config) {
           // This preserves all content and is faster since we don't need to analyze and copy
           // specific parts. This approach is ideal when storing the result in memory
           // as it avoids the overhead of tree shaking operations
-          setValueAtPath(documentRoot, `/${extensions.externalDocuments}/${hashPath}`, result.data)
+          setValueAtPath(documentRoot, `/${extensions.externalDocuments}/${compressedPath}`, result.data)
         }
 
         // Update the $ref to point to the embedded document in x-ext
         // This is necessary because we need to maintain the correct path context
         // for the embedded document while preserving its internal structure
-        root.$ref = prefixInternalRef(`#${path}`, [extensions.externalDocuments, hashPath])
+        root.$ref = prefixInternalRef(`#${path}`, [extensions.externalDocuments, compressedPath])
         config?.hooks?.onResolveSuccess?.(root)
         return
       }
