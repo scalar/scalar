@@ -46,8 +46,8 @@ export function useDocumentFetcher({
  * 5. Otherwise, return an empty string.
  */
 const getContent = async ({ url, content }: SpecConfiguration, proxyUrl?: string): Promise<string | undefined> => {
-  // Fetch from URL
-  if (url) {
+  // Fetch from URL only if we do not already have the content
+  if (url && !content) {
     try {
       const result = await measure(`fetch(${url})`, async () => await fetchDocument(url, proxyUrl))
 
