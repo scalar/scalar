@@ -14,6 +14,8 @@ import TagAccordion from './TagAccordion.vue'
 import TagSection from './TagSection.vue'
 
 const { collection, tags, spec, layout, server } = defineProps<{
+  /** Just to set the id for webhooks, for now */
+  id?: string
   collection: Collection
   tags: TagType[]
   spec: Spec
@@ -46,12 +48,12 @@ const isLazy = (index: number) =>
 <template>
   <Lazy
     v-for="(tag, index) in tags"
-    :id="getTagId(tag)"
-    :key="getTagId(tag)"
+    :id="id || getTagId(tag)"
+    :key="id || getTagId(tag)"
     :isLazy="isLazy(index)">
     <Component
       :is="tagLayout"
-      :id="getTagId(tag)"
+      :id="id || getTagId(tag)"
       :collection="collection"
       :spec="spec"
       :tag="tag">

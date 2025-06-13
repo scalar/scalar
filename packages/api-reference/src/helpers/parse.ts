@@ -1,5 +1,5 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
+import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 
 import { createEmptySpecification } from '@/libs/openapi'
 import type { TraversedEntry } from '@/features/traverse-schema'
@@ -72,7 +72,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
   }
 
   // Webhooks
-  const newWebhooks: AnyObject = {}
+  const newWebhooks: TransformedOperation[] = []
 
   const parseTag = (item: TraversedEntry) => {
     if (!('children' in item) || !item.children?.length) {
@@ -170,17 +170,16 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
     if ('isWebhooks' in item && item.isWebhooks && item.children?.length) {
       item.children.forEach((child) => {
         if ('webhook' in child && child.name && child.method) {
-          newWebhooks[child.name] ||= {}
-          newWebhooks[child.name][child.method] = {
+          newWebhooks.push({
             id: child.id,
             httpVerb: normalizeHttpMethod(child.method),
             path: child.name,
             name: child.webhook.summary || child.name || '',
             description: child.webhook.description || '',
             isWebhook: true,
-            pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
             information: child.webhook,
-          }
+            pathParameters: schema.webhooks?.[child.name ?? '']?.parameters,
+          })
         }
       })
     }
