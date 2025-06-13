@@ -1,10 +1,9 @@
 import { Type, type Static } from '@sinclair/typebox'
-import { HeaderObjectSchema } from './header'
 import { ReferenceObjectSchema } from './reference'
-import { MediaTypeObjectSchema } from './media-type'
 import { LinkObjectSchema } from './link'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
+import { HeaderObjectSchema, MediaTypeObjectSchema } from '@/schemas/v3.1/strict/recursive'
 
 export const ResponseObjectSchema = compose(
   Type.Object({

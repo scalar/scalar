@@ -1,7 +1,7 @@
 import { compose } from '@/schemas/v3.1/compose'
+import { MediaTypeObjectSchema } from '@/schemas/v3.1/strict/recursive'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { MediaTypeObjectSchemaWithoutEncoding } from '@/schemas/v3.1/strict/media-type'
 import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 import { Type, type Static } from '@sinclair/typebox'
@@ -46,7 +46,7 @@ export const ParameterObjectWithSchemaSchema = compose(
 export const ParameterObjectWithContentSchema = compose(
   ParameterObjectBaseSchema,
   Type.Object({
-    content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectSchemaWithoutEncoding)),
+    content: Type.Optional(Type.Record(Type.String(), MediaTypeObjectSchema)),
   }),
 )
 
