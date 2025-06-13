@@ -61,22 +61,22 @@ export async function generateUniqueValue(
   prevCompressedValue?: string,
   depth = 0,
 ) {
-  // Maximum recursion depth to prevent infinite loops
+  // Prevent infinite recursion by limiting depth
   const MAX_DEPTH = 100
 
   if (depth >= MAX_DEPTH) {
     throw 'Can not generate unique compressed values'
   }
 
-  // Generate compressed value using either the provided prevCompressedValue or original value
+  // Compress the value, using previous compressed value if provided
   const compressedValue = await compress(prevCompressedValue ?? value)
 
-  // If compressed value exists and maps to a different value, recursively try again with the compressed value as input
+  // Handle collision by recursively trying with compressed value as input
   if (compressedToValue[compressedValue] !== undefined && compressedToValue[compressedValue] !== value) {
     return generateUniqueValue(compress, value, compressedToValue, compressedValue, depth + 1)
   }
 
-  // Update both mappings with the generated value
+  // Store mapping and return unique compressed value
   compressedToValue[compressedValue] = value
   return compressedValue
 }
@@ -106,18 +106,34 @@ export const uniqueValueGeneratorFactory = (
   compress: (value: string) => Promise<string> | string,
   compressedToValue: Record<string, string>,
 ) => {
+  // Create a reverse mapping from original values to their compressed forms
   const valueToCompressed = Object.fromEntries(Object.entries(compressedToValue).map(([key, value]) => [value, key]))
 
   return {
+    /**
+     * Generates a unique compressed value for the given input string.
+     * First checks if a compressed value already exists in the cache.
+     * If not, generates a new unique compressed value and stores it in the cache.
+     *
+     * @param value - The original string value to compress
+     * @returns A Promise that resolves to the compressed string value
+     *
+     * @example
+     * const generator = uniqueValueGeneratorFactory(compress, {})
+     * const compressed = await generator.generate('example.com/schema.json')
+     * // Returns a unique compressed value like 'example'
+     */
     generate: async (value: string) => {
+      // Check if we already have a compressed value for this input
       const cache = valueToCompressed[value]
       if (cache) {
         return cache
       }
 
+      // Generate a new unique compressed value
       const compressedValue = await generateUniqueValue(compress, value, compressedToValue)
 
-      // Update the cache with the generated value
+      // Store the new mapping in our cache
       valueToCompressed[value] = compressedValue
 
       return compressedValue
