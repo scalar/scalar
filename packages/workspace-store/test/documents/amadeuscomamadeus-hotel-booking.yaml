@@ -1,0 +1,485 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+
+    Please also be aware that our test environment is based on a subset of the production for this API it may change dynamically. For your tests, use big cities like LON (London) or NYC (New-York).
+
+
+    **Warning: Do not perform test booking in production**. All requests are sent and processed by hotel providers. An excessive amount of fake/canceled reservation will make you blacklisted by hotel providers.
+  title: Hotel Booking
+  version: 1.1.3
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/HotelBooking_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-serviceName: amadeus-hotel-booking
+  x-status: validated
+  x-tags:
+    - "#mobile-services"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  Accept-Encoding:
+    description: Compress the Response
+    enum:
+      - gzip
+      - identity
+    in: header
+    name: Accept-Encoding
+    required: false
+    type: string
+  Ama-Client-Ref:
+    description: Client Reference to track Request/Response
+    in: header
+    name: Ama-Client-Ref
+    pattern: ^[A-Z0-9_]*$
+    required: false
+    type: string
+  bookingBody:
+    description: |
+      `offerId`, `guests`, `payments` and optional `rooms` for the repartition (when used the `rooms` array items must match the shopping offer `roomQuantity`)
+    in: body
+    name: requestBody
+    required: true
+    schema:
+      example:
+        data:
+          guests:
+            - contact:
+                email: bob.smith@email.com
+                phone: "+33679278416"
+              name:
+                firstName: BOB
+                lastName: SMITH
+                title: MR
+          offerId: NRPQNQBOJM
+          payments:
+            - card:
+                cardNumber: "0000000000000000"
+                expiryDate: 2026-01
+                vendorCode: VI
+              method: creditCard
+      properties:
+        data:
+          properties:
+            guests:
+              description: minimum one guest is mandatory
+              items:
+                $ref: "#/definitions/Stakeholder"
+              maxItems: 99
+              minItems: 1
+              type: array
+              uniqueItems: true
+            offerId:
+              description: offerId to book
+              example: 63A93695B58821ABB0EC2B33FE9FAB24D72BF34B1BD7D707293763D8D9378FC3
+              maxLength: 100
+              minLength: 2
+              pattern: ^[A-Z0-9]*$
+              type: string
+            payments:
+              description: payments (often mandatory)
+              items:
+                $ref: "#/definitions/Payment"
+              maxItems: 9
+              minItems: 1
+              type: array
+              uniqueItems: true
+            rooms:
+              description: rooms repartition (when used the `rooms` array items must match the shopping offer `roomQuantity`)
+              items:
+                description: room
+                properties:
+                  guestIds:
+                    description: room main guest (and accompagnants) (optional)
+                    items:
+                      example: 1
+                      type: integer
+                    type: array
+                    uniqueItems: true
+                  paymentId:
+                    description: if missing, the first payment is used (optional)
+                    example: 1
+                    type: integer
+                  specialRequest:
+                    description: special request to send to the reception (optional)
+                    example: I will arrive at midnight
+                    maxLength: 120
+                    minLength: 2
+                    type: string
+                title: Room
+                type: object
+              maxItems: 9
+              minItems: 1
+              type: array
+          required:
+            - offerId
+            - guests
+          title: HotelBookingQuery
+          type: object
+      required:
+        - data
+      title: BookingSchema
+      type: object
+responses:
+  BookingSell:
+    description: Booked
+    schema:
+      example:
+        data:
+          - associatedRecords:
+              - originSystemCode: GDS
+                reference: QVH2BX
+            id: XD_8138319951754
+            providerConfirmationId: "8138319951754"
+            type: hotel-booking
+      properties:
+        data:
+          description: All room bookings data
+          items:
+            $ref: "#/definitions/HotelBookingLight"
+          type: array
+        warnings:
+          description: All Warnings
+          items:
+            $ref: "#/definitions/Warning"
+          type: array
+      title: HotelBookedResponse
+      type: object
+  Error400ResponseCreateBooking:
+    description: |+
+      Bad Request
+
+      code    | title                                                          | owner    | pointer
+      ------- | -------------------------------------------------------------- | -------- | -------
+        477   | INVALID FORMAT                                                 | Amadeus  | 
+       4725   | INVALID PASSENGER ASSOCIATION                                  | Amadeus  | data/rooms/guestIds
+      33555   | NUMBER OF ROOMS MISMATCH BETWEEN SHOPPING AND BOOKING          | Amadeus  | data/rooms
+      33554   | PRICE HAS CHANGED. PLEASE GET A NEW OFFERID AND TRY AGAIN      | Amadeus  | data/offerId
+      36803   | OFFERID HAS EXPIRED. PLEASE GET A NEW OFFERID AND TRY AGAIN    | Amadeus  | data/offerId
+       1205   | INVALID CREDIT CARD TYPE                                       | Amadeus  | data/payments/card/vendorCode
+       8517   | INVALID CREDIT CARD NUMBER                                     | Provider | data/payments/card/cardNumber
+       1427   | GUARANTEE REQUIRED                                             | Provider | data/payments/card
+       1146   | DEPOSIT REQUIRED                                               | Provider | data/payments/card
+       3659   | CREDIT CARD DEPOSIT REQUIRED                                   | Provider | data/payments/card
+       3682   | CREDIT CARD NOT ACCEPTED AT HOTEL PROPERTY                     | Provider | data/payments/card/vendorCode
+       3871   | CREDIT CARD EXPIRATION DATE INVALID FOR CHECK IN DATE          | Provider | data/payments/card/expiryDate
+       
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+  Error500ResponseCreateBooking:
+    description: |
+      Internal Server Error
+
+      code    | title                                                          | owner                                
+      ------- | -------------------------------------------------------------- | -------
+      00011   | UNABLE TO PROCESS                                              | Provider
+      04070   | UNABLE TO PROCESS - CONTACT HELP DESK                          | Amadeus
+    schema:
+      $ref: "#/definitions/ErrorResponse"
+tags:
+  - name: Booking
+paths:
+  /booking/hotel-bookings:
+    parameters:
+      - $ref: "#/parameters/Ama-Client-Ref"
+      - $ref: "#/parameters/Accept-Encoding"
+    post:
+      description: ""
+      operationId: createBooking
+      parameters:
+        - $ref: "#/parameters/bookingBody"
+      responses:
+        "201":
+          $ref: "#/responses/BookingSell"
+        "400":
+          $ref: "#/responses/Error400ResponseCreateBooking"
+        "500":
+          $ref: "#/responses/Error500ResponseCreateBooking"
+      summary: Create Orders associated to the Hotel Offers
+      tags:
+        - Booking
+definitions:
+  AssociatedRecord:
+    description: Associated Record (Flight Booking Record)
+    properties:
+      originSystemCode:
+        description: "* GDS: Associated Amadeus GDS Flight Booking PNR Record"
+        enum:
+          - GDS
+        example: GDS
+        type: string
+      reference:
+        description: Amadeus GDS Record
+        example: QVH2BX
+        maxLength: 6
+        minLength: 6
+        pattern: ^[A-Z0-9]{6}$
+        type: string
+    required:
+      - reference
+      - originSystemCode
+    type: object
+  Contact:
+    description: Contact Details
+    properties:
+      email:
+        description: Email Address
+        example: bob.smith@email.com
+        format: email
+        maxLength: 90
+        minLength: 3
+        pattern: ^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$
+        type: string
+      phone:
+        description: Phone Number in standard E.123(https://en.wikipedia.org/wiki/E.123)
+        example: "+33679278416"
+        maxLength: 20
+        minLength: 6
+        pattern: ^[+][1-9][0-9]{4,18}$
+        type: string
+    required:
+      - phone
+      - email
+    type: object
+  Error:
+    description: Error
+    properties:
+      code:
+        description: "[Integer] A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error"
+        example: 1
+        type: integer
+      detail:
+        description: "[String] An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field value can be localized."
+        example: The targeted resource doesn't exist
+        type: string
+      status:
+        description: "[Integer] The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status."
+        example: 400
+        type: integer
+      title:
+        description: "[String] An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized"
+        example: Resource not found
+        type: string
+    required:
+      - code
+      - title
+      - status
+    type: object
+  ErrorResponse:
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Error"
+        type: array
+    required:
+      - errors
+    title: ErrorResponse
+    type: object
+  HotelBookingLight:
+    description: Booking Details
+    properties:
+      associatedRecords:
+        items:
+          $ref: "#/definitions/AssociatedRecord"
+        maxItems: 1
+        minItems: 1
+        type: array
+      id:
+        description: Booking Id
+        example: XD_8138319951754
+        maxLength: 19
+        minLength: 5
+        pattern: ^[A-Z0-9_]*$
+        type: string
+      providerConfirmationId:
+        description: GDS Confirmation Number. If you call the Provider, this Reference may be asked
+        example: "8138319951754"
+        maxLength: 16
+        minLength: 2
+        pattern: ^[A-Z0-9_]*$
+        type: string
+      self:
+        description: Retrieve Booking Details
+        example: https://test.api.amadeus.com/v1/booking/hotel-bookings/XD_8138319951754
+        format: uri
+        type: string
+      type:
+        description: Response Type
+        example: hotel-booking
+        type: string
+    required:
+      - type
+      - id
+      - providerConfirmationId
+    type: object
+  Name:
+    description: Guest Name
+    properties:
+      firstName:
+        description: first name (and middle name) of room guest
+        example: BOB
+        maxLength: 56
+        minLength: 1
+        pattern: ^[A-Za-z \p{Han}\p{Katakana}\p{Hiragana}\p{Hangul}-]*$
+        type: string
+      lastName:
+        description: last name of room guest
+        example: SMITH
+        maxLength: 57
+        minLength: 1
+        pattern: ^[A-Za-z \p{Han}\p{Katakana}\p{Hiragana}\p{Hangul}-]*$
+        type: string
+      title:
+        description: title/gender of room guest
+        enum:
+          - MR
+          - MRS
+          - MS
+        example: MR
+        maxLength: 54
+        minLength: 1
+        pattern: ^[A-Za-z -]*$
+        type: string
+    required:
+      - firstName
+      - lastName
+    type: object
+  Payment:
+    description: form of payment (mandatory in case of `acceptedPayments`/`methods`)
+    properties:
+      card:
+        description: payment card details (mandatory in case of `method` creditCard)
+        properties:
+          cardNumber:
+            description: card number
+            maxLength: 22
+            minLength: 2
+            pattern: ^[0-9]*$
+            type: string
+          expiryDate:
+            description: Expiration Date YYYY-MM
+            example: 2019-01
+            maxLength: 7
+            minLength: 7
+            pattern: ^[0-9]{4}-[0-9]{2}$
+            type: string
+          vendorCode:
+            description: |
+              card type (CA, VI, AX, DC...)
+              Examples:
+                * CA - MasterCard (warning: use it instead of MC/IK/EC/MD/XS)
+                * VI - Visa
+                * AX - American Express
+                * DC - Diners Club
+                * AU - Carte Aurore
+                * CG - Cofinoga
+                * DS - Discover
+                * GK - Lufthansa GK Card
+                * JC - Japanese Credit Bureau
+                * TC - Torch Club
+                * TP - Universal Air Travel Card
+                * BC - Bank Card
+                * DL - Delta
+                * MA - Maestro
+                * UP - China UnionPay   
+                * VE - Visa Electron
+            example: VI
+            maxLength: 2
+            minLength: 2
+            pattern: ^[A-Z]{2}$
+            type: string
+        required:
+          - vendorCode
+          - cardNumber
+          - expiryDate
+        title: Card
+        type: object
+      id:
+        example: 1
+        type: integer
+      method:
+        description: |-
+          The Payment Methods:
+           * creditCard (CC) - Payment Cards in `creditCards` are accepted           
+        enum:
+          - creditCard
+        example: creditCard
+        type: string
+    required:
+      - method
+    title: Payment
+    type: object
+  Stakeholder:
+    description: Guest Details
+    example:
+      contact:
+        email: bob.smith@email.com
+        phone: "+33679278416"
+      id: 1
+      name:
+        firstName: BOB
+        lastName: SMITH
+        title: MR
+    properties:
+      contact:
+        $ref: "#/definitions/Contact"
+      hotelRewardsMember:
+        description: |
+          Hotel Chain Rewards Member Number. To receive your Rewards Points, access online check in, fast check out. An error is returned by the Chain if the number is invalid.
+          Example Rewards Programs:
+          * Marriott Bonvoy
+          * Hilton Honors
+          * Hyatt Rewards
+          * IHG Rewards
+          * Wyndham Rewards
+          * Accor Live Limitless ALL
+          * Best Western Rewards
+          * Choice Privileges
+          * Radisson Rewards
+        example: "3081031320523260"
+        maxLength: 21
+        minLength: 1
+        pattern: ^[A-Z0-9-]{1,21}$
+        type: string
+      id:
+        description: item identifier
+        example: 1
+        type: integer
+      name:
+        $ref: "#/definitions/Name"
+    required:
+      - name
+      - contact
+    type: object
+  Warning:
+    description: Warning
+    properties:
+      code:
+        description: "[Integer] A machine-readable warning code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of warning"
+        example: 1
+        type: integer
+      detail:
+        description: "[String] An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field value can be localized."
+        example: The targeted resource doesn't exist
+        type: string
+      title:
+        description: "[String] A warning title from the Canned Messages table with a 1:1 correspondence to the warning code. This may be localized"
+        example: Resource not found
+        type: string
+    required:
+      - code
+      - title
+    type: object
+x-generatedAt: 2020-02-12T17:01:55.203Z

@@ -1,0 +1,320 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v2
+info:
+  description: |
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+
+    Please also be aware that our test environment is based on a subset of the production, this API in test only offers 24 hotels; 10 in London and 14 in New-York. You can find the list in our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Hotel Ratings
+  version: 1.0.2
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/HotelRatings_v2_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-serviceName: amadeus-hotel-ratings
+produces:
+  - application/vnd.amadeus+json
+responses:
+  "400":
+    description: Not Found
+    schema:
+      $ref: "#/definitions/Error400"
+  "401":
+    description: Unauthorized
+    schema:
+      $ref: "#/definitions/Error401"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error500"
+  sentiments:
+    description: Successful operation
+    schema:
+      example:
+        data:
+          - hotelId: ADNYCCTB
+            numberOfRatings: 278
+            numberOfReviews: 218
+            overallRating: 93
+            sentiments:
+              catering: 89
+              facilities: 90
+              location: 98
+              pointsOfInterest: 91
+              roomComforts: 92
+              service: 98
+              sleepQuality: 87
+              staff: 100
+              valueForMoney: 87
+            type: hotelSentiment
+          - hotelId: TELONMFS
+            numberOfRatings: 2666
+            numberOfReviews: 2667
+            overallRating: 81
+            sentiments:
+              catering: 81
+              facilities: 75
+              internet: 72
+              location: 89
+              pointsOfInterest: 81
+              roomComforts: 87
+              service: 80
+              sleepQuality: 78
+              staff: 89
+              valueForMoney: 75
+            type: hotelSentiment
+        meta:
+          count: 1
+          links:
+            self: https://test.api.amadeus.com/v2/e-reputation/hotel-sentiments?hotelIds=ADNYCCTB,TELONMFS,XXXYYY01
+        warnings:
+          - code: 913
+            detail: Some of the requested properties were not found in our database.
+            source:
+              parameter: hotelIds
+              pointer: XXXYYY01
+            title: PROPERTIES NOT FOUND
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/HotelSentiment"
+          type: array
+        meta:
+          $ref: "#/definitions/CollectionMeta"
+        warnings:
+          items:
+            $ref: "#/definitions/WarningNotFound"
+          type: array
+      required:
+        - data
+      title: SuccessSentiments
+tags:
+  - description: Sentiments about Hotels.
+    name: Hotel Ratings
+paths:
+  /e-reputation/hotel-sentiments:
+    get:
+      description: ""
+      operationId: getSentimentsByHotelIds
+      parameters:
+        - description: Comma-separated list of Amadeus Hotel Ids (max. 3) . Amadeus Hotel Ids are found in the Hotel Search response (parameter name is 'hotelId').
+          in: query
+          items:
+            type: string
+          maxItems: 100
+          minItems: 1
+          name: hotelIds
+          required: true
+          type: array
+          x-example:
+            - TELONMFS
+      responses:
+        "200":
+          $ref: "#/responses/sentiments"
+        "400":
+          $ref: "#/responses/400"
+        "401":
+          $ref: "#/responses/401"
+        default:
+          $ref: "#/responses/500"
+      summary: Get sentiments by Amadeus Hotel Ids
+      tags:
+        - Hotel Ratings
+definitions:
+  CollectionLinks:
+    example:
+      self: https://test.api.amadeus.com/v1/area/resources?param=value
+    properties:
+      first:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+      last:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+      next:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+      previous:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+      self:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+      up:
+        example: https://test.api.amadeus.com/v1/area/resources?...
+        format: uri
+        type: string
+    title: CollectionLinks
+  CollectionMeta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        $ref: "#/definitions/CollectionLinks"
+    title: CollectionMeta
+  Error:
+    properties:
+      code:
+        description: A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error
+        type: integer
+      detail:
+        description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+        type: string
+      documentation:
+        description: A link to a web page or file with further documentation to help the API consumer resolve this error
+        format: url
+        type: string
+      source:
+        $ref: "#/definitions/ErrorSource"
+      status:
+        description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+        type: integer
+      title:
+        description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+        type: string
+    required:
+      - status
+      - code
+      - title
+  Error400:
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Error"
+        type: array
+    required:
+      - errors
+  Error401:
+    example:
+      errors:
+        - code: 20
+          detail: Query unauthorized
+          status: 401
+          title: RESTRICTED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Error"
+        type: array
+    required:
+      - errors
+  Error500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Error"
+        type: array
+    required:
+      - errors
+  ErrorSource:
+    properties:
+      example:
+        description: A sample input to guide the user when resolving this issue
+        type: string
+      parameter:
+        description: The key of the URI path or query parameter that caused the error
+        type: string
+      pointer:
+        description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+        type: string
+  HotelSentiment:
+    properties:
+      hotelId:
+        description: Amadeus Hotel Ids are found in the Hotel Search response (parameter name is 'hotelId')
+        example: BBLONBTL
+        type: string
+      numberOfRatings:
+        example: 350
+        type: integer
+      numberOfReviews:
+        example: 200
+        type: integer
+      overallRating:
+        $ref: "#/definitions/Score"
+      sentiments:
+        description: Dictionary containing scores for all the available categories.  If a property does not have any category this object will not be present in the response.
+        properties:
+          catering:
+            $ref: "#/definitions/Score"
+          facilities:
+            $ref: "#/definitions/Score"
+          internet:
+            $ref: "#/definitions/Score"
+          location:
+            $ref: "#/definitions/Score"
+          pointsOfInterest:
+            $ref: "#/definitions/Score"
+          roomComforts:
+            $ref: "#/definitions/Score"
+          service:
+            $ref: "#/definitions/Score"
+          sleepQuality:
+            $ref: "#/definitions/Score"
+          staff:
+            $ref: "#/definitions/Score"
+          swimmingPool:
+            $ref: "#/definitions/Score"
+          valueForMoney:
+            $ref: "#/definitions/Score"
+        type: object
+      type:
+        example: hotelSentiment
+        type: string
+    required:
+      - hotelId
+      - overallRating
+      - avgHotelAvailabilityResponseTime
+      - numberOfRatings
+      - numberOfReviews
+    type: object
+  Score:
+    description: Integer between 0 and 100. It represents the score for a specific category or the overall rating for a given Hotel.
+    example: 82
+    type: integer
+  Warning:
+    properties:
+      code:
+        description: A machine-readable error code from the Canned Messages table, that will enable the API Consumers code to handle this type of error
+        type: integer
+      detail:
+        description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+        type: string
+      documentation:
+        description: A link to a web page or file with further documentation to help the API consumer resolve this error
+        format: url
+        type: string
+      source:
+        $ref: "#/definitions/ErrorSource"
+      title:
+        description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+        type: string
+    required:
+      - code
+      - title
+  WarningNotFound:
+    allOf:
+      - $ref: "#/definitions/Warning"
+    example:
+      code: 913
+      detail: Some of the requested properties were not found in our database.
+      source:
+        parameter: hotelIds
+        pointer: ABCDEFGH,LPCDEFGQ
+      title: PROPERTIES NOT FOUND

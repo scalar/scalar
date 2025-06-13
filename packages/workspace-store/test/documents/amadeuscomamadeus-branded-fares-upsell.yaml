@@ -1,0 +1,3027 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+
+    Please also be aware that our test environment is based on a subset of the production, if you are not returning any results try with big cities/airports like LON (London) or NYC (New-York).
+  title: Branded Fares Upsell
+  version: 1.0.1
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/BrandedFaresUpsell_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    1.0.0:
+      - First version of Branded Fares Upsell
+  x-serviceName: amadeus-branded-fares-upsell
+  x-status: validated
+  x-tags:
+    - "#quick-connect"
+    - "#online-retail"
+    - "#mobile-services"
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  getOverride:
+    default: GET
+    description: the HTTP method to apply
+    in: header
+    name: X-HTTP-Method-Override
+    required: true
+    type: string
+responses:
+  "500":
+    description: Unexpected error
+    schema:
+      $ref: "#/definitions/Error_500"
+  400_Upsell:
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      2668    | PARAMETER COMBINATION INVALID/RESTRICTED
+      2781    | INVALID LENGTH
+      4926    | INVALID DATA RECEIVED
+      32171   | MANDATORY DATA MISSING
+      39397   | UNABLE TO RETRIEVE UPSELL OFFER
+    schema:
+      $ref: "#/definitions/Error_400"
+  returnUpsell:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - id: "2"
+            instantTicketingRequired: false
+            itineraries:
+              - segments:
+                  - aircraft:
+                      code: "321"
+                    arrival:
+                      at: 2021-07-04T11:35:00
+                      iataCode: MAD
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-04T09:30:00
+                      iataCode: CDG
+                      terminal: 2F
+                    duration: PT2H5M
+                    id: "14"
+                    number: "1300"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+              - segments:
+                  - aircraft:
+                      code: "318"
+                    arrival:
+                      at: 2021-07-11T20:30:00
+                      iataCode: ORY
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-11T18:35:00
+                      iataCode: MAD
+                      terminal: "2"
+                    duration: PT1H55M
+                    id: "14"
+                    number: "9433"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+            lastTicketingDate: 2021-07-04
+            paymentCardRequired: false
+            price:
+              base: "211.00"
+              currency: EUR
+              fees:
+                - amount: "0.00"
+                  type: TICKETING
+              grandTotal: "381.86"
+              total: "381.86"
+            pricingOptions:
+              fareType:
+                - PUBLISHED
+              includedCheckedBagsOnly: false
+              noPenaltyFare: false
+              noRestrictionFare: false
+              refundableFare: false
+            source: GDS
+            travelerPricings:
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06A
+                        description: LIGHT MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "2"
+                  - brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "111.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "186.96"
+                travelerId: "1"
+                travelerType: ADULT
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06A
+                        description: LIGHT MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "2"
+                  - brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "89.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "164.96"
+                travelerId: "2"
+                travelerType: CHILD
+              - associatedAdultId: "1"
+                fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06A
+                        description: LIGHT MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "2"
+                  - brandedFare: LIGHT1
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OALG
+                    includedCheckedBags:
+                      quantity: 0
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "11.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                  total: "29.94"
+                travelerId: "3"
+                travelerType: HELD_INFANT
+            type: flight-offer
+            validatingAirlineCodes:
+              - AF
+          - id: "3"
+            instantTicketingRequired: false
+            itineraries:
+              - segments:
+                  - aircraft:
+                      code: "321"
+                    arrival:
+                      at: 2021-07-04T11:35:00
+                      iataCode: MAD
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-04T09:30:00
+                      iataCode: CDG
+                      terminal: 2F
+                    duration: PT2H5M
+                    id: "14"
+                    number: "1300"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+              - segments:
+                  - aircraft:
+                      code: "318"
+                    arrival:
+                      at: 2021-07-11T20:30:00
+                      iataCode: ORY
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-11T18:35:00
+                      iataCode: MAD
+                      terminal: "2"
+                    duration: PT1H55M
+                    id: "14"
+                    number: "9433"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+            lastTicketingDate: 2021-07-04
+            paymentCardRequired: false
+            price:
+              base: "287.00"
+              currency: EUR
+              fees:
+                - amount: "0.00"
+                  type: TICKETING
+              grandTotal: "457.86"
+              total: "457.86"
+            pricingOptions:
+              fareType:
+                - PUBLISHED
+              includedCheckedBagsOnly: false
+              noPenaltyFare: false
+              noRestrictionFare: false
+              refundableFare: false
+            source: GDS
+            travelerPricings:
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "151.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "226.96"
+                travelerId: "1"
+                travelerType: ADULT
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "121.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "196.96"
+                travelerId: "2"
+                travelerType: CHILD
+              - associatedAdultId: "1"
+                fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06B
+                        description: STANDARD MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: true
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: STANDARD
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OBST
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "15.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                  total: "33.94"
+                travelerId: "3"
+                travelerType: HELD_INFANT
+            type: flight-offer
+            validatingAirlineCodes:
+              - AF
+          - id: "4"
+            instantTicketingRequired: false
+            itineraries:
+              - segments:
+                  - aircraft:
+                      code: "321"
+                    arrival:
+                      at: 2021-07-04T11:35:00
+                      iataCode: MAD
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-04T09:30:00
+                      iataCode: CDG
+                      terminal: 2F
+                    duration: PT2H5M
+                    id: "14"
+                    number: "1300"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+              - segments:
+                  - aircraft:
+                      code: "318"
+                    arrival:
+                      at: 2021-07-11T20:30:00
+                      iataCode: ORY
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-11T18:35:00
+                      iataCode: MAD
+                      terminal: "2"
+                    duration: PT1H55M
+                    id: "14"
+                    number: "9433"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+            lastTicketingDate: 2021-07-04
+            paymentCardRequired: false
+            price:
+              base: "515.00"
+              currency: EUR
+              fees:
+                - amount: "0.00"
+                  type: TICKETING
+              grandTotal: "685.86"
+              total: "685.86"
+            pricingOptions:
+              fareType:
+                - PUBLISHED
+              includedCheckedBagsOnly: false
+              noPenaltyFare: false
+              noRestrictionFare: false
+              refundableFare: false
+            source: GDS
+            travelerPricings:
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "271.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "346.96"
+                travelerId: "1"
+                travelerType: ADULT
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "217.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "1.13"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "1.50"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "292.96"
+                travelerId: "2"
+                travelerType: CHILD
+              - associatedAdultId: "1"
+                fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: Q
+                    fareBasis: QS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0C3
+                        description: CHECKED BAG 1PC OF 23KG 158CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0MR
+                        description: CABIN BAGGAGE 12KG 1PC 115CM
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "050"
+                        description: CHOICE OF STANDARD SEAT
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AT
+                        description: SNACK
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06D
+                        description: FLEX MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "058"
+                        description: UPGRADE ELIGIBILITY
+                        isChargeable: true
+                    brandedFare: FLEX
+                    cabin: ECONOMY
+                    class: V
+                    fareBasis: VS50OEFX
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "27.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                  total: "45.94"
+                travelerId: "3"
+                travelerType: HELD_INFANT
+            type: flight-offer
+            validatingAirlineCodes:
+              - AF
+          - id: "5"
+            instantTicketingRequired: false
+            itineraries:
+              - segments:
+                  - aircraft:
+                      code: "321"
+                    arrival:
+                      at: 2021-07-04T11:35:00
+                      iataCode: MAD
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-04T09:30:00
+                      iataCode: CDG
+                      terminal: 2F
+                    duration: PT2H5M
+                    id: "14"
+                    number: "1300"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+              - segments:
+                  - aircraft:
+                      code: "318"
+                    arrival:
+                      at: 2021-07-11T20:30:00
+                      iataCode: ORY
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-11T18:35:00
+                      iataCode: MAD
+                      terminal: "2"
+                    duration: PT1H55M
+                    id: "14"
+                    number: "9433"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+            lastTicketingDate: 2021-07-04
+            paymentCardRequired: false
+            price:
+              base: "553.00"
+              currency: EUR
+              fees:
+                - amount: "0.00"
+                  type: TICKETING
+              grandTotal: "759.14"
+              total: "759.14"
+            pricingOptions:
+              fareType:
+                - PUBLISHED
+              includedCheckedBagsOnly: false
+              noPenaltyFare: false
+              noRestrictionFare: false
+              refundableFare: false
+            source: GDS
+            travelerPricings:
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "291.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "11.27"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "9.00"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "384.60"
+                travelerId: "1"
+                travelerType: ADULT
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "233.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "11.27"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "9.00"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "326.60"
+                travelerId: "2"
+                travelerType: CHILD
+              - associatedAdultId: "1"
+                fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                    brandedFare: BIZLEISURE
+                    cabin: BUSINESS
+                    class: O
+                    fareBasis: OS50OBNB
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "29.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                  total: "47.94"
+                travelerId: "3"
+                travelerType: HELD_INFANT
+            type: flight-offer
+            validatingAirlineCodes:
+              - AF
+          - id: "6"
+            instantTicketingRequired: false
+            itineraries:
+              - segments:
+                  - aircraft:
+                      code: "321"
+                    arrival:
+                      at: 2021-07-04T11:35:00
+                      iataCode: MAD
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-04T09:30:00
+                      iataCode: CDG
+                      terminal: 2F
+                    duration: PT2H5M
+                    id: "14"
+                    number: "1300"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+              - segments:
+                  - aircraft:
+                      code: "318"
+                    arrival:
+                      at: 2021-07-11T20:30:00
+                      iataCode: ORY
+                    blacklistedInEU: false
+                    carrierCode: AF
+                    departure:
+                      at: 2021-07-11T18:35:00
+                      iataCode: MAD
+                      terminal: "2"
+                    duration: PT1H55M
+                    id: "14"
+                    number: "9433"
+                    numberOfStops: 0
+                    operating:
+                      carrierCode: AF
+            lastTicketingDate: 2021-07-04
+            paymentCardRequired: false
+            price:
+              base: "1625.00"
+              currency: EUR
+              fees:
+                - amount: "0.00"
+                  type: TICKETING
+              grandTotal: "1831.14"
+              total: "1831.14"
+            pricingOptions:
+              fareType:
+                - PUBLISHED
+              includedCheckedBagsOnly: false
+              noPenaltyFare: false
+              noRestrictionFare: false
+              refundableFare: false
+            source: GDS
+            travelerPricings:
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "855.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "11.27"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "9.00"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "948.60"
+                travelerId: "1"
+                travelerType: ADULT
+              - fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 2
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "684.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "16.36"
+                      code: FR
+                    - amount: "11.27"
+                      code: IZ
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "9.00"
+                      code: O4
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                    - amount: "12.03"
+                      code: QX
+                    - amount: "26.00"
+                      code: YQ
+                  total: "777.60"
+                travelerId: "2"
+                travelerType: CHILD
+              - associatedAdultId: "1"
+                fareDetailsBySegment:
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "2"
+                  - amenities:
+                      - amenityType: BAGGAGE
+                        code: 0MS
+                        description: CABIN BAGGAGE 18KG 2PC 115CM
+                        isChargeable: false
+                      - amenityType: BAGGAGE
+                        code: 0FM
+                        description: CHECKED BAG 2PC OF 32KG 158CM
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0B3
+                        description: MEAL
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 05Z
+                        description: PRIVACY SEAT
+                        isChargeable: false
+                      - amenityType: LOUNGE
+                        code: 0BX
+                        description: BUSINESS LOUNGE ACCESS
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 06H
+                        description: BUSINESS CLASS MILES ACCRUAL
+                        isChargeable: false
+                      - amenityType: MEAL
+                        code: 0AX
+                        description: BEVERAGE
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "059"
+                        description: CHANGEABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: "056"
+                        description: REFUNDABLE TICKET
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07G
+                        description: SKY PRIORITY
+                        isChargeable: false
+                      - amenityType: BRANDED_FARES
+                        code: 07H
+                        description: GO SHOW
+                        isChargeable: false
+                    brandedFare: BIZFLEX
+                    cabin: BUSINESS
+                    class: I
+                    fareBasis: IS50AENB
+                    includedCheckedBags:
+                      quantity: 1
+                    segmentId: "14"
+                fareOption: STANDARD
+                price:
+                  base: "86.00"
+                  currency: EUR
+                  taxes:
+                    - amount: "14.95"
+                      code: JD
+                    - amount: "0.61"
+                      code: OG
+                    - amount: "3.38"
+                      code: QV
+                  total: "104.94"
+                travelerId: "3"
+                travelerType: HELD_INFANT
+            type: flight-offer
+            validatingAirlineCodes:
+              - AF
+        dictionaries:
+          locations:
+            CDG:
+              cityCode: PAR
+              countryCode: FR
+            MAD:
+              cityCode: MAD
+              countryCode: ES
+            ORY:
+              cityCode: PAR
+              countryCode: FR
+        meta:
+          count: 5
+      properties:
+        data:
+          description: upselled flight Offers
+          items:
+            $ref: "#/definitions/FlightOffer"
+          type: array
+        dictionaries:
+          $ref: "#/definitions/Dictionaries"
+        meta:
+          $ref: "#/definitions/Collection_Meta_Upsell"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success_Upsell
+      type: object
+paths:
+  /shopping/flight-offers/upselling:
+    post:
+      description: ""
+      operationId: upsellAirOffers
+      parameters:
+        - $ref: "#/parameters/getOverride"
+        - description: list of criteria to upsell a dedicated flight-offers
+          in: body
+          name: upsellFlightOffersBody
+          required: true
+          schema:
+            example:
+              data:
+                flightOffers:
+                  - fareRules:
+                      rules:
+                        - category: EXCHANGE
+                          maxPenaltyAmount: "0.00"
+                        - category: REVALIDATION
+                          notApplicable: true
+                    id: "1"
+                    instantTicketingRequired: false
+                    itineraries:
+                      - duration: PT2H5M
+                        segments:
+                          - aircraft:
+                              code: "321"
+                            arrival:
+                              at: 2021-07-04T11:35:00
+                              iataCode: MAD
+                              terminal: "2"
+                            blacklistedInEU: false
+                            carrierCode: AF
+                            departure:
+                              at: 2021-07-04T09:30:00
+                              iataCode: CDG
+                              terminal: 2F
+                            duration: PT2H5M
+                            id: "2"
+                            number: "1300"
+                            numberOfStops: 0
+                            operating:
+                              carrierCode: AF
+                      - duration: PT1H55M
+                        segments:
+                          - aircraft:
+                              code: "318"
+                            arrival:
+                              at: 2021-07-11T20:30:00
+                              iataCode: ORY
+                              terminal: "1"
+                            blacklistedInEU: false
+                            carrierCode: AF
+                            departure:
+                              at: 2021-07-11T18:35:00
+                              iataCode: MAD
+                              terminal: "2"
+                            duration: PT1H55M
+                            id: "14"
+                            number: "9433"
+                            numberOfStops: 0
+                            operating:
+                              carrierCode: AF
+                    lastTicketingDate: 2021-07-04
+                    nonHomogeneous: false
+                    numberOfBookableSeats: 2
+                    oneWay: false
+                    price:
+                      additionalServices:
+                        - amount: "60.00"
+                          type: CHECKED_BAGS
+                      base: "240.00"
+                      currency: EUR
+                      fees:
+                        - amount: "0.00"
+                          type: SUPPLIER
+                        - amount: "0.00"
+                          type: TICKETING
+                      grandTotal: "410.86"
+                      total: "410.86"
+                    pricingOptions:
+                      fareType:
+                        - PUBLISHED
+                      includedCheckedBagsOnly: false
+                    source: GDS
+                    travelerPricings:
+                      - fareDetailsBySegment:
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: A
+                            fareBasis: AS50OALG
+                            includedCheckedBags:
+                              quantity: 0
+                            segmentId: "2"
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: V
+                            fareBasis: VS50OALG
+                            includedCheckedBags:
+                              quantity: 0
+                            segmentId: "14"
+                        fareOption: STANDARD
+                        price:
+                          base: "126.00"
+                          currency: EUR
+                          total: "201.96"
+                        travelerId: "1"
+                        travelerType: ADULT
+                      - fareDetailsBySegment:
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: A
+                            fareBasis: AS50OALG
+                            segmentId: "2"
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: V
+                            fareBasis: VS50OALG
+                            segmentId: "14"
+                        fareOption: STANDARD
+                        price:
+                          base: "101.00"
+                          currency: EUR
+                          total: "176.96"
+                        travelerId: "2"
+                        travelerType: CHILD
+                      - associatedAdultId: "1"
+                        fareDetailsBySegment:
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: A
+                            fareBasis: AS50OALG
+                            segmentId: "2"
+                          - brandedFare: LIGHT1
+                            cabin: ECONOMY
+                            class: V
+                            fareBasis: VS50OALG
+                            segmentId: "14"
+                        fareOption: STANDARD
+                        price:
+                          base: "13.00"
+                          currency: EUR
+                          total: "31.94"
+                        travelerId: "3"
+                        travelerType: HELD_INFANT
+                    type: flight-offer
+                    validatingAirlineCodes:
+                      - AF
+                payments:
+                  - binNumber: 123456
+                    brand: VISA_IXARIS
+                    flightOfferIds:
+                      - 1
+                type: flight-offers-upselling
+            properties:
+              data:
+                $ref: "#/definitions/FlightOfferUpsellIn"
+            required:
+              - data
+            title: Get_Upsell_Query
+      responses:
+        "200":
+          $ref: "#/responses/returnUpsell"
+        "400":
+          $ref: "#/responses/400_Upsell"
+        default:
+          $ref: "#/responses/500"
+      summary: Return a list of upsell Flight Offers based on given Flight Offers
+      tags:
+        - Shopping
+definitions:
+  AdditionalServiceType:
+    description: additional service type
+    enum:
+      - CHECKED_BAGS
+      - MEALS
+      - SEATS
+      - OTHER_SERVICES
+    example: CHECKED_BAGS
+    type: string
+  AircraftEntry:
+    additionalProperties:
+      description: the manufacturer/model of aircraft
+      type: string
+  AircraftEquipment:
+    description: information related to the aircraft
+    properties:
+      code:
+        description: |
+          IATA aircraft code (http://www.flugzeuginfo.net/table_accodes_iata_en.php)
+        example: "318"
+        pattern: "[a-zA-Z0-9]{3}"
+        type: string
+  Amenity:
+    description: Amenity
+    properties:
+      amenityType:
+        $ref: "#/definitions/AmenityType"
+      code:
+        type: string
+      description:
+        type: string
+      isChargeable:
+        type: boolean
+    title: Amenity
+    type: object
+  AmenityType:
+    description: Amenity type
+    enum:
+      - BUNDLED_SERVICE
+      - BRANDED_FARES
+      - BAGGAGE
+      - CARBON_OFFSET
+      - FREQUENT_FLYER
+      - GROUND
+      - ENTERTAINMENT
+      - LOUNGE
+      - MEDICAL
+      - MEAL
+      - PETS
+      - RULE_OVERRIDE
+      - STANDBY
+      - STORE
+      - TRAVEL_SERVICES
+      - UNACCOMPANIED_TRAVEL
+      - UPGRADES
+      - UNACCOMPANIED_TRAVEL_UNESCORTED
+      - PRE_RESERVED_SEAT
+    type: string
+  BaggageAllowance:
+    description: baggageAllowance
+    properties:
+      quantity:
+        description: Total number of units
+        example: 1
+        type: integer
+      weight:
+        description: Weight of the baggage allowance
+        example: 20
+        type: integer
+      weightUnit:
+        description: Code to qualify unit as pounds or kilos
+        example: KG
+        type: string
+    type: object
+  CarrierEntry:
+    additionalProperties:
+      description: the carrier name
+      type: string
+  Co2Emission:
+    properties:
+      cabin:
+        $ref: "#/definitions/TravelClass"
+      weight:
+        description: Weight of Co2 emitted for the concerned segment
+        example: 90
+        type: integer
+      weightUnit:
+        description: Code to qualify unit as pounds or kilos
+        example: KG
+        type: string
+    type: object
+  Collection_Meta_Upsell:
+    properties:
+      count:
+        example: 1
+        type: integer
+      oneWayUpselledCombinations:
+        items:
+          properties:
+            flightOfferId:
+              type: string
+            upselledFlightOfferIds:
+              items:
+                type: string
+              type: array
+          title: oneWayUpselledCombinations
+        type: array
+    title: Collection_Meta
+  Coverage:
+    description: part of the trip covered by the travel class restriction (ALL_SEGMENTS if ommited)
+    enum:
+      - MOST_SEGMENTS
+      - AT_LEAST_ONE_SEGMENT
+      - ALL_SEGMENTS
+    example: MOST_SEGMENTS
+    type: string
+  CurrencyEntry:
+    additionalProperties:
+      example: EUR
+      type: string
+  Dictionaries:
+    properties:
+      aircraft:
+        $ref: "#/definitions/AircraftEntry"
+      carriers:
+        $ref: "#/definitions/CarrierEntry"
+      currencies:
+        $ref: "#/definitions/CurrencyEntry"
+      locations:
+        $ref: "#/definitions/LocationEntry"
+    type: object
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  ExtendedPricingOptions:
+    description: fare filter options
+    properties:
+      corporateCodes:
+        description: Allow Corporate negotiated fares using one or more corporate number (corporate code).
+        example:
+          - "123456"
+        items:
+          type: string
+        maxItems: 6
+        minItems: 1
+        pattern: "[0-9A-Z]{6}"
+        type: array
+      fareType:
+        $ref: "#/definitions/PricingOptionsFareType"
+      includedCheckedBagsOnly:
+        description: If true, returns the flight-offers with included checked bags only
+        example: true
+        type: boolean
+      minimumDelayBeforeTicketing:
+        description: Required delay before being able to ticket. This option ensures that the system will only search for flight-offers which can still be ticketed the last day after this delay. If booked on the same day as the search (with respect to provider timezone), such flight-offers are guaranteed to be thereafter valid for ticketing at least during this delay (last day included). This option has no effect on flight-offers for which the last ticketing date does not make sense. Overrides the default settings. Max 365D
+        example: 3D
+        type: string
+      noPenaltyFare:
+        description: If true, returns the flight-offers with no penalty fares only
+        example: true
+        type: boolean
+      noRestrictionFare:
+        description: If true, returns the flight-offers with no restriction fares only
+        example: true
+        type: boolean
+      refundableFare:
+        description: If true, returns the flight-offers with refundable fares only
+        example: true
+        type: boolean
+    title: pricingOptions
+    type: object
+  Extended_Price:
+    allOf:
+      - properties:
+          additionalServices:
+            items:
+              properties:
+                amount:
+                  example: "332.70"
+                  type: string
+                type:
+                  $ref: "#/definitions/AdditionalServiceType"
+              title: AdditionalService
+              type: object
+            title: AdditionalServices
+            type: array
+          billingCurrency:
+            description: Currency of the payment. It may be different than the requested currency
+            example: EUR
+            type: string
+          grandTotal:
+            description: Total amount paid by the user (including fees and selected additional services).
+            example: "987.00"
+            type: string
+          margin:
+            description: BOOK step ONLY - The price margin percentage (plus or minus) that the booking can tolerate. When set to 0, then no price magin is tolerated.
+            example: "1.00"
+            type: string
+        type: object
+      - $ref: "#/definitions/Price"
+    description: price information
+    title: Price
+    type: object
+  FareOptions:
+    description: |
+      option specifying a group of fares, which may be valid under certain conditons
+      can be used to specify special fare discount for a passenger
+    example:
+      - STANDARD
+      - INCLUSIVE_TOUR
+    items:
+      enum:
+        - STANDARD
+        - INCLUSIVE_TOUR
+        - SPANISH_MELILLA_RESIDENT
+        - SPANISH_CEUTA_RESIDENT
+        - SPANISH_CANARY_RESIDENT
+        - SPANISH_BALEARIC_RESIDENT
+        - AIR_FRANCE_METROPOLITAN_DISCOUNT_PASS
+        - AIR_FRANCE_DOM_DISCOUNT_PASS
+        - AIR_FRANCE_COMBINED_DISCOUNT_PASS
+        - AIR_FRANCE_FAMILY
+        - ADULT_WITH_COMPANION
+        - COMPANION
+      type: string
+    maxItems: 3
+    minItems: 1
+    type: array
+  FareRules:
+    properties:
+      currency:
+        description: The currency of the penalties
+        type: string
+      rules:
+        items:
+          $ref: "#/definitions/TermAndCondition"
+        minItems: 1
+        type: array
+    title: FareRules
+    type: object
+  Fee:
+    description: a fee
+    properties:
+      amount:
+        example: "332.70"
+        type: string
+      type:
+        $ref: "#/definitions/FeeType"
+  FeeType:
+    description: type of fee
+    enum:
+      - TICKETING
+      - FORM_OF_PAYMENT
+      - SUPPLIER
+    example: TICKETING
+    type: string
+  FlightEndPoint:
+    allOf:
+      - $ref: "#/definitions/OriginalFlightEndPoint"
+      - properties:
+          at:
+            description: local date and time in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+        type: object
+    description: departure or arrival information
+    title: FlightEndPoint
+  FlightOffer:
+    properties:
+      disablePricing:
+        description: BOOK step ONLY - If true, allows to book a PNR without pricing. Only for the source "GDS"
+        example: false
+        type: boolean
+      fareRules:
+        $ref: "#/definitions/FareRules"
+        description: Fare rules of the flight offer
+      id:
+        description: Id of the flight offer
+        example: "1"
+        type: string
+      instantTicketingRequired:
+        description: If true, inform that a ticketing will be required at booking step.
+        example: false
+        type: boolean
+      itineraries:
+        items:
+          properties:
+            duration:
+              description: duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M for a duration of 2h10m
+              example: PT2H10M
+              type: string
+            segments:
+              items:
+                $ref: "#/definitions/Segment"
+              maxItems: 9
+              minItems: 1
+              title: Segments
+              type: array
+          required:
+            - segments
+          title: Itineraries
+          type: object
+        maxItems: 250
+        minItems: 1
+        type: array
+      lastTicketingDate:
+        description: If booked on the same day as the search (with respect to timezone), this flight offer is guaranteed to be thereafter valid for ticketing until this date (included). Unspecified when it does not make sense for this flight offer (e.g. no control over ticketing once booked). YYYY-MM-DD format, e.g. 2019-06-07
+        example: 2018-06-19T00:00:00.000Z
+        type: string
+      nonHomogeneous:
+        description: If true, upon completion of the booking, this pricing solution is expected to yield multiple records (a record contains booking information confirmed and stored, typically a Passenger Name Record (PNR), in the provider GDS or system)
+        example: false
+        type: boolean
+      numberOfBookableSeats:
+        description: Number of seats bookable in a single request. Can not be higher than 9.
+        example: 9
+        maximum: 9
+        minimum: 1
+        type: number
+      oneWay:
+        description: If true, the flight offer fulfills only one originDestination and has to be combined with other oneWays to complete the whole journey.
+        example: false
+        type: boolean
+      paymentCardRequired:
+        description: If true, a payment card is mandatory to book this flight offer
+        example: false
+        type: boolean
+      price:
+        $ref: "#/definitions/Extended_Price"
+      pricingOptions:
+        properties:
+          fareType:
+            $ref: "#/definitions/PricingOptionsFareType"
+            description: type of fare of the flight-offer
+          includedCheckedBagsOnly:
+            description: If true, returns the flight-offers with included checked bags only
+            example: true
+            type: boolean
+          noPenaltyFare:
+            description: If true, returns the flight-offers with no penalty fares only
+            example: true
+            type: boolean
+          noRestrictionFare:
+            description: If true, returns the flight-offers with no restriction fares only
+            example: true
+            type: boolean
+          refundableFare:
+            description: If true, returns the flight-offers with refundable fares only
+            example: true
+            type: boolean
+        title: PricingOptions
+        type: object
+      source:
+        $ref: "#/definitions/FlightOfferSource"
+      travelerPricings:
+        description: Fare information for each traveler/segment
+        items:
+          properties:
+            associatedAdultId:
+              description: if type="HELD_INFANT", corresponds to the adult traveler's id who will share the seat
+              type: string
+            fareDetailsBySegment:
+              items:
+                description: Fare details of the segment
+                properties:
+                  additionalServices:
+                    properties:
+                      chargeableCheckedBags:
+                        $ref: "#/definitions/BaggageAllowance"
+                        description: Details of chargeable checked bags
+                        title: chargeableCheckedBags
+                      chargeableSeatNumber:
+                        description: seat number
+                        example: 33D
+                        pattern: "[1-9][0-9]{0,2}[A-Z]?"
+                        type: string
+                      otherServices:
+                        description: Other services to add
+                        example:
+                          - PRIORITY_BOARDING
+                        items:
+                          $ref: "#/definitions/ServiceName"
+                        type: array
+                    title: AdditionalServicesRequest
+                    type: object
+                  allotmentDetails:
+                    properties:
+                      tourName:
+                        type: string
+                      tourReference:
+                        type: string
+                    title: AllotmentDetails
+                    type: object
+                  amenities:
+                    items:
+                      $ref: "#/definitions/Amenity"
+                    type: array
+                  brandedFare:
+                    description: The name of the Fare Family corresponding to the fares. Only for the GDS provider and if the airline has fare families filled
+                    example: LIGHTONE
+                    type: string
+                  cabin:
+                    $ref: "#/definitions/TravelClass"
+                  class:
+                    description: The code of the booking class, a.k.a. class of service or Reservations/Booking Designator (RBD)
+                    example: A
+                    pattern: "[A-Z]{1}"
+                    type: string
+                  fareBasis:
+                    description: Fare basis specifying the rules of a fare. Usually, though not always, is composed of the booking class code followed by a set of letters and digits representing other characteristics of the ticket, such as refundability, minimum stay requirements, discounts or special promotional elements.
+                    example: ANNNNF4K
+                    pattern: "[[A-Z0-9]{1,18}"
+                    type: string
+                  includedCheckedBags:
+                    $ref: "#/definitions/BaggageAllowance"
+                    description: Details of the included checked bags
+                    title: includedCheckedBags
+                  isAllotment:
+                    description: True if the corresponding booking class is in an allotment
+                    example: true
+                    type: boolean
+                  segmentId:
+                    description: Id of the segment
+                    example: "1"
+                    type: string
+                  sliceDiceIndicator:
+                    $ref: "#/definitions/SliceDiceIndicator"
+                required:
+                  - segmentId
+                title: FareDetailsBySegment
+              maxItems: 18
+              minItems: 1
+              type: array
+            fareOption:
+              $ref: "#/definitions/TravelerPricingFareOption"
+            price:
+              $ref: "#/definitions/Price"
+              description: price detail of the traveler
+            travelerId:
+              description: Id of the traveler
+              example: "1"
+              type: string
+            travelerType:
+              $ref: "#/definitions/TravelerType"
+          required:
+            - travelerId
+            - fareOption
+            - travelerType
+            - fareDetailsBySegment
+          title: TravelerPricing
+        maxItems: 18
+        minItems: 1
+        title: TravelerPricings
+        type: array
+      type:
+        description: the resource name
+        example: flight-offer
+        type: string
+      validatingAirlineCodes:
+        description: This option ensures that the system will only consider these airlines.
+        example:
+          - AF
+        items:
+          type: string
+        maxItems: 9
+        minItems: 1
+        type: array
+    required:
+      - type
+      - id
+    title: Flight-offer
+    type: object
+  FlightOfferSource:
+    description: source of the flight offer
+    enum:
+      - GDS
+    example: GDS
+    type: string
+  FlightOfferUpsellIn:
+    description: input parameter to upsell flight offers element
+    properties:
+      flightOffers:
+        description: list of flight offer to price
+        items:
+          $ref: "#/definitions/FlightOffer"
+        maxItems: 6
+        minItems: 1
+        type: array
+      payments:
+        description: payment information for retrieve eventual credit card fees
+        items:
+          $ref: "#/definitions/Payment"
+        maxItems: 6
+        type: array
+      type:
+        description: the resource name
+        example: flight-offer-upsell
+        type: string
+    required:
+      - type
+      - flightOffers
+    title: FlightOfferUpsell-Input
+    type: object
+  FlightSegment:
+    description: defining a flight segment; including both operating and marketing details when applicable
+    properties:
+      aircraft:
+        $ref: "#/definitions/AircraftEquipment"
+      arrival:
+        $ref: "#/definitions/FlightEndPoint"
+      carrierCode:
+        description: providing the airline / carrier code
+        example: DL
+        maxLength: 2
+        minLength: 1
+        type: string
+      departure:
+        $ref: "#/definitions/FlightEndPoint"
+      duration:
+        description: stop duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M
+        example: PT2H10M
+        type: string
+      number:
+        description: the flight number as assigned by the carrier
+        example: "212"
+        maxLength: 4
+        minLength: 1
+        type: string
+      operating:
+        $ref: "#/definitions/OperatingFlight"
+      stops:
+        description: information regarding the different stops composing the flight segment. E.g. technical stop, change of gauge...
+        items:
+          $ref: "#/definitions/FlightStop"
+        type: array
+    type: object
+  FlightStop:
+    allOf:
+      - $ref: "#/definitions/OriginalFlightStop"
+      - properties:
+          arrivalAt:
+            description: arrival at the stop in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+          departureAt:
+            description: departure from the stop in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+        type: object
+    description: details of stops for direct or change of gauge flights
+    title: FlightStop
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+    type: object
+  LocationEntry:
+    additionalProperties:
+      $ref: "#/definitions/LocationValue"
+  LocationValue:
+    properties:
+      cityCode:
+        description: City code associated to the airport
+        example: PAR
+        type: string
+      countryCode:
+        description: Country code of the airport
+        example: FR
+        type: string
+  OperatingFlight:
+    description: information about the operating flight
+    properties:
+      carrierCode:
+        description: providing the airline / carrier code
+        example: DL
+        maxLength: 2
+        minLength: 1
+        type: string
+    type: object
+  OriginalFlightEndPoint:
+    description: departure or arrival information
+    properties:
+      iataCode:
+        description: "[IATA airline codes](http://www.iata.org/publications/Pages/code-search.aspx)"
+        example: JFK
+        type: string
+      terminal:
+        description: terminal name / number
+        example: T2
+        type: string
+    type: object
+  OriginalFlightStop:
+    description: details of stops for direct or change of gauge flights
+    properties:
+      duration:
+        description: stop duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M
+        example: PT2H10M
+        type: string
+      iataCode:
+        description: "[IATA airline codes](http://www.iata.org/publications/Pages/code-search.aspx)"
+        example: JFK
+        type: string
+    type: object
+  Payment:
+    properties:
+      binNumber:
+        description: The first 6 digits of the credit card
+        example: 123456
+        pattern: "[0-9]{6}"
+        type: integer
+      brand:
+        $ref: "#/definitions/PaymentBrand"
+      flightOfferIds:
+        description: Id of the flightOffers to pay
+        example: "1"
+        items:
+          type: string
+        maxItems: 6
+        minItems: 1
+        type: array
+    type: object
+  PaymentBrand:
+    description: credit card brand
+    enum:
+      - VISA
+      - AMERICAN_EXPRESS
+      - MASTERCARD
+      - VISA_ELECTRON
+      - VISA_DEBIT
+      - MASTERCARD_DEBIT
+      - MAESTRO
+      - DINERS
+      - MASTERCARD_IXARIS
+      - VISA_IXARIS
+      - MASTERCARD_AIRPLUS
+      - UATP_AIRPLUS
+    example: VISA_IXARIS
+    type: string
+  Price:
+    properties:
+      base:
+        description: Amount without taxes
+        example: "632.70"
+        type: string
+      currency:
+        example: USD
+        type: string
+      fees:
+        description: List of applicable fees
+        items:
+          $ref: "#/definitions/Fee"
+        type: array
+      refundableTaxes:
+        description: The amount of taxes which are refundable
+        example: "200.00"
+        type: string
+      taxes:
+        items:
+          $ref: "#/definitions/Tax"
+        type: array
+      total:
+        description: Total amount paid by the user
+        example: "932.70"
+        type: string
+  PricingOptionsFareType:
+    description: type of fare of the flight-offer
+    example:
+      - PUBLISHED
+    items:
+      enum:
+        - PUBLISHED
+        - NEGOTIATED
+        - CORPORATE
+      type: string
+    type: array
+  Segment:
+    allOf:
+      - properties:
+          blacklistedInEU:
+            description: |
+              When the flight has a marketing or/and operating airline that is identified as blacklisted by the European Commission. 
+
+              To improve travel safety, the European Commission regularly updates the list of the banned carriers from operating in Europe. It allows any Travel Agency located in the European Union to easily identify and hide any travel recommendation based on some unsafe airlines. 
+              The [list of the banned airlines](https://ec.europa.eu/transport/sites/transport/files/air-safety-list_en.pdf) is published in the Official Journal of the European Union, where they are included as annexes A and B to the Commission Regulation. The blacklist of an airline can concern all its flights or some specific aircraft types pertaining to the airline   
+            example: false
+            type: boolean
+          co2Emissions:
+            description: Co2 informations
+            items:
+              $ref: "#/definitions/Co2Emission"
+              title: Co2Emission
+            minItems: 1
+            type: array
+          id:
+            description: Id of the segment
+            example: 1
+            type: string
+          numberOfStops:
+            description: Number of stops
+            example: 0
+            type: integer
+        type: object
+      - $ref: "#/definitions/FlightSegment"
+  ServiceName:
+    description: type of service
+    enum:
+      - PRIORITY_BOARDING
+      - AIRPORT_CHECKIN
+    example: PRIORITY_BOARDING
+    type: string
+  SliceDiceIndicator:
+    description: slice and Dice indicator, such as Local Availability, Sub OnD(Origin and Destination) 1 Availability and Sub OnD 2 Availability
+    enum:
+      - LOCAL_AVAILABILITY
+      - SUB_OD_AVAILABILITY_1
+      - SUB_OD_AVAILABILITY_2
+    type: string
+  Tax:
+    description: a tax
+    properties:
+      amount:
+        example: "332.70"
+        type: string
+      code:
+        example: MX
+        type: string
+    type: object
+  TermAndCondition:
+    properties:
+      category:
+        description: This defines what type of modification is concerned in this rule.
+        enum:
+          - REFUND
+          - EXCHANGE
+          - REVALIDATION
+          - REISSUE
+          - REBOOK
+          - CANCELLATION
+        example: EXCHANGE
+        type: string
+      circumstances:
+        type: string
+      descriptions:
+        items:
+          properties:
+            descriptionType:
+              type: string
+            text:
+              type: string
+          title: Description
+        type: array
+      maxPenaltyAmount:
+        type: string
+      notApplicable:
+        type: boolean
+  TravelClass:
+    description: quality of service offered in the cabin where the seat is located in this flight. Economy, premium economy, business or first class
+    enum:
+      - ECONOMY
+      - PREMIUM_ECONOMY
+      - BUSINESS
+      - FIRST
+    example: PREMIUM_ECONOMY
+    type: string
+  TravelerPricingFareOption:
+    description: |
+      option specifying a group of fares, which may be valid under certain conditons
+      Can be used to specify special fare discount for a passenger
+    enum:
+      - STANDARD
+      - INCLUSIVE_TOUR
+      - SPANISH_MELILLA_RESIDENT
+      - SPANISH_CEUTA_RESIDENT
+      - SPANISH_CANARY_RESIDENT
+      - SPANISH_BALEARIC_RESIDENT
+      - AIR_FRANCE_METROPOLITAN_DISCOUNT_PASS
+      - AIR_FRANCE_DOM_DISCOUNT_PASS
+      - AIR_FRANCE_COMBINED_DISCOUNT_PASS
+      - AIR_FRANCE_FAMILY
+      - ADULT_WITH_COMPANION
+      - COMPANION
+    example: STANDARD
+    type: string
+  TravelerType:
+    description: |
+      traveler type
+      age restrictions : CHILD < 12y, HELD_INFANT < 2y, SEATED_INFANT < 2y, SENIOR >=60y
+    enum:
+      - ADULT
+      - CHILD
+      - SENIOR
+      - YOUNG
+      - HELD_INFANT
+      - SEATED_INFANT
+      - STUDENT
+    example: ADULT
+    type: string
+x-generatedAt: 2021-02-05T09:26:13.229Z

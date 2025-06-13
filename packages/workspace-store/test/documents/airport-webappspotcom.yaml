@@ -1,0 +1,55 @@
+swagger: "2.0"
+schemes:
+  - https
+host: airport-web.appspot.com
+basePath: /_ah/api
+info:
+  description: Get name and website-URL for airports by ICAO code. Covered airports are mostly in Germany.
+  title: airportsapi
+  version: v1
+  x-apisguru-categories:
+    - transport
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_user-images.githubusercontent.com_21603_37955263-098e5b38-31a0-11e8-96fd-5755b16341e3.png
+  x-origin:
+    - format: swagger
+      url: https://airport-web.appspot.com/api/docs/swagger.json
+      version: "2.0"
+  x-providerName: airport-web.appspot.com
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  google_id_token:
+    authorizationUrl: ""
+    flow: implicit
+    type: oauth2
+    x-google-issuer: accounts.google.com
+    x-google-jwks_uri: https://www.googleapis.com/oauth2/v1/certs
+paths:
+  "/airportsapi/v1/airports/{icao_code}":
+    get:
+      operationId: AirportApi_getAirport
+      parameters:
+        - in: path
+          name: icao_code
+          required: true
+          type: string
+      responses:
+        "200":
+          description: A successful response
+          schema:
+            $ref: "#/definitions/ApiEndpointsAirportResponse"
+definitions:
+  ApiEndpointsAirportResponse:
+    properties:
+      ICAO:
+        type: string
+      last_update:
+        type: string
+      name:
+        type: string
+      url:
+        type: string
+    type: object

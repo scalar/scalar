@@ -1,0 +1,797 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+
+    Please also be aware that our test environment is based on a subset of the production, if you are not returning any results try with big cities/airports like LON (London) or NYC (New-York).
+  title: Flight Availibilities Search
+  version: 1.0.2
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightAvailabilitiesSearch_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    1.0.0:
+      - Initial release of Flight Availibilities Search
+  x-serviceName: amadeus-flight-availabilities-search
+  x-status: validated
+  x-tags:
+    - "#quick-connect"
+    - "#online-retail"
+    - "#mobile-services"
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  getOverride:
+    default: GET
+    description: the HTTP method to apply
+    in: header
+    name: X-HTTP-Method-Override
+    required: true
+    type: string
+responses:
+  "500":
+    description: Unexpected error
+    schema:
+      $ref: "#/definitions/Error_500"
+  400_Search:
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      425     | INVALID DATE
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      2668    | PARAMETER COMBINATION INVALID/RESTRICTED
+      2781    | INVALID LENGTH
+      4926    | INVALID DATA RECEIVED
+      9880    | SELECTED DATE IS TOO FAR IN THE FUTURE
+      10661   | MAXIMUM NUMBER OF OCCURRENCES EXCEEDED 
+      32171   | MANDATORY DATA MISSING
+    schema:
+      $ref: "#/definitions/Error_400"
+  returnAirAvailabilities:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - duration: PT10H35M
+            id: "1"
+            instantTicketingRequired: false
+            originDestinationId: "1"
+            paymentCardRequired: false
+            segments:
+              - aircraft:
+                  code: "772"
+                arrival:
+                  at: 2023-11-15T08:05:00
+                  iataCode: LHR
+                  terminal: "4"
+                availabilityClasses:
+                  - class: F
+                    numberOfBookableSeats: 9
+                  - class: J
+                    numberOfBookableSeats: 9
+                  - class: I
+                    numberOfBookableSeats: 9
+                  - class: W
+                    numberOfBookableSeats: 9
+                  - class: Y
+                    numberOfBookableSeats: 9
+                  - class: B
+                    numberOfBookableSeats: 9
+                  - class: H
+                    numberOfBookableSeats: 9
+                  - class: K
+                    numberOfBookableSeats: 9
+                  - class: M
+                    numberOfBookableSeats: 9
+                  - class: G
+                    numberOfBookableSeats: 9
+                  - class: X
+                    numberOfBookableSeats: 9
+                blacklistedInEU: false
+                carrierCode: 6X
+                departure:
+                  at: 2023-11-14T20:25:00
+                  iataCode: BOS
+                  terminal: E
+                id: "1"
+                number: "214"
+                numberOfStops: 0
+              - aircraft:
+                  code: "320"
+                arrival:
+                  at: 2023-11-15T13:00:00
+                  iataCode: MAD
+                availabilityClasses:
+                  - class: J
+                    numberOfBookableSeats: 9
+                  - class: I
+                    numberOfBookableSeats: 9
+                  - class: Y
+                    numberOfBookableSeats: 9
+                blacklistedInEU: false
+                carrierCode: 6X
+                departure:
+                  at: 2023-11-15T10:30:00
+                  iataCode: LHR
+                id: "2"
+                number: "9931"
+                numberOfStops: 0
+            source: GDS
+            type: flight-availability
+        dictionaries:
+          locations:
+            BOS:
+              cityCode: BOS
+              countryCode: US
+            LHR:
+              cityCode: LON
+              countryCode: GB
+            MAD:
+              cityCode: MAD
+              countryCode: ES
+        meta:
+          count: 1
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/FlightAvailability"
+          type: array
+        dictionaries:
+          $ref: "#/definitions/Dictionaries"
+        meta:
+          $ref: "#/definitions/Collection_Meta_AvailSearch"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success_Availability
+paths:
+  /shopping/availability/flight-availabilities:
+    post:
+      operationId: searchFlightAvailabilities
+      parameters:
+        - $ref: "#/parameters/getOverride"
+        - description: list of criteria to retrieve a list of flight availabilities
+          in: body
+          name: getFlightAvailabilitiesBody
+          required: true
+          schema:
+            $ref: "#/definitions/GetFlightAvailabilitiesQuery"
+      responses:
+        "200":
+          $ref: "#/responses/returnAirAvailabilities"
+        "400":
+          $ref: "#/responses/400_Search"
+        default:
+          $ref: "#/responses/500"
+      summary: Return list of Flight Availabilities based on posted searching criteria.
+      tags:
+        - Availibility
+definitions:
+  AircraftEntry:
+    additionalProperties:
+      description: the manufacturer/model of aircraft
+      type: string
+  AircraftEquipment:
+    description: information related to the aircraft
+    properties:
+      code:
+        description: |
+          IATA aircraft code (http://www.flugzeuginfo.net/table_accodes_iata_en.php)
+        example: "318"
+        pattern: "[a-zA-Z0-9]{3}"
+        type: string
+  AllotmentDetails:
+    properties:
+      tourName:
+        description: The tour name agreed for this specific allotment.
+        type: string
+      tourReference:
+        description: The tour reference agreed for this specific allotment.
+        type: string
+    title: AllotmentDetails
+    type: object
+  AvailabilityClass:
+    properties:
+      class:
+        description: The code of the booking class, a.k.a. class of service or Reservations/Booking Designator (RBD)
+        example: A
+        pattern: "[A-Z]{1}"
+        type: string
+      closedStatus:
+        description: Status of the booking class when it is closed.
+        enum:
+          - WAITLIST_OPEN
+          - WAITLIST_CLOSED
+          - ON_REQUEST
+        example: WAITLIST_OPEN
+        type: string
+      numberOfBookableSeats:
+        description: Number of seats bookable in a single request. Can not be higher than 9.
+        example: 9
+        maximum: 9
+        minimum: 1
+        type: number
+      tourAllotment:
+        $ref: "#/definitions/TourAllotment"
+        description: Detail of the allotment if available.
+    type: object
+  CabinRestriction:
+    properties:
+      cabin:
+        $ref: "#/definitions/TravelClass"
+      originDestinationIds:
+        description: The list of originDestination identifiers for which the cabinRestriction applies
+        example:
+          - 1
+          - 2
+        items:
+          type: string
+        title: originDestinationIds
+        type: array
+    title: CabinRestriction
+    type: object
+  CarrierEntry:
+    additionalProperties:
+      description: the carrier name
+      type: string
+  CarrierRestrictions:
+    description: Restriction towards carriers.
+    properties:
+      blacklistedInEUAllowed:
+        description: This flag enable/disable filtering of blacklisted airline by EU. The list of the banned airlines is published in the Official Journal of the European Union, where they are included as annexes A and B to the Commission Regulation. The blacklist of an airline can concern all its flights or some specific aircraft types pertaining to the airline
+        type: boolean
+      excludedCarrierCodes:
+        description: This option ensures that the system will only consider these airlines.
+        items:
+          type: string
+        maxItems: 99
+        minItems: 1
+        type: array
+      includedCarrierCodes:
+        description: This option ensures that the system will only consider these airlines.
+        items:
+          type: string
+        maxItems: 99
+        minItems: 1
+        type: array
+    type: object
+  Co2Emission:
+    properties:
+      cabin:
+        $ref: "#/definitions/TravelClass"
+      weight:
+        description: Weight of Co2 emitted for the concerned segment
+        example: 90
+        type: integer
+      weightUnit:
+        description: Code to qualify unit as pounds or kilos
+        example: KG
+        type: string
+    type: object
+  Collection_Meta_AvailSearch:
+    properties:
+      count:
+        example: 1
+        type: integer
+    title: Collection_Meta
+  ConnectionRestriction:
+    description: Restriction towards number of connections.
+    properties:
+      airportChangeAllowed:
+        description: Allow to change airport during connection
+        example: false
+        type: boolean
+      maxNumberOfConnections:
+        description: The maximal number of connections for each itinerary. Value can be 0, 1 or 2.
+        example: 2
+        type: number
+      technicalStopsAllowed:
+        description: This option allows the single segment to have one or more intermediate stops (technical stops).
+        example: true
+        type: boolean
+    type: object
+  CurrencyEntry:
+    additionalProperties:
+      example: EUR
+      type: string
+  DateTimeType:
+    properties:
+      date:
+        description: Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2018-12-25
+        example: 2018-09-22
+        format: date
+        type: string
+      time:
+        description: Local time. hh:mm:ss format, e.g 10:30:00
+        example: 10:30:00
+        type: string
+    required:
+      - date
+    type: object
+  Dictionaries:
+    properties:
+      aircraft:
+        $ref: "#/definitions/AircraftEntry"
+      carriers:
+        $ref: "#/definitions/CarrierEntry"
+      currencies:
+        $ref: "#/definitions/CurrencyEntry"
+      locations:
+        $ref: "#/definitions/LocationEntry"
+    type: object
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  Extended_OriginDestinationLight:
+    allOf:
+      - $ref: "#/definitions/OriginDestinationLight"
+      - properties:
+          arrivalDateTime:
+            $ref: "#/definitions/DateTimeType"
+            description: Approximate date and time of arrival, specified as a local date.
+          departureDateTime:
+            $ref: "#/definitions/DateTimeType"
+            description: Approximate date and time of departure, specified as a local date.
+        type: object
+  Extended_SearchCriteria:
+    allOf:
+      - $ref: "#/definitions/SearchCriteriaLight"
+      - properties:
+          class:
+            description: The code of the booking class
+            example: A
+            type: string
+          includeClosedContent:
+            description: If true, closed booking classes, departed flights and cancelled flights will also be included in the response.
+            example: false
+            type: boolean
+        type: object
+  Extended_Segment:
+    allOf:
+      - properties:
+          availabilityClasses:
+            description: List of booking classes for the segment
+            items:
+              $ref: "#/definitions/AvailabilityClass"
+            maxItems: 50
+            minItems: 1
+            title: AvailabilityClasses
+            type: array
+          closedStatus:
+            description: Status of the segment when it is closed.
+            enum:
+              - CANCELLED
+              - DEPARTED
+              - NOT_AVAILABLE
+            example: CANCELLED
+            type: string
+        type: object
+      - $ref: "#/definitions/Segment"
+  FlightAvailability:
+    properties:
+      duration:
+        description: duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M for a duration of 2h10m
+        example: PT2H10M
+        type: string
+      id:
+        description: Id of the flight availability
+        example: "1"
+        type: string
+      instantTicketingRequired:
+        description: If true, inform that a ticketing will be required at booking step.
+        example: false
+        type: boolean
+      originDestinationId:
+        description: Id of the originDestination in query
+        example: "1"
+        type: string
+      paymentCardRequired:
+        description: If true, a payment card is mandatory to book this flight offer
+        example: false
+        type: boolean
+      segments:
+        items:
+          $ref: "#/definitions/Extended_Segment"
+        maxItems: 9
+        minItems: 1
+        title: Segments
+        type: array
+      source:
+        $ref: "#/definitions/FlightOfferSource"
+      type:
+        description: the resource name
+        example: flight-availability
+        type: string
+    required:
+      - type
+      - id
+      - source
+      - segments
+    title: Flight-availability
+    type: object
+  FlightEndPoint:
+    allOf:
+      - $ref: "#/definitions/OriginalFlightEndPoint"
+      - properties:
+          at:
+            description: local date and time in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+        type: object
+    description: departure or arrival information
+    title: FlightEndPoint
+  FlightFiltersLight:
+    properties:
+      cabinRestrictions:
+        description: Restriction towards cabins.
+        items:
+          $ref: "#/definitions/CabinRestriction"
+        maxItems: 6
+        minItems: 1
+        title: CabinRestrictions
+        type: array
+      carrierRestrictions:
+        $ref: "#/definitions/CarrierRestrictions"
+        description: Restriction towards carriers.
+        title: CarrierRestrictions
+      connectionRestriction:
+        $ref: "#/definitions/ConnectionRestriction"
+        description: Restriction towards number of connections.
+        title: ConnectionRestriction
+    type: object
+  FlightOfferSource:
+    description: source of the flight offer
+    enum:
+      - GDS
+    example: GDS
+    type: string
+  FlightSegment:
+    description: defining a flight segment; including both operating and marketing details when applicable
+    properties:
+      aircraft:
+        $ref: "#/definitions/AircraftEquipment"
+      arrival:
+        $ref: "#/definitions/FlightEndPoint"
+      carrierCode:
+        description: providing the airline / carrier code
+        example: DL
+        maxLength: 2
+        minLength: 1
+        type: string
+      departure:
+        $ref: "#/definitions/FlightEndPoint"
+      duration:
+        description: stop duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M
+        example: PT2H10M
+        type: string
+      number:
+        description: the flight number as assigned by the carrier
+        example: "212"
+        maxLength: 4
+        minLength: 1
+        type: string
+      operating:
+        $ref: "#/definitions/OperatingFlight"
+      stops:
+        description: information regarding the different stops composing the flight segment. E.g. technical stop, change of gauge...
+        items:
+          $ref: "#/definitions/FlightStop"
+        type: array
+    type: object
+  FlightStop:
+    allOf:
+      - $ref: "#/definitions/OriginalFlightStop"
+      - properties:
+          arrivalAt:
+            description: arrival at the stop in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+          departureAt:
+            description: departure from the stop in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-ddThh:mm:ss format, e.g. 2017-02-10T20:40:00
+            example: 2017-10-23T20:00:00
+            format: date-time
+            type: string
+        type: object
+    description: details of stops for direct or change of gauge flights
+    title: FlightStop
+  GetFlightAvailabilitiesQuery:
+    example:
+      originDestinations:
+        - departureDateTime:
+            date: 2023-11-14
+            time: 21:15:00
+          destinationLocationCode: MAD
+          id: "1"
+          originLocationCode: BOS
+      sources:
+        - GDS
+      travelers:
+        - id: "1"
+          travelerType: ADULT
+    properties:
+      originDestinations:
+        description: Origins and Destinations must be properly ordered in time (chronological order in accordance with the timezone of each location) to describe the journey consistently. Dates and times must not be past nor more than 365 days in the future, according to provider settings.Number of Origins and Destinations must not exceed the limit defined in provider settings.
+        items:
+          $ref: "#/definitions/Extended_OriginDestinationLight"
+        maxItems: 6
+        minItems: 1
+        title: originDestinations
+        type: array
+      searchCriteria:
+        $ref: "#/definitions/Extended_SearchCriteria"
+      sources:
+        description: |-
+          Allows enable one or more sources. If present in the list, these sources will be called by the system. 
+          GDS : Full service carriers
+        example:
+          - GDS
+        items:
+          $ref: "#/definitions/FlightOfferSource"
+        minItems: 1
+        title: sources
+        type: array
+      travelers:
+        description: List of travelers composing the travel
+        items:
+          $ref: "#/definitions/TravelerInfo"
+        maxItems: 18
+        minItems: 1
+        title: travelers
+        type: array
+    required:
+      - originDestinations
+      - travelers
+      - sources
+    title: getFlightAvailabilitiesQuery
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+    type: object
+  LocationEntry:
+    additionalProperties:
+      $ref: "#/definitions/LocationValue"
+  LocationValue:
+    properties:
+      cityCode:
+        description: City code associated to the airport
+        example: PAR
+        type: string
+      countryCode:
+        description: Country code of the airport
+        example: FR
+        type: string
+  OperatingFlight:
+    description: information about the operating flight
+    properties:
+      carrierCode:
+        description: providing the airline / carrier code
+        example: DL
+        maxLength: 2
+        minLength: 1
+        type: string
+    type: object
+  OriginDestinationLight:
+    properties:
+      destinationLocationCode:
+        description: Destination location, such as a city or an airport. Currently, only the locations defined in [IATA](http://www.iata.org/publications/Pages/code-search.aspx) are supported.
+        example: NYC
+        type: string
+      excludedConnectionPoints:
+        description: List of excluded connections points. Any FlightOffer with these connections points will be present in response. Currently, only the locations defined in IATA are supported. Used only by the AMADEUS provider
+        example:
+          - MRS
+        items:
+          title: code
+          type: string
+        maxItems: 3
+        minItems: 1
+        type: array
+      id:
+        example: 1
+        type: string
+      includedConnectionPoints:
+        description: List of included connections points. When an includedViaPoints option is specified, all FlightOffer returned must at least go via this Connecting Point. Currently, only the locations defined in IATA are supported. Used only by the AMADEUS provider
+        example:
+          - MRS
+        items:
+          title: code
+          type: string
+        maxItems: 2
+        minItems: 1
+        type: array
+      originLocationCode:
+        description: Origin location, such as a city or an airport. Currently, only the locations defined in [IATA](http://www.iata.org/publications/Pages/code-search.aspx) are supported.
+        example: PAR
+        type: string
+    type: object
+  OriginalFlightEndPoint:
+    description: departure or arrival information
+    properties:
+      iataCode:
+        description: "[IATA airline codes](http://www.iata.org/publications/Pages/code-search.aspx)"
+        example: JFK
+        type: string
+      terminal:
+        description: terminal name / number
+        example: T2
+        type: string
+    type: object
+  OriginalFlightStop:
+    description: details of stops for direct or change of gauge flights
+    properties:
+      duration:
+        description: stop duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M
+        example: PT2H10M
+        type: string
+      iataCode:
+        description: "[IATA airline codes](http://www.iata.org/publications/Pages/code-search.aspx)"
+        example: JFK
+        type: string
+    type: object
+  SearchCriteriaLight:
+    properties:
+      excludeAllotments:
+        description: This option allows to exclude the isAllotment flag associated to a booking class in the search response when it exist.
+        example: false
+        type: boolean
+      flightFilters:
+        $ref: "#/definitions/FlightFiltersLight"
+        title: FlightFilters
+    type: object
+  Segment:
+    allOf:
+      - properties:
+          blacklistedInEU:
+            description: |
+              When the flight has a marketing or/and operating airline that is identified as blacklisted by the European Commission. 
+
+              To improve travel safety, the European Commission regularly updates the list of the banned carriers from operating in Europe. It allows any Travel Agency located in the European Union to easily identify and hide any travel recommendation based on some unsafe airlines. 
+              The [list of the banned airlines](https://ec.europa.eu/transport/sites/transport/files/air-safety-list_en.pdf) is published in the Official Journal of the European Union, where they are included as annexes A and B to the Commission Regulation. The blacklist of an airline can concern all its flights or some specific aircraft types pertaining to the airline   
+            example: false
+            type: boolean
+          co2Emissions:
+            description: Co2 informations
+            items:
+              $ref: "#/definitions/Co2Emission"
+              title: Co2Emission
+            minItems: 1
+            type: array
+          id:
+            description: Id of the segment
+            example: 1
+            type: string
+          numberOfStops:
+            description: Number of stops
+            example: 0
+            type: integer
+        type: object
+      - $ref: "#/definitions/FlightSegment"
+  TourAllotment:
+    allOf:
+      - $ref: "#/definitions/AllotmentDetails"
+      - properties:
+          mode:
+            description: How the allotment can be booked by the Travel Agency.
+            enum:
+              - FREE
+              - FORCED
+            example: FREE
+            type: string
+          remainingSeats:
+            description: Number of remaining seats in the allotment.
+            example: 9
+            type: number
+        type: object
+    title: TourAllotment
+  TravelClass:
+    description: quality of service offered in the cabin where the seat is located in this flight. Economy, premium economy, business or first class
+    enum:
+      - ECONOMY
+      - PREMIUM_ECONOMY
+      - BUSINESS
+      - FIRST
+    example: PREMIUM_ECONOMY
+    type: string
+  TravelerInfo:
+    properties:
+      associatedAdultId:
+        description: if type="HELD_INFANT", corresponds to the adult travelers's id who will share the seat
+        type: string
+      id:
+        example: 1
+        type: string
+      travelerType:
+        $ref: "#/definitions/TravelerType"
+    required:
+      - id
+      - travelerType
+    type: object
+  TravelerType:
+    description: |
+      traveler type
+      age restrictions : CHILD < 12y, HELD_INFANT < 2y, SEATED_INFANT < 2y, SENIOR >=60y
+    enum:
+      - ADULT
+      - CHILD
+      - SENIOR
+      - YOUNG
+      - HELD_INFANT
+      - SEATED_INFANT
+      - STUDENT
+    example: ADULT
+    type: string
+x-generatedAt: 2021-04-02T06:49:58.730Z

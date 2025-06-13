@@ -1,0 +1,1697 @@
+openapi: 3.1.0
+servers:
+  - url: https://cal-test.adyen.com/cal/services/Fund/v6
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    This API is used for the classic integration. If you are just starting your implementation, refer to our [new integration guide](https://docs.adyen.com/marketplaces-and-platforms) instead.
+
+    The Fund API provides endpoints for managing the funds in the accounts on your platform. These management operations include, for example, the transfer of funds from one account to another, the payout of funds to an account holder, and the retrieval of balances in an account.
+
+    For more information, refer to our [documentation](https://docs.adyen.com/marketplaces-and-platforms/classic/).
+    ## Authentication
+    Your Adyen contact will provide your API credential and an API key. To connect to the API, add an `X-API-Key` header with the API key as the value, for example:
+
+     ```
+    curl
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: YOUR_API_KEY" \
+    ...
+    ```
+
+    Alternatively, you can use the username and password to connect to the API using basic authentication. For example:
+
+    ```
+    curl
+    -U "ws@MarketPlace.YOUR_PLATFORM_ACCOUNT":"YOUR_WS_PASSWORD" \
+    -H "Content-Type: application/json" \
+    ...
+    ```
+    When going live, you need to generate new web service user credentials to access the [live endpoints](https://docs.adyen.com/development-resources/live-endpoints).
+
+    ## Versioning
+    The Fund API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://cal-test.adyen.com/cal/services/Fund/v6/accountHolderBalance
+    ```
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Fund API
+  version: "6"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/FundService-v6.json
+      version: "3.1"
+  x-preferred: true
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: FundService
+  x-timestamp: 2023-02-20T18:23:38Z
+tags:
+  - name: General
+paths:
+  /accountHolderBalance:
+    post:
+      description: "Returns the account balances of an account holder. An account's balances are organized according by currencies. This mean that an account may have multiple balances: one for each currency."
+      operationId: post-accountHolderBalance
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-accountHolderBalance-basic"
+            schema:
+              $ref: "#/components/schemas/AccountHolderBalanceRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountHolderBalanceResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountHolderBalanceResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get the balances of an account holder
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: accountHolderBalance
+      x-sortIndex: 1
+  /accountHolderTransactionList:
+    post:
+      description: Returns a list of transactions for an account holder's accounts. You can specify the accounts and transaction statuses to be included on the list. The call returns a maximum of 50 transactions for each account. To retrieve all transactions, you must make another call with the 'page' value incremented. Transactions are listed in chronological order, with the most recent transaction first.
+      operationId: post-accountHolderTransactionList
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-accountHolderTransactionList-basic"
+              specific:
+                $ref: "#/components/examples/post-accountHolderTransactionList-specific"
+            schema:
+              $ref: "#/components/schemas/AccountHolderTransactionListRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountHolderTransactionListResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountHolderTransactionListResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get a list of transactions
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: accountHolderTransactionList
+      x-sortIndex: 2
+  /debitAccountHolder:
+    post:
+      description: |-
+        Sends a direct debit request to an account holder's bank account. If the direct debit is successful, the funds are settled in the accounts specified in the split instructions. Adyen sends the result of the direct debit in a [`DIRECT_DEBIT_INITIATED`](https://docs.adyen.com/api-explorer/#/NotificationService/latest/post/DIRECT_DEBIT_INITIATED) notification webhook.
+
+         To learn more about direct debits, see [Top up accounts](https://docs.adyen.com/marketplaces-and-platforms/classic/top-up-accounts).
+      operationId: post-debitAccountHolder
+      requestBody:
+        content:
+          application/json:
+            examples:
+              debit-account-holder:
+                $ref: "#/components/examples/post-debitAccountHolder-debit-account-holder"
+            schema:
+              $ref: "#/components/schemas/DebitAccountHolderRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                debit-account-holder:
+                  $ref: "#/components/examples/post-debitAccountHolder-debit-account-holder-200"
+              schema:
+                $ref: "#/components/schemas/DebitAccountHolderResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DebitAccountHolderResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Send a direct debit request
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: debitAccountHolder
+      x-sortIndex: 8
+  /payoutAccountHolder:
+    post:
+      description: Pays out a specified amount from an account to the bank account of account holder.
+      operationId: post-payoutAccountHolder
+      requestBody:
+        content:
+          application/json:
+            examples:
+              oneOff:
+                $ref: "#/components/examples/post-payoutAccountHolder-oneOff"
+            schema:
+              $ref: "#/components/schemas/PayoutAccountHolderRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayoutAccountHolderResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayoutAccountHolderResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Pay out from an account to the account holder
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: payoutAccountHolder
+      x-sortIndex: 3
+  /refundFundsTransfer:
+    post:
+      description: "Refunds funds transferred from one account to another. Both accounts must be in the same platform, but can have different account holders. "
+      operationId: post-refundFundsTransfer
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-refundFundsTransfer-basic"
+            schema:
+              $ref: "#/components/schemas/RefundFundsTransferRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundFundsTransferResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundFundsTransferResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Refund a funds transfer
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: refundFundsTransfer
+      x-sortIndex: 5
+  /refundNotPaidOutTransfers:
+    post:
+      description: Refunds all the transactions of an account that have taken place since the most recent payout. This request is on a account basis (as opposed to a payment basis), so only the portion of the payment that was made to the specified account is refunded. The commissions, fees, and payments to other accounts remain in the accounts to which they were sent as designated by the original payment's split details.
+      operationId: post-refundNotPaidOutTransfers
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-refundNotPaidOutTransfers-basic"
+            schema:
+              $ref: "#/components/schemas/RefundNotPaidOutTransfersRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundNotPaidOutTransfersResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefundNotPaidOutTransfersResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Refund all transactions of an account since the most recent payout
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: refundNotPaidOutTransfers
+      x-sortIndex: 7
+  /setupBeneficiary:
+    post:
+      description: Defines a benefactor and a beneficiary relationship between two accounts. At the time of benefactor/beneficiary setup, the funds in the benefactor account are transferred to the beneficiary account, and any further payments to the benefactor account are automatically sent to the beneficiary account. A series of benefactor/beneficiaries may not exceed four beneficiaries and may not have a cycle in it.
+      operationId: post-setupBeneficiary
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-setupBeneficiary-basic"
+            schema:
+              $ref: "#/components/schemas/SetupBeneficiaryRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetupBeneficiaryResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetupBeneficiaryResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Designate a beneficiary account and transfer the benefactor's current balance
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: setupBeneficiary
+      x-sortIndex: 6
+  /transferFunds:
+    post:
+      description: Transfers funds from one account to another account. Both accounts must be in the same platform, but can have different account holders. The transfer must include a transfer code, which should be determined by the platform, in compliance with local regulations.
+      operationId: post-transferFunds
+      requestBody:
+        content:
+          application/json:
+            examples:
+              basic:
+                $ref: "#/components/examples/post-transferFunds-basic"
+            schema:
+              $ref: "#/components/schemas/TransferFundsRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferFundsResponse"
+          description: OK - the request has succeeded.
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferFundsResponse"
+          description: Accepted - the request has been accepted for processing, but the processing has not been completed.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Transfer funds between platform accounts
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: transferFunds
+      x-sortIndex: 4
+components:
+  examples:
+    post-accountHolderBalance-basic:
+      summary: Review the account holder balance
+      value:
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+    post-accountHolderTransactionList-basic:
+      summary: Retrieve transactions page by page
+      value:
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+        transactionListsPerAccount:
+          - accountCode: "195752115"
+            page: 1
+    post-accountHolderTransactionList-specific:
+      summary: Retrieve transactions with specific statuses.
+      value:
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+        transactionListsPerAccount:
+          - accountCode: 2e64b396-1200-4474-b848-0cb06b52b3c7
+            page: 2
+        transactionStatuses:
+          - PendingCredit
+          - Credited
+          - Debited
+    post-debitAccountHolder-debit-account-holder:
+      description: Example request to send a direct debit from a bank account
+      summary: Send a bank account direct debit
+      value:
+        accountHolderCode: ACCOUNT_HOLDER_CODE
+        amount:
+          currency: USD
+          value: 6200
+        bankAccountUUID: 000b81aa-ae7e-4492-aa7e-72b2129dce0c
+        description: YOUR_DESCRIPTION
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        splits:
+          - account: "8535516988037431"
+            amount:
+              value: 6000
+            reference: YOUR_SPLIT_REFERENCE_1
+            type: MarketPlace
+          - amount:
+              value: 200
+            reference: YOUR_SPLIT_REFERENCE_2
+            type: Commission
+    post-debitAccountHolder-debit-account-holder-200:
+      description: Example response for requesting a direct debit from a bank account
+      summary: Direct debit request sent
+      value:
+        pspReference: "8816480354727275"
+        submittedAsync: "false"
+    post-payoutAccountHolder-oneOff:
+      summary: One-off payout
+      value:
+        accountCode: "118731451"
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+        amount:
+          currency: EUR
+          value: 99792
+        bankAccountUUID: 000b81aa-ae7e-4492-aa7e-72b2129dce0c
+        description: 12345 – Test
+    post-refundFundsTransfer-basic:
+      summary: Refund the fund transfer
+      value:
+        amount:
+          currency: EUR
+          value: 1000
+        merchantReference: YOUR_REFERENCE_ID
+        originalReference: PSP_REFERENCE_OF_TRANSFER_TO_REFUND
+    post-refundNotPaidOutTransfers-basic:
+      summary: Refund last transactions
+      value:
+        accountCode: "189184578"
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+    post-setupBeneficiary-basic:
+      summary: Set up a beneficiary
+      value:
+        destinationAccountCode: "128952522"
+        merchantReference: YOUR_REFERENCE_ID
+        sourceAccountCode: "134498192"
+    post-transferFunds-basic:
+      summary: Transfer funds from one account to another
+      value:
+        amount:
+          currency: EUR
+          value: 2000
+        destinationAccountCode: "190324759"
+        sourceAccountCode: "100000000"
+        transferCode: TransferCode_1
+  schemas:
+    AccountDetailBalance:
+      properties:
+        accountCode:
+          description: The code of the account that holds the balance.
+          type: string
+        detailBalance:
+          $ref: "#/components/schemas/DetailBalance"
+          description: Details of the balance held by the account.
+      type: object
+    AccountHolderBalanceRequest:
+      properties:
+        accountHolderCode:
+          description: The code of the Account Holder of which to retrieve the balance.
+          type: string
+      required:
+        - accountHolderCode
+      type: object
+    AccountHolderBalanceResponse:
+      properties:
+        balancePerAccount:
+          description: A list of each account and their balances.
+          items:
+            $ref: "#/components/schemas/AccountDetailBalance"
+          type: array
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+        totalBalance:
+          $ref: "#/components/schemas/DetailBalance"
+          description: The total balance of the account holder.
+      type: object
+    AccountHolderTransactionListRequest:
+      properties:
+        accountHolderCode:
+          description: The code of the account holder that owns the account(s) of which retrieve the transaction list.
+          type: string
+        transactionListsPerAccount:
+          description: A list of accounts to include in the transaction list. If left blank, the last fifty (50) transactions for all accounts of the account holder will be included.
+          items:
+            $ref: "#/components/schemas/TransactionListForAccount"
+          type: array
+        transactionStatuses:
+          description: |-
+            A list of statuses to include in the transaction list. If left blank, all transactions will be included.
+            >Permitted values:
+            >* `PendingCredit` - a pending balance credit.
+            >* `CreditFailed` - a pending credit failure; the balance will not be credited.
+            >* `Credited` - a credited balance.
+            >* `PendingDebit` - a pending balance debit (e.g., a refund).
+            >* `CreditClosed` - a pending credit closed; the balance will not be credited.
+            >* `CreditSuspended` - a pending credit closed; the balance will not be credited.
+            >* `DebitFailed` - a pending debit failure; the balance will not be debited.
+            >* `Debited` - a debited balance (e.g., a refund).
+            >* `DebitReversedReceived` - a pending refund reversal.
+            >* `DebitedReversed` - a reversed refund.
+            >* `ChargebackReceived` - a received chargeback request.
+            >* `Chargeback` - a processed chargeback.
+            >* `ChargebackReversedReceived` - a pending chargeback reversal.
+            >* `ChargebackReversed` - a reversed chargeback.
+            >* `Converted` - converted.
+            >* `ManualCorrected` - manual booking/adjustment by Adyen.
+            >* `Payout` - a payout.
+            >* `PayoutReversed` - a reversed payout.
+            >* `PendingFundTransfer` - a pending transfer of funds from one account to another.
+            >* `FundTransfer` - a transfer of funds from one account to another.
+          items:
+            enum:
+              - BalanceNotPaidOutTransfer
+              - BalancePlatformSweep
+              - BalancePlatformSweepReturned
+              - Chargeback
+              - ChargebackCorrection
+              - ChargebackCorrectionReceived
+              - ChargebackReceived
+              - ChargebackReversed
+              - ChargebackReversedCorrection
+              - ChargebackReversedCorrectionReceived
+              - ChargebackReversedReceived
+              - Converted
+              - CreditClosed
+              - CreditFailed
+              - CreditReversed
+              - CreditReversedReceived
+              - CreditSuspended
+              - Credited
+              - DebitFailed
+              - DebitReversedReceived
+              - Debited
+              - DebitedReversed
+              - DepositCorrectionCredited
+              - DepositCorrectionDebited
+              - Fee
+              - FundTransfer
+              - FundTransferReversed
+              - InvoiceDeductionCredited
+              - InvoiceDeductionDebited
+              - ManualCorrected
+              - ManualCorrectionCredited
+              - ManualCorrectionDebited
+              - MerchantPayin
+              - MerchantPayinReversed
+              - Payout
+              - PayoutReversed
+              - PendingCredit
+              - PendingDebit
+              - PendingFundTransfer
+              - ReCredited
+              - ReCreditedReceived
+              - SecondChargeback
+              - SecondChargebackCorrection
+              - SecondChargebackCorrectionReceived
+              - SecondChargebackReceived
+            type: string
+          type: array
+      required:
+        - accountHolderCode
+      type: object
+    AccountHolderTransactionListResponse:
+      properties:
+        accountTransactionLists:
+          description: A list of the transactions.
+          items:
+            $ref: "#/components/schemas/AccountTransactionList"
+          type: array
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    AccountTransactionList:
+      properties:
+        accountCode:
+          description: The code of the account.
+          type: string
+        hasNextPage:
+          description: Indicates whether there is a next page of transactions available.
+          type: boolean
+        transactions:
+          description: The list of transactions.
+          items:
+            $ref: "#/components/schemas/Transaction"
+          type: array
+      type: object
+    Amount:
+      properties:
+        currency:
+          description: The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount of the transaction, in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+        - currency
+      type: object
+    BankAccountDetail:
+      properties:
+        accountNumber:
+          description: |-
+            The bank account number (without separators).
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        accountType:
+          description: |-
+            The type of bank account.
+            Only applicable to bank accounts held in the USA.
+            The permitted values are: `checking`, `savings`.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        bankAccountName:
+          description: The name of the bank account.
+          type: string
+        bankAccountReference:
+          description: Merchant reference to the bank account.
+          type: string
+          x-addedInVersion: "5"
+        bankAccountUUID:
+          description: |
+            The unique identifier (UUID) of the Bank Account.
+            >If, during an account holder create or update request, this field is left blank (but other fields provided), a new Bank Account will be created with a procedurally-generated UUID.
+
+            >If, during an account holder create request, a UUID is provided, the creation of the Bank Account will fail while the creation of the account holder will continue.
+
+            >If, during an account holder update request, a UUID that is not correlated with an existing Bank Account is provided, the update of the account holder will fail.
+
+            >If, during an account holder update request, a UUID that is correlated with an existing Bank Account is provided, the existing Bank Account will be updated.
+          type: string
+        bankBicSwift:
+          description: |-
+            The bank identifier code.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        bankCity:
+          description: |-
+            The city in which the bank branch is located.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        bankCode:
+          description: |-
+            The bank code of the banking institution with which the bank account is registered.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        bankName:
+          description: |-
+            The name of the banking institution with which the bank account is held.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        branchCode:
+          description: |-
+            The branch code of the branch under which the bank account is registered. The value to be specified in this parameter depends on the country of the bank account:
+            * United States - Routing number
+            * United Kingdom - Sort code
+            * Germany - Bankleitzahl
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        checkCode:
+          description: |-
+            The check code of the bank account.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        countryCode:
+          description: |-
+            The two-letter country code in which the bank account is registered.
+            >The permitted country codes are defined in ISO-3166-1 alpha-2 (e.g. 'NL').
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        currencyCode:
+          description: |
+            The currency in which the bank account deals.
+            >The permitted currency codes are defined in ISO-4217 (e.g. 'EUR').
+          type: string
+        iban:
+          description: |-
+            The international bank account number.
+            >The IBAN standard is defined in ISO-13616.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerCity:
+          description: |-
+            The city of residence of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerCountryCode:
+          description: |-
+            The country code of the country of residence of the bank account owner.
+            >The permitted country codes are defined in ISO-3166-1 alpha-2 (e.g. 'NL').
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerDateOfBirth:
+          deprecated: true
+          description: |-
+            The date of birth of the bank account owner.
+            The date should be in ISO-8601 format yyyy-mm-dd (e.g. 2000-01-31).
+          type: string
+        ownerHouseNumberOrName:
+          description: |-
+            The house name or number of the residence of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerName:
+          description: |-
+            The name of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerNationality:
+          description: |-
+            The country code of the country of nationality of the bank account owner.
+            >The permitted country codes are defined in ISO-3166-1 alpha-2 (e.g. 'NL').
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerPostalCode:
+          description: |-
+            The postal code of the residence of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerState:
+          description: |-
+            The state of residence of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        ownerStreet:
+          description: |-
+            The street name of the residence of the bank account owner.
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        primaryAccount:
+          description: If set to true, the bank account is a primary account.
+          type: boolean
+        taxId:
+          description: |-
+            The tax ID number.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+        urlForVerification:
+          description: |-
+            The URL to be used for bank account verification.
+            This may be generated on bank account creation.
+
+            >Refer to [Required information](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-process/required-information) for details on field requirements.
+          type: string
+      type: object
+    DebitAccountHolderRequest:
+      properties:
+        accountHolderCode:
+          description: The code of the account holder.
+          type: string
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount to be debited from the account holder's bank account.
+        bankAccountUUID:
+          description: The Adyen-generated unique alphanumeric identifier (UUID) of the account holder's bank account.
+          type: string
+        description:
+          description: |-
+            A description of the direct debit. Maximum length: 35 characters.
+
+            Allowed characters: **a-z**, **A-Z**, **0-9**, and special characters **/?:().,'+ ";**.
+          maxLength: 35
+          type: string
+        merchantAccount:
+          description: Your merchant account.
+          type: string
+        splits:
+          description: Contains instructions on how to split the funds between the accounts in your platform. The request must have at least one split item.
+          items:
+            $ref: "#/components/schemas/Split"
+          type: array
+      required:
+        - accountHolderCode
+        - bankAccountUUID
+        - amount
+        - splits
+        - merchantAccount
+      type: object
+    DebitAccountHolderResponse:
+      properties:
+        accountHolderCode:
+          description: The code of the account holder.
+          type: string
+        bankAccountUUID:
+          description: The Adyen-generated unique alphanumeric identifier (UUID) of the account holder's bank account.
+          type: string
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        merchantReferences:
+          description: List of the `reference` values from the `split` array in the request.
+          items:
+            type: string
+          type: array
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    DetailBalance:
+      properties:
+        balance:
+          description: The list of balances held by the account.
+          items:
+            $ref: "#/components/schemas/Amount"
+          type: array
+        onHoldBalance:
+          description: The list of on hold balances held by the account.
+          items:
+            $ref: "#/components/schemas/Amount"
+          type: array
+          x-addedInVersion: "5"
+        pendingBalance:
+          description: The list of pending balances held by the account.
+          items:
+            $ref: "#/components/schemas/Amount"
+          type: array
+      type: object
+    ErrorFieldType:
+      properties:
+        errorCode:
+          description: The validation error code.
+          format: int32
+          type: integer
+        errorDescription:
+          description: A description of the validation error.
+          type: string
+        fieldType:
+          $ref: "#/components/schemas/FieldType"
+          description: The type of error field.
+      type: object
+    FieldType:
+      properties:
+        field:
+          description: The full name of the property.
+          type: string
+        fieldName:
+          description: The type of the field.
+          enum:
+            - accountCode
+            - accountHolderCode
+            - accountHolderDetails
+            - accountNumber
+            - accountStateType
+            - accountStatus
+            - accountType
+            - address
+            - balanceAccount
+            - balanceAccountActive
+            - balanceAccountCode
+            - balanceAccountId
+            - bankAccount
+            - bankAccountCode
+            - bankAccountName
+            - bankAccountUUID
+            - bankBicSwift
+            - bankCity
+            - bankCode
+            - bankName
+            - bankStatement
+            - branchCode
+            - businessContact
+            - cardToken
+            - checkCode
+            - city
+            - companyRegistration
+            - constitutionalDocument
+            - controller
+            - country
+            - countryCode
+            - currency
+            - currencyCode
+            - dateOfBirth
+            - description
+            - destinationAccountCode
+            - document
+            - documentContent
+            - documentExpirationDate
+            - documentIssuerCountry
+            - documentIssuerState
+            - documentName
+            - documentNumber
+            - documentType
+            - doingBusinessAs
+            - drivingLicence
+            - drivingLicenceBack
+            - drivingLicenceFront
+            - drivingLicense
+            - email
+            - firstName
+            - formType
+            - fullPhoneNumber
+            - gender
+            - hopWebserviceUser
+            - houseNumberOrName
+            - iban
+            - idCard
+            - idCardBack
+            - idCardFront
+            - idNumber
+            - identityDocument
+            - individualDetails
+            - infix
+            - jobTitle
+            - lastName
+            - lastReviewDate
+            - legalArrangement
+            - legalArrangementCode
+            - legalArrangementEntity
+            - legalArrangementEntityCode
+            - legalArrangementLegalForm
+            - legalArrangementMember
+            - legalArrangementMembers
+            - legalArrangementName
+            - legalArrangementReference
+            - legalArrangementRegistrationNumber
+            - legalArrangementTaxNumber
+            - legalArrangementType
+            - legalBusinessName
+            - legalEntity
+            - legalEntityType
+            - logo
+            - merchantAccount
+            - merchantCategoryCode
+            - merchantHouseNumber
+            - merchantReference
+            - microDeposit
+            - name
+            - nationality
+            - originalReference
+            - ownerCity
+            - ownerCountryCode
+            - ownerDateOfBirth
+            - ownerHouseNumberOrName
+            - ownerName
+            - ownerPostalCode
+            - ownerState
+            - ownerStreet
+            - passport
+            - passportNumber
+            - payoutMethodCode
+            - payoutSchedule
+            - pciSelfAssessment
+            - personalData
+            - phoneCountryCode
+            - phoneNumber
+            - postalCode
+            - primaryCurrency
+            - reason
+            - registrationNumber
+            - returnUrl
+            - schedule
+            - shareholder
+            - shareholderCode
+            - shareholderCodeAndSignatoryCode
+            - shareholderCodeOrSignatoryCode
+            - shareholderType
+            - shareholderTypes
+            - shopperInteraction
+            - signatory
+            - signatoryCode
+            - socialSecurityNumber
+            - sourceAccountCode
+            - splitAccount
+            - splitConfigurationUUID
+            - splitCurrency
+            - splitValue
+            - splits
+            - stateOrProvince
+            - status
+            - stockExchange
+            - stockNumber
+            - stockTicker
+            - store
+            - storeDetail
+            - storeName
+            - storeReference
+            - street
+            - taxId
+            - tier
+            - tierNumber
+            - transferCode
+            - ultimateParentCompany
+            - ultimateParentCompanyAddressDetails
+            - ultimateParentCompanyAddressDetailsCountry
+            - ultimateParentCompanyBusinessDetails
+            - ultimateParentCompanyBusinessDetailsLegalBusinessName
+            - ultimateParentCompanyBusinessDetailsRegistrationNumber
+            - ultimateParentCompanyCode
+            - ultimateParentCompanyStockExchange
+            - ultimateParentCompanyStockNumber
+            - ultimateParentCompanyStockNumberOrStockTicker
+            - ultimateParentCompanyStockTicker
+            - unknown
+            - value
+            - verificationType
+            - virtualAccount
+            - visaNumber
+            - webAddress
+            - year
+          type: string
+        shareholderCode:
+          description: The code of the shareholder that the field belongs to. If empty, the field belongs to an account holder.
+          type: string
+      type: object
+    PayoutAccountHolderRequest:
+      properties:
+        accountCode:
+          description: The code of the account from which the payout is to be made.
+          type: string
+        accountHolderCode:
+          description: |-
+            The code of the Account Holder who owns the account from which the payout is to be made.
+            The Account Holder is the party to which the payout will be made.
+          type: string
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            An object containing the currency and value of the payout.
+            If the account has multiple currencies, specify the currency to be used.
+            If the `bankAccountUUID` is provided in the request, the currency supported by the bank is used.
+            If the `payoutMethodCode` is provided in the request, the specified payout method is selected.
+        bankAccountUUID:
+          description: |-
+            The unique ID of the Bank Account held by the Account Holder to which the payout is to be made.
+            If left blank, a bank account is automatically selected.
+          type: string
+        description:
+          description: |-
+            A description of the payout. Maximum 200 characters.
+            Allowed: **abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/?:().,'+ ";**
+          maxLength: 200
+          type: string
+        merchantReference:
+          description: A value that can be supplied at the discretion of the executing user in order to link multiple transactions to one another.
+          type: string
+          x-addedInVersion: "2"
+        payoutMethodCode:
+          description: |-
+            The unique ID of the payout method held by the Account Holder to which the payout is to be made.
+            If left blank, a payout instrument is automatically selected.
+          type: string
+          x-addedInVersion: "5"
+        payoutSpeed:
+          default: STANDARD
+          description: "Speed with which payouts for this account are processed. Permitted values: `STANDARD`, `SAME_DAY`."
+          enum:
+            - INSTANT
+            - SAME_DAY
+            - STANDARD
+          type: string
+          x-addedInVersion: "5"
+      required:
+        - accountHolderCode
+        - accountCode
+      type: object
+    PayoutAccountHolderResponse:
+      properties:
+        bankAccountUUID:
+          description: The unique ID of the Bank Account to which the payout was made.
+          type: string
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        merchantReference:
+          description: The value supplied by the executing user when initiating the transfer; may be used to link multiple transactions.
+          type: string
+          x-addedInVersion: "2"
+        payoutSpeed:
+          default: STANDARD
+          description: "Speed with which payouts for this account are processed. Permitted values: `STANDARD`, `SAME_DAY`."
+          enum:
+            - INSTANT
+            - SAME_DAY
+            - STANDARD
+          type: string
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    RefundFundsTransferRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount to be transferred.
+        merchantReference:
+          description: A value that can be supplied at the discretion of the executing user in order to link multiple transactions to one another.
+          type: string
+        originalReference:
+          description: A PSP reference of the original fund transfer.
+          type: string
+      required:
+        - originalReference
+        - amount
+      type: object
+    RefundFundsTransferResponse:
+      properties:
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        merchantReference:
+          description: The value supplied by the executing user when initiating the transfer refund; may be used to link multiple transactions.
+          type: string
+        message:
+          description: The message of the response.
+          type: string
+        originalReference:
+          description: A PSP reference of the original fund transfer.
+          type: string
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    RefundNotPaidOutTransfersRequest:
+      properties:
+        accountCode:
+          description: The code of the account from which to perform the refund(s).
+          type: string
+        accountHolderCode:
+          description: The code of the Account Holder which owns the account from which to perform the refund(s).
+          type: string
+      required:
+        - accountHolderCode
+        - accountCode
+      type: object
+    RefundNotPaidOutTransfersResponse:
+      properties:
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    ServiceError:
+      properties:
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    SetupBeneficiaryRequest:
+      properties:
+        destinationAccountCode:
+          description: The destination account code.
+          type: string
+        merchantReference:
+          description: A value that can be supplied at the discretion of the executing user.
+          type: string
+        sourceAccountCode:
+          description: The benefactor account.
+          type: string
+      required:
+        - sourceAccountCode
+        - destinationAccountCode
+      type: object
+    SetupBeneficiaryResponse:
+      properties:
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    Split:
+      properties:
+        account:
+          description: |+
+            Unique identifier of the account where the split amount should be sent. This is required if `type` is **MarketPlace** or **BalanceAccount**.
+
+          type: string
+        amount:
+          $ref: "#/components/schemas/SplitAmount"
+          description: The amount of this split.
+        description:
+          description: A description of this split.
+          type: string
+        reference:
+          description: |-
+            Your reference for the split, which you can use to link the split to other operations such as captures and refunds.
+
+            This is required if `type` is **MarketPlace** or **BalanceAccount**. For the other types, we also recommend sending a reference so you can reconcile the split and the associated payment in the transaction overview and in the reports. If the reference is not provided, the split is reported as part of the aggregated [TransferBalance record type](https://docs.adyen.com/reporting/marketpay-payments-accounting-report) in Adyen for Platforms.
+          type: string
+        type:
+          description: |-
+            The type of split.
+            Possible values: **Default**, **PaymentFee**, **VAT**, **Commission**, **MarketPlace**, **BalanceAccount**, **Remainder**, **Surcharge**, **Tip**.
+          enum:
+            - BalanceAccount
+            - Commission
+            - Default
+            - MarketPlace
+            - PaymentFee
+            - Remainder
+            - Surcharge
+            - Tip
+            - VAT
+            - Verification
+          type: string
+      required:
+        - amount
+        - type
+      type: object
+    SplitAmount:
+      properties:
+        currency:
+          description: |-
+            The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+
+            If this value is not provided, the currency in which the payment is made will be used.
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+      type: object
+    Transaction:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount of the transaction.
+        bankAccountDetail:
+          $ref: "#/components/schemas/BankAccountDetail"
+          description: The details of the bank account to where a payout was made.
+        captureMerchantReference:
+          description: The merchant reference of a related capture.
+          type: string
+        capturePspReference:
+          description: The psp reference of a related capture.
+          type: string
+        creationDate:
+          description: The date on which the transaction was performed.
+          format: date-time
+          type: string
+        description:
+          description: A description of the transaction.
+          type: string
+        destinationAccountCode:
+          description: The code of the account to which funds were credited during an outgoing fund transfer.
+          type: string
+        disputePspReference:
+          description: The psp reference of the related dispute.
+          type: string
+        disputeReasonCode:
+          description: The reason code of a dispute.
+          type: string
+        merchantReference:
+          description: The merchant reference of a transaction.
+          type: string
+        paymentPspReference:
+          description: The psp reference of the related authorisation or transfer.
+          type: string
+          x-addedInVersion: "3"
+        payoutPspReference:
+          description: The psp reference of the related payout.
+          type: string
+          x-addedInVersion: "3"
+        pspReference:
+          description: The psp reference of a transaction.
+          type: string
+        sourceAccountCode:
+          description: The code of the account from which funds were debited during an incoming fund transfer.
+          type: string
+        transactionStatus:
+          description: |-
+            The status of the transaction.
+            >Permitted values: `PendingCredit`, `CreditFailed`, `CreditClosed`, `CreditSuspended`, `Credited`, `Converted`, `PendingDebit`, `DebitFailed`, `Debited`, `DebitReversedReceived`, `DebitedReversed`, `ChargebackReceived`, `Chargeback`, `ChargebackReversedReceived`, `ChargebackReversed`, `Payout`, `PayoutReversed`, `FundTransfer`, `PendingFundTransfer`, `ManualCorrected`.
+          enum:
+            - BalanceNotPaidOutTransfer
+            - BalancePlatformSweep
+            - BalancePlatformSweepReturned
+            - Chargeback
+            - ChargebackCorrection
+            - ChargebackCorrectionReceived
+            - ChargebackReceived
+            - ChargebackReversed
+            - ChargebackReversedCorrection
+            - ChargebackReversedCorrectionReceived
+            - ChargebackReversedReceived
+            - Converted
+            - CreditClosed
+            - CreditFailed
+            - CreditReversed
+            - CreditReversedReceived
+            - CreditSuspended
+            - Credited
+            - DebitFailed
+            - DebitReversedReceived
+            - Debited
+            - DebitedReversed
+            - DepositCorrectionCredited
+            - DepositCorrectionDebited
+            - Fee
+            - FundTransfer
+            - FundTransferReversed
+            - InvoiceDeductionCredited
+            - InvoiceDeductionDebited
+            - ManualCorrected
+            - ManualCorrectionCredited
+            - ManualCorrectionDebited
+            - MerchantPayin
+            - MerchantPayinReversed
+            - Payout
+            - PayoutReversed
+            - PendingCredit
+            - PendingDebit
+            - PendingFundTransfer
+            - ReCredited
+            - ReCreditedReceived
+            - SecondChargeback
+            - SecondChargebackCorrection
+            - SecondChargebackCorrectionReceived
+            - SecondChargebackReceived
+          type: string
+        transferCode:
+          description: The transfer code of the transaction.
+          type: string
+      type: object
+    TransactionListForAccount:
+      properties:
+        accountCode:
+          description: The account for which to retrieve the transactions.
+          type: string
+        page:
+          description: |-
+            The page of transactions to retrieve.
+            Each page lists fifty (50) transactions.  The most recent transactions are included on page 1.
+          format: int32
+          type: integer
+      required:
+        - accountCode
+        - page
+      type: object
+    TransferFundsRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount to be transferred.
+        destinationAccountCode:
+          description: |-
+            The code of the account to which the funds are to be credited.
+            >The state of the Account Holder of this account must be Active.
+          type: string
+        merchantReference:
+          description: A value that can be supplied at the discretion of the executing user in order to link multiple transactions to one another.
+          type: string
+          x-addedInVersion: "2"
+        sourceAccountCode:
+          description: |-
+            The code of the account from which the funds are to be debited.
+            >The state of the Account Holder of this account must be Active and allow payouts.
+          type: string
+        transferCode:
+          description: |-
+            The code related to the type of transfer being performed.
+            >The permitted codes differ for each platform account and are defined in their service level agreement.
+          type: string
+      required:
+        - sourceAccountCode
+        - destinationAccountCode
+        - transferCode
+        - amount
+      type: object
+    TransferFundsResponse:
+      properties:
+        invalidFields:
+          description: Contains field validation errors that would prevent requests from being processed.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        merchantReference:
+          description: The value supplied by the executing user when initiating the transfer; may be used to link multiple transactions.
+          type: string
+          x-addedInVersion: "2"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - General
+  - Migration

@@ -1,0 +1,672 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+
+    Please also be aware that our test environment is based on a subset of the production, this API in test only returns a few selected cities. You can find the list in our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Points of Interest
+  version: 1.1.1
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/PointsOfInterest_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    "1.0":
+      - Initial Version
+    1.0.1:
+      - Move from PointOfInterst to Location definition
+    1.0.2:
+      - New by-square endpoint as secondary resource
+    "1.1":
+      - Add an id, self and rank to location resource
+      - Introduce GET by id
+      - add filter parameter for search operation
+  x-serviceName: amadeus-points-of-interest
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  categories:
+    description: |
+      category of the location. 
+
+      Multiple value can be selected using a comma i.e. SIGHTS, SHOPPING
+    in: query
+    items:
+      collectionFormat: csv
+      enum:
+        - SIGHTS
+        - NIGHTLIFE
+        - RESTAURANT
+        - SHOPPING
+      type: string
+    name: categories
+    required: false
+    type: array
+  pageLimit:
+    default: 10
+    description: maximum items in one page
+    in: query
+    name: page[limit]
+    required: false
+    type: integer
+  pageOffset:
+    default: 0
+    description: start index of the requested page
+    in: query
+    name: page[offset]
+    required: false
+    type: integer
+  poisId:
+    description: identifier of the pois
+    in: path
+    name: poisId
+    required: true
+    type: string
+    x-example: 9CB40CB5D0
+responses:
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      4926    | INVALID DATA RECEIVED               
+      32171   | MANDATORY DATA MISSING 	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  "404":
+    description: Not Found
+    schema:
+      $ref: "#/definitions/Error_404"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+  point-of-interest:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          category: SIGHTS
+          geoCode:
+            latitude: 41.39165
+            longitude: 2.164772
+          id: 9CB40CB5D0
+          name: Casa Batlló
+          rank: 1
+          self:
+            href: https://test.api.amadeus.com/v1/reference-data/locations/pois/9CB40CB5D0
+            methods:
+              - GET
+          subType: POINT_OF_INTEREST
+          tags:
+            - sightseeing
+            - sights
+            - museum
+            - landmark
+            - tourguide
+            - restaurant
+            - attraction
+            - activities
+            - commercialplace
+            - shopping
+            - souvenir
+          type: location
+      properties:
+        data:
+          $ref: "#/definitions/Location"
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+      required:
+        - data
+      title: Success
+  points-of-interest:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - category: SIGHTS
+            geoCode:
+              latitude: 41.39165
+              longitude: 2.164772
+            id: 9CB40CB5D0
+            name: Casa Batlló
+            rank: 5
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/9CB40CB5D0
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - sightseeing
+              - sights
+              - museum
+              - landmark
+              - tourguide
+              - restaurant
+              - attraction
+              - activities
+              - commercialplace
+              - shopping
+              - souvenir
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.397987
+              longitude: 2.161159
+            id: 4690B83DCA
+            name: La Pepita
+            rank: 30
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/4690B83DCA
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - tapas
+              - pub
+              - bar
+              - sightseeing
+              - commercialplace
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.38827
+              longitude: 2.161604
+            id: 3EF139D861
+            name: Brunch & Cake
+            rank: 30
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/3EF139D861
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - vegetarian
+              - restaurant
+              - breakfast
+              - shopping
+              - bakery
+              - transport
+              - patio
+              - garden
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.392376
+              longitude: 2.160919
+            id: AB3F122E3E
+            name: Cervecería Catalana
+            rank: 30
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/AB3F122E3E
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - tapas
+              - sightseeing
+              - traditionalcuisine
+              - bar
+              - activities
+              - commercialplace
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.40043
+              longitude: 2.15463
+            id: 752402FCA2
+            name: Botafumeiro
+            rank: 30
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/752402FCA2
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - seafood
+              - sightseeing
+              - professionalservices
+              - transport
+              - commercialplace
+            type: location
+          - category: SIGHTS
+            geoCode:
+              latitude: 41.39148
+              longitude: 2.164981
+            id: 5F1CED3994
+            name: Casa Amatller
+            rank: 100
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/5F1CED3994
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - sightseeing
+              - sights
+              - museum
+              - landmark
+              - restaurant
+              - tourguide
+              - historicplace
+              - historic
+              - attraction
+              - commercialplace
+              - activities
+              - shopping
+              - events
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.390785
+              longitude: 2.167414
+            id: 30601A1A90
+            name: Tapas 24
+            rank: 100
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/30601A1A90
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - tapas
+              - traditionalcuisine
+              - sightseeing
+              - commercialplace
+              - transport
+              - patio
+              - garden
+              - activities
+              - bar
+            type: location
+          - category: NIGHTLIFE
+            geoCode:
+              latitude: 41.392677
+              longitude: 2.153942
+            id: 15C8B8148C
+            name: Dry Martini
+            rank: 100
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/15C8B8148C
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - bar
+              - restaurant
+              - nightlife
+              - club
+              - sightseeing
+              - attraction
+              - activities
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.399193
+              longitude: 2.159853
+            id: BD29CF2CCD
+            name: Con Gracia
+            rank: 100
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/BD29CF2CCD
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - sightseeing
+              - commercialplace
+              - professionalservices
+              - activities
+            type: location
+          - category: RESTAURANT
+            geoCode:
+              latitude: 41.390198
+              longitude: 2.156974
+            id: 24DE6CE737
+            name: Osmosis
+            rank: 100
+            self:
+              href: https://test.api.amadeus.com/v1/reference-data/locations/pois/24DE6CE737
+              methods:
+                - GET
+            subType: POINT_OF_INTEREST
+            tags:
+              - restaurant
+              - shopping
+              - transport
+              - professionalservices
+            type: location
+        meta:
+          count: 120
+          links:
+            first: https://test.api.amadeus.com/v1/reference-data/locations/pois?latitude=41.397158&longitude=2.160873&page[offset]=0&page[limit]=10
+            last: https://test.api.amadeus.com/v1/reference-data/locations/pois?latitude=41.397158&longitude=2.160873&page[offset]=120&page[limit]=10
+            next: https://test.api.amadeus.com/v1/reference-data/locations/pois?latitude=41.397158&longitude=2.160873&page[offset]=10&page[limit]=10
+            self: https://test.api.amadeus.com/v1/reference-data/locations/pois?latitude=41.397158&longitude=2.160873
+            up: https://test.api.amadeus.com/v1/reference-data/locations/pois?latitude=41.397158&longitude=2.160873
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/Location"
+          type: array
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+      required:
+        - data
+      title: Success
+paths:
+  /reference-data/locations/pois:
+    get:
+      description: ""
+      operationId: getPointsOfInterest
+      parameters:
+        - description: Latitude (decimal coordinates)
+          format: double
+          in: query
+          name: latitude
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude (decimal coordinates)
+          format: double
+          in: query
+          name: longitude
+          required: true
+          type: number
+          x-example: 2.160873
+        - default: 1
+          description: radius of the search in Kilometer. Can be from 0 to 20, default value is 1 Km.
+          in: query
+          maximum: 20
+          minimum: 0
+          name: radius
+          required: false
+          type: integer
+        - $ref: "#/parameters/pageLimit"
+        - $ref: "#/parameters/pageOffset"
+        - $ref: "#/parameters/categories"
+      responses:
+        "200":
+          $ref: "#/responses/points-of-interest"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns points of interest for a given location and radius.
+      tags:
+        - Search
+  /reference-data/locations/pois/by-square:
+    get:
+      description: ""
+      operationId: getPointsOfInterestBySquare
+      parameters:
+        - description: Latitude north of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: north
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude west of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: west
+          required: true
+          type: number
+          x-example: 2.160873
+        - description: Latitude south of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: south
+          required: true
+          type: number
+          x-example: 41.394582
+        - description: Longitude east of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: east
+          required: true
+          type: number
+          x-example: 2.177181
+        - $ref: "#/parameters/pageLimit"
+        - $ref: "#/parameters/pageOffset"
+        - $ref: "#/parameters/categories"
+      responses:
+        "200":
+          $ref: "#/responses/points-of-interest"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns points of interest for a given area
+      tags:
+        - Search
+  "/reference-data/locations/pois/{poisId}":
+    get:
+      description: ""
+      operationId: getPointOfInterest
+      responses:
+        "200":
+          $ref: "#/responses/point-of-interest"
+        "400":
+          $ref: "#/responses/400"
+        "404":
+          $ref: "#/responses/404"
+        default:
+          $ref: "#/responses/500"
+      summary: Retieve one point of interest by its Id.
+      tags:
+        - Retrieve
+    parameters:
+      - $ref: "#/parameters/poisId"
+definitions:
+  Collection_Meta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+    title: Collection_Meta
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_404:
+    example:
+      errors:
+        - code: 1797
+          detail: no response found for this query parameter
+          source:
+            parameter: airport
+          status: 404
+          title: NOT FOUND
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  GeoCode:
+    properties:
+      latitude:
+        description: latitude of the location
+        example: 43.580418
+        format: double
+        type: number
+      longitude:
+        description: longitude of the location
+        example: 7.125102
+        format: double
+        type: number
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Links:
+    example:
+      href: string
+    properties:
+      href:
+        format: uri
+        type: string
+      methods:
+        items:
+          enum:
+            - GET
+            - PUT
+            - DELETE
+            - POST
+            - PATCH
+          type: string
+        type: array
+  Location:
+    properties:
+      category:
+        description: category of the location
+        enum:
+          - SIGHTS
+          - BEACH_PARK
+          - HISTORICAL
+          - NIGHTLIFE
+          - RESTAURANT
+          - SHOPPING
+        example: HISTORICAL
+        type: string
+      geoCode:
+        $ref: "#/definitions/GeoCode"
+      id:
+        description: id of the ressource
+        type: string
+      name:
+        description: short name of the location
+        example: Paris CDG
+        type: string
+      rank:
+        description: the rank is the position compared to other locations based on how famous is a place. 1 being the highest.
+        example: 1
+        type: string
+      self:
+        $ref: "#/definitions/Links"
+      subType:
+        description: location sub type
+        enum:
+          - AIRPORT
+          - CITY
+          - POINT_OF_INTEREST
+          - DISTRICT
+        example: AIRPORT
+        type: string
+      tags:
+        description: list of tags related to the location
+        items:
+          example:
+            - grocery
+            - japanese
+            - cafe
+          type: string
+        type: array
+      type:
+        description: the resource name
+        example: location
+        type: string
+x-generatedAt: 2020-07-22T12:31:24.740Z

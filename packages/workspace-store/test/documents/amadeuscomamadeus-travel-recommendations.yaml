@@ -1,0 +1,318 @@
+openapi: 3.0.0
+servers:
+  - url: https://test.api.amadeus.com/v1
+info:
+  description: Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+  title: Travel Recommendations API
+  version: 1.0.3
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/TravelRecommendations_v1_swagger_specification.json
+      version: "3.0"
+  x-providerName: amadeus.com
+  x-serviceName: amadeus-travel-recommendations
+paths:
+  /reference-data/recommended-locations:
+    get:
+      description: ""
+      operationId: getRecommendedLocation
+      parameters:
+        - description: |-
+            City used by the algorythm to recommend new destination. Several cities can be specified using comma.
+
+            City codes follow [IATA standard](http://www.iata.org/publications/Pages/code-search.aspx)
+          example: PAR
+          in: query
+          name: cityCodes
+          required: true
+          schema:
+            type: string
+        - description: Origin country of the traveler following [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code format (e.g. US)
+          example: FR
+          in: query
+          name: travelerCountryCode
+          schema:
+            default: FR
+            maxLength: 2
+            minLength: 2
+            type: string
+        - description: |-
+            List of country the traveler want to visit, separated with comma.
+
+            Country codes follow [ISO 3166-1 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2) code format (e.g. US)
+          in: query
+          name: destinationCountryCodes
+          schema:
+            type: string
+      responses:
+        "200":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                Successful Reply:
+                  value:
+                    data:
+                      - geoCode:
+                          latitude: 48.85755
+                          longiture: 2.34276
+                        iataCode: PAR
+                        name: PARIS
+                        relevance: 0.71
+                        subtype: CITY
+                        type: recommended-location
+                      - geoCode:
+                          latitude: 40.41654
+                          longiture: 3.70348
+                        iataCode: MAD
+                        name: MADRID
+                        relevance: 0.68
+                        subtype: CITY
+                        type: recommended-location
+                    meta:
+                      count: 2
+                      links:
+                        self: https://test.api.amadeus.com/v1/reference-data/recommended-locations?cityCodes=LON&travelerCountryCode=FR
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: "#/components/schemas/RecommendedLocation"
+                    type: array
+                  meta:
+                    $ref: "#/components/schemas/Meta"
+                  warnings:
+                    items:
+                      $ref: "#/components/schemas/Warning"
+                    type: array
+                type: object
+          description: Successful reply
+        "400":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                Error 400:
+                  value:
+                    errors:
+                      - code: 477
+                        detail: invalid query parameter format
+                        source:
+                          example: PAR
+                          parameter: cityCodes
+                        status: 400
+                        title: INVALID FORMAT
+              schema:
+                $ref: "#/components/schemas/Error_400"
+          description: |-
+            code    | title                                 
+            ------- | ------------------------------------- 
+            477     | INVALID FORMAT
+            572     | INVALID OPTION                            
+            32171   | MANDATORY DATA MISSING 
+        "500":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                Error 500:
+                  value:
+                    errors:
+                      - code: 141
+                        status: 500
+                        title: SYSTEM ERROR HAS OCCURRED
+              schema:
+                $ref: "#/components/schemas/Error_500"
+          description: Internal Server Error
+      summary: GET recommended destinations
+      tags:
+        - recommended-locations
+components:
+  schemas:
+    Error_400:
+      description: A set of errors
+      properties:
+        errors:
+          items:
+            description: The Error Definition
+            properties:
+              code:
+                description: A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error
+                type: integer
+              detail:
+                description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+                type: string
+              source:
+                properties:
+                  example:
+                    description: A sample input to guide the user when resolving this issue
+                    type: string
+                  parameter:
+                    description: The key of the URI path or query parameter that caused the error
+                    type: string
+                  pointer:
+                    description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+                    type: string
+                title: Error_Source
+                type: object
+              status:
+                description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+                type: integer
+              title:
+                description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+                type: string
+            title: Error
+            type: object
+          type: array
+      title: Error 400
+      type: object
+    Error_500:
+      description: A set of errors
+      properties:
+        errors:
+          items:
+            description: The Error Definition
+            properties:
+              code:
+                description: A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error
+                type: integer
+              detail:
+                description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+                type: string
+              source:
+                properties:
+                  example:
+                    description: A sample input to guide the user when resolving this issue
+                    type: string
+                  parameter:
+                    description: The key of the URI path or query parameter that caused the error
+                    type: string
+                  pointer:
+                    description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+                    type: string
+                title: Error_Source
+                type: object
+              status:
+                description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+                type: integer
+              title:
+                description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+                type: string
+            title: Error
+            type: object
+          type: array
+      title: Error 500
+      type: object
+    Meta:
+      description: Meta information about the returned object(s) in "data"
+      properties:
+        count:
+          description: Total number of object(s) retrieved
+          exclusiveMinimum: false
+          format: int64
+          minimum: 0
+          type: integer
+        links:
+          description: Links related to the returned object(s)
+          properties:
+            self:
+              description: Link to the same page.
+              format: url
+              type: string
+          title: Links
+          type: object
+      title: Meta
+      type: object
+    RecommendedLocation:
+      allOf:
+        - description: Description of a particular point or place in physical space
+          properties:
+            geoCode:
+              description: Geographic coordinates describing the position of any location on the surface of Earth
+              properties:
+                latitude:
+                  description: Latitude of the position expressed in decimal degrees (WSG 84), e.g. 6.244203. A positive value denotes northern hemisphere or the equator, and a negative value denotes southern hemisphere. The number of digits to represent the precision of the coordinate.
+                  example: 48.85837
+                  exclusiveMaximum: false
+                  exclusiveMinimum: false
+                  format: float
+                  maximum: 90
+                  minimum: -90
+                  type: number
+                longitude:
+                  description: Longitude of the position expressed in decimal degrees (WSG 84), e.g. -75.581211. A positive value denotes east longitude or the prime meridian, and a negative value denotes west longitude.  The number of digits to represent the precision of the coordinate.
+                  example: 2.294481
+                  exclusiveMaximum: false
+                  exclusiveMinimum: false
+                  format: float
+                  maximum: 180
+                  minimum: -180
+                  type: number
+              title: GeoCode
+              type: object
+            iataCode:
+              description: IATA location code
+              example: PAR
+              type: string
+            name:
+              description: Label associated to the location (e.g. Eiffel Tower, Madison Square)
+              example: Eiffel Tower
+              type: string
+            subtype:
+              description: Location sub-type (e.g. airport, port, rail-station, restaurant, atm...)
+              type: string
+          title: Location
+          type: object
+        - properties:
+            relevance:
+              description: |-
+                percentage of similarity.
+
+                0 for not similar to 1 for exactly the same
+              type: number
+            type:
+              description: Ressource type
+              type: string
+          type: object
+      description: Similar Location
+      title: ""
+      x-examples:
+        Example:
+          geoCode:
+            latitude: 48.85755
+            longiture: 2.34276
+          iataCode: PAR
+          name: PARIS
+          relevance: 0.71
+          subtype: CITY
+          type: recommended-location
+    Warning:
+      description: The Warning Definition
+      properties:
+        code:
+          description: A machine-readable error code from the Canned Messages table, that will enable the API Consumers code to handle this type of error
+          type: integer
+        detail:
+          description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+          type: string
+        source:
+          description: The Warning Source Definition
+          properties:
+            example:
+              description: A sample input to guide the user when resolving this issu
+              type: string
+            parameter:
+              description: The key of the URI path or query parameter that caused the error
+              type: string
+            pointer:
+              description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+              type: string
+          title: Warning_Source
+          type: object
+        title:
+          description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+          type: string
+      required:
+        - code
+        - title
+      title: Warning
+      type: object

@@ -1,0 +1,1825 @@
+openapi: 3.0.0
+info:
+  version: 2020-07-29
+  x-release: v4
+  title: Amazon AppIntegrations Service
+  description: <p>The Amazon AppIntegrations service enables you to configure and reuse connections to external applications.</p> <p>For information about how you can use external applications with Amazon Connect, see <a href="https://docs.aws.amazon.com/connect/latest/adminguide/crm.html">Set up pre-built integrations</a> and <a href="https://docs.aws.amazon.com/connect/latest/adminguide/amazon-connect-wisdom.html">Deliver information to agents using Amazon Connect Wisdom</a> in the <i>Amazon Connect Administrator Guide</i>.</p>
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_awscloud_profile_image.png
+    backgroundColor: "#FFFFFF"
+  termsOfService: https://aws.amazon.com/service-terms/
+  contact:
+    name: Mike Ralphson
+    email: mike.ralphson@gmail.com
+    url: https://github.com/mermade/aws2openapi
+    x-twitter: PermittedSoc
+  license:
+    name: Apache 2.0 License
+    url: http://www.apache.org/licenses/
+  x-providerName: amazonaws.com
+  x-serviceName: appintegrations
+  x-aws-signingName: app-integrations
+  x-origin:
+    - contentType: application/json
+      url: https://raw.githubusercontent.com/aws/aws-sdk-js/master/apis/appintegrations-2020-07-29.normal.json
+      converter:
+        url: https://github.com/mermade/aws2openapi
+        version: 1.0.0
+      x-apisguru-driver: external
+  x-apiClientRegistration:
+    url: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?nc2=h_ct
+  x-apisguru-categories:
+    - cloud
+  x-preferred: true
+externalDocs:
+  description: Amazon Web Services documentation
+  url: https://docs.aws.amazon.com/app-integrations/
+servers:
+  - url: http://app-integrations.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The Amazon AppIntegrations Service multi-region endpoint
+  - url: https://app-integrations.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The Amazon AppIntegrations Service multi-region endpoint
+  - url: http://app-integrations.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The Amazon AppIntegrations Service endpoint for China (Beijing) and China (Ningxia)
+  - url: https://app-integrations.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The Amazon AppIntegrations Service endpoint for China (Beijing) and China (Ningxia)
+x-hasEquivalentPaths: true
+paths:
+  /dataIntegrations:
+    post:
+      operationId: CreateDataIntegration
+      description: <p>Creates and persists a DataIntegration resource.</p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <code>CreateDataIntegration</code> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateDataIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ResourceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceQuotaExceededException"
+        "482":
+          description: DuplicateResourceException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateResourceException"
+        "483":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "484":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "485":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - Name
+                - KmsKey
+                - SourceURI
+                - ScheduleConfig
+              properties:
+                Name:
+                  description: The name of the DataIntegration.
+                  type: string
+                  pattern: ^[a-zA-Z0-9\/\._\-]+$
+                  minLength: 1
+                  maxLength: 255
+                Description:
+                  description: A description of the DataIntegration.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 1000
+                KmsKey:
+                  description: The KMS key for the DataIntegration.
+                  type: string
+                  pattern: .*\S.*
+                  minLength: 1
+                  maxLength: 255
+                SourceURI:
+                  description: The URI of the data source.
+                  type: string
+                  pattern: ^(\w+\:\/\/[\w.-]+[\w/!@#+=.-]+$)|(\w+\:\/\/[\w.-]+[\w/!@#+=.-]+[\w/!@#+=.-]+[\w/!@#+=.,-]+$)
+                  minLength: 1
+                  maxLength: 1000
+                ScheduleConfig:
+                  description: The name of the data and how often it should be pulled from the source.
+                  type: object
+                  properties:
+                    FirstExecutionFrom:
+                      allOf:
+                        - $ref: "#/components/schemas/NonBlankString"
+                        - description: The start date for objects to import in the first flow run as an Unix/epoch timestamp in milliseconds or in ISO-8601 format.
+                    Object:
+                      allOf:
+                        - $ref: "#/components/schemas/Object"
+                        - description: The name of the object to pull from the data source.
+                    ScheduleExpression:
+                      allOf:
+                        - $ref: "#/components/schemas/NonBlankString"
+                        - description: How often the data should be pulled from data source.
+                Tags:
+                  description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+                  type: object
+                  minProperties: 1
+                  maxProperties: 200
+                  additionalProperties:
+                    $ref: "#/components/schemas/TagValue"
+                ClientToken:
+                  description: A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. If not provided, the Amazon Web Services SDK populates this field. For more information about idempotency, see <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 2048
+                FileConfiguration:
+                  description: The configuration for what files should be pulled from the source.
+                  type: object
+                  properties:
+                    Folders:
+                      allOf:
+                        - $ref: "#/components/schemas/FolderList"
+                        - description: Identifiers for the source folders to pull all files from recursively.
+                    Filters:
+                      allOf:
+                        - $ref: "#/components/schemas/FieldsMap"
+                        - description: Restrictions for what files should be pulled from the source.
+                ObjectConfiguration:
+                  description: The configuration for what data should be pulled from the source.
+                  type: object
+                  additionalProperties:
+                    $ref: "#/components/schemas/FieldsMap"
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    get:
+      operationId: ListDataIntegrations
+      description: <p>Returns a paginated list of DataIntegrations in the account.</p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <a href="https://docs.aws.amazon.com/appintegrations/latest/APIReference/API_CreateDataIntegration.html">CreateDataIntegration</a> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListDataIntegrationsResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "483":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: nextToken
+          in: query
+          required: false
+          description: The token for the next set of results. Use the value returned in the previous response in the next request to retrieve the next set of results.
+          schema:
+            type: string
+            pattern: .*
+            minLength: 1
+            maxLength: 1000
+        - name: maxResults
+          in: query
+          required: false
+          description: The maximum number of results to return per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+  /eventIntegrations:
+    post:
+      operationId: CreateEventIntegration
+      description: Creates an EventIntegration, given a specified name, description, and a reference to an Amazon EventBridge bus in your account and a partner event source that pushes events to that bus. No objects are created in the your account, only metadata that is persisted on the EventIntegration control plane.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateEventIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ResourceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceQuotaExceededException"
+        "482":
+          description: DuplicateResourceException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DuplicateResourceException"
+        "483":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "484":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "485":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - Name
+                - EventFilter
+                - EventBridgeBus
+              properties:
+                Name:
+                  description: The name of the event integration.
+                  type: string
+                  pattern: ^[a-zA-Z0-9\/\._\-]+$
+                  minLength: 1
+                  maxLength: 255
+                Description:
+                  description: The description of the event integration.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 1000
+                EventFilter:
+                  description: The event filter.
+                  type: object
+                  properties:
+                    Source:
+                      allOf:
+                        - $ref: "#/components/schemas/Source"
+                        - description: The source of the events.
+                EventBridgeBus:
+                  description: The EventBridge bus.
+                  type: string
+                  pattern: ^[a-zA-Z0-9\/\._\-]+$
+                  minLength: 1
+                  maxLength: 255
+                ClientToken:
+                  description: A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. If not provided, the Amazon Web Services SDK populates this field. For more information about idempotency, see <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 2048
+                Tags:
+                  description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+                  type: object
+                  minProperties: 1
+                  maxProperties: 200
+                  additionalProperties:
+                    $ref: "#/components/schemas/TagValue"
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    get:
+      operationId: ListEventIntegrations
+      description: Returns a paginated list of event integrations in the account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEventIntegrationsResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "483":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: nextToken
+          in: query
+          required: false
+          description: The token for the next set of results. Use the value returned in the previous response in the next request to retrieve the next set of results.
+          schema:
+            type: string
+            pattern: .*
+            minLength: 1
+            maxLength: 1000
+        - name: maxResults
+          in: query
+          required: false
+          description: The maximum number of results to return per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+  "/dataIntegrations/{Identifier}":
+    delete:
+      operationId: DeleteDataIntegration
+      description: <p>Deletes the DataIntegration. Only DataIntegrations that don't have any DataIntegrationAssociations can be deleted. Deleting a DataIntegration also deletes the underlying Amazon AppFlow flow and service linked role. </p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <a href="https://docs.aws.amazon.com/appintegrations/latest/APIReference/API_CreateDataIntegration.html">CreateDataIntegration</a> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteDataIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Identifier
+          in: path
+          required: true
+          description: A unique identifier for the DataIntegration.
+          schema:
+            type: string
+            pattern: .*\S.*
+            minLength: 1
+            maxLength: 255
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    get:
+      operationId: GetDataIntegration
+      description: <p>Returns information about the DataIntegration.</p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <a href="https://docs.aws.amazon.com/appintegrations/latest/APIReference/API_CreateDataIntegration.html">CreateDataIntegration</a> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetDataIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Identifier
+          in: path
+          required: true
+          description: A unique identifier.
+          schema:
+            type: string
+            pattern: .*\S.*
+            minLength: 1
+            maxLength: 255
+    patch:
+      operationId: UpdateDataIntegration
+      description: <p>Updates the description of a DataIntegration.</p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <a href="https://docs.aws.amazon.com/appintegrations/latest/APIReference/API_CreateDataIntegration.html">CreateDataIntegration</a> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateDataIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Identifier
+          in: path
+          required: true
+          description: A unique identifier for the DataIntegration.
+          schema:
+            type: string
+            pattern: .*\S.*
+            minLength: 1
+            maxLength: 255
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Name:
+                  description: The name of the DataIntegration.
+                  type: string
+                  pattern: ^[a-zA-Z0-9\/\._\-]+$
+                  minLength: 1
+                  maxLength: 255
+                Description:
+                  description: A description of the DataIntegration.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 1000
+  "/eventIntegrations/{Name}":
+    delete:
+      operationId: DeleteEventIntegration
+      description: Deletes the specified existing event integration. If the event integration is associated with clients, the request is rejected.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteEventIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Name
+          in: path
+          required: true
+          description: The name of the event integration.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9\/\._\-]+$
+            minLength: 1
+            maxLength: 255
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    get:
+      operationId: GetEventIntegration
+      description: Returns information about the event integration.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetEventIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Name
+          in: path
+          required: true
+          description: "The name of the event integration. "
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9\/\._\-]+$
+            minLength: 1
+            maxLength: 255
+    patch:
+      operationId: UpdateEventIntegration
+      description: Updates the description of an event integration.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateEventIntegrationResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Name
+          in: path
+          required: true
+          description: The name of the event integration.
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9\/\._\-]+$
+            minLength: 1
+            maxLength: 255
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Description:
+                  description: The description of the event inegration.
+                  type: string
+                  pattern: .*
+                  minLength: 1
+                  maxLength: 1000
+  "/dataIntegrations/{Identifier}/associations":
+    get:
+      operationId: ListDataIntegrationAssociations
+      description: <p>Returns a paginated list of DataIntegration associations in the account.</p> <note> <p>You cannot create a DataIntegration association for a DataIntegration that has been previously associated. Use a different DataIntegration, or recreate the DataIntegration using the <a href="https://docs.aws.amazon.com/appintegrations/latest/APIReference/API_CreateDataIntegration.html">CreateDataIntegration</a> API.</p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListDataIntegrationAssociationsResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Identifier
+          in: path
+          required: true
+          description: A unique identifier for the DataIntegration.
+          schema:
+            type: string
+            pattern: .*\S.*
+            minLength: 1
+            maxLength: 255
+        - name: nextToken
+          in: query
+          required: false
+          description: The token for the next set of results. Use the value returned in the previous response in the next request to retrieve the next set of results.
+          schema:
+            type: string
+            pattern: .*
+            minLength: 1
+            maxLength: 1000
+        - name: maxResults
+          in: query
+          required: false
+          description: The maximum number of results to return per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/eventIntegrations/{Name}/associations":
+    get:
+      operationId: ListEventIntegrationAssociations
+      description: "Returns a paginated list of event integration associations in the account. "
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListEventIntegrationAssociationsResponse"
+        "480":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "481":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "484":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      parameters:
+        - name: Name
+          in: path
+          required: true
+          description: "The name of the event integration. "
+          schema:
+            type: string
+            pattern: ^[a-zA-Z0-9\/\._\-]+$
+            minLength: 1
+            maxLength: 255
+        - name: nextToken
+          in: query
+          required: false
+          description: The token for the next set of results. Use the value returned in the previous response in the next request to retrieve the next set of results.
+          schema:
+            type: string
+            pattern: .*
+            minLength: 1
+            maxLength: 1000
+        - name: maxResults
+          in: query
+          required: false
+          description: The maximum number of results to return per page.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/tags/{resourceArn}":
+    get:
+      operationId: ListTagsForResource
+      description: Lists the tags for the specified resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTagsForResourceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+      parameters:
+        - name: resourceArn
+          in: path
+          required: true
+          description: "The Amazon Resource Name (ARN) of the resource. "
+          schema:
+            type: string
+            pattern: ^arn:aws:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}$
+            minLength: 1
+            maxLength: 2048
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    post:
+      operationId: TagResource
+      description: Adds the specified tags to the specified resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResourceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+      parameters:
+        - name: resourceArn
+          in: path
+          required: true
+          description: The Amazon Resource Name (ARN) of the resource.
+          schema:
+            type: string
+            pattern: ^arn:aws:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}$
+            minLength: 1
+            maxLength: 2048
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - tags
+              properties:
+                tags:
+                  description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+                  type: object
+                  minProperties: 1
+                  maxProperties: 200
+                  additionalProperties:
+                    $ref: "#/components/schemas/TagValue"
+  "/tags/{resourceArn}#tagKeys":
+    delete:
+      operationId: UntagResource
+      description: Removes the specified tags from the specified resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UntagResourceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceError
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceError"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: ThrottlingException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThrottlingException"
+      parameters:
+        - name: resourceArn
+          in: path
+          required: true
+          description: The Amazon Resource Name (ARN) of the resource.
+          schema:
+            type: string
+            pattern: ^arn:aws:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}$
+            minLength: 1
+            maxLength: 2048
+        - name: tagKeys
+          in: query
+          required: true
+          description: The tag keys.
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/TagKey"
+            minItems: 1
+            maxItems: 200
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+components:
+  parameters:
+    X-Amz-Content-Sha256:
+      name: X-Amz-Content-Sha256
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Date:
+      name: X-Amz-Date
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Algorithm:
+      name: X-Amz-Algorithm
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Credential:
+      name: X-Amz-Credential
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Security-Token:
+      name: X-Amz-Security-Token
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Signature:
+      name: X-Amz-Signature
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-SignedHeaders:
+      name: X-Amz-SignedHeaders
+      in: header
+      schema:
+        type: string
+      required: false
+  securitySchemes:
+    hmac:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Amazon Signature authorization v4
+      x-amazon-apigateway-authtype: awsSigv4
+  schemas:
+    CreateDataIntegrationResponse:
+      type: object
+      properties:
+        Arn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN)
+        Id:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: A unique identifier.
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the DataIntegration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: A description of the DataIntegration.
+        KmsKey:
+          allOf:
+            - $ref: "#/components/schemas/NonBlankString"
+            - description: The KMS key for the DataIntegration.
+        SourceURI:
+          allOf:
+            - $ref: "#/components/schemas/SourceURI"
+            - description: The URI of the data source.
+        ScheduleConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ScheduleConfiguration"
+            - description: The name of the data and how often it should be pulled from the source.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+        ClientToken:
+          allOf:
+            - $ref: "#/components/schemas/IdempotencyToken"
+            - description: A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. If not provided, the Amazon Web Services SDK populates this field. For more information about idempotency, see <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.
+        FileConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/FileConfiguration"
+            - description: The configuration for what files should be pulled from the source.
+        ObjectConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObjectConfiguration"
+            - description: The configuration for what data should be pulled from the source.
+    NonBlankString:
+      type: string
+      pattern: .*\S.*
+      minLength: 1
+      maxLength: 255
+    Object:
+      type: string
+      pattern: ^[a-zA-Z0-9\/\._\-]+$
+      minLength: 1
+      maxLength: 255
+    TagValue:
+      type: string
+      maxLength: 256
+    FolderList:
+      type: array
+      items:
+        $ref: "#/components/schemas/NonBlankLongString"
+      minItems: 1
+      maxItems: 10
+    FieldsMap:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/FieldsList"
+    InternalServiceError: {}
+    ResourceQuotaExceededException: {}
+    DuplicateResourceException: {}
+    ThrottlingException: {}
+    InvalidRequestException: {}
+    AccessDeniedException: {}
+    CreateEventIntegrationResponse:
+      type: object
+      properties:
+        EventIntegrationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: "The Amazon Resource Name (ARN) of the event integration. "
+    Source:
+      type: string
+      pattern: ^aws\.partner\/.*$
+      minLength: 1
+      maxLength: 256
+    DeleteDataIntegrationResponse:
+      type: object
+      properties: {}
+    ResourceNotFoundException: {}
+    DeleteEventIntegrationResponse:
+      type: object
+      properties: {}
+    GetDataIntegrationResponse:
+      type: object
+      properties:
+        Arn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) for the DataIntegration.
+        Id:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: A unique identifier.
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the DataIntegration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: The KMS key for the DataIntegration.
+        KmsKey:
+          allOf:
+            - $ref: "#/components/schemas/NonBlankString"
+            - description: The KMS key for the DataIntegration.
+        SourceURI:
+          allOf:
+            - $ref: "#/components/schemas/SourceURI"
+            - description: The URI of the data source.
+        ScheduleConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ScheduleConfiguration"
+            - description: The name of the data and how often it should be pulled from the source.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+        FileConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/FileConfiguration"
+            - description: The configuration for what files should be pulled from the source.
+        ObjectConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObjectConfiguration"
+            - description: The configuration for what data should be pulled from the source.
+    GetEventIntegrationResponse:
+      type: object
+      properties:
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: "The name of the event integration. "
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: The description of the event integration.
+        EventIntegrationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) for the event integration.
+        EventBridgeBus:
+          allOf:
+            - $ref: "#/components/schemas/EventBridgeBus"
+            - description: The EventBridge bus.
+        EventFilter:
+          allOf:
+            - $ref: "#/components/schemas/EventFilter"
+            - description: The event filter.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+    ListDataIntegrationAssociationsResponse:
+      type: object
+      properties:
+        DataIntegrationAssociations:
+          allOf:
+            - $ref: "#/components/schemas/DataIntegrationAssociationsList"
+            - description: The Amazon Resource Name (ARN) and unique ID of the DataIntegration association.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: If there are additional results, this is the token for the next set of results.
+    ListDataIntegrationsResponse:
+      type: object
+      properties:
+        DataIntegrations:
+          allOf:
+            - $ref: "#/components/schemas/DataIntegrationsList"
+            - description: The DataIntegrations associated with this account.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: If there are additional results, this is the token for the next set of results.
+    ListEventIntegrationAssociationsResponse:
+      type: object
+      properties:
+        EventIntegrationAssociations:
+          allOf:
+            - $ref: "#/components/schemas/EventIntegrationAssociationsList"
+            - description: The event integration associations.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: If there are additional results, this is the token for the next set of results.
+    ListEventIntegrationsResponse:
+      type: object
+      properties:
+        EventIntegrations:
+          allOf:
+            - $ref: "#/components/schemas/EventIntegrationsList"
+            - description: The event integrations.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: If there are additional results, this is the token for the next set of results.
+    ListTagsForResourceResponse:
+      type: object
+      properties:
+        tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: Information about the tags.
+    TagResourceResponse:
+      type: object
+      properties: {}
+    UntagResourceResponse:
+      type: object
+      properties: {}
+    TagKey:
+      type: string
+      pattern: ^(?!aws:)[a-zA-Z+-=._:/]+$
+      minLength: 1
+      maxLength: 128
+    UpdateDataIntegrationResponse:
+      type: object
+      properties: {}
+    UpdateEventIntegrationResponse:
+      type: object
+      properties: {}
+    Arn:
+      type: string
+      pattern: ^arn:aws:[A-Za-z0-9][A-Za-z0-9_/.-]{0,62}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9_/.-]{0,63}:[A-Za-z0-9][A-Za-z0-9:_/+=,@.-]{0,1023}$
+      minLength: 1
+      maxLength: 2048
+    ClientAssociationMetadata:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/NonBlankString"
+    ClientId:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 255
+    Name:
+      type: string
+      pattern: ^[a-zA-Z0-9\/\._\-]+$
+      minLength: 1
+      maxLength: 255
+    Description:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 1000
+    SourceURI:
+      type: string
+      pattern: ^(\w+\:\/\/[\w.-]+[\w/!@#+=.-]+$)|(\w+\:\/\/[\w.-]+[\w/!@#+=.-]+[\w/!@#+=.-]+[\w/!@#+=.,-]+$)
+      minLength: 1
+      maxLength: 1000
+    ScheduleConfiguration:
+      type: object
+      required:
+        - ScheduleExpression
+      properties:
+        FirstExecutionFrom:
+          allOf:
+            - $ref: "#/components/schemas/NonBlankString"
+            - description: The start date for objects to import in the first flow run as an Unix/epoch timestamp in milliseconds or in ISO-8601 format.
+        Object:
+          allOf:
+            - $ref: "#/components/schemas/Object"
+            - description: The name of the object to pull from the data source.
+        ScheduleExpression:
+          allOf:
+            - $ref: "#/components/schemas/NonBlankString"
+            - description: How often the data should be pulled from data source.
+      description: The name of the data and how often it should be pulled from the source.
+    TagMap:
+      type: object
+      minProperties: 1
+      maxProperties: 200
+      additionalProperties:
+        $ref: "#/components/schemas/TagValue"
+    IdempotencyToken:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 2048
+    FileConfiguration:
+      type: object
+      required:
+        - Folders
+      properties:
+        Folders:
+          allOf:
+            - $ref: "#/components/schemas/FolderList"
+            - description: Identifiers for the source folders to pull all files from recursively.
+        Filters:
+          allOf:
+            - $ref: "#/components/schemas/FieldsMap"
+            - description: Restrictions for what files should be pulled from the source.
+      description: The configuration for what files should be pulled from the source.
+    ObjectConfiguration:
+      type: object
+      description: The configuration for what data should be pulled from the source.
+      additionalProperties:
+        $ref: "#/components/schemas/FieldsMap"
+    CreateDataIntegrationRequest:
+      type: object
+      required:
+        - Name
+        - KmsKey
+        - SourceURI
+        - ScheduleConfig
+      title: CreateDataIntegrationRequest
+      properties:
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the DataIntegration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: A description of the DataIntegration.
+        KmsKey:
+          allOf:
+            - $ref: "#/components/schemas/NonBlankString"
+            - description: The KMS key for the DataIntegration.
+        SourceURI:
+          allOf:
+            - $ref: "#/components/schemas/SourceURI"
+            - description: The URI of the data source.
+        ScheduleConfig:
+          allOf:
+            - $ref: "#/components/schemas/ScheduleConfiguration"
+            - description: The name of the data and how often it should be pulled from the source.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+        ClientToken:
+          allOf:
+            - $ref: "#/components/schemas/IdempotencyToken"
+            - description: A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. If not provided, the Amazon Web Services SDK populates this field. For more information about idempotency, see <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.
+        FileConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/FileConfiguration"
+            - description: The configuration for what files should be pulled from the source.
+        ObjectConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObjectConfiguration"
+            - description: The configuration for what data should be pulled from the source.
+    UUID:
+      type: string
+      pattern: "[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"
+    EventFilter:
+      type: object
+      required:
+        - Source
+      properties:
+        Source:
+          allOf:
+            - $ref: "#/components/schemas/Source"
+            - description: The source of the events.
+      description: The event filter.
+    EventBridgeBus:
+      type: string
+      pattern: ^[a-zA-Z0-9\/\._\-]+$
+      minLength: 1
+      maxLength: 255
+    CreateEventIntegrationRequest:
+      type: object
+      required:
+        - Name
+        - EventFilter
+        - EventBridgeBus
+      title: CreateEventIntegrationRequest
+      properties:
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the event integration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: The description of the event integration.
+        EventFilter:
+          allOf:
+            - $ref: "#/components/schemas/EventFilter"
+            - description: The event filter.
+        EventBridgeBus:
+          allOf:
+            - $ref: "#/components/schemas/EventBridgeBus"
+            - description: The EventBridge bus.
+        ClientToken:
+          allOf:
+            - $ref: "#/components/schemas/IdempotencyToken"
+            - description: A unique, case-sensitive identifier that you provide to ensure the idempotency of the request. If not provided, the Amazon Web Services SDK populates this field. For more information about idempotency, see <a href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making retries safe with idempotent APIs</a>.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+    DataIntegrationAssociationSummary:
+      type: object
+      properties:
+        DataIntegrationAssociationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) of the DataIntegration association.
+        DataIntegrationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) of the DataIntegration.
+        ClientId:
+          allOf:
+            - $ref: "#/components/schemas/ClientId"
+            - description: The identifier for the client that is associated with the DataIntegration association.
+      description: Summary information about the DataIntegration association.
+    DataIntegrationAssociationsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/DataIntegrationAssociationSummary"
+      minItems: 1
+      maxItems: 50
+    DataIntegrationSummary:
+      type: object
+      properties:
+        Arn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) of the DataIntegration.
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the DataIntegration.
+        SourceURI:
+          allOf:
+            - $ref: "#/components/schemas/SourceURI"
+            - description: The URI of the data source.
+      description: Summary information about the DataIntegration.
+    DataIntegrationsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/DataIntegrationSummary"
+      minItems: 1
+      maxItems: 50
+    Identifier:
+      type: string
+      pattern: .*\S.*
+      minLength: 1
+      maxLength: 255
+    DeleteDataIntegrationRequest:
+      type: object
+      title: DeleteDataIntegrationRequest
+      properties: {}
+    DeleteEventIntegrationRequest:
+      type: object
+      title: DeleteEventIntegrationRequest
+      properties: {}
+    EventBridgeRuleName:
+      type: string
+      pattern: ^[a-zA-Z0-9\/\._\-]+$
+      minLength: 1
+      maxLength: 2048
+    EventIntegration:
+      type: object
+      properties:
+        EventIntegrationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) of the event integration.
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the event integration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: The event integration description.
+        EventFilter:
+          allOf:
+            - $ref: "#/components/schemas/EventFilter"
+            - description: The event integration filter.
+        EventBridgeBus:
+          allOf:
+            - $ref: "#/components/schemas/EventBridgeBus"
+            - description: The Amazon EventBridge bus for the event integration.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+      description: The event integration.
+    EventIntegrationAssociation:
+      type: object
+      properties:
+        EventIntegrationAssociationArn:
+          allOf:
+            - $ref: "#/components/schemas/Arn"
+            - description: The Amazon Resource Name (ARN) for the event integration association.
+        EventIntegrationAssociationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The identifier for the event integration association.
+        EventIntegrationName:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the event integration.
+        ClientId:
+          allOf:
+            - $ref: "#/components/schemas/ClientId"
+            - description: The identifier for the client that is associated with the event integration.
+        EventBridgeRuleName:
+          allOf:
+            - $ref: "#/components/schemas/EventBridgeRuleName"
+            - description: The name of the EventBridge rule.
+        ClientAssociationMetadata:
+          allOf:
+            - $ref: "#/components/schemas/ClientAssociationMetadata"
+            - description: The metadata associated with the client.
+      description: The event integration association.
+    EventIntegrationAssociationsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/EventIntegrationAssociation"
+      minItems: 1
+      maxItems: 50
+    EventIntegrationsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/EventIntegration"
+      minItems: 1
+      maxItems: 50
+    Fields:
+      type: string
+      pattern: ^[a-zA-Z0-9\/\._\-]+$
+      minLength: 1
+      maxLength: 255
+    FieldsList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Fields"
+      minItems: 1
+      maxItems: 2048
+    NonBlankLongString:
+      type: string
+      pattern: .*\S.*
+      minLength: 1
+      maxLength: 200
+    GetDataIntegrationRequest:
+      type: object
+      title: GetDataIntegrationRequest
+      properties: {}
+    GetEventIntegrationRequest:
+      type: object
+      title: GetEventIntegrationRequest
+      properties: {}
+    NextToken:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 1000
+    MaxResults:
+      type: integer
+      minimum: 1
+      maximum: 50
+    ListDataIntegrationAssociationsRequest:
+      type: object
+      title: ListDataIntegrationAssociationsRequest
+      properties: {}
+    ListDataIntegrationsRequest:
+      type: object
+      title: ListDataIntegrationsRequest
+      properties: {}
+    ListEventIntegrationAssociationsRequest:
+      type: object
+      title: ListEventIntegrationAssociationsRequest
+      properties: {}
+    ListEventIntegrationsRequest:
+      type: object
+      title: ListEventIntegrationsRequest
+      properties: {}
+    ListTagsForResourceRequest:
+      type: object
+      title: ListTagsForResourceRequest
+      properties: {}
+    TagKeyList:
+      type: array
+      items:
+        $ref: "#/components/schemas/TagKey"
+      minItems: 1
+      maxItems: 200
+    TagResourceRequest:
+      type: object
+      required:
+        - tags
+      title: TagResourceRequest
+      properties:
+        tags:
+          allOf:
+            - $ref: "#/components/schemas/TagMap"
+            - description: 'The tags used to organize, track, or control access for this resource. For example, { "tags": {"key1":"value1", "key2":"value2"} }.'
+    UntagResourceRequest:
+      type: object
+      title: UntagResourceRequest
+      properties: {}
+    UpdateDataIntegrationRequest:
+      type: object
+      title: UpdateDataIntegrationRequest
+      properties:
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/Name"
+            - description: The name of the DataIntegration.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: A description of the DataIntegration.
+    UpdateEventIntegrationRequest:
+      type: object
+      title: UpdateEventIntegrationRequest
+      properties:
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/Description"
+            - description: The description of the event inegration.
+security:
+  - hmac: []

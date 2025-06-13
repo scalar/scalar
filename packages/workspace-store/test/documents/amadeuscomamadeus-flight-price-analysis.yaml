@@ -1,0 +1,341 @@
+openapi: 3.0.0
+servers:
+  - url: https://test.api.amadeus.com/v1
+info:
+  description: Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+  title: Flight Price Analysis API
+  version: 1.0.1
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightPriceAnalysis_v1_swagger_specification.json
+      version: "3.0"
+  x-providerName: amadeus.com
+  x-serviceName: amadeus-flight-price-analysis
+paths:
+  /analytics/itinerary-price-metrics:
+    get:
+      description: ""
+      operationId: get-itinerary-price-metrics
+      parameters:
+        - description: |
+            airport code, following [IATA standard](http://www.iata.org/publications/Pages/code-search.aspx), from which the traveler will depart
+          example: MAD
+          in: query
+          name: originIataCode
+          required: true
+          schema:
+            maxLength: 3
+            minLength: 3
+            pattern: "[a-zA-Z]{3}"
+            type: string
+        - description: airport code, following [IATA standard](http://www.iata.org/publications/Pages/code-search.aspx), to which the traveler is going.
+          example: CDG
+          in: query
+          name: destinationIataCode
+          required: true
+          schema:
+            maxLength: 3
+            minLength: 3
+            pattern: "[a-zA-Z]{3}"
+            type: string
+        - description: |-
+            The date on which the traveler will depart from the origin to go to the destination. 
+
+            Dates are specified in the[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format.
+          example: 2021-03-21
+          in: query
+          name: departureDate
+          required: true
+          schema:
+            type: string
+        - description: the preferred currency for display. Currency is specified in the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format, e.g. EUR for Euro
+          in: query
+          name: currencyCode
+          schema:
+            default: EUR
+            maxLength: 3
+            minLength: 3
+            pattern: "[a-zA-Z]{3}"
+            type: string
+        - description: |-
+            true to get price metrics for a one way trip,
+            false to get price metrics for a round trip
+          in: query
+          name: oneWay
+          schema:
+            default: "false"
+            type: boolean
+      responses:
+        "200":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                Successful reply:
+                  value:
+                    data:
+                      - currencyCode: EUR
+                        departureDate: 2021-03-21
+                        destination:
+                          iataCode: CDG
+                        oneWay: false
+                        origin:
+                          iataCode: MAD
+                        priceMetrics:
+                          - amount: "43.27"
+                            quartileRanking: MINIMUM
+                          - amount: "228.65"
+                            quartileRanking: FIRST
+                          - amount: "231.03"
+                            quartileRanking: MEDIUM
+                          - amount: "234.48"
+                            quartileRanking: THIRD
+                          - amount: "442.62"
+                            quartileRanking: MAXIMUM
+                        transportType: FLIGHT
+                        type: itinerary-price-metric
+                    meta:
+                      count: 1
+                      links:
+                        self: https://test.api.amadeus.com/v1/analytics/itinerary-price-metrics?originIataCode=MAD&destinationIataCode=CDG&departureDate=2021-03-21&currencyCode=EUR&oneWay=false
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: "#/components/schemas/itinerary-price-metric"
+                    type: array
+                  meta:
+                    description: Links related to the returned objects(s)
+                    properties:
+                      href:
+                        description: URL value
+                        format: url
+                        type: string
+                      methods:
+                        description: HTTP methods supported by the sibling URI
+                        items:
+                          enum:
+                            - GET
+                            - POST
+                            - PUT
+                            - PATCH
+                            - DELETE
+                            - OPTIONS
+                          type: string
+                        type: array
+                    title: Links
+                    type: object
+                  warnings:
+                    items:
+                      $ref: "#/components/schemas/Warning"
+                    type: array
+                type: object
+          description: Successful reply
+        "400":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                example-400:
+                  value:
+                    errors:
+                      - code: 32171
+                        detail: Missing mandatory query parameter
+                        status: 400
+                        title: MANDATORY DATA MISSING
+              schema:
+                $ref: "#/components/schemas/Error_400"
+          description: |-
+            code    | title                                 
+            ------- | ------------------------------------- 
+            477     | INVALID FORMAT
+            572     | INVALID OPTION                            
+            32171   | MANDATORY DATA MISSING 
+        "500":
+          content:
+            application/vnd.amadeus+json:
+              examples:
+                example-500:
+                  value:
+                    errors:
+                      - code: 141
+                        status: 500
+                        title: SYSTEM ERROR HAS OCCURRED
+              schema:
+                $ref: "#/components/schemas/Error_500"
+          description: Internal Server Error
+      summary: GET itinerary price metric
+      tags:
+        - price-metrics
+    parameters: []
+components:
+  schemas:
+    Error_400:
+      description: A set of errors
+      properties:
+        errors:
+          items:
+            description: The Error Definition
+            properties:
+              code:
+                description: A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error
+                type: integer
+              detail:
+                description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+                type: string
+              source:
+                properties:
+                  example:
+                    description: A sample input to guide the user when resolving this issue
+                    type: string
+                  parameter:
+                    description: The key of the URI path or query parameter that caused the error
+                    type: string
+                  pointer:
+                    description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+                    type: string
+                title: Error_Source
+                type: object
+              status:
+                description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+                type: integer
+              title:
+                description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+                type: string
+            title: Error
+            type: object
+          type: array
+      title: Error 400
+      type: object
+    Error_500:
+      description: A set of errors
+      properties:
+        errors:
+          items:
+            description: The Error Definition
+            properties:
+              code:
+                description: A machine-readable error code from the Amadeus Canned Messages table, that will enable the API Consumers code to handle this type of error
+                type: integer
+              detail:
+                description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+                type: string
+              source:
+                properties:
+                  example:
+                    description: A sample input to guide the user when resolving this issue
+                    type: string
+                  parameter:
+                    description: The key of the URI path or query parameter that caused the error
+                    type: string
+                  pointer:
+                    description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+                    type: string
+                title: Error_Source
+                type: object
+              status:
+                description: The [HTTP status code](https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml) of this response. This is present only in terminal errors which cause an unsuccessful response. In the case of multiple errors, they must all have the same status.
+                type: integer
+              title:
+                description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+                type: string
+            title: Error
+            type: object
+          type: array
+      title: Error 500
+      type: object
+    Warning:
+      description: The Warning Definition
+      properties:
+        code:
+          description: A machine-readable error code from the Canned Messages table, that will enable the API Consumers code to handle this type of error
+          type: integer
+        detail:
+          description: An easy-to-read explanation specific to this occurrence of the problem. It should give the API consumer an idea of what went wrong and how to recover from it. Like the title, this field’s value can be localized.
+          type: string
+        source:
+          description: The Warning Source Definition
+          properties:
+            example:
+              description: A sample input to guide the user when resolving this issu
+              type: string
+            parameter:
+              description: The key of the URI path or query parameter that caused the error
+              type: string
+            pointer:
+              description: A JSON Pointer [RFC6901] to the associated entity in the request body that caused this error
+              type: string
+          title: Warning_Source
+          type: object
+        title:
+          description: An error title from the Canned Messages table with a 1:1 correspondence to the error code. This may be localized
+          type: string
+      required:
+        - code
+        - title
+      title: Warning
+      type: object
+    itinerary-price-metric:
+      description: price metric
+      properties:
+        currencyCode:
+          description: |-
+            currency of the prices.
+
+            Currency is specified in the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format, e.g. EUR for Euro
+          type: string
+        departureDate:
+          description: |-
+            The date on which the traveler will depart from the origin to go to the destination. 
+
+            Dates are specified in the[ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format.
+          type: string
+        destination:
+          description: Description of a particular point or place in physical space
+          properties:
+            iataCode:
+              description: IATA location code
+              example: PAR
+              type: string
+          title: Location
+          type: object
+        oneWay:
+          description: |-
+            true for a one way trip,
+            false for a round trip
+          type: boolean
+        origin:
+          description: Description of a particular point or place in physical space
+          properties:
+            iataCode:
+              description: IATA location code
+              example: PAR
+              type: string
+          title: Location
+          type: object
+        priceMetrics:
+          items:
+            properties:
+              amount:
+                description: Defines the monetary value with decimal position. It can be in cash or miles.
+                type: string
+              quartileRanking:
+                enum:
+                  - MINIMUM
+                  - FIRST
+                  - MEDIUM
+                  - THIRD
+                  - MAXIMUM
+                type: string
+            type: object
+          type: array
+        transportType:
+          description: transportation type
+          enum:
+            - FLIGHT
+          type: string
+        type:
+          description: ressource type - always price-metrics
+          type: string
+      title: ItineraryPriceMetric
+      type: object

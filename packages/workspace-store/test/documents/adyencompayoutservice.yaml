@@ -1,0 +1,2185 @@
+openapi: 3.1.0
+servers:
+  - url: https://pal-test.adyen.com/pal/servlet/Payout/v68
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    A set of API endpoints that allow you to store payout details, confirm, or decline a payout.
+
+    For more information, refer to [Online payouts](https://docs.adyen.com/online-payments/online-payouts).
+    ## Authentication
+    To use the Payout API, you need to have [two API credentials](https://docs.adyen.com/online-payments/online-payouts#payouts-to-bank-accounts-and-wallets): one for storing payout details and submitting payouts, and another one for confirming or declining payouts. If you don't have the required API credentials, contact our [Support Team](https://www.adyen.help/hc/en-us/requests/new).
+
+    Both of these API credentials must be authenticated with [basic authentication](https://docs.adyen.com/development-resources/api-credentials#basic-authentication).The following example shows how to authenticate your request when submitting a payout:
+
+    ```
+    curl
+    -U "storePayout@Company.YOUR_COMPANY_ACCOUNT":"YOUR_BASIC_AUTHENTICATION_PASSWORD" \
+    -H "Content-Type: application/json" \
+    ...
+    ```
+
+    ## Versioning
+    Payments API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://pal-test.adyen.com/pal/servlet/Payout/v68/payout
+    ```
+
+    ## Going live
+
+    To authenticate to the live endpoints, you need [API credentials](https://docs.adyen.com/development-resources/api-credentials) from your live Customer Area.
+
+    The live endpoint URLs contain a prefix which is unique to your company account:
+    ```
+
+    https://{PREFIX}-pal-live.adyenpayments.com/pal/servlet/Payout/v68/payout
+    ```
+
+    Get your `{PREFIX}` from your live Customer Area under **Developers** > **API URLs** > **Prefix**.
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Adyen Payout API
+  version: "68"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/PayoutService-v68.json
+      version: "3.1"
+  x-preferred: true
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: PayoutService
+  x-timestamp: 2023-04-11T21:25:15Z
+tags:
+  - name: Initialization
+  - name: Instant payouts
+  - name: Reviewing
+paths:
+  /confirmThirdParty:
+    post:
+      description: |-
+        Confirms a previously submitted payout.
+
+        To cancel a payout, use the `/declineThirdParty` endpoint.
+      operationId: post-confirmThirdParty
+      requestBody:
+        content:
+          application/json:
+            examples:
+              confirmThirdParty:
+                $ref: "#/components/examples/post-confirmThirdParty-confirmThirdParty"
+            schema:
+              $ref: "#/components/schemas/ModifyRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                confirmThirdParty:
+                  $ref: "#/components/examples/post-confirmThirdParty-confirmThirdParty-200"
+              schema:
+                $ref: "#/components/schemas/ModifyResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Confirm a payout
+      tags:
+        - Reviewing
+      x-addedInVersion: "10"
+      x-groupName: Reviewing
+      x-methodName: confirmThirdParty
+      x-sortIndex: 1
+  /declineThirdParty:
+    post:
+      description: |-
+        Cancels a previously submitted payout.
+
+        To confirm and send a payout, use the `/confirmThirdParty` endpoint.
+      operationId: post-declineThirdParty
+      requestBody:
+        content:
+          application/json:
+            examples:
+              declineThirdParty:
+                $ref: "#/components/examples/post-declineThirdParty-declineThirdParty"
+            schema:
+              $ref: "#/components/schemas/ModifyRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                declineThirdParty:
+                  $ref: "#/components/examples/post-declineThirdParty-declineThirdParty-200"
+              schema:
+                $ref: "#/components/schemas/ModifyResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Cancel a payout
+      tags:
+        - Reviewing
+      x-addedInVersion: "10"
+      x-groupName: Reviewing
+      x-methodName: declineThirdParty
+      x-sortIndex: 2
+  /payout:
+    post:
+      description: With this call, you can pay out to your customers, and funds will be made available within 30 minutes on the cardholder's bank account (this is dependent on whether the issuer supports this functionality). Instant card payouts are only supported for Visa and Mastercard cards.
+      operationId: post-payout
+      requestBody:
+        content:
+          application/json:
+            examples:
+              payout-b2c:
+                $ref: "#/components/examples/post-payout-payout-b2c"
+              payout-p2p:
+                $ref: "#/components/examples/post-payout-payout-p2p"
+            schema:
+              $ref: "#/components/schemas/PayoutRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PayoutResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Make an instant card payout
+      tags:
+        - Instant payouts
+      x-addedInVersion: "11"
+      x-groupName: Instant payouts
+      x-methodName: payout
+      x-sortIndex: 1
+  /storeDetail:
+    post:
+      description: Stores payment details under the `PAYOUT` recurring contract. These payment details can be used later to submit a payout via the `/submitThirdParty` call.
+      operationId: post-storeDetail
+      requestBody:
+        content:
+          application/json:
+            examples:
+              storeDetail:
+                $ref: "#/components/examples/post-storeDetail-storeDetail"
+            schema:
+              $ref: "#/components/schemas/StoreDetailRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                storeDetail:
+                  $ref: "#/components/examples/post-storeDetail-storeDetail-200"
+              schema:
+                $ref: "#/components/schemas/StoreDetailResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Store payout details
+      tags:
+        - Initialization
+      x-groupName: Initialization
+      x-methodName: storeDetail
+      x-sortIndex: 2
+  /storeDetailAndSubmitThirdParty:
+    post:
+      description: |-
+        Submits a payout and stores its details for subsequent payouts.
+
+        The submitted payout must be confirmed or declined either by a reviewer or via `/confirmThirdParty` or `/declineThirdParty` calls.
+      operationId: post-storeDetailAndSubmitThirdParty
+      requestBody:
+        content:
+          application/json:
+            examples:
+              storeDetailAndSubmitThirdParty:
+                $ref: "#/components/examples/post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty"
+              storeDetailAndSubmitThirdParty-Neteller:
+                $ref: "#/components/examples/post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Neteller"
+              storeDetailAndSubmitThirdParty-PayPal:
+                $ref: "#/components/examples/post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-PayPal"
+              storeDetailAndSubmitThirdParty-Paysafecard:
+                $ref: "#/components/examples/post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Paysafecard"
+              storeDetailAndSubmitThirdParty-Skrill:
+                $ref: "#/components/examples/post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Skrill"
+            schema:
+              $ref: "#/components/schemas/StoreDetailAndSubmitRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreDetailAndSubmitResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Store details and submit a payout
+      tags:
+        - Initialization
+      x-addedInVersion: "10"
+      x-groupName: Initialization
+      x-methodName: storeDetailAndSubmitThirdParty
+      x-sortIndex: 1
+  /submitThirdParty:
+    post:
+      description: |-
+        Submits a payout using the previously stored payment details. To store payment details, use the `/storeDetail` API call.
+
+        The submitted payout must be confirmed or declined either by a reviewer or via `/confirmThirdParty` or `/declineThirdParty` calls.
+      operationId: post-submitThirdParty
+      requestBody:
+        content:
+          application/json:
+            examples:
+              submitThirdParty:
+                $ref: "#/components/examples/post-submitThirdParty-submitThirdParty"
+            schema:
+              $ref: "#/components/schemas/SubmitRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Submit a payout
+      tags:
+        - Initialization
+      x-addedInVersion: "10"
+      x-groupName: Initialization
+      x-methodName: submitThirdParty
+      x-sortIndex: 3
+components:
+  examples:
+    generic-400:
+      summary: Response code 400. Bad Request.
+      value:
+        errorCode: "702"
+        errorType: validation
+        message: "Unexpected input: I"
+        status: 400
+    post-confirmThirdParty-confirmThirdParty:
+      description: Confirm a previously submitted payout
+      summary: Confirm a payout
+      value:
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        originalReference: "9913140798220028"
+    post-confirmThirdParty-confirmThirdParty-200:
+      summary: Example response for request 'confirmThirdParty'
+      value:
+        pspReference: 991617894325358C
+        response: "[payout-confirm-received]"
+    post-declineThirdParty-declineThirdParty:
+      description: Cancel a previously submitted payout
+      summary: Cancel a payout
+      value:
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        originalReference: "9913140798220028"
+    post-declineThirdParty-declineThirdParty-200:
+      summary: Example response for request 'declineThirdParty'
+      value:
+        pspReference: 991617894325360J
+        response: "[payout-decline-received]"
+    post-payout-payout-b2c:
+      description: Pay out to your sellers, customers, freelancers, etc
+      summary: Instant card payout (B2C)
+      value:
+        amount:
+          currency: USD
+          value: 2500
+        billingAddress:
+          city: Beverly Hills
+          country: US
+          houseNumberOrName: "121"
+          postalCode: "90210"
+          stateOrProvince: CA
+          street: Brannan Street
+        card:
+          expiryMonth: "03"
+          expiryYear: "2030"
+          holderName: John Smith
+          number: "4111111111111111"
+        dateOfBirth: 1990-01-01
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        reference: P9999999999999999
+        shopperName:
+          firstName: John
+          lastName: Smith
+    post-payout-payout-p2p:
+      description: Facilitate the transfer of money between two individuals
+      summary: Instant card payout (P2P)
+      value:
+        amount:
+          currency: USD
+          value: 2500
+        billingAddress:
+          city: Beverly Hills
+          country: US
+          houseNumberOrName: "121"
+          postalCode: "90210"
+          stateOrProvince: CA
+          street: Brannan Street
+        card:
+          expiryMonth: "03"
+          expiryYear: "2030"
+          holderName: John Smith
+          number: "4111111111111111"
+        dateOfBirth: 1990-01-01
+        fundSource:
+          additionalData:
+            fundingSource: DEBIT
+          billingAddress:
+            city: Beverly Hills
+            country: US
+            houseNumberOrName: "121"
+            postalCode: "90210"
+            stateOrProvince: CA
+            street: Brannan Street
+          card:
+            expiryMonth: "03"
+            expiryYear: "2030"
+            holderName: Payer Name
+            number: "4400000000000008"
+          shopperName:
+            firstName: Payer
+            lastName: Name
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        reference: P9999999999999999
+        shopperName:
+          firstName: John
+          lastName: Smith
+        shopperStatement: Payer Name
+    post-storeDetail-storeDetail:
+      description: Store payment details under the PAYOUT recurring contract
+      summary: Store payout details
+      value:
+        bank:
+          bankCity: Amsterdam
+          bankName: AbnAmro
+          bic: ABNANL2A
+          countryCode: NL
+          iban: NL32ABNA0515071439
+          ownerName: Adyen
+          taxId: bankTaxId
+        billingAddress:
+          city: Amsterdam
+          country: US
+          houseNumberOrName: "17"
+          postalCode: "12345"
+          stateOrProvince: NY
+          street: Teststreet 1
+        dateOfBirth: 1990-01-01
+        entityType: Company
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        shopperEmail: shopper@email.com
+        shopperName:
+          firstName: Adyen
+          gender: MALE
+          lastName: Test
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-storeDetail-storeDetail-200:
+      summary: Example response for request 'storeDetail'
+      value:
+        pspReference: 991617894326362D
+        recurringDetailReference: "9916178936754752"
+        resultCode: Success
+    post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty:
+      description: Submit a payout and stores its details for subsequent payouts
+      summary: Submit a payout and stores details
+      value:
+        amount:
+          currency: EUR
+          value: 2000
+        bank:
+          bankName: Wirecard
+          countryCode: DE
+          iban: DE87123456781234567890
+          ownerName: Simon Hopper
+        dateOfBirth: 1990-01-01
+        entityType: Company
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: Your Reference Here
+        shopperEmail: s.hopper@test.com
+        shopperIP: 61.294.12.12
+        shopperName:
+          firstName: Adyen
+          gender: MALE
+          lastName: Test
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Neteller:
+      description: Submit a payout to Neteller and stores its details for subsequent payouts
+      summary: Submit a payout to Neteller
+      value:
+        additionalData:
+          account: myNetellerAccount
+          tokenDataType: Neteller
+        amount:
+          currency: EUR
+          value: 100
+        dateOfBirth: 1982-07-17
+        entityType: NaturalPerson
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: Test Payout
+        selectedBrand: neteller
+        shopperEmail: test@company.com
+        shopperName:
+          firstName: Test
+          gender: FEMALE
+          lastName: Test2
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-PayPal:
+      description: Submit a payout to PayPal and stores its details for subsequent payouts
+      summary: Submit a payout to PayPal
+      value:
+        additionalData:
+          emailId: EmailUsedForPayPalAccount@example.com
+          paypal.payerId: AK5HCWWRUV2KL
+          tokenDataType: PayPal
+        amount:
+          currency: EUR
+          value: 1750
+        dateOfBirth: 1982-07-17
+        entityType: NaturalPerson
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: Test Payout
+        selectedBrand: paypal
+        shopperEmail: test@company.com
+        shopperName:
+          firstName: Test
+          gender: FEMALE
+          lastName: Test2
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Paysafecard:
+      description: Submit a payout to Paysafecard and stores its details for subsequent payouts
+      summary: Submit a payout to Paysafecard
+      value:
+        additionalData:
+          emailId: EmailUsedForPaysafecardAccount@example.com
+        amount:
+          currency: EUR
+          value: 1000
+        dateOfBirth: 1982-07-17
+        entityType: NaturalPerson
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: Test Payout
+        selectedBrand: paysafecard
+        shopperEmail: test@company.com
+        shopperIP: 61.294.12.12
+        shopperName:
+          firstName: Test
+          gender: MALE
+          lastName: Test2
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-storeDetailAndSubmitThirdParty-storeDetailAndSubmitThirdParty-Skrill:
+      description: Submit a payout to Skrill and stores its details for subsequent payouts
+      summary: Submit a payout to Skrill
+      value:
+        additionalData:
+          email: name@adyen.com
+          tokenDataType: MoneyBookers
+        amount:
+          currency: EUR
+          value: 100
+        dateOfBirth: 1982-07-17
+        entityType: NaturalPerson
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: Test Payout
+        selectedBrand: moneybookers
+        shopperEmail: test@company.com
+        shopperName:
+          firstName: Test
+          gender: FEMALE
+          lastName: Test2
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-submitThirdParty-submitThirdParty:
+      description: Submit a payout using the previously stored payment details
+      summary: Submit a payout
+      value:
+        amount:
+          currency: EUR
+          value: 1000
+        dateOfBirth: 1990-01-01
+        entityType: Company
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        nationality: NL
+        recurring:
+          contract: PAYOUT
+        reference: PayoutPayment-0001
+        selectedRecurringDetailReference: LATEST
+        shopperEmail: shopper@email.com
+        shopperName:
+          firstName: Adyen
+          gender: MALE
+          lastName: Test
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+  schemas:
+    Address:
+      properties:
+        city:
+          description: "The name of the city. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        country:
+          description: |-
+            The two-character ISO-3166-1 alpha-2 country code. For example, **US**.
+            > If you don't know the country or are not collecting the country from the shopper, provide `country` as `ZZ`.
+          type: string
+        houseNumberOrName:
+          description: "The number or name of the house. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        postalCode:
+          description: A maximum of five digits for an address in the US, or a maximum of ten characters for an address in all other countries.
+          type: string
+        stateOrProvince:
+          description: |-
+            The two-character ISO 3166-2 state or province code. For example, **CA** in the US or **ON** in Canada.
+            > Required for the US and Canada.
+          type: string
+        street:
+          description: |-
+            The name of the street. Maximum length: 3000 characters.
+            > The house number should not be included in this field; it should be separately provided via `houseNumberOrName`.
+          maxLength: 3000
+          type: string
+      required:
+        - street
+        - houseNumberOrName
+        - city
+        - postalCode
+        - country
+      type: object
+    Amount:
+      properties:
+        currency:
+          description: The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount of the transaction, in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+        - currency
+      type: object
+    BankAccount:
+      properties:
+        bankAccountNumber:
+          description: The bank account number (without separators).
+          type: string
+        bankCity:
+          description: The bank city.
+          type: string
+          x-addedInVersion: "18"
+        bankLocationId:
+          description: The location id of the bank. The field value is `nil` in most cases.
+          type: string
+        bankName:
+          description: The name of the bank.
+          type: string
+        bic:
+          description: The [Business Identifier Code](https://en.wikipedia.org/wiki/ISO_9362) (BIC) is the SWIFT address assigned to a bank. The field value is `nil` in most cases.
+          type: string
+        countryCode:
+          description: |-
+            Country code where the bank is located.
+
+            A valid value is an ISO two-character country code (e.g. 'NL').
+          type: string
+        iban:
+          description: The [International Bank Account Number](https://en.wikipedia.org/wiki/International_Bank_Account_Number) (IBAN).
+          type: string
+        ownerName:
+          description: |-
+            The name of the bank account holder.
+            If you submit a name with non-Latin characters, we automatically replace some of them with corresponding Latin characters to meet the FATF recommendations. For example:
+            * χ12 is converted to ch12.
+            * üA is converted to euA.
+            * Peter Møller is converted to Peter Mller, because banks don't accept 'ø'.
+            After replacement, the ownerName must have at least three alphanumeric characters (A-Z, a-z, 0-9), and at least one of them must be a valid Latin character (A-Z, a-z). For example:
+            * John17 - allowed.
+            * J17 - allowed.
+            * 171 - not allowed.
+            * John-7 - allowed.
+            > If provided details don't match the required format, the response returns the error message: 203 'Invalid bank account holder name'.
+          type: string
+        taxId:
+          description: The bank account holder's tax ID.
+          type: string
+          x-addedInVersion: "18"
+      type: object
+    Card:
+      properties:
+        cvc:
+          description: |-
+            The [card verification code](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-security-code-cvc-cvv-cid) (1-20 characters). Depending on the card brand, it is known also as:
+            * CVV2/CVC2 – length: 3 digits
+            * CID – length: 4 digits
+            > If you are using [Client-Side Encryption](https://docs.adyen.com/classic-integration/cse-integration-ecommerce), the CVC code is present in the encrypted data. You must never post the card details to the server.
+            > This field must be always present in a [one-click payment request](https://docs.adyen.com/classic-integration/recurring-payments).
+            > When this value is returned in a response, it is always empty because it is not stored.
+          maxLength: 20
+          minLength: 1
+          type: string
+        expiryMonth:
+          description: |-
+            The card expiry month.
+            Format: 2 digits, zero-padded for single digits. For example:
+            * 03 = March
+            * 11 = November
+          maxLength: 2
+          minLength: 1
+          type: string
+        expiryYear:
+          description: |-
+            The card expiry year.
+            Format: 4 digits. For example: 2020
+          maxLength: 4
+          minLength: 4
+          type: string
+        holderName:
+          description: The name of the cardholder, as printed on the card.
+          maxLength: 50
+          minLength: 1
+          type: string
+        issueNumber:
+          description: The issue number of the card (for some UK debit cards only).
+          maxLength: 2
+          minLength: 1
+          type: string
+        number:
+          description: |-
+            The card number (4-19 characters). Do not use any separators.
+            When this value is returned in a response, only the last 4 digits of the card number are returned.
+          maxLength: 19
+          minLength: 4
+          type: string
+        startMonth:
+          description: The month component of the start date (for some UK debit cards only).
+          maxLength: 2
+          minLength: 1
+          type: string
+        startYear:
+          description: The year component of the start date (for some UK debit cards only).
+          maxLength: 4
+          minLength: 4
+          type: string
+      type: object
+    FraudCheckResult:
+      properties:
+        accountScore:
+          description: The fraud score generated by the risk check.
+          format: int32
+          type: integer
+        checkId:
+          description: The ID of the risk check.
+          format: int32
+          type: integer
+        name:
+          description: The name of the risk check.
+          type: string
+      required:
+        - checkId
+        - name
+        - accountScore
+      type: object
+    FraudCheckResultWrapper:
+      properties:
+        FraudCheckResult:
+          $ref: "#/components/schemas/FraudCheckResult"
+    FraudResult:
+      properties:
+        accountScore:
+          description: The total fraud score generated by the risk checks.
+          format: int32
+          type: integer
+        results:
+          description: The result of the individual risk checks.
+          items:
+            $ref: "#/components/schemas/FraudCheckResultWrapper"
+          type: array
+      required:
+        - accountScore
+      type: object
+    FundSource:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: A map of name-value pairs for passing additional or industry-specific data.
+          type: object
+        billingAddress:
+          $ref: "#/components/schemas/Address"
+          description: The address where to send the invoice.
+        card:
+          $ref: "#/components/schemas/Card"
+          description: |-
+            Credit card data.
+
+            Optional if `shopperReference` and `selectedRecurringDetailReference` are provided.
+        shopperEmail:
+          description: Email address of the person.
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: Name of the person.
+        telephoneNumber:
+          description: Phone number of the person
+          type: string
+      type: object
+    ModifyRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be required for a particular payout request.
+          type: object
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        originalReference:
+          description: The PSP reference received in the `/submitThirdParty` response.
+          type: string
+      required:
+        - merchantAccount
+        - originalReference
+      type: object
+    ModifyResponse:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be returned in a particular response.
+          type: object
+        pspReference:
+          description: Adyen's 16-character string reference associated with the transaction. This value is globally unique; quote it when communicating with us about this response.
+          type: string
+        response:
+          description: |-
+            The response:
+            * In case of success, it is either `payout-confirm-received` or `payout-decline-received`.
+            * In case of an error, an informational message is returned.
+          type: string
+      required:
+        - pspReference
+        - response
+      type: object
+    Name:
+      properties:
+        firstName:
+          description: The first name.
+          type: string
+        lastName:
+          description: The last name.
+          type: string
+      required:
+        - firstName
+        - lastName
+      type: object
+    PayoutRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount information for the transaction (in [minor units](https://docs.adyen.com/development-resources/currency-codes)). For [BIN or card verification](https://docs.adyen.com/payment-methods/cards/bin-data-and-card-verification) requests, set amount to 0 (zero).
+        billingAddress:
+          $ref: "#/components/schemas/Address"
+          description: |-
+            The address where to send the invoice.
+            > The `billingAddress` object is required in the following scenarios. Include all of the fields within this object.
+            >* For 3D Secure 2 transactions in all browser-based and mobile implementations.
+            >* For cross-border payouts to and from Canada.
+          x-addedInVersion: "4"
+        card:
+          $ref: "#/components/schemas/Card"
+          description: |-
+            A container for card data.
+            > Either `bankAccount` or `card` field must be provided in a payment request.
+        fraudOffset:
+          description: An integer value that is added to the normal fraud score. The value can be either positive or negative.
+          format: int32
+          type: integer
+        fundSource:
+          $ref: "#/components/schemas/FundSource"
+          description: The person or entity funding the money.
+          x-addedInVersion: "64"
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: The recurring settings for the payment. Use this property when you want to enable [recurring payments](https://docs.adyen.com/classic-integration/recurring-payments).
+        reference:
+          description: |-
+            The reference to uniquely identify a payment. This reference is used in all communication with you about the payment status. We recommend using a unique value per payment; however, it is not a requirement.
+            If you need to provide multiple references for a transaction, separate them with hyphens ("-").
+            Maximum length: 80 characters.
+          type: string
+        selectedRecurringDetailReference:
+          description: The `recurringDetailReference` you want to use for this payment. The value `LATEST` can be used to select the most recently stored recurring detail.
+          type: string
+        shopperEmail:
+          description: |-
+            The shopper's email address. We recommend that you provide this data, as it is used in velocity fraud checks.
+            > For 3D Secure 2 transactions, schemes require `shopperEmail` for all browser-based and mobile implementations.
+          type: string
+        shopperInteraction:
+          description: |-
+            Specifies the sales channel, through which the shopper gives their card details, and whether the shopper is a returning customer.
+            For the web service API, Adyen assumes Ecommerce shopper interaction by default.
+
+            This field has the following possible values:
+            * `Ecommerce` - Online transactions where the cardholder is present (online). For better authorisation rates, we recommend sending the card security code (CSC) along with the request.
+            * `ContAuth` - Card on file and/or subscription transactions, where the cardholder is known to the merchant (returning customer). If the shopper is present (online), you can supply also the CSC to improve authorisation (one-click payment).
+            * `Moto` - Mail-order and telephone-order transactions where the shopper is in contact with the merchant via email or telephone.
+            * `POS` - Point-of-sale transactions where the shopper is physically present to make a payment using a secure payment terminal.
+          enum:
+            - Ecommerce
+            - ContAuth
+            - Moto
+            - POS
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: The shopper's full name.
+          x-addedInVersion: "7"
+        shopperReference:
+          description: |-
+            Required for recurring payments. 
+            Your reference to uniquely identify this shopper, for example user ID or account ID. Minimum length: 3 characters.
+            > Your reference must not include personally identifiable information (PII), for example name or email address.
+          type: string
+        telephoneNumber:
+          description: The shopper's telephone number.
+          type: string
+          x-addedInVersion: "7"
+      required:
+        - merchantAccount
+        - reference
+        - amount
+      type: object
+    PayoutResponse:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          anyOf:
+            - $ref: "#/components/schemas/ResponseAdditionalData3DSecure"
+            - $ref: "#/components/schemas/ResponseAdditionalDataBillingAddress"
+            - $ref: "#/components/schemas/ResponseAdditionalDataCard"
+            - $ref: "#/components/schemas/ResponseAdditionalDataCommon"
+            - $ref: "#/components/schemas/ResponseAdditionalDataInstallments"
+            - $ref: "#/components/schemas/ResponseAdditionalDataNetworkTokens"
+            - $ref: "#/components/schemas/ResponseAdditionalDataOpi"
+            - $ref: "#/components/schemas/ResponseAdditionalDataSepa"
+          description: "Contains additional information about the payment. Some data fields are included only if you select them first: Go to **Customer Area** > **Developers** > **Additional data**."
+          type: object
+        authCode:
+          description: |-
+            Authorisation code:
+            * When the payment is authorised successfully, this field holds the authorisation code for the payment.
+            * When the payment is not authorised, this field is empty.
+          type: string
+        dccAmount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            Includes the currency of the conversion and the value of the transaction.
+            > This value only applies if you have implemented Dynamic Currency Conversion. For more information, [contact Support](https://www.adyen.help/hc/en-us/requests/new).
+        dccSignature:
+          description: |-
+            Cryptographic signature used to verify `dccQuote`.
+            > This value only applies if you have implemented Dynamic Currency Conversion. For more information, [contact Support](https://www.adyen.help/hc/en-us/requests/new).
+          type: string
+        fraudResult:
+          $ref: "#/components/schemas/FraudResult"
+          description: The fraud result properties of the payment.
+        issuerUrl:
+          description: |-
+            The URL to direct the shopper to.
+            > In case of SecurePlus, do not redirect a shopper to this URL.
+          type: string
+        md:
+          description: The payment session.
+          maxLength: 20000
+          type: string
+        paRequest:
+          description: |-
+            The 3D request data for the issuer.
+
+            If the value is **CUPSecurePlus-CollectSMSVerificationCode**, collect an SMS code from the shopper and pass it in the `/authorise3D` request. For more information, see [3D Secure](https://docs.adyen.com/classic-integration/3d-secure).
+          type: string
+        pspReference:
+          description: Adyen's 16-character reference associated with the transaction/request. This value is globally unique; quote it when communicating with us about this request.
+          type: string
+        refusalReason:
+          description: |-
+            If the payment's authorisation is refused or an error occurs during authorisation, this field holds Adyen's mapped reason for the refusal or a description of the error. When a transaction fails, the authorisation response includes `resultCode` and `refusalReason` values.
+
+            For more information, see [Refusal reasons](https://docs.adyen.com/development-resources/refusal-reasons).
+          type: string
+        resultCode:
+          description: |-
+            The result of the payment. For more information, see [Result codes](https://docs.adyen.com/online-payments/payment-result-codes).
+
+            Possible values:
+
+            * **AuthenticationFinished** – The payment has been successfully authenticated with 3D Secure 2. Returned for 3D Secure 2 authentication-only transactions.
+            * **AuthenticationNotRequired** – The transaction does not require 3D Secure authentication. Returned for [standalone authentication-only integrations](https://docs.adyen.com/online-payments/3d-secure/other-3ds-flows/authentication-only).
+            * **Authorised** – The payment was successfully authorised. This state serves as an indicator to proceed with the delivery of goods and services. This is a final state.
+            * **Cancelled** – Indicates the payment has been cancelled (either by the shopper or the merchant) before processing was completed. This is a final state.
+            * **ChallengeShopper** – The issuer requires further shopper interaction before the payment can be authenticated. Returned for 3D Secure 2 transactions.
+            * **Error** – There was an error when the payment was being processed. The reason is given in the `refusalReason` field. This is a final state.
+            * **IdentifyShopper** – The issuer requires the shopper's device fingerprint before the payment can be authenticated. Returned for 3D Secure 2 transactions.
+            * **Pending** – Indicates that it is not possible to obtain the final status of the payment. This can happen if the systems providing final status information for the payment are unavailable, or if the shopper needs to take further action to complete the payment.
+            * **PresentToShopper** – Indicates that the response contains additional information that you need to present to a shopper, so that they can use it to complete a payment.
+            * **Received** – Indicates the payment has successfully been received by Adyen, and will be processed. This is the initial state for all payments.
+            * **RedirectShopper** – Indicates the shopper should be redirected to an external web page or app to complete the authorisation.
+            * **Refused** – Indicates the payment was refused. The reason is given in the `refusalReason` field. This is a final state.
+          enum:
+            - AuthenticationFinished
+            - AuthenticationNotRequired
+            - Authorised
+            - Cancelled
+            - ChallengeShopper
+            - Error
+            - IdentifyShopper
+            - Pending
+            - PresentToShopper
+            - Received
+            - RedirectShopper
+            - Refused
+            - Success
+          type: string
+      type: object
+    Recurring:
+      properties:
+        contract:
+          description: |-
+            The type of recurring contract to be used.
+            Possible values:
+            * `ONECLICK` – Payment details can be used to initiate a one-click payment, where the shopper enters the [card security code (CVC/CVV)](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-security-code-cvc-cvv-cid).
+            * `RECURRING` – Payment details can be used without the card security code to initiate [card-not-present transactions](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-not-present-cnp).
+            * `ONECLICK,RECURRING` – Payment details can be used regardless of whether the shopper is on your site or not.
+            * `PAYOUT` – Payment details can be used to [make a payout](https://docs.adyen.com/online-payments/online-payouts).
+          enum:
+            - ONECLICK
+            - RECURRING
+            - PAYOUT
+          type: string
+        recurringDetailName:
+          description: A descriptive name for this detail.
+          type: string
+        recurringExpiry:
+          description: Date after which no further authorisations shall be performed. Only for 3D Secure 2.
+          format: date-time
+          type: string
+          x-addedInVersion: "40"
+        recurringFrequency:
+          description: Minimum number of days between authorisations. Only for 3D Secure 2.
+          type: string
+          x-addedInVersion: "40"
+        tokenService:
+          description: The name of the token service.
+          enum:
+            - VISATOKENSERVICE
+            - MCTOKENSERVICE
+          type: string
+          x-addedInVersion: "25"
+      type: object
+    ResponseAdditionalData3DSecure:
+      properties:
+        cardHolderInfo:
+          description: "Information provided by the issuer to the cardholder. If this field is present, you need to display this information to the cardholder. "
+          type: string
+        cavv:
+          description: The Cardholder Authentication Verification Value (CAVV) for the 3D Secure authentication session, as a Base64-encoded 20-byte array.
+          type: string
+        cavvAlgorithm:
+          description: The CAVV algorithm used.
+          type: string
+        scaExemptionRequested:
+          description: |-
+            Shows the [exemption type](https://docs.adyen.com/payments-fundamentals/psd2-sca-compliance-and-implementation-guide#specifypreferenceinyourapirequest) that Adyen requested for the payment.
+
+             Possible values:
+            * **lowValue** 
+            * **secureCorporate** 
+            * **trustedBeneficiary** 
+            * **transactionRiskAnalysis** 
+          type: string
+        threeds2.cardEnrolled:
+          description: Indicates whether a card is enrolled for 3D Secure 2.
+          type: boolean
+      type: object
+    ResponseAdditionalDataBillingAddress:
+      properties:
+        billingAddress.city:
+          description: The billing address city passed in the payment request.
+          type: string
+        billingAddress.country:
+          description: |-
+            The billing address country passed in the payment request.
+
+            Example: NL
+          type: string
+        billingAddress.houseNumberOrName:
+          description: The billing address house number or name passed in the payment request.
+          type: string
+        billingAddress.postalCode:
+          description: |-
+            The billing address postal code passed in the payment request.
+
+            Example: 1011 DJ
+          type: string
+        billingAddress.stateOrProvince:
+          description: |-
+            The billing address state or province passed in the payment request.
+
+            Example: NH
+          type: string
+        billingAddress.street:
+          description: The billing address street passed in the payment request.
+          type: string
+      type: object
+    ResponseAdditionalDataCard:
+      properties:
+        cardBin:
+          description: |-
+            The first six digits of the card number.
+
+            This is the [Bank Identification Number (BIN)](https://docs.adyen.com/get-started-with-adyen/payment-glossary#bank-identification-number-bin) for card numbers with a six-digit BIN.
+
+            Example: 521234
+          type: string
+        cardHolderName:
+          description: The cardholder name passed in the payment request.
+          type: string
+        cardIssuingBank:
+          description: The bank or the financial institution granting lines of credit through card association branded payment cards. This information can be included when available.
+          type: string
+        cardIssuingCountry:
+          description: |-
+            The country where the card was issued.
+
+            Example: US
+          type: string
+        cardIssuingCurrency:
+          description: |-
+            The currency in which the card is issued, if this information is available. Provided as the currency code or currency number from the ISO-4217 standard. 
+
+            Example: USD
+          type: string
+        cardPaymentMethod:
+          description: |-
+            The card payment method used for the transaction.
+
+            Example: amex
+          type: string
+        cardSummary:
+          description: |-
+            The last four digits of a card number.
+
+            > Returned only in case of a card payment.
+          type: string
+        issuerBin:
+          description: |-
+            The first eight digits of the card number. Only returned if the card number is 16 digits or more.
+
+            This is the [Bank Identification Number (BIN)](https://docs.adyen.com/get-started-with-adyen/payment-glossary#bank-identification-number-bin) for card numbers with an eight-digit BIN.
+
+            Example: 52123423
+          type: string
+      type: object
+    ResponseAdditionalDataCommon:
+      properties:
+        acquirerAccountCode:
+          description: |-
+            The name of the Adyen acquirer account.
+
+            Example: PayPalSandbox_TestAcquirer
+
+            > Only relevant for PayPal transactions.
+          type: string
+        acquirerCode:
+          description: |-
+            The name of the acquirer processing the payment request.
+
+            Example: TestPmmAcquirer
+          type: string
+        acquirerReference:
+          description: |-
+            The reference number that can be used for reconciliation in case a non-Adyen acquirer is used for settlement.
+
+            Example: 7C9N3FNBKT9
+          type: string
+        alias:
+          description: |-
+            The Adyen alias of the card.
+
+            Example: H167852639363479
+          type: string
+        aliasType:
+          description: |-
+            The type of the card alias.
+
+            Example: Default
+          type: string
+        authCode:
+          description: |-
+            Authorisation code:
+            * When the payment is authorised successfully, this field holds the authorisation code for the payment.
+            * When the payment is not authorised, this field is empty.
+
+            Example: 58747
+          type: string
+        authorisationMid:
+          description: Merchant ID known by the acquirer.
+          type: string
+        authorisedAmountCurrency:
+          description: The currency of the authorised amount, as a three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          type: string
+        authorisedAmountValue:
+          description: |-
+            Value of the amount authorised.
+
+            This amount is represented in minor units according to the [following table](https://docs.adyen.com/development-resources/currency-codes).
+          type: string
+        avsResult:
+          description: |-
+            The AVS result code of the payment, which provides information about the outcome of the AVS check.
+
+            For possible values, see [AVS](https://docs.adyen.com/risk-management/configure-standard-risk-rules/consistency-rules#billing-address-does-not-match-cardholder-address-avs).
+          type: string
+        avsResultRaw:
+          description: |-
+            Raw AVS result received from the acquirer, where available.
+
+            Example: D
+          type: string
+        bic:
+          description: |-
+            BIC of a bank account.
+
+            Example: TESTNL01
+
+            > Only relevant for SEPA Direct Debit transactions.
+          type: string
+        coBrandedWith:
+          description: Includes the co-branded card information.
+          type: string
+        cvcResult:
+          description: The result of CVC verification.
+          examples:
+            - 1 Matches
+          type: string
+        cvcResultRaw:
+          description: The raw result of CVC verification.
+          examples:
+            - M
+          type: string
+        dsTransID:
+          description: Supported for 3D Secure 2. The unique transaction identifier assigned by the DS to identify a single transaction.
+          type: string
+        eci:
+          description: |-
+            The Electronic Commerce Indicator returned from the schemes for the 3DS payment session.
+
+            Example: 02
+          type: string
+        expiryDate:
+          description: |-
+            The expiry date on the card.
+
+            Example: 6/2016
+
+            > Returned only in case of a card payment.
+          type: string
+        extraCostsCurrency:
+          description: |-
+            The currency of the extra amount charged due to additional amounts set in the skin used in the HPP payment request.
+
+            Example: EUR
+          type: string
+        extraCostsValue:
+          description: The value of the extra amount charged due to additional amounts set in the skin used in the HPP payment request. The amount is in minor units.
+          type: string
+        "fraudCheck-[itemNr]-[FraudCheckname]":
+          description: The fraud score due to a particular fraud check. The fraud check name is found in the key of the key-value pair.
+          type: string
+        fraudManualReview:
+          description: Indicates if the payment is sent to manual review.
+          type: string
+        fraudResultType:
+          description: The fraud result properties of the payment.
+          enum:
+            - GREEN
+            - FRAUD
+          type: string
+        fundingSource:
+          description: |-
+            Information regarding the funding type of the card. The possible return values are:
+            * CHARGE
+            * CREDIT
+            * DEBIT
+            * PREPAID
+            * PREPAID_RELOADABLE
+
+            * PREPAID_NONRELOADABLE
+            * DEFFERED_DEBIT
+
+            > This functionality requires additional configuration on Adyen's end. To enable it, contact the Support Team.
+
+            For receiving this field in the notification, enable **Include Funding Source** in **Notifications** > **Additional settings**.
+          type: string
+        fundsAvailability:
+          description: |-
+            Indicates availability of funds.
+
+            Visa:
+            * "I" (fast funds are supported)
+            * "N" (otherwise)
+
+            Mastercard:
+            * "I" (product type is Prepaid or Debit, or issuing country is in CEE/HGEM list)
+            * "N" (otherwise)
+
+            > Returned when you verify a card BIN or estimate costs, and only if payoutEligible is "Y" or "D".
+          type: string
+        inferredRefusalReason:
+          description: |-
+            Provides the more granular indication of why a transaction was refused. When a transaction fails with either "Refused", "Restricted Card", "Transaction Not Permitted", "Not supported" or "DeclinedNon Generic" refusalReason from the issuer, Adyen cross references its PSP-wide data for extra insight into the refusal reason. If an inferred refusal reason is available, the `inferredRefusalReason`, field is populated and the `refusalReason`, is set to "Not Supported".
+
+            Possible values:
+
+            * 3D Secure Mandated
+            * Closed Account
+            * ContAuth Not Supported
+            * CVC Mandated
+            * Ecommerce Not Allowed
+            * Crossborder Not Supported
+            * Card Updated
+
+            * Low Authrate Bin
+            * Non-reloadable prepaid card
+          type: string
+        isCardCommercial:
+          description: Indicates if the card is used for business purposes only.
+          type: string
+        issuerCountry:
+          description: |-
+            The issuing country of the card based on the BIN list that Adyen maintains.
+
+            Example: JP
+          type: string
+        liabilityShift:
+          description: A Boolean value indicating whether a liability shift was offered for this payment.
+          type: string
+        mcBankNetReferenceNumber:
+          description: |-
+            The `mcBankNetReferenceNumber`, is a minimum of six characters and a maximum of nine characters long.
+
+            > Contact Support Team to enable this field.
+          type: string
+        merchantAdviceCode:
+          description: |-
+            The Merchant Advice Code (MAC) can be returned by Mastercard issuers for refused payments. If present, the MAC contains information about why the payment failed, and whether it can be retried.
+
+            For more information see [Mastercard Merchant Advice Codes](https://docs.adyen.com/development-resources/raw-acquirer-responses#mastercard-merchant-advice-codes).
+          type: string
+        merchantReference:
+          description: The reference provided for the transaction.
+          type: string
+        networkTxReference:
+          description: |-
+            Returned in the response if you are not tokenizing with Adyen and are using the Merchant-initiated transactions (MIT) framework from Mastercard or Visa.
+
+            This contains either the Mastercard Trace ID or the Visa Transaction ID.
+          type: string
+        ownerName:
+          description: |-
+            The owner name of a bank account.
+
+            Only relevant for SEPA Direct Debit transactions.
+          type: string
+        paymentAccountReference:
+          description: The Payment Account Reference (PAR) value links a network token with the underlying primary account number (PAN). The PAR value consists of 29 uppercase alphanumeric characters.
+          type: string
+        paymentMethod:
+          description: The payment method used in the transaction.
+          type: string
+        paymentMethodVariant:
+          description: |-
+            The Adyen sub-variant of the payment method used for the payment request.
+
+            For more information, refer to [PaymentMethodVariant](https://docs.adyen.com/development-resources/paymentmethodvariant).
+
+            Example: mcpro
+          type: string
+        payoutEligible:
+          description: |-
+            Indicates whether a payout is eligible or not for this card.
+
+            Visa:
+            * "Y"
+            * "N"
+
+            Mastercard:
+            * "Y" (domestic and cross-border)
+
+            * "D" (only domestic)
+            * "N" (no MoneySend)
+            * "U" (unknown)
+          type: string
+        realtimeAccountUpdaterStatus:
+          description: |-
+            The response code from the Real Time Account Updater service.
+
+            Possible return values are:
+            * CardChanged
+            * CardExpiryChanged
+            * CloseAccount
+
+            * ContactCardAccountHolder
+          type: string
+        receiptFreeText:
+          description: Message to be displayed on the terminal.
+          type: string
+        recurring.contractTypes:
+          description: The recurring contract types applicable to the transaction.
+          type: string
+          x-addedInVersion: "40"
+        recurring.firstPspReference:
+          description: |-
+            The `pspReference`, of the first recurring payment that created the recurring detail.
+
+            This functionality requires additional configuration on Adyen's end. To enable it, contact the Support Team.
+          type: string
+        recurring.recurringDetailReference:
+          description: The reference that uniquely identifies the recurring transaction.
+          type: string
+        recurring.shopperReference:
+          description: The provided reference of the shopper for a recurring transaction.
+          type: string
+          x-addedInVersion: "40"
+        recurringProcessingModel:
+          description: The processing model used for the recurring transaction.
+          enum:
+            - CardOnFile
+            - Subscription
+            - UnscheduledCardOnFile
+          type: string
+          x-addedInVersion: "40"
+        referred:
+          description: |-
+            If the payment is referred, this field is set to true.
+
+            This field is unavailable if the payment is referred and is usually not returned with ecommerce transactions.
+
+            Example: true
+          type: string
+        refusalReasonRaw:
+          description: |-
+            Raw refusal reason received from the acquirer, where available.
+
+            Example: AUTHORISED
+          type: string
+        requestAmount:
+          description: The amount of the payment request.
+          type: string
+        requestCurrencyCode:
+          description: The currency of the payment request.
+          type: string
+        shopperInteraction:
+          description: |-
+            The shopper interaction type of the payment request.
+
+            Example: Ecommerce
+          type: string
+        shopperReference:
+          description: |-
+            The shopperReference passed in the payment request.
+
+            Example: AdyenTestShopperXX
+          type: string
+        terminalId:
+          description: |-
+            The terminal ID used in a point-of-sale payment.
+
+            Example: 06022622
+          type: string
+        threeDAuthenticated:
+          description: |-
+            A Boolean value indicating whether 3DS authentication was completed on this payment.
+
+            Example: true
+          type: string
+        threeDAuthenticatedResponse:
+          description: |-
+            The raw 3DS authentication result from the card issuer.
+
+            Example: N
+          type: string
+        threeDOffered:
+          description: |-
+            A Boolean value indicating whether 3DS was offered for this payment.
+
+            Example: true
+          type: string
+        threeDOfferedResponse:
+          description: |-
+            The raw enrollment result from the 3DS directory services of the card schemes.
+
+            Example: Y
+          type: string
+        threeDSVersion:
+          description: The 3D Secure 2 version.
+          type: string
+        visaTransactionId:
+          description: |-
+            The `visaTransactionId`, has a fixed length of 15 numeric characters.
+
+            > Contact Support Team to enable this field.
+          type: string
+        xid:
+          description: |-
+            The 3DS transaction ID of the 3DS session sent in notifications. The value is Base64-encoded and is returned for transactions with directoryResponse 'N' or 'Y'. If you want to submit the xid in your 3D Secure 1 request, use the `mpiData.xid`, field.
+
+            Example: ODgxNDc2MDg2MDExODk5MAAAAAA=
+          type: string
+      type: object
+    ResponseAdditionalDataInstallments:
+      properties:
+        installmentPaymentData.installmentType:
+          description: Type of installment. The value of `installmentType` should be **IssuerFinanced**.
+          type: string
+        "installmentPaymentData.option[itemNr].annualPercentageRate":
+          description: Annual interest rate.
+          type: string
+        "installmentPaymentData.option[itemNr].firstInstallmentAmount":
+          description: First Installment Amount in minor units.
+          type: string
+        "installmentPaymentData.option[itemNr].installmentFee":
+          description: Installment fee amount in minor units.
+          type: string
+        "installmentPaymentData.option[itemNr].interestRate":
+          description: Interest rate for the installment period.
+          type: string
+        "installmentPaymentData.option[itemNr].maximumNumberOfInstallments":
+          description: Maximum number of installments possible for this payment.
+          type: string
+        "installmentPaymentData.option[itemNr].minimumNumberOfInstallments":
+          description: Minimum number of installments possible for this payment.
+          type: string
+        "installmentPaymentData.option[itemNr].numberOfInstallments":
+          description: Total number of installments possible for this payment.
+          type: string
+        "installmentPaymentData.option[itemNr].subsequentInstallmentAmount":
+          description: Subsequent Installment Amount in minor units.
+          type: string
+        "installmentPaymentData.option[itemNr].totalAmountDue":
+          description: Total amount in minor units.
+          type: string
+        installmentPaymentData.paymentOptions:
+          description: |-
+            Possible values:
+            * PayInInstallmentsOnly
+            * PayInFullOnly
+            * PayInFullOrInstallments
+          type: string
+        installments.value:
+          description: |-
+            The number of installments that the payment amount should be charged with.
+
+            Example: 5
+            > Only relevant for card payments in countries that support installments.
+          type: string
+      type: object
+    ResponseAdditionalDataNetworkTokens:
+      properties:
+        networkToken.available:
+          description: Indicates whether a network token is available for the specified card.
+          type: string
+        networkToken.bin:
+          description: The Bank Identification Number of a tokenized card, which is the first six digits of a card number.
+          type: string
+        networkToken.tokenSummary:
+          description: The last four digits of a network token.
+          type: string
+      type: object
+    ResponseAdditionalDataOpi:
+      properties:
+        opi.transToken:
+          description: "Returned in the response if you included `opi.includeTransToken: true` in an ecommerce payment request. This contains an Oracle Payment Interface token that you can store in your Oracle Opera database to identify tokenized ecommerce transactions. For more information and required settings, see [Oracle Opera](https://docs.adyen.com/plugins/oracle-opera#opi-token-ecommerce)."
+          type: string
+      type: object
+    ResponseAdditionalDataSepa:
+      properties:
+        sepadirectdebit.dateOfSignature:
+          description: |-
+            The transaction signature date.
+
+            Format: yyyy-MM-dd
+          type: string
+        sepadirectdebit.mandateId:
+          description: Its value corresponds to the pspReference value of the transaction.
+          type: string
+        sepadirectdebit.sequenceType:
+          description: |-
+            This field can take one of the following values:
+            * OneOff: (OOFF) Direct debit instruction to initiate exactly one direct debit transaction.
+
+            * First: (FRST) Initial/first collection in a series of direct debit instructions.
+            * Recurring: (RCUR) Direct debit instruction to carry out regular direct debit transactions initiated by the creditor.
+            * Final: (FNAL) Last/final collection in a series of direct debit instructions.
+
+            Example: OOFF
+          type: string
+      type: object
+    ServiceError:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: Contains additional information about the payment. Some data fields are included only if you select them first. Go to **Customer Area** > **Developers** > **Additional data**.
+          type: object
+          x-addedInVersion: "46"
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    StoreDetailAndSubmitRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be required for a particular request.
+          type: object
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: A container object for the payable amount information of the transaction.
+        bank:
+          $ref: "#/components/schemas/BankAccount"
+          description: |-
+            A container for bank account data.
+            > This field is mandatory if `card` is not provided.
+        billingAddress:
+          $ref: "#/components/schemas/Address"
+          description: |-
+            The billing address.
+
+            > The `billingAddress` object is required for cross-border payouts to and from Canada. Include all of the fields within this object.
+          x-addedInVersion: "18"
+        card:
+          $ref: "#/components/schemas/Card"
+          description: |-
+            A container for card data.
+            > This field is mandatory if `bank` is not provided.
+        dateOfBirth:
+          description: |-
+            The date of birth.
+            Format: [ISO-8601](https://www.w3.org/TR/NOTE-datetime); example: YYYY-MM-DD
+            For Paysafecard it must be the same as used when registering the Paysafecard account.
+            > This field is mandatory for natural persons.
+          format: date
+          type: string
+          x-addedInVersion: "24"
+        entityType:
+          description: The type of the entity the payout is processed for.
+          enum:
+            - NaturalPerson
+            - Company
+          type: string
+          x-addedInVersion: "24"
+        fraudOffset:
+          description: An integer value that is added to the normal fraud score. The value can be either positive or negative.
+          format: int32
+          type: integer
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        nationality:
+          description: |-
+            The shopper's nationality.
+
+            A valid value is an ISO 2-character country code (e.g. 'NL').
+          maxLength: 2
+          type: string
+          x-addedInVersion: "24"
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: |-
+            A container for the type of recurring contract to be retrieved.
+
+            The recurring.contract must be set to `PAYOUT`
+        reference:
+          description: The merchant reference for this payment. This reference will be used in all communication to the merchant about the status of the payout. Although it is a good idea to make sure it is unique, this is not a requirement.
+          type: string
+        selectedBrand:
+          description: |-
+            The name of the brand to make a payout to.
+
+            For Paysafecard it must be set to `paysafecard`.
+          type: string
+          x-addedInVersion: "24"
+        shopperEmail:
+          description: The shopper's email address.
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: |-
+            The shopper's name.
+
+            When the `entityType` is `Company`, the `shopperName.lastName` must contain the company name.
+          x-addedInVersion: "24"
+        shopperReference:
+          description: The shopper's reference for the payment transaction.
+          type: string
+        shopperStatement:
+          description: The description of this payout. This description is shown on the bank statement of the shopper (if this is supported by the chosen payment method).
+          type: string
+          x-addedInVersion: "2"
+        socialSecurityNumber:
+          description: The shopper's social security number.
+          type: string
+          x-addedInVersion: "24"
+        telephoneNumber:
+          description: The shopper's phone number.
+          type: string
+          x-addedInVersion: "52"
+      required:
+        - merchantAccount
+        - shopperEmail
+        - shopperReference
+        - recurring
+        - dateOfBirth
+        - nationality
+        - entityType
+        - reference
+        - amount
+      type: object
+    StoreDetailAndSubmitResponse:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be returned in a particular response.
+          type: object
+        pspReference:
+          description: A new reference to uniquely identify this request.
+          type: string
+        refusalReason:
+          description: In case of refusal, an informational message for the reason.
+          type: string
+        resultCode:
+          description: |-
+            The response:
+
+            * In case of success is payout-submit-received.
+            * In case of an error, an informational message is returned.
+          type: string
+      required:
+        - pspReference
+        - resultCode
+      type: object
+    StoreDetailRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be required for a particular request.
+          type: object
+        bank:
+          $ref: "#/components/schemas/BankAccount"
+          description: |-
+            A container for bank account data.
+            > This field is mandatory if `card` is not provided.
+        billingAddress:
+          $ref: "#/components/schemas/Address"
+          description: |-
+            The billing address.
+
+            > The `billingAddress` object is required for cross-border payouts to and from Canada. Include all of the fields within this object.
+          x-addedInVersion: "18"
+        card:
+          $ref: "#/components/schemas/Card"
+          description: |-
+            A container for card data.
+            > This field is mandatory if `bank` is not provided.
+        dateOfBirth:
+          description: |-
+            The date of birth.
+            Format: [ISO-8601](https://www.w3.org/TR/NOTE-datetime); example: YYYY-MM-DD
+            For Paysafecard it must be the same as used when registering the Paysafecard account.
+            > This field is mandatory for natural persons.
+          format: date
+          type: string
+          x-addedInVersion: "24"
+        entityType:
+          description: The type of the entity the payout is processed for.
+          enum:
+            - NaturalPerson
+            - Company
+          type: string
+          x-addedInVersion: "24"
+        fraudOffset:
+          description: An integer value that is added to the normal fraud score. The value can be either positive or negative.
+          format: int32
+          type: integer
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        nationality:
+          description: |-
+            The shopper's nationality.
+
+            A valid value is an ISO 2-character country code (e.g. 'NL').
+          maxLength: 2
+          type: string
+          x-addedInVersion: "24"
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: |-
+            A container for the type of recurring contract to be retrieved.
+
+            The recurring.contract must be set to `PAYOUT`
+        selectedBrand:
+          description: |-
+            The name of the brand to make a payout to.
+
+            For Paysafecard it must be set to `paysafecard`.
+          type: string
+          x-addedInVersion: "24"
+        shopperEmail:
+          description: The shopper's email address.
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: |-
+            The shopper's name.
+
+            When the `entityType` is `Company`, the `shopperName.lastName` must contain the company name.
+          x-addedInVersion: "24"
+        shopperReference:
+          description: The shopper's reference for the payment transaction.
+          type: string
+        socialSecurityNumber:
+          description: The shopper's social security number.
+          type: string
+          x-addedInVersion: "24"
+        telephoneNumber:
+          description: The shopper's phone number.
+          type: string
+          x-addedInVersion: "52"
+      required:
+        - merchantAccount
+        - shopperEmail
+        - shopperReference
+        - recurring
+        - dateOfBirth
+        - nationality
+        - entityType
+      type: object
+    StoreDetailResponse:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be returned in a particular response.
+          type: object
+        pspReference:
+          description: A new reference to uniquely identify this request.
+          type: string
+        recurringDetailReference:
+          description: The token which you can use later on for submitting the payout.
+          type: string
+        resultCode:
+          description: The result code of the transaction. `Success` indicates that the details were stored successfully.
+          type: string
+      required:
+        - pspReference
+        - recurringDetailReference
+        - resultCode
+      type: object
+    SubmitRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be required for a particular request.
+          type: object
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: A container object for the payable amount information of the transaction.
+        dateOfBirth:
+          description: |-
+            The date of birth.
+            Format: ISO-8601; example: YYYY-MM-DD
+
+            For Paysafecard it must be the same as used when registering the Paysafecard account.
+
+            > This field is mandatory for natural persons. 
+            > This field is required to update the existing `dateOfBirth` that is associated with this recurring contract.
+          format: date
+          type: string
+          x-addedInVersion: "24"
+        entityType:
+          description: |-
+            The type of the entity the payout is processed for.
+
+            Allowed values:
+            * NaturalPerson
+            * Company
+            > This field is required to update the existing `entityType` that is associated with this recurring contract.
+          enum:
+            - NaturalPerson
+            - Company
+          type: string
+          x-addedInVersion: "24"
+        fraudOffset:
+          description: An integer value that is added to the normal fraud score. The value can be either positive or negative.
+          format: int32
+          type: integer
+        merchantAccount:
+          description: The merchant account identifier you want to process the transaction request with.
+          type: string
+        nationality:
+          description: |-
+            The shopper's nationality.
+
+            A valid value is an ISO 2-character country code (e.g. 'NL').
+
+            > This field is required to update the existing nationality that is associated with this recurring contract.
+          type: string
+          x-addedInVersion: "24"
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: |-
+            A container for the type of recurring contract to be retrieved.
+
+            The `recurring.contract` must be set to "PAYOUT".
+        reference:
+          description: The merchant reference for this payout. This reference will be used in all communication to the merchant about the status of the payout. Although it is a good idea to make sure it is unique, this is not a requirement.
+          type: string
+        selectedRecurringDetailReference:
+          description: |-
+            This is the `recurringDetailReference` you want to use for this payout.
+
+            You can use the value LATEST to select the most recently used recurring detail.
+          type: string
+        shopperEmail:
+          description: The shopper's email address.
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: |-
+            The shopper's name.
+
+            In case the `entityType` is `Company`, the `shopperName.lastName` must contain the company name.
+
+            > This field is required to update the existing `shopperName` associated with a recurring contract.
+          x-addedInVersion: "24"
+        shopperReference:
+          description: The shopper's reference for the payout transaction.
+          type: string
+        shopperStatement:
+          description: The description of this payout. This description is shown on the bank statement of the shopper (if this is supported by the chosen payment method).
+          type: string
+          x-addedInVersion: "2"
+        socialSecurityNumber:
+          description: The shopper's social security number.
+          type: string
+          x-addedInVersion: "24"
+      required:
+        - merchantAccount
+        - reference
+        - amount
+        - shopperEmail
+        - shopperReference
+        - recurring
+        - selectedRecurringDetailReference
+      type: object
+    SubmitResponse:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be returned in a particular response.
+          type: object
+        pspReference:
+          description: A new reference to uniquely identify this request.
+          type: string
+        refusalReason:
+          description: In case of refusal, an informational message for the reason.
+          type: string
+        resultCode:
+          description: |-
+            The response:
+            * In case of success, it is `payout-submit-received`.
+            * In case of an error, an informational message is returned.
+          type: string
+      required:
+        - pspReference
+        - resultCode
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - Initialization
+  - Reviewing
+  - Instant payouts

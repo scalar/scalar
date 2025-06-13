@@ -1,0 +1,158 @@
+openapi: 3.1.0
+servers:
+  - url: https://ca-test.adyen.com/ca/services/DataProtectionService/v1
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    Adyen Data Protection API provides a way for you to process [Subject Erasure Requests](https://gdpr-info.eu/art-17-gdpr/) as mandated in GDPR.
+
+    Use our API to submit a request to delete shopper's data, including payment details and other related information (for example, delivery address or shopper email).## Authentication
+    Each request to the Data Protection API must be signed with an API key. Get your API Key from your Customer Area, as described in [How to get the API key](https://docs.adyen.com/development-resources/api-credentials#generate-api-key). Then set this key to the `X-API-Key` header value, for example:
+
+    ```
+    curl
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: Your_API_key" \
+    ...
+    ```
+    Note that when going live, you need to generate a new API Key to access the [live endpoints](https://docs.adyen.com/development-resources/live-endpoints).
+
+    ## Versioning
+    Data Protection Service API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://ca-test.adyen.com/ca/services/DataProtectionService/v1/requestSubjectErasure
+    ```
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Adyen Data Protection API
+  version: "1"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/DataProtectionService-v1.json
+      version: "3.1"
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: DataProtectionService
+  x-timestamp: 2023-02-20T18:24:23Z
+tags:
+  - name: General
+paths:
+  /requestSubjectErasure:
+    post:
+      description: Sends the PSP reference containing the shopper data that should be deleted.
+      operationId: post-requestSubjectErasure
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubjectErasureByPspReferenceRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubjectErasureResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Submit a Subject Erasure Request.
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: requestSubjectErasure
+      x-sortIndex: 0
+components:
+  examples: {}
+  schemas:
+    ServiceError:
+      properties:
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    SubjectErasureByPspReferenceRequest:
+      properties:
+        forceErasure:
+          description: Set this to **true** if you want to delete shopper-related data, even if the shopper has an existing recurring transaction. This only deletes the shopper-related data for the specific payment, but does not cancel the existing recurring transaction.
+          type: boolean
+        merchantAccount:
+          description: Your merchant account
+          type: string
+        pspReference:
+          description: The PSP reference of the payment. We will delete all shopper-related data for this payment.
+          type: string
+      type: object
+    SubjectErasureResponse:
+      properties:
+        result:
+          description: The result of this operation.
+          enum:
+            - ACTIVE_RECURRING_TOKEN_EXISTS
+            - ALREADY_PROCESSED
+            - PAYMENT_NOT_FOUND
+            - SUCCESS
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - General

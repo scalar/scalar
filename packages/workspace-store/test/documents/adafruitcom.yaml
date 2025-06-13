@@ -1,0 +1,2819 @@
+swagger: "2.0"
+schemes:
+  - https
+  - http
+host: io.adafruit.com
+basePath: /api/v2
+info:
+  description: |+
+    ### The Internet of Things for Everyone
+
+    The Adafruit IO HTTP API provides access to your Adafruit IO data from any programming language or hardware environment that can speak HTTP. The easiest way to get started is with [an Adafruit IO learn guide](https://learn.adafruit.com/series/adafruit-io-basics) and [a simple Internet of Things capable device like the Feather Huzzah](https://www.adafruit.com/product/2821).
+
+    This API documentation is hosted on GitHub Pages and is available at [https://github.com/adafruit/io-api](https://github.com/adafruit/io-api). For questions or comments visit the [Adafruit IO Forums](https://forums.adafruit.com/viewforum.php?f=56) or the [adafruit-io channel on the Adafruit Discord server](https://discord.gg/adafruit).
+
+    #### Authentication
+
+    Authentication for every API request happens through the `X-AIO-Key` header or query parameter and your IO API key. A simple cURL request to get all available feeds for a user with the username "io_username" and the key "io_key_12345" could look like this:
+
+        $ curl -H "X-AIO-Key: io_key_12345" https://io.adafruit.com/api/v2/io_username/feeds
+
+    Or like this:
+
+        $ curl "https://io.adafruit.com/api/v2/io_username/feeds?X-AIO-Key=io_key_12345
+
+    Using the node.js [request](https://github.com/request/request) library, IO HTTP requests are as easy as:
+
+    ```js
+    var request = require('request');
+
+    var options = {
+      url: 'https://io.adafruit.com/api/v2/io_username/feeds',
+      headers: {
+        'X-AIO-Key': 'io_key_12345',
+        'Content-Type': 'application/json'
+      }
+    };
+
+    function callback(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var feeds = JSON.parse(body);
+        console.log(feeds.length + " FEEDS AVAILABLE");
+
+        feeds.forEach(function (feed) {
+          console.log(feed.name, feed.key);
+        })
+      }
+    }
+
+    request(options, callback);
+    ```
+
+    Using the ESP8266 Arduino HTTPClient library, an HTTPS GET request would look like this (replacing `---` with your own values in the appropriate locations):
+
+    ```arduino
+    /// based on
+    /// https://github.com/esp8266/Arduino/blob/master/libraries/ESP8266HTTPClient/examples/Authorization/Authorization.ino
+
+    #include <Arduino.h>
+    #include <ESP8266WiFi.h>
+    #include <ESP8266WiFiMulti.h>
+    #include <ESP8266HTTPClient.h>
+
+    ESP8266WiFiMulti WiFiMulti;
+
+    const char* ssid = "---";
+    const char* password = "---";
+
+    const char* host = "io.adafruit.com";
+
+    const char* io_key = "---";
+    const char* path_with_username = "/api/v2/---/dashboards";
+
+    // Use web browser to view and copy
+    // SHA1 fingerprint of the certificate
+    const char* fingerprint = "77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C 57 18";
+
+    void setup() {
+      Serial.begin(115200);
+
+      for(uint8_t t = 4; t > 0; t--) {
+        Serial.printf("[SETUP] WAIT %d...\n", t);
+        Serial.flush();
+        delay(1000);
+      }
+
+      WiFi.mode(WIFI_STA);
+      WiFiMulti.addAP(ssid, password);
+
+      // wait for WiFi connection
+      while(WiFiMulti.run() != WL_CONNECTED) {
+        Serial.print('.');
+        delay(1000);
+      }
+
+      Serial.println("[WIFI] connected!");
+
+      HTTPClient http;
+
+      // start request with URL and TLS cert fingerprint for verification
+      http.begin("https://" + String(host) + String(path_with_username), fingerprint);
+
+      // IO API authentication
+      http.addHeader("X-AIO-Key", io_key);
+
+      // start connection and send HTTP header
+      int httpCode = http.GET();
+
+      // httpCode will be negative on error
+      if(httpCode > 0) {
+        // HTTP header has been send and Server response header has been handled
+        Serial.printf("[HTTP] GET response: %d\n", httpCode);
+
+        // HTTP 200 OK
+        if(httpCode == HTTP_CODE_OK) {
+          String payload = http.getString();
+          Serial.println(payload);
+        }
+
+        http.end();
+      }
+    }
+
+    void loop() {}
+    ```
+
+    #### Client Libraries
+
+    We have client libraries to help you get started with your project: [Python](https://github.com/adafruit/io-client-python), [Ruby](https://github.com/adafruit/io-client-ruby), [Arduino C++](https://github.com/adafruit/Adafruit_IO_Arduino), [Javascript](https://github.com/adafruit/adafruit-io-node), and [Go](https://github.com/adafruit/io-client-go) are available. They're all open source, so if they don't already do what you want, you can fork and add any feature you'd like.
+
+  title: Adafruit IO REST API
+  version: 2.0.0
+  x-apisguru-categories:
+    - iot
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_adafruit_profile_image.jpeg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/adafruit/io-api/gh-pages/v2.json
+      version: "2.0"
+  x-providerName: adafruit.com
+produces:
+  - application/json
+  - text/csv
+securityDefinitions:
+  HeaderKey:
+    description: The AIO Key is used to restrict or grant access to your data. The key is unique, and you can generate a key per feed, and control it in many different ways. The easiest process is to just use your automatically generated master key. You can access this key right from the right-hand side of your dashboard or from an individual feed page.
+    in: header
+    name: X-AIO-Key
+    type: apiKey
+  HeaderSignature:
+    description: The AIO Signature is an AWS inspired request signature.
+    in: header
+    name: X-AIO-Signature
+    type: apiKey
+  QueryKey:
+    description: The AIO Key is used to restrict or grant access to your data. The key is unique, and you can generate a key per feed, and control it in many different ways. The easiest process is to just use your automatically generated master key. You can access this key right from the right-hand side of your dashboard or from an individual feed page.
+    in: query
+    name: X-AIO-Key
+    type: apiKey
+security:
+  - HeaderKey: []
+  - HeaderSignature: []
+  - QueryKey: []
+parameters:
+  ActivityTypePath:
+    in: path
+    name: type
+    required: true
+    type: string
+  Block:
+    in: body
+    name: block
+    required: true
+    schema:
+      properties:
+        block_feeds:
+          items:
+            properties:
+              feed_id:
+                type: string
+              group_id:
+                type: string
+            type: object
+          type: array
+        column:
+          type: number
+        dashboard_id:
+          type: number
+        description:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        properties:
+          type: object
+        row:
+          type: number
+        size_x:
+          type: number
+        size_y:
+          type: number
+        visual_type:
+          type: string
+      type: object
+  Dashboard:
+    in: body
+    name: dashboard
+    required: true
+    schema:
+      properties:
+        description:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+      type: object
+  DashboardIDPath:
+    in: path
+    name: dashboard_id
+    required: true
+    type: string
+  Data:
+    description: "Data record including a `value` field (required) and optionally including: `lat`, `lon`, `ele` (latitude, longitude, and elevation values), and `created_at` (a date/time string)."
+    in: body
+    name: datum
+    required: true
+    schema:
+      properties:
+        created_at:
+          format: dateTime
+          type: string
+        ele:
+          type: string
+        epoch:
+          type: number
+        lat:
+          type: string
+        lon:
+          type: string
+        value:
+          type: string
+      type: object
+  DataCollection:
+    description: "A collection of data records including `value` (required) and optionally including: `lat`, `lon`, `ele` (latitude, longitude, and elevation values), and `created_at` (a date/time string)."
+    in: body
+    name: data
+    required: true
+    schema:
+      items:
+        properties:
+          created_at:
+            format: dateTime
+            type: string
+          ele:
+            type: string
+          epoch:
+            type: number
+          lat:
+            type: string
+          lon:
+            type: string
+          value:
+            type: string
+        type: object
+      type: array
+  DataInclude:
+    description: "List of Data record fields to include in response as comma separated list. Acceptable values are: `value`, `lat`, `lon`, `ele`, `id`, and `created_at`. "
+    in: query
+    name: include
+    type: string
+  EndTime:
+    description: End time for filtering, returns records created before give time.
+    format: date-time
+    in: query
+    name: end_time
+    type: string
+  Feed:
+    in: body
+    name: feed
+    required: true
+    schema:
+      properties:
+        description:
+          type: string
+        key:
+          type: string
+        license:
+          type: string
+        name:
+          type: string
+      type: object
+  FeedParam:
+    in: query
+    name: feed_key
+    type: string
+  FeedPath:
+    description: a valid feed key
+    in: path
+    name: feed_key
+    required: true
+    type: string
+  Group:
+    in: body
+    name: group
+    required: true
+    schema:
+      properties:
+        description:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+      type: object
+    x-examples:
+      application/json: '{"name":"Some Group", "description":"A collection of feeds"}'
+      default: '{"name":"Some Group","description":"A collection of feeds"}'
+  GroupFeedData:
+    in: body
+    name: group_feed_data
+    required: true
+    schema:
+      properties:
+        created_at:
+          description: Optional created_at timestamp which will be applied to all feed values created.
+          type: string
+        feeds:
+          description: An array of feed data records with `key` and `value` properties.
+          items:
+            properties:
+              key:
+                type: string
+              value:
+                type: string
+            required:
+              - key
+              - value
+            type: object
+          type: array
+        location:
+          description: A location record with `lat`, `lon`, and [optional] `ele` properties.
+          properties:
+            ele:
+              type: number
+            lat:
+              type: number
+            lon:
+              type: number
+          required:
+            - lat
+            - lon
+          type: object
+      required:
+        - feeds
+      type: object
+  GroupParam:
+    in: query
+    name: group_key
+    type: string
+  GroupPath:
+    in: path
+    name: group_key
+    required: true
+    type: string
+  IDPath:
+    in: path
+    name: id
+    required: true
+    type: string
+  Limit:
+    description: Limit the number of records returned.
+    in: query
+    name: limit
+    type: integer
+  PermTypeIDPath:
+    in: path
+    name: type_id
+    required: true
+    type: string
+  PermTypePath:
+    in: path
+    name: type
+    required: true
+    type: string
+  Permission:
+    in: body
+    name: permission
+    required: true
+    schema:
+      properties:
+        mode:
+          default: r
+          enum:
+            - r
+            - w
+            - rw
+          type: string
+        scope:
+          default: public
+          enum:
+            - secret
+            - public
+            - user
+            - organization
+          type: string
+        scope_value:
+          type: string
+      type: object
+  StartTime:
+    description: Start time for filtering, returns records created after given time.
+    format: date-time
+    in: query
+    name: start_time
+    type: string
+  Token:
+    in: body
+    name: token
+    required: true
+    schema:
+      properties:
+        token:
+          type: string
+      type: object
+  Trigger:
+    in: body
+    name: trigger
+    required: true
+    schema:
+      properties:
+        name:
+          type: string
+      type: object
+  UsernamePath:
+    description: a valid username string
+    in: path
+    name: username
+    required: true
+    type: string
+paths:
+  /user:
+    get:
+      operationId: currentUser
+      parameters: []
+      responses:
+        "200":
+          description: A User record
+          schema:
+            $ref: "#/definitions/User"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get information about the current user
+      tags:
+        - Users
+      x-swagger-router-action: get
+      x-swagger-router-controller: Users
+  /webhooks/feed/:token:
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createWebhookFeedData
+      parameters:
+        - description: Webhook payload containing data `value` parameter.
+          in: body
+          name: payload
+          required: true
+          schema:
+            properties:
+              value:
+                type: string
+            type: object
+      responses:
+        "200":
+          description: New feed data record
+          schema:
+            $ref: "#/definitions/Data"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Send data to a feed via webhook URL.
+      tags:
+        - Webhooks
+        - Data
+      x-code-samples:
+        - lang: curl
+          source: curl -F 'value=65.5' https://io.adafruit.com/api/v2/webhooks/feed/12345thistoken
+      x-swagger-router-action: create
+      x-swagger-router-controller: WebhookReceivers
+  /webhooks/feed/:token/raw:
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: The raw data webhook receiver accepts POST requests and stores the raw request body on your feed. This is useful when you don't have control of the webhook sender. If feed history is turned on, payloads will be truncated at 1024 bytes. If feed history is turned off, payloads will be truncated at 100KB.
+      operationId: createRawWebhookFeedData
+      responses:
+        "200":
+          description: New feed data record
+          schema:
+            $ref: "#/definitions/Data"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Send arbitrary data to a feed via webhook URL.
+      tags:
+        - Webhooks
+        - Data
+      x-code-samples:
+        - lang: curl
+          source: |-
+            curl --header 'Content-Type: application/json' \
+              --request POST \
+              --data '{"some json": "goes here", "id": 12345}' \
+              https://io.adafruit.com/api/v2/webhooks/feed/12345thistoken/raw
+      x-swagger-router-action: createRaw
+      x-swagger-router-controller: WebhookReceivers
+  "/{username}/activities":
+    delete:
+      description: Delete all your activities.
+      operationId: destroyActivities
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: Deleted activities successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All activities for current user
+      tags:
+        - Activities
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Activities
+    get:
+      description: The Activities endpoint returns information about the user's activities.
+      operationId: allActivities
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/StartTime"
+        - $ref: "#/parameters/EndTime"
+        - $ref: "#/parameters/Limit"
+      responses:
+        "200":
+          description: An array of activities
+          headers:
+            X-Pagination-Count:
+              description: The number of records returned.
+              type: integer
+            X-Pagination-End:
+              description: The created_at value for the newest record returned.
+              type: string
+            X-Pagination-Limit:
+              description: The limit this request is using, either your given value or the default (1000).
+              type: integer
+            X-Pagination-Start:
+              description: The created_at value for the oldest record returned.
+              type: string
+          schema:
+            items:
+              $ref: "#/definitions/Activity"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All activities for current user
+      tags:
+        - Activities
+      x-swagger-router-action: all
+      x-swagger-router-controller: Activities
+  "/{username}/activities/{type}":
+    get:
+      description: The Activities endpoint returns information about the user's activities.
+      operationId: getActivity
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/ActivityTypePath"
+        - $ref: "#/parameters/StartTime"
+        - $ref: "#/parameters/EndTime"
+        - $ref: "#/parameters/Limit"
+      responses:
+        "200":
+          description: An array of activities
+          schema:
+            items:
+              $ref: "#/definitions/Activity"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get activities by type for current user
+      tags:
+        - Activities
+      x-swagger-router-action: get
+      x-swagger-router-controller: Activities
+  "/{username}/dashboards":
+    get:
+      description: |
+        The Dashboards endpoint returns information about the user's dashboards.
+      operationId: allDashboards
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of dashboards
+          schema:
+            items:
+              $ref: "#/definitions/Dashboard"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All dashboards for current user
+      tags:
+        - Dashboards
+      x-swagger-router-action: all
+      x-swagger-router-controller: Dashboards
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createDashboard
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/Dashboard"
+      responses:
+        "200":
+          description: New Dashboard
+          schema:
+            $ref: "#/definitions/Dashboard"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Dashboard
+      tags:
+        - Dashboards
+      x-swagger-router-action: create
+      x-swagger-router-controller: Dashboards
+  "/{username}/dashboards/{dashboard_id}/blocks":
+    get:
+      description: |
+        The Blocks endpoint returns information about the user's blocks.
+      operationId: allBlocks
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/DashboardIDPath"
+      responses:
+        "200":
+          description: An array of blocks
+          schema:
+            items:
+              $ref: "#/definitions/Block"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All blocks for current user
+      tags:
+        - Blocks
+      x-swagger-router-action: all
+      x-swagger-router-controller: Blocks
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createBlock
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/Block"
+        - $ref: "#/parameters/DashboardIDPath"
+      responses:
+        "200":
+          description: New Block
+          schema:
+            $ref: "#/definitions/Block"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Block
+      tags:
+        - Blocks
+      x-swagger-router-action: create
+      x-swagger-router-controller: Blocks
+  "/{username}/dashboards/{dashboard_id}/blocks/{id}":
+    delete:
+      description: ""
+      operationId: destroyBlock
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/DashboardIDPath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Block successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Block
+      tags:
+        - Blocks
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Blocks
+    get:
+      description: ""
+      operationId: getBlock
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/DashboardIDPath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Block response
+          schema:
+            $ref: "#/definitions/Block"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Block based on ID
+      tags:
+        - Blocks
+      x-swagger-router-action: get
+      x-swagger-router-controller: Blocks
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateBlock
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/DashboardIDPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Block"
+      responses:
+        "200":
+          description: Updated Block
+          schema:
+            $ref: "#/definitions/Block"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Block
+      tags:
+        - Blocks
+      x-swagger-router-action: update
+      x-swagger-router-controller: Blocks
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceBlock
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/DashboardIDPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Block"
+      responses:
+        "200":
+          description: Updated block
+          schema:
+            $ref: "#/definitions/Block"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Block
+      tags:
+        - Blocks
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Blocks
+  "/{username}/dashboards/{id}":
+    delete:
+      description: ""
+      operationId: destroyDashboard
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Dashboard successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Dashboard
+      tags:
+        - Dashboards
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Dashboards
+    get:
+      description: ""
+      operationId: getDashboard
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Dashboard response
+          schema:
+            $ref: "#/definitions/Dashboard"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Dashboard based on ID
+      tags:
+        - Dashboards
+      x-swagger-router-action: get
+      x-swagger-router-controller: Dashboards
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateDashboard
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Dashboard"
+      responses:
+        "200":
+          description: Updated Dashboard
+          schema:
+            $ref: "#/definitions/Dashboard"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Dashboard
+      tags:
+        - Dashboards
+      x-swagger-router-action: update
+      x-swagger-router-controller: Dashboards
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceDashboard
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Dashboard"
+      responses:
+        "200":
+          description: Updated dashboard
+          schema:
+            $ref: "#/definitions/Dashboard"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Dashboard
+      tags:
+        - Dashboards
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Dashboards
+  "/{username}/feeds":
+    get:
+      description: The Feeds endpoint returns information about the user's feeds. The response includes the latest value of each feed, and other metadata about each feed.
+      operationId: allFeeds
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of feeds
+          schema:
+            items:
+              $ref: "#/definitions/Feed"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All feeds for current user
+      tags:
+        - Feeds
+      x-swagger-router-action: all
+      x-swagger-router-controller: Feeds
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupParam"
+        - $ref: "#/parameters/Feed"
+      responses:
+        "200":
+          description: New feed
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Feed
+      tags:
+        - Feeds
+      x-swagger-router-action: create
+      x-swagger-router-controller: Feeds
+  "/{username}/feeds/{feed_key}":
+    delete:
+      description: ""
+      operationId: destroyFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+      responses:
+        "200":
+          description: Deleted feed successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Feed
+      tags:
+        - Feeds
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Feeds
+    get:
+      description: Returns feed based on the feed key
+      operationId: getFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+      responses:
+        "200":
+          description: Feed response
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get feed by feed key
+      tags:
+        - Feeds
+      x-swagger-router-action: get
+      x-swagger-router-controller: Feeds
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/Feed"
+      responses:
+        "200":
+          description: Updated feed
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Feed
+      tags:
+        - Feeds
+      x-swagger-router-action: update
+      x-swagger-router-controller: Feeds
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/Feed"
+      responses:
+        "200":
+          description: Updated feed
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Feed
+      tags:
+        - Feeds
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Feeds
+  "/{username}/feeds/{feed_key}/data":
+    get:
+      description: ""
+      operationId: allData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/StartTime"
+        - $ref: "#/parameters/EndTime"
+        - $ref: "#/parameters/Limit"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: An array of data
+          headers:
+            X-Pagination-Count:
+              description: The number of records returned.
+              type: integer
+            X-Pagination-End:
+              description: The created_at value for the newest record returned.
+              type: string
+            X-Pagination-Limit:
+              description: The limit this request is using, either your given value or the default (1000).
+              type: integer
+            X-Pagination-Start:
+              description: The created_at value for the oldest record returned.
+              type: string
+          schema:
+            items:
+              $ref: "#/definitions/DataResponse"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get all data for the given feed
+      tags:
+        - Data
+      x-swagger-router-action: all
+      x-swagger-router-controller: Data
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: |-
+        Create new data records on the given feed.
+
+        **NOTE:** when feed history is on, data `value` size is limited to 1KB, when feed history is turned off data value size is limited to 100KB.
+      operationId: createData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/Data"
+      responses:
+        "200":
+          description: New data
+          schema:
+            $ref: "#/definitions/Data"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create new Data
+      tags:
+        - Data
+      x-code-samples:
+        - lang: curl
+          source: |-
+            curl -F 'value=65.5' -H 'X-AIO-Key: io_key_12345' \
+              https://io.adafruit.com/api/v2/io_username/feeds/io-feed-key/data
+        - lang: Ruby
+          source: |-
+            api = Adafruit::IO::Client.new(
+              key: ENV['IO_KEY'],
+              username: ENV['IO_USERNAME']
+            )
+            api.send_data('io-feed-key', 65.5)
+      x-swagger-router-action: create
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/batch":
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      operationId: batchCreateData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataCollection"
+      responses:
+        "200":
+          description: New data
+          schema:
+            items:
+              $ref: "#/definitions/DataResponse"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create multiple new Data records
+      tags:
+        - Data
+      x-swagger-router-action: batch
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/chart":
+    get:
+      description: |-
+        The Chart API is what we use on io.adafruit.com to populate charts over varying timespans with a consistent number of data points. The maximum number of points returned is 480. This API works by aggregating slices of time into a single value by averaging.
+
+        All time-based parameters are optional, if none are given it will default to 1 hour at the finest-grained resolution possible.
+      operationId: chartData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/StartTime"
+        - $ref: "#/parameters/EndTime"
+        - description: "A resolution size in minutes. By giving a resolution value you will get back grouped data points aggregated over resolution-sized intervals. NOTE: time span is preferred over resolution, so if you request a span of time that includes more than max limit points you may get a larger resolution than you requested. Valid resolutions are 1, 5, 10, 30, 60, and 120."
+          format: int32
+          in: query
+          name: resolution
+          type: integer
+        - description: The number of hours the chart should cover.
+          format: int32
+          in: query
+          name: hours
+          type: integer
+      responses:
+        "200":
+          description: A JSON record containing chart data and the parameters used to generate it.
+          schema:
+            properties:
+              columns:
+                description: The names of the columns returned as data.
+                items:
+                  type: string
+                type: array
+              data:
+                description: The actual chart data.
+                items:
+                  items:
+                    type: string
+                  type: array
+                type: array
+              feed:
+                properties:
+                  id:
+                    type: integer
+                  key:
+                    type: string
+                  name:
+                    type: string
+                type: object
+              parameters:
+                properties: {}
+                type: object
+            type: object
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Chart data for current feed
+      tags:
+        - Data
+      x-swagger-router-action: chart
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/first":
+    get:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: Get the oldest data point in the feed. This request sets the queue pointer to the beginning of the feed.
+      operationId: firstData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: Data response
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: First Data in Queue
+      tags:
+        - Data
+      x-swagger-router-action: last
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/last":
+    get:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: Get the most recent data point in the feed. This request sets the queue pointer to the end of the feed.
+      operationId: lastData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: Data response
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Last Data in Queue
+      tags:
+        - Data
+      x-swagger-router-action: last
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/next":
+    get:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: Get the next newest data point in the feed. If queue processing hasn't been started, the first data point in the feed will be returned.
+      operationId: nextData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: Data response
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Next Data in Queue
+      tags:
+        - Data
+      x-swagger-router-action: next
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/previous":
+    get:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: "Get the previously processed data point in the feed. NOTE: this method doesn't move the processing queue pointer."
+      operationId: previousData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: Data response
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Previous Data in Queue
+      tags:
+        - Data
+      x-swagger-router-action: previous
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/retain":
+    get:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: "Get the most recent data point in the feed in an MQTT compatible CSV format: `value,lat,lon,ele`"
+      operationId: retainData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+      produces:
+        - text/csv
+      responses:
+        "200":
+          description: CSV string in `value,lat,lon,ele` format. The lat, lon, and ele values are left blank if they are not set.
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Last Data in MQTT CSV format
+      tags:
+        - Data
+      x-swagger-router-action: retain
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/data/{id}":
+    delete:
+      description: ""
+      operationId: destroyData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Group successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete existing Data
+      tags:
+        - Data
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Data
+    get:
+      description: ""
+      operationId: getData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/DataInclude"
+      responses:
+        "200":
+          description: Data response
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Returns data based on feed key
+      tags:
+        - Data
+      x-swagger-router-action: get
+      x-swagger-router-controller: Data
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Data"
+      responses:
+        "200":
+          description: Updated Data
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of existing Data
+      tags:
+        - Data
+      x-swagger-router-action: update
+      x-swagger-router-controller: Data
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Data"
+      responses:
+        "200":
+          description: Updated Data
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace existing Data
+      tags:
+        - Data
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Data
+  "/{username}/feeds/{feed_key}/details":
+    get:
+      description: Returns more detailed feed record based on the feed key
+      operationId: getFeedDetails
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedPath"
+      responses:
+        "200":
+          description: Feed response
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get detailed feed by feed key
+      tags:
+        - Feeds
+      x-swagger-router-action: details
+      x-swagger-router-controller: Feeds
+  "/{username}/groups":
+    get:
+      description: |
+        The Groups endpoint returns information about the user's groups. The response includes the latest value of each feed in the group, and other metadata about the group.
+      operationId: allGroups
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of groups
+          schema:
+            items:
+              $ref: "#/definitions/Group"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All groups for current user
+      tags:
+        - Groups
+      x-swagger-router-action: all
+      x-swagger-router-controller: Groups
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createGroup
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/Group"
+      responses:
+        "200":
+          description: New Group
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Group
+      tags:
+        - Groups
+      x-swagger-router-action: create
+      x-swagger-router-controller: Groups
+  "/{username}/groups/{group_key}":
+    delete:
+      description: ""
+      operationId: destroyGroup
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+      responses:
+        "200":
+          description: Deleted Group successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Group
+      tags:
+        - Groups
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Groups
+    get:
+      operationId: getGroup
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+      responses:
+        "200":
+          description: Group response
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Group based on ID
+      tags:
+        - Groups
+      x-swagger-router-action: get
+      x-swagger-router-controller: Groups
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateGroup
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/Group"
+      responses:
+        "200":
+          description: Updated Group
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Group
+      tags:
+        - Groups
+      x-swagger-router-action: update
+      x-swagger-router-controller: Groups
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceGroup
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/Group"
+      responses:
+        "200":
+          description: Updated group
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Group
+      tags:
+        - Groups
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Groups
+  "/{username}/groups/{group_key}/add":
+    post:
+      description: ""
+      operationId: addFeedToGroup
+      parameters:
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedParam"
+      responses:
+        "200":
+          description: Updated group
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Add an existing Feed to a Group
+      tags:
+        - Groups
+        - Feeds
+      x-swagger-router-action: add_feed
+      x-swagger-router-controller: Groups
+  "/{username}/groups/{group_key}/data":
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      operationId: createGroupData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/GroupFeedData"
+      responses:
+        "200":
+          description: New data
+          schema:
+            items:
+              $ref: "#/definitions/DataResponse"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create new data for multiple feeds in a group
+      tags:
+        - Data
+      x-swagger-router-action: group_create
+      x-swagger-router-controller: Data
+  "/{username}/groups/{group_key}/feeds":
+    get:
+      description: The Group Feeds endpoint returns information about the user's feeds. The response includes the latest value of each feed, and other metadata about each feed, but only for feeds within the given group.
+      operationId: allGroupFeeds
+      parameters:
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of feeds
+          schema:
+            items:
+              $ref: "#/definitions/Feed"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All feeds for current user in a given group
+      tags:
+        - Groups
+        - Feeds
+      x-swagger-router-action: group_all
+      x-swagger-router-controller: GroupFeeds
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createGroupFeed
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/Feed"
+      responses:
+        "200":
+          description: New feed
+          schema:
+            $ref: "#/definitions/Feed"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Feed in a Group
+      tags:
+        - Feeds
+      x-swagger-router-action: group_create
+      x-swagger-router-controller: GroupFeeds
+  "/{username}/groups/{group_key}/feeds/{feed_key}/data":
+    get:
+      description: ""
+      operationId: allGroupFeedData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/FeedPath"
+        - description: Start time for filtering data. Returns data created after given time.
+          format: date-time
+          in: query
+          name: start_time
+          type: string
+        - description: End time for filtering data. Returns data created before give time.
+          format: date-time
+          in: query
+          name: end_time
+          type: string
+        - description: Limit the number of records returned.
+          in: query
+          name: limit
+          type: integer
+      responses:
+        "200":
+          description: An array of data
+          schema:
+            items:
+              $ref: "#/definitions/DataResponse"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All data for current feed in a specific group
+      tags:
+        - Data
+      x-swagger-router-action: group_all
+      x-swagger-router-controller: Data
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      operationId: createGroupFeedData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/Data"
+      responses:
+        "200":
+          description: New data
+          schema:
+            $ref: "#/definitions/DataResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create new Data in a feed belonging to a particular group
+      tags:
+        - Data
+      x-swagger-router-action: group_feed_create
+      x-swagger-router-controller: Data
+  "/{username}/groups/{group_key}/feeds/{feed_key}/data/batch":
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      operationId: batchCreateGroupFeedData
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/FeedPath"
+        - $ref: "#/parameters/DataCollection"
+      responses:
+        "200":
+          description: New data
+          schema:
+            items:
+              $ref: "#/definitions/DataResponse"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create multiple new Data records in a feed belonging to a particular group
+      tags:
+        - Data
+      x-swagger-router-action: group_feed_batch
+      x-swagger-router-controller: Data
+  "/{username}/groups/{group_key}/remove":
+    post:
+      description: ""
+      operationId: removeFeedFromGroup
+      parameters:
+        - $ref: "#/parameters/GroupPath"
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/FeedParam"
+      responses:
+        "200":
+          description: Updated group
+          schema:
+            $ref: "#/definitions/Group"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Remove a Feed from a Group
+      tags:
+        - Groups
+        - Feeds
+      x-swagger-router-action: remove_feed
+      x-swagger-router-controller: Groups
+  "/{username}/throttle":
+    get:
+      operationId: getCurrentUserThrottle
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: Data rate limit and current actions.
+          schema:
+            properties:
+              active_data_rate:
+                description: Actions taken inside the time window.
+                type: integer
+              data_rate_limit:
+                description: Max possible actions inside the time window (usually 1 minute).
+                type: integer
+            type: object
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Get the user's data rate limit and current activity level.
+      tags:
+        - Users
+      x-swagger-router-action: throttle
+      x-swagger-router-controller: Users
+  "/{username}/tokens":
+    get:
+      description: |
+        The Tokens endpoint returns information about the user's tokens.
+      operationId: allTokens
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of tokens
+          schema:
+            items:
+              $ref: "#/definitions/Token"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All tokens for current user
+      tags:
+        - Tokens
+      x-swagger-router-action: all
+      x-swagger-router-controller: Tokens
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createToken
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/Token"
+      responses:
+        "200":
+          description: New Token
+          schema:
+            $ref: "#/definitions/Token"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Token
+      tags:
+        - Tokens
+      x-swagger-router-action: create
+      x-swagger-router-controller: Tokens
+  "/{username}/tokens/{id}":
+    delete:
+      description: ""
+      operationId: destroyToken
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Token successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Token
+      tags:
+        - Tokens
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Tokens
+    get:
+      description: ""
+      operationId: getToken
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Token response
+          schema:
+            $ref: "#/definitions/Token"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Token based on ID
+      tags:
+        - Tokens
+      x-swagger-router-action: get
+      x-swagger-router-controller: Tokens
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateToken
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Token"
+      responses:
+        "200":
+          description: Updated Token
+          schema:
+            $ref: "#/definitions/Token"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Token
+      tags:
+        - Tokens
+      x-swagger-router-action: update
+      x-swagger-router-controller: Tokens
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceToken
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Token"
+      responses:
+        "200":
+          description: Updated token
+          schema:
+            $ref: "#/definitions/Token"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Token
+      tags:
+        - Tokens
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Tokens
+  "/{username}/triggers":
+    get:
+      description: |
+        The Triggers endpoint returns information about the user's triggers.
+      operationId: allTriggers
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+      responses:
+        "200":
+          description: An array of triggers
+          schema:
+            items:
+              $ref: "#/definitions/Trigger"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All triggers for current user
+      tags:
+        - Triggers
+      x-swagger-router-action: all
+      x-swagger-router-controller: Triggers
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createTrigger
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/Trigger"
+      responses:
+        "200":
+          description: New Trigger
+          schema:
+            $ref: "#/definitions/Trigger"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Trigger
+      tags:
+        - Triggers
+      x-swagger-router-action: create
+      x-swagger-router-controller: Triggers
+  "/{username}/triggers/{id}":
+    delete:
+      description: ""
+      operationId: destroyTrigger
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Trigger successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Trigger
+      tags:
+        - Triggers
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Triggers
+    get:
+      description: ""
+      operationId: getTrigger
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Trigger response
+          schema:
+            $ref: "#/definitions/Trigger"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Trigger based on ID
+      tags:
+        - Triggers
+      x-swagger-router-action: get
+      x-swagger-router-controller: Triggers
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updateTrigger
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Trigger"
+      responses:
+        "200":
+          description: Updated Trigger
+          schema:
+            $ref: "#/definitions/Trigger"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Trigger
+      tags:
+        - Triggers
+      x-swagger-router-action: update
+      x-swagger-router-controller: Triggers
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replaceTrigger
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Trigger"
+      responses:
+        "200":
+          description: Updated trigger
+          schema:
+            $ref: "#/definitions/Trigger"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Trigger
+      tags:
+        - Triggers
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Triggers
+  "/{username}/{type}/{type_id}/acl":
+    get:
+      description: |
+        The Permissions endpoint returns information about the user's permissions.
+      operationId: allPermissions
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+      responses:
+        "200":
+          description: An array of permissions
+          schema:
+            items:
+              $ref: "#/definitions/Permission"
+            type: array
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: All permissions for current user and type
+      tags:
+        - Permissions
+      x-swagger-router-action: all
+      x-swagger-router-controller: Permissions
+    post:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: createPermission
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+        - $ref: "#/parameters/Permission"
+      responses:
+        "200":
+          description: New Permission
+          schema:
+            $ref: "#/definitions/Permission"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Create a new Permission
+      tags:
+        - Permissions
+      x-swagger-router-action: create
+      x-swagger-router-controller: Permissions
+  "/{username}/{type}/{type_id}/acl/{id}":
+    delete:
+      description: ""
+      operationId: destroyPermission
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Deleted Permission successfully
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Delete an existing Permission
+      tags:
+        - Permissions
+      x-swagger-router-action: destroy
+      x-swagger-router-controller: Permissions
+    get:
+      description: ""
+      operationId: getPermission
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+        - $ref: "#/parameters/IDPath"
+      responses:
+        "200":
+          description: Permission response
+          schema:
+            $ref: "#/definitions/Permission"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error"
+      summary: Returns Permission based on ID
+      tags:
+        - Permissions
+      x-swagger-router-action: get
+      x-swagger-router-controller: Permissions
+    patch:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: updatePermission
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Permission"
+      responses:
+        "200":
+          description: Updated Permission
+          schema:
+            $ref: "#/definitions/Permission"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Update properties of an existing Permission
+      tags:
+        - Permissions
+      x-swagger-router-action: update
+      x-swagger-router-controller: Permissions
+    put:
+      consumes:
+        - application/json
+        - application/x-www-form-urlencoded
+      description: ""
+      operationId: replacePermission
+      parameters:
+        - $ref: "#/parameters/UsernamePath"
+        - $ref: "#/parameters/PermTypePath"
+        - $ref: "#/parameters/PermTypeIDPath"
+        - $ref: "#/parameters/IDPath"
+        - $ref: "#/parameters/Permission"
+      responses:
+        "200":
+          description: Updated permission
+          schema:
+            $ref: "#/definitions/Permission"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Server Error
+      summary: Replace an existing Permission
+      tags:
+        - Permissions
+      x-swagger-router-action: replace
+      x-swagger-router-controller: Permissions
+definitions:
+  Activity:
+    properties:
+      action:
+        readOnly: true
+        type: string
+      created_at:
+        format: dateTime
+        readOnly: true
+        type: string
+      data:
+        readOnly: true
+        type: object
+      id:
+        readOnly: true
+        type: number
+      model:
+        readOnly: true
+        type: string
+      updated_at:
+        format: dateTime
+        readOnly: true
+        type: string
+      user_id:
+        readOnly: true
+        type: number
+    type: object
+  Block:
+    properties:
+      block_feeds:
+        items:
+          $ref: "#/definitions/BlockFeed"
+        readOnly: true
+        type: array
+      column:
+        type: number
+      description:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+      row:
+        type: number
+      size_x:
+        type: number
+      size_y:
+        type: number
+      visual_type:
+        type: string
+    type: object
+  BlockFeed:
+    properties:
+      feed:
+        $ref: "#/definitions/Feed"
+      group:
+        $ref: "#/definitions/Group"
+      id:
+        type: string
+    type: object
+  Dashboard:
+    properties:
+      blocks:
+        items:
+          $ref: "#/definitions/Block"
+        readOnly: true
+        type: array
+      description:
+        type: string
+      key:
+        type: string
+      name:
+        type: string
+    type: object
+  Data:
+    properties:
+      completed_at:
+        readOnly: true
+        type: string
+      created_at:
+        readOnly: true
+        type: string
+      created_epoch:
+        readOnly: true
+        type: number
+      ele:
+        type: number
+      expiration:
+        type: string
+      feed_id:
+        type: number
+      group_id:
+        readOnly: true
+        type: number
+      id:
+        readOnly: true
+        type: string
+      lat:
+        type: number
+      lon:
+        type: number
+      updated_at:
+        readOnly: true
+        type: string
+      value:
+        type: string
+    type: object
+  DataResponse:
+    properties:
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      created_epoch:
+        type: number
+      ele:
+        type: number
+      expiration:
+        type: string
+      feed_id:
+        type: number
+      group_id:
+        type: number
+      id:
+        type: string
+      lat:
+        type: number
+      lon:
+        type: number
+      updated_at:
+        type: string
+      value:
+        type: string
+    type: object
+  Error:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  Feed:
+    properties:
+      created_at:
+        readOnly: true
+        type: string
+      description:
+        type: string
+      details:
+        description: Additional details about this feed.
+        properties:
+          data:
+            properties:
+              count:
+                description: Number of data points stored by this feed.
+                type: integer
+              first:
+                additionalProperties:
+                  $ref: "#/definitions/Data"
+                type: object
+              last:
+                additionalProperties:
+                  $ref: "#/definitions/Data"
+                type: object
+            type: object
+          shared_with:
+            description: Access control list for this feed
+            items:
+              type: object
+            type: array
+        readOnly: true
+        type: object
+      enabled:
+        readOnly: true
+        type: boolean
+      group:
+        additionalProperties:
+          $ref: "#/definitions/ShallowGroup"
+        readOnly: true
+        type: object
+      groups:
+        items:
+          $ref: "#/definitions/ShallowGroup"
+        readOnly: true
+        type: array
+      history:
+        type: boolean
+      id:
+        readOnly: true
+        type: number
+      key:
+        type: string
+      last_value:
+        readOnly: true
+        type: string
+      license:
+        type: string
+      name:
+        type: string
+      status:
+        readOnly: true
+        type: string
+      status_notify:
+        description: Is status notification active?
+        type: boolean
+      status_timeout:
+        description: Status notification timeout in minutes.
+        type: integer
+      unit_symbol:
+        type: string
+      unit_type:
+        type: string
+      updated_at:
+        readOnly: true
+        type: string
+      visibility:
+        default: private
+        enum:
+          - private
+          - public
+        type: string
+    type: object
+  Group:
+    properties:
+      created_at:
+        readOnly: true
+        type: string
+      description:
+        type: string
+      feeds:
+        items:
+          $ref: "#/definitions/Feed"
+        readOnly: true
+        type: array
+      id:
+        readOnly: true
+        type: number
+      name:
+        type: string
+      updated_at:
+        readOnly: true
+        type: string
+    type: object
+  Permission:
+    properties:
+      created_at:
+        readOnly: true
+        type: string
+      id:
+        readOnly: true
+        type: number
+      model:
+        default: feed
+        enum:
+          - feed
+          - group
+          - dashboard
+        type: string
+      object_id:
+        type: number
+      scope:
+        default: public
+        enum:
+          - secret
+          - public
+          - user
+          - organization
+        type: string
+      scope_value:
+        type: string
+      updated_at:
+        readOnly: true
+        type: string
+      user_id:
+        readOnly: true
+        type: number
+    type: object
+  ShallowGroup:
+    properties:
+      created_at:
+        readOnly: true
+        type: string
+      description:
+        type: string
+      id:
+        readOnly: true
+        type: number
+      name:
+        type: string
+      updated_at:
+        readOnly: true
+        type: string
+    type: object
+  Token:
+    properties:
+      token:
+        type: string
+    type: object
+  Trigger:
+    properties:
+      name:
+        type: string
+    type: object
+  User:
+    properties:
+      color:
+        readOnly: true
+        type: string
+      created_at:
+        format: dateTime
+        readOnly: true
+        type: string
+      id:
+        readOnly: true
+        type: number
+      name:
+        readOnly: true
+        type: string
+      time_zone:
+        readOnly: true
+        type: string
+      updated_at:
+        format: dateTime
+        readOnly: true
+        type: string
+      username:
+        readOnly: true
+        type: string
+    type: object

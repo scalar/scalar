@@ -1,0 +1,4965 @@
+openapi: 3.0.0
+info:
+  version: 2020-08-11
+  x-release: v4
+  title: AmplifyBackend
+  description: AWS Amplify Admin API
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_awscloud_profile_image.png
+    backgroundColor: "#FFFFFF"
+  termsOfService: https://aws.amazon.com/service-terms/
+  contact:
+    name: Mike Ralphson
+    email: mike.ralphson@gmail.com
+    url: https://github.com/mermade/aws2openapi
+    x-twitter: PermittedSoc
+  license:
+    name: Apache 2.0 License
+    url: http://www.apache.org/licenses/
+  x-providerName: amazonaws.com
+  x-serviceName: amplifybackend
+  x-aws-signingName: amplifybackend
+  x-origin:
+    - contentType: application/json
+      url: https://raw.githubusercontent.com/aws/aws-sdk-js/master/apis/amplifybackend-2020-08-11.normal.json
+      converter:
+        url: https://github.com/mermade/aws2openapi
+        version: 1.0.0
+      x-apisguru-driver: external
+  x-apiClientRegistration:
+    url: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?nc2=h_ct
+  x-apisguru-categories:
+    - cloud
+  x-preferred: true
+externalDocs:
+  description: Amazon Web Services documentation
+  url: https://docs.aws.amazon.com/amplifybackend/
+servers:
+  - url: http://amplifybackend.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The AmplifyBackend multi-region endpoint
+  - url: https://amplifybackend.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The AmplifyBackend multi-region endpoint
+  - url: http://amplifybackend.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The AmplifyBackend endpoint for China (Beijing) and China (Ningxia)
+  - url: https://amplifybackend.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The AmplifyBackend endpoint for China (Beijing) and China (Ningxia)
+paths:
+  "/backend/{appId}/environments/{backendEnvironmentName}/clone":
+    post:
+      operationId: CloneBackend
+      description: This operation clones an existing backend.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CloneBackendResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - targetEnvironmentName
+              properties:
+                targetEnvironmentName:
+                  description: The name of the destination backend environment to be created.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /backend:
+    post:
+      operationId: CreateBackend
+      description: This operation creates a backend for an Amplify app. Backends are automatically created at the time of app creation.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBackendResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - appId
+                - appName
+                - backendEnvironmentName
+              properties:
+                appId:
+                  description: The app ID.
+                  type: string
+                appName:
+                  description: The name of the app.
+                  type: string
+                backendEnvironmentName:
+                  description: The name of the backend environment.
+                  type: string
+                resourceConfig:
+                  description: Defines the resource configuration for the data model in your Amplify project.
+                  type: object
+                  properties: {}
+                resourceName:
+                  description: The name of the resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api":
+    post:
+      operationId: CreateBackendAPI
+      description: Creates a new backend API resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBackendAPIResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - backendEnvironmentName
+                - resourceConfig
+                - resourceName
+              properties:
+                backendEnvironmentName:
+                  description: The name of the backend environment.
+                  type: string
+                resourceConfig:
+                  description: The resource config for the data model, configured as a part of the Amplify project.
+                  type: object
+                  properties:
+                    AdditionalAuthTypes:
+                      allOf:
+                        - $ref: "#/components/schemas/ListOfBackendAPIAuthType"
+                        - xml:
+                            name: additionalAuthTypes
+                          description: Additional authentication methods used to interact with your data models.
+                    ApiName:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: apiName
+                          description: The API name used to interact with the data model, configured as a part of your Amplify project.
+                    ConflictResolution:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIConflictResolution"
+                        - xml:
+                            name: conflictResolution
+                          description: The conflict resolution strategy for your data stored in the data models.
+                    DefaultAuthType:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIAuthType"
+                        - xml:
+                            name: defaultAuthType
+                          description: The default authentication type for interacting with the configured data models in your Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: service
+                          description: The service used to provision and interact with the data model.
+                    TransformSchema:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: transformSchema
+                          description: The definition of the data model in the annotated transform of the GraphQL schema.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/auth":
+    post:
+      operationId: CreateBackendAuth
+      description: Creates a new backend authentication resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBackendAuthResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - backendEnvironmentName
+                - resourceConfig
+                - resourceName
+              properties:
+                backendEnvironmentName:
+                  description: The name of the backend environment.
+                  type: string
+                resourceConfig:
+                  description: Defines the resource configuration when creating an auth resource in your Amplify project.
+                  type: object
+                  properties:
+                    AuthResources:
+                      allOf:
+                        - $ref: "#/components/schemas/AuthResources"
+                        - xml:
+                            name: authResources
+                          description: Defines whether you want to configure only authentication or both authentication and authorization settings.
+                    IdentityPoolConfigs:
+                      allOf:
+                        - $ref: "#/components/schemas/CreateBackendAuthIdentityPoolConfig"
+                        - xml:
+                            name: identityPoolConfigs
+                          description: Describes the authorization configuration for the Amazon Cognito identity pool, provisioned as a part of your auth resource in the Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/Service"
+                        - xml:
+                            name: service
+                          description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+                    UserPoolConfigs:
+                      allOf:
+                        - $ref: "#/components/schemas/CreateBackendAuthUserPoolConfig"
+                        - xml:
+                            name: userPoolConfigs
+                          description: Describes authentication configuration for the Amazon Cognito user pool, provisioned as a part of your auth resource in the Amplify project.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/config":
+    post:
+      operationId: CreateBackendConfig
+      description: Creates a config object for a backend.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBackendConfigResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backendManagerAppId:
+                  description: The app ID for the backend manager.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/storage":
+    post:
+      operationId: CreateBackendStorage
+      description: Creates a backend storage resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateBackendStorageResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - backendEnvironmentName
+                - resourceConfig
+                - resourceName
+              properties:
+                backendEnvironmentName:
+                  description: The name of the backend environment.
+                  type: string
+                resourceConfig:
+                  description: The resource configuration for creating backend storage.
+                  type: object
+                  properties:
+                    BucketName:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: bucketName
+                          description: The name of the S3 bucket.
+                    Permissions:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendStoragePermissions"
+                        - xml:
+                            name: permissions
+                          description: The authorization configuration for the storage S3 bucket.
+                    ServiceName:
+                      allOf:
+                        - $ref: "#/components/schemas/ServiceName"
+                        - xml:
+                            name: serviceName
+                          description: The name of the storage service.
+                resourceName:
+                  description: The name of the storage resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/challenge":
+    post:
+      operationId: CreateToken
+      description: Generates a one-time challenge code to authenticate a user into your Amplify Admin UI.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateTokenResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/environments/{backendEnvironmentName}/remove":
+    post:
+      operationId: DeleteBackend
+      description: Removes an existing environment from your Amplify project.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteBackendResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api/{backendEnvironmentName}/remove":
+    post:
+      operationId: DeleteBackendAPI
+      description: Deletes an existing backend API resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteBackendAPIResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceConfig:
+                  description: The resource config for the data model, configured as a part of the Amplify project.
+                  type: object
+                  properties:
+                    AdditionalAuthTypes:
+                      allOf:
+                        - $ref: "#/components/schemas/ListOfBackendAPIAuthType"
+                        - xml:
+                            name: additionalAuthTypes
+                          description: Additional authentication methods used to interact with your data models.
+                    ApiName:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: apiName
+                          description: The API name used to interact with the data model, configured as a part of your Amplify project.
+                    ConflictResolution:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIConflictResolution"
+                        - xml:
+                            name: conflictResolution
+                          description: The conflict resolution strategy for your data stored in the data models.
+                    DefaultAuthType:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIAuthType"
+                        - xml:
+                            name: defaultAuthType
+                          description: The default authentication type for interacting with the configured data models in your Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: service
+                          description: The service used to provision and interact with the data model.
+                    TransformSchema:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: transformSchema
+                          description: The definition of the data model in the annotated transform of the GraphQL schema.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/auth/{backendEnvironmentName}/remove":
+    post:
+      operationId: DeleteBackendAuth
+      description: Deletes an existing backend authentication resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteBackendAuthResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/storage/{backendEnvironmentName}/remove":
+    post:
+      operationId: DeleteBackendStorage
+      description: Removes the specified backend storage resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteBackendStorageResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+                - serviceName
+              properties:
+                resourceName:
+                  description: The name of the storage resource.
+                  type: string
+                serviceName:
+                  description: The name of the storage service.
+                  type: string
+                  enum:
+                    - S3
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/challenge/{sessionId}/remove":
+    post:
+      operationId: DeleteToken
+      description: Deletes the challenge token based on the given appId and sessionId.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteTokenResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: sessionId
+          in: path
+          required: true
+          description: The session ID.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api/{backendEnvironmentName}/generateModels":
+    post:
+      operationId: GenerateBackendAPIModels
+      description: Generates a model schema for an existing backend API resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateBackendAPIModelsResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/details":
+    post:
+      operationId: GetBackend
+      description: Provides project-level details for your Amplify UI project.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backendEnvironmentName:
+                  description: The name of the backend environment.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api/{backendEnvironmentName}/details":
+    post:
+      operationId: GetBackendAPI
+      description: Gets the details for a backend API.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendAPIResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceConfig:
+                  description: The resource config for the data model, configured as a part of the Amplify project.
+                  type: object
+                  properties:
+                    AdditionalAuthTypes:
+                      allOf:
+                        - $ref: "#/components/schemas/ListOfBackendAPIAuthType"
+                        - xml:
+                            name: additionalAuthTypes
+                          description: Additional authentication methods used to interact with your data models.
+                    ApiName:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: apiName
+                          description: The API name used to interact with the data model, configured as a part of your Amplify project.
+                    ConflictResolution:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIConflictResolution"
+                        - xml:
+                            name: conflictResolution
+                          description: The conflict resolution strategy for your data stored in the data models.
+                    DefaultAuthType:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIAuthType"
+                        - xml:
+                            name: defaultAuthType
+                          description: The default authentication type for interacting with the configured data models in your Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: service
+                          description: The service used to provision and interact with the data model.
+                    TransformSchema:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: transformSchema
+                          description: The definition of the data model in the annotated transform of the GraphQL schema.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api/{backendEnvironmentName}/getModels":
+    post:
+      operationId: GetBackendAPIModels
+      description: Gets a model introspection schema for an existing backend API resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendAPIModelsResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/auth/{backendEnvironmentName}/details":
+    post:
+      operationId: GetBackendAuth
+      description: Gets a backend auth details.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendAuthResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/job/{backendEnvironmentName}/{jobId}":
+    get:
+      operationId: GetBackendJob
+      description: Returns information about a specific job.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendJobResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+        - name: jobId
+          in: path
+          required: true
+          description: The ID for the job.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+    post:
+      operationId: UpdateBackendJob
+      description: Updates a specific job.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBackendJobResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+        - name: jobId
+          in: path
+          required: true
+          description: The ID for the job.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operation:
+                  description: Filters the list of response objects to include only those with the specified operation name.
+                  type: string
+                status:
+                  description: Filters the list of response objects to include only those with the specified status.
+                  type: string
+  "/backend/{appId}/storage/{backendEnvironmentName}/details":
+    post:
+      operationId: GetBackendStorage
+      description: Gets details for a backend storage resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetBackendStorageResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceName:
+                  description: The name of the storage resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/challenge/{sessionId}":
+    get:
+      operationId: GetToken
+      description: Gets the challenge token based on the given appId and sessionId.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTokenResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: sessionId
+          in: path
+          required: true
+          description: The session ID.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/auth/{backendEnvironmentName}/import":
+    post:
+      operationId: ImportBackendAuth
+      description: Imports an existing backend authentication resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBackendAuthResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - nativeClientId
+                - userPoolId
+                - webClientId
+              properties:
+                identityPoolId:
+                  description: The ID of the Amazon Cognito identity pool.
+                  type: string
+                nativeClientId:
+                  description: The ID of the Amazon Cognito native client.
+                  type: string
+                userPoolId:
+                  description: The ID of the Amazon Cognito user pool.
+                  type: string
+                webClientId:
+                  description: The ID of the Amazon Cognito web client.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/storage/{backendEnvironmentName}/import":
+    post:
+      operationId: ImportBackendStorage
+      description: Imports an existing backend storage resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportBackendStorageResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - serviceName
+              properties:
+                bucketName:
+                  description: The name of the S3 bucket.
+                  type: string
+                serviceName:
+                  description: The name of the storage service.
+                  type: string
+                  enum:
+                    - S3
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/job/{backendEnvironmentName}":
+    post:
+      operationId: ListBackendJobs
+      description: Lists the jobs for the backend of an Amplify app.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListBackendJobsResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jobId:
+                  description: The ID for the job.
+                  type: string
+                maxResults:
+                  description: The maximum number of results that you want in the response.
+                  type: integer
+                  minimum: 1
+                  maximum: 25
+                nextToken:
+                  description: The token for the next set of results.
+                  type: string
+                operation:
+                  description: Filters the list of response objects to include only those with the specified operation name.
+                  type: string
+                status:
+                  description: Filters the list of response objects to include only those with the specified status.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /s3Buckets:
+    post:
+      operationId: ListS3Buckets
+      description: The list of S3 buckets in your account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListS3BucketsResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nextToken:
+                  description: Reserved for future use.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/remove":
+    post:
+      operationId: RemoveAllBackends
+      description: Removes all backend environments from your Amplify project.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveAllBackendsResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cleanAmplifyApp:
+                  description: Cleans up the Amplify Console app if this value is set to true.
+                  type: boolean
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/config/remove":
+    post:
+      operationId: RemoveBackendConfig
+      description: Removes the AWS resources required to access the Amplify Admin UI.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RemoveBackendConfigResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/api/{backendEnvironmentName}":
+    post:
+      operationId: UpdateBackendAPI
+      description: Updates an existing backend API resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBackendAPIResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceName
+              properties:
+                resourceConfig:
+                  description: The resource config for the data model, configured as a part of the Amplify project.
+                  type: object
+                  properties:
+                    AdditionalAuthTypes:
+                      allOf:
+                        - $ref: "#/components/schemas/ListOfBackendAPIAuthType"
+                        - xml:
+                            name: additionalAuthTypes
+                          description: Additional authentication methods used to interact with your data models.
+                    ApiName:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: apiName
+                          description: The API name used to interact with the data model, configured as a part of your Amplify project.
+                    ConflictResolution:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIConflictResolution"
+                        - xml:
+                            name: conflictResolution
+                          description: The conflict resolution strategy for your data stored in the data models.
+                    DefaultAuthType:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendAPIAuthType"
+                        - xml:
+                            name: defaultAuthType
+                          description: The default authentication type for interacting with the configured data models in your Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: service
+                          description: The service used to provision and interact with the data model.
+                    TransformSchema:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: transformSchema
+                          description: The definition of the data model in the annotated transform of the GraphQL schema.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/auth/{backendEnvironmentName}":
+    post:
+      operationId: UpdateBackendAuth
+      description: Updates an existing backend authentication resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBackendAuthResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceConfig
+                - resourceName
+              properties:
+                resourceConfig:
+                  description: Defines the resource configuration when updating an authentication resource in your Amplify project.
+                  type: object
+                  properties:
+                    AuthResources:
+                      allOf:
+                        - $ref: "#/components/schemas/AuthResources"
+                        - xml:
+                            name: authResources
+                          description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+                    IdentityPoolConfigs:
+                      allOf:
+                        - $ref: "#/components/schemas/UpdateBackendAuthIdentityPoolConfig"
+                        - xml:
+                            name: identityPoolConfigs
+                          description: Describes the authorization configuration for the Amazon Cognito identity pool, provisioned as a part of your auth resource in the Amplify project.
+                    Service:
+                      allOf:
+                        - $ref: "#/components/schemas/Service"
+                        - xml:
+                            name: service
+                          description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+                    UserPoolConfigs:
+                      allOf:
+                        - $ref: "#/components/schemas/UpdateBackendAuthUserPoolConfig"
+                        - xml:
+                            name: userPoolConfigs
+                          description: Describes the authentication configuration for the Amazon Cognito user pool, provisioned as a part of your auth resource in the Amplify project.
+                resourceName:
+                  description: The name of this resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/config/update":
+    post:
+      operationId: UpdateBackendConfig
+      description: Updates the AWS resources required to access the Amplify Admin UI.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBackendConfigResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loginAuthConfig:
+                  description: The request object for this operation.
+                  type: object
+                  properties:
+                    AwsCognitoIdentityPoolId:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: aws_cognito_identity_pool_id
+                          description: The Amazon Cognito identity pool ID used for the Amplify Admin UI login authorization.
+                    AwsCognitoRegion:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: aws_cognito_region
+                          description: The AWS Region for the Amplify Admin UI login.
+                    AwsUserPoolsId:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: aws_user_pools_id
+                          description: The Amazon Cognito user pool ID used for Amplify Admin UI login authentication.
+                    AwsUserPoolsWebClientId:
+                      allOf:
+                        - $ref: "#/components/schemas/__string"
+                        - xml:
+                            name: aws_user_pools_web_client_id
+                          description: The web client ID for the Amazon Cognito user pools.
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  "/backend/{appId}/storage/{backendEnvironmentName}":
+    post:
+      operationId: UpdateBackendStorage
+      description: Updates an existing backend storage resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateBackendStorageResponse"
+        "480":
+          description: NotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundException"
+        "481":
+          description: GatewayTimeoutException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GatewayTimeoutException"
+        "482":
+          description: TooManyRequestsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequestsException"
+        "483":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+      parameters:
+        - name: appId
+          in: path
+          required: true
+          description: The app ID.
+          schema:
+            type: string
+        - name: backendEnvironmentName
+          in: path
+          required: true
+          description: The name of the backend environment.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - resourceConfig
+                - resourceName
+              properties:
+                resourceConfig:
+                  description: The resource configuration for updating backend storage.
+                  type: object
+                  properties:
+                    Permissions:
+                      allOf:
+                        - $ref: "#/components/schemas/BackendStoragePermissions"
+                        - xml:
+                            name: permissions
+                          description: The authorization configuration for the storage S3 bucket.
+                    ServiceName:
+                      allOf:
+                        - $ref: "#/components/schemas/ServiceName"
+                        - xml:
+                            name: serviceName
+                          description: The name of the storage service.
+                resourceName:
+                  description: The name of the storage resource.
+                  type: string
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+components:
+  parameters:
+    X-Amz-Content-Sha256:
+      name: X-Amz-Content-Sha256
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Date:
+      name: X-Amz-Date
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Algorithm:
+      name: X-Amz-Algorithm
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Credential:
+      name: X-Amz-Credential
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Security-Token:
+      name: X-Amz-Security-Token
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Signature:
+      name: X-Amz-Signature
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-SignedHeaders:
+      name: X-Amz-SignedHeaders
+      in: header
+      schema:
+        type: string
+      required: false
+  securitySchemes:
+    hmac:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Amazon Signature authorization v4
+      x-amazon-apigateway-authtype: awsSigv4
+  schemas:
+    CloneBackendResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    NotFoundException: {}
+    GatewayTimeoutException: {}
+    TooManyRequestsException: {}
+    BadRequestException: {}
+    CreateBackendResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    CreateBackendAPIResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    ListOfBackendAPIAuthType:
+      type: array
+      items:
+        $ref: "#/components/schemas/BackendAPIAuthType"
+    __string:
+      type: string
+    BackendAPIConflictResolution:
+      type: object
+      properties:
+        ResolutionStrategy:
+          allOf:
+            - $ref: "#/components/schemas/ResolutionStrategy"
+            - xml:
+                name: resolutionStrategy
+              description: The strategy for conflict resolution.
+      description: Describes the conflict resolution configuration for your data model configured in your Amplify project.
+    BackendAPIAuthType:
+      type: object
+      properties:
+        Mode:
+          allOf:
+            - $ref: "#/components/schemas/Mode"
+            - xml:
+                name: mode
+              description: Describes the authentication mode.
+        Settings:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIAppSyncAuthSettings"
+            - xml:
+                name: settings
+              description: Describes settings for the authentication mode.
+      description: Describes the auth types for your configured data models.
+    CreateBackendAuthResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    AuthResources:
+      type: string
+      enum:
+        - USER_POOL_ONLY
+        - IDENTITY_POOL_AND_USER_POOL
+    CreateBackendAuthIdentityPoolConfig:
+      type: object
+      required:
+        - UnauthenticatedLogin
+        - IdentityPoolName
+      properties:
+        IdentityPoolName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: identityPoolName
+              description: Name of the Amazon Cognito identity pool used for authorization.
+        UnauthenticatedLogin:
+          allOf:
+            - $ref: "#/components/schemas/__boolean"
+            - xml:
+                name: unauthenticatedLogin
+              description: Set to true or false based on whether you want to enable guest authorization to your Amplify app.
+      description: Describes authorization configurations for the auth resources, configured as a part of your Amplify project.
+    Service:
+      type: string
+      enum:
+        - COGNITO
+    CreateBackendAuthUserPoolConfig:
+      type: object
+      required:
+        - RequiredSignUpAttributes
+        - SignInMethod
+        - UserPoolName
+      properties:
+        ForgotPassword:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthForgotPasswordConfig"
+            - xml:
+                name: forgotPassword
+              description: <b>(DEPRECATED)</b> Describes the forgotten password policy for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        Mfa:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthMFAConfig"
+            - xml:
+                name: mfa
+              description: Describes whether to apply multi-factor authentication policies for your Amazon Cognito user pool configured as a part of your Amplify project.
+        OAuth:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthOAuthConfig"
+            - xml:
+                name: oAuth
+              description: Describes the OAuth policy and rules for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        PasswordPolicy:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthPasswordPolicyConfig"
+            - xml:
+                name: passwordPolicy
+              description: Describes the password policy for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        RequiredSignUpAttributes:
+          allOf:
+            - $ref: "#/components/schemas/ListOfRequiredSignUpAttributesElement"
+            - xml:
+                name: requiredSignUpAttributes
+              description: The required attributes to sign up new users in the user pool.
+        SignInMethod:
+          allOf:
+            - $ref: "#/components/schemas/SignInMethod"
+            - xml:
+                name: signInMethod
+              description: Describes the sign-in methods that your Amplify app users use to log in using the Amazon Cognito user pool, configured as a part of your Amplify project.
+        UserPoolName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: userPoolName
+              description: The Amazon Cognito user pool name.
+        VerificationMessage:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthVerificationMessageConfig"
+            - xml:
+                name: verificationMessage
+              description: Describes the email or SMS verification message for your Amazon Cognito user pool, configured as a part of your Amplify project.
+      description: Describes the Amazon Cognito user pool configuration for the auth resource to be configured for your Amplify project.
+    CreateBackendConfigResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    CreateBackendStorageResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    BackendStoragePermissions:
+      type: object
+      required:
+        - Authenticated
+      properties:
+        Authenticated:
+          allOf:
+            - $ref: "#/components/schemas/ListOfAuthenticatedElement"
+            - xml:
+                name: authenticated
+              description: Lists all authenticated user read, write, and delete permissions for your S3 bucket.
+        UnAuthenticated:
+          allOf:
+            - $ref: "#/components/schemas/ListOfUnAuthenticatedElement"
+            - xml:
+                name: unAuthenticated
+              description: Lists all unauthenticated user read, write, and delete permissions for your S3 bucket.
+      description: Describes the read, write, and delete permissions users have against your storage S3 bucket.
+    ServiceName:
+      type: string
+      enum:
+        - S3
+    CreateTokenResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        ChallengeCode:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: challengeCode
+              description: One-time challenge code for authenticating into the Amplify Admin UI.
+        SessionId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: sessionId
+              description: A unique ID provided when creating a new challenge token.
+        Ttl:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: ttl
+              description: The expiry time for the one-time generated token code.
+    DeleteBackendResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    DeleteBackendAPIResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    DeleteBackendAuthResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    DeleteBackendStorageResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    DeleteTokenResponse:
+      type: object
+      properties:
+        IsSuccess:
+          allOf:
+            - $ref: "#/components/schemas/__boolean"
+            - xml:
+                name: isSuccess
+              description: Indicates whether the request succeeded or failed.
+    GenerateBackendAPIModelsResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    GetBackendResponse:
+      type: object
+      properties:
+        AmplifyFeatureFlags:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: amplifyFeatureFlags
+              description: A stringified version of the cli.json file for your Amplify project.
+        AmplifyMetaConfig:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: amplifyMetaConfig
+              description: A stringified version of the current configs for your Amplify project.
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        AppName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appName
+              description: The name of the app.
+        BackendEnvironmentList:
+          allOf:
+            - $ref: "#/components/schemas/ListOf__string"
+            - xml:
+                name: backendEnvironmentList
+              description: A list of backend environments in an array.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request failed, this is the returned error.
+    GetBackendAPIResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for this response object.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+    GetBackendAPIModelsResponse:
+      type: object
+      properties:
+        Models:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: models
+              description: Stringified JSON of the datastore model.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/Status"
+            - xml:
+                name: status
+              description: The current status of the request.
+        ModelIntrospectionSchema:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: modelIntrospectionSchema
+              description: Stringified JSON of the model introspection schema for an existing backend API resource.
+    GetBackendAuthResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for authorization requests to the backend of your Amplify project.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+    GetBackendJobResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        CreateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: createTime
+              description: The time when the job was created.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+        UpdateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: updateTime
+              description: The time when the job was last updated.
+    GetBackendStorageResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/GetBackendStorageResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for the backend storage resource.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the storage resource.
+    GetTokenResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        ChallengeCode:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: challengeCode
+              description: The one-time challenge code for authenticating into the Amplify Admin UI.
+        SessionId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: sessionId
+              description: A unique ID provided when creating a new challenge token.
+        Ttl:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: ttl
+              description: The expiry time for the one-time generated token code.
+    ImportBackendAuthResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    ImportBackendStorageResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    ListBackendJobsResponse:
+      type: object
+      properties:
+        Jobs:
+          allOf:
+            - $ref: "#/components/schemas/ListOfBackendJobRespObj"
+            - xml:
+                name: jobs
+              description: An array of jobs and their properties.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: nextToken
+              description: The token for the next set of results.
+    ListS3BucketsResponse:
+      type: object
+      properties:
+        Buckets:
+          allOf:
+            - $ref: "#/components/schemas/ListOfS3BucketInfo"
+            - xml:
+                name: buckets
+              description: The list of S3 buckets.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: nextToken
+              description: Reserved for future use.
+    RemoveAllBackendsResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    RemoveBackendConfigResponse:
+      type: object
+      properties:
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+    UpdateBackendAPIResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    UpdateBackendAuthResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    UpdateBackendAuthIdentityPoolConfig:
+      type: object
+      properties:
+        UnauthenticatedLogin:
+          allOf:
+            - $ref: "#/components/schemas/__boolean"
+            - xml:
+                name: unauthenticatedLogin
+              description: A boolean value that can be set to allow or disallow guest-level authorization into your Amplify app.
+      description: Describes the authorization configuration for the Amazon Cognito identity pool, provisioned as a part of your auth resource in the Amplify project.
+    UpdateBackendAuthUserPoolConfig:
+      type: object
+      properties:
+        ForgotPassword:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthForgotPasswordConfig"
+            - xml:
+                name: forgotPassword
+              description: <b>(DEPRECATED)</b> Describes the forgot password policy for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        Mfa:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthMFAConfig"
+            - xml:
+                name: mfa
+              description: Describes whether to apply multi-factor authentication policies for your Amazon Cognito user pool configured as a part of your Amplify project.
+        OAuth:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthOAuthConfig"
+            - xml:
+                name: oAuth
+              description: Describes the OAuth policy and rules for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        PasswordPolicy:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthPasswordPolicyConfig"
+            - xml:
+                name: passwordPolicy
+              description: Describes the password policy for your Amazon Cognito user pool, configured as a part of your Amplify project.
+        VerificationMessage:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthVerificationMessageConfig"
+            - xml:
+                name: verificationMessage
+              description: Describes the email or SMS verification message for your Amazon Cognito user pool, configured as a part of your Amplify project.
+      description: Describes the Amazon Cognito user pool configuration for the authorization resource to be configured for your Amplify project on an update.
+    UpdateBackendConfigResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendManagerAppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendManagerAppId
+              description: The app ID for the backend manager.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        LoginAuthConfig:
+          allOf:
+            - $ref: "#/components/schemas/LoginAuthConfigReqObj"
+            - xml:
+                name: loginAuthConfig
+              description: Describes the Amazon Cognito configurations for the Admin UI auth resource to log in with.
+    UpdateBackendJobResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        CreateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: createTime
+              description: The time when the job was created.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+        UpdateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: updateTime
+              description: The time when the job was last updated.
+    UpdateBackendStorageResponse:
+      type: object
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+    __double:
+      type: number
+      format: double
+    BackendAPIAppSyncAuthSettings:
+      type: object
+      properties:
+        CognitoUserPoolId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: cognitoUserPoolId
+              description: The Amazon Cognito user pool ID, if Amazon Cognito was used as an authentication setting to access your data models.
+        Description:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: description
+              description: The API key description for API_KEY, if it was used as an authentication mechanism to access your data models.
+        ExpirationTime:
+          allOf:
+            - $ref: "#/components/schemas/__double"
+            - xml:
+                name: expirationTime
+              description: The API key expiration time for API_KEY, if it was used as an authentication mechanism to access your data models.
+        OpenIDAuthTTL:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: openIDAuthTTL
+              description: The expiry time for the OpenID authentication mechanism.
+        OpenIDClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: openIDClientId
+              description: The clientID for openID, if openID was used as an authentication setting to access your data models.
+        OpenIDIatTTL:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: openIDIatTTL
+              description: The expiry time for the OpenID authentication mechanism.
+        OpenIDIssueURL:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: openIDIssueURL
+              description: The openID issuer URL, if openID was used as an authentication setting to access your data models.
+        OpenIDProviderName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: openIDProviderName
+              description: The OpenID provider name, if OpenID was used as an authentication mechanism to access your data models.
+      description: The authentication settings for accessing provisioned data models in your Amplify project.
+    Mode:
+      type: string
+      enum:
+        - API_KEY
+        - AWS_IAM
+        - AMAZON_COGNITO_USER_POOLS
+        - OPENID_CONNECT
+    ResolutionStrategy:
+      type: string
+      enum:
+        - OPTIMISTIC_CONCURRENCY
+        - LAMBDA
+        - AUTOMERGE
+        - NONE
+    BackendAPIResourceConfig:
+      type: object
+      properties:
+        AdditionalAuthTypes:
+          allOf:
+            - $ref: "#/components/schemas/ListOfBackendAPIAuthType"
+            - xml:
+                name: additionalAuthTypes
+              description: Additional authentication methods used to interact with your data models.
+        ApiName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: apiName
+              description: The API name used to interact with the data model, configured as a part of your Amplify project.
+        ConflictResolution:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIConflictResolution"
+            - xml:
+                name: conflictResolution
+              description: The conflict resolution strategy for your data stored in the data models.
+        DefaultAuthType:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIAuthType"
+            - xml:
+                name: defaultAuthType
+              description: The default authentication type for interacting with the configured data models in your Amplify project.
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: service
+              description: The service used to provision and interact with the data model.
+        TransformSchema:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: transformSchema
+              description: The definition of the data model in the annotated transform of the GraphQL schema.
+      description: The resource config for the data model, configured as a part of the Amplify project.
+    BackendAuthAppleProviderConfig:
+      type: object
+      properties:
+        ClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: client_id
+              description: Describes the client_id (also called Services ID) that comes from Apple.
+        KeyId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: key_id
+              description: Describes the key_id that comes from Apple.
+        PrivateKey:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: private_key
+              description: Describes the private_key that comes from Apple.
+        TeamId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: team_id
+              description: Describes the team_id that comes from Apple.
+      description: Describes Apple social federation configurations for allowing your app users to sign in using OAuth.
+    BackendAuthSocialProviderConfig:
+      type: object
+      properties:
+        ClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: client_id
+              description: Describes the client_id, which can be obtained from the third-party social federation provider.
+        ClientSecret:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: client_secret
+              description: Describes the client_secret, which can be obtained from third-party social federation providers.
+      description: Describes third-party social federation configurations for allowing your app users to sign in using OAuth.
+    BackendJobRespObj:
+      type: object
+      required:
+        - AppId
+        - BackendEnvironmentName
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        CreateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: createTime
+              description: The time when the job was created.
+        Error:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: error
+              description: If the request fails, this error is returned.
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: The name of the operation.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: The current status of the request.
+        UpdateTime:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: updateTime
+              description: The time when the job was last updated.
+      description: The response object for this operation.
+    ListOfAuthenticatedElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/AuthenticatedElement"
+    ListOfUnAuthenticatedElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/UnAuthenticatedElement"
+    CloneBackendRequest:
+      type: object
+      required:
+        - TargetEnvironmentName
+      title: CloneBackendRequest
+      properties:
+        TargetEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: targetEnvironmentName
+              description: The name of the destination backend environment to be created.
+      description: The request body for CloneBackend.
+    CreateBackendAPIRequest:
+      type: object
+      required:
+        - ResourceName
+        - BackendEnvironmentName
+        - ResourceConfig
+      title: CreateBackendAPIRequest
+      properties:
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for this request.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for CreateBackendAPI.
+    DeliveryMethod:
+      type: string
+      enum:
+        - EMAIL
+        - SMS
+      description: The type of verification message to send.
+    EmailSettings:
+      type: object
+      properties:
+        EmailMessage:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: emailMessage
+              description: The contents of the email message.
+        EmailSubject:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: emailSubject
+              description: The contents of the subject line of the email message.
+      description: The configuration for the email sent when an app user forgets their password.
+    SmsSettings:
+      type: object
+      properties:
+        SmsMessage:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: smsMessage
+              description: The contents of the SMS message.
+      description: SMS settings for authentication.
+    CreateBackendAuthForgotPasswordConfig:
+      type: object
+      required:
+        - DeliveryMethod
+      properties:
+        DeliveryMethod:
+          allOf:
+            - $ref: "#/components/schemas/DeliveryMethod"
+            - xml:
+                name: deliveryMethod
+              description: <b>(DEPRECATED)</b> Describes which mode to use (either SMS or email) to deliver messages to app users who want to recover their password.
+        EmailSettings:
+          allOf:
+            - $ref: "#/components/schemas/EmailSettings"
+            - xml:
+                name: emailSettings
+              description: <b>(DEPRECATED)</b> The configuration for the email sent when an app user forgets their password.
+        SmsSettings:
+          allOf:
+            - $ref: "#/components/schemas/SmsSettings"
+            - xml:
+                name: smsSettings
+              description: <b>(DEPRECATED)</b> The configuration for the SMS message sent when an app user forgets their password.
+      description: <b>(DEPRECATED)</b> Describes the forgot password policy for authenticating into the Amplify app.
+    __boolean:
+      type: boolean
+    MFAMode:
+      type: string
+      enum:
+        - ON
+        - OFF
+        - OPTIONAL
+    Settings:
+      type: object
+      properties:
+        MfaTypes:
+          allOf:
+            - $ref: "#/components/schemas/ListOfMfaTypesElement"
+            - xml:
+                name: mfaTypes
+              description: The supported MFA types.
+        SmsMessage:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: smsMessage
+              description: The body of the SMS message.
+      description: The settings of your MFA configuration for the backend of your Amplify project.
+    CreateBackendAuthMFAConfig:
+      type: object
+      required:
+        - MFAMode
+      properties:
+        MFAMode:
+          allOf:
+            - $ref: "#/components/schemas/MFAMode"
+            - description: Describes whether MFA should be [ON, OFF, or OPTIONAL] for authentication in your Amplify project.
+        Settings:
+          allOf:
+            - $ref: "#/components/schemas/Settings"
+            - xml:
+                name: settings
+              description: Describes the configuration settings and methods for your Amplify app users to use MFA.
+      description: Describes whether to apply multi-factor authentication policies for your Amazon Cognito user pool configured as a part of your Amplify project.
+    OAuthGrantType:
+      type: string
+      enum:
+        - CODE
+        - IMPLICIT
+    ListOfOAuthScopesElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/OAuthScopesElement"
+    ListOf__string:
+      type: array
+      items:
+        $ref: "#/components/schemas/__string"
+    SocialProviderSettings:
+      type: object
+      properties:
+        Facebook:
+          $ref: "#/components/schemas/BackendAuthSocialProviderConfig"
+        Google:
+          $ref: "#/components/schemas/BackendAuthSocialProviderConfig"
+        LoginWithAmazon:
+          $ref: "#/components/schemas/BackendAuthSocialProviderConfig"
+        SignInWithApple:
+          $ref: "#/components/schemas/BackendAuthAppleProviderConfig"
+      description: The settings for using the social identity providers for access to your Amplify app.
+    CreateBackendAuthOAuthConfig:
+      type: object
+      required:
+        - RedirectSignOutURIs
+        - RedirectSignInURIs
+        - OAuthGrantType
+        - OAuthScopes
+      properties:
+        DomainPrefix:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: domainPrefix
+              description: The domain prefix for your Amplify app.
+        OAuthGrantType:
+          allOf:
+            - $ref: "#/components/schemas/OAuthGrantType"
+            - xml:
+                name: oAuthGrantType
+              description: The OAuth grant type that you use to allow app users to authenticate from your Amplify app.
+        OAuthScopes:
+          allOf:
+            - $ref: "#/components/schemas/ListOfOAuthScopesElement"
+            - xml:
+                name: oAuthScopes
+              description: List of OAuth-related flows used to allow your app users to authenticate from your Amplify app.
+        RedirectSignInURIs:
+          allOf:
+            - $ref: "#/components/schemas/ListOf__string"
+            - xml:
+                name: redirectSignInURIs
+              description: The redirected URI for signing in to your Amplify app.
+        RedirectSignOutURIs:
+          allOf:
+            - $ref: "#/components/schemas/ListOf__string"
+            - xml:
+                name: redirectSignOutURIs
+              description: Redirect URLs that OAuth uses when a user signs out of an Amplify app.
+        SocialProviderSettings:
+          allOf:
+            - $ref: "#/components/schemas/SocialProviderSettings"
+            - xml:
+                name: socialProviderSettings
+              description: The settings for using social providers to access your Amplify app.
+      description: Creates the OAuth configuration for your Amplify project.
+    ListOfAdditionalConstraintsElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/AdditionalConstraintsElement"
+    CreateBackendAuthPasswordPolicyConfig:
+      type: object
+      required:
+        - MinimumLength
+      properties:
+        AdditionalConstraints:
+          allOf:
+            - $ref: "#/components/schemas/ListOfAdditionalConstraintsElement"
+            - xml:
+                name: additionalConstraints
+              description: Additional constraints for the password used to access the backend of your Amplify project.
+        MinimumLength:
+          allOf:
+            - $ref: "#/components/schemas/__double"
+            - xml:
+                name: minimumLength
+              description: The minimum length of the password used to access the backend of your Amplify project.
+      description: The password policy configuration for the backend to your Amplify project.
+    CreateBackendAuthResourceConfig:
+      type: object
+      required:
+        - AuthResources
+        - UserPoolConfigs
+        - Service
+      properties:
+        AuthResources:
+          allOf:
+            - $ref: "#/components/schemas/AuthResources"
+            - xml:
+                name: authResources
+              description: Defines whether you want to configure only authentication or both authentication and authorization settings.
+        IdentityPoolConfigs:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthIdentityPoolConfig"
+            - xml:
+                name: identityPoolConfigs
+              description: Describes the authorization configuration for the Amazon Cognito identity pool, provisioned as a part of your auth resource in the Amplify project.
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - xml:
+                name: service
+              description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+        UserPoolConfigs:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthUserPoolConfig"
+            - xml:
+                name: userPoolConfigs
+              description: Describes authentication configuration for the Amazon Cognito user pool, provisioned as a part of your auth resource in the Amplify project.
+      description: Defines the resource configuration when creating an auth resource in your Amplify project.
+    CreateBackendAuthRequest:
+      type: object
+      required:
+        - ResourceName
+        - BackendEnvironmentName
+        - ResourceConfig
+      title: CreateBackendAuthRequest
+      properties:
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendAuthResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for this request object.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for CreateBackendAuth.
+    ListOfRequiredSignUpAttributesElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/RequiredSignUpAttributesElement"
+    SignInMethod:
+      type: string
+      enum:
+        - EMAIL
+        - EMAIL_AND_PHONE_NUMBER
+        - PHONE_NUMBER
+        - USERNAME
+    CreateBackendAuthVerificationMessageConfig:
+      type: object
+      required:
+        - DeliveryMethod
+      properties:
+        DeliveryMethod:
+          allOf:
+            - $ref: "#/components/schemas/DeliveryMethod"
+            - xml:
+                name: deliveryMethod
+              description: The type of verification message to send.
+        EmailSettings:
+          allOf:
+            - $ref: "#/components/schemas/EmailSettings"
+            - xml:
+                name: emailSettings
+              description: The settings for the email message.
+        SmsSettings:
+          allOf:
+            - $ref: "#/components/schemas/SmsSettings"
+            - xml:
+                name: smsSettings
+              description: The settings for the SMS message.
+      description: Creates an email or SMS verification message for the auth resource configured for your Amplify project.
+    CreateBackendConfigRequest:
+      type: object
+      title: CreateBackendConfigRequest
+      properties:
+        BackendManagerAppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendManagerAppId
+              description: The app ID for the backend manager.
+      description: The request body for CreateBackendConfig.
+    ResourceConfig:
+      type: object
+      properties: {}
+      description: Defines the resource configuration for the data model in your Amplify project.
+    CreateBackendRequest:
+      type: object
+      required:
+        - AppId
+        - BackendEnvironmentName
+        - AppName
+      title: CreateBackendRequest
+      properties:
+        AppId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appId
+              description: The app ID.
+        AppName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: appName
+              description: The name of the app.
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/ResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for creating a backend.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the resource.
+      description: The request body for CreateBackend.
+    CreateBackendStorageResourceConfig:
+      type: object
+      required:
+        - ServiceName
+        - Permissions
+      properties:
+        BucketName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: bucketName
+              description: The name of the S3 bucket.
+        Permissions:
+          allOf:
+            - $ref: "#/components/schemas/BackendStoragePermissions"
+            - xml:
+                name: permissions
+              description: The authorization configuration for the storage S3 bucket.
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - xml:
+                name: serviceName
+              description: The name of the storage service.
+      description: The resource configuration for creating backend storage.
+    CreateBackendStorageRequest:
+      type: object
+      required:
+        - ResourceName
+        - BackendEnvironmentName
+        - ResourceConfig
+      title: CreateBackendStorageRequest
+      properties:
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/CreateBackendStorageResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for creating backend storage.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the storage resource.
+      description: The request body for CreateBackendStorage.
+    CreateTokenRequest:
+      type: object
+      title: CreateTokenRequest
+      properties: {}
+    DeleteBackendAPIRequest:
+      type: object
+      required:
+        - ResourceName
+      title: DeleteBackendAPIRequest
+      properties:
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: Defines the resource configuration for the data model in your Amplify project.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for DeleteBackendAPI.
+    DeleteBackendAuthRequest:
+      type: object
+      required:
+        - ResourceName
+      title: DeleteBackendAuthRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for DeleteBackendAuth.
+    DeleteBackendRequest:
+      type: object
+      title: DeleteBackendRequest
+      properties: {}
+    DeleteBackendStorageRequest:
+      type: object
+      required:
+        - ServiceName
+        - ResourceName
+      title: DeleteBackendStorageRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the storage resource.
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - xml:
+                name: serviceName
+              description: The name of the storage service.
+      description: The request body for DeleteBackendStorage.
+    DeleteTokenRequest:
+      type: object
+      title: DeleteTokenRequest
+      properties: {}
+    GenerateBackendAPIModelsRequest:
+      type: object
+      required:
+        - ResourceName
+      title: GenerateBackendAPIModelsRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for GenerateBackendAPIModels.
+    GetBackendAPIModelsRequest:
+      type: object
+      required:
+        - ResourceName
+      title: GetBackendAPIModelsRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for GetBackendAPIModels.
+    Status:
+      type: string
+      enum:
+        - LATEST
+        - STALE
+    GetBackendAPIRequest:
+      type: object
+      required:
+        - ResourceName
+      title: GetBackendAPIRequest
+      properties:
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: Defines the resource configuration for the data model in your Amplify project.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for GetBackendAPI.
+    GetBackendAuthRequest:
+      type: object
+      required:
+        - ResourceName
+      title: GetBackendAuthRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for GetBackendAuth.
+    GetBackendJobRequest:
+      type: object
+      title: GetBackendJobRequest
+      properties: {}
+    GetBackendRequest:
+      type: object
+      title: GetBackendRequest
+      properties:
+        BackendEnvironmentName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: backendEnvironmentName
+              description: The name of the backend environment.
+      description: The request body for GetBackend.
+    GetBackendStorageRequest:
+      type: object
+      required:
+        - ResourceName
+      title: GetBackendStorageRequest
+      properties:
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the storage resource.
+      description: The request body for GetBackendStorage.
+    GetBackendStorageResourceConfig:
+      type: object
+      required:
+        - ServiceName
+        - Imported
+      properties:
+        BucketName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: bucketName
+              description: The name of the S3 bucket.
+        Imported:
+          allOf:
+            - $ref: "#/components/schemas/__boolean"
+            - xml:
+                name: imported
+              description: Returns True if the storage resource has been imported.
+        Permissions:
+          allOf:
+            - $ref: "#/components/schemas/BackendStoragePermissions"
+            - xml:
+                name: permissions
+              description: The authorization configuration for the storage S3 bucket.
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - xml:
+                name: serviceName
+              description: The name of the storage service.
+      description: The details for a backend storage resource.
+    GetTokenRequest:
+      type: object
+      title: GetTokenRequest
+      properties: {}
+    ImportBackendAuthRequest:
+      type: object
+      required:
+        - UserPoolId
+        - NativeClientId
+        - WebClientId
+      title: ImportBackendAuthRequest
+      properties:
+        IdentityPoolId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: identityPoolId
+              description: The ID of the Amazon Cognito identity pool.
+        NativeClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: nativeClientId
+              description: The ID of the Amazon Cognito native client.
+        UserPoolId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: userPoolId
+              description: The ID of the Amazon Cognito user pool.
+        WebClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: webClientId
+              description: The ID of the Amazon Cognito web client.
+      description: The request body for ImportBackendAuth.
+    ImportBackendStorageRequest:
+      type: object
+      required:
+        - ServiceName
+      title: ImportBackendStorageRequest
+      properties:
+        BucketName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: bucketName
+              description: The name of the S3 bucket.
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - xml:
+                name: serviceName
+              description: The name of the storage service.
+      description: The request body for ImportBackendStorage.
+    __integerMin1Max25:
+      type: integer
+      minimum: 1
+      maximum: 25
+    ListBackendJobsRequest:
+      type: object
+      title: ListBackendJobsRequest
+      properties:
+        JobId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: jobId
+              description: The ID for the job.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/__integerMin1Max25"
+            - xml:
+                name: maxResults
+              description: The maximum number of results that you want in the response.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: nextToken
+              description: The token for the next set of results.
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: Filters the list of response objects to include only those with the specified operation name.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: Filters the list of response objects to include only those with the specified status.
+      description: The request body for ListBackendJobs.
+    ListOfBackendJobRespObj:
+      type: array
+      items:
+        $ref: "#/components/schemas/BackendJobRespObj"
+    ListS3BucketsRequest:
+      type: object
+      title: ListS3BucketsRequest
+      properties:
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: nextToken
+              description: Reserved for future use.
+      description: The request body for S3Buckets.
+    ListOfS3BucketInfo:
+      type: array
+      items:
+        $ref: "#/components/schemas/S3BucketInfo"
+    LoginAuthConfigReqObj:
+      type: object
+      properties:
+        AwsCognitoIdentityPoolId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: aws_cognito_identity_pool_id
+              description: The Amazon Cognito identity pool ID used for the Amplify Admin UI login authorization.
+        AwsCognitoRegion:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: aws_cognito_region
+              description: The AWS Region for the Amplify Admin UI login.
+        AwsUserPoolsId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: aws_user_pools_id
+              description: The Amazon Cognito user pool ID used for Amplify Admin UI login authentication.
+        AwsUserPoolsWebClientId:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: aws_user_pools_web_client_id
+              description: The web client ID for the Amazon Cognito user pools.
+      description: The request object for this operation.
+    RemoveAllBackendsRequest:
+      type: object
+      title: RemoveAllBackendsRequest
+      properties:
+        CleanAmplifyApp:
+          allOf:
+            - $ref: "#/components/schemas/__boolean"
+            - xml:
+                name: cleanAmplifyApp
+              description: Cleans up the Amplify Console app if this value is set to true.
+      description: The request body for RemoveAllBackends.
+    RemoveBackendConfigRequest:
+      type: object
+      title: RemoveBackendConfigRequest
+      properties: {}
+    S3BucketInfo:
+      type: object
+      properties:
+        CreationDate:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: creationDate
+              description: The creation date of the S3 bucket.
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: name
+              description: The name of the S3 bucket.
+      description: Describes the metadata of the S3 bucket.
+    ListOfMfaTypesElement:
+      type: array
+      items:
+        $ref: "#/components/schemas/MfaTypesElement"
+    UpdateBackendAPIRequest:
+      type: object
+      required:
+        - ResourceName
+      title: UpdateBackendAPIRequest
+      properties:
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/BackendAPIResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: Defines the resource configuration for the data model in your Amplify project.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for UpdateBackendAPI.
+    UpdateBackendAuthForgotPasswordConfig:
+      type: object
+      properties:
+        DeliveryMethod:
+          allOf:
+            - $ref: "#/components/schemas/DeliveryMethod"
+            - xml:
+                name: deliveryMethod
+              description: <b>(DEPRECATED)</b> Describes which mode to use (either SMS or email) to deliver messages to app users that want to recover their password.
+        EmailSettings:
+          allOf:
+            - $ref: "#/components/schemas/EmailSettings"
+            - xml:
+                name: emailSettings
+              description: <b>(DEPRECATED)</b> The configuration for the email sent when an app user forgets their password.
+        SmsSettings:
+          allOf:
+            - $ref: "#/components/schemas/SmsSettings"
+            - xml:
+                name: smsSettings
+              description: <b>(DEPRECATED)</b> The configuration for the SMS message sent when an Amplify app user forgets their password.
+      description: <b>(DEPRECATED)</b> Describes the forgot password policy for authenticating into the Amplify app.
+    UpdateBackendAuthMFAConfig:
+      type: object
+      properties:
+        MFAMode:
+          allOf:
+            - $ref: "#/components/schemas/MFAMode"
+            - description: The MFA mode for the backend of your Amplify project.
+        Settings:
+          allOf:
+            - $ref: "#/components/schemas/Settings"
+            - xml:
+                name: settings
+              description: The settings of your MFA configuration for the backend of your Amplify project.
+      description: Updates the multi-factor authentication (MFA) configuration for the backend of your Amplify project.
+    UpdateBackendAuthOAuthConfig:
+      type: object
+      properties:
+        DomainPrefix:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: domainPrefix
+              description: The Amazon Cognito domain prefix used to create a hosted UI for authentication.
+        OAuthGrantType:
+          allOf:
+            - $ref: "#/components/schemas/OAuthGrantType"
+            - xml:
+                name: oAuthGrantType
+              description: The OAuth grant type to allow app users to authenticate from your Amplify app.
+        OAuthScopes:
+          allOf:
+            - $ref: "#/components/schemas/ListOfOAuthScopesElement"
+            - xml:
+                name: oAuthScopes
+              description: The list of OAuth-related flows that can allow users to authenticate from your Amplify app.
+        RedirectSignInURIs:
+          allOf:
+            - $ref: "#/components/schemas/ListOf__string"
+            - xml:
+                name: redirectSignInURIs
+              description: Redirect URLs that OAuth uses when a user signs in to an Amplify app.
+        RedirectSignOutURIs:
+          allOf:
+            - $ref: "#/components/schemas/ListOf__string"
+            - xml:
+                name: redirectSignOutURIs
+              description: Redirect URLs that OAuth uses when a user signs out of an Amplify app.
+        SocialProviderSettings:
+          allOf:
+            - $ref: "#/components/schemas/SocialProviderSettings"
+            - xml:
+                name: socialProviderSettings
+              description: Describes third-party social federation configurations for allowing your users to sign in with OAuth.
+      description: The OAuth configurations for authenticating users into your Amplify app.
+    UpdateBackendAuthPasswordPolicyConfig:
+      type: object
+      properties:
+        AdditionalConstraints:
+          allOf:
+            - $ref: "#/components/schemas/ListOfAdditionalConstraintsElement"
+            - xml:
+                name: additionalConstraints
+              description: Describes additional constraints on password requirements to sign in to the auth resource, configured as a part of your Amplify project.
+        MinimumLength:
+          allOf:
+            - $ref: "#/components/schemas/__double"
+            - xml:
+                name: minimumLength
+              description: Describes the minimum length of the password required to sign in to the auth resource, configured as a part of your Amplify project.
+      description: Describes the password policy for your Amazon Cognito user pool configured as a part of your Amplify project.
+    UpdateBackendAuthResourceConfig:
+      type: object
+      required:
+        - AuthResources
+        - UserPoolConfigs
+        - Service
+      properties:
+        AuthResources:
+          allOf:
+            - $ref: "#/components/schemas/AuthResources"
+            - xml:
+                name: authResources
+              description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+        IdentityPoolConfigs:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthIdentityPoolConfig"
+            - xml:
+                name: identityPoolConfigs
+              description: Describes the authorization configuration for the Amazon Cognito identity pool, provisioned as a part of your auth resource in the Amplify project.
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - xml:
+                name: service
+              description: Defines the service name to use when configuring an authentication resource in your Amplify project.
+        UserPoolConfigs:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthUserPoolConfig"
+            - xml:
+                name: userPoolConfigs
+              description: Describes the authentication configuration for the Amazon Cognito user pool, provisioned as a part of your auth resource in the Amplify project.
+      description: Defines the resource configuration when updating an authentication resource in your Amplify project.
+    UpdateBackendAuthRequest:
+      type: object
+      required:
+        - ResourceName
+        - ResourceConfig
+      title: UpdateBackendAuthRequest
+      properties:
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendAuthResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for this request object.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of this resource.
+      description: The request body for UpdateBackendAuth.
+    UpdateBackendAuthVerificationMessageConfig:
+      type: object
+      required:
+        - DeliveryMethod
+      properties:
+        DeliveryMethod:
+          allOf:
+            - $ref: "#/components/schemas/DeliveryMethod"
+            - xml:
+                name: deliveryMethod
+              description: The type of verification message to send.
+        EmailSettings:
+          allOf:
+            - $ref: "#/components/schemas/EmailSettings"
+            - xml:
+                name: emailSettings
+              description: The settings for the email message.
+        SmsSettings:
+          allOf:
+            - $ref: "#/components/schemas/SmsSettings"
+            - xml:
+                name: smsSettings
+              description: The settings for the SMS message.
+      description: Updates the configuration of the email or SMS message for the auth resource configured for your Amplify project.
+    UpdateBackendConfigRequest:
+      type: object
+      title: UpdateBackendConfigRequest
+      properties:
+        LoginAuthConfig:
+          allOf:
+            - $ref: "#/components/schemas/LoginAuthConfigReqObj"
+            - xml:
+                name: loginAuthConfig
+              description: Describes the Amazon Cognito configuration for Admin UI access.
+      description: The request body for UpdateBackendConfig.
+    UpdateBackendJobRequest:
+      type: object
+      title: UpdateBackendJobRequest
+      properties:
+        Operation:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: operation
+              description: Filters the list of response objects to include only those with the specified operation name.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: status
+              description: Filters the list of response objects to include only those with the specified status.
+      description: The request body for GetBackendJob.
+    UpdateBackendStorageResourceConfig:
+      type: object
+      required:
+        - ServiceName
+        - Permissions
+      properties:
+        Permissions:
+          allOf:
+            - $ref: "#/components/schemas/BackendStoragePermissions"
+            - xml:
+                name: permissions
+              description: The authorization configuration for the storage S3 bucket.
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - xml:
+                name: serviceName
+              description: The name of the storage service.
+      description: The resource configuration for updating backend storage.
+    UpdateBackendStorageRequest:
+      type: object
+      required:
+        - ResourceName
+        - ResourceConfig
+      title: UpdateBackendStorageRequest
+      properties:
+        ResourceConfig:
+          allOf:
+            - $ref: "#/components/schemas/UpdateBackendStorageResourceConfig"
+            - xml:
+                name: resourceConfig
+              description: The resource configuration for updating backend storage.
+        ResourceName:
+          allOf:
+            - $ref: "#/components/schemas/__string"
+            - xml:
+                name: resourceName
+              description: The name of the storage resource.
+      description: The request body for UpdateBackendStorage.
+    AdditionalConstraintsElement:
+      type: string
+      enum:
+        - REQUIRE_DIGIT
+        - REQUIRE_LOWERCASE
+        - REQUIRE_SYMBOL
+        - REQUIRE_UPPERCASE
+    AuthenticatedElement:
+      type: string
+      enum:
+        - READ
+        - CREATE_AND_UPDATE
+        - DELETE
+    MfaTypesElement:
+      type: string
+      enum:
+        - SMS
+        - TOTP
+    OAuthScopesElement:
+      type: string
+      enum:
+        - PHONE
+        - EMAIL
+        - OPENID
+        - PROFILE
+        - AWS_COGNITO_SIGNIN_USER_ADMIN
+    RequiredSignUpAttributesElement:
+      type: string
+      enum:
+        - ADDRESS
+        - BIRTHDATE
+        - EMAIL
+        - FAMILY_NAME
+        - GENDER
+        - GIVEN_NAME
+        - LOCALE
+        - MIDDLE_NAME
+        - NAME
+        - NICKNAME
+        - PHONE_NUMBER
+        - PICTURE
+        - PREFERRED_USERNAME
+        - PROFILE
+        - UPDATED_AT
+        - WEBSITE
+        - ZONE_INFO
+    UnAuthenticatedElement:
+      type: string
+      enum:
+        - READ
+        - CREATE_AND_UPDATE
+        - DELETE
+security:
+  - hmac: []

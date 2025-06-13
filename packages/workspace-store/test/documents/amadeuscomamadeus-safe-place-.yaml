@@ -1,0 +1,634 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+      
+    Please also be aware that our test environment is based on a subset of the production, this API in test only returns a few selected cities. You can find the list in our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Safe Place
+  version: 1.0.0
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/SafePlaceAPI_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    "1.0":
+      - Initial Version
+  x-serviceName: amadeus-safe-place-
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  pageLimit:
+    default: 10
+    description: maximum items in one page
+    in: query
+    name: page[limit]
+    required: false
+    type: integer
+  pageOffset:
+    default: 0
+    description: start index of the requested page
+    in: query
+    name: page[offset]
+    required: false
+    type: integer
+  safety-rated-locationId:
+    description: identifier of the location
+    in: path
+    name: safety-rated-locationId
+    required: true
+    type: string
+    x-example: Q930402719
+responses:
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      4926    | INVALID DATA RECEIVED               
+      32171   | MANDATORY DATA MISSING 	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  "404":
+    description: Not Found
+    schema:
+      $ref: "#/definitions/Error_404"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+  safety-rated-location:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - geoCode:
+              latitude: 41.385064
+              longitude: 2.173404
+            id: Q930402719
+            name: Barcelona
+            safetyScores:
+              lgbtq: 39
+              medical: 0
+              overall: 45
+              physicalHarm: 36
+              politicalFreedom: 50
+              theft: 44
+              women: 34
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402719
+            subType: CITY
+            type: safety-rated-location
+        meta:
+          links:
+            self: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402719
+      properties:
+        data:
+          $ref: "#/definitions/SafetyRatedLocation"
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success
+  safety-rated-locations:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - geoCode:
+              latitude: 41.385064
+              longitude: 2.173404
+            id: Q930402719
+            name: Barcelona
+            safetyScores:
+              lgbtq: 39
+              medical: 0
+              overall: 45
+              physicalHarm: 36
+              politicalFreedom: 50
+              theft: 44
+              women: 34
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402719
+            subType: CITY
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.3885573
+              longitude: 2.1573033
+            id: Q930402720
+            name: Antiga Esquerra de l'Eixample (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 44
+              physicalHarm: 34
+              politicalFreedom: 50
+              theft: 42
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402720
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.412131
+              longitude: 2.1683571
+            id: Q930402721
+            name: Baix Guinardó (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 44
+              physicalHarm: 34
+              politicalFreedom: 50
+              theft: 42
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402721
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.380894
+              longitude: 2.189385
+            id: Q930402722
+            name: Barceloneta (Barcelona)
+            safetyScores:
+              lgbtq: 42
+              medical: 0
+              overall: 47
+              physicalHarm: 39
+              politicalFreedom: 50
+              theft: 49
+              women: 34
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402722
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.4172284
+              longitude: 2.163444
+            id: Q930402724
+            name: Can Baró (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 44
+              physicalHarm: 34
+              politicalFreedom: 50
+              theft: 42
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402724
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.384728
+              longitude: 2.18286
+            id: Q930402731
+            name: El Born (Barcelona)
+            safetyScores:
+              lgbtq: 42
+              medical: 0
+              overall: 47
+              physicalHarm: 39
+              politicalFreedom: 50
+              theft: 49
+              women: 34
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402731
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.4118532
+              longitude: 2.1830997
+            id: Q930402732
+            name: El Camp de l'Arpa del Clot (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 45
+              physicalHarm: 35
+              politicalFreedom: 50
+              theft: 43
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402732
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.4046685
+              longitude: 2.1659005
+            id: Q930402733
+            name: El Camp d'en Grassot i Gràcia Nova (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 44
+              physicalHarm: 34
+              politicalFreedom: 50
+              theft: 42
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402733
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.422371
+              longitude: 2.1560753
+            id: Q930402734
+            name: El Carmel (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 44
+              physicalHarm: 34
+              politicalFreedom: 50
+              theft: 42
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402734
+            subType: DISTRICT
+            type: safety-rated-location
+          - geoCode:
+              latitude: 41.4097037
+              longitude: 2.1892366
+            id: Q930402735
+            name: El Clot (Barcelona)
+            safetyScores:
+              lgbtq: 37
+              medical: 0
+              overall: 45
+              physicalHarm: 35
+              politicalFreedom: 50
+              theft: 43
+              women: 33
+            self:
+              methods:
+                - GET
+              type: https://test.api.amadeus.com/v1/safety/safety-rated-locations/Q930402735
+            subType: DISTRICT
+            type: safety-rated-location
+        meta:
+          count: 43
+          links:
+            first: https://test.api.amadeus.com/v1/safety/safety-rated-locations?latitude=41.397158&longitude=2.160873&page%5Boffset%5D=0&radius=2
+            last: https://test.api.amadeus.com/v1/safety/safety-rated-locations?latitude=41.397158&longitude=2.160873&page%5Boffset%5D=4&radius=2
+            next: https://test.api.amadeus.com/v1/safety/safety-rated-locations?latitude=41.397158&longitude=2.160873&page%5Boffset%5D=1&radius=2
+            self: https://test.api.amadeus.com/v1/safety/safety-rated-locations?latitude=41.397158&longitude=2.160873&radius=2
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/SafetyRatedLocation"
+          type: array
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success
+paths:
+  /safety/safety-rated-locations:
+    get:
+      description: ""
+      operationId: getSafetyRanking
+      parameters:
+        - description: Latitude (decimal coordinates)
+          format: double
+          in: query
+          name: latitude
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude (decimal coordinates)
+          format: double
+          in: query
+          name: longitude
+          required: true
+          type: number
+          x-example: 2.160873
+        - default: 1
+          description: radius of the search in Kilometer. Can be from 0 to 20, default value is 1 Km.
+          in: query
+          maximum: 20
+          minimum: 0
+          name: radius
+          required: false
+          type: integer
+        - $ref: "#/parameters/pageLimit"
+        - $ref: "#/parameters/pageOffset"
+      responses:
+        "200":
+          $ref: "#/responses/safety-rated-locations"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns safety rating for a given location and radius.
+      tags:
+        - Search
+  /safety/safety-rated-locations/by-square:
+    get:
+      description: ""
+      operationId: getSafetyRankBySquare
+      parameters:
+        - description: Latitude north of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: north
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude west of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: west
+          required: true
+          type: number
+          x-example: 2.160873
+        - description: Latitude south of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: south
+          required: true
+          type: number
+          x-example: 41.394582
+        - description: Longitude east of bounding box (decimal coordinates)
+          format: double
+          in: query
+          name: east
+          required: true
+          type: number
+          x-example: 2.177181
+        - $ref: "#/parameters/pageLimit"
+        - $ref: "#/parameters/pageOffset"
+      responses:
+        "200":
+          $ref: "#/responses/safety-rated-locations"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns the safety rating of a given area
+      tags:
+        - Search
+  "/safety/safety-rated-locations/{safety-rated-locationId}":
+    get:
+      description: ""
+      operationId: getLocationSafetyRanking
+      responses:
+        "200":
+          $ref: "#/responses/safety-rated-location"
+        "400":
+          $ref: "#/responses/400"
+        "404":
+          $ref: "#/responses/404"
+        default:
+          $ref: "#/responses/500"
+      summary: Retieve safety information of a location by its Id.
+      tags:
+        - Retrieve
+    parameters:
+      - $ref: "#/parameters/safety-rated-locationId"
+definitions:
+  Collection_Meta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+    title: Collection_Meta
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_404:
+    example:
+      errors:
+        - code: 1797
+          detail: no response found for this query parameter
+          source:
+            parameter: airport
+          status: 404
+          title: NOT FOUND
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  GeoCode:
+    properties:
+      latitude:
+        description: latitude of the location
+        example: 43.580418
+        format: double
+        type: number
+      longitude:
+        description: longitude of the location
+        example: 7.125102
+        format: double
+        type: number
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Links:
+    example:
+      href: string
+    properties:
+      count:
+        type: integer
+      href:
+        format: uri
+        type: string
+      methods:
+        items:
+          enum:
+            - GET
+            - PUT
+            - DELETE
+            - POST
+            - PATCH
+          type: string
+        type: array
+    required:
+      - href
+  Location:
+    properties:
+      geoCode:
+        $ref: "#/definitions/GeoCode"
+      id:
+        description: id of the ressource
+        type: string
+      name:
+        description: short name of the location
+        example: Paris CDG
+        type: string
+      self:
+        $ref: "#/definitions/Links"
+      subType:
+        description: location sub type
+        enum:
+          - AIRPORT
+          - CITY
+          - POINT_OF_INTEREST
+          - DISTRICT
+        example: AIRPORT
+        type: string
+      type:
+        description: the resource name
+        example: location
+        type: string
+  SafetyRatedLocation:
+    allOf:
+      - properties:
+          safetyScore:
+            $ref: "#/definitions/SafetyScore"
+        type: object
+      - $ref: "#/definitions/Location"
+    title: SafetyRatedLocation
+    type: object
+  SafetyScore:
+    properties:
+      lgbtq:
+        description: Likelihood of harm or discrimination against LGBTQ persons or groups and level of caution required at location. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+      medical:
+        description: Likelihood of illness or disease, assessment of water and air quality, and access to reliable medical care. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+      overall:
+        description: An average of the 6 “sub”-categories. Score go from 1 (very safe) to 100 (very dangerous).
+        type: integer
+      physicalHarm:
+        description: Likelihood of injury due to harmful intent. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+      politicalFreedom:
+        description: Potential for infringement of political rights or political unrest. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+      theft:
+        description: Likelihood of theft. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+      women:
+        description: Likelihood of inappropriate behavior against females. Score go from 1 (not likely) to 100 (very likely).
+        type: integer
+x-generatedAt: 2020-07-20T14:39:03.265Z

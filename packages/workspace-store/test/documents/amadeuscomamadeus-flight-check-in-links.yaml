@@ -1,0 +1,271 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v2
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+
+    Please also be aware that our test environment is based on a subset of the production, to see what is included in test please refer to our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Flight Check-in Links
+  version: 2.1.2
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightCheck-inLinks_v2_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    "2.0":
+      - Initial Version
+    2.1.0:
+      - Change parameter "airline" by "airlineCode"
+      - Correct example
+  x-serviceName: amadeus-flight-check-in-links
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+responses:
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      32171     | MANDATORY DATA MISSING                      	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+  checkin-links:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - channel: All
+            href: https://www.britishairways.com/travel/managebooking/public/en_ch?&bookingRef={PNR}&lastname={LAST}
+            id: BAEN-GBAll
+            parameters:
+              LAST:
+                description: Passenger Last Name
+                type: string
+              PNR:
+                description: Record Locator
+                format: ([a-zA-Z]|[0-9]){6}
+                type: string
+            type: checkin-link
+        meta:
+          count: 1
+          links:
+            self: http://test.api.amadeus.com/v2/reference-data/urls/checkin-links?airlineCode=BA
+        warnings:
+          - code: 10151
+            detail: Language not available for this airline, default language applied
+            source:
+              parameter: language
+            status: 200
+            title: DEFAULT LANGUAGE USED
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/CheckinLink"
+          type: array
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success
+paths:
+  /reference-data/urls/checkin-links:
+    get:
+      description: ""
+      operationId: getCheckinURLs
+      parameters:
+        - description: |
+            Airline code following IATA or ICAO standard - e.g. 1X; AF or ESY
+
+            [IATA table codes](http://www.iata.org/publications/Pages/code-search.aspx)
+
+            [ICAO airlines table codes](https://en.wikipedia.org/wiki/List_of_airline_codes)
+          in: query
+          name: airlineCode
+          pattern: ([A-Z]{3}|[A-Z]{2})|([0-9][A-Z])|([A-Z][0-9])
+          required: true
+          type: string
+          x-example: BA
+        - description: |
+            Check-in page language with one of the following patterns 'languageCode' (e.g. EN) or 'languageCode-IATAcountryCode' (e.g. en-GB). 
+
+            Default value is **en-GB** (used when required language is not available or when no value is specified).
+          in: query
+          name: language
+          pattern: "[a-zA-Z]{2}([-][a-zA-Z]{2})?"
+          required: false
+          type: string
+      responses:
+        "200":
+          $ref: "#/responses/checkin-links"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Lists Check-in URLs.
+      tags:
+        - checkin-links
+definitions:
+  CheckinLink:
+    properties:
+      channel:
+        description: indicates the type of channel supported by the URL
+        enum:
+          - Mobile
+          - Web
+          - All
+        example: Mobile
+        type: string
+      href:
+        description: direct URL to the relevant page
+        format: uri
+        type: string
+      id:
+        description: identifier of the resource
+        example: 1XEN-GBMobile
+        type: string
+      parameters:
+        additionalProperties:
+          $ref: "#/definitions/Parameter"
+        description: list of URL parameters with descriptive information such as description and/or type and/or format
+      type:
+        description: the resource name
+        example: checkin-link
+        type: string
+    required:
+      - type
+      - id
+      - href
+      - channel
+  Collection_Meta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+    title: Collection_Meta
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Parameter:
+    properties:
+      description:
+        description: parameter descriptive information
+        example: Passenger last name
+        type: string
+      format:
+        description: format of the parameter
+        example: ([a-zA-Z]|[0-9]){6}
+        type: string
+      type:
+        description: type of the parameter
+        example: string
+        type: string
+    required:
+      - type
+x-generatedAt: 2020-07-23T11:25:45.773Z

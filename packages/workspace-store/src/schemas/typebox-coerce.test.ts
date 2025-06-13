@@ -2,6 +2,10 @@ import { coerceValue } from '@/schemas/typebox-coerce'
 import { compose } from '@/schemas/v3.1/compose'
 import { Type } from '@sinclair/typebox'
 import { describe, expect, it } from 'vitest'
+import { yamlFiles } from '@test/documents'
+import { parseYaml } from '@scalar/openapi-parser/plugins-browser'
+import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { Value } from '@sinclair/typebox/value'
 
 describe('should correctly cast/default values to make the input schema compliant', () => {
   it.each([
@@ -121,5 +125,28 @@ describe('should correctly cast/default values to make the input schema complian
       },
       greeting: 'Hello',
     })
+  })
+
+  it('should pass strict validation after coerce values', async () => {
+    const files = await Promise.all(
+      yamlFiles.map(async (it) => {
+        const result = await parseYaml().exec(it.content)
+
+        if (result.ok) {
+          return result.data
+        }
+        return {}
+      }),
+    )
+
+    expect(
+      files
+        .map((it) => {
+          const coerceDocument = coerceValue(OpenAPIDocumentSchema, it)
+
+          return Value.Check(OpenAPIDocumentSchema, coerceDocument)
+        })
+        .every((it) => it === true),
+    ).toBe(true)
   })
 })

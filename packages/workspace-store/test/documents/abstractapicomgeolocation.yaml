@@ -1,0 +1,148 @@
+openapi: 3.0.1
+servers:
+  - url: https://ipgeolocation.abstractapi.com
+info:
+  description: Abstract IP geolocation API allows developers to retrieve the region, country and city behind any IP worldwide. The API covers the geolocation of IPv4 and IPv6 addresses in 180+ countries worldwide. Extra information can be retrieved like the currency, flag or language associated to an IP.
+  title: IP geolocation API
+  version: 1.0.0
+  x-apisguru-categories:
+    - location
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_global-uploads.webflow.com_5ebbd0a566a3996636e55959_5ec2ba29feeeb05d69160e7b_webclip.png
+  x-origin:
+    - format: openapi
+      url: https://documentation.abstractapi.com/ip-geolocation-openapi.json
+      version: "3.0"
+  x-providerName: abstractapi.com
+  x-serviceName: geolocation
+externalDocs:
+  description: API Documentation
+  url: https://www.abstractapi.com/ip-geolocation-api#docs
+paths:
+  /v1/:
+    get:
+      description: Retrieve the location of an IP address
+      parameters:
+        - explode: true
+          in: query
+          name: api_key
+          required: true
+          schema:
+            type: string
+          style: form
+        - explode: true
+          in: query
+          name: ip_address
+          required: false
+          schema:
+            example: 195.154.25.40
+            type: string
+          style: form
+        - explode: true
+          in: query
+          name: fields
+          required: false
+          schema:
+            example: country,city,timezone
+            type: string
+          style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                "0":
+                  value: '{"ip_address":"195.154.25.40","city":"Paris","city_geoname_id":2988507,"region":"Île-de-France","region_iso_code":"IDF","region_geoname_id":3012874,"postal_code":"75008","country":"France","country_code":"FR","country_geoname_id":3017382,"country_is_eu":true,"continent":"Europe","continent_code":"EU","continent_geoname_id":6255148,"longitude":2.4075,"latitude":48.8323,"security":{"is_vpn":false},"timezone":{"name":"Europe/Paris","abbreviation":"CEST","gmt_offset":2,"current_time":"15:42:18","is_dst":true},"flag":{"emoji":"<ë<÷","unicode":"U+1F1EB U+1F1F7","png":"https://static.abstractapi.com/country-flags/FR_flag.png","svg":"https://static.abstractapi.com/country-flags/FR_flag.svg"},"currency":{"currency_name":"Euros","currency_code":"EUR"},"connection":{"autonomous_system_number":12876,"autonomous_system_organization":"Online S.a.s.","connection_type":"Corporate","isp_name":"Online S.A.S.","organization_name":"ONLINE"}}'
+              schema:
+                $ref: "#/components/schemas/inline_response_200"
+          description: Location of geolocated IP
+      servers:
+        - url: https://ipgeolocation.abstractapi.com
+    servers:
+      - url: https://ipgeolocation.abstractapi.com
+components:
+  schemas:
+    inline_response_200:
+      properties:
+        city:
+          type: string
+        city_geoname_id:
+          type: integer
+        connection:
+          properties:
+            autonomous_system_number:
+              type: integer
+            autonomous_system_organization:
+              type: string
+            connection_type:
+              type: string
+            isp_name:
+              type: string
+            organization_name:
+              type: string
+          type: object
+        continent:
+          type: string
+        continent_code:
+          type: string
+        continent_geoname_id:
+          type: integer
+        country:
+          type: string
+        country_code:
+          type: string
+        country_geoname_id:
+          type: integer
+        country_is_eu:
+          type: boolean
+        currency:
+          properties:
+            currency_code:
+              type: string
+            currency_name:
+              type: string
+          type: object
+        flag:
+          properties:
+            emoji:
+              type: string
+            png:
+              type: string
+            svg:
+              type: string
+            unicode:
+              type: string
+          type: object
+        ip_address:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        postal_code:
+          type: string
+        region:
+          type: string
+        region_geoname_id:
+          type: integer
+        region_iso_code:
+          type: string
+        security:
+          properties:
+            is_vpn:
+              type: boolean
+          type: object
+        timezone:
+          properties:
+            abbreviation:
+              type: string
+            current_time:
+              type: string
+            gmt_offset:
+              type: integer
+            is_dst:
+              type: boolean
+            name:
+              type: string
+          type: object
+      type: object

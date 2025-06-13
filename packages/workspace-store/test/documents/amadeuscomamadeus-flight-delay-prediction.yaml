@@ -1,0 +1,301 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+  title: Flight Delay Prediction
+  version: 1.0.6
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightDelayPrediction_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    1.0.0:
+      - Initial Version
+    1.0.1:
+      - Add enum values on result
+    1.0.2:
+      - update examples
+    1.0.3:
+      - update examples
+  x-serviceName: amadeus-flight-delay-prediction
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+  - application/json
+produces:
+  - application/vnd.amadeus+json
+  - application/json
+responses:
+  "200":
+    description: Success
+    schema:
+      $ref: "#/definitions/Prediction"
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      4926    | INVALID DATA RECEIVED               
+      32171   | MANDATORY DATA MISSING 	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+paths:
+  /travel/predictions/flight-delay:
+    get:
+      description: ""
+      operationId: getFlightDelayPrediction
+      parameters:
+        - description: city/airport [IATA code](http://www.iata.org/publications/Pages/code-search.aspx) from which the traveler is departing, e.g. PAR for Paris
+          in: query
+          name: originLocationCode
+          pattern: "[A-Z]{3}"
+          required: true
+          type: string
+          x-example: NCE
+        - description: city/airport [IATA code](http://www.iata.org/publications/Pages/code-search.aspx) to which the traveler is going, e.g. PAR for Paris
+          in: query
+          name: destinationLocationCode
+          pattern: "[A-Z]{3}"
+          required: true
+          type: string
+          x-example: IST
+        - description: the date on which the traveler will depart from the origin to go to the destination. Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2019-12-25
+          format: date
+          in: query
+          name: departureDate
+          required: true
+          type: string
+          x-example: 2020-08-01
+        - description: local time relative to originLocationCode on which the traveler will depart from the origin. Time respects ISO 8601 standard. e.g. 13:22:00
+          format: time
+          in: query
+          name: departureTime
+          required: true
+          type: string
+          x-example: 18:20:00
+        - description: the date on which the traveler will arrive to the destination from the origin. Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2019-12-25
+          format: date
+          in: query
+          name: arrivalDate
+          required: true
+          type: string
+          x-example: 2020-08-01
+        - description: local time relative to destinationLocationCode on which the traveler will arrive to destination. Time respects ISO 8601 standard. e.g. 13:22:00
+          format: time
+          in: query
+          name: arrivalTime
+          required: true
+          type: string
+          x-example: 22:15:00
+        - description: IATA aircraft code (http://www.flugzeuginfo.net/table_accodes_iata_en.php)
+          in: query
+          name: aircraftCode
+          pattern: "[a-zA-Z0-9]{3}"
+          required: true
+          type: string
+          x-example: 321
+        - description: airline / carrier code
+          in: query
+          maxLength: 2
+          minLength: 1
+          name: carrierCode
+          required: true
+          type: string
+          x-example: TK
+        - description: flight number as assigned by the carrier
+          in: query
+          maxLength: 4
+          minLength: 1
+          name: flightNumber
+          required: true
+          type: string
+          x-example: 1816
+        - description: flight duration in [ISO8601](https://en.wikipedia.org/wiki/ISO_8601) PnYnMnDTnHnMnS format, e.g. PT2H10M
+          in: query
+          name: duration
+          required: true
+          type: string
+          x-example: PT31H10M
+      responses:
+        "200":
+          $ref: "#/responses/200"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Return the delay segment where the flight is likely to lay.
+      tags:
+        - flight-delay-prediction
+definitions:
+  Collection_Meta_Link:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+    title: Collection_Meta
+  Delay_Prediction:
+    properties:
+      id:
+        description: item identifier
+        readOnly: true
+        type: string
+      probability:
+        description: probability of the forecast (between 0 and 1)
+        type: string
+      result:
+        $ref: "#/definitions/PredictionResultType"
+      subType:
+        example: trip-purpose
+        type: string
+      type:
+        description: the resource name (`prediction`)
+        type: string
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Prediction:
+    example:
+      data:
+        - id: TK1816NCEIST20200801
+          probability: "0.13336977"
+          result: LESS_THAN_30_MINUTES
+          subType: flight-delay
+          type: prediction
+        - id: TK1816NCEIST20200801
+          probability: "0.42023364"
+          result: BETWEEN_30_AND_60_MINUTES
+          subType: flight-delay
+          type: prediction
+        - id: TK1816NCEIST20200801
+          probability: "0.34671372"
+          result: BETWEEN_60_AND_120_MINUTES
+          subType: flight-delay
+          type: prediction
+        - id: TK1816NCEIST20200801
+          probability: "0.09968289"
+          result: OVER_120_MINUTES_OR_CANCELLED
+          subType: flight-delay
+          type: prediction
+      meta:
+        count: 4
+        links:
+          self: https://test.api.amadeus.com/v1/travel/predictions/flight-delay?originLocationCode=NCE&destinationLocationCode=IST&departureDate=2020-08-01&departureTime=18:20:00&arrivalDate=2020-08-01&arrivalTime=22:15:00&aircraftCode=321&carrierCode=TK&flightNumber=1816&duration=PT31H10M
+    properties:
+      data:
+        items:
+          $ref: "#/definitions/Delay_Prediction"
+        type: array
+      meta:
+        $ref: "#/definitions/Collection_Meta_Link"
+    type: object
+  PredictionResultType:
+    description: forecast description
+    enum:
+      - LESS_THAN_30_MINUTES
+      - BETWEEN_30_AND_60_MINUTES
+      - BETWEEN_60_AND_120_MINUTES
+      - OVER_120_MINUTES_OR_CANCELLED
+    example: LESS_THAN_30_MINUTES
+    type: string
+x-generatedAt: 2020-07-23T09:48:28.158Z

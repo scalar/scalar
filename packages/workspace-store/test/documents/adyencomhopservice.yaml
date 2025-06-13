@@ -1,0 +1,565 @@
+openapi: 3.1.0
+servers:
+  - url: https://cal-test.adyen.com/cal/services/Hop/v6
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    This API is used for the classic integration. If you are just starting your implementation, refer to our [new integration guide](https://docs.adyen.com/marketplaces-and-platforms) instead.
+
+    The Hosted onboarding API provides endpoints that you can use to generate links to Adyen-hosted pages, such as an [onboarding page](https://docs.adyen.com/marketplaces-and-platforms/classic/hosted-onboarding-page) or a [PCI compliance questionnaire](https://docs.adyen.com/marketplaces-and-platforms/classic/platforms-for-partners). You can provide these links to your account holders so that they can complete their onboarding.
+
+    ## Authentication
+    Your Adyen contact will provide your API credential and an API key. To connect to the API, add an `X-API-Key` header with the API key as the value, for example:
+
+     ```
+    curl
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: YOUR_API_KEY" \
+    ...
+    ```
+
+    Alternatively, you can use the username and password to connect to the API using basic authentication. For example:
+
+    ```
+    curl
+    -U "ws@MarketPlace.YOUR_PLATFORM_ACCOUNT":"YOUR_WS_PASSWORD" \
+    -H "Content-Type: application/json" \
+    ...
+    ```
+    When going live, you need to generate new web service user credentials to access the [live endpoints](https://docs.adyen.com/development-resources/live-endpoints).
+
+    ## Versioning
+    The Hosted onboarding API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://cal-test.adyen.com/cal/services/Hop/v6/getOnboardingUrl
+    ```
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Hosted onboarding API
+  version: "6"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/HopService-v6.json
+      version: "3.1"
+  x-preferred: true
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: HopService
+  x-timestamp: 2023-03-22T11:13:03Z
+tags:
+  - name: Hosted Onboarding Page
+  - name: PCI Compliance Questionnaire Page
+paths:
+  /getOnboardingUrl:
+    post:
+      description: "Returns a link to an Adyen-hosted onboarding page (HOP) that you can send to your account holder. For more information on how to use HOP, refer to [Hosted onboarding](https://docs.adyen.com/marketplaces-and-platforms/classic/collect-verification-details/hosted-onboarding-page). "
+      operationId: post-getOnboardingUrl
+      requestBody:
+        content:
+          application/json:
+            examples:
+              get-onboarding-url:
+                $ref: "#/components/examples/post-getOnboardingUrl-get-onboarding-url"
+            schema:
+              $ref: "#/components/schemas/GetOnboardingUrlRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                get-onboarding-url:
+                  $ref: "#/components/examples/post-getOnboardingUrl-get-onboarding-url-200"
+              schema:
+                $ref: "#/components/schemas/GetOnboardingUrlResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get a link to a Adyen-hosted onboarding page
+      tags:
+        - Hosted Onboarding Page
+      x-groupName: Hosted Onboarding Page
+      x-methodName: getOnboardingUrl
+      x-sortIndex: 1
+  /getPciQuestionnaireUrl:
+    post:
+      description: |-
+        Returns a link to a PCI compliance questionnaire that you can send to your account holder.
+         > You should only use this endpoint if you have a [partner platform setup](https://docs.adyen.com/marketplaces-and-platforms/classic/platforms-for-partners).
+      operationId: post-getPciQuestionnaireUrl
+      requestBody:
+        content:
+          application/json:
+            examples:
+              get-pci-questionnaire-url:
+                $ref: "#/components/examples/post-getPciQuestionnaireUrl-get-pci-questionnaire-url"
+            schema:
+              $ref: "#/components/schemas/GetPciUrlRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                get-pci-questionnaire-url:
+                  $ref: "#/components/examples/post-getPciQuestionnaireUrl-get-pci-questionnaire-url-200"
+              schema:
+                $ref: "#/components/schemas/GetPciUrlResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get a link to a PCI compliance questionnaire
+      tags:
+        - PCI Compliance Questionnaire Page
+      x-groupName: PCI Compliance Questionnaire Page
+      x-methodName: getPciQuestionnaireUrl
+      x-sortIndex: 1
+components:
+  examples:
+    post-getOnboardingUrl-get-onboarding-url:
+      description: Returns a link to an Adyen-hosted onboarding page (HOP) that you can send to your account holder.
+      summary: Get a hosted onboarding page link
+      value:
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+        returnUrl: https://your.return-url.com/?submerchant=123
+    post-getOnboardingUrl-get-onboarding-url-200:
+      description: Example response for requesting a hosted onboarding page link
+      summary: Hosted onboarding page link
+      value:
+        invalidFields: []
+        pspReference: "9115677600500127"
+        redirectUrl: https://hop-test.adyen.com/hop/view/?token=<token>
+        resultCode: Success
+    post-getPciQuestionnaireUrl-get-pci-questionnaire-url:
+      description: Returns a link to an Adyen-hosted PCI compliance questionnaire that you can send to your account holder.
+      summary: Get a PCI questionnaire link
+      value:
+        accountHolderCode: CODE_OF_ACCOUNT_HOLDER
+        returnUrl: https://your.return-url.com/?submerchant=123
+    post-getPciQuestionnaireUrl-get-pci-questionnaire-url-200:
+      description: Example response for requesting a hosted onboarding page link
+      summary: Hosted onboarding page link
+      value:
+        invalidFields: []
+        pspReference: "8315748692943050"
+        redirectUrl: https://hop-test.adyen.com/hop/pci/?token=<token>
+        resultCode: Success
+  schemas:
+    CollectInformation:
+      properties:
+        bankDetails:
+          description: Indicates whether [bank account details](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks/bank-account-check) must be collected. Default is **true**.
+          type: boolean
+        businessDetails:
+          description: Indicates whether [business details](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks/company-check) must be collected. Default is **true**.
+          type: boolean
+        individualDetails:
+          description: Indicates whether [individual details](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks/identity-check) must be collected. Default is **true**.
+          type: boolean
+        legalArrangementDetails:
+          description: Indicates whether [legal arrangement details](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks/legal-arrangements) must be collected. Default is **true**.
+          type: boolean
+        pciQuestionnaire:
+          description: Indicates whether answers to a [PCI questionnaire](https://docs.adyen.com/marketplaces-and-platforms/classic/platforms-for-partners#onboard-partner-platform) must be collected. Applies only to partner platforms. Default is **true**.
+          type: boolean
+        shareholderDetails:
+          description: Indicates whether [shareholder details](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks/identity-check) must be collected. Defaults to **true**.
+          type: boolean
+      type: object
+    ErrorFieldType:
+      properties:
+        errorCode:
+          description: The validation error code.
+          format: int32
+          type: integer
+        errorDescription:
+          description: A description of the validation error.
+          type: string
+        fieldType:
+          $ref: "#/components/schemas/FieldType"
+          description: The type of error field.
+      type: object
+    FieldType:
+      properties:
+        field:
+          description: The full name of the property.
+          type: string
+        fieldName:
+          description: The type of the field.
+          enum:
+            - accountCode
+            - accountHolderCode
+            - accountHolderDetails
+            - accountNumber
+            - accountStateType
+            - accountStatus
+            - accountType
+            - address
+            - balanceAccount
+            - balanceAccountActive
+            - balanceAccountCode
+            - balanceAccountId
+            - bankAccount
+            - bankAccountCode
+            - bankAccountName
+            - bankAccountUUID
+            - bankBicSwift
+            - bankCity
+            - bankCode
+            - bankName
+            - bankStatement
+            - branchCode
+            - businessContact
+            - cardToken
+            - checkCode
+            - city
+            - companyRegistration
+            - constitutionalDocument
+            - controller
+            - country
+            - countryCode
+            - currency
+            - currencyCode
+            - dateOfBirth
+            - description
+            - destinationAccountCode
+            - document
+            - documentContent
+            - documentExpirationDate
+            - documentIssuerCountry
+            - documentIssuerState
+            - documentName
+            - documentNumber
+            - documentType
+            - doingBusinessAs
+            - drivingLicence
+            - drivingLicenceBack
+            - drivingLicenceFront
+            - drivingLicense
+            - email
+            - firstName
+            - formType
+            - fullPhoneNumber
+            - gender
+            - hopWebserviceUser
+            - houseNumberOrName
+            - iban
+            - idCard
+            - idCardBack
+            - idCardFront
+            - idNumber
+            - identityDocument
+            - individualDetails
+            - infix
+            - jobTitle
+            - lastName
+            - lastReviewDate
+            - legalArrangement
+            - legalArrangementCode
+            - legalArrangementEntity
+            - legalArrangementEntityCode
+            - legalArrangementLegalForm
+            - legalArrangementMember
+            - legalArrangementMembers
+            - legalArrangementName
+            - legalArrangementReference
+            - legalArrangementRegistrationNumber
+            - legalArrangementTaxNumber
+            - legalArrangementType
+            - legalBusinessName
+            - legalEntity
+            - legalEntityType
+            - logo
+            - merchantAccount
+            - merchantCategoryCode
+            - merchantHouseNumber
+            - merchantReference
+            - microDeposit
+            - name
+            - nationality
+            - originalReference
+            - ownerCity
+            - ownerCountryCode
+            - ownerDateOfBirth
+            - ownerHouseNumberOrName
+            - ownerName
+            - ownerPostalCode
+            - ownerState
+            - ownerStreet
+            - passport
+            - passportNumber
+            - payoutMethodCode
+            - payoutSchedule
+            - pciSelfAssessment
+            - personalData
+            - phoneCountryCode
+            - phoneNumber
+            - postalCode
+            - primaryCurrency
+            - reason
+            - registrationNumber
+            - returnUrl
+            - schedule
+            - shareholder
+            - shareholderCode
+            - shareholderCodeAndSignatoryCode
+            - shareholderCodeOrSignatoryCode
+            - shareholderType
+            - shareholderTypes
+            - shopperInteraction
+            - signatory
+            - signatoryCode
+            - socialSecurityNumber
+            - sourceAccountCode
+            - splitAccount
+            - splitConfigurationUUID
+            - splitCurrency
+            - splitValue
+            - splits
+            - stateOrProvince
+            - status
+            - stockExchange
+            - stockNumber
+            - stockTicker
+            - store
+            - storeDetail
+            - storeName
+            - storeReference
+            - street
+            - taxId
+            - tier
+            - tierNumber
+            - transferCode
+            - ultimateParentCompany
+            - ultimateParentCompanyAddressDetails
+            - ultimateParentCompanyAddressDetailsCountry
+            - ultimateParentCompanyBusinessDetails
+            - ultimateParentCompanyBusinessDetailsLegalBusinessName
+            - ultimateParentCompanyBusinessDetailsRegistrationNumber
+            - ultimateParentCompanyCode
+            - ultimateParentCompanyStockExchange
+            - ultimateParentCompanyStockNumber
+            - ultimateParentCompanyStockNumberOrStockTicker
+            - ultimateParentCompanyStockTicker
+            - unknown
+            - value
+            - verificationType
+            - virtualAccount
+            - visaNumber
+            - webAddress
+            - year
+          type: string
+        shareholderCode:
+          description: The code of the shareholder that the field belongs to. If empty, the field belongs to an account holder.
+          type: string
+      type: object
+    GetOnboardingUrlRequest:
+      properties:
+        accountHolderCode:
+          description: The account holder code you provided when you created the account holder.
+          type: string
+        collectInformation:
+          $ref: "#/components/schemas/CollectInformation"
+          description: Contains indicators whether the page should only collect information for specific [KYC checks](https://docs.adyen.com/marketplaces-and-platforms/classic/verification-checks). By default, the page collects information for all KYC checks that apply to the [legal entity type](https://docs.adyen.com/marketplaces-and-platforms/classic/account-holders-and-accounts#legal-entity-types).
+        editMode:
+          description: Indicates if editing checks is allowed even if all the checks have passed.
+          type: boolean
+        mobileOAuthCallbackUrl:
+          description: The URL to which the account holder is redirected after completing an OAuth authentication with a bank through Trustly/PayMyBank.
+          type: string
+        platformName:
+          description: The platform name which will show up in the welcome page.
+          type: string
+        returnUrl:
+          description: The URL where the account holder will be redirected back to after they complete the onboarding, or if their session times out. Maximum length of 500 characters. If you don't provide this, the account holder will be redirected back to the default return URL configured in your platform account.
+          type: string
+        shopperLocale:
+          description: |-
+            The language to be used in the page, specified by a combination of a language and country code. For example, **pt-BR**. 
+
+            If not specified in the request or if the language is not supported, the page uses the browser language. If the browser language is not supported, the page uses **en-US** by default.
+
+            For a list of supported languages, refer to [Change the page language](https://docs.adyen.com/marketplaces-and-platforms/classic/hosted-onboarding-page/customize-experience#change-page-language).
+          type: string
+        showPages:
+          $ref: "#/components/schemas/ShowPages"
+          description: Contains indicators whether specific pages must be shown to the account holder.
+      required:
+        - accountHolderCode
+      type: object
+    GetOnboardingUrlResponse:
+      properties:
+        invalidFields:
+          description: Information about any invalid fields.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        redirectUrl:
+          description: The URL to the Hosted Onboarding Page where you should redirect your sub-merchant. This URL must be used within 30 seconds and can only be used once.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    GetPciUrlRequest:
+      properties:
+        accountHolderCode:
+          description: The account holder code you provided when you created the account holder.
+          type: string
+        returnUrl:
+          description: The URL where the account holder will be redirected back to after they fill out the questionnaire, or if their session times out. Maximum length of 500 characters.
+          type: string
+      required:
+        - accountHolderCode
+      type: object
+    GetPciUrlResponse:
+      properties:
+        invalidFields:
+          description: Information about any invalid fields.
+          items:
+            $ref: "#/components/schemas/ErrorFieldType"
+          type: array
+          x-addedInVersion: "5"
+        pspReference:
+          description: The reference of a request. Can be used to uniquely identify the request.
+          type: string
+        redirectUrl:
+          description: The URL to the PCI compliance questionnaire where you should redirect your account holder. This URL must be used within 30 seconds and can only be used once.
+          type: string
+        resultCode:
+          description: The result code.
+          type: string
+      type: object
+    ServiceError:
+      properties:
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    ShowPages:
+      properties:
+        bankDetailsSummaryPage:
+          description: Indicates whether the page with bank account details must be shown. Defaults to **true**.
+          type: boolean
+        bankVerificationPage:
+          description: Indicates whether the bank check instant verification' details must be shown. Defaults to **true**.
+          type: boolean
+        businessDetailsSummaryPage:
+          description: Indicates whether the page with the company's or organization's details must be shown. Defaults to **true**.
+          type: boolean
+        checksOverviewPage:
+          description: Indicates whether the checks overview page must be shown. Defaults to **false**.
+          type: boolean
+        individualDetailsSummaryPage:
+          description: Indicates whether the page with the individual's details must be shown. Defaults to **true**.
+          type: boolean
+        legalArrangementsDetailsSummaryPage:
+          description: Indicates whether the page with the legal arrangements' details must be shown. Defaults to **true**.
+          type: boolean
+        manualBankAccountPage:
+          description: Indicates whether the page to manually add bank account' details must be shown. Defaults to **true**.
+          type: boolean
+        shareholderDetailsSummaryPage:
+          description: Indicates whether the page with the shareholders' details must be shown. Defaults to **true**.
+          type: boolean
+        welcomePage:
+          description: Indicates whether the welcome page must be shown. Defaults to **false**.
+          type: boolean
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - Hosted Onboarding Page
+  - PCI Compliance Questionnaire Page

@@ -1,0 +1,296 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+
+    Please also be aware that our test environment is based on a subset of the production, to see what is included in test please refer to our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Flight Busiest Traveling Period
+  version: 1.0.2
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightBusiestTravelingPeriod_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    "1.0":
+      - Initial Version
+    1.0.1:
+      - Correct example
+  x-serviceName: amadeus-flight-busiest-traveling-period
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+responses:
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      477     | INVALID FORMAT
+      572     | INVALID OPTION
+      2781    | INVALID LENGTH
+      4926    | INVALID DATA RECEIVED
+      32171   | MANDATORY DATA MISSING
+    schema:
+      $ref: "#/definitions/Error_400"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+  air-traffic:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - analytics:
+              travelers:
+                score: 9
+            period: 2017-05
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 9
+            period: 2017-12
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-09
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-10
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-07
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-06
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-02
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-03
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-01
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-04
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-08
+            type: air-traffic
+          - analytics:
+              travelers:
+                score: 8
+            period: 2017-11
+            type: air-traffic
+        meta:
+          count: 12
+          links:
+            self: https://test.api.amadeus.com/v1/travel/analytics/air-traffic/busiest-period?cityCode=MAD&direction=ARRIVING&period=2017
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/Air_Traffic"
+          type: array
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Success
+paths:
+  /travel/analytics/air-traffic/busiest-period:
+    get:
+      description: ""
+      operationId: getAirTraffic
+      parameters:
+        - description: Code for the city following IATA standard. [IATA table codes](http://www.iata.org/publications/Pages/code-search.aspx) - e.g. BOS for Boston
+          in: query
+          name: cityCode
+          pattern: "[A-Za-z]{3}"
+          required: true
+          type: string
+          x-example: MAD
+        - description: |
+            time period (year) of the statistics.
+
+            Year for which the statistic are requested following [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
+          in: query
+          name: period
+          required: true
+          type: string
+          x-example: 2017
+        - default: ARRIVING
+          description: |
+            Use ARRIVING to have statistics on travelers coming to the city or DEPARTING for statistics on travelers leaving the city.
+
+            By default, statistics are given on travelers ARRIVING the city.
+          enum:
+            - ARRIVING
+            - DEPARTING
+          in: query
+          name: direction
+          required: false
+          type: string
+          x-example: ARRIVING
+      responses:
+        "200":
+          $ref: "#/responses/air-traffic"
+        "400":
+          $ref: "#/responses/400"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns a list of air traffic reports.
+      tags:
+        - air-traffic
+definitions:
+  Air_Traffic:
+    properties:
+      analytics:
+        $ref: "#/definitions/Analytics"
+      period:
+        description: Time period following [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) standard
+        example: 2017-01
+        type: string
+      type:
+        example: air-traffic
+        type: string
+  Analytics:
+    properties:
+      travelers:
+        $ref: "#/definitions/Travelers"
+  Collection_Meta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+    title: Collection_Meta
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Travelers:
+    properties:
+      score:
+        description: Approximate score for ranking purposes calculated based on number of travelers in the location.
+        example: 68
+        format: integer
+        type: number
+x-generatedAt: 2020-07-23T14:13:35.860Z

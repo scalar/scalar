@@ -1,0 +1,3131 @@
+openapi: 3.0.0
+info:
+  version: 2018-11-25
+  x-release: v4
+  title: Amazon CloudWatch Application Insights
+  description: <fullname>Amazon CloudWatch Application Insights</fullname> <p> Amazon CloudWatch Application Insights is a service that helps you detect common problems with your applications. It enables you to pinpoint the source of issues in your applications (built with technologies such as Microsoft IIS, .NET, and Microsoft SQL Server), by providing key insights into detected problems.</p> <p>After you onboard your application, CloudWatch Application Insights identifies, recommends, and sets up metrics and logs. It continuously analyzes and correlates your metrics and logs for unusual behavior to surface actionable problems with your application. For example, if your application is slow and unresponsive and leading to HTTP 500 errors in your Application Load Balancer (ALB), Application Insights informs you that a memory pressure problem with your SQL Server database is occurring. It bases this analysis on impactful metrics and log errors. </p>
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_awscloud_profile_image.png
+    backgroundColor: "#FFFFFF"
+  termsOfService: https://aws.amazon.com/service-terms/
+  contact:
+    name: Mike Ralphson
+    email: mike.ralphson@gmail.com
+    url: https://github.com/mermade/aws2openapi
+    x-twitter: PermittedSoc
+  license:
+    name: Apache 2.0 License
+    url: http://www.apache.org/licenses/
+  x-providerName: amazonaws.com
+  x-serviceName: application-insights
+  x-aws-signingName: applicationinsights
+  x-origin:
+    - contentType: application/json
+      url: https://raw.githubusercontent.com/aws/aws-sdk-js/master/apis/application-insights-2018-11-25.normal.json
+      converter:
+        url: https://github.com/mermade/aws2openapi
+        version: 1.0.0
+      x-apisguru-driver: external
+  x-apiClientRegistration:
+    url: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?nc2=h_ct
+  x-apisguru-categories:
+    - cloud
+  x-preferred: true
+externalDocs:
+  description: Amazon Web Services documentation
+  url: https://docs.aws.amazon.com/applicationinsights/
+servers:
+  - url: http://applicationinsights.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The Application Insights multi-region endpoint
+  - url: https://applicationinsights.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The Application Insights multi-region endpoint
+  - url: http://applicationinsights.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The Application Insights endpoint for China (Beijing) and China (Ningxia)
+  - url: https://applicationinsights.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The Application Insights endpoint for China (Beijing) and China (Ningxia)
+x-hasEquivalentPaths: true
+paths:
+  /#X-Amz-Target=EC2WindowsBarleyService.CreateApplication:
+    post:
+      operationId: CreateApplication
+      description: Adds an application that is created from a resource group.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateApplicationResponse"
+        "480":
+          description: ResourceInUseException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceInUseException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+        "484":
+          description: TagsAlreadyExistException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagsAlreadyExistException"
+        "485":
+          description: AccessDeniedException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccessDeniedException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateApplicationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.CreateApplication
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.CreateComponent:
+    post:
+      operationId: CreateComponent
+      description: Creates a custom component by grouping similar standalone instances to monitor.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateComponentResponse"
+        "480":
+          description: ResourceInUseException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceInUseException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateComponentRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.CreateComponent
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.CreateLogPattern:
+    post:
+      operationId: CreateLogPattern
+      description: Adds an log pattern to a <code>LogPatternSet</code>.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateLogPatternResponse"
+        "480":
+          description: ResourceInUseException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceInUseException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLogPatternRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.CreateLogPattern
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DeleteApplication:
+    post:
+      operationId: DeleteApplication
+      description: Removes the specified application from monitoring. Does not delete the application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteApplicationResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteApplicationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DeleteApplication
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DeleteComponent:
+    post:
+      operationId: DeleteComponent
+      description: Ungroups a custom component. When you ungroup custom components, all applicable monitors that are set up for the component are removed and the instances revert to their standalone status.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteComponentResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteComponentRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DeleteComponent
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DeleteLogPattern:
+    post:
+      operationId: DeleteLogPattern
+      description: Removes the specified log pattern from a <code>LogPatternSet</code>.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteLogPatternResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: BadRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteLogPatternRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DeleteLogPattern
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeApplication:
+    post:
+      operationId: DescribeApplication
+      description: Describes the application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeApplicationResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeApplicationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeApplication
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeComponent:
+    post:
+      operationId: DescribeComponent
+      description: Describes a component and lists the resources that are grouped together in a component.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeComponentResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeComponentRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeComponent
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeComponentConfiguration:
+    post:
+      operationId: DescribeComponentConfiguration
+      description: Describes the monitoring configuration of the component.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeComponentConfigurationResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeComponentConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeComponentConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeComponentConfigurationRecommendation:
+    post:
+      operationId: DescribeComponentConfigurationRecommendation
+      description: Describes the recommended monitoring configuration of the component.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeComponentConfigurationRecommendationResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeComponentConfigurationRecommendationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeComponentConfigurationRecommendation
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeLogPattern:
+    post:
+      operationId: DescribeLogPattern
+      description: Describe a specific log pattern from a <code>LogPatternSet</code>.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeLogPatternResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeLogPatternRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeLogPattern
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeObservation:
+    post:
+      operationId: DescribeObservation
+      description: Describes an anomaly or error with the application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeObservationResponse"
+        "480":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeObservationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeObservation
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeProblem:
+    post:
+      operationId: DescribeProblem
+      description: Describes an application problem.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeProblemResponse"
+        "480":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeProblemRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeProblem
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.DescribeProblemObservations:
+    post:
+      operationId: DescribeProblemObservations
+      description: Describes the anomalies or errors associated with the problem.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeProblemObservationsResponse"
+        "480":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeProblemObservationsRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.DescribeProblemObservations
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListApplications:
+    post:
+      operationId: ListApplications
+      description: "Lists the IDs of the applications that you are monitoring. "
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListApplicationsResponse"
+        "480":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "481":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListApplicationsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListApplications
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListComponents:
+    post:
+      operationId: ListComponents
+      description: Lists the auto-grouped, standalone, and custom components of the application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListComponentsResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListComponentsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListComponents
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListConfigurationHistory:
+    post:
+      operationId: ListConfigurationHistory
+      description: "<p> Lists the INFO, WARN, and ERROR events for periodic configuration updates performed by Application Insights. Examples of events represented are: </p> <ul> <li> <p>INFO: creating a new alarm or updating an alarm threshold.</p> </li> <li> <p>WARN: alarm not created due to insufficient data points used to predict thresholds.</p> </li> <li> <p>ERROR: alarm not created due to permission errors or exceeding quotas. </p> </li> </ul>"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListConfigurationHistoryResponse"
+        "480":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListConfigurationHistoryRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListConfigurationHistory
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListLogPatternSets:
+    post:
+      operationId: ListLogPatternSets
+      description: Lists the log pattern sets in the specific application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListLogPatternSetsResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListLogPatternSetsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListLogPatternSets
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListLogPatterns:
+    post:
+      operationId: ListLogPatterns
+      description: Lists the log patterns in the specific log <code>LogPatternSet</code>.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListLogPatternsResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListLogPatternsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListLogPatterns
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListProblems:
+    post:
+      operationId: ListProblems
+      description: Lists the problems with your application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListProblemsResponse"
+        "480":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListProblemsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListProblems
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.ListTagsForResource:
+    post:
+      operationId: ListTagsForResource
+      description: Retrieve a list of the tags (keys and values) that are associated with a specified application. A <i>tag</i> is a label that you optionally define and associate with an application. Each tag consists of a required <i>tag key</i> and an optional associated <i>tag value</i>. A tag key is a general label that acts as a category for more specific tag values. A tag value acts as a descriptor within a tag key.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTagsForResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListTagsForResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.ListTagsForResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.TagResource:
+    post:
+      operationId: TagResource
+      description: <p>Add one or more tags (keys and values) to a specified application. A <i>tag</i> is a label that you optionally define and associate with an application. Tags can help you categorize and manage application in different ways, such as by purpose, owner, environment, or other criteria. </p> <p>Each tag consists of a required <i>tag key</i> and an associated <i>tag value</i>, both of which you define. A tag key is a general label that acts as a category for more specific tag values. A tag value acts as a descriptor within a tag key.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: TooManyTagsException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyTagsException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.TagResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.UntagResource:
+    post:
+      operationId: UntagResource
+      description: Remove one or more tags (keys and values) from a specified application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UntagResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UntagResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.UntagResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.UpdateApplication:
+    post:
+      operationId: UpdateApplication
+      description: Updates the application.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateApplicationResponse"
+        "480":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateApplicationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.UpdateApplication
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.UpdateComponent:
+    post:
+      operationId: UpdateComponent
+      description: Updates the custom component name and/or the list of resources that make up the component.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateComponentResponse"
+        "480":
+          description: ResourceInUseException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceInUseException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateComponentRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.UpdateComponent
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.UpdateComponentConfiguration:
+    post:
+      operationId: UpdateComponentConfiguration
+      description: "Updates the monitoring configurations for the component. The configuration input parameter is an escaped JSON of the configuration and should match the schema of what is returned by <code>DescribeComponentConfigurationRecommendation</code>. "
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateComponentConfigurationResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "482":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateComponentConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.UpdateComponentConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=EC2WindowsBarleyService.UpdateLogPattern:
+    post:
+      operationId: UpdateLogPattern
+      description: Adds a log pattern to a <code>LogPatternSet</code>.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateLogPatternResponse"
+        "480":
+          description: ResourceInUseException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceInUseException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: ValidationException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidationException"
+        "483":
+          description: InternalServerException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLogPatternRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - EC2WindowsBarleyService.UpdateLogPattern
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+components:
+  parameters:
+    X-Amz-Content-Sha256:
+      name: X-Amz-Content-Sha256
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Date:
+      name: X-Amz-Date
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Algorithm:
+      name: X-Amz-Algorithm
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Credential:
+      name: X-Amz-Credential
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Security-Token:
+      name: X-Amz-Security-Token
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Signature:
+      name: X-Amz-Signature
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-SignedHeaders:
+      name: X-Amz-SignedHeaders
+      in: header
+      schema:
+        type: string
+      required: false
+  securitySchemes:
+    hmac:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Amazon Signature authorization v4
+      x-amazon-apigateway-authtype: awsSigv4
+  schemas:
+    CreateApplicationResponse:
+      type: object
+      properties:
+        ApplicationInfo:
+          allOf:
+            - $ref: "#/components/schemas/ApplicationInfo"
+            - description: Information about the application.
+    CreateApplicationRequest:
+      type: object
+      title: CreateApplicationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        OpsCenterEnabled:
+          allOf:
+            - $ref: "#/components/schemas/OpsCenterEnabled"
+            - description: " When set to <code>true</code>, creates opsItems for any problems detected on an application. "
+        CWEMonitorEnabled:
+          allOf:
+            - $ref: "#/components/schemas/CWEMonitorEnabled"
+            - description: " Indicates whether Application Insights can listen to CloudWatch events for the application resources, such as <code>instance terminated</code>, <code>failed deployment</code>, and others. "
+        OpsItemSNSTopicArn:
+          allOf:
+            - $ref: "#/components/schemas/OpsItemSNSTopicArn"
+            - description: " The SNS topic provided to Application Insights that is associated to the created opsItem. Allows you to receive notifications for updates to the opsItem. "
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: List of tags to add to the application. tag key (<code>Key</code>) and an associated tag value (<code>Value</code>). The maximum length of a tag key is 128 characters. The maximum length of a tag value is 256 characters.
+        AutoConfigEnabled:
+          allOf:
+            - $ref: "#/components/schemas/AutoConfigEnabled"
+            - description: " Indicates whether Application Insights automatically configures unmonitored resources in the resource group. "
+        AutoCreate:
+          allOf:
+            - $ref: "#/components/schemas/AutoCreate"
+            - description: " Configures all of the resources in the resource group by applying the recommended configurations. "
+        GroupingType:
+          allOf:
+            - $ref: "#/components/schemas/GroupingType"
+            - description: "Application Insights can create applications based on a resource group or on an account. To create an account-based application using all of the resources in the account, set this parameter to <code>ACCOUNT_BASED</code>. "
+    ResourceInUseException: {}
+    ResourceNotFoundException: {}
+    ValidationException: {}
+    InternalServerException: {}
+    TagsAlreadyExistException: {}
+    AccessDeniedException: {}
+    CreateComponentResponse:
+      type: object
+      properties: {}
+    CreateComponentRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+        - ResourceList
+      title: CreateComponentRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/CustomComponentName"
+            - description: The name of the component.
+        ResourceList:
+          allOf:
+            - $ref: "#/components/schemas/ResourceList"
+            - description: The list of resource ARNs that belong to the component.
+    CreateLogPatternResponse:
+      type: object
+      properties:
+        LogPattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPattern"
+            - description: The successfully created log pattern.
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+    CreateLogPatternRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - PatternSetName
+        - PatternName
+        - Pattern
+        - Rank
+      title: CreateLogPatternRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: The name of the log pattern set.
+        PatternName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternName"
+            - description: The name of the log pattern.
+        Pattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRegex"
+            - description: The log pattern. The pattern must be DFA compatible. Patterns that utilize forward lookahead or backreference constructions are not supported.
+        Rank:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRank"
+            - description: "Rank of the log pattern. Must be a value between <code>1</code> and <code>1,000,000</code>. The patterns are sorted by rank, so we recommend that you set your highest priority patterns with the lowest rank. A pattern of rank <code>1</code> will be the first to get matched to a log line. A pattern of rank <code>1,000,000</code> will be last to get matched. When you configure custom log patterns from the console, a <code>Low</code> severity pattern translates to a <code>750,000</code> rank. A <code>Medium</code> severity pattern translates to a <code>500,000</code> rank. And a <code>High</code> severity pattern translates to a <code>250,000</code> rank. Rank values less than <code>1</code> or greater than <code>1,000,000</code> are reserved for AWS-provided patterns. "
+    DeleteApplicationResponse:
+      type: object
+      properties: {}
+    DeleteApplicationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: DeleteApplicationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+    BadRequestException: {}
+    DeleteComponentResponse:
+      type: object
+      properties: {}
+    DeleteComponentRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+      title: DeleteComponentRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/CustomComponentName"
+            - description: The name of the component.
+    DeleteLogPatternResponse:
+      type: object
+      properties: {}
+    DeleteLogPatternRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - PatternSetName
+        - PatternName
+      title: DeleteLogPatternRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: The name of the log pattern set.
+        PatternName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternName"
+            - description: The name of the log pattern.
+    DescribeApplicationResponse:
+      type: object
+      properties:
+        ApplicationInfo:
+          allOf:
+            - $ref: "#/components/schemas/ApplicationInfo"
+            - description: Information about the application.
+    DescribeApplicationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: DescribeApplicationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+    DescribeComponentResponse:
+      type: object
+      properties:
+        ApplicationComponent:
+          $ref: "#/components/schemas/ApplicationComponent"
+        ResourceList:
+          allOf:
+            - $ref: "#/components/schemas/ResourceList"
+            - description: The list of resource ARNs that belong to the component.
+    DescribeComponentRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+      title: DescribeComponentRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: The name of the component.
+    DescribeComponentConfigurationResponse:
+      type: object
+      properties:
+        Monitor:
+          allOf:
+            - $ref: "#/components/schemas/Monitor"
+            - description: Indicates whether the application component is monitored.
+        Tier:
+          allOf:
+            - $ref: "#/components/schemas/Tier"
+            - description: "The tier of the application component. Supported tiers include <code>DOT_NET_CORE</code>, <code>DOT_NET_WORKER</code>, <code>DOT_NET_WEB</code>, <code>SQL_SERVER</code>, and <code>DEFAULT</code> "
+        ComponentConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ComponentConfiguration"
+            - description: The configuration settings of the component. The value is the escaped JSON of the configuration.
+    DescribeComponentConfigurationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+      title: DescribeComponentConfigurationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: The name of the component.
+    DescribeComponentConfigurationRecommendationResponse:
+      type: object
+      properties:
+        ComponentConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ComponentConfiguration"
+            - description: The recommended configuration settings of the component. The value is the escaped JSON of the configuration.
+    DescribeComponentConfigurationRecommendationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+        - Tier
+      title: DescribeComponentConfigurationRecommendationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: The name of the component.
+        Tier:
+          allOf:
+            - $ref: "#/components/schemas/Tier"
+            - description: The tier of the application component.
+    DescribeLogPatternResponse:
+      type: object
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        LogPattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPattern"
+            - description: The successfully created log pattern.
+    DescribeLogPatternRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - PatternSetName
+        - PatternName
+      title: DescribeLogPatternRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: The name of the log pattern set.
+        PatternName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternName"
+            - description: The name of the log pattern.
+    DescribeObservationResponse:
+      type: object
+      properties:
+        Observation:
+          allOf:
+            - $ref: "#/components/schemas/Observation"
+            - description: Information about the observation.
+    DescribeObservationRequest:
+      type: object
+      required:
+        - ObservationId
+      title: DescribeObservationRequest
+      properties:
+        ObservationId:
+          allOf:
+            - $ref: "#/components/schemas/ObservationId"
+            - description: The ID of the observation.
+    DescribeProblemResponse:
+      type: object
+      properties:
+        Problem:
+          allOf:
+            - $ref: "#/components/schemas/Problem"
+            - description: "Information about the problem. "
+    DescribeProblemRequest:
+      type: object
+      required:
+        - ProblemId
+      title: DescribeProblemRequest
+      properties:
+        ProblemId:
+          allOf:
+            - $ref: "#/components/schemas/ProblemId"
+            - description: The ID of the problem.
+    DescribeProblemObservationsResponse:
+      type: object
+      properties:
+        RelatedObservations:
+          allOf:
+            - $ref: "#/components/schemas/RelatedObservations"
+            - description: Observations related to the problem.
+    DescribeProblemObservationsRequest:
+      type: object
+      required:
+        - ProblemId
+      title: DescribeProblemObservationsRequest
+      properties:
+        ProblemId:
+          allOf:
+            - $ref: "#/components/schemas/ProblemId"
+            - description: The ID of the problem.
+    ListApplicationsResponse:
+      type: object
+      properties:
+        ApplicationInfoList:
+          allOf:
+            - $ref: "#/components/schemas/ApplicationInfoList"
+            - description: The list of applications.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: "The token used to retrieve the next page of results. This value is <code>null</code> when there are no more results to return. "
+    ListApplicationsRequest:
+      type: object
+      title: ListApplicationsRequest
+      properties:
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: The maximum number of results to return in a single call. To retrieve the remaining results, make another call with the returned <code>NextToken</code> value.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+    ListComponentsResponse:
+      type: object
+      properties:
+        ApplicationComponentList:
+          allOf:
+            - $ref: "#/components/schemas/ApplicationComponentList"
+            - description: The list of application components.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+    ListComponentsRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: ListComponentsRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: The maximum number of results to return in a single call. To retrieve the remaining results, make another call with the returned <code>NextToken</code> value.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+    ListConfigurationHistoryResponse:
+      type: object
+      properties:
+        EventList:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventList"
+            - description: " The list of configuration events and their corresponding details. "
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The <code>NextToken</code> value to include in a future <code>ListConfigurationHistory</code> request. When the results of a <code>ListConfigurationHistory</code> request exceed <code>MaxResults</code>, this value can be used to retrieve the next page of results. This value is <code>null</code> when there are no more results to return.
+    ListConfigurationHistoryRequest:
+      type: object
+      title: ListConfigurationHistoryRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: "Resource group to which the application belongs. "
+        StartTime:
+          allOf:
+            - $ref: "#/components/schemas/StartTime"
+            - description: "The start time of the event. "
+        EndTime:
+          allOf:
+            - $ref: "#/components/schemas/EndTime"
+            - description: The end time of the event.
+        EventStatus:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventStatus"
+            - description: The status of the configuration update event. Possible values include INFO, WARN, and ERROR.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: " The maximum number of results returned by <code>ListConfigurationHistory</code> in paginated output. When this parameter is used, <code>ListConfigurationHistory</code> returns only <code>MaxResults</code> in a single page along with a <code>NextToken</code> response element. The remaining results of the initial request can be seen by sending another <code>ListConfigurationHistory</code> request with the returned <code>NextToken</code> value. If this parameter is not used, then <code>ListConfigurationHistory</code> returns all results. "
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The <code>NextToken</code> value returned from a previous paginated <code>ListConfigurationHistory</code> request where <code>MaxResults</code> was used and the results exceeded the value of that parameter. Pagination continues from the end of the previous results that returned the <code>NextToken</code> value. This value is <code>null</code> when there are no more results to return.
+    ListLogPatternSetsResponse:
+      type: object
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        LogPatternSets:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetList"
+            - description: The list of log pattern sets.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: "The token used to retrieve the next page of results. This value is <code>null</code> when there are no more results to return. "
+    ListLogPatternSetsRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: ListLogPatternSetsRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: The maximum number of results to return in a single call. To retrieve the remaining results, make another call with the returned <code>NextToken</code> value.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+    ListLogPatternsResponse:
+      type: object
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        LogPatterns:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternList"
+            - description: The list of log patterns.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: "The token used to retrieve the next page of results. This value is <code>null</code> when there are no more results to return. "
+    ListLogPatternsRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: ListLogPatternsRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: The name of the log pattern set.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: The maximum number of results to return in a single call. To retrieve the remaining results, make another call with the returned <code>NextToken</code> value.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+    ListProblemsResponse:
+      type: object
+      properties:
+        ProblemList:
+          allOf:
+            - $ref: "#/components/schemas/ProblemList"
+            - description: "The list of problems. "
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: "The token used to retrieve the next page of results. This value is <code>null</code> when there are no more results to return. "
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: " The name of the resource group. "
+    ListProblemsRequest:
+      type: object
+      title: ListProblemsRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        StartTime:
+          allOf:
+            - $ref: "#/components/schemas/StartTime"
+            - description: The time when the problem was detected, in epoch seconds. If you don't specify a time frame for the request, problems within the past seven days are returned.
+        EndTime:
+          allOf:
+            - $ref: "#/components/schemas/EndTime"
+            - description: The time when the problem ended, in epoch seconds. If not specified, problems within the past seven days are returned.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxEntities"
+            - description: The maximum number of results to return in a single call. To retrieve the remaining results, make another call with the returned <code>NextToken</code> value.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/PaginationToken"
+            - description: The token to request the next page of results.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: " The name of the component. "
+    ListTagsForResourceResponse:
+      type: object
+      properties:
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: An array that lists all the tags that are associated with the application. Each tag consists of a required tag key (<code>Key</code>) and an associated tag value (<code>Value</code>).
+    ListTagsForResourceRequest:
+      type: object
+      required:
+        - ResourceARN
+      title: ListTagsForResourceRequest
+      properties:
+        ResourceARN:
+          allOf:
+            - $ref: "#/components/schemas/AmazonResourceName"
+            - description: The Amazon Resource Name (ARN) of the application that you want to retrieve tag information for.
+    TagResourceResponse:
+      type: object
+      properties: {}
+    TagResourceRequest:
+      type: object
+      required:
+        - ResourceARN
+        - Tags
+      title: TagResourceRequest
+      properties:
+        ResourceARN:
+          allOf:
+            - $ref: "#/components/schemas/AmazonResourceName"
+            - description: The Amazon Resource Name (ARN) of the application that you want to add one or more tags to.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of tags that to add to the application. A tag consists of a required tag key (<code>Key</code>) and an associated tag value (<code>Value</code>). The maximum length of a tag key is 128 characters. The maximum length of a tag value is 256 characters.
+    TooManyTagsException: {}
+    UntagResourceResponse:
+      type: object
+      properties: {}
+    UntagResourceRequest:
+      type: object
+      required:
+        - ResourceARN
+        - TagKeys
+      title: UntagResourceRequest
+      properties:
+        ResourceARN:
+          allOf:
+            - $ref: "#/components/schemas/AmazonResourceName"
+            - description: The Amazon Resource Name (ARN) of the application that you want to remove one or more tags from.
+        TagKeys:
+          allOf:
+            - $ref: "#/components/schemas/TagKeyList"
+            - description: <p>The tags (tag keys) that you want to remove from the resource. When you specify a tag key, the action removes both that key and its associated tag value.</p> <p>To remove more than one tag from the application, append the <code>TagKeys</code> parameter and argument for each additional tag to remove, separated by an ampersand. </p>
+    UpdateApplicationResponse:
+      type: object
+      properties:
+        ApplicationInfo:
+          allOf:
+            - $ref: "#/components/schemas/ApplicationInfo"
+            - description: "Information about the application. "
+    UpdateApplicationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+      title: UpdateApplicationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        OpsCenterEnabled:
+          allOf:
+            - $ref: "#/components/schemas/OpsCenterEnabled"
+            - description: " When set to <code>true</code>, creates opsItems for any problems detected on an application. "
+        CWEMonitorEnabled:
+          allOf:
+            - $ref: "#/components/schemas/CWEMonitorEnabled"
+            - description: " Indicates whether Application Insights can listen to CloudWatch events for the application resources, such as <code>instance terminated</code>, <code>failed deployment</code>, and others. "
+        OpsItemSNSTopicArn:
+          allOf:
+            - $ref: "#/components/schemas/OpsItemSNSTopicArn"
+            - description: " The SNS topic provided to Application Insights that is associated to the created opsItem. Allows you to receive notifications for updates to the opsItem."
+        RemoveSNSTopic:
+          allOf:
+            - $ref: "#/components/schemas/RemoveSNSTopic"
+            - description: " Disassociates the SNS topic from the opsItem created for detected problems."
+        AutoConfigEnabled:
+          allOf:
+            - $ref: "#/components/schemas/AutoConfigEnabled"
+            - description: " Turns auto-configuration on or off. "
+    UpdateComponentResponse:
+      type: object
+      properties: {}
+    UpdateComponentRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+      title: UpdateComponentRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/CustomComponentName"
+            - description: The name of the component.
+        NewComponentName:
+          allOf:
+            - $ref: "#/components/schemas/CustomComponentName"
+            - description: The new name of the component.
+        ResourceList:
+          allOf:
+            - $ref: "#/components/schemas/ResourceList"
+            - description: The list of resource ARNs that belong to the component.
+    UpdateComponentConfigurationResponse:
+      type: object
+      properties: {}
+    UpdateComponentConfigurationRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - ComponentName
+      title: UpdateComponentConfigurationRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: The name of the component.
+        Monitor:
+          allOf:
+            - $ref: "#/components/schemas/Monitor"
+            - description: Indicates whether the application component is monitored.
+        Tier:
+          allOf:
+            - $ref: "#/components/schemas/Tier"
+            - description: The tier of the application component.
+        ComponentConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ComponentConfiguration"
+            - description: The configuration settings of the component. The value is the escaped JSON of the configuration. For more information about the JSON format, see <a href="https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/working-with-json.html">Working with JSON</a>. You can send a request to <code>DescribeComponentConfigurationRecommendation</code> to see the recommended configuration for a component. For the complete format of the component configuration file, see <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/component-config.html">Component Configuration</a>.
+        AutoConfigEnabled:
+          allOf:
+            - $ref: "#/components/schemas/AutoConfigEnabled"
+            - description: " Automatically configures the component by applying the recommended configurations. "
+    UpdateLogPatternResponse:
+      type: object
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        LogPattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPattern"
+            - description: The successfully created log pattern.
+    UpdateLogPatternRequest:
+      type: object
+      required:
+        - ResourceGroupName
+        - PatternSetName
+        - PatternName
+      title: UpdateLogPatternRequest
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group.
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: The name of the log pattern set.
+        PatternName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternName"
+            - description: The name of the log pattern.
+        Pattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRegex"
+            - description: The log pattern. The pattern must be DFA compatible. Patterns that utilize forward lookahead or backreference constructions are not supported.
+        Rank:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRank"
+            - description: "Rank of the log pattern. Must be a value between <code>1</code> and <code>1,000,000</code>. The patterns are sorted by rank, so we recommend that you set your highest priority patterns with the lowest rank. A pattern of rank <code>1</code> will be the first to get matched to a log line. A pattern of rank <code>1,000,000</code> will be last to get matched. When you configure custom log patterns from the console, a <code>Low</code> severity pattern translates to a <code>750,000</code> rank. A <code>Medium</code> severity pattern translates to a <code>500,000</code> rank. And a <code>High</code> severity pattern translates to a <code>250,000</code> rank. Rank values less than <code>1</code> or greater than <code>1,000,000</code> are reserved for AWS-provided patterns. "
+    AffectedResource:
+      type: string
+    AmazonResourceName:
+      type: string
+      pattern: ^arn:aws(-\w+)*:[\w\d-]+:([\w\d-]*)?:[\w\d_-]*([:/].+)*$
+      minLength: 1
+      maxLength: 1011
+    ComponentName:
+      type: string
+      pattern: (?:^[\d\w\-_\.+]*$)|(?:^arn:aws(-\w+)*:[\w\d-]+:([\w\d-]*)?:[\w\d_-]*([:/].+)*$)
+      minLength: 1
+      maxLength: 1011
+    Remarks:
+      type: string
+    ResourceType:
+      type: string
+      pattern: "[0-9a-zA-Z:_]*"
+      minLength: 1
+      maxLength: 50
+    OsType:
+      type: string
+      enum:
+        - WINDOWS
+        - LINUX
+    Tier:
+      type: string
+      enum:
+        - CUSTOM
+        - DEFAULT
+        - DOT_NET_CORE
+        - DOT_NET_WORKER
+        - DOT_NET_WEB_TIER
+        - DOT_NET_WEB
+        - SQL_SERVER
+        - SQL_SERVER_ALWAYSON_AVAILABILITY_GROUP
+        - MYSQL
+        - POSTGRESQL
+        - JAVA_JMX
+        - ORACLE
+        - SAP_HANA_MULTI_NODE
+        - SAP_HANA_SINGLE_NODE
+        - SAP_HANA_HIGH_AVAILABILITY
+        - SQL_SERVER_FAILOVER_CLUSTER_INSTANCE
+        - SHAREPOINT
+        - ACTIVE_DIRECTORY
+      minLength: 1
+      maxLength: 50
+    Monitor:
+      type: boolean
+    DetectedWorkload:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/WorkloadMetaData"
+    ApplicationComponent:
+      type: object
+      properties:
+        ComponentName:
+          allOf:
+            - $ref: "#/components/schemas/ComponentName"
+            - description: The name of the component.
+        ComponentRemarks:
+          allOf:
+            - $ref: "#/components/schemas/Remarks"
+            - description: " If logging is supported for the resource type, indicates whether the component has configured logs to be monitored. "
+        ResourceType:
+          allOf:
+            - $ref: "#/components/schemas/ResourceType"
+            - description: The resource type. Supported resource types include EC2 instances, Auto Scaling group, Classic ELB, Application ELB, and SQS Queue.
+        OsType:
+          allOf:
+            - $ref: "#/components/schemas/OsType"
+            - description: " The operating system of the component. "
+        Tier:
+          allOf:
+            - $ref: "#/components/schemas/Tier"
+            - description: The stack tier of the application component.
+        Monitor:
+          allOf:
+            - $ref: "#/components/schemas/Monitor"
+            - description: "Indicates whether the application component is monitored. "
+        DetectedWorkload:
+          allOf:
+            - $ref: "#/components/schemas/DetectedWorkload"
+            - description: " Workloads detected in the application component. "
+      description: Describes a standalone resource or similarly grouped resources that the application is made up of.
+    ApplicationComponentList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ApplicationComponent"
+    ResourceGroupName:
+      type: string
+      pattern: "[a-zA-Z0-9\\.\\-_]*"
+      minLength: 1
+      maxLength: 256
+    LifeCycle:
+      type: string
+    OpsItemSNSTopicArn:
+      type: string
+      pattern: ^arn:aws(-\w+)*:[\w\d-]+:([\w\d-]*)?:[\w\d_-]*([:/].+)*$
+      minLength: 20
+      maxLength: 300
+    OpsCenterEnabled:
+      type: boolean
+    CWEMonitorEnabled:
+      type: boolean
+    AutoConfigEnabled:
+      type: boolean
+    DiscoveryType:
+      type: string
+      enum:
+        - RESOURCE_GROUP_BASED
+        - ACCOUNT_BASED
+    ApplicationInfo:
+      type: object
+      properties:
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group used for the application.
+        LifeCycle:
+          allOf:
+            - $ref: "#/components/schemas/LifeCycle"
+            - description: "The lifecycle of the application. "
+        OpsItemSNSTopicArn:
+          allOf:
+            - $ref: "#/components/schemas/OpsItemSNSTopicArn"
+            - description: " The SNS topic provided to Application Insights that is associated to the created opsItems to receive SNS notifications for opsItem updates. "
+        OpsCenterEnabled:
+          allOf:
+            - $ref: "#/components/schemas/OpsCenterEnabled"
+            - description: " Indicates whether Application Insights will create opsItems for any problem detected by Application Insights for an application. "
+        CWEMonitorEnabled:
+          allOf:
+            - $ref: "#/components/schemas/CWEMonitorEnabled"
+            - description: " Indicates whether Application Insights can listen to CloudWatch events for the application resources, such as <code>instance terminated</code>, <code>failed deployment</code>, and others. "
+        Remarks:
+          allOf:
+            - $ref: "#/components/schemas/Remarks"
+            - description: <p>The issues on the user side that block Application Insights from successfully monitoring an application. Example remarks include:</p> <ul> <li> <p>“Configuring application, detected 1 Errors, 3 Warnings”</p> </li> <li> <p>“Configuring application, detected 1 Unconfigured Components”</p> </li> </ul>
+        AutoConfigEnabled:
+          allOf:
+            - $ref: "#/components/schemas/AutoConfigEnabled"
+            - description: " Indicates whether auto-configuration is turned on for this application. "
+        DiscoveryType:
+          allOf:
+            - $ref: "#/components/schemas/DiscoveryType"
+            - description: " The method used by Application Insights to onboard your resources. "
+      description: Describes the status of the application.
+    ApplicationInfoList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ApplicationInfo"
+    AutoCreate:
+      type: boolean
+    CloudWatchEventDetailType:
+      type: string
+    CloudWatchEventId:
+      type: string
+    CloudWatchEventSource:
+      type: string
+      enum:
+        - EC2
+        - CODE_DEPLOY
+        - HEALTH
+        - RDS
+    CodeDeployApplication:
+      type: string
+    CodeDeployDeploymentGroup:
+      type: string
+    CodeDeployDeploymentId:
+      type: string
+    CodeDeployInstanceGroupId:
+      type: string
+    CodeDeployState:
+      type: string
+    ComponentConfiguration:
+      type: string
+      pattern: "[\\S\\s]+"
+      minLength: 1
+      maxLength: 10000
+    ConfigurationEventMonitoredResourceARN:
+      type: string
+    ConfigurationEventStatus:
+      type: string
+      enum:
+        - INFO
+        - WARN
+        - ERROR
+    ConfigurationEventResourceType:
+      type: string
+      enum:
+        - CLOUDWATCH_ALARM
+        - CLOUDWATCH_LOG
+        - CLOUDFORMATION
+        - SSM_ASSOCIATION
+    ConfigurationEventTime:
+      type: string
+      format: date-time
+    ConfigurationEventDetail:
+      type: string
+    ConfigurationEventResourceName:
+      type: string
+    ConfigurationEvent:
+      type: object
+      properties:
+        MonitoredResourceARN:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventMonitoredResourceARN"
+            - description: " The resource monitored by Application Insights. "
+        EventStatus:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventStatus"
+            - description: " The status of the configuration update event. Possible values include INFO, WARN, and ERROR. "
+        EventResourceType:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventResourceType"
+            - description: " The resource type that Application Insights attempted to configure, for example, CLOUDWATCH_ALARM. "
+        EventTime:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventTime"
+            - description: " The timestamp of the event. "
+        EventDetail:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventDetail"
+            - description: " The details of the event in plain text. "
+        EventResourceName:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationEventResourceName"
+            - description: " The name of the resource Application Insights attempted to configure. "
+      description: " The event information. "
+    ConfigurationEventList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ConfigurationEvent"
+    TagList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Tag"
+      minItems: 0
+      maxItems: 200
+    GroupingType:
+      type: string
+      enum:
+        - ACCOUNT_BASED
+    CustomComponentName:
+      type: string
+      pattern: ^[\d\w\-_\.+]*$
+      minLength: 1
+      maxLength: 128
+    ResourceList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ResourceARN"
+    LogPatternSetName:
+      type: string
+      pattern: "[a-zA-Z0-9\\.\\-_]*"
+      minLength: 1
+      maxLength: 30
+    LogPatternName:
+      type: string
+      pattern: "[a-zA-Z0-9\\.\\-_]*"
+      minLength: 1
+      maxLength: 50
+    LogPatternRegex:
+      type: string
+      pattern: "[\\S\\s]+"
+      minLength: 1
+      maxLength: 50
+    LogPatternRank:
+      type: integer
+    LogPattern:
+      type: object
+      properties:
+        PatternSetName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternSetName"
+            - description: "The name of the log pattern. A log pattern name can contain as many as 30 characters, and it cannot be empty. The characters can be Unicode letters, digits, or one of the following symbols: period, dash, underscore."
+        PatternName:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternName"
+            - description: "The name of the log pattern. A log pattern name can contain as many as 50 characters, and it cannot be empty. The characters can be Unicode letters, digits, or one of the following symbols: period, dash, underscore."
+        Pattern:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRegex"
+            - description: A regular expression that defines the log pattern. A log pattern can contain as many as 50 characters, and it cannot be empty. The pattern must be DFA compatible. Patterns that utilize forward lookahead or backreference constructions are not supported.
+        Rank:
+          allOf:
+            - $ref: "#/components/schemas/LogPatternRank"
+            - description: "Rank of the log pattern. Must be a value between <code>1</code> and <code>1,000,000</code>. The patterns are sorted by rank, so we recommend that you set your highest priority patterns with the lowest rank. A pattern of rank <code>1</code> will be the first to get matched to a log line. A pattern of rank <code>1,000,000</code> will be last to get matched. When you configure custom log patterns from the console, a <code>Low</code> severity pattern translates to a <code>750,000</code> rank. A <code>Medium</code> severity pattern translates to a <code>500,000</code> rank. And a <code>High</code> severity pattern translates to a <code>250,000</code> rank. Rank values less than <code>1</code> or greater than <code>1,000,000</code> are reserved for AWS-provided patterns. "
+      description: An object that defines the log patterns that belongs to a <code>LogPatternSet</code>.
+    ObservationId:
+      type: string
+      pattern: o-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}
+      minLength: 38
+      maxLength: 38
+    Observation:
+      type: object
+      properties:
+        Id:
+          allOf:
+            - $ref: "#/components/schemas/ObservationId"
+            - description: The ID of the observation type.
+        StartTime:
+          allOf:
+            - $ref: "#/components/schemas/StartTime"
+            - description: The time when the observation was first detected, in epoch seconds.
+        EndTime:
+          allOf:
+            - $ref: "#/components/schemas/EndTime"
+            - description: The time when the observation ended, in epoch seconds.
+        SourceType:
+          allOf:
+            - $ref: "#/components/schemas/SourceType"
+            - description: The source type of the observation.
+        SourceARN:
+          allOf:
+            - $ref: "#/components/schemas/SourceARN"
+            - description: The source resource ARN of the observation.
+        LogGroup:
+          allOf:
+            - $ref: "#/components/schemas/LogGroup"
+            - description: The log group name.
+        LineTime:
+          allOf:
+            - $ref: "#/components/schemas/LineTime"
+            - description: The timestamp in the CloudWatch Logs that specifies when the matched line occurred.
+        LogText:
+          allOf:
+            - $ref: "#/components/schemas/LogText"
+            - description: The log text of the observation.
+        LogFilter:
+          allOf:
+            - $ref: "#/components/schemas/LogFilter"
+            - description: The log filter of the observation.
+        MetricNamespace:
+          allOf:
+            - $ref: "#/components/schemas/MetricNamespace"
+            - description: The namespace of the observation metric.
+        MetricName:
+          allOf:
+            - $ref: "#/components/schemas/MetricName"
+            - description: The name of the observation metric.
+        Unit:
+          allOf:
+            - $ref: "#/components/schemas/Unit"
+            - description: The unit of the source observation metric.
+        Value:
+          allOf:
+            - $ref: "#/components/schemas/Value"
+            - description: The value of the source observation metric.
+        CloudWatchEventId:
+          allOf:
+            - $ref: "#/components/schemas/CloudWatchEventId"
+            - description: " The ID of the CloudWatch Event-based observation related to the detected problem. "
+        CloudWatchEventSource:
+          allOf:
+            - $ref: "#/components/schemas/CloudWatchEventSource"
+            - description: " The source of the CloudWatch Event. "
+        CloudWatchEventDetailType:
+          allOf:
+            - $ref: "#/components/schemas/CloudWatchEventDetailType"
+            - description: " The detail type of the CloudWatch Event-based observation, for example, <code>EC2 Instance State-change Notification</code>. "
+        HealthEventArn:
+          allOf:
+            - $ref: "#/components/schemas/HealthEventArn"
+            - description: " The Amazon Resource Name (ARN) of the AWS Health Event-based observation."
+        HealthService:
+          allOf:
+            - $ref: "#/components/schemas/HealthService"
+            - description: " The service to which the AWS Health Event belongs, such as EC2. "
+        HealthEventTypeCode:
+          allOf:
+            - $ref: "#/components/schemas/HealthEventTypeCode"
+            - description: " The type of the AWS Health event, for example, <code>AWS_EC2_POWER_CONNECTIVITY_ISSUE</code>. "
+        HealthEventTypeCategory:
+          allOf:
+            - $ref: "#/components/schemas/HealthEventTypeCategory"
+            - description: " The category of the AWS Health event, such as <code>issue</code>. "
+        HealthEventDescription:
+          allOf:
+            - $ref: "#/components/schemas/HealthEventDescription"
+            - description: " The description of the AWS Health event provided by the service, such as Amazon EC2. "
+        CodeDeployDeploymentId:
+          allOf:
+            - $ref: "#/components/schemas/CodeDeployDeploymentId"
+            - description: " The deployment ID of the CodeDeploy-based observation related to the detected problem. "
+        CodeDeployDeploymentGroup:
+          allOf:
+            - $ref: "#/components/schemas/CodeDeployDeploymentGroup"
+            - description: " The deployment group to which the CodeDeploy deployment belongs. "
+        CodeDeployState:
+          allOf:
+            - $ref: "#/components/schemas/CodeDeployState"
+            - description: " The status of the CodeDeploy deployment, for example <code>SUCCESS</code> or <code> FAILURE</code>. "
+        CodeDeployApplication:
+          allOf:
+            - $ref: "#/components/schemas/CodeDeployApplication"
+            - description: " The CodeDeploy application to which the deployment belongs. "
+        CodeDeployInstanceGroupId:
+          allOf:
+            - $ref: "#/components/schemas/CodeDeployInstanceGroupId"
+            - description: " The instance group to which the CodeDeploy instance belongs. "
+        Ec2State:
+          allOf:
+            - $ref: "#/components/schemas/Ec2State"
+            - description: " The state of the instance, such as <code>STOPPING</code> or <code>TERMINATING</code>. "
+        RdsEventCategories:
+          allOf:
+            - $ref: "#/components/schemas/RdsEventCategories"
+            - description: " The category of an RDS event. "
+        RdsEventMessage:
+          allOf:
+            - $ref: "#/components/schemas/RdsEventMessage"
+            - description: " The message of an RDS event. "
+        S3EventName:
+          allOf:
+            - $ref: "#/components/schemas/S3EventName"
+            - description: " The name of the S3 CloudWatch Event-based observation. "
+        StatesExecutionArn:
+          allOf:
+            - $ref: "#/components/schemas/StatesExecutionArn"
+            - description: " The Amazon Resource Name (ARN) of the step function execution-based observation. "
+        StatesArn:
+          allOf:
+            - $ref: "#/components/schemas/StatesArn"
+            - description: " The Amazon Resource Name (ARN) of the step function-based observation. "
+        StatesStatus:
+          allOf:
+            - $ref: "#/components/schemas/StatesStatus"
+            - description: " The status of the step function-related observation. "
+        StatesInput:
+          allOf:
+            - $ref: "#/components/schemas/StatesInput"
+            - description: " The input to the step function-based observation. "
+        EbsEvent:
+          allOf:
+            - $ref: "#/components/schemas/EbsEvent"
+            - description: " The type of EBS CloudWatch event, such as <code>createVolume</code>, <code>deleteVolume</code> or <code>attachVolume</code>. "
+        EbsResult:
+          allOf:
+            - $ref: "#/components/schemas/EbsResult"
+            - description: " The result of an EBS CloudWatch event, such as <code>failed</code> or <code>succeeded</code>. "
+        EbsCause:
+          allOf:
+            - $ref: "#/components/schemas/EbsCause"
+            - description: " The cause of an EBS CloudWatch event. "
+        EbsRequestId:
+          allOf:
+            - $ref: "#/components/schemas/EbsRequestId"
+            - description: " The request ID of an EBS CloudWatch event. "
+        XRayFaultPercent:
+          allOf:
+            - $ref: "#/components/schemas/XRayFaultPercent"
+            - description: " The X-Ray request fault percentage for this node. "
+        XRayThrottlePercent:
+          allOf:
+            - $ref: "#/components/schemas/XRayThrottlePercent"
+            - description: " The X-Ray request throttle percentage for this node. "
+        XRayErrorPercent:
+          allOf:
+            - $ref: "#/components/schemas/XRayErrorPercent"
+            - description: " The X-Ray request error percentage for this node. "
+        XRayRequestCount:
+          allOf:
+            - $ref: "#/components/schemas/XRayRequestCount"
+            - description: " The X-Ray request count for this node. "
+        XRayRequestAverageLatency:
+          allOf:
+            - $ref: "#/components/schemas/XRayRequestAverageLatency"
+            - description: " The X-Ray node request average latency for this node. "
+        XRayNodeName:
+          allOf:
+            - $ref: "#/components/schemas/XRayNodeName"
+            - description: " The name of the X-Ray node. "
+        XRayNodeType:
+          allOf:
+            - $ref: "#/components/schemas/XRayNodeType"
+            - description: " The type of the X-Ray node. "
+      description: Describes an anomaly or error with the application.
+    ProblemId:
+      type: string
+      pattern: p-[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}
+      minLength: 38
+      maxLength: 38
+    RelatedObservations:
+      type: object
+      properties:
+        ObservationList:
+          allOf:
+            - $ref: "#/components/schemas/ObservationList"
+            - description: The list of observations related to the problem.
+      description: Describes observations related to the problem.
+    Problem:
+      type: object
+      properties:
+        Id:
+          allOf:
+            - $ref: "#/components/schemas/ProblemId"
+            - description: The ID of the problem.
+        Title:
+          allOf:
+            - $ref: "#/components/schemas/Title"
+            - description: The name of the problem.
+        Insights:
+          allOf:
+            - $ref: "#/components/schemas/Insights"
+            - description: A detailed analysis of the problem using machine learning.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/Status"
+            - description: The status of the problem.
+        AffectedResource:
+          allOf:
+            - $ref: "#/components/schemas/AffectedResource"
+            - description: The resource affected by the problem.
+        StartTime:
+          allOf:
+            - $ref: "#/components/schemas/StartTime"
+            - description: The time when the problem started, in epoch seconds.
+        EndTime:
+          allOf:
+            - $ref: "#/components/schemas/EndTime"
+            - description: The time when the problem ended, in epoch seconds.
+        SeverityLevel:
+          allOf:
+            - $ref: "#/components/schemas/SeverityLevel"
+            - description: A measure of the level of impact of the problem.
+        ResourceGroupName:
+          allOf:
+            - $ref: "#/components/schemas/ResourceGroupName"
+            - description: The name of the resource group affected by the problem.
+        Feedback:
+          allOf:
+            - $ref: "#/components/schemas/Feedback"
+            - description: Feedback provided by the user about the problem.
+        RecurringCount:
+          allOf:
+            - $ref: "#/components/schemas/RecurringCount"
+            - description: " The number of times that the same problem reoccurred after the first time it was resolved. "
+        LastRecurrenceTime:
+          allOf:
+            - $ref: "#/components/schemas/LastRecurrenceTime"
+            - description: " The last time that the problem reoccurred after its last resolution. "
+      description: Describes a problem that is detected by correlating observations.
+    WorkloadMetaData:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/MetaDataValue"
+    EbsCause:
+      type: string
+    EbsEvent:
+      type: string
+    EbsRequestId:
+      type: string
+    EbsResult:
+      type: string
+    Ec2State:
+      type: string
+    EndTime:
+      type: string
+      format: date-time
+    FeedbackValue:
+      type: string
+      enum:
+        - NOT_SPECIFIED
+        - USEFUL
+        - NOT_USEFUL
+    Feedback:
+      type: object
+      maxProperties: 10
+      additionalProperties:
+        $ref: "#/components/schemas/FeedbackValue"
+    FeedbackKey:
+      type: string
+      enum:
+        - INSIGHTS_FEEDBACK
+    HealthEventArn:
+      type: string
+    HealthEventDescription:
+      type: string
+    HealthEventTypeCategory:
+      type: string
+    HealthEventTypeCode:
+      type: string
+    HealthService:
+      type: string
+    Insights:
+      type: string
+    LastRecurrenceTime:
+      type: string
+      format: date-time
+    LineTime:
+      type: string
+      format: date-time
+    MaxEntities:
+      type: integer
+      minimum: 1
+      maximum: 40
+    PaginationToken:
+      type: string
+      pattern: .+
+      minLength: 1
+      maxLength: 1024
+    StartTime:
+      type: string
+      format: date-time
+    LogPatternSetList:
+      type: array
+      items:
+        $ref: "#/components/schemas/LogPatternSetName"
+    LogPatternList:
+      type: array
+      items:
+        $ref: "#/components/schemas/LogPattern"
+    ProblemList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Problem"
+    LogFilter:
+      type: string
+      enum:
+        - ERROR
+        - WARN
+        - INFO
+    LogGroup:
+      type: string
+    LogText:
+      type: string
+    MetaDataKey:
+      type: string
+    MetaDataValue:
+      type: string
+    MetricName:
+      type: string
+    MetricNamespace:
+      type: string
+    SourceType:
+      type: string
+    SourceARN:
+      type: string
+    Unit:
+      type: string
+    Value:
+      type: number
+      format: double
+    RdsEventCategories:
+      type: string
+    RdsEventMessage:
+      type: string
+    S3EventName:
+      type: string
+    StatesExecutionArn:
+      type: string
+    StatesArn:
+      type: string
+    StatesStatus:
+      type: string
+    StatesInput:
+      type: string
+    XRayFaultPercent:
+      type: integer
+    XRayThrottlePercent:
+      type: integer
+    XRayErrorPercent:
+      type: integer
+    XRayRequestCount:
+      type: integer
+    XRayRequestAverageLatency:
+      type: integer
+    XRayNodeName:
+      type: string
+    XRayNodeType:
+      type: string
+    ObservationList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Observation"
+    Title:
+      type: string
+    Status:
+      type: string
+      enum:
+        - IGNORE
+        - RESOLVED
+        - PENDING
+        - RECURRING
+    SeverityLevel:
+      type: string
+      enum:
+        - Informative
+        - Low
+        - Medium
+        - High
+    RecurringCount:
+      type: integer
+    RemoveSNSTopic:
+      type: boolean
+    ResourceARN:
+      type: string
+      pattern: ^arn:aws(-\w+)*:[\w\d-]+:([\w\d-]*)?:[\w\d_-]*([:/].+)*$
+      minLength: 1
+      maxLength: 1011
+    TagKey:
+      type: string
+      pattern: ^([\p{L}\p{Z}\p{N}_.:/=+\-@]*)$
+      minLength: 1
+      maxLength: 128
+    TagValue:
+      type: string
+      pattern: ^([\p{L}\p{Z}\p{N}_.:/=+\-@]*)$
+      minLength: 0
+      maxLength: 256
+    Tag:
+      type: object
+      required:
+        - Key
+        - Value
+      properties:
+        Key:
+          allOf:
+            - $ref: "#/components/schemas/TagKey"
+            - description: One part of a key-value pair that defines a tag. The maximum length of a tag key is 128 characters. The minimum length is 1 character.
+        Value:
+          allOf:
+            - $ref: "#/components/schemas/TagValue"
+            - description: The optional part of a key-value pair that defines a tag. The maximum length of a tag value is 256 characters. The minimum length is 0 characters. If you don't want an application to have a specific tag value, don't specify a value for this parameter.
+      description: "<p>An object that defines the tags associated with an application. A <i>tag</i> is a label that you optionally define and associate with an application. Tags can help you categorize and manage resources in different ways, such as by purpose, owner, environment, or other criteria.</p> <p>Each tag consists of a required <i>tag key</i> and an associated <i>tag value</i>, both of which you define. A tag key is a general label that acts as a category for a more specific tag value. A tag value acts as a descriptor within a tag key. A tag key can contain as many as 128 characters. A tag value can contain as many as 256 characters. The characters can be Unicode letters, digits, white space, or one of the following symbols: _ . : / = + -. The following additional restrictions apply to tags:</p> <ul> <li> <p>Tag keys and values are case sensitive.</p> </li> <li> <p>For each associated resource, each tag key must be unique and it can have only one value.</p> </li> <li> <p>The <code>aws:</code> prefix is reserved for use by AWS; you can’t use it in any tag keys or values that you define. In addition, you can't edit or remove tag keys or values that use this prefix. </p> </li> </ul>"
+    TagKeyList:
+      type: array
+      items:
+        $ref: "#/components/schemas/TagKey"
+      minItems: 0
+      maxItems: 200
+security:
+  - hmac: []

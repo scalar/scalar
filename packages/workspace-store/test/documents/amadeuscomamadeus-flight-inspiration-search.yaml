@@ -1,0 +1,806 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token.
+
+    Please also be aware that our test environment is based on a subset of the production, to see what is included in test please refer to our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Flight Inspiration Search
+  version: 1.0.6
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/FlightInspirationSearch_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    1.0.0:
+      - Initial Version
+    1.0.1:
+      - Clarified example for the parameters origin and currency
+      - Added links to ISO, IATA kind of references
+    1.0.2:
+      - Correct example
+    1.0.3:
+      - Hide currency parameter
+    1.0.4:
+      - Update example
+      - Change link of FlightOffer from v1 to v2
+  x-serviceName: amadeus-flight-inspiration-search
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+  - application/json
+produces:
+  - application/vnd.amadeus+json
+  - application/json
+responses:
+  "200":
+    description: Success
+    schema:
+      $ref: "#/definitions/FlightDestinations"
+  "400":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      425     | INVALID DATE
+      477     | INVALID FORMAT
+      2668    | PARAMETER COMBINATION INVALID/RESTRICTED
+      4926    | INVALID DATA RECEIVED
+      32171   | MANDATORY DATA MISSING
+    schema:
+      $ref: "#/definitions/Error_400"
+  "404":
+    description: |
+      code    | title                                 
+      ------- | ------------------------------------- 
+      6003    | ITEM/DATA NOT FOUND OR DATA NOT EXISTING
+    schema:
+      $ref: "#/definitions/Error_404"
+  "500":
+    description: Unexpected error
+    schema:
+      $ref: "#/definitions/Error_500"
+paths:
+  /shopping/flight-destinations:
+    get:
+      description: ""
+      operationId: getFlightDestinations
+      parameters:
+        - description: |
+            IATA code of the city from which the flight will depart
+
+            [IATA table codes](http://www.iata.org/publications/Pages/code-search.aspx) - e.g. MAD for Madrid
+          in: query
+          name: origin
+          pattern: "[A-Z]{3}"
+          required: true
+          type: string
+          x-example: MAD
+        - description: |
+            The date, or range of dates, on which the flight will depart from the origin. Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2017-12-25. 
+
+            Ranges are specified with a comma and are inclusive
+
+            Departure date can not be more than 180 days in the future.
+          in: query
+          name: departureDate
+          required: false
+          type: string
+        - default: false
+          description: if this parameter is set to true, only one-way flights are considered. If this parameter is not set or set to false, only round-trip flights are considered
+          in: query
+          name: oneWay
+          required: false
+          type: boolean
+        - description: |
+            Exact duration or range of durations of the travel, in days.
+
+            This parameter must not be set if oneWay is true. 
+
+            Ranges are specified with a comma and are inclusive, e.g. 2,8
+
+            Duration can not be lower than 1 days or higher than 15 days
+          in: query
+          maximum: 15
+          minimum: 1
+          name: duration
+          required: false
+          type: string
+        - default: false
+          description: if this parameter is set to true, only flights going from the origin to the destination with no stop in-between are considered
+          in: query
+          name: nonStop
+          required: false
+          type: boolean
+        - description: defines the price limit for each offer returned. The value should be a positive number, without decimals
+          format: int64
+          in: query
+          minimum: 0
+          name: maxPrice
+          required: false
+          type: integer
+        - description: view the flight destinations by DATE, DESTINATION, DURATION, WEEK, or COUNTRY. View by DATE (default when oneWay is true) to get the cheapest flight destination for every departure date in the given range. View by DURATION (default when oneWay is false) to get the cheapest flight destination for every departure date and for every duration in the given ranges. View by WEEK to get the cheapest flight destination for every week in the given range of departure dates. View by COUNTRY to get the cheapest flight destination by country. Note that specifying a detailed view but large ranges may result in a huge number of flight destinations being returned. For some very large numbers of flight destinations, the API may refuse to provide a response
+          enum:
+            - COUNTRY
+            - DATE
+            - DESTINATION
+            - DURATION
+            - WEEK
+          in: query
+          name: viewBy
+          required: false
+          type: string
+      responses:
+        "200":
+          $ref: "#/responses/200"
+        "400":
+          $ref: "#/responses/400"
+        "404":
+          $ref: "#/responses/404"
+        "500":
+          $ref: "#/responses/500"
+      summary: Find the cheapest destinations where you can fly to.
+      tags:
+        - flight-destinations
+definitions:
+  CurrencyDictionary:
+    additionalProperties:
+      example: EUR
+      type: string
+  Defaults:
+    description: the query parameters for which default values were used are returned here
+    properties:
+      departureDate:
+        description: the date, or range of dates, on which the flight will depart from the origin. Dates are specified in the [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) YYYY-MM-DD format, e.g. 2017-12-25. Ranges are specified with a comma and are inclusive
+        example: 2011-09-10,2011-09-15
+        type: string
+      duration:
+        description: exact duration or range of durations of the travel, in days. This parameter must not be set if oneWay is true. Ranges are specified with a comma and are inclusive, e.g. 2,8
+        example: 2,5
+        type: string
+      nonStop:
+        description: if this parameter is set to true, only flights going from the origin to the destination with no stop in-between are considered
+        example: true
+        type: boolean
+      oneWay:
+        description: if this parameter is set to true, only one-way flights are considered. If this parameter is not set or set to false, only round-trip flights are considered
+        example: true
+        type: boolean
+      viewBy:
+        description: view the flight destinations by COUNTRY, DATE, DESTINATION, DURATION, or WEEK. View by COUNTRY to get the cheapest flight dates for every country in the given range. View by DATE to get the cheapest flight dates for every departure date in the given range. View by DURATION to get the cheapest flight dates for every departure date and for every duration in the given ranges. View by WEEK to get the cheapest flight destination for every week in the given range of departure dates
+        enum:
+          - COUNTRY
+          - DATE
+          - DESTINATION
+          - DURATION
+          - WEEK
+        type: string
+    type: object
+  Dictionaries:
+    properties:
+      currencies:
+        $ref: "#/definitions/CurrencyDictionary"
+      locations:
+        $ref: "#/definitions/LocationDictionary"
+    type: object
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_404:
+    example:
+      errors:
+        - code: 1797
+          detail: no response found for this query parameter
+          source:
+            parameter: airport
+          status: 404
+          title: NOT FOUND
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+  FlightDestination:
+    properties:
+      departureDate:
+        example: 2017-08-19
+        type: string
+      destination:
+        example: DXB
+        type: string
+      links:
+        properties:
+          flightDates:
+            example: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=PAR
+            type: string
+          flightOffers:
+            example: https://test.api.amadeus.com/v1/shopping/flight-offers?origin=PAR&destination=MAD&departureDate=2017-08-26&returnDate=2017-08-30&adults=1
+            type: string
+        type: object
+      origin:
+        example: PAR
+        type: string
+      price:
+        $ref: "#/definitions/Price"
+      returnDate:
+        example: 2017-08-22
+        type: string
+      type:
+        description: the resource name
+        example: flight-destination
+        type: string
+    type: object
+  FlightDestinations:
+    example:
+      data:
+        - departureDate: 2020-10-23
+          destination: ALC
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=ALC&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=ALC&departureDate=2020-10-23&returnDate=2020-10-26&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "52.52"
+          returnDate: 2020-10-26
+          type: flight-destination
+        - departureDate: 2020-10-22
+          destination: LON
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=LON&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=LON&departureDate=2020-10-22&returnDate=2020-10-25&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "71.15"
+          returnDate: 2020-10-25
+          type: flight-destination
+        - departureDate: 2020-08-12
+          destination: MUC
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=MUC&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=MUC&departureDate=2020-08-12&returnDate=2020-08-17&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "98.53"
+          returnDate: 2020-08-17
+          type: flight-destination
+        - departureDate: 2020-07-30
+          destination: WAW
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=WAW&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=WAW&departureDate=2020-07-30&returnDate=2020-08-06&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "108.30"
+          returnDate: 2020-08-06
+          type: flight-destination
+        - departureDate: 2020-07-25
+          destination: KRK
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=KRK&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=KRK&departureDate=2020-07-25&returnDate=2020-08-01&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "116.81"
+          returnDate: 2020-08-01
+          type: flight-destination
+        - departureDate: 2020-09-07
+          destination: GOA
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=GOA&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=GOA&departureDate=2020-09-07&returnDate=2020-09-11&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "123.78"
+          returnDate: 2020-09-11
+          type: flight-destination
+        - departureDate: 2020-07-31
+          destination: VIE
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=VIE&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=VIE&departureDate=2020-07-31&returnDate=2020-08-05&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "124.27"
+          returnDate: 2020-08-05
+          type: flight-destination
+        - departureDate: 2020-10-25
+          destination: VCE
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=VCE&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=VCE&departureDate=2020-10-25&returnDate=2020-10-26&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "127.96"
+          returnDate: 2020-10-26
+          type: flight-destination
+        - departureDate: 2020-08-02
+          destination: GOT
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=GOT&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=GOT&departureDate=2020-08-02&returnDate=2020-08-16&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "147.78"
+          returnDate: 2020-08-16
+          type: flight-destination
+        - departureDate: 2020-07-30
+          destination: LWO
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=LWO&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=LWO&departureDate=2020-07-30&returnDate=2020-08-04&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "158.29"
+          returnDate: 2020-08-04
+          type: flight-destination
+        - departureDate: 2020-09-01
+          destination: GLA
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=GLA&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=GLA&departureDate=2020-09-01&returnDate=2020-09-04&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "162.72"
+          returnDate: 2020-09-04
+          type: flight-destination
+        - departureDate: 2020-10-14
+          destination: CLJ
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=CLJ&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=CLJ&departureDate=2020-10-14&returnDate=2020-10-22&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "163.16"
+          returnDate: 2020-10-22
+          type: flight-destination
+        - departureDate: 2020-08-03
+          destination: RIX
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=RIX&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=RIX&departureDate=2020-08-03&returnDate=2020-08-10&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "167.72"
+          returnDate: 2020-08-10
+          type: flight-destination
+        - departureDate: 2020-08-05
+          destination: TLL
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=TLL&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=TLL&departureDate=2020-08-05&returnDate=2020-08-11&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "167.75"
+          returnDate: 2020-08-11
+          type: flight-destination
+        - departureDate: 2020-07-28
+          destination: MOW
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=MOW&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=MOW&departureDate=2020-07-28&returnDate=2020-08-03&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "176.63"
+          returnDate: 2020-08-03
+          type: flight-destination
+        - departureDate: 2020-11-01
+          destination: KIV
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=KIV&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=KIV&departureDate=2020-11-01&returnDate=2020-11-16&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "220.51"
+          returnDate: 2020-11-16
+          type: flight-destination
+        - departureDate: 2020-07-30
+          destination: BOS
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=BOS&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=BOS&departureDate=2020-07-30&returnDate=2020-08-14&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "289.78"
+          returnDate: 2020-08-14
+          type: flight-destination
+        - departureDate: 2020-10-18
+          destination: MTY
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=MTY&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=MTY&departureDate=2020-10-18&returnDate=2020-10-19&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "326.09"
+          returnDate: 2020-10-19
+          type: flight-destination
+        - departureDate: 2020-10-31
+          destination: FLL
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=FLL&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=FLL&departureDate=2020-10-31&returnDate=2020-11-01&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "359.01"
+          returnDate: 2020-11-01
+          type: flight-destination
+        - departureDate: 2020-10-18
+          destination: DEN
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=DEN&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=DEN&departureDate=2020-10-18&returnDate=2020-10-19&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "386.82"
+          returnDate: 2020-10-19
+          type: flight-destination
+        - departureDate: 2020-10-17
+          destination: ACC
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=ACC&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=ACC&departureDate=2020-10-17&returnDate=2020-10-27&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "428.52"
+          returnDate: 2020-10-27
+          type: flight-destination
+        - departureDate: 2020-09-05
+          destination: ORL
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=ORL&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=ORL&departureDate=2020-09-05&returnDate=2020-09-06&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "433.09"
+          returnDate: 2020-09-06
+          type: flight-destination
+        - departureDate: 2020-08-04
+          destination: TYO
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=TYO&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=TYO&departureDate=2020-08-04&returnDate=2020-08-10&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "456.05"
+          returnDate: 2020-08-10
+          type: flight-destination
+        - departureDate: 2020-08-02
+          destination: SSA
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=SSA&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=SSA&departureDate=2020-08-02&returnDate=2020-08-03&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "459.73"
+          returnDate: 2020-08-03
+          type: flight-destination
+        - departureDate: 2020-10-20
+          destination: MGA
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=MGA&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=MGA&departureDate=2020-10-20&returnDate=2020-10-27&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "484.84"
+          returnDate: 2020-10-27
+          type: flight-destination
+        - departureDate: 2020-11-06
+          destination: SIN
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=SIN&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=SIN&departureDate=2020-11-06&returnDate=2020-11-10&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "521.21"
+          returnDate: 2020-11-10
+          type: flight-destination
+        - departureDate: 2020-09-08
+          destination: CCS
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=CCS&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=CCS&departureDate=2020-09-08&returnDate=2020-09-15&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "528.17"
+          returnDate: 2020-09-15
+          type: flight-destination
+        - departureDate: 2020-10-16
+          destination: SLC
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=SLC&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=SLC&departureDate=2020-10-16&returnDate=2020-10-17&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "550.01"
+          returnDate: 2020-10-17
+          type: flight-destination
+        - departureDate: 2020-10-31
+          destination: SEA
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=SEA&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=SEA&departureDate=2020-10-31&returnDate=2020-11-01&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "590.64"
+          returnDate: 2020-11-01
+          type: flight-destination
+        - departureDate: 2020-08-27
+          destination: RGN
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=RGN&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=RGN&departureDate=2020-08-27&returnDate=2020-08-30&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "628.70"
+          returnDate: 2020-08-30
+          type: flight-destination
+        - departureDate: 2020-07-24
+          destination: KTM
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=KTM&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=KTM&departureDate=2020-07-24&returnDate=2020-07-27&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "629.07"
+          returnDate: 2020-07-27
+          type: flight-destination
+        - departureDate: 2020-07-24
+          destination: MDZ
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=MDZ&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=MDZ&departureDate=2020-07-24&returnDate=2020-07-31&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "670.41"
+          returnDate: 2020-07-31
+          type: flight-destination
+        - departureDate: 2020-09-13
+          destination: HNL
+          links:
+            flightDates: https://test.api.amadeus.com/v1/shopping/flight-dates?origin=MAD&destination=HNL&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DURATION
+            flightOffers: https://test.api.amadeus.com/v2/shopping/flight-offers?originLocationCode=MAD&destinationLocationCode=HNL&departureDate=2020-09-13&returnDate=2020-09-18&adults=1&nonStop=false
+          origin: MAD
+          price:
+            total: "1176.87"
+          returnDate: 2020-09-18
+          type: flight-destination
+      dictionaries:
+        currencies:
+          EUR: EURO
+        locations:
+          ACC:
+            detailedName: KOTOKA INTL
+            subType: AIRPORT
+          ALC:
+            detailedName: ALICANTE AIRPORT
+            subType: AIRPORT
+          BOS:
+            detailedName: EDWARD L LOGAN INTL
+            subType: AIRPORT
+          CCS:
+            detailedName: SIMON BOLIVAR INTL
+            subType: AIRPORT
+          CLJ:
+            detailedName: CLUJ NAPOCA
+            subType: AIRPORT
+          DEN:
+            detailedName: DENVER INTERNATIONAL
+            subType: AIRPORT
+          FLL:
+            detailedName: FLL INTL
+            subType: AIRPORT
+          GLA:
+            detailedName: GLASGOW INTL
+            subType: AIRPORT
+          GOA:
+            detailedName: CRISTOFORO COLOMBO
+            subType: AIRPORT
+          GOT:
+            detailedName: LANDVETTER
+            subType: AIRPORT
+          HNL:
+            detailedName: DANIEL K INOUYE INTL
+            subType: AIRPORT
+          KIV:
+            detailedName: INTERNATIONAL
+            subType: AIRPORT
+          KRK:
+            detailedName: JOHN PAUL II BALICE
+            subType: AIRPORT
+          KTM:
+            detailedName: TRIBHUVAN INTL
+            subType: AIRPORT
+          LON:
+            detailedName: LONDON
+            subType: CITY
+          LWO:
+            detailedName: INTERNATIONAL
+            subType: AIRPORT
+          MAD:
+            detailedName: ADOLFO SUAREZ BARAJAS
+            subType: AIRPORT
+          MDZ:
+            detailedName: EL PLUMERILLO
+            subType: AIRPORT
+          MGA:
+            detailedName: AUGUSTO C.SANDINO INT
+            subType: AIRPORT
+          MOW:
+            detailedName: MOSCOW
+            subType: CITY
+          MTY:
+            detailedName: MARIANO ESCOBEDO INTL
+            subType: AIRPORT
+          MUC:
+            detailedName: MUNICH INTERNATIONAL
+            subType: AIRPORT
+          ORL:
+            detailedName: EXECUTIVE
+            subType: AIRPORT
+          RGN:
+            detailedName: MINGALADON
+            subType: AIRPORT
+          RIX:
+            detailedName: RIGA INTL
+            subType: AIRPORT
+          SEA:
+            detailedName: SEATTLE TACOMA INTL
+            subType: AIRPORT
+          SIN:
+            detailedName: CHANGI
+            subType: AIRPORT
+          SLC:
+            detailedName: SALT LAKE CITY INTL
+            subType: AIRPORT
+          SSA:
+            detailedName: D.L.E.MAGALHAES
+            subType: AIRPORT
+          TLL:
+            detailedName: LENNART MERI
+            subType: AIRPORT
+          TYO:
+            detailedName: TOKYO
+            subType: CITY
+          VCE:
+            detailedName: MARCO POLO
+            subType: AIRPORT
+          VIE:
+            detailedName: VIENNA INTERNATIONAL
+            subType: AIRPORT
+          WAW:
+            detailedName: FREDERIC CHOPIN
+            subType: AIRPORT
+      meta:
+        currency: EUR
+        defaults:
+          departureDate: 2020-07-24,2021-01-19
+          duration: 1,15
+          nonStop: false
+          oneWay: false
+          viewBy: DESTINATION
+        links:
+          self: https://test.api.amadeus.com/v1/shopping/flight-destinations?origin=MAD&departureDate=2020-07-24,2021-01-19&oneWay=false&duration=1,15&nonStop=false&viewBy=DESTINATION
+    properties:
+      data:
+        items:
+          $ref: "#/definitions/FlightDestination"
+        type: array
+      dictionaries:
+        $ref: "#/definitions/Dictionaries"
+      meta:
+        $ref: "#/definitions/Meta"
+      warnings:
+        example:
+          - code: "12345"
+            status: "200"
+            title: WARNING
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    type: object
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+  Links:
+    properties:
+      self:
+        format: uri
+        type: string
+  LocationDictionary:
+    additionalProperties:
+      $ref: "#/definitions/LocationValue"
+  LocationValue:
+    properties:
+      detailedName:
+        description: name of the location
+        example: "Paris/FR: Charles de Gaulle"
+        type: string
+      subType:
+        description: "location type: airport or city"
+        enum:
+          - AIRPORT
+          - CITY
+        example: AIRPORT
+        type: string
+  Meta:
+    properties:
+      currency:
+        description: the currency in which the prices of the flight offers are returned. Currency is specified in the [ISO 4217](https://en.wikipedia.org/wiki/ISO_4217) format, e.g. EUR for Euro
+        example: EUR
+        pattern: "[A-Z]{3}"
+        type: string
+      defaults:
+        $ref: "#/definitions/Defaults"
+      links:
+        $ref: "#/definitions/Links"
+    type: object
+  Price:
+    properties:
+      total:
+        description: Total amount paid by the user
+        example: "932.70"
+        type: string
+x-generatedAt: 2020-07-23T08:15:14.050Z

@@ -1,0 +1,1098 @@
+openapi: 3.1.0
+servers:
+  - url: https://pal-test.adyen.com/pal/servlet/Recurring/v68
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    The Recurring APIs allow you to manage and remove your tokens or saved payment details. Tokens should be created with validation during a payment request.
+
+    For more information, refer to our [Tokenization documentation](https://docs.adyen.com/online-payments/tokenization).
+    ## Authentication
+    You need an [API credential](https://docs.adyen.com/development-resources/api-credentials) to authenticate to the API.
+
+    If using an API key, add an `X-API-Key` header with the API key as the value, for example:
+
+     ```
+    curl
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: YOUR_API_KEY" \
+    ...
+    ```
+
+    Alternatively, you can use the username and password to connect to the API using basic authentication, for example:
+
+    ```
+    curl
+    -U "ws@Company.YOUR_COMPANY_ACCOUNT":"YOUR_BASIC_AUTHENTICATION_PASSWORD" \
+    -H "Content-Type: application/json" \
+    ...
+    ```
+
+    ## Versioning
+    Recurring API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://pal-test.adyen.com/pal/servlet/Recurring/v68/disable
+    ```
+
+    ## Going live
+
+    To authenticate to the live endpoints, you need an [API credential](https://docs.adyen.com/development-resources/api-credentials) from your live Customer Area.
+
+    The live endpoint URLs contain a prefix which is unique to your company account:
+    ```
+
+    https://{PREFIX}-pal-live.adyenpayments.com/pal/servlet/Recurring/v68/disable
+    ```
+
+    Get your `{PREFIX}` from your live Customer Area under **Developers** > **API URLs** > **Prefix**.
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Adyen Recurring API
+  version: "68"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/RecurringService-v68.json
+      version: "3.1"
+  x-preferred: true
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: RecurringService
+  x-timestamp: 2023-04-11T21:25:15Z
+tags:
+  - name: General
+paths:
+  /createPermit:
+    post:
+      description: Create permits for a recurring contract, including support for defining restrictions.
+      operationId: post-createPermit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePermitRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatePermitResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Create new permits linked to a recurring contract.
+      tags:
+        - General
+      x-addedInVersion: "40"
+      x-groupName: General
+      x-methodName: createPermit
+      x-sortIndex: 0
+  /disable:
+    post:
+      description: |-
+        Disables stored payment details to stop charging a shopper with this particular recurring detail ID.
+
+        For more information, refer to [Disable stored details](https://docs.adyen.com/classic-integration/recurring-payments/disable-stored-details/).
+      operationId: post-disable
+      requestBody:
+        content:
+          application/json:
+            examples:
+              disableARecurringContract:
+                $ref: "#/components/examples/post-disable-disableARecurringContract"
+            schema:
+              $ref: "#/components/schemas/DisableRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisableResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Disable stored payment details
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: disable
+      x-sortIndex: 2
+  /disablePermit:
+    post:
+      description: Disable a permit that was previously linked to a recurringDetailReference.
+      operationId: post-disablePermit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisablePermitRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisablePermitResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Disable an existing permit.
+      tags:
+        - General
+      x-addedInVersion: "61"
+      x-groupName: General
+      x-methodName: disablePermit
+      x-sortIndex: 0
+  /listRecurringDetails:
+    post:
+      description: |-
+        Lists the stored payment details for a shopper, if there are any available. The recurring detail ID can be used with a regular authorisation request to charge the shopper. A summary of the payment detail is returned for presentation to the shopper.
+
+        For more information, refer to [Retrieve stored details](https://docs.adyen.com/classic-integration/recurring-payments/retrieve-stored-details/).
+      operationId: post-listRecurringDetails
+      requestBody:
+        content:
+          application/json:
+            examples:
+              listAllRecurringDetails:
+                $ref: "#/components/examples/post-listRecurringDetails-listAllRecurringDetails"
+            schema:
+              $ref: "#/components/schemas/RecurringDetailsRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecurringDetailsResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get stored payment details
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: listRecurringDetails
+      x-sortIndex: 1
+  /notifyShopper:
+    post:
+      description: Sends a request to the issuer so they can inform the shopper about the upcoming recurring payment. This endpoint is used only for local acquiring in India. For more information, refer to [Recurring card payments in India](https://docs.adyen.com/payment-methods/cards/cards-recurring-india).
+      operationId: post-notifyShopper
+      requestBody:
+        content:
+          application/json:
+            examples:
+              notifyShopperOfUpcomingRecurringPayment:
+                $ref: "#/components/examples/post-notifyShopper-notifyShopperOfUpcomingRecurringPayment"
+            schema:
+              $ref: "#/components/schemas/NotifyShopperRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                notifyShopperOfUpcomingRecurringPayment:
+                  $ref: "#/components/examples/post-notifyShopper-notifyShopperOfUpcomingRecurringPayment-200"
+              schema:
+                $ref: "#/components/schemas/NotifyShopperResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Ask issuer to notify the shopper
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: notifyShopper
+      x-sortIndex: 4
+  /scheduleAccountUpdater:
+    post:
+      description: |-
+        When making the API call, you can submit either the credit card information, or the recurring detail reference and the shopper reference:
+        * If the card information is provided, all the sub-fields for `card` are mandatory.
+        * If the recurring detail reference is provided, the fields for `shopperReference` and `selectedRecurringDetailReference` are mandatory.
+      operationId: post-scheduleAccountUpdater
+      requestBody:
+        content:
+          application/json:
+            examples:
+              scheduleAccountUpdaterWithCardData:
+                $ref: "#/components/examples/post-scheduleAccountUpdater-scheduleAccountUpdaterWithCardData"
+              scheduleAccountUpdaterWithTokenData:
+                $ref: "#/components/examples/post-scheduleAccountUpdater-scheduleAccountUpdaterWithTokenData"
+            schema:
+              $ref: "#/components/schemas/ScheduleAccountUpdaterRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleAccountUpdaterResult"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Schedule running the Account Updater
+      tags:
+        - General
+      x-addedInVersion: "4"
+      x-groupName: General
+      x-methodName: scheduleAccountUpdater
+      x-sortIndex: 3
+components:
+  examples:
+    post-disable-disableARecurringContract:
+      summary: Disable a recurring contract
+      value:
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        recurringDetailReference: "8314442372419167"
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-listRecurringDetails-listAllRecurringDetails:
+      summary: List recurring details of the specified contract value
+      value:
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        recurring:
+          contract: RECURRING
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+    post-notifyShopper-notifyShopperOfUpcomingRecurringPayment:
+      summary: Request issuer to notify shopper of upcoming recurring payment
+      value:
+        amount:
+          currency: INR
+          value: 1000
+        billingDate: 2021-03-16
+        displayedReference: exampleDisplayedReference
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        reference: Example reference
+        shopperReference: YOUR_SHOPPER_REFERENCE
+        storedPaymentMethodId: "8415995487234100"
+    post-notifyShopper-notifyShopperOfUpcomingRecurringPayment-200:
+      summary: Example response for request 'notifyShopper'
+      value:
+        displayedReference: exampleDisplayedReference
+        message: Request Processed Successfully
+        pspReference: M5N7TQ4TG5PFWR50
+        reference: Example reference
+        resultCode: Success
+        shopperNotificationReference: "9915003646742627"
+        storedPaymentMethodId: "8415995487234100"
+    post-scheduleAccountUpdater-scheduleAccountUpdaterWithCardData:
+      summary: Schedule AccountUpdater with card data
+      value:
+        card:
+          expiryMonth: "03"
+          expiryYear: "2030"
+          holderName: Adyen Test
+          number: "4111111111111111"
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        reference: YOUR_REFERENCE
+    post-scheduleAccountUpdater-scheduleAccountUpdaterWithTokenData:
+      summary: Schedule AccountUpdater with token data
+      value:
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        reference: YOUR_REFERENCE
+        selectedRecurringDetailReference: "8814232895168272"
+        shopperReference: YOUR_UNIQUE_SHOPPER_ID
+  schemas:
+    Address:
+      properties:
+        city:
+          description: "The name of the city. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        country:
+          description: |-
+            The two-character ISO-3166-1 alpha-2 country code. For example, **US**.
+            > If you don't know the country or are not collecting the country from the shopper, provide `country` as `ZZ`.
+          type: string
+        houseNumberOrName:
+          description: "The number or name of the house. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        postalCode:
+          description: A maximum of five digits for an address in the US, or a maximum of ten characters for an address in all other countries.
+          type: string
+        stateOrProvince:
+          description: |-
+            The two-character ISO 3166-2 state or province code. For example, **CA** in the US or **ON** in Canada.
+            > Required for the US and Canada.
+          type: string
+        street:
+          description: |-
+            The name of the street. Maximum length: 3000 characters.
+            > The house number should not be included in this field; it should be separately provided via `houseNumberOrName`.
+          maxLength: 3000
+          type: string
+      required:
+        - street
+        - houseNumberOrName
+        - city
+        - postalCode
+        - country
+      type: object
+    Amount:
+      properties:
+        currency:
+          description: The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount of the transaction, in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+        - currency
+      type: object
+    BankAccount:
+      properties:
+        bankAccountNumber:
+          description: The bank account number (without separators).
+          type: string
+        bankCity:
+          description: The bank city.
+          type: string
+          x-addedInVersion: "18"
+        bankLocationId:
+          description: The location id of the bank. The field value is `nil` in most cases.
+          type: string
+        bankName:
+          description: The name of the bank.
+          type: string
+        bic:
+          description: The [Business Identifier Code](https://en.wikipedia.org/wiki/ISO_9362) (BIC) is the SWIFT address assigned to a bank. The field value is `nil` in most cases.
+          type: string
+        countryCode:
+          description: |-
+            Country code where the bank is located.
+
+            A valid value is an ISO two-character country code (e.g. 'NL').
+          type: string
+        iban:
+          description: The [International Bank Account Number](https://en.wikipedia.org/wiki/International_Bank_Account_Number) (IBAN).
+          type: string
+        ownerName:
+          description: |-
+            The name of the bank account holder.
+            If you submit a name with non-Latin characters, we automatically replace some of them with corresponding Latin characters to meet the FATF recommendations. For example:
+            * χ12 is converted to ch12.
+            * üA is converted to euA.
+            * Peter Møller is converted to Peter Mller, because banks don't accept 'ø'.
+            After replacement, the ownerName must have at least three alphanumeric characters (A-Z, a-z, 0-9), and at least one of them must be a valid Latin character (A-Z, a-z). For example:
+            * John17 - allowed.
+            * J17 - allowed.
+            * 171 - not allowed.
+            * John-7 - allowed.
+            > If provided details don't match the required format, the response returns the error message: 203 'Invalid bank account holder name'.
+          type: string
+        taxId:
+          description: The bank account holder's tax ID.
+          type: string
+          x-addedInVersion: "18"
+      type: object
+    Card:
+      properties:
+        cvc:
+          description: |-
+            The [card verification code](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-security-code-cvc-cvv-cid) (1-20 characters). Depending on the card brand, it is known also as:
+            * CVV2/CVC2 – length: 3 digits
+            * CID – length: 4 digits
+            > If you are using [Client-Side Encryption](https://docs.adyen.com/classic-integration/cse-integration-ecommerce), the CVC code is present in the encrypted data. You must never post the card details to the server.
+            > This field must be always present in a [one-click payment request](https://docs.adyen.com/classic-integration/recurring-payments).
+            > When this value is returned in a response, it is always empty because it is not stored.
+          maxLength: 20
+          minLength: 1
+          type: string
+        expiryMonth:
+          description: |-
+            The card expiry month.
+            Format: 2 digits, zero-padded for single digits. For example:
+            * 03 = March
+            * 11 = November
+          maxLength: 2
+          minLength: 1
+          type: string
+        expiryYear:
+          description: |-
+            The card expiry year.
+            Format: 4 digits. For example: 2020
+          maxLength: 4
+          minLength: 4
+          type: string
+        holderName:
+          description: The name of the cardholder, as printed on the card.
+          maxLength: 50
+          minLength: 1
+          type: string
+        issueNumber:
+          description: The issue number of the card (for some UK debit cards only).
+          maxLength: 2
+          minLength: 1
+          type: string
+        number:
+          description: |-
+            The card number (4-19 characters). Do not use any separators.
+            When this value is returned in a response, only the last 4 digits of the card number are returned.
+          maxLength: 19
+          minLength: 4
+          type: string
+        startMonth:
+          description: The month component of the start date (for some UK debit cards only).
+          maxLength: 2
+          minLength: 1
+          type: string
+        startYear:
+          description: The year component of the start date (for some UK debit cards only).
+          maxLength: 4
+          minLength: 4
+          type: string
+      type: object
+    CreatePermitRequest:
+      properties:
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        permits:
+          description: The permits to create for this recurring contract.
+          items:
+            $ref: "#/components/schemas/Permit"
+          type: array
+        recurringDetailReference:
+          description: The recurring contract the new permits will use.
+          type: string
+        shopperReference:
+          description: The shopper's reference to uniquely identify this shopper (e.g. user ID or account ID).
+          type: string
+      required:
+        - merchantAccount
+        - shopperReference
+        - recurringDetailReference
+        - permits
+      type: object
+    CreatePermitResult:
+      properties:
+        permitResultList:
+          description: List of new permits.
+          items:
+            $ref: "#/components/schemas/PermitResult"
+          type: array
+        pspReference:
+          description: A unique reference associated with the request. This value is globally unique; quote it when communicating with us about this request.
+          type: string
+      type: object
+    DisablePermitRequest:
+      properties:
+        merchantAccount:
+          description: The merchant account identifier, with which you want to process the transaction.
+          type: string
+        token:
+          description: The permit token to disable.
+          type: string
+      required:
+        - merchantAccount
+        - token
+      type: object
+    DisablePermitResult:
+      properties:
+        pspReference:
+          description: A unique reference associated with the request. This value is globally unique; quote it when communicating with us about this request.
+          type: string
+        status:
+          description: Status of the disable request.
+          type: string
+      type: object
+    DisableRequest:
+      properties:
+        contract:
+          description: |-
+            Specify the contract if you only want to disable a specific use.
+
+            This field can be set to one of the following values, or to their combination (comma-separated):
+            * ONECLICK
+            * RECURRING
+            * PAYOUT
+          type: string
+          x-addedInVersion: "3"
+        merchantAccount:
+          description: The merchant account identifier with which you want to process the transaction.
+          type: string
+        recurringDetailReference:
+          description: |-
+            The ID that uniquely identifies the recurring detail reference.
+
+            If it is not provided, the whole recurring contract of the `shopperReference` will be disabled, which includes all recurring details.
+          type: string
+        shopperReference:
+          description: |-
+            The ID that uniquely identifies the shopper.
+
+            This `shopperReference` must be the same as the `shopperReference` used in the initial payment.
+          type: string
+      required:
+        - merchantAccount
+        - shopperReference
+      type: object
+    DisableResult:
+      properties:
+        response:
+          description: Depending on whether a specific recurring detail was in the request, result is either [detail-successfully-disabled] or [all-details-successfully-disabled].
+          type: string
+      type: object
+    Name:
+      properties:
+        firstName:
+          description: The first name.
+          type: string
+        lastName:
+          description: The last name.
+          type: string
+      required:
+        - firstName
+        - lastName
+      type: object
+    NotifyShopperRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The amount of the upcoming payment.
+        billingDate:
+          description: Date on which the subscription amount will be debited from the shopper. In YYYY-MM-DD format
+          type: string
+        billingSequenceNumber:
+          description: Sequence of the debit. Depends on Frequency and Billing Attempts Rule.
+          type: string
+        displayedReference:
+          description: Reference of Pre-debit notification that is displayed to the shopper. Optional field. Maps to reference if missing
+          type: string
+        merchantAccount:
+          description: The merchant account identifier with which you want to process the transaction.
+          type: string
+        recurringDetailReference:
+          description: This is the `recurringDetailReference` returned in the response when you created the token.
+          type: string
+        reference:
+          description: Pre-debit notification reference sent by the merchant. This is a mandatory field
+          type: string
+        shopperReference:
+          description: |-
+            The ID that uniquely identifies the shopper.
+
+            This `shopperReference` must be the same as the `shopperReference` used in the initial payment.
+          type: string
+        storedPaymentMethodId:
+          description: This is the `recurringDetailReference` returned in the response when you created the token.
+          type: string
+      required:
+        - merchantAccount
+        - shopperReference
+        - amount
+        - reference
+      type: object
+    NotifyShopperResult:
+      properties:
+        displayedReference:
+          description: Reference of Pre-debit notification that is displayed to the shopper
+          type: string
+        message:
+          description: A simple description of the `resultCode`.
+          type: string
+        pspReference:
+          description: The unique reference that is associated with the request.
+          type: string
+        reference:
+          description: Reference of Pre-debit notification sent in my the merchant
+          type: string
+        resultCode:
+          description: The code indicating the status of notification.
+          type: string
+        shopperNotificationReference:
+          description: The unique reference for the request sent downstream.
+          type: string
+        storedPaymentMethodId:
+          description: This is the recurringDetailReference returned in the response when token was created
+          type: string
+      type: object
+    Permit:
+      properties:
+        partnerId:
+          description: Partner ID (when using the permit-per-partner token sharing model).
+          type: string
+        profileReference:
+          description: The profile to apply to this permit (when using the shared permits model).
+          type: string
+        restriction:
+          $ref: "#/components/schemas/PermitRestriction"
+          description: Permit level restriction overrides.
+        resultKey:
+          description: The key to link permit requests to permit results.
+          type: string
+        validTillDate:
+          description: The expiry date for this permit.
+          format: date-time
+          type: string
+      type: object
+    PermitRestriction:
+      properties:
+        maxAmount:
+          $ref: "#/components/schemas/Amount"
+          description: The total sum amount of one or more payments made using this permit may not exceed this amount if set.
+        singleTransactionLimit:
+          $ref: "#/components/schemas/Amount"
+          description: The amount of any single payment using this permit may not exceed this amount if set.
+        singleUse:
+          description: Only a single payment can be made using this permit if set to true, otherwise multiple payments are allowed.
+          type: boolean
+      type: object
+    PermitResult:
+      properties:
+        resultKey:
+          description: The key to link permit requests to permit results.
+          type: string
+          x-addedInVersion: "32"
+        token:
+          description: The permit token which is used to make payments by the partner company.
+          type: string
+          x-addedInVersion: "32"
+      type: object
+    Recurring:
+      properties:
+        contract:
+          description: |-
+            The type of recurring contract to be used.
+            Possible values:
+            * `ONECLICK` – Payment details can be used to initiate a one-click payment, where the shopper enters the [card security code (CVC/CVV)](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-security-code-cvc-cvv-cid).
+            * `RECURRING` – Payment details can be used without the card security code to initiate [card-not-present transactions](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-not-present-cnp).
+            * `ONECLICK,RECURRING` – Payment details can be used regardless of whether the shopper is on your site or not.
+            * `PAYOUT` – Payment details can be used to [make a payout](https://docs.adyen.com/online-payments/online-payouts).
+          enum:
+            - ONECLICK
+            - RECURRING
+            - PAYOUT
+          type: string
+        recurringDetailName:
+          description: A descriptive name for this detail.
+          type: string
+        recurringExpiry:
+          description: Date after which no further authorisations shall be performed. Only for 3D Secure 2.
+          format: date-time
+          type: string
+          x-addedInVersion: "40"
+        recurringFrequency:
+          description: Minimum number of days between authorisations. Only for 3D Secure 2.
+          type: string
+          x-addedInVersion: "40"
+        tokenService:
+          description: The name of the token service.
+          enum:
+            - VISATOKENSERVICE
+            - MCTOKENSERVICE
+          type: string
+          x-addedInVersion: "25"
+      type: object
+    RecurringDetail:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: |-
+            This field contains additional data, which may be returned in a particular response.
+
+            The additionalData object consists of entries, each of which includes the key and value.
+          type: object
+          x-addedInVersion: "5"
+        alias:
+          description: |-
+            The alias of the credit card number.
+
+            Applies only to recurring contracts storing credit card details
+          type: string
+          x-addedInVersion: "4"
+        aliasType:
+          description: |-
+            The alias type of the credit card number.
+
+            Applies only to recurring contracts storing credit card details.
+          type: string
+          x-addedInVersion: "4"
+        bank:
+          $ref: "#/components/schemas/BankAccount"
+          description: A container for bank account data.
+        billingAddress:
+          $ref: "#/components/schemas/Address"
+          description: The billing address.
+          x-addedInVersion: "4"
+        card:
+          $ref: "#/components/schemas/Card"
+          description: A container for card data.
+        contractTypes:
+          description: Types of recurring contracts.
+          items:
+            type: string
+          type: array
+          x-addedInVersion: "12"
+        creationDate:
+          description: The date when the recurring details were created.
+          format: date-time
+          type: string
+        firstPspReference:
+          description: The `pspReference` of the first recurring payment that created the recurring detail.
+          type: string
+          x-addedInVersion: "4"
+        name:
+          description: An optional descriptive name for this recurring detail.
+          type: string
+        networkTxReference:
+          description: |-
+            Returned in the response if you are not tokenizing with Adyen and are using the Merchant-initiated transactions (MIT) framework from Mastercard or Visa.
+
+            This contains either the Mastercard Trace ID or the Visa Transaction ID.
+          type: string
+          x-addedInVersion: "68"
+        paymentMethodVariant:
+          description: The  type or sub-brand of a payment method used, e.g. Visa Debit, Visa Corporate, etc. For more information, refer to [PaymentMethodVariant](https://docs.adyen.com/development-resources/paymentmethodvariant).
+          type: string
+          x-addedInVersion: "2"
+        recurringDetailReference:
+          description: The reference that uniquely identifies the recurring detail.
+          type: string
+        shopperName:
+          $ref: "#/components/schemas/Name"
+          description: The name of the shopper.
+          x-addedInVersion: "4"
+        socialSecurityNumber:
+          description: A shopper's social security number (only in countries where it is legal to collect).
+          type: string
+          x-addedInVersion: "4"
+        tokenDetails:
+          $ref: "#/components/schemas/TokenDetails"
+          x-addedInVersion: "2"
+        variant:
+          description: The payment method, such as “mc", "visa", "ideal", "paypal".
+          type: string
+      required:
+        - recurringDetailReference
+        - variant
+      type: object
+    RecurringDetailWrapper:
+      properties:
+        RecurringDetail:
+          $ref: "#/components/schemas/RecurringDetail"
+    RecurringDetailsRequest:
+      properties:
+        merchantAccount:
+          description: The merchant account identifier you want to process the (transaction) request with.
+          type: string
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: |-
+            A container for the type of a recurring contract to be retrieved.
+
+            The contract value needs to match the contract value submitted in the payment transaction used to create a recurring contract.
+            However, if `ONECLICK,RECURRING` is the original contract definition in the initial payment, then `contract` should take either `ONECLICK` or `RECURRING`, depending on whether or not you want the shopper to enter their card's security code when they finalize their purchase.
+        shopperReference:
+          description: The reference you use to uniquely identify the shopper (e.g. user ID or account ID).
+          type: string
+      required:
+        - merchantAccount
+        - shopperReference
+      type: object
+    RecurringDetailsResult:
+      properties:
+        creationDate:
+          description: The date when the recurring details were created.
+          format: date-time
+          type: string
+        details:
+          description: Payment details stored for recurring payments.
+          items:
+            $ref: "#/components/schemas/RecurringDetailWrapper"
+          type: array
+        lastKnownShopperEmail:
+          description: The most recent email for this shopper (if available).
+          type: string
+        shopperReference:
+          description: The reference you use to uniquely identify the shopper (e.g. user ID or account ID).
+          type: string
+      type: object
+    ScheduleAccountUpdaterRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: This field contains additional data, which may be required for a particular request.
+          type: object
+        card:
+          $ref: "#/components/schemas/Card"
+          description: |-
+            Credit card data.
+
+            Optional if `shopperReference` and `selectedRecurringDetailReference` are provided.
+        merchantAccount:
+          description: Account of the merchant.
+          type: string
+        reference:
+          description: A reference that merchants can apply for the call.
+          type: string
+        selectedRecurringDetailReference:
+          description: |-
+            The selected detail recurring reference.
+
+            Optional if `card` is provided.
+          type: string
+        shopperReference:
+          description: |-
+            The reference of the shopper that owns the recurring contract.
+
+            Optional if `card` is provided.
+          type: string
+      required:
+        - merchantAccount
+        - reference
+      type: object
+    ScheduleAccountUpdaterResult:
+      properties:
+        pspReference:
+          description: Adyen's 16-character unique reference associated with the transaction. This value is globally unique; quote it when communicating with us about this request.
+          type: string
+        result:
+          description: The result of scheduling an Account Updater. If scheduling was successful, this field returns **Success**; otherwise it contains the error message.
+          type: string
+      required:
+        - pspReference
+        - result
+      type: object
+    ServiceError:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: Contains additional information about the payment. Some data fields are included only if you select them first. Go to **Customer Area** > **Developers** > **Additional data**.
+          type: object
+          x-addedInVersion: "46"
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    TokenDetails:
+      properties:
+        tokenData:
+          additionalProperties:
+            type: string
+          type: object
+        tokenDataType:
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - General

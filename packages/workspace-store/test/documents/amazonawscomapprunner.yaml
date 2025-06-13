@@ -1,0 +1,4141 @@
+openapi: 3.0.0
+info:
+  version: 2020-05-15
+  x-release: v4
+  title: AWS App Runner
+  description: <fullname>App Runner</fullname> <p>App Runner is an application service that provides a fast, simple, and cost-effective way to go directly from an existing container image or source code to a running service in the Amazon Web Services Cloud in seconds. You don't need to learn new technologies, decide which compute service to use, or understand how to provision and configure Amazon Web Services resources.</p> <p>App Runner connects directly to your container registry or source code repository. It provides an automatic delivery pipeline with fully managed operations, high performance, scalability, and security.</p> <p>For more information about App Runner, see the <a href="https://docs.aws.amazon.com/apprunner/latest/dg/">App Runner Developer Guide</a>. For release information, see the <a href="https://docs.aws.amazon.com/apprunner/latest/relnotes/">App Runner Release Notes</a>.</p> <p> To install the Software Development Kits (SDKs), Integrated Development Environment (IDE) Toolkits, and command line tools that you can use to access the API, see <a href="http://aws.amazon.com/tools/">Tools for Amazon Web Services</a>.</p> <p> <b>Endpoints</b> </p> <p>For a list of Region-specific endpoints that App Runner supports, see <a href="https://docs.aws.amazon.com/general/latest/gr/apprunner.html">App Runner endpoints and quotas</a> in the <i>Amazon Web Services General Reference</i>.</p>
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_awscloud_profile_image.png
+    backgroundColor: "#FFFFFF"
+  termsOfService: https://aws.amazon.com/service-terms/
+  contact:
+    name: Mike Ralphson
+    email: mike.ralphson@gmail.com
+    url: https://github.com/mermade/aws2openapi
+    x-twitter: PermittedSoc
+  license:
+    name: Apache 2.0 License
+    url: http://www.apache.org/licenses/
+  x-providerName: amazonaws.com
+  x-serviceName: apprunner
+  x-aws-signingName: apprunner
+  x-origin:
+    - contentType: application/json
+      url: https://raw.githubusercontent.com/aws/aws-sdk-js/master/apis/apprunner-2020-05-15.normal.json
+      converter:
+        url: https://github.com/mermade/aws2openapi
+        version: 1.0.0
+      x-apisguru-driver: external
+  x-apiClientRegistration:
+    url: https://portal.aws.amazon.com/gp/aws/developer/registration/index.html?nc2=h_ct
+  x-apisguru-categories:
+    - cloud
+  x-preferred: true
+externalDocs:
+  description: Amazon Web Services documentation
+  url: https://docs.aws.amazon.com/apprunner/
+servers:
+  - url: http://apprunner.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The AWS App Runner multi-region endpoint
+  - url: https://apprunner.{region}.amazonaws.com
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - us-east-1
+          - us-east-2
+          - us-west-1
+          - us-west-2
+          - us-gov-west-1
+          - us-gov-east-1
+          - ca-central-1
+          - eu-north-1
+          - eu-west-1
+          - eu-west-2
+          - eu-west-3
+          - eu-central-1
+          - eu-south-1
+          - af-south-1
+          - ap-northeast-1
+          - ap-northeast-2
+          - ap-northeast-3
+          - ap-southeast-1
+          - ap-southeast-2
+          - ap-east-1
+          - ap-south-1
+          - sa-east-1
+          - me-south-1
+        default: us-east-1
+    description: The AWS App Runner multi-region endpoint
+  - url: http://apprunner.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The AWS App Runner endpoint for China (Beijing) and China (Ningxia)
+  - url: https://apprunner.{region}.amazonaws.com.cn
+    variables:
+      region:
+        description: The AWS region
+        enum:
+          - cn-north-1
+          - cn-northwest-1
+        default: cn-north-1
+    description: The AWS App Runner endpoint for China (Beijing) and China (Ningxia)
+x-hasEquivalentPaths: true
+paths:
+  /#X-Amz-Target=AppRunner.AssociateCustomDomain:
+    post:
+      operationId: AssociateCustomDomain
+      description: <p>Associate your own domain name with the App Runner subdomain URL of your App Runner service.</p> <p>After you call <code>AssociateCustomDomain</code> and receive a successful response, use the information in the <a>CustomDomain</a> record that's returned to add CNAME records to your Domain Name System (DNS). For each mapped domain name, add a mapping to the target App Runner subdomain and one or more certificate validation records. App Runner then performs DNS validation to verify that you own or control the domain name that you associated. App Runner tracks domain validity in a certificate stored in <a href="https://docs.aws.amazon.com/acm/latest/userguide">AWS Certificate Manager (ACM)</a>.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssociateCustomDomainResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssociateCustomDomainRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.AssociateCustomDomain
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateAutoScalingConfiguration:
+    post:
+      operationId: CreateAutoScalingConfiguration
+      description: <p>Create an App Runner automatic scaling configuration resource. App Runner requires this resource when you create or update App Runner services and you require non-default auto scaling settings. You can share an auto scaling configuration across multiple services.</p> <p>Create multiple revisions of a configuration by calling this action multiple times using the same <code>AutoScalingConfigurationName</code>. The call returns incremental <code>AutoScalingConfigurationRevision</code> values. When you create a service and configure an auto scaling configuration resource, the service uses the latest active revision of the auto scaling configuration by default. You can optionally configure the service to use a specific revision.</p> <p>Configure a higher <code>MinSize</code> to increase the spread of your App Runner service over more Availability Zones in the Amazon Web Services Region. The tradeoff is a higher minimal cost.</p> <p>Configure a lower <code>MaxSize</code> to control your cost. The tradeoff is lower responsiveness during peak demand.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateAutoScalingConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAutoScalingConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateAutoScalingConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateConnection:
+    post:
+      operationId: CreateConnection
+      description: <p>Create an App Runner connection resource. App Runner requires a connection resource when you create App Runner services that access private repositories from certain third-party providers. You can share a connection across multiple services.</p> <p>A connection resource is needed to access GitHub repositories. GitHub requires a user interface approval process through the App Runner console before you can use the connection.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateObservabilityConfiguration:
+    post:
+      operationId: CreateObservabilityConfiguration
+      description: <p>Create an App Runner observability configuration resource. App Runner requires this resource when you create or update App Runner services and you want to enable non-default observability features. You can share an observability configuration across multiple services.</p> <p>Create multiple revisions of a configuration by calling this action multiple times using the same <code>ObservabilityConfigurationName</code>. The call returns incremental <code>ObservabilityConfigurationRevision</code> values. When you create a service and configure an observability configuration resource, the service uses the latest active revision of the observability configuration by default. You can optionally configure the service to use a specific revision.</p> <p>The observability configuration resource is designed to configure multiple features (currently one feature, tracing). This action takes optional parameters that describe the configuration of these features (currently one parameter, <code>TraceConfiguration</code>). If you don't specify a feature parameter, App Runner doesn't enable the feature.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateObservabilityConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateObservabilityConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateObservabilityConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateService:
+    post:
+      operationId: CreateService
+      description: <p>Create an App Runner service. After the service is created, the action also automatically starts a deployment.</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_ListOperations.html">ListOperations</a> call to track the operation's progress.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateVpcConnector:
+    post:
+      operationId: CreateVpcConnector
+      description: Create an App Runner VPC connector resource. App Runner requires this resource when you want to associate your App Runner service to a custom Amazon Virtual Private Cloud (Amazon VPC).
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateVpcConnectorResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVpcConnectorRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateVpcConnector
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.CreateVpcIngressConnection:
+    post:
+      operationId: CreateVpcIngressConnection
+      description: Create an App Runner VPC Ingress Connection resource. App Runner requires this resource when you want to associate your App Runner service with an Amazon VPC endpoint.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateVpcIngressConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "483":
+          description: ServiceQuotaExceededException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceQuotaExceededException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVpcIngressConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.CreateVpcIngressConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteAutoScalingConfiguration:
+    post:
+      operationId: DeleteAutoScalingConfiguration
+      description: Delete an App Runner automatic scaling configuration resource. You can delete a specific revision or the latest active revision. You can't delete a configuration that's used by one or more App Runner services.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteAutoScalingConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteAutoScalingConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteAutoScalingConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteConnection:
+    post:
+      operationId: DeleteConnection
+      description: Delete an App Runner connection. You must first ensure that there are no running App Runner services that use this connection. If there are any, the <code>DeleteConnection</code> action fails.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteObservabilityConfiguration:
+    post:
+      operationId: DeleteObservabilityConfiguration
+      description: Delete an App Runner observability configuration resource. You can delete a specific revision or the latest active revision. You can't delete a configuration that's used by one or more App Runner services.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteObservabilityConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteObservabilityConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteObservabilityConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteService:
+    post:
+      operationId: DeleteService
+      description: <p>Delete an App Runner service.</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a>ListOperations</a> call to track the operation's progress.</p> <note> <p>Make sure that you don't have any active VPCIngressConnections associated with the service you want to delete. </p> </note>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+        "483":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteVpcConnector:
+    post:
+      operationId: DeleteVpcConnector
+      description: Delete an App Runner VPC connector resource. You can't delete a connector that's used by one or more App Runner services.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteVpcConnectorResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteVpcConnectorRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteVpcConnector
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DeleteVpcIngressConnection:
+    post:
+      operationId: DeleteVpcIngressConnection
+      description: "<p>Delete an App Runner VPC Ingress Connection resource that's associated with an App Runner service. The VPC Ingress Connection must be in one of the following states to be deleted: </p> <ul> <li> <p> <code>AVAILABLE</code> </p> </li> <li> <p> <code>FAILED_CREATION</code> </p> </li> <li> <p> <code>FAILED_UPDATE</code> </p> </li> <li> <p> <code>FAILED_DELETION</code> </p> </li> </ul>"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteVpcIngressConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeleteVpcIngressConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DeleteVpcIngressConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeAutoScalingConfiguration:
+    post:
+      operationId: DescribeAutoScalingConfiguration
+      description: Return a full description of an App Runner automatic scaling configuration resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeAutoScalingConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeAutoScalingConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeAutoScalingConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeCustomDomains:
+    post:
+      operationId: DescribeCustomDomains
+      description: Return a description of custom domain names that are associated with an App Runner service.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeCustomDomainsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeCustomDomainsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeCustomDomains
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeObservabilityConfiguration:
+    post:
+      operationId: DescribeObservabilityConfiguration
+      description: Return a full description of an App Runner observability configuration resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeObservabilityConfigurationResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeObservabilityConfigurationRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeObservabilityConfiguration
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeService:
+    post:
+      operationId: DescribeService
+      description: Return a full description of an App Runner service.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeVpcConnector:
+    post:
+      operationId: DescribeVpcConnector
+      description: Return a description of an App Runner VPC connector resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeVpcConnectorResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeVpcConnectorRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeVpcConnector
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DescribeVpcIngressConnection:
+    post:
+      operationId: DescribeVpcIngressConnection
+      description: Return a full description of an App Runner VPC Ingress Connection resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DescribeVpcIngressConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DescribeVpcIngressConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DescribeVpcIngressConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.DisassociateCustomDomain:
+    post:
+      operationId: DisassociateCustomDomain
+      description: <p>Disassociate a custom domain name from an App Runner service.</p> <p>Certificates tracking domain validity are associated with a custom domain and are stored in <a href="https://docs.aws.amazon.com/acm/latest/userguide">AWS Certificate Manager (ACM)</a>. These certificates aren't deleted as part of this action. App Runner delays certificate deletion for 30 days after a domain is disassociated from your service.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisassociateCustomDomainResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisassociateCustomDomainRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.DisassociateCustomDomain
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListAutoScalingConfigurations:
+    post:
+      operationId: ListAutoScalingConfigurations
+      description: <p>Returns a list of active App Runner automatic scaling configurations in your Amazon Web Services account. You can query the revisions for a specific configuration name or the revisions for all active configurations in your account. You can optionally query only the latest revision of each requested name.</p> <p>To retrieve a full description of a particular configuration revision, call and provide one of the ARNs returned by <code>ListAutoScalingConfigurations</code>.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListAutoScalingConfigurationsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListAutoScalingConfigurationsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListAutoScalingConfigurations
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListConnections:
+    post:
+      operationId: ListConnections
+      description: Returns a list of App Runner connections that are associated with your Amazon Web Services account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListConnectionsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListConnectionsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListConnections
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListObservabilityConfigurations:
+    post:
+      operationId: ListObservabilityConfigurations
+      description: <p>Returns a list of active App Runner observability configurations in your Amazon Web Services account. You can query the revisions for a specific configuration name or the revisions for all active configurations in your account. You can optionally query only the latest revision of each requested name.</p> <p>To retrieve a full description of a particular configuration revision, call and provide one of the ARNs returned by <code>ListObservabilityConfigurations</code>.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListObservabilityConfigurationsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListObservabilityConfigurationsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListObservabilityConfigurations
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListOperations:
+    post:
+      operationId: ListOperations
+      description: <p>Return a list of operations that occurred on an App Runner service.</p> <p>The resulting list of <a>OperationSummary</a> objects is sorted in reverse chronological order. The first object on the list represents the last started operation.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOperationsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListOperationsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListOperations
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListServices:
+    post:
+      operationId: ListServices
+      description: Returns a list of running App Runner services in your Amazon Web Services account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListServicesResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListServicesRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListServices
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListTagsForResource:
+    post:
+      operationId: ListTagsForResource
+      description: List tags that are associated with for an App Runner resource. The response contains a list of tag key-value pairs.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListTagsForResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListTagsForResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListTagsForResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListVpcConnectors:
+    post:
+      operationId: ListVpcConnectors
+      description: Returns a list of App Runner VPC connectors in your Amazon Web Services account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListVpcConnectorsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListVpcConnectorsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListVpcConnectors
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ListVpcIngressConnections:
+    post:
+      operationId: ListVpcIngressConnections
+      description: Return a list of App Runner VPC Ingress Connections in your Amazon Web Services account.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListVpcIngressConnectionsResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ListVpcIngressConnectionsRequest"
+      parameters:
+        - name: MaxResults
+          in: query
+          schema:
+            type: string
+          description: Pagination limit
+          required: false
+        - name: NextToken
+          in: query
+          schema:
+            type: string
+          description: Pagination token
+          required: false
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ListVpcIngressConnections
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.PauseService:
+    post:
+      operationId: PauseService
+      description: <p>Pause an active App Runner service. App Runner reduces compute capacity for the service to zero and loses state (for example, ephemeral storage is removed).</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a>ListOperations</a> call to track the operation's progress.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PauseServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PauseServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.PauseService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.ResumeService:
+    post:
+      operationId: ResumeService
+      description: <p>Resume an active App Runner service. App Runner provisions compute capacity for the service.</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a>ListOperations</a> call to track the operation's progress.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResumeServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResumeServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.ResumeService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.StartDeployment:
+    post:
+      operationId: StartDeployment
+      description: <p>Initiate a manual deployment of the latest commit in a source code repository or the latest image in a source image repository to an App Runner service.</p> <p>For a source code repository, App Runner retrieves the commit and builds a Docker image. For a source image repository, App Runner retrieves the latest Docker image. In both cases, App Runner then deploys the new image to your service and starts a new container instance.</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a>ListOperations</a> call to track the operation's progress.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StartDeploymentResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartDeploymentRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.StartDeployment
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.TagResource:
+    post:
+      operationId: TagResource
+      description: Add tags to, or update the tag values of, an App Runner resource. A tag is a key-value pair.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TagResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TagResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.TagResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.UntagResource:
+    post:
+      operationId: UntagResource
+      description: Remove tags from an App Runner resource.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UntagResourceResponse"
+        "480":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "481":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+        "482":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "483":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UntagResourceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.UntagResource
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.UpdateService:
+    post:
+      operationId: UpdateService
+      description: <p>Update an App Runner service. You can update the source configuration and instance configuration of the service. You can also update the ARN of the auto scaling configuration resource that's associated with the service. However, you can't change the name or the encryption configuration of the service. These can be set only when you create the service.</p> <p>To update the tags applied to your service, use the separate actions <a>TagResource</a> and <a>UntagResource</a>.</p> <p>This is an asynchronous operation. On a successful call, you can use the returned <code>OperationId</code> and the <a>ListOperations</a> call to track the operation's progress.</p>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateServiceResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+        "483":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateServiceRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.UpdateService
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+  /#X-Amz-Target=AppRunner.UpdateVpcIngressConnection:
+    post:
+      operationId: UpdateVpcIngressConnection
+      description: <p>Update an existing App Runner VPC Ingress Connection resource. The VPC Ingress Connection must be in one of the following states to be updated:</p> <ul> <li> <p> AVAILABLE </p> </li> <li> <p> FAILED_CREATION </p> </li> <li> <p> FAILED_UPDATE </p> </li> </ul>
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UpdateVpcIngressConnectionResponse"
+        "480":
+          description: InvalidRequestException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidRequestException"
+        "481":
+          description: ResourceNotFoundException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceNotFoundException"
+        "482":
+          description: InvalidStateException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidStateException"
+        "483":
+          description: InternalServiceErrorException
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServiceErrorException"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVpcIngressConnectionRequest"
+      parameters:
+        - name: X-Amz-Target
+          in: header
+          required: true
+          schema:
+            type: string
+            enum:
+              - AppRunner.UpdateVpcIngressConnection
+    parameters:
+      - $ref: "#/components/parameters/X-Amz-Content-Sha256"
+      - $ref: "#/components/parameters/X-Amz-Date"
+      - $ref: "#/components/parameters/X-Amz-Algorithm"
+      - $ref: "#/components/parameters/X-Amz-Credential"
+      - $ref: "#/components/parameters/X-Amz-Security-Token"
+      - $ref: "#/components/parameters/X-Amz-Signature"
+      - $ref: "#/components/parameters/X-Amz-SignedHeaders"
+components:
+  parameters:
+    X-Amz-Content-Sha256:
+      name: X-Amz-Content-Sha256
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Date:
+      name: X-Amz-Date
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Algorithm:
+      name: X-Amz-Algorithm
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Credential:
+      name: X-Amz-Credential
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Security-Token:
+      name: X-Amz-Security-Token
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-Signature:
+      name: X-Amz-Signature
+      in: header
+      schema:
+        type: string
+      required: false
+    X-Amz-SignedHeaders:
+      name: X-Amz-SignedHeaders
+      in: header
+      schema:
+        type: string
+      required: false
+  securitySchemes:
+    hmac:
+      type: apiKey
+      name: Authorization
+      in: header
+      description: Amazon Signature authorization v4
+      x-amazon-apigateway-authtype: awsSigv4
+  schemas:
+    AssociateCustomDomainResponse:
+      type: object
+      required:
+        - DNSTarget
+        - ServiceArn
+        - CustomDomain
+        - VpcDNSTargets
+      properties:
+        DNSTarget:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The App Runner subdomain of the App Runner service. The custom domain name is mapped to this target name.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service with which a custom domain name is associated.
+        CustomDomain:
+          allOf:
+            - $ref: "#/components/schemas/CustomDomain"
+            - description: A description of the domain name that's being associated.
+        VpcDNSTargets:
+          allOf:
+            - $ref: "#/components/schemas/VpcDNSTargetList"
+            - description: "DNS Target records for the custom domains of this Amazon VPC. "
+    AssociateCustomDomainRequest:
+      type: object
+      required:
+        - ServiceArn
+        - DomainName
+      title: AssociateCustomDomainRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to associate a custom domain name with.
+        DomainName:
+          allOf:
+            - $ref: "#/components/schemas/DomainName"
+            - description: A custom domain endpoint to associate. Specify a root domain (for example, <code>example.com</code>), a subdomain (for example, <code>login.example.com</code> or <code>admin.login.example.com</code>), or a wildcard (for example, <code>*.example.com</code>).
+        EnableWWWSubdomain:
+          allOf:
+            - $ref: "#/components/schemas/NullableBoolean"
+            - description: "<p>Set to <code>true</code> to associate the subdomain <code>www.<i>DomainName</i> </code> with the App Runner service in addition to the base domain.</p> <p>Default: <code>true</code> </p>"
+    InvalidRequestException: {}
+    InternalServiceErrorException: {}
+    InvalidStateException: {}
+    CreateAutoScalingConfigurationResponse:
+      type: object
+      required:
+        - AutoScalingConfiguration
+      properties:
+        AutoScalingConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfiguration"
+            - description: A description of the App Runner auto scaling configuration that's created by this request.
+    CreateAutoScalingConfigurationRequest:
+      type: object
+      required:
+        - AutoScalingConfigurationName
+      title: CreateAutoScalingConfigurationRequest
+      properties:
+        AutoScalingConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationName"
+            - description: <p>A name for the auto scaling configuration. When you use it for the first time in an Amazon Web Services Region, App Runner creates revision number <code>1</code> of this name. When you use the same name in subsequent calls, App Runner creates incremental revisions of the configuration.</p> <note> <p>The name <code>DefaultConfiguration</code> is reserved (it's the configuration that App Runner uses if you don't provide a custome one). You can't use it to create a new auto scaling configuration, and you can't create a revision of it.</p> <p>When you want to use your own auto scaling configuration for your App Runner service, <i>create a configuration with a different name</i>, and then provide it when you create or update your service.</p> </note>
+        MaxConcurrency:
+          allOf:
+            - $ref: "#/components/schemas/ASConfigMaxConcurrency"
+            - description: "<p>The maximum number of concurrent requests that you want an instance to process. If the number of concurrent requests exceeds this limit, App Runner scales up your service.</p> <p>Default: <code>100</code> </p>"
+        MinSize:
+          allOf:
+            - $ref: "#/components/schemas/ASConfigMinSize"
+            - description: "<p>The minimum number of instances that App Runner provisions for your service. The service always has at least <code>MinSize</code> provisioned instances. Some of them actively serve traffic. The rest of them (provisioned and inactive instances) are a cost-effective compute capacity reserve and are ready to be quickly activated. You pay for memory usage of all the provisioned instances. You pay for CPU usage of only the active subset.</p> <p>App Runner temporarily doubles the number of provisioned instances during deployments, to maintain the same capacity for both old and new code.</p> <p>Default: <code>1</code> </p>"
+        MaxSize:
+          allOf:
+            - $ref: "#/components/schemas/ASConfigMaxSize"
+            - description: "<p>The maximum number of instances that your service scales up to. At most <code>MaxSize</code> instances actively serve traffic for your service.</p> <p>Default: <code>25</code> </p>"
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of metadata items that you can associate with your auto scaling configuration resource. A tag is a key-value pair.
+    ServiceQuotaExceededException: {}
+    CreateConnectionResponse:
+      type: object
+      required:
+        - Connection
+      properties:
+        Connection:
+          allOf:
+            - $ref: "#/components/schemas/Connection"
+            - description: A description of the App Runner connection that's created by this request.
+    CreateConnectionRequest:
+      type: object
+      required:
+        - ConnectionName
+        - ProviderType
+      title: CreateConnectionRequest
+      properties:
+        ConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionName"
+            - description: A name for the new connection. It must be unique across all App Runner connections for the Amazon Web Services account in the Amazon Web Services Region.
+        ProviderType:
+          allOf:
+            - $ref: "#/components/schemas/ProviderType"
+            - description: The source repository provider.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of metadata items that you can associate with your connection resource. A tag is a key-value pair.
+    CreateObservabilityConfigurationResponse:
+      type: object
+      required:
+        - ObservabilityConfiguration
+      properties:
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfiguration"
+            - description: A description of the App Runner observability configuration that's created by this request.
+    CreateObservabilityConfigurationRequest:
+      type: object
+      required:
+        - ObservabilityConfigurationName
+      title: CreateObservabilityConfigurationRequest
+      properties:
+        ObservabilityConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationName"
+            - description: <p>A name for the observability configuration. When you use it for the first time in an Amazon Web Services Region, App Runner creates revision number <code>1</code> of this name. When you use the same name in subsequent calls, App Runner creates incremental revisions of the configuration.</p> <note> <p>The name <code>DefaultConfiguration</code> is reserved. You can't use it to create a new observability configuration, and you can't create a revision of it.</p> <p>When you want to use your own observability configuration for your App Runner service, <i>create a configuration with a different name</i>, and then provide it when you create or update your service.</p> </note>
+        TraceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/TraceConfiguration"
+            - description: The configuration of the tracing feature within this observability configuration. If you don't specify it, App Runner doesn't enable tracing.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of metadata items that you can associate with your observability configuration resource. A tag is a key-value pair.
+    CreateServiceResponse:
+      type: object
+      required:
+        - Service
+        - OperationId
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A description of the App Runner service that's created by this request.
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_ListOperations.html">ListOperations</a> call to track the operation's progress.
+    CreateServiceRequest:
+      type: object
+      required:
+        - ServiceName
+        - SourceConfiguration
+      title: CreateServiceRequest
+      properties:
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - description: A name for the App Runner service. It must be unique across all the running App Runner services in your Amazon Web Services account in the Amazon Web Services Region.
+        SourceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/SourceConfiguration"
+            - description: The source to deploy to the App Runner service. It can be a code or an image repository.
+        InstanceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/InstanceConfiguration"
+            - description: The runtime configuration of instances (scaling units) of your service.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: An optional list of metadata items that you can associate with the App Runner service resource. A tag is a key-value pair.
+        EncryptionConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/EncryptionConfiguration"
+            - description: An optional custom encryption key that App Runner uses to encrypt the copy of your source repository that it maintains and your service logs. By default, App Runner uses an Amazon Web Services managed key.
+        HealthCheckConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckConfiguration"
+            - description: The settings for the health check that App Runner performs to monitor the health of the App Runner service.
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "<p>The Amazon Resource Name (ARN) of an App Runner automatic scaling configuration resource that you want to associate with your service. If not provided, App Runner associates the latest revision of a default auto scaling configuration.</p> <p>Specify an ARN with a name and a revision number to associate that revision. For example: <code>arn:aws:apprunner:us-east-1:123456789012:autoscalingconfiguration/high-availability/3</code> </p> <p>Specify just the name to associate the latest revision. For example: <code>arn:aws:apprunner:us-east-1:123456789012:autoscalingconfiguration/high-availability</code> </p>"
+        NetworkConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/NetworkConfiguration"
+            - description: Configuration settings related to network traffic of the web application that the App Runner service runs.
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ServiceObservabilityConfiguration"
+            - description: The observability configuration of your service.
+    CreateVpcConnectorResponse:
+      type: object
+      required:
+        - VpcConnector
+      properties:
+        VpcConnector:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnector"
+            - description: A description of the App Runner VPC connector that's created by this request.
+    CreateVpcConnectorRequest:
+      type: object
+      required:
+        - VpcConnectorName
+        - Subnets
+      title: CreateVpcConnectorRequest
+      properties:
+        VpcConnectorName:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnectorName"
+            - description: A name for the VPC connector.
+        Subnets:
+          allOf:
+            - $ref: "#/components/schemas/StringList"
+            - description: <p>A list of IDs of subnets that App Runner should use when it associates your service with a custom Amazon VPC. Specify IDs of subnets of a single Amazon VPC. App Runner determines the Amazon VPC from the subnets you specify.</p> <note> <p> App Runner currently only provides support for IPv4. </p> </note>
+        SecurityGroups:
+          allOf:
+            - $ref: "#/components/schemas/StringList"
+            - description: A list of IDs of security groups that App Runner should use for access to Amazon Web Services resources under the specified subnets. If not specified, App Runner uses the default security group of the Amazon VPC. The default security group allows all outbound traffic.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of metadata items that you can associate with your VPC connector resource. A tag is a key-value pair.
+    CreateVpcIngressConnectionResponse:
+      type: object
+      required:
+        - VpcIngressConnection
+      properties:
+        VpcIngressConnection:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnection"
+            - description: "A description of the App Runner VPC Ingress Connection resource that's created by this request. "
+    CreateVpcIngressConnectionRequest:
+      type: object
+      required:
+        - ServiceArn
+        - VpcIngressConnectionName
+        - IngressVpcConfiguration
+      title: CreateVpcIngressConnectionRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) for this App Runner service that is used to create the VPC Ingress Connection resource.
+        VpcIngressConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnectionName"
+            - description: "A name for the VPC Ingress Connection resource. It must be unique across all the active VPC Ingress Connections in your Amazon Web Services account in the Amazon Web Services Region. "
+        IngressVpcConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/IngressVpcConfiguration"
+            - description: Specifications for the customer’s Amazon VPC and the related Amazon Web Services PrivateLink VPC endpoint that are used to create the VPC Ingress Connection resource.
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: An optional list of metadata items that you can associate with the VPC Ingress Connection resource. A tag is a key-value pair.
+    DeleteAutoScalingConfigurationResponse:
+      type: object
+      required:
+        - AutoScalingConfiguration
+      properties:
+        AutoScalingConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfiguration"
+            - description: A description of the App Runner auto scaling configuration that this request just deleted.
+    DeleteAutoScalingConfigurationRequest:
+      type: object
+      required:
+        - AutoScalingConfigurationArn
+      title: DeleteAutoScalingConfigurationRequest
+      properties:
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner auto scaling configuration that you want to delete.</p> <p>The ARN can be a full auto scaling configuration ARN, or a partial ARN ending with either <code>.../<i>name</i> </code> or <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't specified, the latest active revision is deleted.</p>
+    ResourceNotFoundException: {}
+    DeleteConnectionResponse:
+      type: object
+      properties:
+        Connection:
+          allOf:
+            - $ref: "#/components/schemas/Connection"
+            - description: A description of the App Runner connection that this request just deleted.
+    DeleteConnectionRequest:
+      type: object
+      required:
+        - ConnectionArn
+      title: DeleteConnectionRequest
+      properties:
+        ConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner connection that you want to delete.
+    DeleteObservabilityConfigurationResponse:
+      type: object
+      required:
+        - ObservabilityConfiguration
+      properties:
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfiguration"
+            - description: A description of the App Runner observability configuration that this request just deleted.
+    DeleteObservabilityConfigurationRequest:
+      type: object
+      required:
+        - ObservabilityConfigurationArn
+      title: DeleteObservabilityConfigurationRequest
+      properties:
+        ObservabilityConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner observability configuration that you want to delete.</p> <p>The ARN can be a full observability configuration ARN, or a partial ARN ending with either <code>.../<i>name</i> </code> or <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't specified, the latest active revision is deleted.</p>
+    DeleteServiceResponse:
+      type: object
+      required:
+        - Service
+        - OperationId
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A description of the App Runner service that this request just deleted.
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a>ListOperations</a> call to track the operation's progress.
+    DeleteServiceRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: DeleteServiceRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to delete.
+    DeleteVpcConnectorResponse:
+      type: object
+      required:
+        - VpcConnector
+      properties:
+        VpcConnector:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnector"
+            - description: A description of the App Runner VPC connector that this request just deleted.
+    DeleteVpcConnectorRequest:
+      type: object
+      required:
+        - VpcConnectorArn
+      title: DeleteVpcConnectorRequest
+      properties:
+        VpcConnectorArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner VPC connector that you want to delete.</p> <p>The ARN must be a full VPC connector ARN.</p>
+    DeleteVpcIngressConnectionResponse:
+      type: object
+      required:
+        - VpcIngressConnection
+      properties:
+        VpcIngressConnection:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnection"
+            - description: A description of the App Runner VPC Ingress Connection that this request just deleted.
+    DeleteVpcIngressConnectionRequest:
+      type: object
+      required:
+        - VpcIngressConnectionArn
+      title: DeleteVpcIngressConnectionRequest
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner VPC Ingress Connection that you want to delete.
+    DescribeAutoScalingConfigurationResponse:
+      type: object
+      required:
+        - AutoScalingConfiguration
+      properties:
+        AutoScalingConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfiguration"
+            - description: A full description of the App Runner auto scaling configuration that you specified in this request.
+    DescribeAutoScalingConfigurationRequest:
+      type: object
+      required:
+        - AutoScalingConfigurationArn
+      title: DescribeAutoScalingConfigurationRequest
+      properties:
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner auto scaling configuration that you want a description for.</p> <p>The ARN can be a full auto scaling configuration ARN, or a partial ARN ending with either <code>.../<i>name</i> </code> or <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't specified, the latest active revision is described.</p>
+    DescribeCustomDomainsResponse:
+      type: object
+      required:
+        - DNSTarget
+        - ServiceArn
+        - CustomDomains
+        - VpcDNSTargets
+      properties:
+        DNSTarget:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The App Runner subdomain of the App Runner service. The associated custom domain names are mapped to this target name.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service whose associated custom domain names you want to describe.
+        CustomDomains:
+          allOf:
+            - $ref: "#/components/schemas/CustomDomainList"
+            - description: A list of descriptions of custom domain names that are associated with the service. In a paginated request, the request returns up to <code>MaxResults</code> records per call.
+        VpcDNSTargets:
+          allOf:
+            - $ref: "#/components/schemas/VpcDNSTargetList"
+            - description: "DNS Target records for the custom domains of this Amazon VPC. "
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    DescribeCustomDomainsRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: DescribeCustomDomainsRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want associated custom domain names to be described for.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones that are specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/DescribeCustomDomainsMaxResults"
+            - description: <p>The maximum number of results that each response (result page) can include. It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+    DescribeObservabilityConfigurationResponse:
+      type: object
+      required:
+        - ObservabilityConfiguration
+      properties:
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfiguration"
+            - description: A full description of the App Runner observability configuration that you specified in this request.
+    DescribeObservabilityConfigurationRequest:
+      type: object
+      required:
+        - ObservabilityConfigurationArn
+      title: DescribeObservabilityConfigurationRequest
+      properties:
+        ObservabilityConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner observability configuration that you want a description for.</p> <p>The ARN can be a full observability configuration ARN, or a partial ARN ending with either <code>.../<i>name</i> </code> or <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't specified, the latest active revision is described.</p>
+    DescribeServiceResponse:
+      type: object
+      required:
+        - Service
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A full description of the App Runner service that you specified in this request.
+    DescribeServiceRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: DescribeServiceRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want a description for.
+    DescribeVpcConnectorResponse:
+      type: object
+      required:
+        - VpcConnector
+      properties:
+        VpcConnector:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnector"
+            - description: A description of the App Runner VPC connector that you specified in this request.
+    DescribeVpcConnectorRequest:
+      type: object
+      required:
+        - VpcConnectorArn
+      title: DescribeVpcConnectorRequest
+      properties:
+        VpcConnectorArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the App Runner VPC connector that you want a description for.</p> <p>The ARN must be a full VPC connector ARN.</p>
+    DescribeVpcIngressConnectionResponse:
+      type: object
+      required:
+        - VpcIngressConnection
+      properties:
+        VpcIngressConnection:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnection"
+            - description: A description of the App Runner VPC Ingress Connection that you specified in this request.
+    DescribeVpcIngressConnectionRequest:
+      type: object
+      required:
+        - VpcIngressConnectionArn
+      title: DescribeVpcIngressConnectionRequest
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner VPC Ingress Connection that you want a description for.
+    DisassociateCustomDomainResponse:
+      type: object
+      required:
+        - DNSTarget
+        - ServiceArn
+        - CustomDomain
+        - VpcDNSTargets
+      properties:
+        DNSTarget:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The App Runner subdomain of the App Runner service. The disassociated custom domain name was mapped to this target name.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that a custom domain name is disassociated from.
+        CustomDomain:
+          allOf:
+            - $ref: "#/components/schemas/CustomDomain"
+            - description: A description of the domain name that's being disassociated.
+        VpcDNSTargets:
+          allOf:
+            - $ref: "#/components/schemas/VpcDNSTargetList"
+            - description: "DNS Target records for the custom domains of this Amazon VPC. "
+    DisassociateCustomDomainRequest:
+      type: object
+      required:
+        - ServiceArn
+        - DomainName
+      title: DisassociateCustomDomainRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to disassociate a custom domain name from.
+        DomainName:
+          allOf:
+            - $ref: "#/components/schemas/DomainName"
+            - description: The domain name that you want to disassociate from the App Runner service.
+    ListAutoScalingConfigurationsResponse:
+      type: object
+      required:
+        - AutoScalingConfigurationSummaryList
+      properties:
+        AutoScalingConfigurationSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationSummaryList"
+            - description: A list of summary information records for auto scaling configurations. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListAutoScalingConfigurationsRequest:
+      type: object
+      title: ListAutoScalingConfigurationsRequest
+      properties:
+        AutoScalingConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationName"
+            - description: The name of the App Runner auto scaling configuration that you want to list. If specified, App Runner lists revisions that share this name. If not specified, App Runner returns revisions of all active configurations.
+        LatestOnly:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: "<p>Set to <code>true</code> to list only the latest revision for each requested configuration name.</p> <p>Set to <code>false</code> to list all revisions for each requested configuration name.</p> <p>Default: <code>true</code> </p>"
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones that are specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+    ListConnectionsResponse:
+      type: object
+      required:
+        - ConnectionSummaryList
+      properties:
+        ConnectionSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionSummaryList"
+            - description: A list of summary information records for connections. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: The token that you can pass in a subsequent request to get the next result page. Returned in a paginated request.
+    ListConnectionsRequest:
+      type: object
+      title: ListConnectionsRequest
+      properties:
+        ConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionName"
+            - description: If specified, only this connection is returned. If not specified, the result isn't filtered by name.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). Used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: <p>A token from a previous result page. Used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+    ListObservabilityConfigurationsResponse:
+      type: object
+      required:
+        - ObservabilityConfigurationSummaryList
+      properties:
+        ObservabilityConfigurationSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationSummaryList"
+            - description: A list of summary information records for observability configurations. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListObservabilityConfigurationsRequest:
+      type: object
+      title: ListObservabilityConfigurationsRequest
+      properties:
+        ObservabilityConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationName"
+            - description: The name of the App Runner observability configuration that you want to list. If specified, App Runner lists revisions that share this name. If not specified, App Runner returns revisions of all active configurations.
+        LatestOnly:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: "<p>Set to <code>true</code> to list only the latest revision for each requested configuration name.</p> <p>Set to <code>false</code> to list all revisions for each requested configuration name.</p> <p>Default: <code>true</code> </p>"
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones that are specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+    ListOperationsResponse:
+      type: object
+      properties:
+        OperationSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/OperationSummaryList"
+            - description: A list of operation summary information records. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListOperationsRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: ListOperationsRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want a list of operations for.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/ListOperationsMaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+    ListServicesResponse:
+      type: object
+      required:
+        - ServiceSummaryList
+      properties:
+        ServiceSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/ServiceSummaryList"
+            - description: A list of service summary information records. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListServicesRequest:
+      type: object
+      title: ListServicesRequest
+      properties:
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: <p>A token from a previous result page. Used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/ServiceMaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+    ListTagsForResourceResponse:
+      type: object
+      properties:
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of the tag key-value pairs that are associated with the resource.
+    ListTagsForResourceRequest:
+      type: object
+      required:
+        - ResourceArn
+      title: ListTagsForResourceRequest
+      properties:
+        ResourceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the resource that a tag list is requested for.</p> <p>It must be the ARN of an App Runner resource.</p>
+    ListVpcConnectorsResponse:
+      type: object
+      required:
+        - VpcConnectors
+      properties:
+        VpcConnectors:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnectors"
+            - description: A list of information records for VPC connectors. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListVpcConnectorsRequest:
+      type: object
+      title: ListVpcConnectorsRequest
+      properties:
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones that are specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+    ListVpcIngressConnectionsResponse:
+      type: object
+      required:
+        - VpcIngressConnectionSummaryList
+      properties:
+        VpcIngressConnectionSummaryList:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnectionSummaryList"
+            - description: A list of summary information records for VPC Ingress Connections. In a paginated request, the request returns up to <code>MaxResults</code> records for each call.
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: The token that you can pass in a subsequent request to get the next result page. It's returned in a paginated request.
+    ListVpcIngressConnectionsRequest:
+      type: object
+      title: ListVpcIngressConnectionsRequest
+      properties:
+        Filter:
+          allOf:
+            - $ref: "#/components/schemas/ListVpcIngressConnectionsFilter"
+            - description: The VPC Ingress Connections to be listed based on either the Service Arn or Vpc Endpoint Id, or both.
+        MaxResults:
+          allOf:
+            - $ref: "#/components/schemas/MaxResults"
+            - description: <p>The maximum number of results to include in each response (result page). It's used for a paginated request.</p> <p>If you don't specify <code>MaxResults</code>, the request retrieves all available results in a single response.</p>
+        NextToken:
+          allOf:
+            - $ref: "#/components/schemas/NextToken"
+            - description: <p>A token from a previous result page. It's used for a paginated request. The request retrieves the next result page. All other parameter values must be identical to the ones that are specified in the initial request.</p> <p>If you don't specify <code>NextToken</code>, the request retrieves the first result page.</p>
+    PauseServiceResponse:
+      type: object
+      required:
+        - Service
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A description of the App Runner service that this request just paused.
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a>ListOperations</a> call to track the operation's progress.
+    PauseServiceRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: PauseServiceRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to pause.
+    ResumeServiceResponse:
+      type: object
+      required:
+        - Service
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A description of the App Runner service that this request just resumed.
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a>ListOperations</a> call to track the operation's progress.
+    ResumeServiceRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: ResumeServiceRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to resume.
+    StartDeploymentResponse:
+      type: object
+      required:
+        - OperationId
+      properties:
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a>ListOperations</a> call to track the operation's progress.
+    StartDeploymentRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: StartDeploymentRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to manually deploy to.
+    TagResourceResponse:
+      type: object
+      properties: {}
+    TagResourceRequest:
+      type: object
+      required:
+        - ResourceArn
+        - Tags
+      title: TagResourceRequest
+      properties:
+        ResourceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the resource that you want to update tags for.</p> <p>It must be the ARN of an App Runner resource.</p>
+        Tags:
+          allOf:
+            - $ref: "#/components/schemas/TagList"
+            - description: A list of tag key-value pairs to add or update. If a key is new to the resource, the tag is added with the provided value. If a key is already associated with the resource, the value of the tag is updated.
+    UntagResourceResponse:
+      type: object
+      properties: {}
+    UntagResourceRequest:
+      type: object
+      required:
+        - ResourceArn
+        - TagKeys
+      title: UntagResourceRequest
+      properties:
+        ResourceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: <p>The Amazon Resource Name (ARN) of the resource that you want to remove tags from.</p> <p>It must be the ARN of an App Runner resource.</p>
+        TagKeys:
+          allOf:
+            - $ref: "#/components/schemas/TagKeyList"
+            - description: A list of tag keys that you want to remove.
+    UpdateServiceResponse:
+      type: object
+      required:
+        - Service
+        - OperationId
+      properties:
+        Service:
+          allOf:
+            - $ref: "#/components/schemas/Service"
+            - description: A description of the App Runner service updated by this request. All configuration values in the returned <code>Service</code> structure reflect configuration changes that are being applied by this request.
+        OperationId:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: The unique ID of the asynchronous operation that this request started. You can use it combined with the <a>ListOperations</a> call to track the operation's progress.
+    UpdateServiceRequest:
+      type: object
+      required:
+        - ServiceArn
+      title: UpdateServiceRequest
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner service that you want to update.
+        SourceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/SourceConfiguration"
+            - description: <p>The source configuration to apply to the App Runner service.</p> <p>You can change the configuration of the code or image repository that the service uses. However, you can't switch from code to image or the other way around. This means that you must provide the same structure member of <code>SourceConfiguration</code> that you originally included when you created the service. Specifically, you can include either <code>CodeRepository</code> or <code>ImageRepository</code>. To update the source configuration, set the values to members of the structure that you include.</p>
+        InstanceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/InstanceConfiguration"
+            - description: The runtime configuration to apply to instances (scaling units) of your service.
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of an App Runner automatic scaling configuration resource that you want to associate with the App Runner service.
+        HealthCheckConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckConfiguration"
+            - description: The settings for the health check that App Runner performs to monitor the health of the App Runner service.
+        NetworkConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/NetworkConfiguration"
+            - description: Configuration settings related to network traffic of the web application that the App Runner service runs.
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ServiceObservabilityConfiguration"
+            - description: The observability configuration of your service.
+    UpdateVpcIngressConnectionResponse:
+      type: object
+      required:
+        - VpcIngressConnection
+      properties:
+        VpcIngressConnection:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnection"
+            - description: A description of the App Runner VPC Ingress Connection resource that's updated by this request.
+    UpdateVpcIngressConnectionRequest:
+      type: object
+      required:
+        - VpcIngressConnectionArn
+        - IngressVpcConfiguration
+      title: UpdateVpcIngressConnectionRequest
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (Arn) for the App Runner VPC Ingress Connection resource that you want to update.
+        IngressVpcConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/IngressVpcConfiguration"
+            - description: Specifications for the customer’s Amazon VPC and the related Amazon Web Services PrivateLink VPC endpoint that are used to update the VPC Ingress Connection resource.
+    ASConfigMaxConcurrency:
+      type: integer
+      minimum: 1
+      maximum: 200
+    ASConfigMaxSize:
+      type: integer
+      minimum: 1
+    ASConfigMinSize:
+      type: integer
+      minimum: 1
+      maximum: 25
+    AppRunnerResourceArn:
+      type: string
+      pattern: arn:aws(-[\w]+)*:[a-z0-9-\\.]{0,63}:[a-z0-9-\\.]{0,63}:[0-9]{12}:(\w|\/|-){1,1011}
+      minLength: 1
+      maxLength: 1011
+    DomainName:
+      type: string
+      pattern: "[A-Za-z0-9*.-]{1,255}"
+      minLength: 1
+      maxLength: 255
+    NullableBoolean:
+      type: boolean
+    String:
+      type: string
+      pattern: .*
+      minLength: 0
+      maxLength: 51200
+    CustomDomain:
+      type: object
+      required:
+        - DomainName
+        - EnableWWWSubdomain
+        - Status
+      properties:
+        DomainName:
+          allOf:
+            - $ref: "#/components/schemas/DomainName"
+            - description: An associated custom domain endpoint. It can be a root domain (for example, <code>example.com</code>), a subdomain (for example, <code>login.example.com</code> or <code>admin.login.example.com</code>), or a wildcard (for example, <code>*.example.com</code>).
+        EnableWWWSubdomain:
+          allOf:
+            - $ref: "#/components/schemas/NullableBoolean"
+            - description: When <code>true</code>, the subdomain <code>www.<i>DomainName</i> </code> is associated with the App Runner service in addition to the base domain.
+        CertificateValidationRecords:
+          allOf:
+            - $ref: "#/components/schemas/CertificateValidationRecordList"
+            - description: A list of certificate CNAME records that's used for this domain name.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/CustomDomainAssociationStatus"
+            - description: The current state of the domain name association.
+      description: Describes a custom domain that's associated with an App Runner service.
+    VpcDNSTargetList:
+      type: array
+      items:
+        $ref: "#/components/schemas/VpcDNSTarget"
+    RoleArn:
+      type: string
+      pattern: arn:(aws|aws-us-gov|aws-cn|aws-iso|aws-iso-b):iam::[0-9]{12}:(role|role\/service-role)\/[\w+=,.@\-/]{1,1000}
+      minLength: 29
+      maxLength: 1024
+    AuthenticationConfiguration:
+      type: object
+      properties:
+        ConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner connection that enables the App Runner service to connect to a source repository. It's required for GitHub code repositories.
+        AccessRoleArn:
+          allOf:
+            - $ref: "#/components/schemas/RoleArn"
+            - description: The Amazon Resource Name (ARN) of the IAM role that grants the App Runner service access to a source repository. It's required for ECR image repositories (but not for ECR Public repositories).
+      description: Describes resources needed to authenticate access to some source repositories. The specific resource depends on the repository provider.
+    AutoScalingConfigurationName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}"
+      minLength: 4
+      maxLength: 32
+    Integer:
+      type: integer
+    Boolean:
+      type: boolean
+    AutoScalingConfigurationStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+    Timestamp:
+      type: string
+      format: date-time
+    AutoScalingConfiguration:
+      type: object
+      properties:
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this auto scaling configuration.
+        AutoScalingConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationName"
+            - description: The customer-provided auto scaling configuration name. It can be used in multiple revisions of a configuration.
+        AutoScalingConfigurationRevision:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: "The revision of this auto scaling configuration. It's unique among all the active configurations (<code>\"Status\": \"ACTIVE\"</code>) that share the same <code>AutoScalingConfigurationName</code>."
+        Latest:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: It's set to <code>true</code> for the configuration with the highest <code>Revision</code> among all configurations that share the same <code>AutoScalingConfigurationName</code>. It's set to <code>false</code> otherwise.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationStatus"
+            - description: The current state of the auto scaling configuration. If the status of a configuration revision is <code>INACTIVE</code>, it was deleted and can't be used. Inactive configuration revisions are permanently removed some time after they are deleted.
+        MaxConcurrency:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: The maximum number of concurrent requests that an instance processes. If the number of concurrent requests exceeds this limit, App Runner scales the service up.
+        MinSize:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: <p>The minimum number of instances that App Runner provisions for a service. The service always has at least <code>MinSize</code> provisioned instances. Some of them actively serve traffic. The rest of them (provisioned and inactive instances) are a cost-effective compute capacity reserve and are ready to be quickly activated. You pay for memory usage of all the provisioned instances. You pay for CPU usage of only the active subset.</p> <p>App Runner temporarily doubles the number of provisioned instances during deployments, to maintain the same capacity for both old and new code.</p>
+        MaxSize:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: The maximum number of instances that a service scales up to. At most <code>MaxSize</code> instances actively serve traffic for your service.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the auto scaling configuration was created. It's in Unix time stamp format.
+        DeletedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the auto scaling configuration was deleted. It's in Unix time stamp format.
+      description: <p>Describes an App Runner automatic scaling configuration resource.</p> <p>A higher <code>MinSize</code> increases the spread of your App Runner service over more Availability Zones in the Amazon Web Services Region. The tradeoff is a higher minimal cost.</p> <p>A lower <code>MaxSize</code> controls your cost. The tradeoff is lower responsiveness during peak demand.</p> <p>Multiple revisions of a configuration might have the same <code>AutoScalingConfigurationName</code> and different <code>AutoScalingConfigurationRevision</code> values.</p>
+    AutoScalingConfigurationSummary:
+      type: object
+      properties:
+        AutoScalingConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this auto scaling configuration.
+        AutoScalingConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationName"
+            - description: The customer-provided auto scaling configuration name. It can be used in multiple revisions of a configuration.
+        AutoScalingConfigurationRevision:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: "The revision of this auto scaling configuration. It's unique among all the active configurations (<code>\"Status\": \"ACTIVE\"</code>) with the same <code>AutoScalingConfigurationName</code>."
+      description: <p>Provides summary information about an App Runner automatic scaling configuration resource.</p> <p>This type contains limited information about an auto scaling configuration. It includes only identification information, without configuration details. It's returned by the <a>ListAutoScalingConfigurations</a> action. Complete configuration information is returned by the <a>CreateAutoScalingConfiguration</a>, <a>DescribeAutoScalingConfiguration</a>, and <a>DeleteAutoScalingConfiguration</a> actions using the <a>AutoScalingConfiguration</a> type.</p>
+    AutoScalingConfigurationSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/AutoScalingConfigurationSummary"
+    BuildCommand:
+      type: string
+      pattern: "[^\\x0a\\x0d]+"
+      format: password
+    CertificateValidationRecordStatus:
+      type: string
+      enum:
+        - PENDING_VALIDATION
+        - SUCCESS
+        - FAILED
+    CertificateValidationRecord:
+      type: object
+      properties:
+        Name:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The certificate CNAME record name.
+        Type:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The record type, always <code>CNAME</code>.
+        Value:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The certificate CNAME record value.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/CertificateValidationRecordStatus"
+            - description: The current state of the certificate CNAME record validation. It should change to <code>SUCCESS</code> after App Runner completes validation with your DNS.
+      description: Describes a certificate CNAME record to add to your DNS. For more information, see <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_AssociateCustomDomain.html">AssociateCustomDomain</a>.
+    CertificateValidationRecordList:
+      type: array
+      items:
+        $ref: "#/components/schemas/CertificateValidationRecord"
+    ConfigurationSource:
+      type: string
+      enum:
+        - REPOSITORY
+        - API
+    CodeConfigurationValues:
+      type: object
+      required:
+        - Runtime
+      properties:
+        Runtime:
+          allOf:
+            - $ref: "#/components/schemas/Runtime"
+            - description: A runtime environment type for building and running an App Runner service. It represents a programming language runtime.
+        BuildCommand:
+          allOf:
+            - $ref: "#/components/schemas/BuildCommand"
+            - description: The command App Runner runs to build your application.
+        StartCommand:
+          allOf:
+            - $ref: "#/components/schemas/StartCommand"
+            - description: The command App Runner runs to start your application.
+        Port:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: "<p>The port that your application listens to in the container.</p> <p>Default: <code>8080</code> </p>"
+        RuntimeEnvironmentVariables:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeEnvironmentVariables"
+            - description: The environment variables that are available to your running App Runner service. An array of key-value pairs.
+        RuntimeEnvironmentSecrets:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeEnvironmentSecrets"
+            - description: <p>An array of key-value pairs representing the secrets and parameters that get referenced to your service as an environment variable. The supported values are either the full Amazon Resource Name (ARN) of the Secrets Manager secret or the full ARN of the parameter in the Amazon Web Services Systems Manager Parameter Store.</p> <note> <ul> <li> <p> If the Amazon Web Services Systems Manager Parameter Store parameter exists in the same Amazon Web Services Region as the service that you're launching, you can use either the full ARN or name of the secret. If the parameter exists in a different Region, then the full ARN must be specified. </p> </li> <li> <p> Currently, cross account referencing of Amazon Web Services Systems Manager Parameter Store parameter is not supported. </p> </li> </ul> </note>
+      description: Describes the basic configuration needed for building and running an App Runner service. This type doesn't support the full set of possible configuration options. Fur full configuration capabilities, use a <code>apprunner.yaml</code> file in the source code repository.
+    CodeConfiguration:
+      type: object
+      required:
+        - ConfigurationSource
+      properties:
+        ConfigurationSource:
+          allOf:
+            - $ref: "#/components/schemas/ConfigurationSource"
+            - description: <p>The source of the App Runner configuration. Values are interpreted as follows:</p> <ul> <li> <p> <code>REPOSITORY</code> – App Runner reads configuration values from the <code>apprunner.yaml</code> file in the source code repository and ignores <code>CodeConfigurationValues</code>.</p> </li> <li> <p> <code>API</code> – App Runner uses configuration values provided in <code>CodeConfigurationValues</code> and ignores the <code>apprunner.yaml</code> file in the source code repository.</p> </li> </ul>
+        CodeConfigurationValues:
+          allOf:
+            - $ref: "#/components/schemas/CodeConfigurationValues"
+            - description: The basic configuration for building and running the App Runner service. Use it to quickly launch an App Runner service without providing a <code>apprunner.yaml</code> file in the source code repository (or ignoring the file if it exists).
+      description: Describes the configuration that App Runner uses to build and run an App Runner service from a source code repository.
+    Runtime:
+      type: string
+      enum:
+        - PYTHON_3
+        - NODEJS_12
+        - NODEJS_14
+        - CORRETTO_8
+        - CORRETTO_11
+        - NODEJS_16
+        - GO_1
+        - DOTNET_6
+        - PHP_81
+        - RUBY_31
+    StartCommand:
+      type: string
+      pattern: "[^\\x0a\\x0d]+"
+      format: password
+    RuntimeEnvironmentVariables:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/RuntimeEnvironmentVariablesValue"
+    RuntimeEnvironmentSecrets:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/RuntimeEnvironmentSecretsValue"
+    SourceCodeVersion:
+      type: object
+      required:
+        - Type
+        - Value
+      properties:
+        Type:
+          allOf:
+            - $ref: "#/components/schemas/SourceCodeVersionType"
+            - description: <p>The type of version identifier.</p> <p>For a git-based repository, branches represent versions.</p>
+        Value:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: <p>A source code version.</p> <p>For a git-based repository, a branch name maps to a specific version. App Runner uses the most recent commit to the branch.</p>
+      description: Identifies a version of code that App Runner refers to within a source code repository.
+    CodeRepository:
+      type: object
+      required:
+        - RepositoryUrl
+        - SourceCodeVersion
+      properties:
+        RepositoryUrl:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The location of the repository that contains the source code.
+        SourceCodeVersion:
+          allOf:
+            - $ref: "#/components/schemas/SourceCodeVersion"
+            - description: The version that should be used within the source code repository.
+        CodeConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/CodeConfiguration"
+            - description: <p>Configuration for building and running the service from a source code repository.</p> <note> <p> <code>CodeConfiguration</code> is required only for <code>CreateService</code> request.</p> </note>
+      description: Describes a source code repository.
+    ConnectionName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}"
+      minLength: 4
+      maxLength: 32
+    ProviderType:
+      type: string
+      enum:
+        - GITHUB
+    ConnectionStatus:
+      type: string
+      enum:
+        - PENDING_HANDSHAKE
+        - AVAILABLE
+        - ERROR
+        - DELETED
+    Connection:
+      type: object
+      properties:
+        ConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionName"
+            - description: The customer-provided connection name.
+        ConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this connection.
+        ProviderType:
+          allOf:
+            - $ref: "#/components/schemas/ProviderType"
+            - description: The source repository provider.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionStatus"
+            - description: The current state of the App Runner connection. When the state is <code>AVAILABLE</code>, you can use the connection to create an App Runner service.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The App Runner connection creation time, expressed as a Unix time stamp.
+      description: Describes an App Runner connection resource.
+    ConnectionSummary:
+      type: object
+      properties:
+        ConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionName"
+            - description: The customer-provided connection name.
+        ConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this connection.
+        ProviderType:
+          allOf:
+            - $ref: "#/components/schemas/ProviderType"
+            - description: The source repository provider.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/ConnectionStatus"
+            - description: The current state of the App Runner connection. When the state is <code>AVAILABLE</code>, you can use the connection to create an App Runner service.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The App Runner connection creation time, expressed as a Unix time stamp.
+      description: Provides summary information about an App Runner connection resource.
+    ConnectionSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ConnectionSummary"
+    Cpu:
+      type: string
+      pattern: 256|512|1024|2048|4096|(0.25|0.5|1|2|4) vCPU
+      minLength: 3
+      maxLength: 9
+    TagList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Tag"
+    ObservabilityConfigurationName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9\\-_]{3,31}"
+      minLength: 4
+      maxLength: 32
+    TraceConfiguration:
+      type: object
+      required:
+        - Vendor
+      properties:
+        Vendor:
+          allOf:
+            - $ref: "#/components/schemas/TracingVendor"
+            - description: The implementation provider chosen for tracing App Runner services.
+      description: Describes the configuration of the tracing feature within an App Runner observability configuration.
+    ObservabilityConfiguration:
+      type: object
+      properties:
+        ObservabilityConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this observability configuration.
+        ObservabilityConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationName"
+            - description: The customer-provided observability configuration name. It can be used in multiple revisions of a configuration.
+        TraceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/TraceConfiguration"
+            - description: The configuration of the tracing feature within this observability configuration. If not specified, tracing isn't enabled.
+        ObservabilityConfigurationRevision:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: "The revision of this observability configuration. It's unique among all the active configurations (<code>\"Status\": \"ACTIVE\"</code>) that share the same <code>ObservabilityConfigurationName</code>."
+        Latest:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: It's set to <code>true</code> for the configuration with the highest <code>Revision</code> among all configurations that share the same <code>ObservabilityConfigurationName</code>. It's set to <code>false</code> otherwise.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationStatus"
+            - description: The current state of the observability configuration. If the status of a configuration revision is <code>INACTIVE</code>, it was deleted and can't be used. Inactive configuration revisions are permanently removed some time after they are deleted.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the observability configuration was created. It's in Unix time stamp format.
+        DeletedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the observability configuration was deleted. It's in Unix time stamp format.
+      description: <p>Describes an App Runner observability configuration resource. Multiple revisions of a configuration have the same <code>ObservabilityConfigurationName</code> and different <code>ObservabilityConfigurationRevision</code> values.</p> <p>The resource is designed to configure multiple features (currently one feature, tracing). This type contains optional members that describe the configuration of these features (currently one member, <code>TraceConfiguration</code>). If a feature member isn't specified, the feature isn't enabled.</p>
+    ServiceName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9-_]{3,39}"
+      minLength: 4
+      maxLength: 40
+    SourceConfiguration:
+      type: object
+      properties:
+        CodeRepository:
+          allOf:
+            - $ref: "#/components/schemas/CodeRepository"
+            - description: <p>The description of a source code repository.</p> <p>You must provide either this member or <code>ImageRepository</code> (but not both).</p>
+        ImageRepository:
+          allOf:
+            - $ref: "#/components/schemas/ImageRepository"
+            - description: <p>The description of a source image repository.</p> <p>You must provide either this member or <code>CodeRepository</code> (but not both).</p>
+        AutoDeploymentsEnabled:
+          allOf:
+            - $ref: "#/components/schemas/NullableBoolean"
+            - description: "<p>If <code>true</code>, continuous integration from the source repository is enabled for the App Runner service. Each repository change (including any source code commit or new image version) starts a deployment.</p> <p>Default: App Runner sets to <code>false</code> for a source image that uses an ECR Public repository or an ECR repository that's in an Amazon Web Services account other than the one that the service is in. App Runner sets to <code>true</code> in all other cases (which currently include a source code repository or a source image using a same-account ECR repository).</p>"
+        AuthenticationConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/AuthenticationConfiguration"
+            - description: Describes the resources that are needed to authenticate access to some source repositories.
+      description: Describes the source deployed to an App Runner service. It can be a code or an image repository.
+    InstanceConfiguration:
+      type: object
+      properties:
+        Cpu:
+          allOf:
+            - $ref: "#/components/schemas/Cpu"
+            - description: "<p>The number of CPU units reserved for each instance of your App Runner service.</p> <p>Default: <code>1 vCPU</code> </p>"
+        Memory:
+          allOf:
+            - $ref: "#/components/schemas/Memory"
+            - description: "<p>The amount of memory, in MB or GB, reserved for each instance of your App Runner service.</p> <p>Default: <code>2 GB</code> </p>"
+        InstanceRoleArn:
+          allOf:
+            - $ref: "#/components/schemas/RoleArn"
+            - description: The Amazon Resource Name (ARN) of an IAM role that provides permissions to your App Runner service. These are permissions that your code needs when it calls any Amazon Web Services APIs.
+      description: Describes the runtime configuration of an App Runner service instance (scaling unit).
+    EncryptionConfiguration:
+      type: object
+      required:
+        - KmsKey
+      properties:
+        KmsKey:
+          allOf:
+            - $ref: "#/components/schemas/KmsKeyArn"
+            - description: The ARN of the KMS key that's used for encryption.
+      description: Describes a custom encryption key that App Runner uses to encrypt copies of the source repository and service logs.
+    HealthCheckConfiguration:
+      type: object
+      properties:
+        Protocol:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckProtocol"
+            - description: "<p>The IP protocol that App Runner uses to perform health checks for your service.</p> <p>If you set <code>Protocol</code> to <code>HTTP</code>, App Runner sends health check requests to the HTTP path specified by <code>Path</code>.</p> <p>Default: <code>TCP</code> </p>"
+        Path:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckPath"
+            - description: '<p>The URL that health check requests are sent to.</p> <p> <code>Path</code> is only applicable when you set <code>Protocol</code> to <code>HTTP</code>.</p> <p>Default: <code>"/"</code> </p>'
+        Interval:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckInterval"
+            - description: "<p>The time interval, in seconds, between health checks.</p> <p>Default: <code>5</code> </p>"
+        Timeout:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckTimeout"
+            - description: "<p>The time, in seconds, to wait for a health check response before deciding it failed.</p> <p>Default: <code>2</code> </p>"
+        HealthyThreshold:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckHealthyThreshold"
+            - description: "<p>The number of consecutive checks that must succeed before App Runner decides that the service is healthy.</p> <p>Default: <code>1</code> </p>"
+        UnhealthyThreshold:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckUnhealthyThreshold"
+            - description: "<p>The number of consecutive checks that must fail before App Runner decides that the service is unhealthy.</p> <p>Default: <code>5</code> </p>"
+      description: Describes the settings for the health check that App Runner performs to monitor the health of a service.
+    NetworkConfiguration:
+      type: object
+      properties:
+        EgressConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/EgressConfiguration"
+            - description: Network configuration settings for outbound message traffic.
+        IngressConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/IngressConfiguration"
+            - description: Network configuration settings for inbound message traffic.
+      description: Describes configuration settings related to network traffic of an App Runner service. Consists of embedded objects for each configurable network feature.
+    ServiceObservabilityConfiguration:
+      type: object
+      required:
+        - ObservabilityEnabled
+      properties:
+        ObservabilityEnabled:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: When <code>true</code>, an observability configuration resource is associated with the service, and an <code>ObservabilityConfigurationArn</code> is specified.
+        ObservabilityConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "<p>The Amazon Resource Name (ARN) of the observability configuration that is associated with the service. Specified only when <code>ObservabilityEnabled</code> is <code>true</code>.</p> <p>Specify an ARN with a name and a revision number to associate that revision. For example: <code>arn:aws:apprunner:us-east-1:123456789012:observabilityconfiguration/xray-tracing/3</code> </p> <p>Specify just the name to associate the latest revision. For example: <code>arn:aws:apprunner:us-east-1:123456789012:observabilityconfiguration/xray-tracing</code> </p>"
+      description: Describes the observability configuration of an App Runner service. These are additional observability features, like tracing, that you choose to enable. They're configured in a separate resource that you associate with your service.
+    Service:
+      type: object
+      required:
+        - ServiceName
+        - ServiceId
+        - ServiceArn
+        - CreatedAt
+        - UpdatedAt
+        - Status
+        - SourceConfiguration
+        - InstanceConfiguration
+        - AutoScalingConfigurationSummary
+        - NetworkConfiguration
+      properties:
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - description: The customer-provided service name.
+        ServiceId:
+          allOf:
+            - $ref: "#/components/schemas/ServiceId"
+            - description: An ID that App Runner generated for this service. It's unique within the Amazon Web Services Region.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this service.
+        ServiceUrl:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: A subdomain URL that App Runner generated for this service. You can use this URL to access your service web application.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the App Runner service was created. It's in the Unix time stamp format.
+        UpdatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the App Runner service was last updated at. It's in the Unix time stamp format.
+        DeletedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the App Runner service was deleted. It's in the Unix time stamp format.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/ServiceStatus"
+            - description: <p>The current state of the App Runner service. These particular values mean the following.</p> <ul> <li> <p> <code>CREATE_FAILED</code> – The service failed to create. To troubleshoot this failure, read the failure events and logs, change any parameters that need to be fixed, and retry the call to create the service.</p> <p>The failed service isn't usable, and still counts towards your service quota. When you're done analyzing the failure, delete the service.</p> </li> <li> <p> <code>DELETE_FAILED</code> – The service failed to delete and can't be successfully recovered. Retry the service deletion call to ensure that all related resources are removed.</p> </li> </ul>
+        SourceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/SourceConfiguration"
+            - description: The source deployed to the App Runner service. It can be a code or an image repository.
+        InstanceConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/InstanceConfiguration"
+            - description: The runtime configuration of instances (scaling units) of this service.
+        EncryptionConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/EncryptionConfiguration"
+            - description: The encryption key that App Runner uses to encrypt the service logs and the copy of the source repository that App Runner maintains for the service. It can be either a customer-provided encryption key or an Amazon Web Services managed key.
+        HealthCheckConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/HealthCheckConfiguration"
+            - description: The settings for the health check that App Runner performs to monitor the health of this service.
+        AutoScalingConfigurationSummary:
+          allOf:
+            - $ref: "#/components/schemas/AutoScalingConfigurationSummary"
+            - description: Summary information for the App Runner automatic scaling configuration resource that's associated with this service.
+        NetworkConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/NetworkConfiguration"
+            - description: Configuration settings related to network traffic of the web application that this service runs.
+        ObservabilityConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ServiceObservabilityConfiguration"
+            - description: The observability configuration of this service.
+      description: <p>Describes an App Runner service. It can describe a service in any state, including deleted services.</p> <p>This type contains the full information about a service, including configuration details. It's returned by the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_CreateService.html">CreateService</a>, <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_DescribeService.html">DescribeService</a>, and <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_DeleteService.html">DeleteService</a> actions. A subset of this information is returned by the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_ListServices.html">ListServices</a> action using the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_ServiceSummary.html">ServiceSummary</a> type.</p>
+    UUID:
+      type: string
+      pattern: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
+      minLength: 36
+      maxLength: 36
+    VpcConnectorName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}"
+      minLength: 4
+      maxLength: 40
+    StringList:
+      type: array
+      items:
+        $ref: "#/components/schemas/String"
+    VpcConnector:
+      type: object
+      properties:
+        VpcConnectorName:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnectorName"
+            - description: The customer-provided VPC connector name.
+        VpcConnectorArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this VPC connector.
+        VpcConnectorRevision:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: "<p>The revision of this VPC connector. It's unique among all the active connectors (<code>\"Status\": \"ACTIVE\"</code>) that share the same <code>Name</code>.</p> <note> <p>At this time, App Runner supports only one revision per name.</p> </note>"
+        Subnets:
+          allOf:
+            - $ref: "#/components/schemas/StringList"
+            - description: A list of IDs of subnets that App Runner uses for your service. All IDs are of subnets of a single Amazon VPC.
+        SecurityGroups:
+          allOf:
+            - $ref: "#/components/schemas/StringList"
+            - description: A list of IDs of security groups that App Runner uses for access to Amazon Web Services resources under the specified subnets. If not specified, App Runner uses the default security group of the Amazon VPC. The default security group allows all outbound traffic.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/VpcConnectorStatus"
+            - description: The current state of the VPC connector. If the status of a connector revision is <code>INACTIVE</code>, it was deleted and can't be used. Inactive connector revisions are permanently removed some time after they are deleted.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the VPC connector was created. It's in Unix time stamp format.
+        DeletedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the VPC connector was deleted. It's in Unix time stamp format.
+      description: <p>Describes an App Runner VPC connector resource. A VPC connector describes the Amazon Virtual Private Cloud (Amazon VPC) that an App Runner service is associated with, and the subnets and security group that are used.</p> <p>Multiple revisions of a connector might have the same <code>Name</code> and different <code>Revision</code> values.</p> <note> <p>At this time, App Runner supports only one revision per name.</p> </note>
+    VpcIngressConnectionName:
+      type: string
+      pattern: "[A-Za-z0-9][A-Za-z0-9\\-_]{3,39}"
+      minLength: 4
+      maxLength: 40
+    IngressVpcConfiguration:
+      type: object
+      properties:
+        VpcId:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The ID of the VPC that is used for the VPC endpoint.
+        VpcEndpointId:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: "The ID of the VPC endpoint that your App Runner service connects to. "
+      description: The configuration of your VPC and the associated VPC endpoint. The VPC endpoint is an Amazon Web Services PrivateLink resource that allows access to your App Runner services from within an Amazon VPC.
+    VpcIngressConnection:
+      type: object
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "The Amazon Resource Name (ARN) of the VPC Ingress Connection. "
+        VpcIngressConnectionName:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnectionName"
+            - description: The customer-provided VPC Ingress Connection name.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "The Amazon Resource Name (ARN) of the service associated with the VPC Ingress Connection. "
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/VpcIngressConnectionStatus"
+            - description: "The current status of the VPC Ingress Connection. The VPC Ingress Connection displays one of the following statuses: <code>AVAILABLE</code>, <code>PENDING_CREATION</code>, <code>PENDING_UPDATE</code>, <code>PENDING_DELETION</code>,<code>FAILED_CREATION</code>, <code>FAILED_UPDATE</code>, <code>FAILED_DELETION</code>, and <code>DELETED</code>.. "
+        AccountId:
+          allOf:
+            - $ref: "#/components/schemas/CustomerAccountId"
+            - description: The Account Id you use to create the VPC Ingress Connection resource.
+        DomainName:
+          allOf:
+            - $ref: "#/components/schemas/DomainName"
+            - description: The domain name associated with the VPC Ingress Connection resource.
+        IngressVpcConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/IngressVpcConfiguration"
+            - description: Specifications for the customer’s VPC and related PrivateLink VPC endpoint that are used to associate with the VPC Ingress Connection resource.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: "<p>The time when the VPC Ingress Connection was created. It's in the Unix time stamp format.</p> <ul> <li> <p> Type: Timestamp </p> </li> <li> <p> Required: Yes </p> </li> </ul>"
+        DeletedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: "<p>The time when the App Runner service was deleted. It's in the Unix time stamp format.</p> <ul> <li> <p> Type: Timestamp </p> </li> <li> <p> Required: No </p> </li> </ul>"
+      description: The App Runner resource that specifies an App Runner endpoint for incoming traffic. It establishes a connection between a VPC interface endpoint and a App Runner service, to make your App Runner service accessible from only within an Amazon VPC.
+    CustomDomainAssociationStatus:
+      type: string
+      enum:
+        - CREATING
+        - CREATE_FAILED
+        - ACTIVE
+        - DELETING
+        - DELETE_FAILED
+        - PENDING_CERTIFICATE_DNS_VALIDATION
+        - BINDING_CERTIFICATE
+    CustomDomainList:
+      type: array
+      items:
+        $ref: "#/components/schemas/CustomDomain"
+    CustomerAccountId:
+      type: string
+      pattern: "[0-9]{12}"
+      minLength: 12
+      maxLength: 12
+    DescribeCustomDomainsMaxResults:
+      type: integer
+      minimum: 1
+      maximum: 5
+    EgressType:
+      type: string
+      enum:
+        - DEFAULT
+        - VPC
+    EgressConfiguration:
+      type: object
+      properties:
+        EgressType:
+          allOf:
+            - $ref: "#/components/schemas/EgressType"
+            - description: <p>The type of egress configuration.</p> <p>Set to <code>DEFAULT</code> for access to resources hosted on public networks.</p> <p>Set to <code>VPC</code> to associate your service to a custom VPC specified by <code>VpcConnectorArn</code>.</p>
+        VpcConnectorArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the App Runner VPC connector that you want to associate with your App Runner service. Only valid when <code>EgressType = VPC</code>.
+      description: Describes configuration settings related to outbound network traffic of an App Runner service.
+    KmsKeyArn:
+      type: string
+      pattern: arn:aws(-[\w]+)*:kms:[a-z\-]+-[0-9]{1}:[0-9]{12}:key\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+      minLength: 0
+      maxLength: 256
+    HealthCheckProtocol:
+      type: string
+      enum:
+        - TCP
+        - HTTP
+    HealthCheckPath:
+      type: string
+      minLength: 1
+    HealthCheckInterval:
+      type: integer
+      minimum: 1
+      maximum: 20
+    HealthCheckTimeout:
+      type: integer
+      minimum: 1
+      maximum: 20
+    HealthCheckHealthyThreshold:
+      type: integer
+      minimum: 1
+      maximum: 20
+    HealthCheckUnhealthyThreshold:
+      type: integer
+      minimum: 1
+      maximum: 20
+    ImageConfiguration:
+      type: object
+      properties:
+        RuntimeEnvironmentVariables:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeEnvironmentVariables"
+            - description: Environment variables that are available to your running App Runner service. An array of key-value pairs.
+        StartCommand:
+          allOf:
+            - $ref: "#/components/schemas/StartCommand"
+            - description: An optional command that App Runner runs to start the application in the source image. If specified, this command overrides the Docker image’s default start command.
+        Port:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: "<p>The port that your application listens to in the container.</p> <p>Default: <code>8080</code> </p>"
+        RuntimeEnvironmentSecrets:
+          allOf:
+            - $ref: "#/components/schemas/RuntimeEnvironmentSecrets"
+            - description: <p>An array of key-value pairs representing the secrets and parameters that get referenced to your service as an environment variable. The supported values are either the full Amazon Resource Name (ARN) of the Secrets Manager secret or the full ARN of the parameter in the Amazon Web Services Systems Manager Parameter Store.</p> <note> <ul> <li> <p> If the Amazon Web Services Systems Manager Parameter Store parameter exists in the same Amazon Web Services Region as the service that you're launching, you can use either the full ARN or name of the secret. If the parameter exists in a different Region, then the full ARN must be specified. </p> </li> <li> <p> Currently, cross account referencing of Amazon Web Services Systems Manager Parameter Store parameter is not supported. </p> </li> </ul> </note>
+      description: Describes the configuration that App Runner uses to run an App Runner service using an image pulled from a source image repository.
+    ImageIdentifier:
+      type: string
+      pattern: ([0-9]{12}.dkr.ecr.[a-z\-]+-[0-9]{1}.amazonaws.com\/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*\/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(:([\w\d+\-=._:\/@])+|@([\w\d\:]+))?)|(^public\.ecr\.aws\/.+\/((?:[a-z0-9]+(?:[._-][a-z0-9]+)*\/)*[a-z0-9]+(?:[._-][a-z0-9]+)*)(:([\w\d+\-=._:\/@])+|@([\w\d\:]+))?)
+      minLength: 1
+      maxLength: 1024
+    ImageRepositoryType:
+      type: string
+      enum:
+        - ECR
+        - ECR_PUBLIC
+    ImageRepository:
+      type: object
+      required:
+        - ImageIdentifier
+        - ImageRepositoryType
+      properties:
+        ImageIdentifier:
+          allOf:
+            - $ref: "#/components/schemas/ImageIdentifier"
+            - description: <p>The identifier of an image.</p> <p>For an image in Amazon Elastic Container Registry (Amazon ECR), this is an image name. For the image name format, see <a href="https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-pull-ecr-image.html">Pulling an image</a> in the <i>Amazon ECR User Guide</i>.</p>
+        ImageConfiguration:
+          allOf:
+            - $ref: "#/components/schemas/ImageConfiguration"
+            - description: Configuration for running the identified image.
+        ImageRepositoryType:
+          allOf:
+            - $ref: "#/components/schemas/ImageRepositoryType"
+            - description: The type of the image repository. This reflects the repository provider and whether the repository is private or public.
+      description: Describes a source image repository.
+    IngressConfiguration:
+      type: object
+      properties:
+        IsPubliclyAccessible:
+          allOf:
+            - $ref: "#/components/schemas/Boolean"
+            - description: "Specifies whether your App Runner service is publicly accessible. To make the service publicly accessible set it to <code>True</code>. To make the service privately accessible, from only within an Amazon VPC set it to <code>False</code>. "
+      description: Network configuration settings for inbound network traffic.
+    Memory:
+      type: string
+      pattern: 512|1024|2048|3072|4096|6144|8192|10240|12288|(0.5|1|2|3|4|6|8|10|12) GB
+      minLength: 3
+      maxLength: 6
+    MaxResults:
+      type: integer
+      minimum: 1
+      maximum: 100
+    NextToken:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 1024
+    ObservabilityConfigurationSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ObservabilityConfigurationSummary"
+    ListOperationsMaxResults:
+      type: integer
+      minimum: 1
+      maximum: 20
+    OperationSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/OperationSummary"
+    ServiceMaxResults:
+      type: integer
+      minimum: 1
+      maximum: 20
+    ServiceSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/ServiceSummary"
+    VpcConnectors:
+      type: array
+      items:
+        $ref: "#/components/schemas/VpcConnector"
+    ListVpcIngressConnectionsFilter:
+      type: object
+      properties:
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "The Amazon Resource Name (ARN) of a service to filter by. "
+        VpcEndpointId:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: "The ID of a VPC Endpoint to filter by. "
+      description: Returns a list of VPC Ingress Connections based on the filter provided. It can return either <code>ServiceArn</code> or <code>VpcEndpointId</code>, or both.
+    VpcIngressConnectionSummaryList:
+      type: array
+      items:
+        $ref: "#/components/schemas/VpcIngressConnectionSummary"
+    ObservabilityConfigurationStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+    ObservabilityConfigurationSummary:
+      type: object
+      properties:
+        ObservabilityConfigurationArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this observability configuration.
+        ObservabilityConfigurationName:
+          allOf:
+            - $ref: "#/components/schemas/ObservabilityConfigurationName"
+            - description: The customer-provided observability configuration name. It can be used in multiple revisions of a configuration.
+        ObservabilityConfigurationRevision:
+          allOf:
+            - $ref: "#/components/schemas/Integer"
+            - description: "The revision of this observability configuration. It's unique among all the active configurations (<code>\"Status\": \"ACTIVE\"</code>) that share the same <code>ObservabilityConfigurationName</code>."
+      description: <p>Provides summary information about an App Runner observability configuration resource.</p> <p>This type contains limited information about an observability configuration. It includes only identification information, without configuration details. It's returned by the <a>ListObservabilityConfigurations</a> action. Complete configuration information is returned by the <a>CreateObservabilityConfiguration</a>, <a>DescribeObservabilityConfiguration</a>, and <a>DeleteObservabilityConfiguration</a> actions using the <a>ObservabilityConfiguration</a> type.</p>
+    OperationStatus:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - FAILED
+        - SUCCEEDED
+        - ROLLBACK_IN_PROGRESS
+        - ROLLBACK_FAILED
+        - ROLLBACK_SUCCEEDED
+    OperationType:
+      type: string
+      enum:
+        - START_DEPLOYMENT
+        - CREATE_SERVICE
+        - PAUSE_SERVICE
+        - RESUME_SERVICE
+        - DELETE_SERVICE
+        - UPDATE_SERVICE
+    OperationSummary:
+      type: object
+      properties:
+        Id:
+          allOf:
+            - $ref: "#/components/schemas/UUID"
+            - description: A unique ID of this operation. It's unique in the scope of the App Runner service.
+        Type:
+          allOf:
+            - $ref: "#/components/schemas/OperationType"
+            - description: The type of operation. It indicates a specific action that occured.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/OperationStatus"
+            - description: The current state of the operation.
+        TargetArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the resource that the operation acted on (for example, an App Runner service).
+        StartedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the operation started. It's in the Unix time stamp format.
+        EndedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the operation ended. It's in the Unix time stamp format.
+        UpdatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the operation was last updated. It's in the Unix time stamp format.
+      description: Provides summary information for an operation that occurred on an App Runner service.
+    RuntimeEnvironmentSecretsValue:
+      type: string
+      minLength: 1
+      maxLength: 2048
+      format: password
+    RuntimeEnvironmentSecretsName:
+      type: string
+      minLength: 1
+      maxLength: 2048
+      format: password
+    RuntimeEnvironmentVariablesValue:
+      type: string
+      pattern: .*
+      minLength: 0
+      maxLength: 51200
+      format: password
+    RuntimeEnvironmentVariablesKey:
+      type: string
+      pattern: .*
+      minLength: 1
+      maxLength: 51200
+      format: password
+    ServiceId:
+      type: string
+      pattern: "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}"
+      minLength: 32
+      maxLength: 32
+    ServiceStatus:
+      type: string
+      enum:
+        - CREATE_FAILED
+        - RUNNING
+        - DELETED
+        - DELETE_FAILED
+        - PAUSED
+        - OPERATION_IN_PROGRESS
+    ServiceSummary:
+      type: object
+      properties:
+        ServiceName:
+          allOf:
+            - $ref: "#/components/schemas/ServiceName"
+            - description: The customer-provided service name.
+        ServiceId:
+          allOf:
+            - $ref: "#/components/schemas/ServiceId"
+            - description: An ID that App Runner generated for this service. It's unique within the Amazon Web Services Region.
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of this service.
+        ServiceUrl:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: A subdomain URL that App Runner generated for this service. You can use this URL to access your service web application.
+        CreatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the App Runner service was created. It's in the Unix time stamp format.
+        UpdatedAt:
+          allOf:
+            - $ref: "#/components/schemas/Timestamp"
+            - description: The time when the App Runner service was last updated. It's in theUnix time stamp format.
+        Status:
+          allOf:
+            - $ref: "#/components/schemas/ServiceStatus"
+            - description: <p>The current state of the App Runner service. These particular values mean the following.</p> <ul> <li> <p> <code>CREATE_FAILED</code> – The service failed to create. Read the failure events and logs, change any parameters that need to be fixed, and retry the call to create the service.</p> <p>The failed service isn't usable, and still counts towards your service quota. When you're done analyzing the failure, delete the service.</p> </li> <li> <p> <code>DELETE_FAILED</code> – The service failed to delete and can't be successfully recovered. Retry the service deletion call to ensure that all related resources are removed.</p> </li> </ul>
+      description: <p>Provides summary information for an App Runner service.</p> <p>This type contains limited information about a service. It doesn't include configuration details. It's returned by the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_ListServices.html">ListServices</a> action. Complete service information is returned by the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_CreateService.html">CreateService</a>, <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_DescribeService.html">DescribeService</a>, and <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_DeleteService.html">DeleteService</a> actions using the <a href="https://docs.aws.amazon.com/apprunner/latest/api/API_Service.html">Service</a> type.</p>
+    SourceCodeVersionType:
+      type: string
+      enum:
+        - BRANCH
+    TagKey:
+      type: string
+      pattern: ^(?!aws:).+
+      minLength: 1
+      maxLength: 128
+    TagValue:
+      type: string
+      pattern: .*
+      minLength: 0
+      maxLength: 256
+    Tag:
+      type: object
+      properties:
+        Key:
+          allOf:
+            - $ref: "#/components/schemas/TagKey"
+            - description: The key of the tag.
+        Value:
+          allOf:
+            - $ref: "#/components/schemas/TagValue"
+            - description: The value of the tag.
+      description: Describes a tag that is applied to an App Runner resource. A tag is a metadata item consisting of a key-value pair.
+    TagKeyList:
+      type: array
+      items:
+        $ref: "#/components/schemas/TagKey"
+    TracingVendor:
+      type: string
+      enum:
+        - AWSXRAY
+    VpcConnectorStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+    VpcDNSTarget:
+      type: object
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: The Amazon Resource Name (ARN) of the VPC Ingress Connection that is associated with your service.
+        VpcId:
+          allOf:
+            - $ref: "#/components/schemas/String"
+            - description: The ID of the Amazon VPC that is associated with the custom domain name of the target DNS.
+        DomainName:
+          allOf:
+            - $ref: "#/components/schemas/DomainName"
+            - description: The domain name of your target DNS that is associated with the Amazon VPC.
+      description: DNS Target record for a custom domain of this Amazon VPC.
+    VpcIngressConnectionStatus:
+      type: string
+      enum:
+        - AVAILABLE
+        - PENDING_CREATION
+        - PENDING_UPDATE
+        - PENDING_DELETION
+        - FAILED_CREATION
+        - FAILED_UPDATE
+        - FAILED_DELETION
+        - DELETED
+    VpcIngressConnectionSummary:
+      type: object
+      properties:
+        VpcIngressConnectionArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "The Amazon Resource Name (ARN) of the VPC Ingress Connection. "
+        ServiceArn:
+          allOf:
+            - $ref: "#/components/schemas/AppRunnerResourceArn"
+            - description: "The Amazon Resource Name (ARN) of the service associated with the VPC Ingress Connection. "
+      description: Provides summary information about an VPC Ingress Connection, which includes its VPC Ingress Connection ARN and its associated Service ARN.
+security:
+  - hmac: []

@@ -1,0 +1,1671 @@
+openapi: 3.1.0
+servers:
+  - url: https://balanceplatform-api-test.adyen.com/btl/v1
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    The payment webhooks are deprecated. Use the [accounting webhooks](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/overview) instead.
+
+    Adyen sends notifications through webhooks to inform your system about the creation of payment resources and money movements in your platform.
+
+    You can use these webhooks to build your implementation. For example, you can use this information to update balances in your own dashboards or to keep track of incoming funds.
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Payment webhooks (deprecated)
+  version: "1"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/BalancePlatformPaymentNotification-v1.json
+      version: "3.1"
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: BalancePlatformPaymentNotification-v1
+  x-timestamp: 2023-04-17T15:23:17Z
+tags: []
+components:
+  examples:
+    WebhookAck:
+      summary: Acknowledge Webhook
+      value: "[accepted]"
+    post-balancePlatform.incomingTransfer.created-balancePlatform-incomingTransfer-created:
+      description: Example webhook when there is an incoming transfer
+      summary: Pending incoming transfer
+      value:
+        data:
+          accountHolder:
+            description: S. Eller
+            id: AH32272223222B5BBXP2Z8ZWS
+          amount:
+            currency: EUR
+            value: 15000
+          balanceAccount:
+            description: S. Eller - Main account
+            id: BA32272223222B5BQ3KWP86MW
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          counterparty:
+            balanceAccountId: BA00000000000000000000001
+          creationDate: 2021-05-03T15:20:14+02:00
+          id: IZL6685QQEBKFOOY
+          modification:
+            amount:
+              currency: EUR
+              value: 15000
+            type: PendingIncomingTransfer
+          originalAmount:
+            currency: EUR
+            value: 15000
+          paymentId: IZL6685QQEBKFON0
+          status: PendingIncomingTransfer
+        environment: test
+        type: balancePlatform.incomingTransfer.created
+    post-balancePlatform.incomingTransfer.updated-balancePlatform-incomingTransfer-updated:
+      description: Example webhook when an incoming transfer was completed and funds were settled
+      summary: Completed incoming transfer
+      value:
+        data:
+          accountHolder:
+            description: Liable account holder
+            id: AH32272223222B5BBXP2Z8ZWS
+          amount:
+            currency: EUR
+            value: 1500
+          balanceAccount:
+            description: second-account
+            id: BA32272223222B5BQ3KWP86MW
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          counterparty:
+            balanceAccountId: BA00000000000000000000001
+          creationDate: 2021-05-03T15:20:14+02:00
+          id: IZL6685QQEBKFOOY
+          modification:
+            amount:
+              currency: EUR
+              value: 1500
+            type: IncomingTransfer
+          originalAmount:
+            currency: EUR
+            value: 1500
+          paymentId: IZL6685QQEBKFON0
+          status: IncomingTransfer
+        environment: test
+        type: balancePlatform.incomingTransfer.updated
+    post-balancePlatform.outgoingTransfer.created-balancePlatform-outgoingTransfer-created:
+      description: Example webhook when an outgoing funds transfer was completed
+      summary: Completed outgoing funds transfer
+      value:
+        data:
+          accountHolder:
+            description: S. Eller - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -1500
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          counterparty:
+            balanceAccountId: BA00000000000000000000001
+          creationDate: 2021-05-03T15:20:06+02:00
+          id: 1W1UG35QQEBJLHZ8
+          modification:
+            amount:
+              currency: EUR
+              value: -1500
+            type: OutgoingTransfer
+          originalAmount:
+            currency: EUR
+            value: -1500
+          paymentId: 1W1UG35QQEBJLHZ8
+          status: OutgoingTransfer
+          valueDate: 2021-08-10T14:57:01+02:00
+        environment: test
+        type: balancePlatform.outgoingTransfer.created
+    post-balancePlatform.outgoingTransfer.updated-balancePlatform-outgoingTransfer-updated:
+      description: Example webhook if an outgoing funds transfer failed
+      summary: Outgoing funds transfer failed
+      value:
+        data:
+          accountHolder:
+            description: S. Eller - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -1500
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          counterparty:
+            balanceAccountId: BA00000000000000000000001
+          creationDate: 2021-05-03T15:20:06+02:00
+          id: 1W1UG35QQEBJLHZ8
+          modification:
+            amount:
+              currency: EUR
+              value: -1500
+            type: OutgoingTransfer
+          originalAmount:
+            currency: EUR
+            value: -1500
+          paymentId: 1W1UG35QQEBJLHZ8
+          status: TransferFailed
+          valueDate: 2021-08-10T14:57:01+02:00
+        environment: test
+        type: balancePlatform.outgoingTransfer.updated
+    post-balancePlatform.payment.created-balancePlatform-payment-created-authorized:
+      description: Example webhook when a payment made with an Adyen-issued card was authorized
+      summary: Payment authorized
+      value:
+        data:
+          accountHolder:
+            description: S. Eller - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -2000
+          authCode: "397402"
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-04-01T12:56:38+02:00
+          id: 1W1UG35QDNNE694X
+          merchantData:
+            mcc: "7999"
+            merchantId: "526567789012346"
+            nameLocation:
+              city: Amsterdam
+              country: NLD
+              name: Store-ecom
+              rawData: Store-ecom        Amsterdam     NLD
+          modification:
+            amount:
+              currency: EUR
+              value: -2000
+            type: Authorised
+          originalAmount:
+            currency: EUR
+            value: -2000
+          paymentInstrument:
+            description: C. Holden - card
+            id: PI32272223222B5CZW7BQ2V3T
+          processingType: ecommerce
+          relayedAuthorisationData:
+            metadata:
+              key1: value1
+              key2: value2
+              key3: value3
+          status: Authorised
+          transactionRulesResult:
+            allRulesPassed: true
+          validationResult:
+            - result: valid
+              type: BalanceCheck
+            - result: valid
+              type: AccountLookup
+            - result: valid
+              type: RelayedAuthorisation
+            - result: valid
+              type: Screening
+            - result: valid
+              type: TransactionRules
+            - result: valid
+              type: TransactionValidation
+            - result: valid
+              type: PaymentInstrumentExpirationCheck
+            - result: valid
+              type: MaxAuthAmount
+            - result: valid
+              type: CVC2
+        environment: test
+        type: balancePlatform.payment.created
+    post-balancePlatform.payment.created-balancePlatform-payment-created-funds-transfer:
+      description: Example webhook when an outgoing transfer was requested
+      summary: Outgoing transfer requested
+      value:
+        data:
+          accountHolder:
+            description: Liable account holder
+            id: AH32272223222B59MTF7458DP
+            reference: Liable account holder
+          amount:
+            currency: EUR
+            value: -15000
+          balanceAccount:
+            description: Liable balance account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-05-03T15:20:06+02:00
+          id: 1W1UG35QQEBJLHZ8
+          modification:
+            amount:
+              currency: EUR
+              value: -15000
+            type: Authorised
+          originalAmount:
+            currency: EUR
+            value: -15000
+          status: Authorised
+        environment: test
+        type: balancePlatform.payment.created
+    post-balancePlatform.payment.created-balancePlatform-payment-created-refund-requested:
+      description: Example webhook when your user requests a refund
+      summary: Refund requested
+      value:
+        data:
+          accountHolder:
+            description: S. Eller
+            id: AH32272223222B59MTF7458DP
+          amount:
+            currency: EUR
+            value: 2000
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-04-13T13:35:17+02:00
+          id: IZMP115QIFI1EXZK
+          modification:
+            amount:
+              currency: EUR
+              value: 2000
+            type: Authorised
+          originalAmount:
+            currency: EUR
+            value: 2000
+          paymentInstrument:
+            description: Test card
+            id: PI3227C223222B5BKTS5RC3D3
+          status: Authorised
+        environment: test
+        type: balancePlatform.payment.created
+    post-balancePlatform.payment.created-balancePlatform-payment-created-rejected:
+      description: Example webhook when a payment made with an Adyen-issued card was declined
+      summary: Payment declined
+      value:
+        data:
+          accountHolder:
+            description: S. Eller - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -1000
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-03-15T10:30:43+01:00
+          id: 2L470J5Q6VVUAWGT
+          merchantData:
+            mcc: "7999"
+            merchantId: "526567789012346"
+            nameLocation:
+              city: Amsterdam
+              country: NLD
+              name: Store-ecom
+              rawData: Store-ecom        Amsterdam     NLD
+          modification:
+            amount:
+              currency: EUR
+              value: -1000
+            type: Refused
+          originalAmount:
+            currency: EUR
+            value: -1000
+          paymentInstrument:
+            description: C. Holden - card
+            id: PI32272223222B5CZW7BQ2V3T
+          processingType: ecommerce
+          status: Refused
+          transactionRulesResult:
+            allRulesPassed: false
+            failedTransactionRules:
+              - reason: This event exceeds the maximum allowed number of transactions (1) in interval monthly
+                transactionRule:
+                  description: Allow 1 transactions per month
+                  id: TR32272223222B5CSZ666CTKF
+                  reference: myRule12345
+                transactionRuleSource:
+                  id: PI3227C223222B5BKTS5RC3D3
+                  type: PaymentInstrument
+          validationResult:
+            - result: valid
+              type: MaxAuthAmount
+            - result: valid
+              type: CVC2
+            - result: valid
+              type: BalanceCheck
+            - result: valid
+              type: AccountLookup
+            - result: invalid
+              type: TransactionRules
+            - result: valid
+              type: TransactionValidation
+            - result: notApplicable
+              type: RelayedAuthorisation
+            - result: valid
+              type: PaymentInstrumentExpirationCheck
+            - result: valid
+              type: Screening
+        environment: test
+        type: balancePlatform.payment.created
+    post-balancePlatform.payment.updated-balancePlatform-payment-updated-expired:
+      description: Example webhook when a payment authorization expired
+      summary: Payment authorization expired
+      value:
+        data:
+          accountHolder:
+            description: S.Hopper - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -2500
+          authCode: "995167"
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-03-25T11:42:05+01:00
+          id: 2L470J5QAVHDDZTW
+          merchantData:
+            mcc: "7999"
+            merchantId: "526567789012346"
+            nameLocation:
+              city: Amsterdam
+              country: NLD
+              name: Store-ecom
+              rawData: Store-ecom        Amsterdam     NLD
+          modification:
+            amount:
+              currency: EUR
+              value: 2500
+            type: Expired
+          originalAmount:
+            currency: EUR
+            value: -2500
+          paymentInstrument:
+            description: S.Hopper - card
+            id: PI32272223222B5CZW7BQ2V3T
+          processingType: ecommerce
+          relayedAuthorisationData:
+            metadata:
+              key1: value1
+              key2: value2
+              key3: value3
+          status: Expired
+          transactionRulesResult:
+            allRulesPassed: true
+          validationResult:
+            - result: valid
+              type: AccountLookup
+            - result: valid
+              type: PaymentInstrumentExpirationCheck
+            - result: valid
+              type: Screening
+            - result: valid
+              type: TransactionValidation
+            - result: valid
+              type: RelayedAuthorisation
+            - result: valid
+              type: BalanceCheck
+            - result: valid
+              type: CVC2
+            - result: valid
+              type: MaxAuthAmount
+            - result: valid
+              type: TransactionRules
+        environment: test
+        type: balancePlatform.payment.updated
+    post-balancePlatform.payment.updated-balancePlatform-payment-updated-partially-cancelled:
+      description: Example webhook when a part of the authorization was cancelled
+      summary: Part of payment authorization cancelled
+      value:
+        data:
+          accountHolder:
+            description: S.Hopper - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -2500
+          authCode: "995167"
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-03-25T11:42:05+01:00
+          id: 2L470J5QAVHDDZTW
+          merchantData:
+            mcc: "7999"
+            merchantId: "526567789012346"
+            nameLocation:
+              city: Amsterdam
+              country: NLD
+              name: Store-ecom
+              rawData: Store-ecom        Amsterdam     NLD
+          modification:
+            amount:
+              currency: EUR
+              value: 1200
+            type: Expired
+          originalAmount:
+            currency: EUR
+            value: -2500
+          paymentInstrument:
+            description: S.Hopper - card
+            id: PI32272223222B5CZW7BQ2V3T
+          processingType: ecommerce
+          relayedAuthorisationData:
+            metadata:
+              key1: value1
+              key2: value2
+              key3: value3
+          status: Expired
+          transactionRulesResult:
+            allRulesPassed: true
+          validationResult:
+            - result: valid
+              type: AccountLookup
+            - result: valid
+              type: PaymentInstrumentExpirationCheck
+            - result: valid
+              type: Screening
+            - result: valid
+              type: TransactionValidation
+            - result: valid
+              type: RelayedAuthorisation
+            - result: valid
+              type: BalanceCheck
+            - result: valid
+              type: CVC2
+            - result: valid
+              type: MaxAuthAmount
+            - result: valid
+              type: TransactionRules
+        environment: test
+        type: balancePlatform.payment.updated
+    post-balancePlatform.payment.updated-balancePlatform-payment-updated-partially-expired:
+      description: Example webhook when a part of the authorization expired
+      summary: Part of payment authorization expired
+      value:
+        data:
+          accountHolder:
+            description: S.Hopper - Staff 123
+            id: AH32272223222B5CZW6QZ2V34
+          amount:
+            currency: EUR
+            value: -2500
+          authCode: "995167"
+          balanceAccount:
+            description: My Balance Account
+            id: BA3227C223222B5B9SCR82TMV
+          balancePlatform: YOUR_BALANCE_PLATFORM
+          creationDate: 2021-03-25T11:42:05+01:00
+          id: 2L470J5QAVHDDZTW
+          merchantData:
+            mcc: "7999"
+            merchantId: "526567789012346"
+            nameLocation:
+              city: Amsterdam
+              country: NLD
+              name: Store-ecom
+              rawData: Store-ecom        Amsterdam     NLD
+          modification:
+            amount:
+              currency: EUR
+              value: 1200
+            type: Expired
+          originalAmount:
+            currency: EUR
+            value: -2500
+          paymentInstrument:
+            description: S.Hopper - card
+            id: PI32272223222B5CZW7BQ2V3T
+          processingType: ecommerce
+          relayedAuthorisationData:
+            metadata:
+              key1: value1
+              key2: value2
+              key3: value3
+          status: Expired
+          transactionRulesResult:
+            allRulesPassed: true
+          validationResult:
+            - result: valid
+              type: AccountLookup
+            - result: valid
+              type: PaymentInstrumentExpirationCheck
+            - result: valid
+              type: Screening
+            - result: valid
+              type: TransactionValidation
+            - result: valid
+              type: RelayedAuthorisation
+            - result: valid
+              type: BalanceCheck
+            - result: valid
+              type: CVC2
+            - result: valid
+              type: MaxAuthAmount
+            - result: valid
+              type: TransactionRules
+        environment: test
+        type: balancePlatform.payment.updated
+  schemas:
+    Address:
+      properties:
+        city:
+          description: "The name of the city. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        country:
+          description: |-
+            The two-character ISO-3166-1 alpha-2 country code. For example, **US**.
+            > If you don't know the country or are not collecting the country from the shopper, provide `country` as `ZZ`.
+          type: string
+        houseNumberOrName:
+          description: "The number or name of the house. Maximum length: 3000 characters."
+          maxLength: 3000
+          type: string
+        postalCode:
+          description: A maximum of five digits for an address in the US, or a maximum of ten characters for an address in all other countries.
+          type: string
+        stateOrProvince:
+          description: |-
+            The two-character ISO 3166-2 state or province code. For example, **CA** in the US or **ON** in Canada.
+            > Required for the US and Canada.
+          type: string
+        street:
+          description: |-
+            The name of the street. Maximum length: 3000 characters.
+            > The house number should not be included in this field; it should be separately provided via `houseNumberOrName`.
+          maxLength: 3000
+          type: string
+      required:
+        - street
+        - houseNumberOrName
+        - city
+        - postalCode
+        - country
+      type: object
+    Amount:
+      properties:
+        currency:
+          description: The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount of the transaction, in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+        - currency
+      type: object
+    BalancePlatformNotificationResponse:
+      properties:
+        notificationResponse:
+          description: Respond with **HTTP 200 OK** and `[accepted]` in the response body to [accept the webhook](https://docs.adyen.com/development-resources/webhooks#accept-notifications).
+          type: string
+      type: object
+    BankAccountInfo:
+      properties:
+        address:
+          $ref: "#/components/schemas/Address"
+          description: The address of the bank account owner.
+        iban:
+          description: The international bank account number as defined in the [ISO-13616](https://www.iso.org/standard/81090.html) standard.
+          type: string
+        ownerName:
+          $ref: "#/components/schemas/Name"
+          description: The name of the bank account owner.
+      type: object
+    Counterparty:
+      properties:
+        balanceAccountId:
+          description: Unique identifier of the [balance account](https://docs.adyen.com/api-explorer/#/balanceplatform/latest/post/balanceAccounts__resParam_id).
+          type: string
+        bankAccount:
+          $ref: "#/components/schemas/BankAccountInfo"
+          description: Contains information about the bank account.
+        merchant:
+          $ref: "#/components/schemas/MerchantData"
+          description: Contains information about the merchant.
+        transferInstrumentId:
+          description: Unique identifier of the [transfer instrument](https://docs.adyen.com/api-explorer/#/balanceplatform/latest/post/transferInstruments__resParam_id).
+          type: string
+      type: object
+    IncomingTransferNotificationData:
+      properties:
+        accountHolder:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the account holder.
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount converted to the balance account's currency, in case the original transaction currency is different.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        balanceAccount:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the balance account.
+        balancePlatform:
+          description: The unique identifier of the balance platform.
+          type: string
+        counterparty:
+          $ref: "#/components/schemas/Counterparty"
+          description: Contains information about the other party in the transaction.
+        creationDate:
+          description: The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.
+          format: date-time
+          type: string
+        description:
+          description: Your description for the transfer. If you send a description longer than 140 characters, the text is truncated.
+          type: string
+        id:
+          description: The ID of the resource.
+          type: string
+        modification:
+          $ref: "#/components/schemas/NotificationModificationData"
+          description: Contains the amount and type of modification that triggered the notification. For example, this object contains the amount of a partial cancellation or partial expired authorisation.
+        originalAmount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount in the original currency of the transaction.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        paymentId:
+          description: The ID of the original payment authorisation, refund, or funds transfer request. Use this to trace the original request from the `balancePlatform.payment.created` webhook.
+          type: string
+        paymentInstrument:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the payment instrument.
+        platformPayment:
+          $ref: "#/components/schemas/PlatformPayment"
+          description: Contains information about the related platform payment.
+        reference:
+          description: An Adyen-generated unique reference for the transfer.
+          maxLength: 80
+          type: string
+        referenceForBeneficiary:
+          description: |-
+            The reference sent to or received from the counterparty.
+
+            * For outgoing funds, this is the [`referenceForBeneficiary`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__resParam_referenceForBeneficiary) from the  [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) request.
+
+             * For incoming funds, this is the reference from the sender.
+          maxLength: 80
+          type: string
+        status:
+          description: "The event status. The possible values depend on the `type`.
+
+
+            * **Authorised**, **Refused**, or **Error** for type `balancePlatform.payment.created`
+
+
+            \ * **Expired** or **Cancelled** or **AuthAdjustmentAuthorised** or **AuthAdjustmentRefused** for type `balancePlatform.payment.updated`
+
+
+            * **PendingIncomingTransfer** for type `balancePlatform.incomingTransfer.created`\ 
+
+
+            * **Refunded** or **IncomingTransfer** for type `balancePlatform.incomingTransfer.updated`
+
+
+            \ * **Captured** or **OutgoingTransfer** for type `balancePlatform.outgoingTransfer.created`
+
+
+            * **TransferConfirmed**, **TransferSentOut**, or **TransferFailed** for type `balancePlatform.outgoingTransfer.updated`
+
+
+            \  "
+          type: string
+        valueDate:
+          description: Indicates the expected settlement date of this transaction, in ISO 8601 extended format. For example, **2021-08-17T15:34:37+02:00**.
+          format: date-time
+          type: string
+      type: object
+    IncomingTransferNotificationRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/IncomingTransferNotificationData"
+          description: Contains event details.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          enum:
+            - balancePlatform.incomingTransfer.updated
+            - balancePlatform.incomingTransfer.created
+          type: string
+      required:
+        - environment
+        - type
+        - data
+      type: object
+    MerchantData:
+      properties:
+        mcc:
+          description: The merchant category code.
+          type: string
+        merchantId:
+          description: The merchant identifier.
+          type: string
+        nameLocation:
+          $ref: "#/components/schemas/NameLocation"
+          description: Contains the merchant's name and location.
+        postalCode:
+          description: The merchant postal code.
+          type: string
+      type: object
+    Name:
+      properties:
+        firstName:
+          description: The first name.
+          type: string
+        fullName:
+          description: The full name.
+          type: string
+        infix:
+          description: The infix in the name, if any.
+          type: string
+        lastName:
+          description: The last name.
+          type: string
+      type: object
+    NameLocation:
+      properties:
+        city:
+          description: The city where the merchant is located.
+          type: string
+        country:
+          description: The country where the merchant is located in [three-letter country code](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) format.
+          type: string
+        countryOfOrigin:
+          description: The home country in [three-digit country code](https://en.wikipedia.org/wiki/ISO_3166-1_numeric) format, used for government-controlled merchants such as embassies.
+          type: string
+        name:
+          description: The name of the merchant's shop or service.
+          type: string
+        rawData:
+          description: The raw data.
+          type: string
+        state:
+          description: The state where the merchant is located.
+          type: string
+      type: object
+    NotificationModificationData:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount of the modification converted to the balance account's currency, in case the original transaction currency is different. For example, if a part of an authorised amount was cancelled, the value shows the amount that was cancelled.
+
+             * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        type:
+          description: |-
+            The type of modification.
+
+            Possible values: **Authorised**, **Cancelled**, **Captured**, **Error**, **Expired**, **OutgoingTransfer**, **PendingIncomingTransfer**, **PendingRefund**, **IncomingTransfer**, **Refunded**, **Refused**, **AuthAdjustmentAuthorised**.
+          type: string
+      type: object
+    OutgoingTransferNotificationData:
+      properties:
+        accountHolder:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the account holder.
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount converted to the balance account's currency, in case the original transaction currency is different.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        balanceAccount:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the balance account.
+        balancePlatform:
+          description: The unique identifier of the balance platform.
+          type: string
+        counterparty:
+          $ref: "#/components/schemas/Counterparty"
+          description: Contains information about the other party in the transaction.
+        creationDate:
+          description: The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.
+          format: date-time
+          type: string
+        description:
+          description: Your description for the transfer. If you send a description longer than 140 characters, the text is truncated.
+          type: string
+        id:
+          description: The ID of the resource.
+          type: string
+        merchantData:
+          $ref: "#/components/schemas/MerchantData"
+          description: Contains information about the merchant that processed the payment. This object is only included for payment authorisation requests and captures.
+        modification:
+          $ref: "#/components/schemas/NotificationModificationData"
+          description: Contains the amount and type of modification that triggered the notification. For example, this object contains the amount of a partial cancellation or partial expired authorisation.
+        originalAmount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount in the original currency of the transaction.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        paymentId:
+          description: The ID of the original payment authorisation, refund, or funds transfer request. Use this to trace the original request from the `balancePlatform.payment.created` webhook.
+          type: string
+        paymentInstrument:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the payment instrument.
+        platformPayment:
+          $ref: "#/components/schemas/PlatformPayment"
+          description: Contains information about the related platform payment.
+        processingType:
+          description: "Contains information about how the payment was processed. Possible values: **atmWithdraw**, **balanceInquiry**, **ecommerce**, **moto**, **pos**, **purchaseWithCashback**, **recurring**, **token**, **unknown**."
+          enum:
+            - atmWithdraw
+            - balanceInquiry
+            - ecommerce
+            - moto
+            - pos
+            - purchaseWithCashback
+            - recurring
+            - token
+            - unknown
+          type: string
+        purposeCode:
+          description: |-
+            Indicates the purpose of the outgoing transfer. Adyen sets this to:
+
+            * **payoutManual** when the transfer was triggered by a one-off payout using the [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) endpoint.
+
+             * **payoutSweep** when the transfer was triggered by a scheduled payout using [`sweepConfigurations`](https://docs.adyen.com/api-explorer/#/balanceplatform/latest/post/balanceAccounts__resParam_sweepConfigurations).
+          type: string
+        reference:
+          description: The [`reference`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__reqParam_reference) from the `/transfers` request. If you haven't provided any, Adyen generates a unique reference.
+          maxLength: 80
+          type: string
+        referenceForBeneficiary:
+          description: |-
+            The reference sent to or received from the counterparty.
+
+            * For outgoing funds, this is the [`referenceForBeneficiary`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__resParam_referenceForBeneficiary) from the  [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) request.
+
+             * For incoming funds, this is the reference from the sender.
+          maxLength: 80
+          type: string
+        relayedAuthorisationData:
+          $ref: "#/components/schemas/RelayedAuthorisationData"
+          description: If you're using [relayed authorisation](https://docs.adyen.com/issuing/processing-payments-for-cards#relayed-authorisation), this object contains information from the relayed authorisation response from your server.
+        status:
+          description: "The event status. The possible values depend on the `type`.
+
+
+            * **Authorised**, **Refused**, or **Error** for type `balancePlatform.payment.created`
+
+
+            \ * **Expired** or **Cancelled** or **AuthAdjustmentAuthorised** or **AuthAdjustmentRefused** for type `balancePlatform.payment.updated`
+
+
+            * **PendingIncomingTransfer** for type `balancePlatform.incomingTransfer.created`\ 
+
+
+            * **Refunded** or **IncomingTransfer** for type `balancePlatform.incomingTransfer.updated`
+
+
+            \ * **Captured** or **OutgoingTransfer** for type `balancePlatform.outgoingTransfer.created`
+
+
+            * **TransferConfirmed**, **TransferSentOut**, or **TransferFailed** for type `balancePlatform.outgoingTransfer.updated`
+
+
+            \  "
+          type: string
+        transactionRulesResult:
+          $ref: "#/components/schemas/TransactionRulesResult"
+          description: Contains results from the evaluation of [transaction rules](https://docs.adyen.com/issuing/transaction-rules).
+        valueDate:
+          description: Indicates the expected settlement date of this transaction, in ISO 8601 extended format. For example, **2021-08-17T15:34:37+02:00**.
+          format: date-time
+          type: string
+      required:
+        - counterparty
+      type: object
+    OutgoingTransferNotificationRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/OutgoingTransferNotificationData"
+          description: Contains details about the event.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          enum:
+            - balancePlatform.outgoingTransfer.created
+            - balancePlatform.outgoingTransfer.updated
+          type: string
+      required:
+        - environment
+        - type
+        - data
+      type: object
+    PaymentNotificationData:
+      properties:
+        accountHolder:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the account holder.
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount converted to the balance account's currency, in case the original transaction currency is different.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        authCode:
+          description: The authorisation code for the payment.
+          type: string
+        balanceAccount:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the balance account.
+        balancePlatform:
+          description: The unique identifier of the balance platform.
+          type: string
+        creationDate:
+          description: The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.
+          format: date-time
+          type: string
+        description:
+          description: Your description for the transfer. If you send a description longer than 140 characters, the text is truncated.
+          type: string
+        id:
+          description: The ID of the resource.
+          type: string
+        merchantData:
+          $ref: "#/components/schemas/MerchantData"
+          description: Contains information about the merchant that processed the payment. This object is only included for payment authorisation requests and captures.
+        modification:
+          $ref: "#/components/schemas/NotificationModificationData"
+          description: Contains the amount and type of modification that triggered the notification. For example, this object contains the amount of a partial cancellation or partial expired authorisation.
+        originalAmount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount in the original currency of the transaction.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        paymentInstrument:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the payment instrument.
+        platformPayment:
+          $ref: "#/components/schemas/PlatformPayment"
+          description: Contains information about the related platform payment.
+        processingType:
+          description: "Contains information about how the payment was processed. Possible values: **atmWithdraw**, **balanceInquiry**, **ecommerce**, **moto**, **pos**, **purchaseWithCashback**, **recurring**, **token**, **unknown**."
+          enum:
+            - atmWithdraw
+            - balanceInquiry
+            - ecommerce
+            - moto
+            - pos
+            - purchaseWithCashback
+            - recurring
+            - token
+            - unknown
+          type: string
+        reference:
+          description: The [`reference`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__reqParam_reference) from the `/transfers` request. If you haven't provided any, Adyen generates a unique reference.
+          maxLength: 80
+          type: string
+        referenceForBeneficiary:
+          description: |-
+            The reference sent to or received from the counterparty.
+
+            * For outgoing funds, this is the [`referenceForBeneficiary`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__resParam_referenceForBeneficiary) from the  [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) request.
+
+             * For incoming funds, this is the reference from the sender.
+          maxLength: 80
+          type: string
+        relayedAuthorisationData:
+          $ref: "#/components/schemas/RelayedAuthorisationData"
+          description: If you're using [relayed authorisation](https://docs.adyen.com/issuing/processing-payments-for-cards#relayed-authorisation), this object contains information from the relayed authorisation response from your server.
+        status:
+          description: "The event status. The possible values depend on the `type`.
+
+
+            * **Authorised**, **Refused**, or **Error** for type `balancePlatform.payment.created`
+
+
+            \ * **Expired** or **Cancelled** or **AuthAdjustmentAuthorised** or **AuthAdjustmentRefused** for type `balancePlatform.payment.updated`
+
+
+            * **PendingIncomingTransfer** for type `balancePlatform.incomingTransfer.created`\ 
+
+
+            * **Refunded** or **IncomingTransfer** for type `balancePlatform.incomingTransfer.updated`
+
+
+            \ * **Captured** or **OutgoingTransfer** for type `balancePlatform.outgoingTransfer.created`
+
+
+            * **TransferConfirmed**, **TransferSentOut**, or **TransferFailed** for type `balancePlatform.outgoingTransfer.updated`
+
+
+            \  "
+          type: string
+        transactionRulesResult:
+          $ref: "#/components/schemas/TransactionRulesResult"
+          description: Contains results from the evaluation of [transaction rules](https://docs.adyen.com/issuing/transaction-rules).
+        validationResult:
+          description: Array of checks that Adyen performed to validate the payment and the result of each.
+          items:
+            $ref: "#/components/schemas/ValidationResult"
+          type: array
+      type: object
+    PaymentNotificationRequest:
+      properties:
+        data:
+          $ref: "#/components/schemas/PaymentNotificationData"
+          description: Contains event details.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          enum:
+            - balancePlatform.payment.created
+            - balancePlatform.payment.updated
+          type: string
+      required:
+        - environment
+        - type
+        - data
+      type: object
+    PlatformPayment:
+      properties:
+        account:
+          description: The account given in the related split.
+          type: string
+        description:
+          description: The description of the related split.
+          type: string
+        modificationMerchantReference:
+          description: The merchant reference of the modification.
+          type: string
+        modificationPspReference:
+          description: The pspReference of the modification.
+          type: string
+        paymentMerchantReference:
+          description: The merchant reference of the payment.
+          type: string
+        paymentPspReference:
+          description: The pspReference of the payment.
+          type: string
+        reference:
+          description: The reference of the related split.
+          type: string
+        type:
+          description: The type of the related split.
+          enum:
+            - BalanceAccount
+            - Commission
+            - Default
+            - PaymentFee
+            - VAT
+          type: string
+      type: object
+    RelayedAuthorisationData:
+      properties:
+        metadata:
+          additionalProperties:
+            type: string
+          description: The `metadata` object from the relayed authorisation response from your server.
+          type: object
+        reference:
+          description: The `reference` from the relayed authorisation response from your server.
+          type: string
+        status:
+          description: The value can be **Authorised** or **Refused**, based on the `authorisationDecision.status` in the relayed authorisation response from your server.
+          type: string
+      type: object
+    Resource:
+      properties:
+        balancePlatform:
+          description: The unique identifier of the balance platform.
+          type: string
+        creationDate:
+          description: The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.
+          format: date-time
+          type: string
+        id:
+          description: The ID of the resource.
+          type: string
+      type: object
+    ResourceReference:
+      properties:
+        description:
+          description: The description of the resource.
+          type: string
+        id:
+          description: The unique identifier of the resource.
+          type: string
+        reference:
+          description: The reference for the resource.
+          type: string
+      type: object
+    TransactionEventViolation:
+      properties:
+        reason:
+          description: An explanation about why the transaction rule failed.
+          type: string
+        transactionRule:
+          $ref: "#/components/schemas/TransactionRuleReference"
+          description: Contains information about the transaction rule.
+        transactionRuleSource:
+          $ref: "#/components/schemas/TransactionRuleSource"
+          description: Contains the type and ID of the resource to which the transaction rule is linked.
+      type: object
+    TransactionNotificationData:
+      properties:
+        accountHolder:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the account holder.
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount converted to the balance account's currency, in case the original transaction currency is different.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        authCode:
+          description: The authorisation code for the payment.
+          type: string
+        balanceAccount:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the balance account.
+        balancePlatform:
+          description: The unique identifier of the balance platform.
+          type: string
+        counterparty:
+          $ref: "#/components/schemas/Counterparty"
+          description: Contains information about the other party in the transaction.
+        creationDate:
+          description: The date and time when the event was triggered, in ISO 8601 extended format. For example, **2020-12-18T10:15:30+01:00**.
+          format: date-time
+          type: string
+        description:
+          description: Your description for the transfer. If you send a description longer than 140 characters, the text is truncated.
+          type: string
+        id:
+          description: The ID of the resource.
+          type: string
+        merchantData:
+          $ref: "#/components/schemas/MerchantData"
+          description: Contains information about the merchant that processed the payment. This object is only included for payment authorisation requests and captures.
+        modification:
+          $ref: "#/components/schemas/NotificationModificationData"
+          description: Contains the amount and type of modification that triggered the notification. For example, this object contains the amount of a partial cancellation or partial expired authorisation.
+        originalAmount:
+          $ref: "#/components/schemas/Amount"
+          description: |-
+            The amount in the original currency of the transaction.
+
+            * A _positive_ value means the amount is added to the balance account.
+
+             * A _negative_ value means the amount is deducted from the balance account. 
+        paymentId:
+          description: The ID of the original payment authorisation, refund, or funds transfer request. Use this to trace the original request from the `balancePlatform.payment.created` webhook.
+          type: string
+        paymentInstrument:
+          $ref: "#/components/schemas/ResourceReference"
+          description: Contains information about the payment instrument.
+        platformPayment:
+          $ref: "#/components/schemas/PlatformPayment"
+          description: Contains information about the related platform payment.
+        processingType:
+          description: "Contains information about how the payment was processed. Possible values: **atmWithdraw**, **balanceInquiry**, **ecommerce**, **moto**, **pos**, **purchaseWithCashback**, **recurring**, **token**, **unknown**."
+          enum:
+            - atmWithdraw
+            - balanceInquiry
+            - ecommerce
+            - moto
+            - pos
+            - purchaseWithCashback
+            - recurring
+            - token
+            - unknown
+          type: string
+        purposeCode:
+          description: |-
+            Indicates the purpose of the outgoing transfer. Adyen sets this to:
+
+            * **payoutManual** when the transfer was triggered by a one-off payout using the [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) endpoint.
+
+             * **payoutSweep** when the transfer was triggered by a scheduled payout using [`sweepConfigurations`](https://docs.adyen.com/api-explorer/#/balanceplatform/latest/post/balanceAccounts__resParam_sweepConfigurations).
+          type: string
+        reference:
+          description: The [`reference`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__reqParam_reference) from the `/transfers` request. If you haven't provided any, Adyen generates a unique reference.
+          maxLength: 80
+          type: string
+        referenceForBeneficiary:
+          description: |-
+            The reference sent to or received from the counterparty.
+
+            * For outgoing funds, this is the [`referenceForBeneficiary`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers__resParam_referenceForBeneficiary) from the  [`/transfers`](https://docs.adyen.com/api-explorer/#/transfers/latest/post/transfers) request.
+
+             * For incoming funds, this is the reference from the sender.
+          maxLength: 80
+          type: string
+        relayedAuthorisationData:
+          $ref: "#/components/schemas/RelayedAuthorisationData"
+          description: If you're using [relayed authorisation](https://docs.adyen.com/issuing/processing-payments-for-cards#relayed-authorisation), this object contains information from the relayed authorisation response from your server.
+        status:
+          description: "The event status. The possible values depend on the `type`.
+
+
+            * **Authorised**, **Refused**, or **Error** for type `balancePlatform.payment.created`
+
+
+            \ * **Expired** or **Cancelled** or **AuthAdjustmentAuthorised** or **AuthAdjustmentRefused** for type `balancePlatform.payment.updated`
+
+
+            * **PendingIncomingTransfer** for type `balancePlatform.incomingTransfer.created`\ 
+
+
+            * **Refunded** or **IncomingTransfer** for type `balancePlatform.incomingTransfer.updated`
+
+
+            \ * **Captured** or **OutgoingTransfer** for type `balancePlatform.outgoingTransfer.created`
+
+
+            * **TransferConfirmed**, **TransferSentOut**, or **TransferFailed** for type `balancePlatform.outgoingTransfer.updated`
+
+
+            \  "
+          type: string
+        transactionRulesResult:
+          $ref: "#/components/schemas/TransactionRulesResult"
+          description: Contains results from the evaluation of [transaction rules](https://docs.adyen.com/issuing/transaction-rules).
+        validationResult:
+          description: Array of checks that Adyen performed to validate the payment and the result of each.
+          items:
+            $ref: "#/components/schemas/ValidationResult"
+          type: array
+        valueDate:
+          description: Indicates the expected settlement date of this transaction, in ISO 8601 extended format. For example, **2021-08-17T15:34:37+02:00**.
+          format: date-time
+          type: string
+      required:
+        - counterparty
+      type: object
+    TransactionRuleReference:
+      properties:
+        description:
+          description: The description of the resource.
+          type: string
+        id:
+          description: The unique identifier of the resource.
+          type: string
+        reference:
+          description: The reference for the resource.
+          type: string
+      type: object
+    TransactionRuleSource:
+      properties:
+        id:
+          description: ID of the resource, when applicable.
+          type: string
+        type:
+          description: |-
+            Indicates the type of resource for which the transaction rule is defined.
+
+            Possible values:
+
+             * **PaymentInstrumentGroup**
+
+            * **PaymentInstrument**
+
+            * **BalancePlatform**
+
+            * **EntityUsageConfiguration**
+
+            * **PlatformRule**: The transaction rule is a platform-wide rule imposed by Adyen.
+          type: string
+      type: object
+    TransactionRulesResult:
+      properties:
+        advice:
+          description: The advice given by the Risk analysis.
+          type: string
+        allRulesPassed:
+          description: Indicates whether the transaction passed the evaluation for all transaction rules.
+          type: boolean
+        failedTransactionRules:
+          description: Array containing all the transaction rules that the transaction violated. This list is only sent when `allRulesPassed` is **false**.
+          items:
+            $ref: "#/components/schemas/TransactionEventViolation"
+          type: array
+        score:
+          description: The score of the Risk analysis.
+          format: int32
+          type: integer
+      type: object
+    ValidationResult:
+      properties:
+        result:
+          description: |-
+            The result of the check.
+
+            Possible values:
+
+            - **valid**: The validation was successful.
+
+            - **invalid**: The validation failed.
+
+            - **notValidated**: The validation was not performed because some services were unreachable or Adyen does not have the information needed to perform the check.
+
+            - **notApplicable**: The validation is not applicable.
+          type: string
+        type:
+          description: Type of check.
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+webhooks:
+  balancePlatform.incomingTransfer.created:
+    post:
+      deprecated: true
+      description: |-
+        Adyen sends this webhook when there are incoming funds due to a refund or a fund transfer. Use the `paymentId` to link to the original refund request or funds transfer request. Check the content of the webhook to differentiate the events.
+
+        * For refunds, the webhook includes the payment instrument to which funds will be refunded.
+
+        * For incoming fund transfers, the webhook only includes information about the balance account.
+      operationId: post-balancePlatform.incomingTransfer.created
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-incomingTransfer-created:
+                $ref: "#/components/examples/post-balancePlatform.incomingTransfer.created-balancePlatform-incomingTransfer-created"
+            schema:
+              $ref: "#/components/schemas/IncomingTransferNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-incomingTransfer-created:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Incoming transfer created
+      tags:
+        - Fund movements
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.created](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.created) instead.
+      x-groupName: Fund movements
+      x-methodName: incomingTransferCreated
+      x-sortIndex: 3
+  balancePlatform.incomingTransfer.updated:
+    post:
+      deprecated: true
+      description: |-
+        Adyen sends this webhook when funds were added to the balance account. This could be due to a refund or a funds transfer. Use the `data.id` to track the original incoming transfer resource in the `balancePlatform.incomingTransfer.created` webhook.
+
+        The `status` field indicates the event that triggered the webhook. 
+
+        * For refunds, the `status` is **Refunded**. 
+
+        * For incoming fund transfers, the `status` is **IncomingTransfer**.
+      operationId: post-balancePlatform.incomingTransfer.updated
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-incomingTransfer-updated:
+                $ref: "#/components/examples/post-balancePlatform.incomingTransfer.updated-balancePlatform-incomingTransfer-updated"
+            schema:
+              $ref: "#/components/schemas/IncomingTransferNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-incomingTransfer-updated:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Incoming transfer updated
+      tags:
+        - Fund movements
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.updated](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.updated) instead.
+      x-groupName: Fund movements
+      x-methodName: incomingTransferUpdated
+      x-sortIndex: 4
+  balancePlatform.outgoingTransfer.created:
+    post:
+      deprecated: true
+      description: |-
+        Adyen sends this webhook when funds were deducted from a balance account due to a capture or a funds transfer. Use the `paymentId` to link to the original payment authorisation or funds transfer request.
+
+        The `status` field indicates the event that triggered the webhook. 
+
+        * For captures, the `status` will be **Captured**. 
+
+        * For outgoing fund transfers, the `status` will be **OutgoingTransfer**.
+      operationId: post-balancePlatform.outgoingTransfer.created
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-outgoingTransfer-created:
+                $ref: "#/components/examples/post-balancePlatform.outgoingTransfer.created-balancePlatform-outgoingTransfer-created"
+            schema:
+              $ref: "#/components/schemas/OutgoingTransferNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-outgoingTransfer-created:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Outgoing transfer created
+      tags:
+        - Fund movements
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.created](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.created) instead.
+      x-groupName: Fund movements
+      x-methodName: outgoingTransferCreated
+      x-sortIndex: 1
+  balancePlatform.outgoingTransfer.updated:
+    post:
+      deprecated: true
+      description: |-
+        Adyen sends this webhook when there is updated information after funds have been deducted from a balance account. For example, if the fund transfer failed.
+
+        Use the `data.id` to track the original outgoing transfer resource from the `balancePlatform.outgoingTransfer.created` webhook.
+      operationId: post-balancePlatform.outgoingTransfer.updated
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-outgoingTransfer-updated:
+                $ref: "#/components/examples/post-balancePlatform.outgoingTransfer.updated-balancePlatform-outgoingTransfer-updated"
+            schema:
+              $ref: "#/components/schemas/OutgoingTransferNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-outgoingTransfer-updated:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Outgoing transfer updated
+      tags:
+        - Fund movements
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.updated](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.updated) instead.
+      x-groupName: Fund movements
+      x-methodName: outgoingTransferUpdated
+      x-sortIndex: 2
+  balancePlatform.payment.created:
+    post:
+      deprecated: true
+      description: |-
+        Adyen sends this webhook when a payment authorisation, a refund, or a funds transfer has been initiated. This webhook only informs your server of requests. For the actual fund movements, you'll get the information from the subsequent outgoing or incoming transfer webhooks.
+
+         To differentiate the requests, check the content of the webhook.
+
+        * For payments, the webhook contains the authorisation result, information about the processing merchant, and shows a negative amount.
+
+         * For refunds, the webhook contains to which payment instrument the funds will be refunded, and shows a positive amount.
+
+        * For outgoing or incoming fund transfers, the webhook shows a positive or negative amount depending on the direction of the transfer, and only includes information about the balance account.
+      operationId: post-balancePlatform.payment.created
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-payment-created-authorized:
+                $ref: "#/components/examples/post-balancePlatform.payment.created-balancePlatform-payment-created-authorized"
+              balancePlatform-payment-created-funds-transfer:
+                $ref: "#/components/examples/post-balancePlatform.payment.created-balancePlatform-payment-created-funds-transfer"
+              balancePlatform-payment-created-refund-requested:
+                $ref: "#/components/examples/post-balancePlatform.payment.created-balancePlatform-payment-created-refund-requested"
+              balancePlatform-payment-created-rejected:
+                $ref: "#/components/examples/post-balancePlatform.payment.created-balancePlatform-payment-created-rejected"
+            schema:
+              $ref: "#/components/schemas/PaymentNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-payment-created-authorized:
+                  $ref: "#/components/examples/WebhookAck"
+                balancePlatform-payment-created-funds-transfer:
+                  $ref: "#/components/examples/WebhookAck"
+                balancePlatform-payment-created-refund-requested:
+                  $ref: "#/components/examples/WebhookAck"
+                balancePlatform-payment-created-rejected:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Payment authorisation, refund, or funds transfer initiated
+      tags:
+        - Payment authorisation, refund, or funds transfer initiated
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.created](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.created) instead.
+      x-groupName: Payment authorisation, refund, or funds transfer initiated
+      x-methodName: paymentAuthorisationRefundOrFundsTransferInitiated
+      x-sortIndex: 1
+  balancePlatform.payment.updated:
+    post:
+      deprecated: true
+      description: Adyen sends this webhook when a payment authorisation has expired or has been cancelled. Use the `data.id` to track the original payment authorisation from the `balancePlatform.payment.created` webhook.
+      operationId: post-balancePlatform.payment.updated
+      requestBody:
+        content:
+          application/json:
+            examples:
+              balancePlatform-payment-updated-expired:
+                $ref: "#/components/examples/post-balancePlatform.payment.updated-balancePlatform-payment-updated-expired"
+              balancePlatform-payment-updated-partially-cancelled:
+                $ref: "#/components/examples/post-balancePlatform.payment.updated-balancePlatform-payment-updated-partially-cancelled"
+              balancePlatform-payment-updated-partially-expired:
+                $ref: "#/components/examples/post-balancePlatform.payment.updated-balancePlatform-payment-updated-partially-expired"
+            schema:
+              $ref: "#/components/schemas/PaymentNotificationRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                balancePlatform-payment-updated-expired:
+                  $ref: "#/components/examples/WebhookAck"
+                balancePlatform-payment-updated-partially-cancelled:
+                  $ref: "#/components/examples/WebhookAck"
+                balancePlatform-payment-updated-partially-expired:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/BalancePlatformNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Payment authorisation expired or cancelled
+      tags:
+        - Payment authorisation, refund, or funds transfer initiated
+      x-addedInVersion: "1"
+      x-deprecatedInVersion: "1"
+      x-deprecatedMessage: Use [balancePlatform.transfer.updated](https://docs.adyen.com/api-explorer/transfer-webhooks/latest/post/balancePlatform.transfer.updated) instead.
+      x-groupName: Payment authorisation, refund, or funds transfer initiated
+      x-methodName: paymentAuthorisationExpiredOrCancelled
+      x-sortIndex: 2
+x-groups:
+  - Payment authorisation, refund, or funds transfer initiated
+  - Fund movements
+x-staticResponse: response.json

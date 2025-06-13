@@ -1,0 +1,725 @@
+openapi: 3.1.0
+servers:
+  - url: https://pal-test.adyen.com/pal/servlet/BinLookup/v54
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    The BIN Lookup API provides endpoints for retrieving information, such as cost estimates, and 3D Secure supported version based on a given BIN.
+
+    ## Authentication
+    You need an [API credential](https://docs.adyen.com/development-resources/api-credentials) to authenticate to the API.
+
+    If using an API key, add an `X-API-Key` header with the API key as the value, for example:
+
+     ```
+    curl
+    -H "Content-Type: application/json" \
+    -H "X-API-Key: YOUR_API_KEY" \
+    ...
+    ```
+
+    Alternatively, you can use the username and password to connect to the API using basic authentication, for example:
+
+    ```
+    curl
+    -U "ws@Company.YOUR_COMPANY_ACCOUNT":"YOUR_BASIC_AUTHENTICATION_PASSWORD" \
+    -H "Content-Type: application/json" \
+    ...
+    ```
+
+    ## Versioning
+    The BinLookup API supports [versioning](https://docs.adyen.com/development-resources/versioning) using a version suffix in the endpoint URL. This suffix has the following format: "vXX", where XX is the version number.
+
+    For example:
+    ```
+    https://pal-test.adyen.com/pal/servlet/BinLookup/v54/get3dsAvailability
+    ```## Going live
+
+    To authneticate to the live endpoints, you need an [API credential](https://docs.adyen.com/development-resources/api-credentials) from your live Customer Area.
+
+    The live endpoint URLs contain a prefix which is unique to your company account:
+    ```
+
+    https://{PREFIX}-pal-live.adyenpayments.com/pal/servlet/BinLookup/v54/get3dsAvailability
+    ```
+
+    Get your `{PREFIX}` from your live Customer Area under **Developers** > **API URLs** > **Prefix**.
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Adyen BinLookup API
+  version: "54"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/BinLookupService-v54.json
+      version: "3.1"
+  x-preferred: true
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: BinLookupService
+  x-timestamp: 2023-04-11T19:23:59Z
+tags:
+  - name: General
+paths:
+  /get3dsAvailability:
+    post:
+      description: |-
+        Verifies whether 3D Secure is available for the specified BIN or card brand. For 3D Secure 2, this endpoint also returns device fingerprinting keys.
+
+        For more information, refer to [3D Secure 2](https://docs.adyen.com/online-payments/3d-secure/native-3ds2).
+      operationId: post-get3dsAvailability
+      requestBody:
+        content:
+          application/json:
+            examples:
+              get3dsAvailability:
+                $ref: "#/components/examples/post-get3dsAvailability-get3dsAvailability"
+            schema:
+              $ref: "#/components/schemas/ThreeDSAvailabilityRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                get3dsAvailability:
+                  $ref: "#/components/examples/post-get3dsAvailability-get3dsAvailability-200"
+              schema:
+                $ref: "#/components/schemas/ThreeDSAvailabilityResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Check if 3D Secure is available
+      tags:
+        - General
+      x-addedInVersion: "1"
+      x-groupName: General
+      x-methodName: get3dsAvailability
+      x-sortIndex: 0
+  /getCostEstimate:
+    post:
+      description: |-
+        >This API is available only for merchants operating in Australia, the EU, and the UK.
+
+        Use the Adyen Cost Estimation API to pre-calculate interchange and scheme fee costs. Knowing these costs prior actual payment authorisation gives you an opportunity to charge those costs to the cardholder, if necessary.
+
+        To retrieve this information, make the call to the `/getCostEstimate` endpoint. The response to this call contains the amount of the interchange and scheme fees charged by the network for this transaction, and also which surcharging policy is possible (based on current regulations).
+
+        > Since not all information is known in advance (for example, if the cardholder will successfully authenticate via 3D Secure or if you also plan to provide additional Level 2/3 data), the returned amounts are based on a set of assumption criteria you define in the `assumptions` parameter.
+      operationId: post-getCostEstimate
+      requestBody:
+        content:
+          application/json:
+            examples:
+              getCostEstimate:
+                $ref: "#/components/examples/post-getCostEstimate-getCostEstimate"
+              getCostEstimateEncryptedCard:
+                $ref: "#/components/examples/post-getCostEstimate-getCostEstimateEncryptedCard"
+              getCostEstimateMinimal:
+                $ref: "#/components/examples/post-getCostEstimate-getCostEstimateMinimal"
+              getCostEstimateMinimal3DS:
+                $ref: "#/components/examples/post-getCostEstimate-getCostEstimateMinimal3DS"
+              getCostEstimateRecurringContract:
+                $ref: "#/components/examples/post-getCostEstimate-getCostEstimateRecurringContract"
+            schema:
+              $ref: "#/components/schemas/CostEstimateRequest"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                getCostEstimate:
+                  $ref: "#/components/examples/post-getCostEstimate-getCostEstimate-200"
+                getCostEstimateEncryptedCard:
+                  $ref: "#/components/examples/post-getCostEstimate-getCostEstimateEncryptedCard-200"
+                getCostEstimateMinimal:
+                  $ref: "#/components/examples/post-getCostEstimate-getCostEstimateMinimal-200"
+                getCostEstimateMinimal3DS:
+                  $ref: "#/components/examples/post-getCostEstimate-getCostEstimateMinimal3DS-200"
+              schema:
+                $ref: "#/components/schemas/CostEstimateResponse"
+          description: OK - the request has succeeded.
+        "400":
+          content:
+            application/json:
+              examples:
+                generic:
+                  $ref: "#/components/examples/generic-400"
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Bad Request - a problem reading or understanding the request.
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unauthorized - authentication required.
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Forbidden - insufficient permissions to process the request.
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Unprocessable Entity - a request validation error.
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+          description: Internal Server Error - the server could not process the request.
+      security:
+        - BasicAuth: []
+        - ApiKeyAuth: []
+      summary: Get a fees cost estimate
+      tags:
+        - General
+      x-groupName: General
+      x-methodName: getCostEstimate
+      x-sortIndex: 0
+components:
+  examples:
+    generic-400:
+      summary: Response code 400. Bad Request.
+      value:
+        errorCode: "702"
+        errorType: validation
+        message: "Unexpected input: I"
+        status: 400
+    post-get3dsAvailability-get3dsAvailability:
+      description: Example request to check 3D Secure availability
+      summary: Get 3D Secure availability
+      value:
+        cardNumber: "4111111111111111"
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+    post-get3dsAvailability-get3dsAvailability-200:
+      summary: Example response for request 'get3dsAvailability'
+      value:
+        threeDS1Supported: true
+        threeDS2CardRangeDetails: []
+        threeDS2supported: false
+    post-getCostEstimate-getCostEstimate:
+      description: Example request to get the estimated cost of a transaction
+      summary: Estimate the transaction cost
+      value:
+        amount:
+          currency: EUR
+          value: 1234
+        assumptions:
+          assume3DSecureAuthenticated: true
+          assumeLevel3Data: true
+        cardNumber: "5101180000000007"
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        merchantDetails:
+          countryCode: NL
+          enrolledIn3DSecure: true
+          mcc: "7411"
+        shopperInteraction: Ecommerce
+    post-getCostEstimate-getCostEstimate-200:
+      summary: Example response for request 'getCostEstimate'
+      value:
+        costEstimateAmount:
+          currency: EUR
+          value: 12
+        resultCode: Success
+        surchargeType: PASSTHROUGH
+    post-getCostEstimate-getCostEstimateEncryptedCard:
+      description: Example request to get the estimated cost of a transaction
+      summary: Estimate the transaction cost using an encrypted card number
+      value:
+        amount:
+          currency: EUR
+          value: 1234
+        assumptions:
+          assume3DSecureAuthenticated: true
+          assumeLevel3Data: true
+        encryptedCardNumber: test_5101180000000007
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        merchantDetails:
+          countryCode: NL
+          enrolledIn3DSecure: true
+          mcc: "7411"
+        shopperInteraction: Ecommerce
+    post-getCostEstimate-getCostEstimateEncryptedCard-200:
+      summary: Example response for request 'getCostEstimateEncryptedCard'
+      value:
+        costEstimateAmount:
+          currency: EUR
+          value: 12
+        resultCode: Success
+        surchargeType: PASSTHROUGH
+    post-getCostEstimate-getCostEstimateMinimal:
+      description: Example request to get the estimated cost of a transaction with minimum details
+      summary: Estimate the transaction cost (minimal)
+      value:
+        amount:
+          currency: EUR
+          value: 1234
+        cardNumber: "5101180000000007"
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+    post-getCostEstimate-getCostEstimateMinimal-200:
+      summary: Example response for request 'getCostEstimateMinimal'
+      value:
+        costEstimateAmount:
+          currency: EUR
+          value: 12
+        resultCode: Success
+        surchargeType: PASSTHROUGH
+    post-getCostEstimate-getCostEstimateMinimal3DS:
+      description: Example request to get the estimated cost of a 3D Secure transaction with minimum details
+      summary: Estimate the transaction cost (minimal with 3DSecure)
+      value:
+        amount:
+          currency: EUR
+          value: 1234
+        assumptions:
+          assume3DSecureAuthenticated: true
+          assumeLevel3Data: true
+        cardNumber: "5101180000000007"
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+    post-getCostEstimate-getCostEstimateMinimal3DS-200:
+      summary: Example response for request 'getCostEstimateMinimal3DS'
+      value:
+        costEstimateAmount:
+          currency: EUR
+          value: 12
+        resultCode: Success
+        surchargeType: PASSTHROUGH
+    post-getCostEstimate-getCostEstimateRecurringContract:
+      description: Example request to get the estimated cost of a recurring transaction
+      summary: Estimate the transaction cost (recurring contract)
+      value:
+        amount:
+          currency: EUR
+          value: 1234
+        assumptions:
+          assume3DSecureAuthenticated: true
+          assumeLevel3Data: true
+        merchantAccount: YOUR_MERCHANT_ACCOUNT
+        merchantDetails:
+          countryCode: NL
+          enrolledIn3DSecure: true
+          mcc: "7411"
+        selectedRecurringDetailReference: "1234567890123456"
+        shopperInteraction: Ecommerce
+        shopperReference: "123456"
+  schemas:
+    Amount:
+      properties:
+        currency:
+          description: The three-character [ISO currency code](https://docs.adyen.com/development-resources/currency-codes).
+          maxLength: 3
+          minLength: 3
+          type: string
+        value:
+          description: The amount of the transaction, in [minor units](https://docs.adyen.com/development-resources/currency-codes).
+          format: int64
+          type: integer
+      required:
+        - value
+        - currency
+      type: object
+    BinDetail:
+      properties:
+        issuerCountry:
+          description: The country where the card was issued.
+          type: string
+      type: object
+    CardBin:
+      properties:
+        bin:
+          description: The first 6 digit of the card number. Enable this field via merchant account settings.
+          type: string
+        commercial:
+          description: If true, it indicates a commercial card. Enable this field via merchant account settings.
+          type: boolean
+        fundingSource:
+          description: |-
+            The card funding source. Valid values are:
+            * CHARGE
+            * CREDIT
+            * DEBIT
+            * DEFERRED_DEBIT
+            * PREPAID
+            * PREPAID_RELOADABLE
+            * PREPAID_NONRELOADABLE
+            > Enable this field via merchant account settings.
+          type: string
+        fundsAvailability:
+          description: |-
+            Indicates availability of funds.
+
+            Visa:
+            * "I" (fast funds are supported)
+            * "N" (otherwise)
+
+            Mastercard:
+            * "I" (product type is Prepaid or Debit, or issuing country is in CEE/HGEM list)
+            * "N" (otherwise)
+            > Returned when you verify a card BIN or estimate costs, and only if `payoutEligible` is different from "N" or "U".
+          type: string
+        issuerBin:
+          description: The first 8 digit of the card number. Enable this field via merchant account settings.
+          type: string
+          x-addedInVersion: "54"
+        issuingBank:
+          description: The issuing bank of the card.
+          type: string
+        issuingCountry:
+          description: The country where the card was issued from.
+          type: string
+        issuingCurrency:
+          description: The currency of the card.
+          type: string
+        paymentMethod:
+          description: The payment method associated with the card (e.g. visa, mc, or amex).
+          type: string
+        payoutEligible:
+          description: |-
+            Indicates whether a payout is eligible or not for this card.
+
+            Visa:
+            * "Y"
+            * "N"
+
+            Mastercard:
+            * "Y" (domestic and cross-border)
+            * "D" (only domestic)
+            * "N" (no MoneySend)
+            * "U" (unknown)
+            > Returned when you verify a card BIN or estimate costs, and only if `payoutEligible` is different from "N" or "U".
+          type: string
+        summary:
+          description: The last four digits of the card number.
+          type: string
+      type: object
+    CostEstimateAssumptions:
+      properties:
+        assume3DSecureAuthenticated:
+          description: If true, the cardholder is expected to successfully authorise via 3D Secure.
+          type: boolean
+        assumeLevel3Data:
+          description: If true, the transaction is expected to have valid Level 3 data.
+          type: boolean
+        installments:
+          description: If not zero, the number of installments.
+          format: int32
+          type: integer
+      type: object
+    CostEstimateRequest:
+      properties:
+        amount:
+          $ref: "#/components/schemas/Amount"
+          description: The transaction amount used as a base for the cost estimation.
+        assumptions:
+          $ref: "#/components/schemas/CostEstimateAssumptions"
+          description: Assumptions made for the expected characteristics of the transaction, for which the charges are being estimated.
+        cardNumber:
+          description: |-
+            The card number (4-19 characters) for PCI compliant use cases. Do not use any separators.
+
+            > Either the `cardNumber` or `encryptedCardNumber` field must be provided in a payment request.
+          maxLength: 19
+          minLength: 4
+          type: string
+        encryptedCardNumber:
+          description: |-
+            Encrypted data that stores card information for non PCI-compliant use cases. The encrypted data must be created with the Checkout Card Component or Secured Fields Component, and must contain the `encryptedCardNumber` field.
+
+            > Either the `cardNumber` or `encryptedCardNumber` field must be provided in a payment request.
+          type: string
+        merchantAccount:
+          description: The merchant account identifier you want to process the (transaction) request with.
+          type: string
+        merchantDetails:
+          $ref: "#/components/schemas/MerchantDetails"
+          description: Additional data for merchants who don't use Adyen as the payment authorisation gateway.
+        recurring:
+          $ref: "#/components/schemas/Recurring"
+          description: The recurring settings for the payment. Use this property when you want to enable [recurring payments](https://docs.adyen.com/online-payments/tokenization).
+        selectedRecurringDetailReference:
+          description: The `recurringDetailReference` you want to use for this cost estimate. The value `LATEST` can be used to select the most recently stored recurring detail.
+          type: string
+        shopperInteraction:
+          description: |-
+            Specifies the sales channel, through which the shopper gives their card details, and whether the shopper is a returning customer.
+            For the web service API, Adyen assumes Ecommerce shopper interaction by default.
+
+            This field has the following possible values:
+            * `Ecommerce` - Online transactions where the cardholder is present (online). For better authorisation rates, we recommend sending the card security code (CSC) along with the request.
+            * `ContAuth` - Card on file and/or subscription transactions, where the card holder is known to the merchant (returning customer). If the shopper is present (online), you can supply also the CSC to improve authorisation (one-click payment).
+            * `Moto` - Mail-order and telephone-order transactions where the shopper is in contact with the merchant via email or telephone.
+            * `POS` - Point-of-sale transactions where the shopper is physically present to make a payment using a secure payment terminal.
+          enum:
+            - Ecommerce
+            - ContAuth
+            - Moto
+            - POS
+          type: string
+        shopperReference:
+          description: |-
+            Required for recurring payments. 
+            Your reference to uniquely identify this shopper, for example user ID or account ID. Minimum length: 3 characters.
+            > Your reference must not include personally identifiable information (PII), for example name or email address.
+          type: string
+      required:
+        - amount
+        - merchantAccount
+      type: object
+    CostEstimateResponse:
+      properties:
+        cardBin:
+          $ref: "#/components/schemas/CardBin"
+          description: Card BIN details.
+        costEstimateAmount:
+          $ref: "#/components/schemas/Amount"
+          description: The estimated cost (scheme fee + interchange) in the settlement currency. If the settlement currency cannot be determined, the fee in EUR is returned.
+        costEstimateReference:
+          description: Adyen's 16-character reference associated with the request.
+          type: string
+          x-addedInVersion: "52"
+        resultCode:
+          description: The result of the cost estimation.
+          type: string
+        surchargeType:
+          description: |-
+            Indicates the way the charges can be passed on to the cardholder. The following values are possible:
+            * `ZERO` - the charges are not allowed to pass on
+            * `PASSTHROUGH` - the charges can be passed on
+            * `UNLIMITED` - there is no limit on how much surcharge is passed on
+          type: string
+      type: object
+    DSPublicKeyDetail:
+      properties:
+        brand:
+          description: Card brand.
+          type: string
+        directoryServerId:
+          description: Directory Server (DS) identifier.
+          type: string
+        fromSDKVersion:
+          description: The version of the mobile 3D Secure 2 SDK. For the possible values, refer to the versions in [Adyen 3DS2 Android](https://github.com/Adyen/adyen-3ds2-android/releases) and [Adyen 3DS2 iOS](https://github.com/Adyen/adyen-3ds2-ios/releases).
+          type: string
+        publicKey:
+          contentEncoding: base64
+          description: Public key. The 3D Secure 2 SDK encrypts the device information by using the DS public key.
+          type: string
+      type: object
+    MerchantDetails:
+      properties:
+        countryCode:
+          description: |-
+            2-letter ISO 3166 country code of the card acceptor location.
+            > This parameter is required for the merchants who don't use Adyen as the payment authorisation gateway.
+          maxLength: 2
+          minLength: 2
+          type: string
+        enrolledIn3DSecure:
+          description: If true, indicates that the merchant is enrolled in 3D Secure for the card network.
+          type: boolean
+        mcc:
+          description: |-
+            The merchant category code (MCC) is a four-digit number which relates to a particular market segment. This code reflects the predominant activity that is conducted by the merchant.
+
+            The list of MCCs can be found [here](https://en.wikipedia.org/wiki/Merchant_category_code).
+          type: string
+      type: object
+    Recurring:
+      properties:
+        contract:
+          description: |-
+            The type of recurring contract to be used.
+            Possible values:
+            * `ONECLICK` – Payment details can be used to initiate a one-click payment, where the shopper enters the [card security code (CVC/CVV)](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-security-code-cvc-cvv-cid).
+            * `RECURRING` – Payment details can be used without the card security code to initiate [card-not-present transactions](https://docs.adyen.com/payments-fundamentals/payment-glossary#card-not-present-cnp).
+            * `ONECLICK,RECURRING` – Payment details can be used regardless of whether the shopper is on your site or not.
+            * `PAYOUT` – Payment details can be used to [make a payout](https://docs.adyen.com/online-payments/online-payouts).
+          enum:
+            - ONECLICK
+            - RECURRING
+            - PAYOUT
+          type: string
+        recurringDetailName:
+          description: A descriptive name for this detail.
+          type: string
+        recurringExpiry:
+          description: Date after which no further authorisations shall be performed. Only for 3D Secure 2.
+          format: date-time
+          type: string
+          x-addedInVersion: "40"
+        recurringFrequency:
+          description: Minimum number of days between authorisations. Only for 3D Secure 2.
+          type: string
+          x-addedInVersion: "40"
+        tokenService:
+          description: The name of the token service.
+          enum:
+            - VISATOKENSERVICE
+            - MCTOKENSERVICE
+          type: string
+          x-addedInVersion: "25"
+      type: object
+    ServiceError:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: Contains additional information about the payment. Some data fields are included only if you select them first. Go to **Customer Area** > **Developers** > **Additional data**.
+          type: object
+          x-addedInVersion: "46"
+        errorCode:
+          description: The error code mapped to the error message.
+          type: string
+        errorType:
+          description: The category of the error.
+          type: string
+        message:
+          description: A short explanation of the issue.
+          type: string
+        pspReference:
+          description: The PSP reference of the payment.
+          type: string
+        status:
+          description: The HTTP response status.
+          format: int32
+          type: integer
+      type: object
+    ThreeDS2CardRangeDetail:
+      properties:
+        acsInfoInd:
+          description: |-
+            Provides additional information to the 3DS Server.
+            Possible values:
+            - 01 (Authentication is available at ACS)
+            - 02 (Attempts supported by ACS or DS)
+            - 03 (Decoupled authentication supported)
+            - 04 (Whitelisting supported)
+          items:
+            type: string
+          type: array
+          x-addedInVersion: "51"
+        brandCode:
+          description: Card brand.
+          type: string
+        endRange:
+          description: BIN end range.
+          type: string
+        startRange:
+          description: BIN start range.
+          type: string
+        threeDS2Versions:
+          description: Supported 3D Secure protocol versions
+          items:
+            type: string
+          type: array
+          x-addedInVersion: "53"
+        threeDSMethodURL:
+          description: In a 3D Secure 2 browser-based flow, this is the URL where you should send the device fingerprint to.
+          type: string
+      type: object
+    ThreeDSAvailabilityRequest:
+      properties:
+        additionalData:
+          additionalProperties:
+            type: string
+          description: |-
+            This field contains additional data, which may be required for a particular request.
+
+            The `additionalData` object consists of entries, each of which includes the key and value.
+          type: object
+        brands:
+          description: List of brands.
+          items:
+            type: string
+          type: array
+        cardNumber:
+          description: Card number or BIN.
+          type: string
+        merchantAccount:
+          description: The merchant account identifier.
+          type: string
+        recurringDetailReference:
+          description: A recurring detail reference corresponding to a card.
+          type: string
+        shopperReference:
+          description: The shopper's reference to uniquely identify this shopper (e.g. user ID or account ID).
+          type: string
+      required:
+        - merchantAccount
+      type: object
+    ThreeDSAvailabilityResponse:
+      properties:
+        binDetails:
+          $ref: "#/components/schemas/BinDetail"
+          description: Bin Group Details
+          x-addedInVersion: "50"
+        dsPublicKeys:
+          description: List of Directory Server (DS) public keys.
+          items:
+            $ref: "#/components/schemas/DSPublicKeyDetail"
+          type: array
+        threeDS1Supported:
+          description: Indicator if 3D Secure 1 is supported.
+          type: boolean
+        threeDS2CardRangeDetails:
+          description: List of brand and card range pairs.
+          items:
+            $ref: "#/components/schemas/ThreeDS2CardRangeDetail"
+          type: array
+        threeDS2supported:
+          description: Indicator if 3D Secure 2 is supported.
+          type: boolean
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+x-groups:
+  - General

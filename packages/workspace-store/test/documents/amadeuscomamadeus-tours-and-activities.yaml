@@ -1,0 +1,435 @@
+swagger: "2.0"
+schemes:
+  - https
+host: test.api.amadeus.com
+basePath: /v1
+info:
+  description: |-
+    
+    Before using this API, we recommend you read our **[Authorization Guide](https://developers.amadeus.com/self-service/apis-docs/guides/authorization-262)** for more information on how to generate an access token. 
+      
+    Please also be aware that our test environment is based on a subset of the production, this API in test only returns a few selected cities. You can find the list in our **[data collection](https://github.com/amadeus4dev/data-collection)**.
+  title: Tours and Activities
+  version: 1.0.2
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_amadeus.com_images_en_technology_mobile-tablet_mobile-woman-office-city.jpg.transform_medium_img.jpg
+  x-origin:
+    - format: swagger
+      url: https://raw.githubusercontent.com/amadeus4dev/amadeus-open-api-specification/main/spec/json/ToursandActivities_v1_swagger_specification.json
+      version: "2.0"
+  x-providerName: amadeus.com
+  x-release-note:
+    "1.0":
+      - First version
+  x-serviceName: amadeus-tours-and-activities
+  x-status: validated
+  x-tags:
+    - "#ama-for-dev"
+consumes:
+  - application/vnd.amadeus+json
+produces:
+  - application/vnd.amadeus+json
+parameters:
+  activityId:
+    in: path
+    name: activityId
+    required: true
+    type: string
+    x-example: "23642"
+responses:
+  "404":
+    description: Not Found
+    schema:
+      $ref: "#/definitions/Error_404"
+  "500":
+    description: Unexpected Error
+    schema:
+      $ref: "#/definitions/Error_500"
+  400_Retreive:
+    description: |
+      Code   | Title
+      -------|----------------
+      572    | INVALID OPTION	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  400_Search:
+    description: |
+      Code   | Title
+      -------|----------------
+      477    | INVALID FORMAT
+      572    | INVALID OPTION
+      4926   | INVALID DATA RECEIVED
+      32171  | MANDATORY DATA MISSING	     
+    schema:
+      $ref: "#/definitions/Error_400"
+  activities:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          - bookingLink: https://b2c.mla.cloud/c/QCejqyor?c=2WxbgL36
+            geoCode:
+              latitude: "40.414000"
+              longitude: "-3.691000"
+            id: "23642"
+            name: Skip-the-line tickets to the Prado Museum
+            pictures:
+              - https://images.musement.com/cover/0001/07/prado-museum-tickets_header-6456.jpeg?w=500
+            price:
+              amount: "16.00"
+              currencyCode: EUR
+            rating: "4.500000"
+            self:
+              href: https://test.api.amadeus.com/v1/shopping/activities/23642
+              methods:
+                - GET
+            shortDescription: Book your tickets for the Prado Museum in Madrid, discover masterpieces by Velázquez, Goya, Mantegna, Raphael, Tintoretto and access all temporary exhibitions.
+            type: activity
+        meta:
+          count: "1"
+          links:
+            self: https://test.api.amadeus.com/v1/shopping/activities?longitude=-3.69170868&latitude=40.41436995&radius=1
+      properties:
+        data:
+          items:
+            $ref: "#/definitions/Activity"
+          type: array
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Successful Search
+  activity:
+    description: Successful Operation
+    schema:
+      example:
+        data:
+          bookingLink: https://b2c.mla.cloud/c/QCejqyor?c=2WxbgL36
+          geoCode:
+            latitude: "40.414000"
+            longitude: "-3.691000"
+          id: "23642"
+          name: Skip-the-line tickets to the Prado Museum
+          pictures:
+            - https://images.musement.com/cover/0001/07/prado-museum-tickets_header-6456.jpeg?w=500
+          price:
+            amount: "16.00"
+            currencyCode: EUR
+          rating: "4.500000"
+          self:
+            href: https://test.api.amadeus.com/v1/shopping/activities/23642
+            methods:
+              - GET
+          shortDescription: Book your tickets for the Prado Museum in Madrid, discover masterpieces by Velázquez, Goya, Mantegna, Raphael, Tintoretto and access all temporary exhibitions.
+          type: activity
+        meta:
+          self: https://test.api.amadeus.com/v1/shopping/activities/23642
+      properties:
+        data:
+          $ref: "#/definitions/Activity"
+        meta:
+          $ref: "#/definitions/Collection_Meta"
+        warnings:
+          items:
+            $ref: "#/definitions/Issue"
+          type: array
+      required:
+        - data
+      title: Successful Search
+paths:
+  /shopping/activities:
+    get:
+      description: ""
+      operationId: ListActivities
+      parameters:
+        - description: Latitude (decimal coordinates)
+          in: query
+          name: latitude
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude (decimal coordinates)
+          in: query
+          name: longitude
+          required: true
+          type: number
+          x-example: 2.160873
+        - default: 1
+          description: radius of the search in Kilometer. Can be from 0 to 20, default value is 1 Km.
+          in: query
+          name: radius
+          type: integer
+      responses:
+        "200":
+          $ref: "#/responses/activities"
+        "400":
+          $ref: "#/responses/400_Search"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns Activities around a given location
+      tags:
+        - Search
+  /shopping/activities/by-square:
+    get:
+      description: ""
+      operationId: ListActivitiesBySquare
+      parameters:
+        - description: Latitude north of bounding box (decimal coordinates)
+          in: query
+          name: north
+          required: true
+          type: number
+          x-example: 41.397158
+        - description: Longitude west of bounding box (decimal coordinates)
+          in: query
+          name: west
+          required: true
+          type: number
+          x-example: 2.160873
+        - description: Latitude south of bounding box (decimal coordinates)
+          in: query
+          name: south
+          required: true
+          type: number
+          x-example: 41.394582
+        - description: Longitude east of bounding box (decimal coordinates)
+          in: query
+          name: east
+          required: true
+          type: number
+          x-example: 2.177181
+      responses:
+        "200":
+          $ref: "#/responses/activities"
+        "400":
+          $ref: "#/responses/400_Search"
+        default:
+          $ref: "#/responses/500"
+      summary: Returns Activities around a given location
+      tags:
+        - Search
+  "/shopping/activities/{activityId}":
+    get:
+      description: ""
+      operationId: GETActivity
+      responses:
+        "200":
+          $ref: "#/responses/activity"
+        "400":
+          $ref: "#/responses/400_Retreive"
+        "404":
+          $ref: "#/responses/404"
+        default:
+          $ref: "#/responses/500"
+      summary: Retrieve one activity by its id
+      tags:
+        - Retrieve
+    parameters:
+      - $ref: "#/parameters/activityId"
+definitions:
+  Activity:
+    description: Activity description
+    properties:
+      bookingLink:
+        description: url to book the activity
+        type: string
+      description:
+        description: full description of the activity
+        type: string
+      geoCode:
+        $ref: "#/definitions/GeoCode"
+      id:
+        description: unique id of the ressource
+        readOnly: true
+        type: string
+      minimumDuration:
+        description: Minimum recommended duration for the activity
+        type: string
+      name:
+        description: activity name
+        type: string
+      pictures:
+        description: link to picture related to the activity
+        items:
+          type: string
+        type: array
+      price:
+        $ref: "#/definitions/ElementaryPrice"
+      rating:
+        description: rating of the activity
+        type: string
+      self:
+        $ref: "#/definitions/Link"
+      shortDescription:
+        description: short description of the activity
+        type: string
+      type:
+        description: the ressource name
+        readOnly: true
+        type: string
+    title: Activity
+    type: object
+  Collection_Meta:
+    properties:
+      count:
+        example: 1
+        type: integer
+      links:
+        example:
+          self: https://test.api.amadeus.com/v1/area/resources?param=value
+        properties:
+          first:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          last:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          next:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          previous:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          self:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+          up:
+            example: https://test.api.amadeus.com/v1/area/resources?...
+            format: uri
+            type: string
+        title: CollectionLinks
+        type: object
+    title: Collection_Meta
+    type: object
+  ElementaryPrice:
+    description: elementaryPrice
+    properties:
+      amount:
+        description: Amount of the fare. could be alpha numeric. Ex- 500.20 or 514.13A, 'A'signifies additional collection.
+        type: string
+      currencyCode:
+        description: Currency type of the fare.
+        type: string
+    type: object
+  Error_400:
+    example:
+      errors:
+        - code: 477
+          detail: invalid query parameter format
+          source:
+            example: CDG
+            parameter: airport
+          status: 400
+          title: INVALID FORMAT
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  Error_404:
+    example:
+      errors:
+        - code: 1797
+          detail: no response found for this query parameter
+          source:
+            parameter: airport
+          status: 404
+          title: NOT FOUND
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  Error_500:
+    example:
+      errors:
+        - code: 141
+          status: 500
+          title: SYSTEM ERROR HAS OCCURRED
+    properties:
+      errors:
+        items:
+          $ref: "#/definitions/Issue"
+        type: array
+    required:
+      - errors
+    type: object
+  GeoCode:
+    description: geo position
+    properties:
+      latitude:
+        description: latitude of the location
+        example: 43.580418
+        format: double
+        type: number
+      longitude:
+        description: longitude of the location
+        example: 7.125102
+        format: double
+        type: number
+    type: object
+  Issue:
+    properties:
+      code:
+        description: an application-specific error code
+        format: int64
+        type: integer
+      detail:
+        description: explanation of the error
+        type: string
+      source:
+        description: an object containing references to the source of the error
+        maxProperties: 1
+        properties:
+          example:
+            description: a string indicating an example of the right value
+            type: string
+          parameter:
+            description: a string indicating which URI query parameter caused the issue
+            type: string
+          pointer:
+            description: a JSON Pointer [RFC6901] to the associated entity in the request document
+            type: string
+        title: Issue_Source
+        type: object
+      status:
+        description: the HTTP status code applicable to this error
+        type: integer
+      title:
+        description: a short summary of the error
+        type: string
+    type: object
+  Link:
+    example:
+      href: string
+    properties:
+      href:
+        format: uri
+        type: string
+      methods:
+        items:
+          enum:
+            - GET
+            - PUT
+            - DELETE
+            - POST
+            - PATCH
+          type: string
+        type: array
+    type: object
+x-generatedAt: 2020-09-02T09:57:40.390Z

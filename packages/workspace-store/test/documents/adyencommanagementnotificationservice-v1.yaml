@@ -1,0 +1,578 @@
+openapi: 3.1.0
+servers:
+  - url: https://management-test.adyen.com/v1
+info:
+  contact:
+    email: developer-experience@adyen.com
+    name: Adyen Developer Experience team
+    url: https://www.adyen.help/hc/en-us/community/topics
+    x-twitter: Adyen
+  description: |-
+    Adyen uses webhooks to inform your system about events that happen with your Adyen company and merchant accounts, stores, payment terminals, and payment methods when using [Management API](https://docs.adyen.com/api-explorer/#/ManagementService/latest/overview).
+
+    When an event occurs, Adyen makes an HTTP POST request to a URL on your server and includes the details of the event in the request body.
+
+    See [Webhooks](https://docs.adyen.com/development-resources/webhooks) for more information.
+  termsOfService: https://www.adyen.com/legal/terms-and-conditions
+  title: Management Webhooks
+  version: "1"
+  x-apisguru-categories:
+    - payment
+  x-logo:
+    url: https://api.apis.guru/v2/cache/logo/https_twitter.com_Adyen_profile_image
+  x-origin:
+    - format: openapi
+      url: https://raw.githubusercontent.com/Adyen/adyen-openapi/main/json/ManagementNotificationService-v1.json
+      version: "3.1"
+  x-providerName: adyen.com
+  x-publicVersion: true
+  x-serviceName: ManagementNotificationService-v1
+  x-timestamp: 2023-03-30T18:21:57Z
+tags: []
+components:
+  examples:
+    WebhookAck:
+      summary: Acknowledge Webhook
+      value: "[accepted]"
+    post-merchant.created-merchant.created:
+      description: Example webhook when a merchant account was created
+      summary: Merchant account created
+      value:
+        createdAt: 2022-08-12T10:50:01+02:00
+        data:
+          capabilities:
+            sendToTransferInstrument:
+              requested: true
+              requestedLevel: notApplicable
+          companyId: YOUR_COMPANY_ID
+          merchantId: MC3224X22322535GH8D537TJR
+          status: PreActive
+        environment: test
+        type: merchant.created
+    post-merchant.updated-merchant-updated-valid:
+      description: Example webhook when verification is succesful
+      summary: Merchant account verified
+      value:
+        createdAt: 2022-09-20T13:42:31+02:00
+        data:
+          capabilities:
+            receivePayments:
+              allowed: true
+              requested: true
+              requestedLevel: notApplicable
+              verificationStatus: valid
+          legalEntityId: LE322KH223222F5GNNW694PZN
+          merchantId: YOUR_MERCHANT_ID
+          status: PreActive
+        environment: test
+        type: merchant.updated
+    post-merchant.updated-merchant-updated-with-errors:
+      description: Example webhook when verification fails
+      summary: Merchant account verification failed
+      value:
+        createdAt: 2022-09-20T13:41:12+02:00
+        data:
+          capabilities:
+            receivePayments:
+              allowed: false
+              problems:
+                - entity:
+                    id: LE322KH223222F5GNNW694PZN
+                    type: LegalEntity
+                  verificationErrors:
+                    - code: 2_8064
+                      message: "'UBO through ownership' was missing."
+                      remediatingActions:
+                        - code: 2_123
+                          message: Add 'organization.entityAssociations' of type 'uboThroughOwnership' to legal entity
+                      type: dataMissing
+                    - code: 1_30
+                      message: Individual details couldn't be verified
+                      remediatingActions:
+                        - code: 1_300
+                          message: Update individual details
+                      subErrors:
+                        - code: 1_3000
+                          message: The user couldn't be verified
+                          remediatingActions:
+                            - code: 1_300
+                              message: Update individual details
+                            - code: 1_301
+                              message: Upload an ID document
+                          type: invalidInput
+                      type: invalidInput
+              requested: true
+              requestedLevel: notApplicable
+              verificationStatus: invalid
+          legalEntityId: LE322KH223222F5GNNW694PZN
+          merchantId: YOUR_MERCHANT_ID
+          status: PreActive
+        environment: test
+        type: merchant.updated
+    post-paymentMethod.created-paymentMethod.created:
+      summary: Payment method Visa created
+      value:
+        createdAt: 2022-01-24T14:59:11+01:00
+        data:
+          id: PM3224R223224K5FH4M2K9B86
+          merchantId: MERCHANT_ACCOUNT
+          result: SUCCESS
+          storeId: ST322LJ223223K5F4SQNR9XL5
+          type: visa
+        environment: test
+        type: paymentMethod.created
+  schemas:
+    AccountCapabilityData:
+      properties:
+        allowed:
+          description: Indicates whether the capability is allowed. Adyen sets this to **true** if the verification is successful.
+          type: boolean
+        allowedLevel:
+          description: "The allowed level of the capability. Some capabilities have different levels which correspond to thresholds. Higher levels may require additional checks and increased monitoring.Possible values: **notApplicable**, **low**, **medium**, **high**."
+          type: string
+        capability:
+          description: The name of the capability. For example, **sendToTransferInstrument**.
+          type: string
+        problems:
+          description: List of entities that has problems with verification. The information includes the details of the errors and the actions that you can take to resolve them.
+          items:
+            $ref: "#/components/schemas/CapabilityProblem"
+          type: array
+        requested:
+          description: Indicates whether you requested the capability.
+          type: boolean
+        requestedLevel:
+          description: "The level that you requested for the capability. Some capabilities have different levels which correspond to thresholds. Higher levels may require additional checks and increased monitoring.Possible values: **notApplicable**, **low**, **medium**, **high**."
+          type: string
+        verificationStatus:
+          description: |
+            The status of the verification checks for the capability.
+
+            Possible values:
+
+            * **pending**: Adyen is running the verification.
+
+            * **invalid**: The verification failed. Check if the `errors` array contains more information.
+
+            * **valid**: The verification was successful.
+
+            * **rejected**: Adyen checked the information and found reasons to not allow the capability.
+          type: string
+      required:
+        - requestedLevel
+        - requested
+      type: object
+    AccountCreateNotificationData:
+      properties:
+        capabilities:
+          additionalProperties:
+            $ref: "#/components/schemas/AccountCapabilityData"
+          description: Key-value pairs that specify the actions that the merchant account can do and its settings. The key is a capability. For example, the **sendToTransferInstrument** is the capability required before you can pay out funds to the bank account. The value is an object containing the settings for the capability.
+          type: object
+        companyId:
+          description: The unique identifier of the company account.
+          type: string
+        legalEntityId:
+          description: The unique identifier of the [legal entity](https://docs.adyen.com/api-explorer/legalentity/latest/post/legalEntities#responses-200-id).
+          type: string
+        merchantId:
+          description: The unique identifier of the merchant account.
+          type: string
+        status:
+          description: |-
+            The status of the merchant account.
+
+            Possible values:
+
+            * **PreActive**: The merchant account has been created. Users cannot access the merchant account in the Customer Area. The account cannot process payments.
+            * **Active**: Users can access the merchant account in the Customer Area. If the company account is also **Active**, then payment processing and payouts are enabled.
+            * **InactiveWithModifications**: Users can access the merchant account in the Customer Area. The account cannot process new payments but can still modify payments, for example issue refunds. The account can still receive payouts.
+            * **Inactive**: Users can access the merchant account in the Customer Area. Payment processing and payouts are disabled.
+            * **Closed**: The account is closed and this cannot be reversed. Users cannot log in. Payment processing and payouts are disabled.
+          type: string
+      required:
+        - merchantId
+        - companyId
+        - status
+        - capabilities
+      type: object
+    AccountNotificationResponse:
+      properties:
+        notificationResponse:
+          description: Respond with **HTTP 200 OK** and `[accepted]` in the response body to [accept the webhook](https://docs.adyen.com/development-resources/webhooks#accept-notifications).
+          type: string
+      type: object
+    AccountUpdateNotificationData:
+      properties:
+        capabilities:
+          additionalProperties:
+            $ref: "#/components/schemas/AccountCapabilityData"
+          description: Key-value pairs that specify what you can do with the merchant account and its settings. The key is a capability. For example, the **sendToTransferInstrument** is the capability required before you can pay out the funds of a merchant account to a [bank account](https://docs.adyen.com/api-explorer/legalentity/latest/post/transferInstruments). The value is an object containing the settings for the capability.
+          type: object
+        legalEntityId:
+          description: The unique identifier of the [legal entity](https://docs.adyen.com/api-explorer/legalentity/latest/post/legalEntities#responses-200-id).
+          type: string
+        merchantId:
+          description: The unique identifier of the merchant account.
+          type: string
+        status:
+          description: |-
+            The status of the merchant account.
+
+            Possible values:
+
+            * **PreActive**: The merchant account has been created. Users cannot access the merchant account in the Customer Area. The account cannot process payments.
+            * **Active**: Users can access the merchant account in the Customer Area. If the company account is also **Active**, then payment processing and payouts are enabled.
+            * **InactiveWithModifications**: Users can access the merchant account in the Customer Area. The account cannot process new payments but can still modify payments, for example issue refunds. The account can still receive payouts.
+            * **Inactive**: Users can access the merchant account in the Customer Area. Payment processing and payouts are disabled.
+            * **Closed**: The account is closed and this cannot be reversed. Users cannot log in. Payment processing and payouts are disabled.
+          type: string
+      required:
+        - merchantId
+        - status
+        - capabilities
+      type: object
+    CapabilityProblem:
+      properties:
+        entity:
+          $ref: "#/components/schemas/CapabilityProblemEntity"
+          description: The ID and the type of entity that has verification errors.
+        verificationErrors:
+          description: List of verification errors.
+          items:
+            $ref: "#/components/schemas/VerificationError"
+          type: array
+      type: object
+    CapabilityProblemEntity:
+      properties:
+        id:
+          description: The ID of the entity.
+          type: string
+        owner:
+          $ref: "#/components/schemas/CapabilityProblemEntity-recursive"
+          description: The owner of the entity that has an error. For example, if the `entity.type` is **BankAccount**, then the `owner` contains the details of the legal entity that owns the bank account.
+        type:
+          description: |-
+            The type of entity.
+
+            Possible values: **LegalEntity**, **BankAccount**, or **Document**.
+          enum:
+            - BankAccount
+            - Document
+            - LegalEntity
+          type: string
+      type: object
+    CapabilityProblemEntity-recursive:
+      properties:
+        id:
+          description: The ID of the entity.
+          type: string
+        type:
+          description: |-
+            The type of entity.
+
+            Possible values: **LegalEntity**, **BankAccount**, or **Document**.
+          enum:
+            - BankAccount
+            - Document
+            - LegalEntity
+          type: string
+      type: object
+    MidServiceNotificationData:
+      properties:
+        allowed:
+          description: Indicates whether receiving payments is allowed. This value is set to **true** by Adyen after screening your merchant account.
+          type: boolean
+        enabled:
+          description: Indicates whether the payment method is enabled (**true**) or disabled (**false**).
+          type: boolean
+        id:
+          description: The identifier of the resource.
+          type: string
+        merchantId:
+          description: The identifier of the merchant account.
+          type: string
+        reference:
+          description: Your reference for the payment method.
+          type: string
+        result:
+          description: The result of the request to create a payment method.
+          enum:
+            - SUCCESS
+            - FAILURE
+          type: string
+        storeId:
+          description: The identifier of the [store](https://docs.adyen.com/api-explorer/#/ManagementService/latest/post/merchants/{id}/paymentMethodSettings__reqParam_storeId), if any.
+          type: string
+        type:
+          description: Payment method [variant](https://docs.adyen.com/development-resources/paymentmethodvariant#management-api).
+          type: string
+        verificationStatus:
+          description: |-
+            Payment method status. Possible values:
+            * **valid**
+            * **pending**
+            * **invalid**
+            * **rejected**
+          enum:
+            - valid
+            - pending
+            - invalid
+            - rejected
+          type: string
+      required:
+        - result
+        - merchantId
+        - id
+        - type
+      type: object
+    NotificationDataMessage:
+      properties:
+        createdAt:
+          description: Timestamp for when the webhook was created.
+          format: date-time
+          type: string
+        data:
+          $ref: "#/components/schemas/AccountCreateNotificationData"
+          description: Contains event details.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          type: string
+      required:
+        - type
+        - environment
+        - createdAt
+        - data
+      type: object
+    NotificationDataMessage-type2:
+      properties:
+        createdAt:
+          description: Timestamp for when the webhook was created.
+          format: date-time
+          type: string
+        data:
+          $ref: "#/components/schemas/AccountUpdateNotificationData"
+          description: Contains event details.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          type: string
+      required:
+        - type
+        - environment
+        - createdAt
+        - data
+      type: object
+    NotificationDataMessage-type3:
+      properties:
+        createdAt:
+          description: Timestamp for when the webhook was created.
+          format: date-time
+          type: string
+        data:
+          $ref: "#/components/schemas/MidServiceNotificationData"
+          description: Contains event details.
+        environment:
+          description: |-
+            The environment from which the webhook originated.
+
+            Possible values: **test**, **live**.
+          type: string
+        type:
+          description: Type of notification.
+          type: string
+      required:
+        - type
+        - environment
+        - createdAt
+        - data
+      type: object
+    PaymentMethodNotificationResponse:
+      properties:
+        notificationResponse:
+          description: Respond with **HTTP 200 OK** and `[accepted]` in the response body to [accept the webhook](https://docs.adyen.com/development-resources/webhooks#accept-notifications).
+          type: string
+      type: object
+    RemediatingAction:
+      properties:
+        code:
+          description: The remediating action code.
+          type: string
+        message:
+          description: A description of how you can resolve the verification error.
+          type: string
+      type: object
+    VerificationError:
+      properties:
+        code:
+          description: The verification error code.
+          type: string
+        message:
+          description: The verification error message.
+          type: string
+        remediatingActions:
+          description: The actions that you can take to resolve the verification error.
+          items:
+            $ref: "#/components/schemas/RemediatingAction"
+          type: array
+        subErrors:
+          description: More granular information about the verification error.
+          items:
+            $ref: "#/components/schemas/VerificationError-recursive"
+          type: array
+        type:
+          description: |-
+            The type of verification error.
+
+            Possible values: **invalidInput**, **dataMissing**, and **pendingStatus**.
+          enum:
+            - dataMissing
+            - invalidInput
+            - pendingStatus
+          type: string
+      type: object
+    VerificationError-recursive:
+      properties:
+        code:
+          description: The verification error code.
+          type: string
+        message:
+          description: The verification error message.
+          type: string
+        remediatingActions:
+          description: The actions that you can take to resolve the verification error.
+          items:
+            $ref: "#/components/schemas/RemediatingAction"
+          type: array
+        type:
+          description: |-
+            The type of verification error.
+
+            Possible values: **invalidInput**, **dataMissing**, and **pendingStatus**.
+          enum:
+            - dataMissing
+            - invalidInput
+            - pendingStatus
+          type: string
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      in: header
+      name: X-API-Key
+      type: apiKey
+    BasicAuth:
+      scheme: basic
+      type: http
+webhooks:
+  merchant.created:
+    post:
+      description: A merchant account [was created](https://docs.adyen.com/api-explorer/#/ManagementService/latest/post/merchants).
+      operationId: post-merchant.created
+      requestBody:
+        content:
+          application/json:
+            examples:
+              merchant.created:
+                $ref: "#/components/examples/post-merchant.created-merchant.created"
+            schema:
+              $ref: "#/components/schemas/NotificationDataMessage"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                merchant.created:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/AccountNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Merchant account created
+      tags:
+        - Merchant account
+      x-addedInVersion: "1"
+      x-groupName: Merchant account
+      x-methodName: merchantAccountCreated
+      x-sortIndex: 1
+  merchant.updated:
+    post:
+      description: There were changes to verification status and capabilities of a [merchant account](https://docs.adyen.com/api-explorer/#/ManagementService/latest/post/merchants). If the verification fails, this webhook includes the errors and the actions that you can take to resolve them.
+      operationId: post-merchant.updated
+      requestBody:
+        content:
+          application/json:
+            examples:
+              merchant-updated-valid:
+                $ref: "#/components/examples/post-merchant.updated-merchant-updated-valid"
+              merchant-updated-with-errors:
+                $ref: "#/components/examples/post-merchant.updated-merchant-updated-with-errors"
+            schema:
+              $ref: "#/components/schemas/NotificationDataMessage-type2"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                merchant-updated-valid:
+                  $ref: "#/components/examples/WebhookAck"
+                merchant-updated-with-errors:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/AccountNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Merchant account capability updated
+      tags:
+        - Merchant account
+      x-addedInVersion: "1"
+      x-groupName: Merchant account
+      x-methodName: merchantAccountCapabilityUpdated
+      x-sortIndex: 2
+  paymentMethod.created:
+    post:
+      description: A request to [add a payment method](https://docs.adyen.com/api-explorer/Management/latest/post/merchants/_merchantId_/paymentMethodSettings) was completed.
+      operationId: post-paymentMethod.created
+      requestBody:
+        content:
+          application/json:
+            examples:
+              paymentMethod.created:
+                $ref: "#/components/examples/post-paymentMethod.created-paymentMethod.created"
+            schema:
+              $ref: "#/components/schemas/NotificationDataMessage-type3"
+      responses:
+        "200":
+          content:
+            application/json:
+              examples:
+                paymentMethod.created:
+                  $ref: "#/components/examples/WebhookAck"
+              schema:
+                $ref: "#/components/schemas/PaymentMethodNotificationResponse"
+          description: OK - the request has succeeded.
+      security:
+        - ApiKeyAuth: []
+      summary: Payment method created
+      tags:
+        - Payment method
+      x-addedInVersion: "1"
+      x-groupName: Payment method
+      x-methodName: paymentMethodCreated
+      x-sortIndex: 1
+x-groups:
+  - Merchant account
+  - Payment method
+x-staticResponse: response.json
