@@ -235,14 +235,17 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   /**
    * Adds a new document to the workspace.
    *
-   * The document will be:
-   * - Upgraded to OpenAPI 3.1 if needed
-   * - Split into components and operations chunks
-   * - Have its references externalized based on the workspace mode
-   * - Added to the workspace with its metadata
+   * This function processes an OpenAPI document by:
+   * 1. Converting it to OpenAPI 3.1 format if needed
+   * 2. Separating it into reusable components and path operations
+   * 3. Externalizing references based on the workspace mode (SSR or static)
+   * 4. Adding the processed document to the workspace with its metadata
    *
-   * @param document - The OpenAPI document to add
-   * @param meta - Document metadata including required name and optional settings
+   * The resulting document contains minimal information with externalized references
+   * that will be resolved on-demand through the workspace's get() method.
+   *
+   * @param document - The OpenAPI document to process and add
+   * @param meta - Document metadata containing the required name and optional settings
    */
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
@@ -277,6 +280,16 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     }
   }
 
+  /**
+   * Adds a new document to the workspace asynchronously.
+   *
+   * This function:
+   * 1. Loads the document using the provided input
+   * 2. Checks if the document loaded successfully
+   * 3. If successful, adds the document to the workspace using addDocumentSync
+   *
+   * @param input - The document input containing the document source and metadata
+   */
   const addDocument = async (input: WorkspaceDocumentInput) => {
     const document = await loadDocument(input)
 
@@ -287,7 +300,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
   }
 
-  // Load the initial documents on the store
+  // Load and process all initial documents in parallel
   await Promise.all(workspaceProps.documents.map(addDocument))
 
   return {
@@ -378,16 +391,14 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
       return getValueByPath(assets, parseJsonPointer(pointer))
     },
     /**
-     * Adds a new document to the workspace.
+     * Adds a new document to the workspace asynchronously.
      *
-     * The document will be:
-     * - Upgraded to OpenAPI 3.1 if needed
-     * - Split into components and operations chunks
-     * - Have its references externalized based on the workspace mode
-     * - Added to the workspace with its metadata
+     * This function:
+     * 1. Loads the document using the provided input
+     * 2. Checks if the document loaded successfully
+     * 3. If successful, adds the document to the workspace using addDocumentSync
      *
-     * @param document - The OpenAPI document to add
-     * @param meta - Document metadata including required name and optional settings
+     * @param input - The document input containing the document source and metadata
      */
     addDocument,
   }
