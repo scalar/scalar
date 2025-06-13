@@ -287,7 +287,7 @@ export type Spec = {
   }
   'servers'?: OpenAPIV3.Document['servers'] | OpenAPIV3_1.Document['servers']
   'components'?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
-  'webhooks'?: Webhooks
+  'webhooks'?: TransformedOperation[]
   'definitions'?: Definitions
   'swagger'?: OpenAPIV2.Document['swagger']
   'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']
