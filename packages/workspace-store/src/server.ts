@@ -6,17 +6,24 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import { fetchUrls, readFiles } from '@scalar/openapi-parser/plugins'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
-// TODO: support input document from different sources
+type WorkspaceDocumentMetaInput = {
+  name: string
+  meta?: WorkspaceDocumentMeta
+}
+
+type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
+type FileDoc = { path: string } & WorkspaceDocumentMetaInput
+type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
+
+type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
+
 type CreateServerWorkspaceStoreBase = {
-  documents: {
-    name: string
-    document: Record<string, unknown>
-    meta?: WorkspaceDocumentMeta
-  }[]
+  documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   config?: createNavigationOptions
 }
@@ -164,9 +171,45 @@ export function externalizePathReferences(
 }
 
 /**
+ * Resolves a workspace document from various input sources (URL, local file, or direct document object).
+ *
+ * @param workspaceDocument - The document input to resolve, which can be:
+ *   - A URL to fetch the document from
+ *   - A local file path to read the document from
+ *   - A direct document object
+ * @returns A promise that resolves to an object containing:
+ *   - ok: boolean indicating if the resolution was successful
+ *   - data: The resolved document data
+ *
+ * @example
+ * // Resolve from URL
+ * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
+ *
+ * // Resolve direct document
+ * const directDoc = await loadDocument({
+ *   name: 'inline',
+ *   document: { openapi: '3.0.0', paths: {} }
+ * })
+ */
+async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
+  if ('url' in workspaceDocument) {
+    return fetchUrls().exec(workspaceDocument.url)
+  }
+
+  if ('path' in workspaceDocument) {
+    return readFiles().exec(workspaceDocument.path)
+  }
+
+  return {
+    ok: true as const,
+    data: workspaceDocument.document,
+  }
+}
+
+/**
  * Create server state workspace store
  */
-export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
+export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   /**
    * Base workspace document containing essential metadata and document references.
    *
@@ -234,10 +277,18 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
     }
   }
 
+  const addDocument = async (input: WorkspaceDocumentInput) => {
+    const document = await loadDocument(input)
+
+    if (!document.ok) {
+      return
+    }
+
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+  }
+
   // Load the initial documents on the store
-  workspaceProps.documents.forEach((document) =>
-    addDocumentSync(document.document, { name: document.name, ...document.meta }),
-  )
+  await Promise.all(workspaceProps.documents.map(addDocument))
 
   return {
     /**
@@ -338,6 +389,6 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
      * @param document - The OpenAPI document to add
      * @param meta - Document metadata including required name and optional settings
      */
-    addDocument: addDocumentSync,
+    addDocument,
   }
 }
