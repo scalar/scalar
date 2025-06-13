@@ -1,0 +1,127 @@
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
+  "subdomain": "my-awesome-documentation",
+  "routing": {
+    "guidePathPattern": "/docs/:guide"
+  },
+  "guides": [
+    {
+      "name": "",
+      "sidebar": [
+        {
+          "name": "Overview",
+          "path": "overview.md",
+          "type": "page",
+          "icon": "line/legal-justice-hammer-gavel"
+        },
+        {
+          "path": "docs/docs.md",
+          "type": "page",
+          "children": [
+            {
+              "path": "docs/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "docs/github-sync.md",
+              "type": "page"
+            },
+            {
+              "type": "page",
+              "path": "docs/components/components.md",
+              "children": [
+                {
+                  "path": "docs/components/headings-and-text.md",
+                  "type": "page"
+                },
+                {
+                  "path": "docs/components/images-and-embeds.md",
+                  "type": "page"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "path": "sdks/sdks.md",
+          "type": "page",
+          "children": [
+            {
+              "path": "sdks/getting-started.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "path": "api-client/api-client.md",
+          "type": "page",
+          "icon": "line/computer-device-laptop",
+          "children": [
+            {
+              "path": "api-client/getting-started.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "path": "registry/registry.md",
+          "type": "page",
+          "children": [
+            {
+              "path": "registry/getting-started.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "path": "cli/cli.md",
+          "type": "page",
+          "icon": "line/computer-device-laptop"
+        },
+        {
+          "name": "Migrate",
+          "type": "folder",
+          "children": [
+            {
+              "path": "migrate/smartbear.md",
+              "type": "page"
+            },
+            {
+              "path": "migrate/stoplight.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Changelog",
+          "type": "link",
+          "url": "https://scalar.com"
+        },
+        {
+          "name": "Blog",
+          "type": "link",
+          "url": "https://scalar.com"
+        },
+        {
+          "name": "Contact Us",
+          "type": "link",
+          "url": "https://scalar.com"
+        }
+      ]
+    }
+  ],
+  "references": [
+    {
+      "name": "API Reference",
+      "liveLink": "https://api.scalar.com/openapi.json"
+    }
+  ],
+  "siteConfig": {
+    "logo": {
+      "darkMode": "https://scalar.com/logo-light.svg",
+      "lightMode": "https://scalar.com/logo-dark.svg"
+    },
+    "footer": "",
+    "bodyScript": "console.log('hello world')"
+  }
+}
