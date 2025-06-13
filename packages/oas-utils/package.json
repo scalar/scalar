@@ -67,6 +67,11 @@
       "types": "./dist/helpers/index.d.ts",
       "default": "./dist/helpers/index.js"
     },
+    "./helpers/operation-to-har": {
+      "import": "./dist/helpers/operation-to-har/index.js",
+      "types": "./dist/helpers/operation-to-har/index.d.ts",
+      "default": "./dist/helpers/operation-to-har/index.js"
+    },
     "./helpers/security": {
       "import": "./dist/helpers/security/index.js",
       "types": "./dist/helpers/security/index.d.ts",
@@ -101,6 +106,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@types/har-format": "^1.2.15",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
     "nanoid": "catalog:*",
