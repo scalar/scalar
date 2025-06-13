@@ -117,20 +117,21 @@ const installationInstructions = computed(() => {
           <div
             v-if="installationInstructions.description"
             class="selected-client card-footer -outline-offset-2"
+            :class="installationInstructions.source && 'rounded-b-none'"
             role="tabpanel"
             tabindex="0">
             <ScalarMarkdown :value="installationInstructions.description" />
           </div>
           <div
             v-if="installationInstructions.source"
-            class="selected-client card-footer -outline-offset-2"
+            class="selected-client card-footer border-t-0 p-0"
             role="tabpanel"
             tabindex="1">
             <ScalarCodeBlock
               lang="shell"
               :content="installationInstructions.source"
-              :copy="false"
-              class="min-h-6 p-1" />
+              :copy="true"
+              class="rounded-t-none rounded-b-lg px-3 py-2 -outline-offset-1 has-focus:outline" />
           </div>
         </template>
         <template v-else-if="httpClient && isFeatured(httpClient)">
@@ -183,5 +184,8 @@ const installationInstructions = computed(() => {
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top-left-radius: var(--scalar-radius-lg);
   border-top-right-radius: var(--scalar-radius-lg);
+}
+:deep(.scalar-codeblock-pre .hljs) {
+  margin-top: 8px;
 }
 </style>
