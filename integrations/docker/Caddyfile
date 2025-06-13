@@ -1,0 +1,18 @@
+{
+	auto_https off
+	admin off
+}
+
+:8080 {
+	root /usr/share/caddy
+	templates
+	file_server {
+		precompressed gzip
+	}
+	header -Server
+	header Cache-Control "no-cache"
+
+	handle /health {
+		respond "OK" 200
+	}
+}

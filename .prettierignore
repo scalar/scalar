@@ -22,6 +22,7 @@
 **/.docusaurus/**
 **/aspnetcore/**/obj/**
 **/aspnetcore/**/bin/**
+integrations/docker/assets/**
 
 **/vite.config.ts.timestamp-*.mjs
 

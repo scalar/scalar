@@ -1,0 +1,33 @@
+{
+  "name": "@scalarapi/docker-api-reference",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scalar/scalar.git",
+    "directory": "integrations/docker"
+  },
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "docker build --no-cache -t scalarapi/api-reference:latest .",
+    "compress": "cd ./assets && gzip --keep --verbose --force standalone.js",
+    "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "shx": "^0.4.0"
+  }
+}
