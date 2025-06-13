@@ -247,6 +247,37 @@ describe('SchemaProperty sub-schema', () => {
     expect(enumValues).toHaveLength(1)
   })
 
+  it('show enum values ​​and descriptions', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          'type': 'string',
+          'enum': ['Ice giant', 'Dwarf', 'Gas', 'Iron'],
+          'title': 'Planet',
+          'description': 'The type of planet',
+          'x-enumDescriptions': {
+            'Ice giant': 'A planet with a thick atmosphere of water, methane, and ammonia ice',
+            'Dwarf': 'A planet that is not massive enough to clear its orbit',
+            'Gas': 'A planet with a thick atmosphere of hydrogen and helium',
+            'Iron': 'A planet made mostly of iron',
+          },
+        },
+      },
+    })
+
+    const enumList = wrapper.find('.property-enum .property-list')
+    const html = enumList.html()
+
+    expect(html).toContain('Ice giant')
+    expect(html).toContain('Dwarf')
+    expect(html).toContain('Gas')
+    expect(html).toContain('Iron')
+    expect(html).toContain('A planet with a thick atmosphere of water, methane, and ammonia ice')
+    expect(html).toContain('A planet that is not massive enough to clear its orbit')
+    expect(html).toContain('A planet with a thick atmosphere of hydrogen and helium')
+    expect(html).toContain('A planet made mostly of iron')
+  })
+
   it('shows pattern properties for type object', async () => {
     const wrapper = mount(SchemaProperty, {
       props: {
