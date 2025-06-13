@@ -1,5 +1,18 @@
 # @scalar/oas-utils
 
+## 0.4.5
+
+### Patch Changes
+
+- 2974dd6: feat: add new helper to convert openapi operations to HAR requests
+- 221e35f: feat: added webhooks
+- Updated dependencies [221e35f]
+  - @scalar/openapi-types@0.3.3
+  - @scalar/helpers@0.0.4
+  - @scalar/types@0.2.3
+  - @scalar/themes@0.13.3
+  - @scalar/object-utils@1.2.1
+
 ## 0.4.4
 
 ### Patch Changes

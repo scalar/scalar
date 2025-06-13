@@ -1,5 +1,25 @@
 # @scalar/workspace-store
 
+## 0.4.0
+
+### Minor Changes
+
+- 7338d56: feat(workspace-store): generate sidebar entries
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- Updated dependencies [221e35f]
+- Updated dependencies [166e298]
+- Updated dependencies [4156f1d]
+- Updated dependencies [a37df33]
+- Updated dependencies [f823d45]
+- Updated dependencies [37c90b8]
+  - @scalar/openapi-types@0.3.3
+  - @scalar/helpers@0.0.4
+  - @scalar/openapi-parser@0.17.0
+  - @scalar/code-highlight@0.1.3
+
 ## 0.3.2
 
 ### Patch Changes

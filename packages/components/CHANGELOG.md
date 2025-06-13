@@ -1,5 +1,23 @@
 # @scalar/components
 
+## 0.14.8
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- 177438d: feat(components): deprecate ScalarIcon component
+- Updated dependencies [2974dd6]
+- Updated dependencies [221e35f]
+- Updated dependencies [4156f1d]
+- Updated dependencies [a37df33]
+- Updated dependencies [177438d]
+  - @scalar/oas-utils@0.4.5
+  - @scalar/code-highlight@0.1.3
+  - @scalar/icons@0.4.3
+  - @scalar/themes@0.13.3
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.7
 
 ### Patch Changes

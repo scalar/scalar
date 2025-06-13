@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.3
+
+### Patch Changes
+
+- 221e35f: feat: added webhooks
+
 ## 0.3.2
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/openapi-parser
 
+## 0.17.0
+
+### Minor Changes
+
+- f823d45: feat(openapi-parser): introduce parseJson and parseYaml plugins for bundler
+
+### Patch Changes
+
+- 166e298: feat(openapi-parser): correctly set the base origin for string inputs for the bundler
+- 4156f1d: Expand workspace store integration
+- 37c90b8: feat: add x-webhooks upgrade to the upgrader
+
 ## 0.16.0
 
 ### Minor Changes

@@ -1,5 +1,50 @@
 # @scalar/api-reference
 
+## 1.31.9
+
+### Patch Changes
+
+- 221e35f: feat: added webhooks
+- 8a68bc5: fix: scroll to top to remove hash
+- e611e5f: feat: adds schema name and model get function to schema name helper
+- 4156f1d: Expand workspace store integration
+- 7d97d16: fix: updates api reference workspace dark mode watcher
+- a05d7fe: fix: hides enum ui in discriminator presence
+- b1ea8f0: fix: updates returned merged schema condition for composiion presence
+- e611e5f: fix: updates schema property heading
+- e611e5f: fix: enhances primitives support in schema model name
+- a05d7fe: fix: prevents discrminator recursion in schema property
+- a37df33: fix: enhances introduction optical alignment
+- 711b435: fix: re-create client store on document change
+- c45fdf2: fix: adds better array type object properties rendering
+- Updated dependencies [282129b]
+- Updated dependencies [2974dd6]
+- Updated dependencies [a5b399d]
+- Updated dependencies [221e35f]
+- Updated dependencies [166e298]
+- Updated dependencies [b6ed440]
+- Updated dependencies [4156f1d]
+- Updated dependencies [a37df33]
+- Updated dependencies [711b435]
+- Updated dependencies [7338d56]
+- Updated dependencies [f823d45]
+- Updated dependencies [177438d]
+- Updated dependencies [37c90b8]
+  - @scalar/api-client@2.5.6
+  - @scalar/oas-utils@0.4.5
+  - @scalar/openapi-types@0.3.3
+  - @scalar/helpers@0.0.4
+  - @scalar/types@0.2.3
+  - @scalar/openapi-parser@0.17.0
+  - @scalar/snippetz@0.3.1
+  - @scalar/workspace-store@0.4.0
+  - @scalar/code-highlight@0.1.3
+  - @scalar/components@0.14.8
+  - @scalar/icons@0.4.3
+  - @scalar/themes@0.13.3
+  - @scalar/use-hooks@0.2.2
+  - @scalar/use-toasts@0.8.0
+
 ## 1.31.8
 
 ### Patch Changes

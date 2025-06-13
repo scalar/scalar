@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.1
+
+### Patch Changes
+
+- b1ea8f0: feat: adds celestial bodies post operation to galaxy
+
 ## 0.5.0
 
 ### Minor Changes
