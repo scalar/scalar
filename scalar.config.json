@@ -156,7 +156,12 @@
       ]
     }
   ],
-  "references": [],
+  "references": [
+    {
+      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+      "name": "Scalar API"
+    }
+  ],
   "siteConfig": {
     "logo": {
       "darkMode": "https://scalar.com/logo-light.svg",
