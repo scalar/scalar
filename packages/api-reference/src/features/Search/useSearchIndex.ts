@@ -1,4 +1,3 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
@@ -163,19 +162,15 @@ export function useSearchIndex({
       const webhookData: FuseData[] = []
 
       if (webhooks) {
-        Object.keys(webhooks).forEach((name) => {
-          const httpVerbs = Object.keys(webhooks[name]) as OpenAPIV3_1.HttpMethods[]
-
-          httpVerbs.forEach((httpVerb) => {
-            webhookData.push({
-              type: 'webhook',
-              title: 'Webhook',
-              href: `#${webhooks[name][httpVerb]?.id}`,
-              description: `${webhooks[name][httpVerb]?.name}`,
-              httpVerb,
-              tag: name,
-              body: '',
-            })
+        webhooks.forEach((webhook) => {
+          webhookData.push({
+            type: 'webhook',
+            title: 'Webhook',
+            href: `#${webhook.id}`,
+            description: `${webhook.name}`,
+            httpVerb: webhook.httpVerb,
+            tag: webhook.name,
+            body: '',
           })
 
           fuseDataArray.value = fuseDataArray.value.concat(webhookData)
