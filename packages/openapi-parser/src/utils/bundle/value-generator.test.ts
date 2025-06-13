@@ -1,5 +1,4 @@
-import { generateUniqueValue } from '@/utils/bundle/hash'
-import { randomUUID } from 'node:crypto'
+import { generateUniqueValue, uniqueValueGeneratorFactory } from '@/utils/bundle/value-generator'
 import { describe, expect, it } from 'vitest'
 
 describe('generateUniqueHash', () => {
@@ -97,12 +96,52 @@ describe('generateUniqueHash', () => {
 
     expect(() => generateUniqueValue(hashFunction, 'b', map)).rejects.toThrowError()
   })
+})
 
-  it('should generate the same value for the same input even when the function generates random values', async () => {
-    const map = {}
-    const result = await generateUniqueValue(() => randomUUID(), 'a', map)
+describe('uniqueValueGeneratorFactory', () => {
+  it('should generate unique values while caching the previously generated values', async () => {
+    let calls = 0
+    const compress = (value: string) => {
+      // Ensure we return the same value only once for the input 'b'
+      if (value === 'b' && calls === 0) {
+        calls++
+        return 'another-value'
+      }
+      calls++
+      return 'should not be returned'
+    }
+    const { generate } = uniqueValueGeneratorFactory(compress, {
+      'b': 'a',
+    })
 
-    // Expect to get the same output for the same input even when the generator returns random values
-    expect(await generateUniqueValue(() => randomUUID(), 'a', map)).toBe(result)
+    // Should use the value from the cache
+    expect(await generate('a')).toBe('b')
+
+    // should use the generator function to generate a unique value
+    expect(await generate('b')).toBe('another-value')
+
+    // should generate the same value when we call generate with the same input
+    expect(await generate('b')).toBe('another-value')
+  })
+
+  it('should handle conflicts', async () => {
+    const compress = (value: string) => {
+      if (value === 'a') {
+        return 'c'
+      }
+
+      if (value === 'b') {
+        return 'c'
+      }
+
+      if (value === 'c') {
+        return 'd'
+      }
+      return 'should not be returned'
+    }
+    const { generate } = uniqueValueGeneratorFactory(compress, {})
+
+    expect(await generate('a')).toBe('c')
+    expect(await generate('b')).toBe('d')
   })
 })

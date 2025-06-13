@@ -17,7 +17,7 @@ import { setTimeout } from 'node:timers/promises'
 import { parseJson } from '@/utils/bundle/plugins/parse-json'
 import { parseYaml } from '@/utils/bundle/plugins/parse-yaml'
 import YAML from 'yaml'
-import { getHash } from '@/utils/bundle/hash'
+import { getHash } from '@/utils/bundle/value-generator'
 
 describe('bundle', () => {
   describe('external urls', () => {

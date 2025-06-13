@@ -5,7 +5,7 @@ import { getSegmentsFromPath } from '@/utils/get-segments-from-path'
 import { isObject } from '@/utils/is-object'
 import { isYaml } from '@/utils/is-yaml'
 import { isJson } from '@/utils/is-json'
-import { generateUniqueValue, getHash } from '@/utils/bundle/hash'
+import { getHash, uniqueValueGeneratorFactory } from '@/utils/bundle/value-generator'
 
 /**
  * Checks if a string is a remote URL (starts with http:// or https://)
@@ -423,6 +423,12 @@ type Config = {
   urlMap?: boolean
 
   /**
+   * Optional function to compress input URLs or file paths before bundling.
+   * Returns either a Promise resolving to the compressed string or the compressed string directly.
+   */
+  compress?: (value: string) => Promise<string> | string
+
+  /**
    * Optional hooks to monitor the bundler's lifecycle.
    * Allows tracking the progress and status of reference resolution.
    */
@@ -576,6 +582,15 @@ export async function bundle(input: UnknownObject | string, config: Config) {
     return ''
   }
 
+  // Create the cache to store the compressed values to their map values
+  if (documentRoot[extensions.externalDocumentsMappings] === undefined) {
+    documentRoot[extensions.externalDocumentsMappings] = {}
+  }
+  const { generate } = uniqueValueGeneratorFactory(
+    config.compress ?? getHash,
+    documentRoot[extensions.externalDocumentsMappings],
+  )
+
   const bundler = async (root: unknown, origin: string = defaultOrigin(), isChunkParent = false) => {
     if (!isObject(root) && !Array.isArray(root)) {
       return
@@ -613,11 +628,7 @@ export async function bundle(input: UnknownObject | string, config: Config) {
       // Generate a unique compressed path for the external document
       // This is used as a key to store and reference the bundled external document
       // The compression helps reduce the overall file size of the bundled document
-      const compressedPath = await generateUniqueValue(
-        getHash,
-        resolvedPath,
-        documentRoot[extensions.externalDocumentsMappings] ?? {},
-      )
+      const compressedPath = await generate(resolvedPath)
 
       const seen = cache.has(resolvedPath)
 

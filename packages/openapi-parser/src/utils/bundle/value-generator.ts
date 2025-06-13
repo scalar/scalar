@@ -43,15 +43,15 @@ export async function getHash(value: string) {
  * @example
  * const valueMap = {}
  * // First call generates compressed value for "example.com/schema.json"
- * const value1 = await generateUniqueValue("example.com/schema.json", valueMap)
+ * const value1 = await generateUniqueValue(compress, "example.com/schema.json", valueMap)
  * // Returns something like "2ae91d7"
  *
  * // Second call with same value returns same compressed value
- * const value2 = await generateUniqueValue("example.com/schema.json", valueMap)
+ * const value2 = await generateUniqueValue(compress, "example.com/schema.json", valueMap)
  * // Returns same value as value1
  *
  * // Call with different value generates new unique compressed value
- * const value3 = await generateUniqueValue("example.com/other.json", valueMap)
+ * const value3 = await generateUniqueValue(compress, "example.com/other.json", valueMap)
  * // Returns different value like "3bf82e9"
  */
 export async function generateUniqueValue(
@@ -68,15 +68,6 @@ export async function generateUniqueValue(
     throw 'Can not generate unique compressed values'
   }
 
-  // First time we check if the value is present
-  if (depth === 0) {
-    const result = Object.entries(compressedToValue).find(([_, originalValue]) => originalValue === value)
-
-    if (result) {
-      return result[0]
-    }
-  }
-
   // Generate compressed value using either the provided prevCompressedValue or original value
   const compressedValue = await compress(prevCompressedValue ?? value)
 
@@ -85,7 +76,51 @@ export async function generateUniqueValue(
     return generateUniqueValue(compress, value, compressedToValue, compressedValue, depth + 1)
   }
 
-  // Store the [compressed value] => [value] mapping and return the unique compressed value
+  // Update both mappings with the generated value
   compressedToValue[compressedValue] = value
   return compressedValue
+}
+
+/**
+ * Factory function that creates a value generator with caching capabilities.
+ * The generator maintains a bidirectional mapping between original values and their compressed forms.
+ *
+ * @param compress - Function that generates a compressed value from a string
+ * @param compressedToValue - Initial mapping of compressed values to their original values
+ * @returns An object with a generate method that produces unique compressed values
+ *
+ * @example
+ * const compress = (value) => value.substring(0, 6) // Simple compression example
+ * const initialMap = { 'abc123': 'example.com/schema.json' }
+ * const generator = uniqueValueGeneratorFactory(compress, initialMap)
+ *
+ * // Generate compressed value for new string
+ * const compressed = await generator.generate('example.com/other.json')
+ * // Returns something like 'example'
+ *
+ * // Generate compressed value for existing string
+ * const cached = await generator.generate('example.com/schema.json')
+ * // Returns 'abc123' from cache
+ */
+export const uniqueValueGeneratorFactory = (
+  compress: (value: string) => Promise<string> | string,
+  compressedToValue: Record<string, string>,
+) => {
+  const valueToCompressed = Object.fromEntries(Object.entries(compressedToValue).map(([key, value]) => [value, key]))
+
+  return {
+    generate: async (value: string) => {
+      const cache = valueToCompressed[value]
+      if (cache) {
+        return cache
+      }
+
+      const compressedValue = await generateUniqueValue(compress, value, compressedToValue)
+
+      // Update the cache with the generated value
+      valueToCompressed[value] = compressedValue
+
+      return compressedValue
+    },
+  }
 }
