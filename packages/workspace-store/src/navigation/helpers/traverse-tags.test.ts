@@ -4,7 +4,6 @@ import { traverseTags } from './traverse-tags'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
-import type { OperationObject } from '@/schemas/v3.1/strict/operation'
 
 type TagGroup = { name: string; tags: string[] }
 
@@ -197,7 +196,7 @@ describe('traverseTags', () => {
     const options = {
       getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
-      operationsSorter: (a: OperationObject & { method: string }, b: OperationObject & { method: string }) =>
+      operationsSorter: (a: { method: string }, b: { method: string }) =>
         (a.method || '').localeCompare(b.method || ''),
     }
 
