@@ -21,7 +21,7 @@
   "type": "module",
   "dependencies": {
     "@scalar/nuxt": "workspace:*",
-    "nuxt": "^3.12.4"
+    "nuxt": "^3.16.0"
   },
   "devDependencies": {
     "@scalar/api-client": "workspace:*",
