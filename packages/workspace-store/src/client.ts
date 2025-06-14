@@ -6,6 +6,7 @@ import { bundle } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import { reactive } from 'vue'
 
 type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
 
@@ -64,7 +65,7 @@ export function createWorkspaceStore(workspaceProps?: {
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
-  const workspace: Workspace = {
+  const workspace = reactive<Workspace>({
     ...workspaceProps?.meta,
     documents: {},
     /**
@@ -74,12 +75,12 @@ export function createWorkspaceStore(workspaceProps?: {
      *
      * @returns The active document or undefined if no document is found
      */
-    get activeDocument(): (typeof workspace.documents)[number] | undefined {
+    get activeDocument(): NonNullable<Workspace['activeDocument']> | undefined {
       const activeDocumentKey =
         workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
       return workspace.documents[activeDocumentKey]
     },
-  }
+  })
 
   // Add a document to the store synchronously from and in-mem open api document
   function addDocumentSync(input: ObjectDoc) {

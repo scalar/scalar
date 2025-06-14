@@ -22,6 +22,6 @@ const workspaceStore = createWorkspaceStore()
 
 <template>
   <ApiReferenceWorkspace
-    :get-workspace-store="() => workspaceStore"
+    :getWorkspaceStore="() => workspaceStore"
     :configuration="configuration" />
 </template>
