@@ -258,7 +258,7 @@ describe('create-workspace-store', () => {
     const PORT = 9988
     await server.listen({ port: PORT })
 
-    const serverStore = createServerWorkspaceStore({
+    const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
       baseUrl: `http://localhost:${PORT}`,
       documents: [
@@ -386,7 +386,7 @@ describe('create-workspace-store', () => {
     const PORT = 6672
     await server.listen({ port: PORT })
 
-    const serverStore = createServerWorkspaceStore({
+    const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
       baseUrl: `http://localhost:${PORT}`,
       documents: [

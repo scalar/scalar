@@ -41,7 +41,7 @@ describe('create-server-store', () => {
 
   describe('ssr', () => {
     test('should be able to pass a list of documents and get the workspace', async () => {
-      const store = createServerWorkspaceStore({
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -105,7 +105,7 @@ describe('create-server-store', () => {
     })
 
     test('should be able to get the document chunks', async () => {
-      const store = createServerWorkspaceStore({
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -131,7 +131,7 @@ describe('create-server-store', () => {
     })
 
     test('should be able to add more documents on the workspace', async () => {
-      const store = createServerWorkspaceStore({
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -149,7 +149,7 @@ describe('create-server-store', () => {
         ],
       })
 
-      store.addDocument(exampleDocument(), { name: 'doc-3', 'x-scalar-active-auth': 'test' })
+      await store.addDocument({ name: 'doc-3', meta: { 'x-scalar-active-auth': 'test' }, document: exampleDocument() })
       const workspace = store.getWorkspace()
 
       expect(workspace.documents['doc-1']).toEqual({
@@ -222,7 +222,7 @@ describe('create-server-store', () => {
     test('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
-      const store = createServerWorkspaceStore({
+      const store = await createServerWorkspaceStore({
         mode: 'static',
         directory: dir,
         documents: [
@@ -243,10 +243,13 @@ describe('create-server-store', () => {
         },
       })
 
-      store.addDocument(exampleDocument(), {
+      await store.addDocument({
+        document: exampleDocument(),
         name: 'doc-2',
-        'x-scalar-active-auth': 'test',
-        'x-scalar-active-server': 'test',
+        meta: {
+          'x-scalar-active-auth': 'test',
+          'x-scalar-active-server': 'test',
+        },
       })
       await store.generateWorkspaceChunks()
 
