@@ -10,7 +10,7 @@ import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/stri
 import type { PathsObject } from '@/schemas/v3.1/strict/paths'
 import { keyOf } from '@/helpers/general'
 import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
-import type { OperationObject } from '@/schemas/v3.1/strict/recursive'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'

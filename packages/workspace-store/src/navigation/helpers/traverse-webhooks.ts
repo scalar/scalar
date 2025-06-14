@@ -1,7 +1,7 @@
 import { getTag } from './get-tag'
 import type { TagsMap, TraversedWebhook, TraverseSpecOptions } from '@/navigation/types'
 import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
-import type { OperationObject } from '@/schemas/v3.1/strict/recursive'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import type { TagObject } from '@/schemas/v3.1/strict/tag'
 import { isReference } from '@/schemas/v3.1/type-guard'
 

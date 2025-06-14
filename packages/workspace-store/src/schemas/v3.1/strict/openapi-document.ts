@@ -17,7 +17,7 @@ import { TagObjectSchema } from './tag'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
-import { PathItemObjectSchema } from '@/schemas/v3.1/strict/recursive'
+import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({

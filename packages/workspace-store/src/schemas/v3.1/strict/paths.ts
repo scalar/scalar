@@ -1,7 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
-import { PathItemObjectSchema } from '@/schemas/v3.1/strict/recursive'
+import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 
 /**
  * Holds the relative paths to the individual endpoints and their operations. The path is appended to the URL from the Server Object in order to construct the full URL. The Paths Object MAY be empty, due to Access Control List (ACL) constraints.
