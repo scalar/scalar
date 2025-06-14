@@ -1,0 +1,18 @@
+{
+  "name": "scalar-aspire-user-service",
+  "version": "1.0.0",
+  "description": "Simple REST API with Fastify and OpenAPI support",
+  "main": "index.js",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "format": "scalar-format",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@fastify/swagger": "^8.15.0",
+    "fastify": "^4.29.1"
+  }
+}
