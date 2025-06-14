@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TraversedEntry, TraversedOperation, TraversedTag } from '@/navigation/types'
 import { traverseTags } from './traverse-tags'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 type TagGroup = { name: string; tags: string[] }
 
 describe('traverseTags', () => {
   // Helper function to create a mock OpenAPI document
-  const createMockDocument = (tagGroups?: TagGroup[]): OpenAPIV3_1.Document => ({
+  const createMockDocument = (tagGroups?: TagGroup[]): OpenApiDocument => ({
     openapi: '3.1.0',
     info: { title: 'Test API', version: '1.0.0' },
     paths: {},
@@ -16,7 +17,7 @@ describe('traverseTags', () => {
   })
 
   // Helper function to create a mock tag
-  const createMockTag = (name: string, displayName?: string): OpenAPIV3_1.TagObject => ({
+  const createMockTag = (name: string, displayName?: string): TagObject => ({
     name,
     ...(displayName && { 'x-displayName': displayName }),
   })
@@ -33,10 +34,10 @@ describe('traverseTags', () => {
 
   it('should handle empty tags map', () => {
     const document = createMockDocument()
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -52,7 +53,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -69,7 +70,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -103,7 +104,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -127,7 +128,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -151,7 +152,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha',
       operationsSorter: 'method',
     } as const
@@ -169,9 +170,8 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
-      tagsSorter: (a: OpenAPIV3_1.TagObject, b: OpenAPIV3_1.TagObject) =>
-        (a['x-displayName'] || '').localeCompare(b['x-displayName'] || ''),
+      getTagId: (tag: TagObject) => tag.name ?? '',
+      tagsSorter: (a: TagObject, b: TagObject) => (a['x-displayName'] ?? '').localeCompare(b['x-displayName'] || ''),
       operationsSorter: 'alpha' as const,
     }
 
@@ -194,9 +194,9 @@ describe('traverseTags', () => {
     const titlesMap = new Map<string, string>()
 
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
-      operationsSorter: (a: OpenAPIV3_1.OperationObject, b: OpenAPIV3_1.OperationObject) =>
+      operationsSorter: (a: { method: string }, b: { method: string }) =>
         (a.method || '').localeCompare(b.method || ''),
     }
 
@@ -216,7 +216,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }
@@ -240,7 +240,7 @@ describe('traverseTags', () => {
     ])
     const titlesMap = new Map<string, string>()
     const options = {
-      getTagId: (tag: OpenAPIV3_1.TagObject) => tag.name ?? '',
+      getTagId: (tag: TagObject) => tag.name ?? '',
       tagsSorter: 'alpha' as const,
       operationsSorter: 'alpha' as const,
     }

@@ -1,11 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { getTag } from './get-tag'
 import type { TraversedEntry } from '@/navigation/types'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 describe('getTag', () => {
   it('returns existing tag from the dictionary', () => {
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const existingTag = { name: 'test-tag', description: 'Test description' }
     tagsMap.set('test-tag', { tag: existingTag, entries: [] })
 
@@ -16,7 +16,7 @@ describe('getTag', () => {
   })
 
   it('creates and returns a new tag if it does not exist', () => {
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const tagName = 'new-tag'
 
     const result = getTag(tagsMap, tagName)
@@ -27,7 +27,7 @@ describe('getTag', () => {
   })
 
   it('handles multiple tags in the dictionary', () => {
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const tag1 = { name: 'tag1', description: 'First tag' }
     const tag2 = { name: 'tag2', description: 'Second tag' }
     tagsMap.set('tag1', { tag: tag1, entries: [] })
@@ -44,7 +44,7 @@ describe('getTag', () => {
   })
 
   it('preserves existing tag properties when retrieving', () => {
-    const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+    const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
     const existingTag = {
       name: 'test-tag',
       description: 'Test description',

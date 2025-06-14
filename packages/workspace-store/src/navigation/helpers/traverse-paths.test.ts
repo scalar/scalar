@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traversePaths } from './traverse-paths'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 describe('traversePaths', () => {
   // Mock getOperationId function
@@ -9,7 +9,7 @@ describe('traversePaths', () => {
     `${method.toUpperCase()}-${path}`
 
   // Helper to create a basic OpenAPI document
-  const createBasicSpec = (): OpenAPIV3_1.Document => ({
+  const createBasicSpec = (): OpenApiDocument => ({
     openapi: '3.1.0',
     info: {
       title: 'Test API',

@@ -1,7 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
 import { getTag } from './get-tag'
 import type { TagsMap, TraversedWebhook, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import { isReference } from '@/schemas/v3.1/type-guard'
 
 /** Creates a traversed webhook entry from an OpenAPI webhook object.
  *
@@ -16,12 +18,12 @@ import type { TagsMap, TraversedWebhook, TraverseSpecOptions } from '@/navigatio
  */
 const createWebhookEntry = (
   ref: string,
-  method: OpenAPIV3_1.HttpMethods,
+  method: string,
   name = 'Unknown',
   title = 'Unknown',
   titlesMap: Map<string, string>,
   getWebhookId: TraverseSpecOptions['getWebhookId'],
-  tag?: OpenAPIV3_1.TagObject,
+  tag?: TagObject,
 ): TraversedWebhook => {
   const id = getWebhookId({ name, method }, tag)
   titlesMap.set(id, title)
@@ -52,7 +54,7 @@ const createWebhookEntry = (
  * @returns Array of untagged webhook entries
  */
 export const traverseWebhooks = (
-  content: OpenAPIV3_1.Document,
+  content: OpenApiDocument,
   /** The tag map from from traversing paths */
   tagsMap: TagsMap,
   /** Map of titles for the mobile title */
@@ -63,9 +65,13 @@ export const traverseWebhooks = (
 
   // Traverse webhooks
   Object.entries(content.webhooks ?? {}).forEach(([name, pathItemObject]) => {
-    const pathEntries = Object.entries(pathItemObject ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
+    const pathEntries = Object.entries(pathItemObject ?? {}) as [string, OperationObject][]
 
     pathEntries.forEach(([method, operation]) => {
+      if (isReference(operation)) {
+        return
+      }
+
       const ref = `#/webhooks/${name}/${method}`
 
       // Skip if the operation is internal or scalar-ignore

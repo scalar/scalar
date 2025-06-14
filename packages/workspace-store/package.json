@@ -64,6 +64,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@google-cloud/storage": "catalog:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"

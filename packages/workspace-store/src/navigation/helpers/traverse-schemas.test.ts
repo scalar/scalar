@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { traverseSchemas } from './traverse-schemas'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 describe('traverseSchemas', () => {
   // Mock getModelId function
@@ -45,7 +45,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should return empty array when no schemas exist', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -58,7 +58,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should create entries for valid schemas', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -110,7 +110,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should skip schemas with x-internal flag', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -142,7 +142,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should skip schemas with x-scalar-ignore flag', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -174,7 +174,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should handle schemas with no properties', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -202,7 +202,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should handle schemas with special characters in names', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -228,7 +228,7 @@ describe('traverseSchemas', () => {
   })
 
   it('should handle multiple filtering conditions', () => {
-    const content: OpenAPIV3_1.Document = {
+    const content: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -268,7 +268,7 @@ describe('traverseSchemas', () => {
 
   describe('x-tags', () => {
     it('should handle schemas with x-tags', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: {
           title: 'Test API',
@@ -332,7 +332,7 @@ describe('traverseSchemas', () => {
     })
 
     it('should handle schemas with multiple x-tags', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: {
           title: 'Test API',
@@ -376,7 +376,7 @@ describe('traverseSchemas', () => {
     })
 
     it('should handle schemas with non-existent x-tags', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: {
           title: 'Test API',

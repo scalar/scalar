@@ -40,7 +40,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@sinclair/typebox": "^0.33.3"
+    "@sinclair/typebox": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

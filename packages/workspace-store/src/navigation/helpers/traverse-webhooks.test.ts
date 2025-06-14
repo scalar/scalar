@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseWebhooks } from './traverse-webhooks'
 import type { TraversedEntry, TagsMap, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 describe('traverse-webhooks', () => {
   const mockGetWebhookId: TraverseSpecOptions['getWebhookId'] = (params, tag) => {
@@ -13,13 +14,13 @@ describe('traverse-webhooks', () => {
 
   describe('traverseWebhooks', () => {
     it('should handle empty webhooks', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
@@ -30,7 +31,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should process webhooks with tags', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -64,7 +65,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should process untagged webhooks', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -78,7 +79,7 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
@@ -96,7 +97,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should skip internal webhooks', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -111,7 +112,7 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
@@ -122,7 +123,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should skip scalar-ignore webhooks', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -137,7 +138,7 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
@@ -148,7 +149,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should handle deprecated webhooks', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -163,7 +164,7 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
@@ -180,7 +181,7 @@ describe('traverse-webhooks', () => {
     })
 
     it('should handle webhooks with multiple methods', () => {
-      const content: OpenAPIV3_1.Document = {
+      const content: OpenApiDocument = {
         openapi: '3.1.0',
         info: { title: 'Test API', version: '1.0.0' },
         paths: {},
@@ -198,7 +199,7 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
+      const tagsMap = new Map<string, { tag: TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
       const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
