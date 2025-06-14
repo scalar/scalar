@@ -158,6 +158,7 @@ watch(
 watch(
   () => isDarkMode.value,
   (newValue) => store.update('x-scalar-dark-mode', newValue),
+  { immediate: true },
 )
 
 if (selectedConfiguration.value.metaData) {
