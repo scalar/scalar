@@ -824,4 +824,3 @@ jobs:
         name: Publish Scalar.Aspire NuGet package
         working-directory: integrations/aspire/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
-        
