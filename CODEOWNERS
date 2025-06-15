@@ -34,6 +34,7 @@
 # /packages/use-modal
 /packages/build-watch @geoffgscott @marclave
 /integrations/nestjs @marclave
+/integrations/aspire @marclave @hanspagel @xC0dex
 /integrations/aspnetcore @marclave @hanspagel @xC0dex
 /packages/use-hooks @hwkr @hanspagel @marclave
 # /packages/use-toasts

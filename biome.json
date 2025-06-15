@@ -29,8 +29,8 @@
       "*/storybook-static/*",
       "**/httpsnippet-lite/**",
       "**/.next/**",
-      "**/aspnetcore/**/obj/**",
-      "**/aspnetcore/**/bin/**",
+      "**/obj/**",
+      "**/bin/**",
       "packages/openapi-parser/src/schemas/**/*.ts"
     ]
   },
