@@ -46,7 +46,7 @@ var scalar = builder.AddScalarApiReference(options =>
     options.WithTheme(ScalarTheme.Purple);
 });
 
-// Register services with the API reference
+// Add OpenAPI references for each services
 scalar
     .WithOpenApiReference(weatherService)
     .WithOpenApiReference(bookService);
@@ -104,7 +104,7 @@ For detailed configuration options including authentication, multiple documents,
 
 ### Building the Scalar.Aspire.Service
 
-To build the Docker image for the Scalar.Aspire.Service, run the following command from the root directory:
+To build the Docker image for the `Scalar.Aspire.Service`, run the following command from the root directory:
 
 ```bash
 docker build --no-cache -t scalar/aspire-api-reference:latest -f ./src/Scalar.Aspire.Service/Dockerfile .

@@ -24,7 +24,10 @@ Add the following to your AppHost `Program.cs`:
 var builder = DistributedApplication.CreateBuilder(args);
 
 // Add your services
-var weatherService = builder.AddProject<Projects.WeatherService>("weather-service");
+var userService = builder
+    .AddNpmApp("user-service", "../MyUserService")
+    .WithHttpEndpoint(env: "PORT");
+
 var bookService = builder.AddProject<Projects.BookService>("book-service");
 
 // Add Scalar API Reference for all services
@@ -34,9 +37,9 @@ var scalar = builder.AddScalarApiReference(options =>
     options.WithTheme(ScalarTheme.Purple);
 });
 
-// Configure API references for specific services
+// Configure API References for specific services
 scalar
-    .WithOpenApiReference(weatherService, options => options.AddDocuments("v1", "v2"))
+    .WithOpenApiReference(userService, options => options.AddDocument("internal", routePattern: "/documentation/{documentName}.json"))
     .WithOpenApiReference(bookService, options => options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"));
 
 builder.Build().Run();
