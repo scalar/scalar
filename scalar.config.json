@@ -58,6 +58,12 @@
           ]
         },
         {
+          "name": "Access",
+          "icon": "solid/interface-login-key",
+          "path": "documentation/guides/access.md",
+          "type": "page"
+        },
+        {
           "name": "Scalar CLI",
           "type": "folder",
           "icon": "brand/programming-language-shell",
@@ -75,6 +81,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
+          "icon": "brand/brand-software-development-github",
           "children": [
             {
               "name": ".NET Integration",
