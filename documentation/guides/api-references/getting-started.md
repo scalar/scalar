@@ -1,7 +1,8 @@
 # Getting Started
 Reading this guide helps you to get started with our wonderful Open-Source API References as quick as possible.
 
-You’re just one HTML file away from having an awesome API reference:
+
+Our most simplest example is using the CDN integration of our API References
 
 ```html
 <!doctype html>
