@@ -97,7 +97,7 @@ export function getModels(spec?: Spec) {
 
   // Filter out all schemas with `x-internal: true`
   Object.keys(models ?? {}).forEach((key) => {
-    if (models[key]?.['x-internal'] === true) {
+    if (models[key]?.['x-internal'] === true || models[key]?.['x-scalar-ignore'] === true) {
       delete models[key]
     }
   })
