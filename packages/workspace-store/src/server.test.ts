@@ -11,6 +11,7 @@ import { cwd } from 'node:process'
 import { allFilesMatch } from '../test/helpers'
 import { fastify, type FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
+import { setTimeout } from 'node:timers/promises'
 
 describe('create-server-store', () => {
   const exampleDocument = () => ({
@@ -361,13 +362,14 @@ describe('create-server-store', () => {
 
       afterEach(async () => {
         await server.close()
+        await setTimeout(100)
       })
 
       it('should load a document on the workspace from an external url', async () => {
         server.get('/', () => {
           return exampleDocument()
         })
-        server.listen({ port })
+        await server.listen({ port })
 
         const store = await createServerWorkspaceStore({
           baseUrl: url,
@@ -388,7 +390,7 @@ describe('create-server-store', () => {
         server.get('/', () => {
           return exampleDocument()
         })
-        server.listen({ port })
+        await server.listen({ port })
 
         const store = await createServerWorkspaceStore({
           mode: 'ssr',
@@ -424,8 +426,8 @@ describe('create-server-store', () => {
           mode: 'ssr',
         })
 
-        expect(Object.keys(store.getWorkspace()).length).toBe(1)
-        expect(Object.keys(store.getWorkspace())[0]).toBe('default')
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
 
         await fs.rm(fileName)
       })
@@ -440,17 +442,16 @@ describe('create-server-store', () => {
           mode: 'ssr',
         })
 
-        expect(Object.keys(store.getWorkspace()).length).toBe(0)
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(0)
 
         await store.addDocument({
           path: fileName,
           name: 'default',
         })
-
-        expect(Object.keys(store.getWorkspace()).length).toBe(1)
-        expect(Object.keys(store.getWorkspace())[0]).toBe('default')
-
         await fs.rm(fileName)
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
       })
     })
   })
