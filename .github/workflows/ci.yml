@@ -57,9 +57,9 @@ jobs:
         with:
           files_yaml: |
             api_reference_docker:
-              - packages/api-reference/docker/**
+              - integrations/docker/**
             api_reference_docker_version:
-              - packages/api-reference/docker/package.json
+              - integrations/docker/package.json
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Set up Docker
@@ -68,14 +68,32 @@ jobs:
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Get version from package.json
         id: package-version
-        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
+        working-directory: integrations/docker
+        run: echo "VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: 22
+          packages: '@scalar/api-reference...'
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: integrations/docker
+        run: pnpm copy:standalone
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Compress static assets
+        working-directory: integrations/docker
+        run: pnpm compress
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build and tag Docker image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
-          context: packages/api-reference/docker/src
-          file: packages/api-reference/docker/src/Dockerfile
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
           push: false
           load: true
           # Linux-only at first
@@ -89,7 +107,7 @@ jobs:
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
           scan-type: 'config'
-          scan-ref: 'packages/api-reference/docker/src/Dockerfile'
+          scan-ref: 'integrations/docker/Dockerfile'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -111,8 +129,8 @@ jobs:
         name: Push Docker image
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
         with:
-          context: packages/api-reference/docker/src
-          file: packages/api-reference/docker/src/Dockerfile
+          context: integrations/docker
+          file: integrations/docker/Dockerfile
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
