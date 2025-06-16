@@ -1,9 +1,35 @@
 import { DownloadLink } from '@/features/DownloadLink'
 import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { reactive, ref, computed } from 'vue'
+import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
+import type { Mock } from 'vitest'
 
 import Introduction from './Introduction.vue'
+
+// Mock the useSidebar hook and SIDEBAR_SYMBOL
+vi.mock('@/features/sidebar/hooks/useSidebar', () => ({
+  useSidebar: vi.fn(),
+  SIDEBAR_SYMBOL: Symbol(),
+}))
+
+const mockUseSidebar = useSidebar as Mock<[], ReturnType<typeof useSidebar>>
+
+// Set default values for the mocks
+beforeEach(() => {
+  mockUseSidebar.mockReturnValue({
+    collapsedSidebarItems: reactive({}),
+    isSidebarOpen: ref(false),
+    items: computed(() => ({
+      entries: [],
+      titles: new Map<string, string>(),
+    })),
+    scrollToOperation: vi.fn(),
+    setCollapsedSidebarItem: vi.fn(),
+    toggleCollapsedSidebarItem: vi.fn(),
+  })
+})
 
 describe('Introduction', () => {
   it('renders the given information', () => {
@@ -18,12 +44,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: {
-          title: 'Hello World',
-          description: 'Example description',
-          version: '1.0.0',
-        },
+        document: example,
       },
     })
 
@@ -44,8 +65,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -68,8 +88,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -90,8 +109,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -111,8 +129,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -131,8 +148,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -152,8 +168,7 @@ describe('Introduction', () => {
 
     const wrapper = mount(Introduction, {
       props: {
-        parsedSpec: example,
-        info: example.info,
+        document: example,
       },
     })
 
@@ -174,9 +189,7 @@ describe('Introduction', () => {
     const wrapper = mount(Introduction, {
       props: {
         // @ts-expect-error testing invalid type
-        parsedSpec: example,
-        // @ts-expect-error testing invalid type
-        info: example.info,
+        document: example,
       },
     })
 
@@ -197,9 +210,7 @@ describe('Introduction', () => {
     const wrapper = mount(Introduction, {
       props: {
         // @ts-expect-error testing invalid type
-        parsedSpec: example,
-        // @ts-expect-error testing invalid type
-        info: example.info,
+        document: example,
       },
     })
 

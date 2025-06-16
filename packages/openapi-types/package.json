@@ -16,7 +16,7 @@
     "swagger",
     "typescript"
   ],
-  "version": "0.3.2",
+  "version": "0.3.3",
   "engines": {
     "node": ">=20"
   },
@@ -35,6 +35,11 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./helpers": {
+      "import": "./dist/helpers/index.js",
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
     },
     "./schemas/3.1/processed": {
       "import": "./dist/schemas/3.1/processed/index.js",

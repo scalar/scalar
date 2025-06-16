@@ -89,7 +89,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="text-c-1 h-auto w-full justify-start gap-0.75 overflow-x-auto rounded-b-lg px-3 py-1.5 text-xs font-normal whitespace-nowrap -outline-offset-1 lg:text-sm"
+      class="bg-b-1 text-c-1 h-auto w-full justify-start gap-0.75 overflow-x-auto rounded-t-none rounded-b-lg px-3 py-1.5 text-xs font-normal whitespace-nowrap -outline-offset-1 lg:text-sm"
       variant="ghost">
       <span class="sr-only">Server:</span>
       <span class="overflow-x-auto">{{ serverUrlWithoutTrailingSlash }}</span>

@@ -1,5 +1,26 @@
 # @scalar/api-client-react
 
+## 1.3.12
+
+### Patch Changes
+
+- Updated dependencies [a5d010c]
+- Updated dependencies [b12cd8e]
+  - @scalar/api-client@2.5.7
+
+## 1.3.11
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- Updated dependencies [282129b]
+- Updated dependencies [a5b399d]
+- Updated dependencies [221e35f]
+- Updated dependencies [4156f1d]
+- Updated dependencies [711b435]
+  - @scalar/api-client@2.5.6
+  - @scalar/types@0.2.3
+
 ## 1.3.10
 
 ### Patch Changes

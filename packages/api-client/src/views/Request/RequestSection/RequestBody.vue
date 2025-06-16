@@ -114,8 +114,18 @@ const codeInputLanguage = computed(() => {
   return contentTypeToLanguageMap[type] ?? 'plaintext'
 })
 
-function deleteRow() {
-  console.log('deleteRow')
+const deleteRow = (rowIdx: number) => {
+  const currentParams = formParams.value
+  if (currentParams.length > rowIdx) {
+    const updatedParams = [...currentParams]
+    updatedParams.splice(rowIdx, 1)
+
+    requestExampleMutators.edit(
+      example.uid,
+      'body.formData.value',
+      updatedParams,
+    )
+  }
 }
 
 /** Update a field in a parameter row */

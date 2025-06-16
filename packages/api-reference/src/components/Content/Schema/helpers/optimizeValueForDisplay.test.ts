@@ -85,4 +85,30 @@ describe('optimizeValueForDisplay', () => {
       nullable: true,
     })
   })
+
+  it('preserves schema properties when merging allOf schemas', () => {
+    const input = {
+      oneOf: [
+        {
+          title: 'Planet',
+          allOf: [
+            { type: 'object', properties: { name: { type: 'string' } } },
+            { type: 'object', properties: { description: { type: 'string' } } },
+          ],
+        },
+        {
+          title: 'Satellite',
+          allOf: [
+            { type: 'object', properties: { name: { type: 'string' } } },
+            { type: 'object', properties: { description: { type: 'string' } } },
+          ],
+        },
+      ],
+    }
+
+    const result = optimizeValueForDisplay(input)
+
+    expect(result?.oneOf[0].title).toBe('Planet')
+    expect(result?.oneOf[1].title).toBe('Satellite')
+  })
 })

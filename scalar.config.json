@@ -156,8 +156,14 @@
       ]
     }
   ],
-  "references": [],
+  "references": [
+    {
+      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+      "name": "Scalar API"
+    }
+  ],
   "siteConfig": {
+    "headScript": "function addFathomAnalytics(){let t=document.createElement(\"script\");t.src=\"https:\/\/cdn.usefathom.com\/script.js\",t.setAttribute(\"data-spa\",\"auto\"),t.setAttribute(\"data-site\",\"RSYAEMNM\"),t.defer=!0,document.head.appendChild(t)}\"loading\"===document.readyState?document.addEventListener(\"DOMContentLoaded\",addFathomAnalytics):addFathomAnalytics();",
     "logo": {
       "darkMode": "https://scalar.com/logo-light.svg",
       "lightMode": "https://scalar.com/logo-dark.svg"

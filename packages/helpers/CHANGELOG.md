@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.4
+
+### Patch Changes
+
+- 221e35f: feat: added webhooks
+
 ## 0.0.3
 
 ### Patch Changes
