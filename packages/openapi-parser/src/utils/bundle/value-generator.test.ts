@@ -144,4 +144,23 @@ describe('uniqueValueGeneratorFactory', () => {
     expect(await generate('a')).toBe('c')
     expect(await generate('b')).toBe('d')
   })
+
+  it('should handle numeric strings by prefixing them with letters', async () => {
+    const compress = (value: string) => {
+      if (!value) {
+        return '92819102'
+      }
+      return 'radom value'
+    }
+
+    const { generate } = uniqueValueGeneratorFactory(compress, {})
+
+    // Prefix with a letter
+    expect(await generate('')).toBe('a92819102')
+
+    // Should return the same value for same input
+    expect(await generate('')).toBe('a92819102')
+
+    expect(await generate('abc')).toBe('radom value')
+  })
 })

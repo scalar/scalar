@@ -131,7 +131,12 @@ export const uniqueValueGeneratorFactory = (
       }
 
       // Generate a new unique compressed value
-      const compressedValue = await generateUniqueValue(compress, value, compressedToValue)
+      const generatedValue = await generateUniqueValue(compress, value, compressedToValue)
+
+      // Ensure the generated string contains at least one non-numeric character
+      // This prevents the `setValueAtPath` function from interpreting the value as an array index
+      // by forcing it to be treated as an object property name
+      const compressedValue = generatedValue.match(/^\d+$/) ? `a${generatedValue}` : generatedValue
 
       // Store the new mapping in our cache
       valueToCompressed[value] = compressedValue
