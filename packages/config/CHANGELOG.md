@@ -1,5 +1,11 @@
 # @scalar/config
 
+## 0.2.1
+
+### Patch Changes
+
+- b6a1624: feat(workspace-store): improve workspace store validation
+
 ## 0.2.0
 
 ### Minor Changes

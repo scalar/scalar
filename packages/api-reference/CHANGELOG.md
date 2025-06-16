@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.31.12
+
+### Patch Changes
+
+- 796f87f: feat(api-reference): export references useSidebar
+- Updated dependencies [b6a1624]
+  - @scalar/workspace-store@0.5.0
+
 ## 1.31.11
 
 ### Patch Changes
