@@ -94,6 +94,26 @@
               "type": "page"
             },
             {
+              "name": "Themes",
+              "path": "documentation/themes.md",
+              "type": "page"
+            },
+            {
+              "name": "Plugins",
+              "path": "documentation/plugins.md",
+              "type": "page"
+            },
+            {
+              "name": "OpenAPI",
+              "path": "documentation/openapi.md",
+              "type": "page"
+            },
+            {
+              "name": "Markdown",
+              "path": "documentation/Markdown.md",
+              "type": "page"
+            },
+            {
               "name": "Integrations",
               "type": "folder",
               "children": [{
