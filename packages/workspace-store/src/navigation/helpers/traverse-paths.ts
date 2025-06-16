@@ -1,9 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
 import { getTag } from './get-tag'
 import type { TagsMap, TraversedOperation, TraverseSpecOptions } from '@/navigation/types'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import { isReference } from '@/schemas/v3.1/type-guard'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 
 /**
  * Creates a traversed operation entry from an OpenAPI operation object.
@@ -19,10 +21,10 @@ import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
  */
 const createOperationEntry = (
   ref: string,
-  operation: OpenAPIV3_1.OperationObject,
-  method: OpenAPIV3_1.HttpMethods,
+  operation: OperationObject,
+  method: string,
   path = 'Unknown',
-  tag: OpenAPIV3_1.TagObject,
+  tag: TagObject,
   titlesMap: Map<string, string>,
   getOperationId: TraverseSpecOptions['getOperationId'],
 ): TraversedOperation => {
@@ -57,7 +59,7 @@ const createOperationEntry = (
  * @returns Map of tag names to arrays of traversed operations
  */
 export const traversePaths = (
-  content: OpenAPIV3_1.Document,
+  content: OpenApiDocument,
   /** Map of tags and their entries */
   tagsMap: TagsMap,
   /** Map of titles for the mobile header */
@@ -66,10 +68,14 @@ export const traversePaths = (
 ) => {
   // Traverse paths
   Object.entries(content.paths ?? {}).forEach(([path, pathItem]) => {
-    const pathEntries = Object.entries(pathItem ?? {}) as [OpenAPIV3_1.HttpMethods, OpenAPIV3_1.OperationObject][]
+    const pathEntries = Object.entries(pathItem ?? {}) as [string, OperationObject][]
 
     // Traverse operations
     pathEntries.forEach(([method, operation]) => {
+      if (isReference(operation)) {
+        return
+      }
+
       // Skip if the operation is internal or scalar-ignore
       if (operation['x-internal'] || operation['x-scalar-ignore'] || !isHttpMethod(method)) {
         return

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { traverseDocument } from './traverse-document'
 import type { TraversedTag, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 describe('traverseDocument', () => {
   const mockOptions: TraverseSpecOptions = {
@@ -16,7 +16,7 @@ describe('traverseDocument', () => {
   }
 
   it('should handle empty document', () => {
-    const emptyDoc: OpenAPIV3_1.Document = {
+    const emptyDoc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -31,7 +31,7 @@ describe('traverseDocument', () => {
   })
 
   it('should traverse document with description', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -46,7 +46,7 @@ describe('traverseDocument', () => {
   })
 
   it('should handle paths and operations', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -79,7 +79,7 @@ describe('traverseDocument', () => {
   })
 
   it('should handle webhooks', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -107,7 +107,7 @@ describe('traverseDocument', () => {
   })
 
   it('should handle schemas when not hidden', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -133,7 +133,7 @@ describe('traverseDocument', () => {
   })
 
   it('should not include schemas when hidden', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -163,7 +163,7 @@ describe('traverseDocument', () => {
   })
 
   it('should handle multiple tags and operations', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -212,7 +212,7 @@ describe('traverseDocument', () => {
   })
 
   it('should handle operations without tags', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',
@@ -238,7 +238,7 @@ describe('traverseDocument', () => {
   })
 
   it('should respect tag sorting configuration', () => {
-    const doc: OpenAPIV3_1.Document = {
+    const doc: OpenApiDocument = {
       openapi: '3.1.0',
       info: {
         title: 'Test API',

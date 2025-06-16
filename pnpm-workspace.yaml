@@ -26,7 +26,8 @@ catalogs:
     '@tailwindcss/vite': ^4.1.7
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
-    '@sinclair/typebox': 0.34.3
+    '@sinclair/typebox': 0.34.33
+    '@google-cloud/storage': 7.13.0
     ansis: 3.16.0
     concurrently: 9.1.2
     esbuild: 0.25.2
