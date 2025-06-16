@@ -15,7 +15,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "docker build --no-cache -t scalarapi/api-reference:latest .",
+    "build": "command -v docker >/dev/null 2>&1 && docker build -t scalarapi/api-reference:latest . || echo '⚠️ Docker is not available, skipping the build.'",
     "compress": "cd ./assets && gzip --keep --verbose --force standalone.js",
     "copy:standalone": "shx cp ../../packages/api-reference/dist/browser/standalone.js ./assets",
     "format": "scalar-format",
