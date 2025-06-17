@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.31.14
+
+### Patch Changes
+
+- 0a94952: fix: remove duplicate operations in x-tag-groups
+- 0e67143: fix: show content encoding description in schema
+- Updated dependencies [1703e42]
+  - @scalar/workspace-store@0.5.2
+
 ## 1.31.13
 
 ### Patch Changes
