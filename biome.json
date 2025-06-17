@@ -65,7 +65,7 @@
     "formatter": {
       "quoteStyle": "single",
       "trailingCommas": "all",
-      "quoteProperties": "asNeeded",
+      "quoteProperties": "preserve",
       "semicolons": "asNeeded",
       "arrowParentheses": "always",
       "bracketSameLine": true
