@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TraversedEntry } from '@/features/traverse-schema/types'
+import type { TagsMap, TraversedEntry } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { traverseWebhooks } from './traverse-webhooks'
 
@@ -12,10 +12,6 @@ describe('traverse-webhooks', () => {
     return `${tag?.name || 'untagged'}-${params.method || 'unknown'}-${params.name}`
   }
 
-  const mockTagsDict = new Map<string, OpenAPIV3_1.TagObject>([
-    ['webhook-tag', { name: 'webhook-tag', description: 'Webhook tag' }],
-  ])
-
   describe('traverseWebhooks', () => {
     it('should handle empty webhooks', () => {
       const content: OpenAPIV3_1.Document = {
@@ -24,10 +20,10 @@ describe('traverse-webhooks', () => {
         paths: {},
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -50,14 +46,14 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap: TagsMap = new Map()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([]) // Should be empty as webhook has a tag
-      expect(tagsMap.get('webhook-tag')).toHaveLength(1)
-      expect(tagsMap.get('webhook-tag')?.[0]).toEqual({
+      expect(tagsMap.get('webhook-tag')?.entries).toHaveLength(1)
+      expect(tagsMap.get('webhook-tag')?.entries[0]).toEqual({
         id: 'webhook-tag-post-test-webhook',
         title: 'Test Webhook',
         name: 'test-webhook',
@@ -86,10 +82,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -121,10 +117,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -147,10 +143,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toEqual([])
       expect(tagsMap.size).toBe(0)
@@ -173,10 +169,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(1)
       expect(result[0]).toEqual({
@@ -211,10 +207,10 @@ describe('traverse-webhooks', () => {
         },
       }
 
-      const tagsMap = new Map<string, TraversedEntry[]>()
+      const tagsMap = new Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>()
       const titlesMap = new Map<string, string>()
 
-      const result = traverseWebhooks(content, tagsMap, mockTagsDict, titlesMap, mockGetWebhookId)
+      const result = traverseWebhooks(content, tagsMap, titlesMap, mockGetWebhookId)
 
       expect(result).toHaveLength(2)
       expect(result).toEqual(

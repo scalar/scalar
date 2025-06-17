@@ -7,7 +7,7 @@ export async function testApiReference(page: Page, isMobile: boolean) {
   // The heading
   await expect(page.getByRole('heading', { name: 'Scalar Galaxy' })).toBeVisible()
   // Body Text
-  await expect(page.getByText('The Scalar Galaxy')).toBeVisible()
+  await expect(page.getByText('The Scalar Galaxy is an example OpenAPI')).toBeVisible()
   // http client
   await expect(page.getByText('Client Libraries')).toBeVisible()
 

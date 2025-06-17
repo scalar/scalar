@@ -90,7 +90,7 @@ watch(
     <DataTable
       v-if="activeScheme.length"
       class="flex-1"
-      :class="layout === 'reference' && 'rounded-b-lg border border-t-0'"
+      :class="layout === 'reference' && 'bg-b-1 rounded-b-lg border border-t-0'"
       :columns="['']"
       presentational>
       <RequestAuthTab

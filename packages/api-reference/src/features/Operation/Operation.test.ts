@@ -15,15 +15,16 @@ import Operation from './Operation.vue'
  * @deprecated TODO: We need a helper function to create a store-compatible operation to migrate the tests to it.
  */
 function createTransformedOperation(
-  requestMethod: TransformedOperation['httpVerb'],
-  path: TransformedOperation['path'],
+  requestMethod: OpenAPIV3_1.HttpMethods,
+  path: string,
   operation: Partial<OpenAPIV3_1.OperationObject>,
 ): TransformedOperation {
   return {
-    ...operation,
+    id: `${requestMethod}-${path}`,
+    name: operation.summary || path,
+    isWebhook: false,
     httpVerb: requestMethod,
     path: path,
-    /** @ts-expect-error */
     information: operation,
   }
 }
@@ -75,18 +76,18 @@ vi.mock('@scalar/api-client/store', () => ({
 }))
 
 // TODO: We need to mock up a store here to test those components.
-// Ideally we’d get rid of the inject/provide pattern inside that component,
-// to make testing easier. But we’re not there yet.
+// Ideally we'd get rid of the inject/provide pattern inside that component,
+// to make testing easier. But we're not there yet.
 describe.skip('Operation', () => {
   it('renders the modern layout by default', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        operation: createTransformedOperation('GET', '/planets', {
+        operation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
         ...mockProps,
-        transformedOperation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
@@ -100,7 +101,7 @@ describe.skip('Operation', () => {
   it('switches to classic layout', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        transformedOperation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
@@ -116,7 +117,7 @@ describe.skip('Operation', () => {
   it('passes props correctly', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        transformedOperation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
@@ -140,7 +141,7 @@ describe.skip('Operation', () => {
   it('renders operation data in HTML', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        transformedOperation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
           description: 'Returns a list of all known planets',
@@ -162,7 +163,7 @@ describe.skip('Operation', () => {
   it.skip('renders in SSR environment', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        transformedOperation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('get', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),

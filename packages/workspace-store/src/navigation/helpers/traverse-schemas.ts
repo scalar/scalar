@@ -1,6 +1,7 @@
 import { getTag } from '@/navigation/helpers/get-tag'
 import type { TagsMap, TraversedSchema, TraverseSpecOptions } from '@/navigation/types'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 /** Creates a traversed schema entry from an OpenAPI schema object.
  *
@@ -15,7 +16,7 @@ const createModelEntry = (
   name = 'Unknown',
   titlesMap: Map<string, string>,
   getModelId: TraverseSpecOptions['getModelId'],
-  tag?: OpenAPIV3_1.TagObject,
+  tag?: TagObject,
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
   titlesMap.set(id, name)
@@ -42,7 +43,7 @@ const createModelEntry = (
  * @returns Array of traversed schema entries
  */
 export const traverseSchemas = (
-  content: OpenAPIV3_1.Document,
+  content: OpenApiDocument,
   /** Map of tagNames and their entries */
   tagsMap: TagsMap,
   /** Map of titles for the mobile header */
@@ -60,7 +61,7 @@ export const traverseSchemas = (
     const ref = `#/content/components/schemas/${name}`
 
     // Add to tags
-    if (schemas[name]['x-tags']?.length) {
+    if (schemas[name]['x-tags']) {
       schemas[name]['x-tags'].forEach((tagName: string) => {
         const { tag } = getTag(tagsMap, tagName)
         tagsMap.get(tagName)?.entries.push(createModelEntry(ref, name, titlesMap, getModelId, tag))

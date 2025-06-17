@@ -7,7 +7,7 @@ import ParameterList from './ParameterList.vue'
 
 const props = withDefaults(
   defineProps<{
-    operation: TransformedOperation
+    responses: OpenAPIV3_1.ResponseObject | undefined
     collapsableItems?: boolean
     schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
   }>(),
@@ -16,7 +16,7 @@ const props = withDefaults(
   },
 )
 
-const { responses } = useResponses(props.operation)
+const { responses } = useResponses(props.responses)
 </script>
 <template>
   <ParameterList

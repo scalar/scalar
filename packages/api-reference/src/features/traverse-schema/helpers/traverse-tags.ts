@@ -2,7 +2,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TagGroup } from '@scalar/types/legacy'
 import type { ApiReferenceConfiguration } from '@scalar/types/api-reference'
 
-import type { TraversedEntry, TraversedTag } from '@/features/traverse-schema/types'
+import type { TagsMap, TraversedEntry, TraversedTag } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
 import { getTag } from './get-tag'
 
@@ -23,7 +23,6 @@ const createTagEntry = (
   return {
     id,
     title,
-    name: tag.name || title,
     tag,
     children,
     isGroup,
@@ -33,10 +32,7 @@ const createTagEntry = (
 /** Sorts tags and returns entries */
 const getSortedTagEntries = (
   _keys: string[],
-  /** Map of tags and their entries */
-  tagsMap: Map<string, TraversedEntry[]>,
-  /** Dictionary of OpenAPI tags by name */
-  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  tagsMap: TagsMap,
   /** Map of titles for the mobile header */
   titlesMap: Map<string, string>,
   { getTagId, tagsSorter, operationsSorter }: Options,
@@ -48,14 +44,14 @@ const getSortedTagEntries = (
   // Alpha sort
   if (tagsSorter === 'alpha') {
     keys.sort((a, b) => {
-      const nameA = getTag(tagsDict, a)['x-displayName'] || a || 'Untitle Tag'
-      const nameB = getTag(tagsDict, b)['x-displayName'] || b || 'Untitled Tag'
+      const nameA = getTag(tagsMap, a).tag['x-displayName'] || a || 'Untitle Tag'
+      const nameB = getTag(tagsMap, b).tag['x-displayName'] || b || 'Untitled Tag'
       return nameA.localeCompare(nameB)
     })
   }
   // Custom sort
   else if (typeof tagsSorter === 'function') {
-    keys.sort((a, b) => tagsSorter(getTag(tagsDict, a), getTag(tagsDict, b)))
+    keys.sort((a, b) => tagsSorter(getTag(tagsMap, a).tag, getTag(tagsMap, b).tag))
   }
 
   if (hasDefault) {
@@ -67,8 +63,7 @@ const getSortedTagEntries = (
    * Because tagGroups can mix operations as well as tags we ensure we are sorting the correct entitiy in the sort
    */
   return keys.flatMap((key) => {
-    const tag = getTag(tagsDict, key)
-    const entries = tagsMap.get(key) ?? []
+    const { tag, entries } = getTag(tagsMap, key)
 
     // Skip if the tag is internal or scalar-ignore
     if (tag['x-internal'] || tag['x-scalar-ignore']) {
@@ -112,10 +107,7 @@ const getSortedTagEntries = (
 /** Traverses our tags map creates entries, also handles sorting and tagGroups */
 export const traverseTags = (
   content: OpenAPIV3_1.Document,
-  /** Map of tags and their entries */
-  tagsMap: Map<string, TraversedEntry[]>,
-  /** Dictionary of tags from the spec */
-  tagsDict: Map<string, OpenAPIV3_1.TagObject>,
+  tagsMap: TagsMap,
   /** Map of titles for the mobile title */
   titlesMap: Map<string, string>,
   { getTagId, tagsSorter, operationsSorter }: Options,
@@ -125,7 +117,7 @@ export const traverseTags = (
     const tagGroups = content['x-tagGroups'] as TagGroup[]
 
     return tagGroups.flatMap((tagGroup) => {
-      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, tagsDict, titlesMap, {
+      const entries = getSortedTagEntries(tagGroup.tags ?? [], tagsMap, titlesMap, {
         getTagId,
         tagsSorter,
         operationsSorter,
@@ -136,7 +128,7 @@ export const traverseTags = (
 
   // Ungrouped regular tags
   const keys = Array.from(tagsMap.keys())
-  const tags = getSortedTagEntries(keys, tagsMap, tagsDict, titlesMap, { getTagId, tagsSorter, operationsSorter })
+  const tags = getSortedTagEntries(keys, tagsMap, titlesMap, { getTagId, tagsSorter, operationsSorter })
 
   // Flatten if we only have default tag
   if (tags.length === 1 && tags[0].title === 'default') {

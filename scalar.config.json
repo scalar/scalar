@@ -58,6 +58,12 @@
           ]
         },
         {
+          "name": "Access",
+          "icon": "solid/interface-login-key",
+          "path": "documentation/guides/access.md",
+          "type": "page"
+        },
+        {
           "name": "Scalar CLI",
           "type": "folder",
           "icon": "brand/programming-language-shell",
@@ -75,89 +81,131 @@
         {
           "name": "Scalar API References",
           "type": "folder",
+          "icon": "brand/brand-software-development-github",
           "children": [
             {
-              "name": ".NET Integration",
-              "path": "documentation/integrations/dotnet.md",
+              "name": "Getting Started",
+              "path": "documentation/guides/api-references/getting-started.md",
               "type": "page"
             },
             {
-              "name": "AdonisJS",
-              "path": "documentation/integrations/adonisjs.md",
+              "name": "Configuration",
+              "path": "documentation/configuration.md",
               "type": "page"
             },
             {
-              "name": "Django",
-              "path": "documentation/integrations/django.md",
+              "name": "Themes",
+              "path": "documentation/themes.md",
               "type": "page"
             },
             {
-              "name": "Django Ninja",
-              "path": "documentation/integrations/django-ninja.md",
+              "name": "Plugins",
+              "path": "documentation/plugins.md",
               "type": "page"
             },
             {
-              "name": "Docusaurus",
-              "path": "documentation/integrations/docusaurus.md",
+              "name": "OpenAPI",
+              "path": "documentation/openapi.md",
               "type": "page"
             },
             {
-              "name": "ElysiaJS",
-              "path": "documentation/integrations/elysiajs.md",
+              "name": "Markdown",
+              "path": "documentation/markdown.md",
               "type": "page"
             },
             {
-              "name": "Fastify",
-              "path": "documentation/integrations/fastify.md",
-              "type": "page"
-            },
-            {
-              "name": "Go",
-              "path": "documentation/integrations/go.md",
-              "type": "page"
-            },
-            {
-              "name": "HTML/CDN",
-              "path": "documentation/integrations/html-js.md",
-              "type": "page"
-            },
-            {
-              "name": "Laravel Scribe",
-              "path": "documentation/integrations/laravel-scribe.md",
-              "type": "page"
-            },
-            {
-              "name": "Next.js",
-              "path": "documentation/integrations/nextjs.md",
-              "type": "page"
-            },
-            {
-              "name": "Nitro",
-              "path": "documentation/integrations/nitro.md",
-              "type": "page"
-            },
-            {
-              "name": "Platformatic",
-              "path": "documentation/integrations/platformatic.md",
-              "type": "page"
-            },
-            {
-              "name": "React",
-              "path": "documentation/integrations/react.md",
-              "type": "page"
-            },
-            {
-              "name": "Rust",
-              "path": "documentation/integrations/rust.md",
-              "type": "page"
+              "name": "Integrations",
+              "type": "folder",
+              "children": [{
+                  "name": ".NET",
+                  "path": "documentation/integrations/dotnet.md",
+                  "type": "page"
+                },
+                {
+                  "name": "AdonisJS",
+                  "path": "documentation/integrations/adonisjs.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Django",
+                  "path": "documentation/integrations/django.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Django Ninja",
+                  "path": "documentation/integrations/django-ninja.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Docusaurus",
+                  "path": "documentation/integrations/docusaurus.md",
+                  "type": "page"
+                },
+                {
+                  "name": "ElysiaJS",
+                  "path": "documentation/integrations/elysiajs.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Fastify",
+                  "path": "documentation/integrations/fastify.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Go",
+                  "path": "documentation/integrations/go.md",
+                  "type": "page"
+                },
+                {
+                  "name": "HTML/CDN",
+                  "path": "documentation/integrations/html-js.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Laravel Scribe",
+                  "path": "documentation/integrations/laravel-scribe.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Next.js",
+                  "path": "documentation/integrations/nextjs.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Nitro",
+                  "path": "documentation/integrations/nitro.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Platformatic",
+                  "path": "documentation/integrations/platformatic.md",
+                  "type": "page"
+                },
+                {
+                  "name": "React",
+                  "path": "documentation/integrations/react.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Rust",
+                  "path": "documentation/integrations/rust.md",
+                  "type": "page"
+                }
+              ]
             }
           ]
         }
       ]
     }
   ],
-  "references": [],
+  "references": [
+    {
+      "liveLink": "https://registry.scalar.com/@scalar/apis/access-service/latest",
+      "name": "Scalar API"
+    }
+  ],
   "siteConfig": {
+    "headScript": "function addFathomAnalytics(){let t=document.createElement(\"script\");t.src=\"https:\/\/cdn.usefathom.com\/script.js\",t.setAttribute(\"data-spa\",\"auto\"),t.setAttribute(\"data-site\",\"RSYAEMNM\"),t.defer=!0,document.head.appendChild(t)}\"loading\"===document.readyState?document.addEventListener(\"DOMContentLoaded\",addFathomAnalytics):addFathomAnalytics();",
     "logo": {
       "darkMode": "https://scalar.com/logo-light.svg",
       "lightMode": "https://scalar.com/logo-dark.svg"

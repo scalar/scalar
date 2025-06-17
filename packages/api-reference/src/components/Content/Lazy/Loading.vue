@@ -85,17 +85,11 @@ watch(
           (tag) => getTagId(tag) === sectionId,
         ) ?? 0
 
-      // Grab specific operation to load
-      const operationMatches = hash.value.match(/tag\/([^/]+)\/([^/]+)\/(.+)/)
-      if (operationMatches?.length === 4) {
-        const matchedVerb = operationMatches[2]
-        const matchedPath = '/' + operationMatches[3]
+      // TODO: hash prefix, path routing etc
+      operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
+        ({ id }) => id === hash.value,
+      )
 
-        operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
-          ({ httpVerb, path }) =>
-            matchedVerb === httpVerb && matchedPath === path,
-        )
-      }
       // Add a few tags to the loading section
       const tag = props.parsedSpec.tags[tagIndex]
 
@@ -108,10 +102,13 @@ watch(
 
       tags.value.push({
         ...tag,
-        lazyOperations: tag.operations.slice(
-          operationIndex,
-          operationIndex + 2,
-        ),
+        lazyOperations: tag.operations
+          .slice(operationIndex, operationIndex + 2)
+          .map((operation) => ({
+            ...operation,
+            // Prefix the id with lazy- to avoid collisions with the real ids
+            id: 'lazy-' + operation.id,
+          })),
       })
 
       // Check if hash contains a markdown heading with the new description format
@@ -206,7 +203,7 @@ onMounted(() => {
         :tag="tag">
         <Operation
           v-for="operation in tag.lazyOperations"
-          :key="`${operation.httpVerb}-${operation.operationId}`"
+          :key="operation.id"
           :collection="collection"
           :layout="layout"
           :server="server"
@@ -223,7 +220,7 @@ onMounted(() => {
         <template v-if="getModels(parsedSpec)?.[name]">
           <SectionContent>
             <SectionHeader>
-              <Anchor :id="getModelId({ name })">
+              <Anchor :id="'lazy-' + getModelId({ name })">
                 <SectionHeaderTag :level="2">
                   {{
                     (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)

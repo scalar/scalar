@@ -495,6 +495,11 @@ describe('externalize-component-references', () => {
   it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {
+        info: {
+          title: '',
+          version: '',
+        },
+        openapi: '',
         components: {
           schemas: {
             'User': {
@@ -526,6 +531,11 @@ describe('externalize-component-references', () => {
   it('should convert the components with refs correctly for ssg mode', () => {
     const result = externalizeComponentReferences(
       {
+        info: {
+          title: '',
+          version: '',
+        },
+        openapi: '',
         components: {
           schemas: {
             'User': {
@@ -559,6 +569,11 @@ describe('externalize-path-references', () => {
   it('should correctly replace the contents with a ref for ssr mode', () => {
     const result = externalizePathReferences(
       {
+        info: {
+          title: '',
+          version: '',
+        },
+        openapi: '',
         paths: {
           '/test': {
             get: {
@@ -587,6 +602,7 @@ describe('externalize-path-references', () => {
             get: {
               description: 'string',
             },
+            // @ts-ignore
             otherProperty: {
               description: 'I should still be in the output',
             },
@@ -611,6 +627,11 @@ describe('externalize-path-references', () => {
   it('should correctly replace the contents with a ref for ssg mode', () => {
     const result = externalizePathReferences(
       {
+        info: {
+          title: '',
+          version: '',
+        },
+        openapi: '',
         paths: {
           '/test': {
             get: {

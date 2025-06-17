@@ -1,5 +1,11 @@
 # @scalar/json-diff
 
+## 0.0.2
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { traverseSchemas } from './traverse-schemas'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UseNavState } from '@/hooks/useNavState'
+import type { TagsMap } from '@/features/traverse-schema/types'
 
 describe('traverseSchemas', () => {
   // Mock getModelId function
@@ -15,6 +16,35 @@ describe('traverseSchemas', () => {
   // Mock titlesMap
   const mockTitlesMap = new Map<string, string>()
 
+  let mockTagsMap: TagsMap
+
+  beforeEach(() => {
+    // Mock tagsMap with correct structure
+    mockTagsMap = new Map([
+      [
+        'default',
+        {
+          tag: { name: 'default' },
+          entries: [],
+        },
+      ],
+      [
+        'users',
+        {
+          tag: { name: 'users' },
+          entries: [],
+        },
+      ],
+      [
+        'products',
+        {
+          tag: { name: 'products' },
+          entries: [],
+        },
+      ],
+    ])
+  })
+
   it('should return empty array when no schemas exist', () => {
     const content: OpenAPIV3_1.Document = {
       openapi: '3.1.0',
@@ -24,7 +54,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
     expect(result).toEqual([])
   })
 
@@ -55,7 +85,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(2)
     expect(result).toEqual([
@@ -116,7 +146,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0].title).toBe('PublicUser')
@@ -148,7 +178,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0].title).toBe('ValidSchema')
@@ -170,7 +200,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0]).toEqual({
@@ -202,7 +232,7 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0].title).toBe('User-Profile')
@@ -242,9 +272,150 @@ describe('traverseSchemas', () => {
       },
     }
 
-    const result = traverseSchemas(content, mockTitlesMap, mockGetModelId)
+    const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
 
     expect(result).toHaveLength(1)
     expect(result[0].title).toBe('ValidSchema')
+  })
+
+  describe('x-tags', () => {
+    it('should handle schemas with x-tags', () => {
+      const content: OpenAPIV3_1.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+              },
+              'x-tags': ['users'],
+            },
+            Product: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                price: { type: 'number' },
+              },
+              'x-tags': ['products'],
+            },
+            UntaggedSchema: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+      // Verify the schemas are in the correct tags
+      expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
+      expect(mockTagsMap.get('products')?.entries).toHaveLength(1)
+
+      // Verify the entries in each tag
+      const userEntry = mockTagsMap.get('users')?.entries[0]
+      expect(userEntry).toMatchObject({
+        id: 'model-User',
+        title: 'User',
+        name: 'User',
+      })
+
+      const productEntry = mockTagsMap.get('products')?.entries[0]
+      expect(productEntry).toMatchObject({
+        id: 'model-Product',
+        title: 'Product',
+        name: 'Product',
+      })
+
+      const untaggedEntry = result[0]
+      expect(untaggedEntry).toMatchObject({
+        id: 'model-UntaggedSchema',
+        title: 'UntaggedSchema',
+        name: 'UntaggedSchema',
+      })
+    })
+
+    it('should handle schemas with multiple x-tags', () => {
+      const content: OpenAPIV3_1.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            UserProduct: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                price: { type: 'number' },
+              },
+              'x-tags': ['users', 'products'],
+            },
+          },
+        },
+      }
+
+      traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+      // Verify the schema is in both tags
+      expect(mockTagsMap.get('users')?.entries).toHaveLength(1)
+      expect(mockTagsMap.get('products')?.entries).toHaveLength(1)
+
+      // Verify the entries in each tag
+      const userEntry = mockTagsMap.get('users')?.entries[0]
+      expect(userEntry).toMatchObject({
+        id: 'model-UserProduct',
+        title: 'UserProduct',
+        name: 'UserProduct',
+      })
+
+      const productEntry = mockTagsMap.get('products')?.entries[0]
+      expect(productEntry).toMatchObject({
+        id: 'model-UserProduct',
+        title: 'UserProduct',
+        name: 'UserProduct',
+      })
+    })
+
+    it('should handle schemas with non-existent x-tags', () => {
+      const content: OpenAPIV3_1.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            UnknownTaggedSchema: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+              },
+              'x-tags': ['non-existent-tag'],
+            },
+          },
+        },
+      }
+
+      traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+      // Verify the entry in the default tag
+      expect(mockTagsMap.get('non-existent-tag')?.entries).toHaveLength(1)
+      expect(mockTagsMap.get('non-existent-tag')?.entries[0]).toMatchObject({
+        id: 'model-UnknownTaggedSchema',
+        title: 'UnknownTaggedSchema',
+        name: 'UnknownTaggedSchema',
+      })
+    })
   })
 })

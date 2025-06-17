@@ -39,7 +39,16 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
   const processedSchemas = schemas.map((schema: any) => {
     // If this schema has allOf, merge it
     if (schema.allOf && Array.isArray(schema.allOf)) {
-      return mergeAllOfSchemas(schema.allOf)
+      const mergedSchema = mergeAllOfSchemas(schema.allOf)
+
+      // Preserve all non-composition properties from the original schema
+      Object.keys(schema).forEach((key) => {
+        if (!compositions.includes(key as CompositionKeyword) && !(key in mergedSchema)) {
+          mergedSchema[key] = schema[key]
+        }
+      })
+
+      return mergedSchema
     }
     return schema
   })

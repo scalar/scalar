@@ -1,5 +1,26 @@
 # @scalar/fastify-api-reference
 
+## 1.31.12
+
+## 1.31.11
+
+## 1.31.10
+
+## 1.31.9
+
+### Patch Changes
+
+- 6ead9cd: chore: remove unused dependencies
+- 4156f1d: Expand workspace store integration
+- Updated dependencies [221e35f]
+- Updated dependencies [166e298]
+- Updated dependencies [4156f1d]
+- Updated dependencies [f823d45]
+- Updated dependencies [37c90b8]
+  - @scalar/openapi-types@0.3.3
+  - @scalar/openapi-parser@0.17.0
+  - @scalar/core@0.3.3
+
 ## 1.31.8
 
 ### Patch Changes

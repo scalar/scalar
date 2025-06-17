@@ -97,40 +97,16 @@ export enum XScalarStability {
   Stable = 'stable',
 }
 
-export type Information = {
-  'description'?: string
-  'operationId'?: string | number
-  'parameters'?: Parameters[]
-  'responses'?: Record<string, OpenAPI.ResponseObject>
-  'security'?: OpenAPIV3.SecurityRequirementObject[]
-  'requestBody'?: RequestBody
-  'summary'?: string
-  'tags'?: string[]
-  'deprecated'?: boolean
-  'servers'?: OpenAPIV3_1.ServerObject[]
-  /**
-   * Scalar
-   */
-  'x-custom-examples'?: CustomRequestExample[]
-  'x-scalar-stability'?: XScalarStability
-  /**
-   * Redocly, current
-   */
-  'x-codeSamples'?: CustomRequestExample[]
-  /**
-   * Redocly, deprecated
-   */
-  'x-code-samples'?: CustomRequestExample[]
-}
-
 export type Operation = {
-  httpVerb: 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT' | 'TRACE' | 'CONNECT' | 'DELETE' | 'OPTIONS'
+  id: string
+  httpVerb: OpenAPIV3_1.HttpMethods
   path: string
-  operationId?: string
-  name?: string
+  name: string
+  isWebhook: boolean
   description?: string
-  information?: Information
+  information: OpenAPIV3_1.OperationObject
   servers?: OpenAPIV3_1.ServerObject[]
+  pathParameters?: OpenAPIV3_1.ParameterObject[]
 }
 
 /**
@@ -311,7 +287,7 @@ export type Spec = {
   }
   'servers'?: OpenAPIV3.Document['servers'] | OpenAPIV3_1.Document['servers']
   'components'?: OpenAPIV3.ComponentsObject | OpenAPIV3_1.ComponentsObject
-  'webhooks'?: Webhooks
+  'webhooks'?: TransformedOperation[]
   'definitions'?: Definitions
   'swagger'?: OpenAPIV2.Document['swagger']
   'openapi'?: OpenAPIV3.Document['openapi'] | OpenAPIV3_1.Document['openapi']

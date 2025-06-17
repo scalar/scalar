@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.3.1
+
+### Patch Changes
+
+- b6ed440: feat(snippetz): add python/httpx plugin
+
 ## 0.3.0
 
 ### Minor Changes

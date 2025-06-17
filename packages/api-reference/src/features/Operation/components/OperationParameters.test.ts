@@ -8,19 +8,17 @@ describe('OperationParameters', () => {
     it('renders path parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            parameters: [
-              {
-                in: 'path',
-                name: 'userId',
-                schema: {
-                  type: 'string',
-                },
-                required: true,
-                deprecated: false,
+          parameters: [
+            {
+              in: 'path',
+              name: 'userId',
+              schema: {
+                type: 'string',
               },
-            ],
-          },
+              required: true,
+              deprecated: false,
+            },
+          ],
         },
       })
 
@@ -34,19 +32,17 @@ describe('OperationParameters', () => {
     it('renders query parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            parameters: [
-              {
-                in: 'query',
-                name: 'search',
-                schema: {
-                  type: 'string',
-                },
-                required: false,
-                deprecated: false,
+          parameters: [
+            {
+              in: 'query',
+              name: 'search',
+              schema: {
+                type: 'string',
               },
-            ],
-          },
+              required: false,
+              deprecated: false,
+            },
+          ],
         },
       })
 
@@ -59,19 +55,17 @@ describe('OperationParameters', () => {
     it('renders header parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            parameters: [
-              {
-                in: 'header',
-                name: 'Authorization',
-                schema: {
-                  type: 'string',
-                },
-                required: true,
-                deprecated: false,
+          parameters: [
+            {
+              in: 'header',
+              name: 'Authorization',
+              schema: {
+                type: 'string',
               },
-            ],
-          },
+              required: true,
+              deprecated: false,
+            },
+          ],
         },
       })
 
@@ -85,26 +79,23 @@ describe('OperationParameters', () => {
     it('renders a required cookie parameter', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            parameters: [
-              {
-                in: 'cookie',
-                name: 'debug',
-                schema: {
-                  type: 'integer',
-                  enum: [0, 1],
-                  default: 0,
-                },
-                deprecated: false,
-                required: true,
+          parameters: [
+            {
+              in: 'cookie',
+              name: 'debug',
+              schema: {
+                type: 'integer',
+                enum: [0, 1],
+                default: 0,
               },
-            ],
-          },
+              deprecated: false,
+              required: true,
+            },
+          ],
         },
       })
 
       expect(wrapper.text()).toContain('Cookies')
-
       expect(wrapper.text()).toContain('debug')
       expect(wrapper.text()).toContain('required')
     })
@@ -112,25 +103,22 @@ describe('OperationParameters', () => {
     it('renders an optional cookie parameter', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            parameters: [
-              {
-                in: 'cookie',
-                name: 'csrftoken',
-                schema: {
-                  type: 'string',
-                  default: 'the-example-token',
-                },
-                deprecated: true,
-                required: false,
+          parameters: [
+            {
+              in: 'cookie',
+              name: 'csrftoken',
+              schema: {
+                type: 'string',
+                default: 'the-example-token',
               },
-            ],
-          },
+              deprecated: true,
+              required: false,
+            },
+          ],
         },
       })
 
       expect(wrapper.text()).toContain('Cookies')
-
       expect(wrapper.text()).toContain('csrftoken')
       expect(wrapper.text()).toContain('the-example-token')
     })
@@ -140,16 +128,14 @@ describe('OperationParameters', () => {
     it('renders request body', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      name: { type: 'string' },
-                      age: { type: 'integer' },
-                    },
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    age: { type: 'integer' },
                   },
                 },
               },
@@ -167,24 +153,22 @@ describe('OperationParameters', () => {
     it.skip('renders request body without readOnly properties', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            requestBody: {
-              content: {
-                'application/json': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      regularProperty: {
-                        type: 'string',
-                      },
-                      readOnlyProperty: {
-                        type: 'string',
-                        readOnly: true,
-                      },
-                      writeOnlyProperty: {
-                        type: 'string',
-                        writeOnly: true,
-                      },
+          requestBody: {
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    regularProperty: {
+                      type: 'string',
+                    },
+                    readOnlyProperty: {
+                      type: 'string',
+                      readOnly: true,
+                    },
+                    writeOnlyProperty: {
+                      type: 'string',
+                      writeOnly: true,
                     },
                   },
                 },
@@ -205,16 +189,14 @@ describe('OperationParameters', () => {
     it('renders form data parameters', async () => {
       const wrapper = mount(OperationParameters, {
         props: {
-          operation: {
-            requestBody: {
-              content: {
-                'application/x-www-form-urlencoded': {
-                  schema: {
-                    type: 'object',
-                    properties: {
-                      username: { type: 'string' },
-                      password: { type: 'string' },
-                    },
+          requestBody: {
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    username: { type: 'string' },
+                    password: { type: 'string' },
                   },
                 },
               },

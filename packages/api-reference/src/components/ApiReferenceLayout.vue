@@ -23,6 +23,7 @@ import {
   apiReferenceConfigurationSchema,
   type ApiReferenceConfiguration,
 } from '@scalar/types/api-reference'
+import type { Spec } from '@scalar/types/legacy'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -47,10 +48,12 @@ import { ApiClientModal } from '@/features/ApiClientModal'
 import { useDocumentSource } from '@/features/DocumentSource'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import { SearchButton } from '@/features/Search'
+import { useSidebar } from '@/features/sidebar'
+import { parse } from '@/helpers/parse'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
 import { downloadDocument, downloadEventBus } from '@/libs/download'
+import { createEmptySpecification } from '@/libs/openapi'
 import { createPluginManager, PLUGIN_MANAGER_SYMBOL } from '@/plugins'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import type {
@@ -90,7 +93,6 @@ const {
   originalDocument,
   originalOpenApiVersion,
   dereferencedDocument,
-  parsedDocument,
   workspaceStore,
   activeEntitiesStore,
 } = useDocumentSource({
@@ -121,15 +123,12 @@ useResizeObserver(documentEl, (entries) => {
 // Check for Obtrusive Scrollbars
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
-const {
-  collapsedSidebarItems,
-  isSidebarOpen,
-  setCollapsedSidebarItem,
-  hideModels,
-  defaultOpenAllTags,
-  // setParsedSpec,
-  scrollToOperation,
-} = useSidebar()
+const navState = useNavState(configuration)
+const { isSidebarOpen, setCollapsedSidebarItem, scrollToOperation, items } =
+  useSidebar(dereferencedDocument, {
+    ...navState,
+    config: configuration,
+  })
 
 const {
   getReferenceId,
@@ -140,7 +139,7 @@ const {
   isIntersectionEnabled,
   updateHash,
   replaceUrlState,
-} = useNavState(configuration)
+} = navState
 
 // Front-end redirect
 if (configuration.value.redirect && typeof window !== 'undefined') {
@@ -153,8 +152,13 @@ if (configuration.value.redirect && typeof window !== 'undefined') {
   }
 }
 
-// Ideally this triggers absolutely first on the client so we can set hash value
-onBeforeMount(() => updateHash())
+onBeforeMount(() => {
+  // Ideally this triggers absolutely first on the client so we can set hash value
+  updateHash()
+
+  // Ensure we add our scalar wrapper class to the headless ui root, mounted is too late
+  addScalarClassesToHeadless()
+})
 
 // Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
@@ -172,12 +176,6 @@ const scrollToSection = async (id?: string) => {
 }
 
 const yPosition = ref(0)
-
-/**
- * Ensure we add our scalar wrapper class to the headless ui root
- * mounted is too late
- */
-onBeforeMount(() => addScalarClassesToHeadless())
 
 onMounted(() => {
   // Prevent the browser from restoring scroll position on refresh
@@ -215,9 +213,50 @@ const debouncedScroll = useDebounceFn(() => {
   }
 })
 
+const sidebarOpened = ref(false)
+
+// Open a sidebar tag
+watch(dereferencedDocument, (newDoc) => {
+  if (sidebarOpened.value || !newDoc.tags?.length) {
+    return
+  }
+
+  if (hash.value) {
+    const hashSectionId = getSectionId(hash.value)
+    if (hashSectionId) {
+      setCollapsedSidebarItem(hashSectionId, true)
+    }
+  } else {
+    const firstTag = newDoc.tags?.[0]
+    if (firstTag) {
+      setCollapsedSidebarItem(getTagId(firstTag), true)
+    }
+  }
+  sidebarOpened.value = true
+})
+
+/**
+ * Temporarily moved this here so we can use the sidebar items
+ * Parsed document (legacy data structure)
+ */
+const parsedDocument = ref<Spec>(createEmptySpecification())
+watch(
+  dereferencedDocument,
+  async (newDocument) => {
+    if (!newDocument) {
+      return
+    }
+
+    const result = await parse(newDocument, items.value.entries)
+    parsedDocument.value = result
+  },
+  { immediate: true },
+)
+
 /** This is passed into all of the slots so they have access to the references data */
 const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   spec: parsedDocument.value,
+  breadcrumb: items.value?.titles.get(hash.value) ?? '',
 }))
 
 // Download documents
@@ -278,9 +317,6 @@ const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
 mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
 
-hideModels.value = configuration.value.hideModels ?? false
-defaultOpenAllTags.value = configuration.value.defaultOpenAllTags ?? false
-
 const themeStyleTag = computed(
   () => `<style>
   ${getThemeStyles(configuration.value.theme, {
@@ -332,11 +368,11 @@ watch(hash, (newHash, oldHash) => {
     <!-- Header -->
     <div class="references-header">
       <MobileHeader
+        :breadcrumb="referenceSlotProps.breadcrumb"
         v-if="
           configuration.layout === 'modern' &&
           (configuration.showSidebar ?? true)
-        "
-        v-model:open="isSidebarOpen" />
+        " />
       <slot
         v-bind="referenceSlotProps"
         name="header" />
@@ -351,9 +387,7 @@ watch(hash, (newHash, oldHash) => {
         <ScalarErrorBoundary>
           <!-- TODO: @brynn should this be conditional based on classic/modern layout? -->
           <Sidebar
-            :operationsSorter="configuration.operationsSorter"
-            :parsedSpec="parsedDocument"
-            :tagsSorter="configuration.tagsSorter">
+            :title="dereferencedDocument?.info?.title ?? 'The OpenAPI Schema'">
             <template #sidebar-start>
               <!-- Wrap in a div when slot is filled -->
               <div v-if="$slots['document-selector']">
@@ -415,6 +449,7 @@ watch(hash, (newHash, oldHash) => {
         class="references-rendered">
         <Content
           :layout="configuration.layout"
+          :document="dereferencedDocument"
           :parsedSpec="parsedDocument">
           <template #start>
             <slot

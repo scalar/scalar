@@ -12,7 +12,7 @@ You an add custom specification extensions (starting with a `x-`) through [our p
 
 You can specify predefined environment variables for the API Client/References to consume and use:
 
-```
+```yaml
 x-scalar-environments:
   production:
     description: "Production environment"

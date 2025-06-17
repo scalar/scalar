@@ -1,12 +1,18 @@
 import { escapeJsonPointer, upgrade } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { getValueByPath, parseJsonPointer } from './helpers/json-path-utils'
 import type { WorkspaceDocumentMeta, WorkspaceMeta } from './schemas/workspace'
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
+import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
+import type { PathsObject } from '@/schemas/v3.1/strict/paths'
+import { keyOf } from '@/helpers/general'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
 import { fetchUrls, readFiles } from '@scalar/openapi-parser/plugins'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
+import type { TraversedEntry } from '@/navigation/types'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
@@ -61,9 +67,10 @@ const httpMethods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 
  *   }
  * }
  */
-export function filterHttpMethodsOnly(paths: OpenAPIV3_1.PathsObject) {
-  const result: OpenAPIV3_1.PathsObject = {}
+export function filterHttpMethodsOnly(paths: PathsObject) {
+  const result: Record<string, Record<string, OperationObject>> = {}
 
+  // Todo: skip extension properties
   for (const [path, methods] of Object.entries(paths)) {
     if (!methods) {
       continue
@@ -94,8 +101,8 @@ export function filterHttpMethodsOnly(paths: OpenAPIV3_1.PathsObject) {
  * Input: { "/users/{id}": { ... } }
  * Output: { "/users~1{id}": { ... } }
  */
-export function escapePaths(paths: OpenAPIV3_1.PathsObject) {
-  const result: OpenAPIV3_1.PathsObject = {}
+export function escapePaths(paths: Record<string, Record<string, OperationObject>>) {
+  const result: Record<string, Record<string, OperationObject>> = {}
   Object.keys(paths).forEach((path) => {
     result[escapeJsonPointer(path)] = paths[path]
   })
@@ -107,7 +114,7 @@ export function escapePaths(paths: OpenAPIV3_1.PathsObject) {
  * Externalizes components by turning them into refs.
  */
 export function externalizeComponentReferences(
-  document: OpenAPIV3_1.Document,
+  document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -117,6 +124,10 @@ export function externalizeComponentReferences(
   }
 
   Object.entries(document.components).forEach(([type, component]) => {
+    if (!component || typeof component !== 'object') {
+      return result
+    }
+
     result[type] = {}
     Object.keys(component).forEach((name) => {
       const ref =
@@ -135,7 +146,7 @@ export function externalizeComponentReferences(
  * Externalizes paths operations by turning them into refs.
  */
 export function externalizePathReferences(
-  document: OpenAPIV3_1.Document,
+  document: OpenApiDocument,
   meta: { mode: 'ssr'; name: string; baseUrl: string } | { mode: 'static'; name: string; directory: string },
 ) {
   const result: Record<string, any> = {}
@@ -145,15 +156,17 @@ export function externalizePathReferences(
   }
 
   Object.entries(document.paths).forEach(([path, pathItem]) => {
-    if (!pathItem) {
+    if (!pathItem || typeof pathItem !== 'object') {
       return result
     }
+
+    const pathItemRecord = pathItem as Record<string, unknown>
 
     result[path] = {}
 
     const escapedPath = escapeJsonPointer(path)
 
-    Object.keys(pathItem).forEach((type) => {
+    keyOf(pathItemRecord).forEach((type) => {
       if (httpMethods.has(type)) {
         const ref =
           meta.mode === 'ssr'
@@ -162,7 +175,7 @@ export function externalizePathReferences(
 
         result[path][type] = { '$ref': ref, $global: true }
       } else {
-        result[path][type] = pathItem[type]
+        result[path][type] = pathItemRecord[type]
       }
     })
   })
@@ -221,7 +234,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    */
   const workspace = {
     ...workspaceProps.meta,
-    documents: {} as Record<string, Record<string, unknown>>,
+    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedEntry[] }>,
   }
 
   /**
@@ -230,7 +243,10 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
    * The keys are document names and values contain the components and operations
    * for that document.
    */
-  const assets = {} as Record<string, { components?: Record<string, unknown>; operations?: Record<string, unknown> }>
+  const assets = {} as Record<
+    string,
+    { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
+  >
 
   /**
    * Adds a new document to the workspace.
@@ -250,7 +266,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
   const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
     const { name, ...documentMeta } = meta
 
-    const documentV3 = upgrade(document).specification
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
 
     // add the assets
     assets[meta.name] = {
@@ -267,7 +283,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const paths = externalizePathReferences(documentV3, options)
 
     // Build the sidebar entries
-    const { entries } = createNavigation(document, workspaceProps.config ?? {})
+    const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
 
     // The document is now a minimal version with externalized references to components and operations.
     // These references will be resolved asynchronously when needed through the workspace's get() method.
@@ -344,7 +360,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
 
         // Write the operations chunks
         if (operations) {
-          for (const [path, methods] of Object.entries(operations as Record<string, Record<string, unknown>>)) {
+          for (const [path, methods] of Object.entries(operations)) {
             const operationPath = `${basePath}/chunks/${name}/operations/${path}`
             await fs.mkdir(operationPath, { recursive: true })
 

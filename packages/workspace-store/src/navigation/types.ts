@@ -1,7 +1,8 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
+import type { TagObject } from '@/schemas/v3.1/strict/tag'
 
 /** Map of tagNames and their entries */
-export type TagsMap = Map<string, { tag: OpenAPIV3_1.TagObject; entries: TraversedEntry[] }>
+export type TagsMap = Map<string, { tag: TagObject; entries: TraversedEntry[] }>
 
 type TraverseEntryBase = {
   type: 'text' | 'operation' | 'model' | 'tag' | 'webhook'
@@ -19,7 +20,7 @@ export type TraversedDescription = TraverseEntryBase & {
 export type TraversedOperation = TraverseEntryBase & {
   type: 'operation'
   ref: string
-  method: OpenAPIV3_1.HttpMethods
+  method: string
   path: string
 }
 
@@ -42,7 +43,7 @@ export type TraversedTag = TraverseEntryBase & {
 export type TraversedWebhook = TraverseEntryBase & {
   type: 'webhook'
   ref: string
-  method: OpenAPIV3_1.HttpMethods
+  method: string
   name: string
 }
 
@@ -65,7 +66,7 @@ type OperationSortValue = { method: string; path: string; ref: string }
  */
 export type TraverseSpecOptions = {
   /** Controls how tags are sorted - either alphabetically or using a custom sort function */
-  tagsSorter: 'alpha' | ((a: OpenAPIV3_1.TagObject, b: OpenAPIV3_1.TagObject) => number)
+  tagsSorter: 'alpha' | ((a: TagObject, b: TagObject) => number)
 
   /** Controls how operations are sorted - alphabetically, by method, or using a custom sort function */
   operationsSorter: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
@@ -84,9 +85,9 @@ export type TraverseSpecOptions = {
   getOperationId: (
     operation: {
       path: string
-      method: OpenAPIV3_1.HttpMethods
-    } & OpenAPIV3_1.OperationObject,
-    parentTag: OpenAPIV3_1.TagObject,
+      method: string
+    } & OperationObject,
+    parentTag: TagObject,
   ) => string
 
   /** Function to generate unique IDs for webhooks */
@@ -95,7 +96,7 @@ export type TraverseSpecOptions = {
       name: string
       method?: string
     },
-    parentTag?: OpenAPIV3_1.TagObject,
+    parentTag?: TagObject,
   ) => string
 
   /** Function to generate unique IDs for models/schemas */
@@ -103,11 +104,11 @@ export type TraverseSpecOptions = {
     model?: {
       name: string
     },
-    parentTag?: OpenAPIV3_1.TagObject,
+    parentTag?: TagObject,
   ) => string
 
   /** Function to generate unique IDs for tags */
-  getTagId: (tag: OpenAPIV3_1.TagObject) => string
+  getTagId: (tag: TagObject) => string
 }
 
 export type Heading = { depth: number; value: string; slug?: string }

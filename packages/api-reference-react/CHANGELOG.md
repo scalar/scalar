@@ -1,5 +1,51 @@
 # @scalar/api-reference-react
 
+## 0.7.17
+
+### Patch Changes
+
+- Updated dependencies [796f87f]
+  - @scalar/api-reference@1.31.12
+
+## 0.7.16
+
+### Patch Changes
+
+- Updated dependencies [1f005c5]
+- Updated dependencies [c2b00e8]
+- Updated dependencies [55aadd3]
+  - @scalar/api-reference@1.31.11
+
+## 0.7.15
+
+### Patch Changes
+
+- Updated dependencies [b12cd8e]
+- Updated dependencies [38f0989]
+- Updated dependencies [85feb90]
+  - @scalar/api-reference@1.31.10
+
+## 0.7.14
+
+### Patch Changes
+
+- 4156f1d: Expand workspace store integration
+- Updated dependencies [221e35f]
+- Updated dependencies [8a68bc5]
+- Updated dependencies [e611e5f]
+- Updated dependencies [4156f1d]
+- Updated dependencies [7d97d16]
+- Updated dependencies [a05d7fe]
+- Updated dependencies [b1ea8f0]
+- Updated dependencies [e611e5f]
+- Updated dependencies [e611e5f]
+- Updated dependencies [a05d7fe]
+- Updated dependencies [a37df33]
+- Updated dependencies [711b435]
+- Updated dependencies [c45fdf2]
+  - @scalar/api-reference@1.31.9
+  - @scalar/types@0.2.3
+
 ## 0.7.13
 
 ### Patch Changes

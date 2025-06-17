@@ -1,62 +1,41 @@
 <script setup lang="ts">
-import { useWorkspace } from '@scalar/api-client/store'
+import { getHttpMethodInfo } from '@scalar/helpers/http/http-info'
+import { ScalarIconWebhooksLogo } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Tag, TransformedOperation } from '@scalar/types/legacy'
+import type {
+  OpenAPIV3_1,
+  TransformedOperation,
+  XScalarStability,
+} from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { getPointer } from '@/blocks/helpers/getPointer'
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { HttpMethod } from '@/components/HttpMethod'
 import { SectionHeaderTag } from '@/components/Section'
-import { operationIdParams } from '@/features/traverse-schema'
-import { useNavState } from '@/hooks/useNavState'
-import { useSidebar } from '@/hooks/useSidebar'
+import { useSidebar } from '@/features/sidebar'
 import { isOperationDeprecated } from '@/libs/openapi'
 
-const { transformedOperation, tag, collection } = defineProps<{
+const { transformedOperation } = defineProps<{
   transformedOperation: TransformedOperation
-  tag: Tag
   collection: Collection
   isCollapsed?: boolean
 }>()
 
-const { getOperationId } = useNavState()
 const { scrollToOperation } = useSidebar()
 
 // TODO in V2 we need to do the same loading trick as the initial load
 const scrollHandler = async (givenOperation: TransformedOperation) => {
-  const operationId = getOperationId(operationIdParams(givenOperation), tag)
-  scrollToOperation(operationId, true)
+  scrollToOperation(givenOperation.id, true)
 }
 
-const store = useWorkspace()
-
-/**
- * Resolve the matching operation from the store
- *
- * TODO: In the future, we won’t need this.
- *
- * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
- * instead of using the super custom transformed `parsedSpec` that we’re using now.
- */
-const { operation } = useBlockProps({
-  store,
-  collection,
-  location: getPointer([
-    'paths',
-    transformedOperation.path,
-    transformedOperation.httpVerb.toLowerCase(),
-  ]),
-})
-
 /** The title of the operation (summary or path) */
-const title = computed(() => operation.value?.summary || operation.value?.path)
+const title = computed(
+  () => transformedOperation?.name || transformedOperation?.path,
+)
 </script>
 
 <template>
   <li
-    v-if="operation"
-    :key="getOperationId(operationIdParams(transformedOperation), tag)"
+    :key="transformedOperation.id"
     class="contents">
     <!-- If collapsed add hidden headers so they show up for screen readers -->
     <SectionHeaderTag
@@ -67,17 +46,28 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
     </SectionHeaderTag>
     <a
       class="endpoint"
-      :href="`#${getOperationId(operationIdParams(transformedOperation), tag)}`"
+      :href="`#${transformedOperation.id}`"
       @click.prevent="scrollHandler(transformedOperation)">
-      <HttpMethod
-        class="endpoint-method"
-        :method="operation.method" />
+      <div class="flex min-w-[62px] flex-row items-center justify-end gap-2">
+        <ScalarIconWebhooksLogo
+          v-if="transformedOperation.isWebhook"
+          :style="{
+            color: getHttpMethodInfo(transformedOperation.httpVerb).colorVar,
+          }" />
+        <HttpMethod
+          class="endpoint-method min-w-0"
+          :method="transformedOperation.httpVerb" />
+      </div>
       <span
         class="endpoint-path"
         :class="{
-          deprecated: isOperationDeprecated(operation),
+          deprecated: isOperationDeprecated(
+            transformedOperation.information as OpenAPIV3_1.OperationObject<{
+              'x-scalar-stability': XScalarStability
+            }>,
+          ),
         }">
-        {{ operation.path }}
+        {{ transformedOperation.path }}
       </span>
     </a>
   </li>
@@ -93,9 +83,6 @@ const title = computed(() => operation.value?.summary || operation.value?.path)
 .endpoint:hover .endpoint-path,
 .endpoint:focus-visible .endpoint-path {
   text-decoration: underline;
-}
-.endpoint span:first-of-type {
-  text-transform: uppercase;
 }
 .endpoint .post,
 .endpoint .get,

@@ -1,51 +1,51 @@
 # Default code owner (overwritten by more specific entries)
-* @hanspagel @amritk @geoffgscott
+* @hanspagel @amritk @geoffgscott @marclave
 
 # Root level code owners
 /.github @hanspagel @geoffgscott
-/*.md @hanspagel
+/*.md @hanspagel @marclave
 
 # Documentation
-/documentation/* @hanspagel
+/documentation/* @hanspagel @marclave
 
 # Changesets
 /.changeset/*
 
 # Cursor rules
-/.cursor @hanspagel @amritk
+/.cursor @hanspagel @amritk 
 
 # Packages
-/packages/api-client @amritk @hanspagel
-/packages/api-reference-editor @geoffgscott
-/packages/components @hwkr
-/packages/icons @hwkr
-/packages/galaxy @hanspagel
-/packages/oas-utils @amritk @hanspagel
-/packages/themes @hwkr @cameronrohani
-/projects/scalar-app @hanspagel
-/packages/api-reference-react @amritk
-/integrations/docusaurus @amritk
-/integrations/hono @hanspagel
+/packages/api-client @amritk @hanspagel @marclave
+/packages/api-reference-editor @geoffgscott @marclave
+/packages/components @hwkr @marclave
+/packages/icons @hwkr @marclave
+/packages/galaxy @hanspagel @marclave
+/packages/oas-utils @amritk @hanspagel @marclave
+/packages/themes @hwkr @cameronrohani @marclave
+/projects/scalar-app @hanspagel @marclave
+/packages/api-reference-react @amritk @marclave
+/integrations/docusaurus @amritk @marclave
+/integrations/hono @hanspagel @marclave
 # /packages/object-utils
 # /packages/use-codemirror
-/packages/build-tooling @geoffgscott
-/packages/draggable @amritk
-/packages/mock-server @hanspagel
+/packages/build-tooling @geoffgscott @marclave
+/packages/draggable @amritk @marclave
+/packages/mock-server @hanspagel @marclave
 # /packages/use-modal
-/packages/build-watch @geoffgscott
+/packages/build-watch @geoffgscott @marclave
 /integrations/nestjs @marclave
 /integrations/aspnetcore @marclave @hanspagel @xC0dex
-/packages/use-hooks @hwkr @hanspagel
+/packages/use-hooks @hwkr @hanspagel @marclave
 # /packages/use-toasts
-/packages/api-client-react @amritk
-/integrations/express @hanspagel
-/integrations/nextjs @amritk
+/packages/api-client-react @amritk @marclave
+/integrations/express @hanspagel @marclave
+/integrations/nextjs @amritk @marclave
 /integrations/django-ninja @marclave
 # /packages/use-tooltip
-/packages/api-reference @hanspagel
-/packages/code-highlight @geoffgscott
-/integrations/fastify @hanspagel
-/integrations/nuxt @amritk
+/packages/api-reference @hanspagel @marclave
+/packages/code-highlight @geoffgscott @marclave
+/integrations/fastify @hanspagel @marclave
+/integrations/nuxt @amritk @marclave
 /integrations/fastapi @marclave
-/packages/void-server @hanspagel
+/packages/void-server @hanspagel @marclave
 
