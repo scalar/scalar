@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.18.0
+
+### Minor Changes
+
+- 291f09d: feat(openapi-parser): ensure unique hashes and support custom compression
+
 ## 0.17.0
 
 ### Minor Changes

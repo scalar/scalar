@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.31.13
+
+### Patch Changes
+
+- 482aaf5: fix: ensure x-scalar-ignore applies to the schema models
+- a567796: fix: make the workspace store reactive again
+- Updated dependencies [291f09d]
+- Updated dependencies [a567796]
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/workspace-store@0.5.1
+  - @scalar/api-client@2.5.8
+  - @scalar/oas-utils@0.4.5
+
 ## 1.31.12
 
 ### Patch Changes

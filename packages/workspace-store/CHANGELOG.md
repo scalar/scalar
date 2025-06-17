@@ -1,5 +1,13 @@
 # @scalar/workspace-store
 
+## 0.5.1
+
+### Patch Changes
+
+- a567796: fix: make the workspace store reactive again
+- Updated dependencies [291f09d]
+  - @scalar/openapi-parser@0.18.0
+
 ## 0.5.0
 
 ### Minor Changes
