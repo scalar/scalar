@@ -80,6 +80,10 @@ const displayType = computed(() => {
     return value.name
   }
 
+  if (value?.type && value.contentEncoding) {
+    return `${value.type} • ${value.contentEncoding}`
+  }
+
   return value?.type ?? ''
 })
 

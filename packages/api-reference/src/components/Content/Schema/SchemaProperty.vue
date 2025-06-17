@@ -68,6 +68,7 @@ const descriptions: Record<string, Record<string, string>> = {
     'date-time':
       'the date-time notation as defined by RFC 3339, section 5.6, for example, 2017-07-21T17:32:28Z',
     'password': 'a hint to UIs to mask the input',
+    'base64': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
     'byte': 'base64-encoded characters, for example, U3dhZ2dlciByb2Nrcw==',
     'binary': 'binary data, used to describe files',
   },
@@ -105,7 +106,9 @@ const generatePropertyDescription = (property?: Record<string, any>) => {
     return null
   }
 
-  return descriptions[property.type][property.format || '_default']
+  return descriptions[property.type][
+    property.format || property.contentEncoding || '_default'
+  ]
 }
 
 const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
