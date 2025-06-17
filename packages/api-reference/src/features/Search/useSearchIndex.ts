@@ -1,4 +1,4 @@
-import type { Spec, TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
 
@@ -7,6 +7,7 @@ import { type ParamMap, useOperation } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
 import { useConfig } from '@/hooks/useConfig'
+import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
@@ -88,13 +89,6 @@ export function useSearchIndex({
     (newSpec) => {
       fuseDataArray.value = []
 
-      // Likely an incomplete/invalid spec
-      // TODO: Or just an OpenAPI document without tags and webhooks?
-      if (!newSpec?.tags?.length && !newSpec?.webhooks?.length) {
-        fuse.setCollection([])
-        return
-      }
-
       // Headings from the description
       const headingsData: FuseData[] = []
       const headings = getHeadingsFromMarkdown(newSpec?.info?.description ?? '')
@@ -115,47 +109,86 @@ export function useSearchIndex({
       }
 
       // Tags
-      newSpec?.tags?.forEach((tag) => {
-        const tagData: FuseData = {
-          title: tag['x-displayName'] ?? tag.name,
-          href: `#${getTagId(tag)}`,
-          description: tag.description,
-          type: 'tag',
-          tag: tag.name,
-          body: '',
-        }
+      if (newSpec?.tags?.length) {
+        newSpec?.tags?.forEach((tag) => {
+          const tagData: FuseData = {
+            title: tag['x-displayName'] ?? tag.name,
+            href: `#${getTagId(tag)}`,
+            description: tag.description,
+            type: 'tag',
+            tag: tag.name,
+            body: '',
+          }
 
-        fuseDataArray.value.push(tagData)
+          fuseDataArray.value.push(tagData)
 
-        if (tag.operations) {
-          tag.operations.forEach((operation) => {
-            const { parameterMap } = useOperation(operation)
-            const bodyData = extractRequestBody(operation) || parameterMap.value
-            let body = null
-            if (typeof bodyData !== 'boolean') {
-              body = bodyData
+          if (tag.operations) {
+            tag.operations.forEach((operation) => {
+              const { parameterMap } = useOperation(operation)
+              const bodyData = extractRequestBody(operation) || parameterMap.value
+              let body = null
+              if (typeof bodyData !== 'boolean') {
+                body = bodyData
+              }
+
+              const operationData: FuseData = {
+                type: 'req',
+                title: operation.name ?? operation.path,
+                href: `#${operation.id}`,
+                operationId: operation.information?.operationId,
+                description: operation.description ?? '',
+                httpVerb: operation.httpVerb,
+                path: operation.path,
+                tag: tag.name,
+                operation,
+              }
+
+              if (body) {
+                operationData.body = body
+              }
+
+              fuseDataArray.value.push(operationData)
+            })
+          }
+        })
+      }
+      // Handle paths with no tags - super hacky but we'll fix it on new store
+      // @ts-expect-error not sure why spec doesn't have paths, but at this point I'm too afraid to ask
+      else if (newSpec?.paths) {
+        const paths = (newSpec as OpenAPIV3_1.Document).paths
+
+        Object.keys(paths ?? {}).forEach((path) => {
+          Object.keys(paths?.[path] ?? {}).forEach((method) => {
+            const operation = paths?.[path]?.[method]
+
+            if (isHttpMethod(method) && operation) {
+              const { parameterMap } = useOperation({ ...operation, information: operation })
+              const bodyData = extractRequestBody(operation) || parameterMap.value
+              let body = null
+              if (typeof bodyData !== 'boolean') {
+                body = bodyData
+              }
+
+              const operationData: FuseData = {
+                type: 'req',
+                title: operation.name ?? operation.path,
+                href: `#${operation.id}`,
+                operationId: operation.information?.operationId,
+                description: operation.description ?? '',
+                httpVerb: operation.httpVerb,
+                path: operation.path,
+                operation,
+              }
+
+              if (body) {
+                operationData.body = body
+              }
+
+              fuseDataArray.value.push(operationData)
             }
-
-            const operationData: FuseData = {
-              type: 'req',
-              title: operation.name ?? operation.path,
-              href: `#${operation.id}`,
-              operationId: operation.information?.operationId,
-              description: operation.description ?? '',
-              httpVerb: operation.httpVerb,
-              path: operation.path,
-              tag: tag.name,
-              operation,
-            }
-
-            if (body) {
-              operationData.body = body
-            }
-
-            fuseDataArray.value.push(operationData)
           })
-        }
-      })
+        })
+      }
 
       // Adding webhooks
       const webhooks = newSpec?.webhooks

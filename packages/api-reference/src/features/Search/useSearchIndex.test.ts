@@ -75,7 +75,8 @@ describe('useSearchIndex', () => {
       {
         item: {
           operation: {
-            name: 'Get request',
+            description: 'Get request description',
+            summary: 'Get request',
           },
         },
       },
