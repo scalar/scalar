@@ -576,13 +576,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
-        with:
-          dotnet-version: |
-            9.x
-            8.x
-
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build-blacksmith
         with:
@@ -597,6 +590,13 @@ jobs:
         working-directory: integrations/aspnetcore
         run: pnpm compress
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
+        with:
+          dotnet-version: |
+            9.x
+            8.x
+
       - name: Restore dependencies
         working-directory: integrations/aspnetcore
         run: dotnet restore
@@ -610,7 +610,7 @@ jobs:
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
     timeout-minutes: 10
     # We don’t want to run `nuget push` (publishing to NuGet) in parallel.
@@ -638,22 +638,13 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check for new NuGet package version
+      - name: Check for new NuGet package version
         id: changed-files
         uses: step-security/changed-files@95b56dadb92a30ca9036f16423fd3c088a71ee94
         with:
           files_yaml: |
             aspnetcore_package:
               - integrations/aspnetcore/package.json
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Setup .NET
-        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
-        with:
-          dotnet-version: |
-            9.x
-            8.x
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Extract version from package.json
@@ -678,6 +669,14 @@ jobs:
         name: Compress static assets
         working-directory: integrations/aspnetcore
         run: pnpm compress
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Setup .NET
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
+        with:
+          dotnet-version: |
+            9.x
+            8.x
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
