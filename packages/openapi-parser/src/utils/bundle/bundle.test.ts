@@ -4,7 +4,6 @@ import fastify, { type FastifyInstance } from 'fastify'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   bundle,
-  getHash,
   getNestedValue,
   isLocalRef,
   isRemoteUrl,
@@ -18,6 +17,7 @@ import { setTimeout } from 'node:timers/promises'
 import { parseJson } from '@/utils/bundle/plugins/parse-json'
 import { parseYaml } from '@/utils/bundle/plugins/parse-yaml'
 import YAML from 'yaml'
+import { getHash } from '@/utils/bundle/value-generator'
 
 describe('bundle', () => {
   describe('external urls', () => {
@@ -399,8 +399,8 @@ describe('bundle', () => {
           },
         },
         'x-ext-urls': {
-          [`${url}/top-level`]: await getHash(`${url}/top-level`),
-          [`${url}/nested/chunk1.json`]: await getHash(`${url}/nested/chunk1.json`),
+          [await getHash(`${url}/top-level`)]: `${url}/top-level`,
+          [await getHash(`${url}/nested/chunk1.json`)]: `${url}/nested/chunk1.json`,
         },
         a: {
           $ref: `#/x-ext/${await getHash(`${url}/nested/chunk1.json`)}`,
@@ -592,6 +592,9 @@ describe('bundle', () => {
             },
           },
         },
+        'x-ext-urls': {
+          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+        },
       })
 
       // Bundle only partial
@@ -619,9 +622,74 @@ describe('bundle', () => {
             },
           },
         },
+        'x-ext-urls': {
+          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+        },
       })
 
       expect(fn).toHaveBeenCalledTimes(1)
+    })
+
+    it('always emits the url mappings when doing partial bundle', async () => {
+      const url = `http://localhost:${PORT}`
+
+      const chunk1 = {
+        a: {
+          hello: 'hello',
+        },
+      }
+
+      server.get('/chunk1', (_, reply) => {
+        reply.send(chunk1)
+      })
+
+      await server.listen({ port: PORT })
+
+      const input = {
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+        b: {
+          $ref: `${url}/chunk1#`,
+        },
+        c: {
+          $ref: `${url}/chunk1#`,
+        },
+      }
+
+      const cache = new Map()
+
+      // Bundle only partial
+      await bundle(input.b, {
+        plugins: [fetchUrls()],
+        treeShake: false,
+        root: input,
+        cache,
+        urlMap: false, // Set the urlMapping to false
+      })
+
+      expect(input).toEqual({
+        a: {
+          $ref: `${url}/chunk1#`,
+        },
+        b: {
+          $ref: `#/x-ext/${await getHash(`${url}/chunk1`)}`,
+        },
+        c: {
+          $ref: `${url}/chunk1#`,
+        },
+        'x-ext': {
+          [await getHash(`${url}/chunk1`)]: {
+            a: {
+              hello: 'hello',
+            },
+          },
+        },
+        // It should still inject the mappings on the output document
+        'x-ext-urls': {
+          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+        },
+      })
     })
 
     it('tree shakes the external documents correctly', async () => {
@@ -909,6 +977,10 @@ describe('bundle', () => {
             description: 'Chunk 2',
           },
         },
+        'x-ext-urls': {
+          [await getHash(`${url}/chunk2`)]: `${url}/chunk2`,
+          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+        },
       })
     })
 
@@ -970,6 +1042,9 @@ describe('bundle', () => {
               hello: 'hello',
             },
           },
+        },
+        'x-ext-urls': {
+          [await getHash(`${url}/chunk1`)]: 'http://localhost:7289/chunk1',
         },
       })
     })
@@ -1094,10 +1169,10 @@ describe('bundle', () => {
           },
         },
         'x-ext-urls': {
-          [`${url}/chunk1`]: await getHash(`${url}/chunk1`),
-          [`${url}/chunk2`]: await getHash(`${url}/chunk2`),
-          [`${url}/external/chunk3`]: await getHash(`${url}/external/chunk3`),
-          [`${url}/external/document.json`]: await getHash(`${url}/external/document.json`),
+          [await getHash(`${url}/chunk1`)]: `${url}/chunk1`,
+          [await getHash(`${url}/chunk2`)]: `${url}/chunk2`,
+          [await getHash(`${url}/external/chunk3`)]: `${url}/external/chunk3`,
+          [await getHash(`${url}/external/document.json`)]: `${url}/external/document.json`,
         },
       })
     })
