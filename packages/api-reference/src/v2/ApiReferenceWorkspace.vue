@@ -73,23 +73,6 @@ provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 const root = shallowRef<HTMLElement | null>(null)
 
-/**
- * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
- *
- * TODO: Sources should be externalized from the configuration.
- */
-const configs = availableDocuments
-
-// configs.value.forEach((config) => {
-//   if(config.content) {
-//     const obj = typeof config.content === 'string' ? parseJsonOrYaml(config.content) : config.content
-//     store.addDocument({
-//       name: config.slug ?? ,
-//       document: obj,
-//     })
-//   }
-// })
-
 /** Injected workspace store. This is provided as functional getter to avoid converting the original object to a reactive prop object
  *
  * In normal standalone mode the ApiReference.vue component will provide the workspace store
@@ -100,28 +83,62 @@ const configs = availableDocuments
  */
 const store = props.getWorkspaceStore()
 
+watch(
+  () => store.workspace.activeDocument,
+  (value) => {
+    console.log({ value })
+  },
+  { immediate: true },
+)
+
+/**
+ * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
+ *
+ * TODO: Sources should be externalized from the configuration.
+ */
+const configs = availableDocuments
+
+configs.value.forEach((config) => {
+  if (config.content) {
+    const obj =
+      typeof config.content === 'string'
+        ? parseJsonOrYaml(config.content)
+        : config.content
+
+    // Add in-memory documents to the store
+    store.addDocumentSync({
+      name: config.slug ?? 'default',
+      document: typeof obj === 'function' ? obj() : obj,
+    })
+  }
+})
+
 // const staticDocuments = props.configuration
 // props.configuration?.documents?.forEach((document) => {
 
 onServerPrefetch(() => {
   // For SSR we want to preload the active document into the store
-  // store.addDocument({
-  //   name: 'test',
-  //   document: {
-  //     openapi: '3.0.0',
-  //   },
-  // })
+  configs.value.forEach((config) => {
+    if (config.url) {
+      store.addDocument({
+        name: config.slug ?? 'default',
+        url: config.url,
+      })
+    }
+  })
 })
 
 onMounted(() => {
   // During client side rendering we load the active document from the URL
   // NOTE: The UI MUST handle a case where the document is empty
-  // store.addDocument({
-  //   name: 'test',
-  //   document: {
-  //     openapi: '3.0.0',
-  //   },
-  // })
+  configs.value.forEach((config) => {
+    if (config.url) {
+      store.addDocument({
+        name: config.slug ?? 'default',
+        url: config.url,
+      })
+    }
+  })
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
@@ -161,6 +178,17 @@ watch(
   { immediate: true },
 )
 
+// Temporary mapping of active document until we update the standalone component
+watch(
+  () => selectedDocumentIndex.value,
+  (newValue) =>
+    store.update(
+      'x-scalar-active-document',
+      availableDocuments.value[newValue].slug ?? 'default',
+    ),
+  { immediate: true },
+)
+
 if (selectedConfiguration.value.metaData) {
   useSeoMeta(selectedConfiguration.value.metaData)
 }
@@ -186,15 +214,21 @@ useFavicon(favicon)
     :isDark="!!store.workspace['x-scalar-dark-mode']"
     @toggleDarkMode="() => toggleColorMode()"
     @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
+    <template #footer>
+      <slot name="footer" />
+    </template>
     <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
+    <template #content-end>
+      <slot name="footer" />
+    </template>
     <template #document-selector>
       <DocumentSelector
         v-model="selectedDocumentIndex"
         :options="availableDocuments" />
     </template>
-    <template #sidebar-start><slot name="sidebar-start" /></template>
+    <template #sidebar-start>
+      <slot name="sidebar-start" />
+    </template>
   </ApiReferenceLayout>
 </template>
 
