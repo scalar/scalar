@@ -93,6 +93,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
+          "slug": "api-reference",
           "icon": "phosphor/regular/github-logo",
           "children": [
             {
@@ -281,7 +282,7 @@
                 },
                 {
                   "name": "Vue.js",
-                  "slug": "vu",
+                  "slug": "vue",
                   "path": "documentation/integrations/vue.md",
                   "type": "page"
                 }
