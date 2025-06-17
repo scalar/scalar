@@ -267,12 +267,12 @@ describe('create-server-store', () => {
             },
             'paths': {
               '/planets': {
-                get: { '$ref': 'temp/chunks/doc-1/operations/~1planets/get.json#', $global: true },
+                get: { '$ref': './chunks/doc-1/operations/~1planets/get.json#', $global: true },
               },
             },
             'components': {
               'parameters': {
-                planetId: { '$ref': 'temp/chunks/doc-1/components/parameters/planetId.json#', $global: true },
+                planetId: { '$ref': './chunks/doc-1/components/parameters/planetId.json#', $global: true },
               },
             },
             'x-scalar-navigation': [
@@ -296,12 +296,12 @@ describe('create-server-store', () => {
             },
             'paths': {
               '/planets': {
-                get: { '$ref': 'temp/chunks/doc-2/operations/~1planets/get.json#', $global: true },
+                get: { '$ref': './chunks/doc-2/operations/~1planets/get.json#', $global: true },
               },
             },
             'components': {
               'parameters': {
-                planetId: { '$ref': 'temp/chunks/doc-2/components/parameters/planetId.json#', $global: true },
+                planetId: { '$ref': './chunks/doc-2/components/parameters/planetId.json#', $global: true },
               },
             },
             'x-scalar-navigation': [
@@ -448,7 +448,7 @@ describe('externalize-component-references', () => {
     )
 
     expect(result).toEqual({
-      schemas: { User: { '$ref': 'assets/chunks/name/components/schemas/User.json#', $global: true } },
+      schemas: { User: { '$ref': './chunks/name/components/schemas/User.json#', $global: true } },
     })
   })
 })
@@ -536,7 +536,7 @@ describe('externalize-path-references', () => {
     )
 
     expect(result).toEqual({
-      '/test': { get: { '$ref': 'assets/chunks/name/operations/~1test/get.json#', $global: true } },
+      '/test': { get: { '$ref': './chunks/name/operations/~1test/get.json#', $global: true } },
     })
   })
 })
