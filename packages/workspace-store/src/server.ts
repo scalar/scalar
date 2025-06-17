@@ -310,6 +310,7 @@ export async function createServerWorkspaceStore(workspaceProps: CreateServerWor
     const document = await loadDocument(input)
 
     if (!document.ok) {
+      console.warn(`Failed to load document "${input.name}`)
       return
     }
 
