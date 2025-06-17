@@ -1,5 +1,11 @@
 # @scalar/workspace-store
 
+## 0.5.2
+
+### Patch Changes
+
+- 1703e42: fix(workspace-store): relative paths for ssg mode
+
 ## 0.5.1
 
 ### Patch Changes
