@@ -28,3 +28,7 @@ export function isObject(value: unknown): value is UnknownObject {
 export function isLocalRef(value: string): boolean {
   return value.startsWith('#')
 }
+
+export function keyOf<T extends Record<string, unknown>>(value: T) {
+  return Object.keys(value) as (keyof T)[]
+}

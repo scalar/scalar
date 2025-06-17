@@ -1,6 +1,7 @@
 import { type Static, Type } from '@sinclair/typebox'
-import { OpenAPIDocumentSchema } from './openapi-v3/openapi-document'
+import { OpenAPIDocumentSchema } from './v3.1/strict/openapi-document'
 import { extensions } from '@/schemas/extensions'
+import { compose } from '@/schemas/v3.1/compose'
 
 const WorkspaceDocumentMetaSchema = Type.Partial(
   Type.Object({
@@ -11,7 +12,7 @@ const WorkspaceDocumentMetaSchema = Type.Partial(
 
 export type WorkspaceDocumentMeta = Static<typeof WorkspaceDocumentMetaSchema>
 
-export const WorkspaceDocumentSchema = Type.Intersect([WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema])
+export const WorkspaceDocumentSchema = compose(WorkspaceDocumentMetaSchema, OpenAPIDocumentSchema)
 
 export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 
@@ -26,13 +27,13 @@ const WorkspaceMetaSchema = Type.Partial(
 
 export type WorkspaceMeta = Static<typeof WorkspaceMetaSchema>
 
-export const WorkspaceSchema = Type.Intersect([
+export const WorkspaceSchema = compose(
   WorkspaceMetaSchema,
   Type.Object({
     documents: Type.Record(Type.String(), Type.Partial(WorkspaceDocumentSchema)),
     /** Active document is possibly undefined if we attempt to lookup with an invalid key */
     activeDocument: Type.Union([Type.Undefined(), Type.Partial(WorkspaceDocumentSchema)]),
   }),
-])
+)
 
 export type Workspace = Static<typeof WorkspaceSchema>

@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.31.12
+
+### Patch Changes
+
+- 796f87f: feat(api-reference): export references useSidebar
+- Updated dependencies [b6a1624]
+  - @scalar/workspace-store@0.5.0
+
+## 1.31.11
+
+### Patch Changes
+
+- 1f005c5: fix: updates client libraries footer style
+- c2b00e8: fix: preserves original properties in allof merging
+- 55aadd3: fix: restore breadcrumb in reference slot props
+
 ## 1.31.10
 
 ### Patch Changes

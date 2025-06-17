@@ -11,7 +11,7 @@
     "directory": "packages/config"
   },
   "keywords": [],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "engines": {
     "node": ">=20"
   },
@@ -40,7 +40,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@sinclair/typebox": "^0.33.3"
+    "@sinclair/typebox": "catalog:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

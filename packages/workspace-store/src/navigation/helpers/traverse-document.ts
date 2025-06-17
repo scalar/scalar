@@ -1,11 +1,10 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-
 import { traverseDescription } from './traverse-description'
 import { traversePaths } from './traverse-paths'
 import { traverseSchemas } from './traverse-schemas'
 import { traverseTags } from './traverse-tags'
 import { traverseWebhooks } from './traverse-webhooks'
 import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/navigation/types'
+import type { OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 
 /**
  * Traverses an OpenAPI Document to generate navigation structure and metadata.
@@ -17,7 +16,7 @@ import type { TagsMap, TraversedEntry, TraverseSpecOptions } from '@/navigation/
  * - Optional schema/model documentation
  */
 export const traverseDocument = (
-  document: OpenAPIV3_1.Document,
+  document: OpenApiDocument,
   {
     hideModels = false,
     tagsSorter = 'alpha',
@@ -34,7 +33,7 @@ export const traverseDocument = (
 
   /** Map of tags and their entries */
   const tagsMap: TagsMap = new Map(
-    document.tags?.map((tag: OpenAPIV3_1.TagObject) => [tag.name ?? 'Untitled Tag', { tag, entries: [] }]) ?? [],
+    document.tags?.map((tag) => [tag.name ?? 'Untitled Tag', { tag, entries: [] }]) ?? [],
   )
 
   const entries: TraversedEntry[] = traverseDescription(document.info?.description, titles, getHeadingId)
