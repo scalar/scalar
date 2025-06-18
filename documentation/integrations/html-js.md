@@ -1,4 +1,4 @@
-# HTML
+# Scalar API Reference with HTML/JS
 
 To get started, you can use a simple HTML file. It’s the easiest, and probably also the quickest way to get up and running, literally in seconds.
 

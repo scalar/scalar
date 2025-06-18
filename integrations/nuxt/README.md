@@ -1,4 +1,4 @@
-# Scalar API Reference Nuxt Module
+# Scalar API Reference Module for Nuxt
 
 [![Version](https://img.shields.io/npm/v/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/nuxt)](https://www.npmjs.com/package/@scalar/nuxt)
@@ -9,116 +9,14 @@ This plugin provides an easy way to render a beautiful API reference based on a 
 
 [![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6176314/178f4e4c-afdf-4c6a-bc72-128ea1786350)](https://docs.scalar.com/swagger-editor)
 
-## Quick Setup
+## Documentation
 
-Install the module to your Nuxt application with one command:
+[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/nuxt)
 
-```bash
-npx nuxi module add @scalar/nuxt
-```
+## Community
 
-That's it! You can now use @scalar/nuxt in your Nuxt app ✨
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
-## Configuration
+## License
 
-If you are using nuxt server routes you can enable scalar simply by enabling openAPI in the nitro
-config in your nuxt.config.ts
-
-```ts
-export default defineNuxtConfig({
-  modules: ['@scalar/nuxt'],
-  nitro: {
-    experimental: {
-      openAPI: true,
-    },
-  },
-})
-```
-
-If you would like to add your own OpenAPI document you can do so with the following minimal config
-
-```ts
-export default defineNuxtConfig({
-  modules: ['@scalar/nuxt'],
-  scalar: {
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-  },
-})
-```
-
-By default the docs will be hosted at `/docs` but you can easily customize that, here's a more in
-depth config example.
-
-```ts
-export default defineNuxtConfig({
-  modules: ['@scalar/nuxt'],
-  scalar: {
-    darkMode: true,
-    hideModels: false,
-    hideDownloadButton: false,
-    metaData: {
-      title: 'API Documentation by Scalar',
-    },
-    proxyUrl: 'https://proxy.scalar.com',
-    searchHotKey: 'k',
-    showSidebar: true,
-    pathRouting: {
-      basePath: '/scalar',
-    },
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-  },
-})
-```
-
-For multiple references, pass in an array of configuration objects which extend on top of the base
-config.
-
-```ts
-export default defineNuxtConfig({
-  modules: ['@scalar/nuxt'],
-  scalar: {
-    darkMode: true,
-    metaData: {
-      title: 'API Documentation by Scalar',
-    },
-    proxyUrl: 'https://proxy.scalar.com',
-    configurations: [
-      {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml,
-        pathRouting: {
-          basePath: '/yaml',
-        },
-      },
-      {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-        pathRouting: {
-          basePath: '/json',
-        },
-      },
-    ],
-  },
-})
-```
-
-For theme configuration, you can pass a `theme` property to the configuration object. The default theme is `nuxt`, but you can also pass `default` to use the default theme.
-
-```ts
-export default defineNuxtConfig({
-  modules: ['@scalar/nuxt'],
-  scalar: {
-    theme: 'nuxt',
-  },
-})
-```
-
-## Troubleshooting
-
-If you come across any `**** not default export` errors, its likely you are using `pnpm`.
-A temporary fix for this would be to enable [shamefully-hoist](https://pnpm.io/npmrc#shamefully-hoist) until
-we sort out what is causing the package issues.
-
-To do this, just create a `.npmrc` file in your project root and fill it with:
-
-```bash
-shamefully-hoist=true
-```
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

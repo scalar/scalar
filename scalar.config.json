@@ -131,7 +131,7 @@
               "type": "folder",
               "children": [
                 {
-                  "name": "HTML/JS (CDN)",
+                  "name": "HTML/JS",
                   "slug": "html-js",
                   "path": "documentation/integrations/html-js.md",
                   "type": "page"
@@ -158,6 +158,12 @@
                   "name": "Django Ninja",
                   "slug": "django-ninja",
                   "path": "documentation/integrations/django-ninja.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Docker",
+                  "slug": "docker",
+                  "path": "documentation/integrations/docker.md",
                   "type": "page"
                 },
                 {
@@ -272,6 +278,12 @@
                   "name": "Rust",
                   "slug": "rust",
                   "path": "documentation/integrations/rust.md",
+                  "type": "page"
+                },
+                {
+                  "name": "SvelteKit",
+                  "slug": "sveltekit",
+                  "path": "documentation/integrations/sveltekit.md",
                   "type": "page"
                 },
                 {

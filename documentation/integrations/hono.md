@@ -1,4 +1,4 @@
-# Hono
+# Scalar API Reference for Hono
 
 This middleware provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger document with Hono.
 
