@@ -108,7 +108,21 @@ const store = props.getWorkspaceStore()
  */
 const configs = availableDocuments
 
-configs.value.forEach((config) => {
+/**
+ * Adds a document to the workspace store based on the provided configuration.
+ * Handles both in-memory documents (via content) and remote documents (via URL).
+ *
+ * @param config - The document configuration containing either content or URL
+ * @returns The result of adding the document to the store, or undefined if skipped
+ */
+const addDocument = (config: (typeof configs.value)[number]) => {
+  // If the document is already in the store we skip it
+  // TODO: Handle cases when the slug is the same but belongs to two different documents?
+  // This can be the case when no slug and no title is provided and we are using index for the slug!
+  if (store.workspace.documents[config.slug ?? 'default'] !== undefined) {
+    return
+  }
+
   if (config.content) {
     const obj =
       typeof config.content === 'string'
@@ -116,10 +130,24 @@ configs.value.forEach((config) => {
         : config.content
 
     // Add in-memory documents to the store
-    store.addDocumentSync({
+    return store.addDocumentSync({
       name: config.slug ?? 'default',
       document: typeof obj === 'function' ? obj() : obj,
     })
+  }
+
+  if (config.url) {
+    return store.addDocument({
+      name: config.slug ?? 'default',
+      url: config.url,
+      fetch: proxy,
+    })
+  }
+}
+
+configs.value.forEach((config) => {
+  if (config.content) {
+    addDocument(config)
   }
 })
 
@@ -130,11 +158,7 @@ onServerPrefetch(() => {
   // For SSR we want to preload the active document into the store
   configs.value.forEach((config) => {
     if (config.url) {
-      store.addDocument({
-        name: config.slug ?? 'default',
-        url: config.url,
-        fetch: proxy,
-      })
+      addDocument(config)
     }
   })
 })
@@ -144,11 +168,7 @@ onMounted(() => {
   // NOTE: The UI MUST handle a case where the document is empty
   configs.value.forEach((config) => {
     if (config.url) {
-      store.addDocument({
-        name: config.slug ?? 'default',
-        url: config.url,
-        fetch: proxy,
-      })
+      addDocument(config)
     }
   })
 })
@@ -195,9 +215,17 @@ watch(
   (newValue) =>
     store.update(
       'x-scalar-active-document',
-      availableDocuments.value[newValue].slug ?? 'default',
+      availableDocuments.value[newValue].slug,
     ),
   { immediate: true },
+)
+
+/** Add any missing documents when props change */
+watch(
+  () => availableDocuments.value,
+  (newValue) => {
+    newValue.forEach(addDocument)
+  },
 )
 
 if (selectedConfiguration.value.metaData) {
