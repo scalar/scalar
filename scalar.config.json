@@ -15,14 +15,14 @@
         {
           "name": "Introduction",
           "description": "Introduction to Scalar",
-          "icon": "solid/interface-home-house",
+          "icon": "line/interface-home-house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
         },
         {
           "name": "Scalar Docs",
           "type": "folder",
-          "icon": "solid/interface-content-book-open-pages",
+          "icon": "line/interface-content-book-page",
           "children": [
             {
               "path": "documentation/guides/docs/getting-started.md",
@@ -38,7 +38,7 @@
         {
           "name": "Scalar SDKs",
           "type": "folder",
-          "icon": "solid/shopping-shipping-box-parcel-package",
+          "icon": "line/shopping-shipping-box-parcel-package",
           "children": [
             {
               "path": "documentation/guides/sdks/getting-started.md",
@@ -49,7 +49,7 @@
         {
           "name": "Scalar Registry",
           "type": "folder",
-          "icon": "solid/programming-script-code",
+          "icon": "phosphor/regular/brackets-curly",
           "children": [
             {
               "path": "documentation/guides/registry/getting-started.md",
@@ -71,14 +71,14 @@
         },
         {
           "name": "Access",
-          "icon": "solid/interface-login-key",
+          "icon": "line/interface-login-key",
           "path": "documentation/guides/access.md",
           "type": "page"
         },
         {
           "name": "Scalar CLI",
           "type": "folder",
-          "icon": "brand/programming-language-shell",
+          "icon": "phosphor/regular/terminal",
           "children": [
             {
               "path": "documentation/guides/cli/getting-started.md",
@@ -93,7 +93,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
-          "icon": "brand/brand-software-development-github",
+          "icon": "phosphor/regular/github-logo",
           "children": [
             {
               "name": "Getting Started",
