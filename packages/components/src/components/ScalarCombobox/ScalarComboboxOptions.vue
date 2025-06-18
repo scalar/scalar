@@ -137,7 +137,7 @@ function moveActive(dir: 1 | -1) {
   })
 }
 
-// Manual autofocus for the input
+// Manual autofocus for the inputAdd commentMore actions
 const input = useTemplateRef('input')
 nextTick(() => input.value?.focus())
 </script>
