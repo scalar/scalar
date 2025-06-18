@@ -251,7 +251,7 @@ describe('schema-name', () => {
       expect(getModelName(value, {}, false, mockGetDiscriminatorSchemaName)).toBe('array DiscriminatorModel[]')
     })
 
-    it.only('returns null when no matching schema found for a primitive type (string)', () => {
+    it('returns null when no matching schema found for a primitive type (string)', () => {
       const value = {
         type: 'string',
       }
