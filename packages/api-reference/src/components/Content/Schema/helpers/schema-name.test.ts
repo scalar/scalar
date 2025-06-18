@@ -187,7 +187,6 @@ describe('schema-name', () => {
         },
       }
       const result = getModelName(value, schemas)
-      console.log(result)
       expect(result).toBe(null)
     })
   })
