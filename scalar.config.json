@@ -14,7 +14,6 @@
       "sidebar": [
         {
           "name": "Introduction",
-          "description": "Introduction to Scalar",
           "icon": "line/interface-home-house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
