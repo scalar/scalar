@@ -136,7 +136,7 @@ describe('should correctly cast/default values to make the input schema complian
     })
   })
 
-  it.skip('should pass strict validation after coerce values', { timeout: 100_000 }, async () => {
+  it('should pass strict validation after coerce values', { timeout: 100_000 }, async () => {
     // Get first 300 files to run the tests
     const files = await Promise.all((await listFiles('oas/files', 300)).map((it) => it.download()))
 
