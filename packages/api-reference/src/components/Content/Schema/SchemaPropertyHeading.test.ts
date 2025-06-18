@@ -295,7 +295,7 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).not.toContain('object')
   })
 
-  it.skip('matches array schema to component schema by type and items', () => {
+  it('matches array schema to component schema by type and items', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {
@@ -339,7 +339,7 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).not.toContain('Planet')
   })
 
-  it.todo('shows model name when hideModelNames is false', () => {
+  it('shows model name when hideModelNames is false', () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {

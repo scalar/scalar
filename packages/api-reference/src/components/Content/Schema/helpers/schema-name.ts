@@ -64,6 +64,42 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
 }
 
 /**
+ * Find schema name by matching against component schemas
+ */
+export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
+  // We only want to use this strategy for arrays or objects
+  if (!schema || !schemas || typeof schemas !== 'object' || (schema.type !== 'array' && schema.type !== 'object')) {
+    return null
+  }
+
+  for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+    if (schemaValue.type === schema.type) {
+      if (schema.type === 'array' && schemaValue.items?.type === schema.items?.type) {
+        return schemaName
+      }
+
+      if (
+        schema.type === 'object' &&
+        schemaValue.properties &&
+        schema.properties &&
+        stringify(schemaValue.properties) === stringify(schema.properties)
+      ) {
+        return schemaName
+      }
+
+      // Only return schema name if it has model name
+      if (schema.type !== 'array' && schema.type !== 'object') {
+        if (hasName(schemaName)) {
+          return schemaName
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+/**
  * Format the type and model name for display
  */
 export function formatTypeWithModel(type: string, modelName: string): string {
@@ -95,6 +131,11 @@ export function getModelName(
   const modelName = getModelNameFromSchema(value, schemas)
   if (modelName && (value.title || value.name)) {
     return value.type === 'array' ? `array ${modelName}[]` : modelName
+  }
+
+  const schemaName = getSchemaNameFromSchemas(value, schemas)
+  if (schemaName) {
+    return value.type === 'array' ? `array ${schemaName}[]` : schemaName
   }
 
   // Handle array types with item references only if no full schema match was found
