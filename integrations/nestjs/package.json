@@ -26,7 +26,7 @@
     "docker:run-fastify": "docker run -p 5057:5057 nestjs-api-reference-fastify",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest run",
+    "test": "vitest",
     "types:check": "tsc --noEmit"
   },
   "type": "module",
@@ -52,10 +52,15 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
+    "@nestjs/common": "^11.0.16",
+    "@nestjs/platform-fastify": "^10.3.8",
+    "@nestjs/testing": "^10.0.0",
     "@scalar/api-reference": "workspace:*",
     "@types/express": "catalog:*",
+    "@types/supertest": "^2.0.12",
     "express": "catalog:*",
     "fastify": "^4.26.2",
+    "supertest": "^6.3.3",
     "tsup": "^8.3.5",
     "vite": "catalog:*",
     "vitest": "catalog:*"
