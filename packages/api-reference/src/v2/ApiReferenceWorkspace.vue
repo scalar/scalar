@@ -215,7 +215,7 @@ watch(
   (newValue) =>
     store.update(
       'x-scalar-active-document',
-      availableDocuments.value[newValue].slug,
+      availableDocuments.value[newValue]?.slug,
     ),
   { immediate: true },
 )
