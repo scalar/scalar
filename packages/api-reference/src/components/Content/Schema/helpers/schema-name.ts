@@ -86,13 +86,6 @@ export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schem
       ) {
         return schemaName
       }
-
-      // Only return schema name if it has model name
-      if (schema.type !== 'array' && schema.type !== 'object') {
-        if (hasName(schemaName)) {
-          return schemaName
-        }
-      }
     }
   }
 
