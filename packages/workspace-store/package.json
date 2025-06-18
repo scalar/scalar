@@ -63,8 +63,8 @@
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@google-cloud/storage": "catalog:*",
+    "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"
