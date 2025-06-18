@@ -809,7 +809,16 @@ jobs:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
-          tags: scalarapi/aspire-api-reference:latest
+          tags: |
+            scalarapi/aspire-api-reference:latest
+            scalarapi/aspire-api-reference:${{ env.VERSION }}
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Set Version in Constants.cs
+        working-directory: integrations/aspire
+        run: |
+          sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
+          cat src/Scalar.Aspire/Constants.cs
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Setup .NET
@@ -821,15 +830,15 @@ jobs:
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Restore dependencies
-        working-directory: integrations/aspire/Scalar.Aspire
+        working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet restore
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Pack Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/Scalar.Aspire
+        working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
       - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
         name: Publish Scalar.Aspire NuGet package
-        working-directory: integrations/aspire/Scalar.Aspire
+        working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
