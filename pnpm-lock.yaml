@@ -1380,8 +1380,6 @@ importers:
         specifier: catalog:*
         version: 3.5.12(typescript@5.6.2)
 
-  packages/api-reference/docker: {}
-
   packages/api-reference/playground/ssr:
     dependencies:
       '@hono/node-server':
