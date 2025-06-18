@@ -14,7 +14,7 @@
  * No state updates should be handled in children of this components. When updates are required
  * a custom event should be emitted to the workspace store and handled here.
  */
-import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
+import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfiguration,
@@ -66,6 +66,24 @@ const {
   hashPrefix: ref(''),
 })
 
+/**
+ * Creates a proxy function that redirects requests through a proxy URL.
+ * This is used to handle CORS issues by routing requests through a proxy server.
+ *
+ * @param input - The URL or Request object to proxy
+ * @param init - Optional fetch init parameters
+ * @returns A Promise that resolves to the Response from the proxied request
+ */
+const proxy = (
+  input: string | URL | globalThis.Request,
+  init?: RequestInit,
+) => {
+  return fetch(
+    redirectToProxy(selectedConfiguration.value.proxyUrl, input.toString()),
+    init,
+  )
+}
+
 // Provide the intersection observer which has defaults
 provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
@@ -82,14 +100,6 @@ const root = shallowRef<HTMLElement | null>(null)
  * and this component will use the provided function to get the workspace store.
  */
 const store = props.getWorkspaceStore()
-
-watch(
-  () => store.workspace.activeDocument,
-  (value) => {
-    console.log({ value })
-  },
-  { immediate: true },
-)
 
 /**
  * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
@@ -123,6 +133,7 @@ onServerPrefetch(() => {
       store.addDocument({
         name: config.slug ?? 'default',
         url: config.url,
+        fetch: proxy,
       })
     }
   })
@@ -136,6 +147,7 @@ onMounted(() => {
       store.addDocument({
         name: config.slug ?? 'default',
         url: config.url,
+        fetch: proxy,
       })
     }
   })
@@ -149,10 +161,9 @@ onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
   store.update('x-scalar-dark-mode', event.data.value)
 })
 
-// onCustomEvent(root, 'scalar-update-active-document', (event) => {
-//   console.log('scalar-update-active-document', event)
-//   store.update('x-scalar-active-document', event.data.value)
-// })
+onCustomEvent(root, 'scalar-update-active-document', (event) => {
+  store.update('x-scalar-active-document', event.data.value)
+})
 
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
