@@ -34,6 +34,18 @@
             }
           ]
         },
+
+        {
+          "name": "Scalar SDKs",
+          "type": "folder",
+          "icon": "solid/shopping-shipping-box-parcel-package",
+          "children": [
+            {
+              "path": "documentation/guides/sdks/getting-started.md",
+              "type": "page"
+            }
+          ]
+        },
         {
           "name": "Scalar Registry",
           "type": "folder",

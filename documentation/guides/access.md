@@ -6,7 +6,7 @@ Make sure you have created a Scalar Account & are logged in ([see create account
 ## Create your first access group
 Now let's make our first access group
 
-From the dashboard left-most sidebar under Access > Groups, then click Create Access Group.
+From the [dashboard](https://dashboard.scalar.com) left-most sidebar under Access > Groups, then click Create Access Group.
 
 ![Scalar Access Group Page](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/fkz45YW1-1ncvfHnyDC_g.png "Scalar Access Group Page")
 
