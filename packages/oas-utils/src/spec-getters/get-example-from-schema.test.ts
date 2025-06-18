@@ -1160,4 +1160,51 @@ describe('getExampleFromSchema', () => {
       name: 'test',
     })
   })
+
+  it('expands objects and arrays in arrays (without a type)', () => {
+    expect(
+      getExampleFromSchema({
+        'type': 'array',
+        'description': "The summary of user's quality of service (QoS) information.",
+        'items': {
+          // no `type: 'object'` here, but it’s an object
+          'properties': {
+            'type': {
+              'type': 'string',
+              'enum': ['audio_input', 'audio_output', 'video_input'],
+              'examples': ['audio_input'],
+            },
+            'details': {
+              'type': 'object',
+              'properties': {
+                'min_bitrate': {
+                  'type': 'string',
+                  'description': 'The minimum amount of bitrate, in Kbps.',
+                  'examples': ['27.15 Kbps'],
+                },
+              },
+            },
+            'foobar': {
+              'type': 'array',
+              'items': {
+                // no `type: 'array'` here, but it’s an array
+                'items': {
+                  'type': 'string',
+                  'example': 'foobar',
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toStrictEqual([
+      {
+        'type': 'audio_input',
+        'details': {
+          'min_bitrate': '27.15 Kbps',
+        },
+        'foobar': [['foobar']],
+      },
+    ])
+  })
 })
