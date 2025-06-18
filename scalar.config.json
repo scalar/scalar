@@ -14,7 +14,6 @@
       "sidebar": [
         {
           "name": "Introduction",
-          "description": "Introduction to Scalar",
           "icon": "line/interface-home-house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
@@ -93,6 +92,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
+          "slug": "api-reference",
           "icon": "phosphor/regular/github-logo",
           "children": [
             {
@@ -128,79 +128,173 @@
             {
               "name": "Integrations",
               "type": "folder",
-              "children": [{
+              "children": [
+                {
+                  "name": "HTML/JS",
+                  "slug": "html-js",
+                  "path": "documentation/integrations/html-js.md",
+                  "type": "page"
+                },
+                {
                   "name": ".NET",
+                  "slug": "dotnet",
                   "path": "documentation/integrations/dotnet.md",
                   "type": "page"
                 },
                 {
                   "name": "AdonisJS",
+                  "slug": "adonisjs",
                   "path": "documentation/integrations/adonisjs.md",
                   "type": "page"
                 },
                 {
                   "name": "Django",
+                  "slug": "django",
                   "path": "documentation/integrations/django.md",
                   "type": "page"
                 },
                 {
                   "name": "Django Ninja",
+                  "slug": "django-ninja",
                   "path": "documentation/integrations/django-ninja.md",
                   "type": "page"
                 },
                 {
+                  "name": "Docker",
+                  "slug": "docker",
+                  "path": "documentation/integrations/docker.md",
+                  "type": "page"
+                },
+                {
                   "name": "Docusaurus",
+                  "slug": "docusaurus",
                   "path": "documentation/integrations/docusaurus.md",
                   "type": "page"
                 },
                 {
+                  "name": "Express",
+                  "slug": "express",
+                  "path": "documentation/integrations/express.md",
+                  "type": "page"
+                },
+                {
                   "name": "ElysiaJS",
+                  "slug": "elysiajs",
                   "path": "documentation/integrations/elysiajs.md",
                   "type": "page"
                 },
                 {
+                  "name": "FastAPI",
+                  "slug": "fastapi",
+                  "path": "documentation/integrations/fastapi.md",
+                  "type": "page"
+                },
+                {
                   "name": "Fastify",
+                  "slug": "fastify",
                   "path": "documentation/integrations/fastify.md",
                   "type": "page"
                 },
                 {
                   "name": "Go",
+                  "slug": "go",
                   "path": "documentation/integrations/go.md",
                   "type": "page"
                 },
                 {
-                  "name": "HTML/CDN",
-                  "path": "documentation/integrations/html-js.md",
+                  "name": "Hono",
+                  "slug": "hono",
+                  "path": "documentation/integrations/hono.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Laravel",
+                  "slug": "laravel",
+                  "path": "documentation/integrations/laravel.md",
                   "type": "page"
                 },
                 {
                   "name": "Laravel Scribe",
+                  "slug": "laravel-scribe",
                   "path": "documentation/integrations/laravel-scribe.md",
                   "type": "page"
                 },
                 {
+                  "name": "Micronaut",
+                  "slug": "micronaut",
+                  "path": "documentation/integrations/micronaut.md",
+                  "type": "page"
+                },
+                {
                   "name": "Next.js",
+                  "slug": "nextjs",
                   "path": "documentation/integrations/nextjs.md",
                   "type": "page"
                 },
                 {
+                  "name": "NestJS",
+                  "slug": "nestjs",
+                  "path": "documentation/integrations/nestjs.md",
+                  "type": "page"
+                },
+                {
                   "name": "Nitro",
+                  "slug": "nitro",
                   "path": "documentation/integrations/nitro.md",
                   "type": "page"
                 },
                 {
+                  "name": "Nuxt",
+                  "slug": "nuxt",
+                  "path": "documentation/integrations/nuxt.md",
+                  "type": "page"
+                },
+                {
                   "name": "Platformatic",
+                  "slug": "platformatic",
                   "path": "documentation/integrations/platformatic.md",
                   "type": "page"
                 },
                 {
+                  "name": "Python",
+                  "slug": "python",
+                  "path": "documentation/integrations/python.md",
+                  "type": "page"
+                },
+                {
                   "name": "React",
+                  "slug": "react",
                   "path": "documentation/integrations/react.md",
                   "type": "page"
                 },
                 {
+                  "name": "Ruby on Rails",
+                  "slug": "ruby-on-rails",
+                  "path": "documentation/integrations/ruby-on-rails.md",
+                  "type": "page"
+                },
+                {
                   "name": "Rust",
+                  "slug": "rust",
                   "path": "documentation/integrations/rust.md",
+                  "type": "page"
+                },
+                {
+                  "name": "SvelteKit",
+                  "slug": "sveltekit",
+                  "path": "documentation/integrations/sveltekit.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Ts.ED",
+                  "slug": "tsed",
+                  "path": "documentation/integrations/tsed.md",
+                  "type": "page"
+                },
+                {
+                  "name": "Vue.js",
+                  "slug": "vue",
+                  "path": "documentation/integrations/vue.md",
                   "type": "page"
                 }
               ]
