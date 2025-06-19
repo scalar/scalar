@@ -263,7 +263,7 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      * @default false
      * @deprecated Use `documentDownloadType: 'none'` instead
      */
-    hideDownloadButton: z.boolean().optional().default(false).catch(false),
+    hideDownloadButton: z.boolean().optional(),
     /**
      * Whether to show the "Test Request" button
      * @default false
