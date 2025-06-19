@@ -160,7 +160,7 @@ onClickOutside(
       <ScalarButton
         v-else-if="router"
         class="font-code text-xxs hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
-        variant="secondary"
+        variant="outlined"
         @click="redirectToEnvironment">
         <ScalarIcon
           icon="Add"
