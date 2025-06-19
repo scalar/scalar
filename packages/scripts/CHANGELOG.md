@@ -1,5 +1,12 @@
 # @scalar/scripts
 
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [699df60]
+  - @scalar/components@0.14.11
+
 ## 0.0.11
 
 ### Patch Changes
