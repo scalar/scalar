@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.31.17
+
+### Patch Changes
+
+- ca18c0b: feat(api-reference): update and modernize sidebar design
+- Updated dependencies [ca18c0b]
+  - @scalar/themes@0.13.4
+  - @scalar/api-client@2.5.11
+  - @scalar/code-highlight@0.1.4
+  - @scalar/components@0.14.12
+  - @scalar/oas-utils@0.4.7
+
 ## 1.31.16
 
 ### Patch Changes
