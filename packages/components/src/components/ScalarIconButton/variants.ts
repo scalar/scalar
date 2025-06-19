@@ -17,6 +17,13 @@ export const variants = cva({
     },
     variant: styles,
   },
+  compoundVariants: [
+    {
+      size: 'md',
+      variant: 'ghost',
+      class: 'size-8 p-2 m-1 -outline-offset-2 rounded-lg',
+    },
+  ],
   defaultVariants: {
     size: 'md',
     variant: 'ghost',
