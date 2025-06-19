@@ -39,7 +39,6 @@ internal static class ScalarOptionsMapper
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
-            HideDownloadButton = options.HideDownloadButton,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
             ForceDarkModeState = options.ForceThemeMode?.ToStringFast(true),
@@ -62,7 +61,10 @@ internal static class ScalarOptionsMapper
             HideClientButton = options.HideClientButton,
             Sources = sources,
             BaseServerUrl = options.BaseServerUrl,
-            PersistAuth = options.PersistentAuthentication
+            PersistAuth = options.PersistentAuthentication,
+#pragma warning disable CS0618 // Type or member is obsolete
+            DocumentDownloadType = options.HideDownloadButton ? DocumentDownloadType.None.ToStringFast(true) : options.DocumentDownloadType?.ToStringFast(true)
+#pragma warning restore CS0618 // Type or member is obsolete
         };
     }
 
