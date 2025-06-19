@@ -2,7 +2,9 @@
   "extends": "../../tsconfig.json",
   "exclude": ["playground"],
   "compilerOptions": {
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }
