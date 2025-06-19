@@ -410,25 +410,6 @@ export async function importSpecToWorkspace(
         delete requestPayload.examples
       }
 
-      // Add list of UIDs to associate security schemes
-      // As per the spec if there is operation level security we ignore the top level requirements
-      if (operationSecurity?.length) {
-        requestPayload.security = operationSecurity.map((s: OpenAPIV3_1.SecurityRequirementObject) => {
-          const keys = Object.keys(s)
-
-          // Handle the case of {} for optional
-          if (keys.length) {
-            const [key] = Object.keys(s)
-            if (key) {
-              return {
-                [key]: s[key],
-              }
-            }
-          }
-          return s
-        })
-      }
-
       // Save parse the request
       const request = schemaModel(requestPayload, requestSchema, false)
 
