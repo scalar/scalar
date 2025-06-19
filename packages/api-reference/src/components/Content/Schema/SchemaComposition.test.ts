@@ -85,7 +85,9 @@ describe('SchemaComposition', () => {
       expect(tab.text()).toBe('object')
     })
 
-    it('displays schema name from components when matching schema is found', () => {
+    // TODO: This would be nice to have, but we used to compare schemas and in some cases it returned the wrong name.
+    // Let’s find another approach and enable this test again.
+    it.todo('displays schema name from components when matching schema is found', () => {
       const wrapper = mount(SchemaComposition, {
         props: {
           composition: 'oneOf',

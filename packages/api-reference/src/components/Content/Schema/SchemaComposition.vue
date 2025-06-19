@@ -9,10 +9,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, ref } from 'vue'
 
 import { mergeAllOfSchemas } from '@/components/Content/Schema/helpers/merge-all-of-schemas'
-import {
-  getCompositionDisplay,
-  getModelNameFromSchema,
-} from '@/components/Content/Schema/helpers/schema-name'
+import { getModelNameFromSchema } from '@/components/Content/Schema/helpers/schema-name'
 import type { Schemas } from '@/features/Operation/types/schemas'
 
 import {
@@ -33,11 +30,6 @@ const { schemas, value, composition } = defineProps<{
 
 const selectedIndex = ref(0)
 
-/** Get base schemas for label generation */
-const baseSchemas = computed(() => {
-  return value[composition] || []
-})
-
 /** Get the composition schemas to display in the composition panel */
 const compositionDisplay = computed(() => {
   // Always use the processed schemaComposition to ensure allOf schemas are properly merged
@@ -48,7 +40,7 @@ const listboxOptions = computed(() =>
   compositionDisplay.value.map(
     (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
       id: String(index),
-      label: getModelNameFromSchema(schema, schemas) || 'Schema',
+      label: getModelNameFromSchema(schema) || 'Schema',
     }),
   ),
 )
