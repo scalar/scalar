@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.5.10
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/components@0.14.11
+  - @scalar/icons@0.4.4
+  - @scalar/use-codemirror@0.12.12
+
 ## 2.5.9
 
 ### Patch Changes

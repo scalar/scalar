@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.31.16
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/api-client@2.5.10
+  - @scalar/components@0.14.11
+  - @scalar/icons@0.4.4
+
 ## 1.31.15
 
 ### Patch Changes

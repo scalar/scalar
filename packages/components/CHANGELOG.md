@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.14.11
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/icons@0.4.4
+
 ## 0.14.10
 
 ### Patch Changes
