@@ -15,7 +15,7 @@ const { cx } = useBindCx()
     role="search"
     v-bind="
       cx(
-        'flex items-center rounded border text-base h-8 gap-1 px-1',
+        'flex items-center rounded border text-base h-8 gap-1 pl-2 pr-1',
         'bg-sidebar-b-search border-sidebar-border-search text-sidebar-c-search',
       )
     ">
