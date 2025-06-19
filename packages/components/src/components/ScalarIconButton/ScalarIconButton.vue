@@ -1,24 +1,42 @@
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
+import { computed, useTemplateRef } from 'vue'
 
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
+import { useTooltip } from '../ScalarTooltip'
 import type { ScalarIconButtonProps } from './types'
 import { variants } from './variants'
 
-const { tooltip } = defineProps<ScalarIconButtonProps>()
+const { label, tooltip } = defineProps<ScalarIconButtonProps>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
+
+const button = useTemplateRef('ref')
+
+useTooltip({
+  content: computed(() => label),
+  offset: 0,
+  placement: computed(() =>
+    typeof tooltip === 'boolean' ? undefined : tooltip,
+  ),
+  targetRef: computed(() => (tooltip ? button.value : undefined)),
+})
 </script>
 <template>
   <button
-    :ariaDisabled="disabled || undefined"
+    ref="ref"
+    :aria-disabled="disabled"
     type="button"
     v-bind="cx(variants({ size, variant, disabled }))">
     <ScalarIconLegacyAdapter
       :icon="icon"
       :thickness="thickness"
       :weight="weight" />
-    <span class="sr-only">{{ label }}</span>
+    <span
+      v-if="!tooltip"
+      class="sr-only"
+      >{{ label }}</span
+    >
   </button>
 </template>

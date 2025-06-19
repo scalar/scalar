@@ -2,6 +2,7 @@ import type { ScalarIconComponent, ScalarIconWeight } from '@scalar/icons/types'
 
 import type { Variants } from './variants'
 import type { Icon } from '../ScalarIcon'
+import type { ScalarTooltipPlacement } from '@/components/ScalarTooltip'
 
 export type ScalarIconButtonProps = {
   /**
@@ -40,6 +41,11 @@ export type ScalarIconButtonProps = {
   thickness?: string
   /** The weight of the icon. */
   weight?: ScalarIconWeight
-  /** Whether to display a tooltip when hovering over the icon button */
-  tooltip?: boolean
+  /**
+   * Whether to display a tooltip when hovering over the icon button
+   *
+   * If `true`, the `label` will be displayed when hovering over the
+   * icon button. Can also be a specific placement for the tooltip.
+   */
+  tooltip?: boolean | ScalarTooltipPlacement
 }
