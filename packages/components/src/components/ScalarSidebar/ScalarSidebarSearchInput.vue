@@ -33,14 +33,12 @@ onMounted(() => autofocus && inputRef.value?.focus())
   <label
     v-bind="
       classCx(
-        'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1.5 pl-1.5 pr-1.75',
+        'flex items-center rounded border text-base has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-1 pr-2',
         'bg-sidebar-b-search border-sidebar-border-search',
         model ? 'text-c-1' : 'text-sidebar-c-search',
       )
     ">
-    <ScalarIconMagnifyingGlass
-      class="text-sidebar-c-search size-3.5"
-      weight="bold" />
+    <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input
       ref="inputRef"
       :aria-label="label ?? 'Enter search query'"
