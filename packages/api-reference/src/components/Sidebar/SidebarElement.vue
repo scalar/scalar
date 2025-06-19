@@ -212,7 +212,7 @@ const onAnchorClick = async (ev: Event) => {
   content: '';
   position: absolute;
   top: 0;
-  left: calc((var(--scalar-sidebar-level) * 13.5px));
+  left: calc((var(--scalar-sidebar-level) * 12px));
   width: var(--scalar-border-width);
   height: 100%;
   background: var(--scalar-sidebar-indent-border);
@@ -272,7 +272,7 @@ const onAnchorClick = async (ev: Event) => {
 /* Folder/page collapse icon */
 /* awkward pixel value to deal with hairspace alignment across browser*/
 .sidebar-heading-chevron {
-  margin: 5px -5.5px 5px -6.5px;
+  margin: 5px -5.5px 5px -9px;
 }
 .sidebar-heading-chevron .toggle-nested-icon:focus-visible {
   outline: none;
