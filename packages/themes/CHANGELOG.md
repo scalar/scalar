@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.13.4
+
+### Patch Changes
+
+- ca18c0b: feat(api-reference): update and modernize sidebar design
+
 ## 0.13.3
 
 ### Patch Changes
