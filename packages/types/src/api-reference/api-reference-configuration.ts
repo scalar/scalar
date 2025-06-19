@@ -254,8 +254,14 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
      */
     hideModels: z.boolean().optional().default(false).catch(false),
     /**
+     * Sets the file type of the document to download, set to `none` to hide the download button
+     * @default 'both'
+     */
+    documentDownloadType: z.enum(['yaml', 'json', 'both', 'none']).optional().default('both').catch('both'),
+    /**
      * Whether to show the "Download OpenAPI Document" button
      * @default false
+     * @deprecated Use `documentDownloadType: 'none'` instead
      */
     hideDownloadButton: z.boolean().optional().default(false).catch(false),
     /**
@@ -457,6 +463,15 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 /** Migrate the configuration through a transform */
 const migrateConfiguration = <T extends z.infer<typeof _apiReferenceConfigurationSchema>>(_configuration: T): T => {
   const configuration = { ..._configuration }
+
+  // Migrate hideDownloadButton to documentDownloadType
+  if (configuration.hideDownloadButton) {
+    console.warn(
+      `[DEPRECATED] You're using the deprecated 'hideDownloadButton' attribute. Use 'documentDownloadType: 'none'' instead.`,
+    )
+
+    configuration.documentDownloadType = 'none'
+  }
 
   // Remove the spec prefix
   if (configuration.spec?.url) {
