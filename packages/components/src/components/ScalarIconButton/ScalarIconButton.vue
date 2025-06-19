@@ -7,7 +7,11 @@ import { useTooltip } from '../ScalarTooltip'
 import type { ScalarIconButtonProps } from './types'
 import { variants } from './variants'
 
-const { label, tooltip } = defineProps<ScalarIconButtonProps>()
+const {
+  label,
+  variant = 'ghost',
+  tooltip,
+} = defineProps<ScalarIconButtonProps>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -16,7 +20,7 @@ const button = useTemplateRef('ref')
 
 useTooltip({
   content: computed(() => label),
-  offset: 0,
+  offset: computed(() => (variant === 'ghost' ? 0 : 4)),
   placement: computed(() =>
     typeof tooltip === 'boolean' ? undefined : tooltip,
   ),
