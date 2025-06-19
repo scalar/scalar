@@ -40,15 +40,15 @@ describe('Introduction', () => {
         description: 'Example description',
         version: '1.0.0',
       },
-      externalDocs: {
-        description: 'Documentation',
-        url: 'https://scalar.com',
-      },
     } satisfies Spec
 
     const wrapper = mount(Introduction, {
       props: {
         document: example,
+        externalDocs: {
+          description: 'Documentation',
+          url: 'https://scalar.com',
+        },
       },
     })
 
