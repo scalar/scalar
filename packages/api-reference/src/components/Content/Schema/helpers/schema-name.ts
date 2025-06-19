@@ -1,12 +1,12 @@
-import { stringify } from 'flatted'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Schemas } from '@/features/Operation/types/schemas'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { stringify } from 'flatted'
 
 /**
  * Extract schema name from various schema formats
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
-export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
+export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string | null {
   if (!schema) {
     return null
   }
@@ -18,16 +18,6 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
 
   if ('name' in schema && schema.name) {
     return schema.name
-  }
-
-  // Schema dictionary lookup by comparing stringified objects
-  if (schemas && typeof schemas === 'object') {
-    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-      // To avoid circular references, stringify the schema and compare
-      if (stringify(schemaValue) === stringify(schema)) {
-        return schemaName
-      }
-    }
   }
 
   // Handle $ref schemas - extract name from reference path
