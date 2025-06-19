@@ -15,7 +15,7 @@ public static class ResourceBuilderExtensions
     /// <param name="resourceBuilder">The resource builder that provides the OpenAPI document.</param>
     /// <param name="configureOptions">Optional action to configure <see cref="ScalarOptions"/> for this service.</param>
     /// <returns>The resource builder for the <see cref="ScalarResource"/>.</returns>
-    public static IResourceBuilder<ScalarResource> WithOpenApiReference(
+    public static IResourceBuilder<ScalarResource> WithApiReference(
         this IResourceBuilder<ScalarResource> builder,
         IResourceBuilder<IResourceWithServiceDiscovery> resourceBuilder,
         Action<ScalarOptions>? configureOptions = null) =>

@@ -39,8 +39,8 @@ var scalar = builder.AddScalarApiReference(options =>
 
 // Configure API References for specific services
 scalar
-    .WithOpenApiReference(userService, options => options.AddDocument("internal", routePattern: "/documentation/{documentName}.json"))
-    .WithOpenApiReference(bookService, options => options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"));
+    .WithApiReference(userService, options => options.AddDocument("internal", routePattern: "/documentation/{documentName}.json"))
+    .WithApiReference(bookService, options => options.WithOpenApiRoutePattern("/swagger/{documentName}/swagger.json"));
 
 builder.Build().Run();
 ```
@@ -71,18 +71,18 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ### Service-Specific Configuration
 
-Each service must be registered using the `WithOpenApiReference` method. The options parameter is optional and allows you to customize the configuration for each service:
+Each service must be registered using the `WithApiReference` method. The options parameter is optional and allows you to customize the configuration for each service:
 
 ```csharp
 scalar
-    .WithOpenApiReference(weatherService) // Basic registration with default settings
-    .WithOpenApiReference(bookService, options =>
+    .WithApiReference(weatherService) // Basic registration with default settings
+    .WithApiReference(bookService, options =>
     {
         // Custom configuration for this service
         options.AddDocument("v1", "Book Management API");
         options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
     })
-    .WithOpenApiReference(catalogService, options =>
+    .WithApiReference(catalogService, options =>
     {
         // Configure multiple documents
         options.AddDocuments("v1", "v2", "beta");
@@ -94,7 +94,7 @@ scalar
 Each service can expose multiple OpenAPI documents:
 
 ```csharp
-scalar.WithOpenApiReference(catalogService, options =>
+scalar.WithApiReference(catalogService, options =>
 {
     options
         .AddDocument("v1", "Catalog API v1")
@@ -103,7 +103,7 @@ scalar.WithOpenApiReference(catalogService, options =>
 });
 
 // Or using AddDocuments with default patterns
-scalar.WithOpenApiReference(userService, options =>
+scalar.WithApiReference(userService, options =>
 {
     options.AddDocuments("public", "internal", "admin");
 });
@@ -139,7 +139,7 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ```csharp
 scalar
-  .WithOpenApiReference(weatherService, options =>
+  .WithApiReference(weatherService, options =>
   {
     options
       .AddPreferredSecuritySchemes("WeatherApiKey")
@@ -148,7 +148,7 @@ scalar
         apiKey.WithValue("weather-service-key");
       });
   })
-  .WithOpenApiReference(bookService, options =>
+  .WithApiReference(bookService, options =>
   {
     options
       .AddPreferredSecuritySchemes("BookOAuth")

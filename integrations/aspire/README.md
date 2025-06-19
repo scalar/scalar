@@ -48,8 +48,8 @@ var scalar = builder.AddScalarApiReference(options =>
 
 // Add OpenAPI references for each services
 scalar
-    .WithOpenApiReference(weatherService)
-    .WithOpenApiReference(bookService);
+    .WithApiReference(weatherService)
+    .WithApiReference(bookService);
 
 builder.Build().Run();
 ```
