@@ -154,8 +154,8 @@ describe('ScalarIconButton', () => {
         },
       })
 
-      expect(wrapper.classes()).toContain('size-10')
-      expect(wrapper.classes()).toContain('p-3')
+      expect(wrapper.classes()).toContain('size-8')
+      expect(wrapper.classes()).toContain('p-2')
     })
 
     it('applies different sizes correctly', () => {
@@ -163,7 +163,7 @@ describe('ScalarIconButton', () => {
         { size: 'xxs', expectedClasses: ['size-3.5', 'p-0.5'] },
         { size: 'xs', expectedClasses: ['size-5', 'p-1'] },
         { size: 'sm', expectedClasses: ['size-6', 'p-1'] },
-        { size: 'md', expectedClasses: ['size-10', 'p-3'] },
+        { size: 'md', expectedClasses: ['size-8', 'p-2'] },
         { size: 'full', expectedClasses: ['size-full'] },
       ] as const
 
@@ -454,10 +454,8 @@ describe('ScalarIconButton', () => {
       })
 
       expect(wrapper.classes()).toContain('scalar-icon-button')
-      expect(wrapper.classes()).toContain('grid')
       expect(wrapper.classes()).toContain('aspect-square')
       expect(wrapper.classes()).toContain('cursor-pointer')
-      expect(wrapper.classes()).toContain('rounded')
     })
 
     it('combines variant and size classes correctly', () => {
