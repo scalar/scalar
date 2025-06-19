@@ -15,14 +15,14 @@
         {
           "name": "Introduction",
           "description": "Introduction to Scalar",
-          "icon": "phosphor/bold/house",
+          "icon": "phosphor/regular/house",
           "path": "documentation/guides/introduction.md",
           "type": "page"
         },
         {
           "name": "Scalar Docs",
           "type": "folder",
-          "icon": "phosphor/bold/brackets-curly",
+          "icon": "phosphor/regular/brackets-curly",
           "children": [
             {
               "path": "documentation/guides/docs/getting-started.md",
@@ -38,7 +38,7 @@
         {
           "name": "Scalar SDKs",
           "type": "folder",
-          "icon": "phosphor/bold/package",
+          "icon": "phosphor/regular/package",
           "children": [
             {
               "path": "documentation/guides/sdks/getting-started.md",
@@ -49,7 +49,7 @@
         {
           "name": "Scalar Registry",
           "type": "folder",
-          "icon": "phosphor/bold/brackets-curly",
+          "icon": "phosphor/regular/seal-check",
           "children": [
             {
               "path": "documentation/guides/registry/getting-started.md",
@@ -71,14 +71,14 @@
         },
         {
           "name": "Access",
-          "icon": "phosphor/bold/lock-simple",
+          "icon": "phosphor/regular/lock-simple",
           "path": "documentation/guides/access.md",
           "type": "page"
         },
         {
           "name": "Scalar CLI",
           "type": "folder",
-          "icon": "phosphor/bold/terminal",
+          "icon": "phosphor/regular/terminal",
           "children": [
             {
               "path": "documentation/guides/cli/getting-started.md",
@@ -93,8 +93,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
-          "slug": "api-reference",
-          "icon": "phosphor/bold/scroll",
+          "icon": "phosphor/regular/scroll",
           "children": [
             {
               "name": "Getting Started",
@@ -129,7 +128,7 @@
             {
               "name": "Integrations",
               "type": "folder",
-              "icon": "phosphor/bold/plug",
+              "icon": "phosphor/regular/plug",
               "children": [{
                   "name": "HTML/JS",
                   "slug": "html-js",

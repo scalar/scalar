@@ -296,7 +296,7 @@ const showSchema = ref(false)
   border-radius: var(--scalar-radius);
   background-color: transparent;
   background-color: var(--scalar-background-3);
-  box-shadow: inset 0 0 0 1px var(--scalar-border-color);
+  box-shadow: inset 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
   color: var(--scalar-color-1);

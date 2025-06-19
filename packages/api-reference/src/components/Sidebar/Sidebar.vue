@@ -209,9 +209,9 @@ const hasChildren = (
 
 <style scoped>
 .sidebar {
-  --scalar-sidebar-indent-base: 12px;
+  --scalar-sidebar-indent-base: 20px;
   --scalar-sidebar-font-weight-active: var(--scalar-semibold);
-  --scalar-sidebar-font-weight: var(--scalar-semibold);
+  --scalar-sidebar-font-weight: var(--scalar-regular);
 }
 .sidebar {
   flex: 1;
@@ -225,7 +225,7 @@ const hasChildren = (
 }
 .sidebar-pages {
   flex: 1;
-  padding: 9px 12px;
+  padding: 6px 12px;
 }
 
 @media (max-width: 1000px) {
