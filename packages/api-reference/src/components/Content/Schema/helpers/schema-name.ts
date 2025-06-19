@@ -111,7 +111,7 @@ export function getModelName(
   }
 
   // First check if the entire schema matches a component schema
-  const modelName = getModelNameFromSchema(value, schemas)
+  const modelName = getModelNameFromSchema(value)
   if (modelName && (value.title || value.name)) {
     return value.type === 'array' ? `array ${modelName}[]` : modelName
   }
@@ -136,7 +136,7 @@ export function getModelName(
       return formatTypeWithModel(value.type, value.items.title || value.items.name)
     }
 
-    const itemModelName = getModelNameFromSchema(value.items, schemas)
+    const itemModelName = getModelNameFromSchema(value.items)
     if (itemModelName && itemModelName !== value.items.type) {
       return formatTypeWithModel(value.type, itemModelName)
     }
@@ -194,7 +194,7 @@ export function getCompositionDisplay(
   }
 
   // Check if base schemas have names
-  const baseNames = baseSchemas.map((schema) => getModelNameFromSchema(schema, schemas))
+  const baseNames = baseSchemas.map((schema) => getModelNameFromSchema(schema))
   const baseHasName = baseNames.some((name) => hasName(name))
 
   // If base schemas have names, use them
@@ -203,7 +203,7 @@ export function getCompositionDisplay(
   }
 
   // Check if composition schemas have names
-  const compositionNames = compositionSchemas.map((schema) => getModelNameFromSchema(schema, schemas))
+  const compositionNames = compositionSchemas.map((schema) => getModelNameFromSchema(schema))
   const compositionHasName = compositionNames.some((name) => hasName(name))
 
   // If composition schemas have names but original don't, use composition
