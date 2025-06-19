@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 2.4.20
+
+### Patch Changes
+
+- be9e435: chore: update depdendencies
+- Updated dependencies [5f08a45]
+- Updated dependencies [287eae4]
+- Updated dependencies [161733e]
+  - @scalar/api-reference@1.31.15
+
 ## 2.4.19
 
 ### Patch Changes

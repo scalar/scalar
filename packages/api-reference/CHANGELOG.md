@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.31.15
+
+### Patch Changes
+
+- 5f08a45: fix: looks up wrong name for schemas
+- 287eae4: fix: display correct schema type instead of false name
+- 161733e: docs: new README
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+  - @scalar/api-client@2.5.9
+  - @scalar/components@0.14.10
+
 ## 1.31.14
 
 ### Patch Changes

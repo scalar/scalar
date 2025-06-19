@@ -1,5 +1,13 @@
 # @scalar/postman-to-openapi
 
+## 0.3.9
+
+### Patch Changes
+
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+
 ## 0.3.8
 
 ### Patch Changes
