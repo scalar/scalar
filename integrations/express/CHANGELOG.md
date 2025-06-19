@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.8.5
+
+### Patch Changes
+
+- 161733e: docs: new README
+
 ## 0.8.4
 
 ### Patch Changes

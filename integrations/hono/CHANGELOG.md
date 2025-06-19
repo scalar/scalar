@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.9.5
+
+### Patch Changes
+
+- 161733e: docs: new README
+
 ## 0.9.4
 
 ### Patch Changes

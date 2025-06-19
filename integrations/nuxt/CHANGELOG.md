@@ -1,5 +1,16 @@
 # @scalar/nuxt
 
+## 0.4.20
+
+### Patch Changes
+
+- 161733e: docs: new README
+- Updated dependencies [5f08a45]
+- Updated dependencies [287eae4]
+- Updated dependencies [161733e]
+  - @scalar/api-reference@1.31.15
+  - @scalar/api-client@2.5.9
+
 ## 0.4.19
 
 ### Patch Changes

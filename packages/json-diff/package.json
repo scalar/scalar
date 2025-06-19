@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/json-diff"
   },
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "node": ">=20"
   },
