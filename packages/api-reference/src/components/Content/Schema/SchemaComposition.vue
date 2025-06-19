@@ -48,7 +48,7 @@ const listboxOptions = computed(() =>
   compositionDisplay.value.map(
     (schema: OpenAPIV3_1.SchemaObject, index: number) => ({
       id: String(index),
-      label: getModelNameFromSchema(schema, schemas) || 'Schema',
+      label: getModelNameFromSchema(schema) || 'Schema',
     }),
   ),
 )
