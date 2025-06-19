@@ -10,7 +10,7 @@ export const variants = cva({
       xs: 'size-5 p-1',
       sm: 'size-6 p-1',
       md: 'size-10 p-3',
-      full: 'h-full w-full',
+      full: 'size-full',
     },
     disabled: {
       true: 'cursor-not-allowed shadow-none',

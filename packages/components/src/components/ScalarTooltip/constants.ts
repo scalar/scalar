@@ -6,3 +6,6 @@ export const ELEMENT_CLASS = 'scalar-tooltip' as const
 
 /** The default delay for the tooltip */
 export const DEFAULT_DELAY = 300 as const
+
+/** The default offset for the tooltip */
+export const DEFAULT_OFFSET = 4 as const

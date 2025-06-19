@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import type { Placement } from '@floating-ui/vue'
 import { type Ref, computed, ref } from 'vue'
 
+import { DEFAULT_DELAY, DEFAULT_OFFSET } from './constants'
+import type { ScalarTooltipPlacement } from './types'
 import { useTooltip } from './useTooltip'
 
 const {
-  delay = 300,
+  delay = DEFAULT_DELAY,
   content = '',
   placement = 'top',
-  offset = 4,
+  offset = DEFAULT_OFFSET,
 } = defineProps<{
   content?: string
   delay?: number
-  placement?: Placement
+  placement?: ScalarTooltipPlacement
   offset?: number
 }>()
 

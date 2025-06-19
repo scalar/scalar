@@ -1,7 +1,7 @@
 import type { Timer, TooltipConfiguration } from './types'
 import { autoUpdate, flip, shift, useFloating } from '@floating-ui/vue'
 import { computed, ref, unref, watch } from 'vue'
-import { ELEMENT_ID, ELEMENT_CLASS, DEFAULT_DELAY } from './constants'
+import { ELEMENT_ID, ELEMENT_CLASS, DEFAULT_DELAY, DEFAULT_OFFSET } from './constants'
 
 // ---------------------------------------------------------------------------
 // State
@@ -69,7 +69,7 @@ watch(
       el.value.textContent = unref(opts?.content) ?? null
 
       // Show the tooltip
-      const offset = unref(opts?.offset)
+      const offset = unref(opts?.offset) ?? DEFAULT_OFFSET
       el.value.style.setProperty('--scalar-tooltip-offset', `${offset}px`)
       el.value.style.setProperty('display', 'block')
     } else {

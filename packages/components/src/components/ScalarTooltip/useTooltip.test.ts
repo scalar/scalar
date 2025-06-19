@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { cleanupTooltipElement, useTooltip } from '../useTooltip'
-import { ELEMENT_ID } from '../constants'
+import { cleanupTooltipElement, useTooltip } from './useTooltip'
+import { ELEMENT_ID } from './constants'
 import { nextTick, ref } from 'vue'
 
 describe('useTooltip', () => {
@@ -115,6 +115,62 @@ describe('useTooltip', () => {
     await nextTick()
 
     expect(tooltipElement?.style.display).toBe('none')
+  })
+
+  it('should show tooltip on focus immediately', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    // Trigger focus
+    targetElement.dispatchEvent(new FocusEvent('focus'))
+
+    await nextTick()
+
+    // Tooltip should be visible immediately (no delay for focus)
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+    expect(tooltipElement?.textContent).toBe('Test tooltip')
+  })
+
+  it('should hide tooltip on blur', async () => {
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+    })
+
+    // Show tooltip via focus
+    targetElement.dispatchEvent(new FocusEvent('focus'))
+    await nextTick()
+
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+
+    // Hide tooltip via blur
+    targetElement.dispatchEvent(new FocusEvent('blur'))
+    await nextTick()
+
+    expect(tooltipElement?.style.display).toBe('none')
+  })
+
+  it('should show tooltip on focus even with delay configured', async () => {
+    const delay = 500
+    useTooltip({
+      content: 'Test tooltip',
+      targetRef: targetElement,
+      delay,
+    })
+
+    // Trigger focus
+    targetElement.dispatchEvent(new FocusEvent('focus'))
+
+    await nextTick()
+
+    // Focus should show tooltip immediately, ignoring delay
+    const tooltipElement = document.getElementById(ELEMENT_ID)
+    expect(tooltipElement?.style.display).toBe('block')
+    expect(tooltipElement?.textContent).toBe('Test tooltip')
   })
 
   it('should update tooltip content when content changes', async () => {
