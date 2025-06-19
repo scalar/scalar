@@ -65,7 +65,7 @@ internal sealed class ScalarConfiguration
     public required string? BaseServerUrl { get; init; }
 
     public required bool PersistAuth { get; init; }
-    
+
     public required string? DocumentDownloadType { get; init; }
 }
 
