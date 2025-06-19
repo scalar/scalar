@@ -250,6 +250,23 @@ describe('schema-name', () => {
       const mockGetDiscriminatorSchemaName = () => 'DiscriminatorModel'
       expect(getModelName(value, {}, false, mockGetDiscriminatorSchemaName)).toBe('array DiscriminatorModel[]')
     })
+
+    it('returns null when no matching schema found for a primitive type (string)', () => {
+      const value = {
+        type: 'string',
+      }
+      const schemas = {
+        Timestamp: {
+          type: 'string',
+          format: 'date-time',
+          description: 'ISO-8601 Timestamp',
+          example: '2024-11-30T10:04:46+00:00',
+          readOnly: true,
+        },
+      }
+      const result = getModelName(value, schemas)
+      expect(result).toBe(null)
+    })
   })
 
   describe('selectSchemasForLabeling', () => {

@@ -67,7 +67,8 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
  * Find schema name by matching against component schemas
  */
 export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
-  if (!schema || !schemas || typeof schemas !== 'object') {
+  // We only want to use this strategy for arrays or objects
+  if (!schema || !schemas || typeof schemas !== 'object' || (schema.type !== 'array' && schema.type !== 'object')) {
     return null
   }
 
@@ -84,13 +85,6 @@ export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schem
         stringify(schemaValue.properties) === stringify(schema.properties)
       ) {
         return schemaName
-      }
-
-      // Only return schema name if it has model name
-      if (schema.type !== 'array' && schema.type !== 'object') {
-        if (hasName(schemaName)) {
-          return schemaName
-        }
       }
     }
   }
