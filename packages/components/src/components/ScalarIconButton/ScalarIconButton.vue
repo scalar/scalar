@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ScalarIconWeight } from '@scalar/icons/types'
+import type { ScalarIconComponent, ScalarIconWeight } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
@@ -13,7 +13,7 @@ type Variants = VariantProps<typeof variants>
 withDefaults(
   defineProps<{
     label: string
-    icon: Icon | Component
+    icon: Icon | ScalarIconComponent
     disabled?: boolean
     variant?: Variants['variant']
     size?: Variants['size']
