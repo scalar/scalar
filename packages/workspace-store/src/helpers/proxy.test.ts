@@ -1,8 +1,8 @@
 import { createMagicProxy } from '@/helpers/proxy'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('createMagicProxy', () => {
-  test('should correctly proxy internal refs', () => {
+  it('should correctly proxy internal refs', () => {
     const input = {
       a: 'hello',
       b: {
@@ -15,7 +15,7 @@ describe('createMagicProxy', () => {
     expect(result.b).toBe('hello')
   })
 
-  test('should correctly proxy deep nested refs', () => {
+  it('should correctly proxy deep nested refs', () => {
     const input = {
       a: {
         b: {
@@ -35,7 +35,7 @@ describe('createMagicProxy', () => {
     expect(result.a.b.c.e.prop).toBe('hello')
   })
 
-  test('should correctly proxy multi refs', () => {
+  it('should correctly proxy multi refs', () => {
     const input = {
       a: {
         b: {
@@ -57,5 +57,54 @@ describe('createMagicProxy', () => {
     const result = createMagicProxy(input)
 
     expect(result.d).toBe('hello')
+  })
+
+  it('should preserve information about the ref when the ref is resolved', () => {
+    const input = {
+      a: {
+        b: {
+          c: {
+            d: {
+              prop: 'hello',
+            },
+            e: {
+              '$ref': '#/a/b/c/d',
+            },
+          },
+        },
+      },
+    }
+
+    const result = createMagicProxy(input)
+    expect(result.a.b.c.e).toEqual({
+      prop: 'hello',
+      'x-original-ref': '#/a/b/c/d',
+    })
+  })
+
+  it('should preserve the first ref on nested refs', () => {
+    const input = {
+      a: {
+        b: {
+          c: {
+            d: {
+              '$ref': '#/a/b/c/f',
+            },
+            e: {
+              '$ref': '#/a/b/c/d',
+            },
+            f: {
+              someProp: 'test',
+            },
+          },
+        },
+      },
+    }
+
+    const result = createMagicProxy(input)
+    expect(result.a.b.c.e).toEqual({
+      someProp: 'test',
+      'x-original-ref': '#/a/b/c/d',
+    })
   })
 })
