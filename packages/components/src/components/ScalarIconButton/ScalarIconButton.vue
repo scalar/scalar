@@ -1,3 +1,19 @@
+<script lang="ts">
+/**
+ * Scalar icon button component
+ *
+ * Should be used in conjunction with an icon from `@scalar/icons`
+ *
+ * @example
+ * import { ScalarIconAcorn } from '@scalar/icons'
+ * ...
+ * <ScalarIconButton
+ *   :icon="ScalarIconAcorn"
+ *   label="It's an acorn"
+ * />
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { computed, useTemplateRef } from 'vue'
