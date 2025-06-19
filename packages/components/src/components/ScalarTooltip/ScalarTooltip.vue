@@ -1,3 +1,16 @@
+<script lang="ts">
+/**
+ * Scalar tooltip component
+ *
+ * Adds a tooltip to an interactive element
+ *
+ * @example
+ * <ScalarTooltip content="This is a tooltip">
+ *   <ScalarButton>Hover Me</ScalarButton>
+ * </ScalarTooltip>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { type Ref, computed, ref } from 'vue'
 
