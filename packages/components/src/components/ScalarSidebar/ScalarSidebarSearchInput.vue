@@ -1,33 +1,20 @@
-<script lang="ts">
-/**
- * Scalar search input component
- *
- * Provides an large input field with a loading state and a clear button,
- * intended to be used with the ScalarSearchResults component.
- *
- * If you want a smaller input field for use in a sidebar, use
- * the ScalarSidebarSearchInput component instead.
- *
- * @example
- * <ScalarSearchInput v-model="search" />
- */
-export default {}
-</script>
 <script setup lang="ts">
+import { ScalarIconMagnifyingGlass, ScalarIconX } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
-defineProps<{
+const { autofocus } = defineProps<{
+  autofocus?: boolean
   loading?: LoadingState
   label?: string
 }>()
 
-const model = defineModel<string>()
-
 const inputRef = ref<HTMLInputElement | null>(null)
+
+const model = defineModel<string>()
 
 function handleClear() {
   model.value = ''
@@ -39,14 +26,19 @@ function handleClear() {
 
 defineOptions({ inheritAttrs: false })
 const { classCx, otherAttrs } = useBindCx()
+
+onMounted(() => autofocus && inputRef.value?.focus())
 </script>
 <template>
   <label
     v-bind="
       classCx(
-        'flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 bg-b-1.5 has-[:focus-visible]:outline h-10 p-3',
+        'flex items-center rounded border text-base has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline h-8 gap-1 pl-1 pr-2',
+        'bg-sidebar-b-search border-sidebar-border-search',
+        model ? 'text-c-1' : 'text-sidebar-c-search',
       )
     ">
+    <ScalarIconMagnifyingGlass class="text-sidebar-c-search size-4" />
     <input
       ref="inputRef"
       :aria-label="label ?? 'Enter search query'"
@@ -61,15 +53,15 @@ const { classCx, otherAttrs } = useBindCx()
       v-model="model" />
     <ScalarLoading
       v-if="loading && loading.isLoading"
-      class="self-center"
+      class="mr-3 self-center"
       :loadingState="loading"
       size="md" />
     <ScalarIconButton
       v-else-if="model"
-      class="p-0 size-5"
-      icon="Close"
+      class="p-0.25 size-4"
+      :icon="ScalarIconX"
+      weight="bold"
       label="Clear Search"
-      thickness="1.5"
       @click.stop.prevent="handleClear" />
   </label>
 </template>

@@ -3,6 +3,7 @@ import type { ScalarIconWeight } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { VariantProps } from 'cva'
+import type { Component } from 'vue'
 
 import { styles } from '../ScalarButton'
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
@@ -12,7 +13,7 @@ type Variants = VariantProps<typeof variants>
 withDefaults(
   defineProps<{
     label: string
-    icon: Icon
+    icon: Icon | Component
     disabled?: boolean
     variant?: Variants['variant']
     size?: Variants['size']
