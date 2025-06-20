@@ -14,13 +14,13 @@ import { nanoid } from 'nanoid'
 import { ref, toRef, watch } from 'vue'
 
 import { lazyBus } from '@/components/Content/Lazy/lazyBus'
-import SidebarHttpBadge from '@/components/Sidebar/SidebarHttpBadge.vue'
 import {
   useSearchIndex,
   type EntryType,
   type FuseData,
 } from '@/features/Search/useSearchIndex'
 import { useSidebar } from '@/features/sidebar'
+import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
 
 const props = defineProps<{
   parsedSpec: Spec

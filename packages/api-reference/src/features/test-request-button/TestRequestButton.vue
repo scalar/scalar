@@ -4,7 +4,7 @@ import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 import ScreenReader from '@/components/ScreenReader.vue'
-import { useApiClient } from '@/features/ApiClientModal'
+import { useApiClient } from '@/features/api-client-modal'
 import { useConfig } from '@/hooks/useConfig'
 
 const { operation } = defineProps<{

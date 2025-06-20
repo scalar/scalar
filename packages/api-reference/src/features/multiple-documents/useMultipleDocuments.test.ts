@@ -1,6 +1,6 @@
-import { normalizeConfigurations, useMultipleDocuments } from '@/hooks/useMultipleDocuments'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import { normalizeConfigurations, useMultipleDocuments } from './useMultipleDocuments'
 
 describe('useMultipleDocuments', () => {
   let mockUrl: URL

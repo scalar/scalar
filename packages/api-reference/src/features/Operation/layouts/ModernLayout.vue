@@ -20,10 +20,10 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { ExampleRequest } from '@/features/ExampleRequest'
-import { ExampleResponses } from '@/features/ExampleResponses'
+import { ExampleRequest } from '@/features/example-request'
+import { ExampleResponses } from '@/features/example-responses'
 import type { Schemas } from '@/features/Operation/types/schemas'
-import { TestRequestButton } from '@/features/TestRequestButton'
+import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import {
   getOperationStability,

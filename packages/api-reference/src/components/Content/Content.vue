@@ -7,7 +7,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { BaseUrl } from '@/features/BaseUrl'
+import { BaseUrl } from '@/features/base-url'
 import { useConfig } from '@/hooks/useConfig'
 import { getModels, hasModels } from '@/libs/openapi'
 
