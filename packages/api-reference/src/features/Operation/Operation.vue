@@ -2,7 +2,6 @@
 import { useWorkspace } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { getPointer } from '@/blocks/helpers/getPointer'
@@ -15,11 +14,9 @@ import ModernLayout from './layouts/ModernLayout.vue'
 const {
   layout = 'modern',
   document,
-  transformedOperation,
   collection,
   server,
   isWebhook,
-  schemas,
   path,
   method,
 } = defineProps<{
@@ -32,23 +29,11 @@ const {
   /**
    * @deprecated Use `document` instead
    */
-  transformedOperation: TransformedOperation
-  /**
-   * @deprecated Use `document` instead
-   */
   collection: Collection
   server: Server | undefined
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const store = useWorkspace()
-
-// Setup discriminator handling
-const { handleDiscriminatorChange } = useOperationDiscriminator(
-  // TODO: Use new operation object
-  transformedOperation,
-  schemas,
-)
 
 /**
  * NEW: We’re using the dereferenced document to get the operation.
@@ -61,6 +46,14 @@ const operation = computed(() =>
   isWebhook
     ? document?.webhooks?.[path]?.[method]
     : document?.paths?.[path]?.[method],
+)
+
+/**
+ * Handle the selection of discriminator in the request body (anyOf, oneOf…)
+ */
+const { handleDiscriminatorChange } = useOperationDiscriminator(
+  operation.value,
+  document?.components?.schemas,
 )
 
 /**
@@ -109,8 +102,7 @@ const operationServer = computed(() => {
         :method="method"
         :path="path"
         :request="request"
-        :transformedOperation="transformedOperation"
-        :schemas="schemas"
+        :schemas="document?.components?.schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
@@ -123,7 +115,7 @@ const operationServer = computed(() => {
         :path="path"
         :request="request"
         :operation="operation"
-        :schemas="schemas"
+        :schemas="document?.components?.schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
     </template>
