@@ -80,8 +80,7 @@ const isLazy = (index: number) =>
             :document="document"
             :collection="collection"
             :layout="layout"
-            :server="server"
-            :transformedOperation="transformedOperation" />
+            :server="server" />
         </ScalarErrorBoundary>
       </Lazy>
     </Component>

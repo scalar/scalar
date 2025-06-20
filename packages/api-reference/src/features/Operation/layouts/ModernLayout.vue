@@ -22,7 +22,6 @@ import {
 } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
-import type { Schemas } from '@/features/Operation/types/schemas'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useConfig } from '@/hooks/useConfig'
 import {
@@ -34,6 +33,7 @@ import {
 import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
+import type { Schemas } from '../types/schemas'
 
 const { request, operation, path, isWebhook } = defineProps<{
   id: string
