@@ -24,8 +24,8 @@ function hasDiscriminatorInSchema(schema: OpenAPIV3_1.SchemaObject | undefined):
 }
 
 /** Handling discriminator logic in operations */
-export function useOperationDiscriminator(operation: OpenAPIV3_1.OperationObject, schemas?: Schemas) {
-  const requestBodySchema = operation.requestBody?.content?.['application/json']?.schema
+export function useOperationDiscriminator(operation?: OpenAPIV3_1.OperationObject, schemas?: Schemas) {
+  const requestBodySchema = operation?.requestBody?.content?.['application/json']?.schema
 
   /** Check if discriminator handling is needed */
   const hasSchemaDiscriminator = computed(() => hasDiscriminatorInSchema(requestBodySchema))
@@ -36,8 +36,8 @@ export function useOperationDiscriminator(operation: OpenAPIV3_1.OperationObject
         schema: requestBodySchema,
         schemas: schemas,
         onSchemaChange: (newSchema) => {
-          if (operation.requestBody?.content?.['application/json']) {
-            operation.information.requestBody.content['application/json'].schema = newSchema
+          if (operation?.requestBody?.content?.['application/json']) {
+            operation.requestBody.content['application/json'].schema = newSchema
           }
         },
       })

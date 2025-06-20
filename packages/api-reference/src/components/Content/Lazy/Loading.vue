@@ -210,8 +210,7 @@ onMounted(() => {
           :id="transformedOperation.id"
           :collection="collection"
           :layout="layout"
-          :server="server"
-          :transformedOperation="transformedOperation" />
+          :server="server" />
       </TagSection>
     </template>
 
