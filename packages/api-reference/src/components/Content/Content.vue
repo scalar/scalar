@@ -83,6 +83,7 @@ const introCardsSlot = computed(() =>
     <slot name="start" />
     <Loading
       v-if="activeCollection"
+      :document="document"
       :collection="activeCollection"
       :layout="layout"
       :parsedSpec="parsedSpec"
