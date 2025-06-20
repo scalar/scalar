@@ -1,10 +1,21 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ReferenceObject } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
   url: string
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
+}
+
+/** Ensures we don't have any references in the parameters */
+export const deReferenceParams = (params: Dereference<OperationObject>['parameters']): ParameterObject[] => {
+  if (isReference(params)) {
+    return []
+  }
+  return (params ?? []).filter((param) => !isReference(param)) as ParameterObject[]
 }
 
 /**
@@ -15,7 +26,7 @@ type ProcessedParameters = {
  */
 export const processParameters = (
   harRequest: HarRequest,
-  parameters: OpenAPIV3_1.ParameterObject[],
+  parameters: (ParameterObject | ReferenceObject)[],
   example?: unknown,
 ): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
@@ -23,7 +34,10 @@ export const processParameters = (
   const newQueryString = [...harRequest.queryString]
   let newUrl = harRequest.url
 
-  for (const param of parameters) {
+  // Filter out references
+  const deReferencedParams = deReferenceParams(parameters)
+
+  for (const param of deReferencedParams) {
     if (!param.in || !param.name) {
       continue
     }
@@ -35,8 +49,10 @@ export const processParameters = (
       continue
     }
 
-    const style = param.style || 'simple'
-    const explode = param.explode ?? false
+    // Type guard to check if parameter has style and explode properties
+    const hasStyle = 'style' in param
+    const style = hasStyle ? param.style || 'simple' : 'simple'
+    const explode = hasStyle ? (param.explode ?? false) : false
 
     switch (param.in) {
       case 'path': {
@@ -153,7 +169,7 @@ export const processParameters = (
  */
 const processPathParameters = (
   url: string,
-  param: OpenAPIV3_1.ParameterObject,
+  param: ParameterObject,
   paramValue: unknown,
   style: string,
   explode: boolean,

@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import { processBody } from './process-body'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 describe('processBody', () => {
   it('should process a simple JSON request body', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/json': {
@@ -30,7 +31,7 @@ describe('processBody', () => {
   })
 
   it('should handle custom content type', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/json': {
@@ -61,7 +62,7 @@ describe('processBody', () => {
   })
 
   it('should handle array request body', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/json': {
@@ -86,7 +87,7 @@ describe('processBody', () => {
   })
 
   it('should handle nested object request body', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/json': {
@@ -131,7 +132,7 @@ describe('processBody', () => {
   })
 
   it('should handle primitive type request body', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/json': {
@@ -153,7 +154,7 @@ describe('processBody', () => {
   })
 
   it('should handle operation without requestBody', () => {
-    const operation: OpenAPIV3_1.OperationObject = {}
+    const operation: Dereference<OperationObject> = {}
     const result = processBody({ operation, example: null })
 
     expect(result).toEqual({
@@ -163,7 +164,7 @@ describe('processBody', () => {
   })
 
   it('should handle operation with empty content', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {},
       },
@@ -177,7 +178,7 @@ describe('processBody', () => {
   })
 
   it('should handle binary content type', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'application/octet-stream': {
@@ -204,7 +205,7 @@ describe('processBody', () => {
   })
 
   it('should handle multipart form data', () => {
-    const operation: OpenAPIV3_1.OperationObject = {
+    const operation: Dereference<OperationObject> = {
       requestBody: {
         content: {
           'multipart/form-data': {
@@ -243,7 +244,7 @@ describe('processBody', () => {
 
   describe('multipart/form-data', () => {
     it('handles file upload with multiple fields', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'multipart/form-data': {
@@ -289,7 +290,7 @@ describe('processBody', () => {
     })
 
     it('handles multiple file uploads', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'multipart/form-data': {
@@ -332,7 +333,7 @@ describe('processBody', () => {
 
   describe('application/x-www-form-urlencoded', () => {
     it('handles simple form data', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'application/x-www-form-urlencoded': {
@@ -368,7 +369,7 @@ describe('processBody', () => {
     })
 
     it('handles form data with arrays', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'application/x-www-form-urlencoded': {
@@ -414,7 +415,7 @@ describe('processBody', () => {
 
   describe('binary files', () => {
     it('handles image file upload', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'image/png': {
@@ -443,7 +444,7 @@ describe('processBody', () => {
     })
 
     it('handles PDF file upload', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'application/pdf': {
@@ -479,7 +480,7 @@ describe('processBody', () => {
     })
 
     it('handles large binary file', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         requestBody: {
           content: {
             'application/octet-stream': {

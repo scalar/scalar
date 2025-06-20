@@ -1,9 +1,6 @@
 import type { ErrorResponse } from '@/libs/errors'
-import type { Operation, RequestExample, SecurityScheme, Server } from '@scalar/oas-utils/entities/spec'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
-import type { EnvVariables } from '@/libs/env-helpers'
-
-import { getHarRequest } from './get-har-request'
+import type { Request as HarRequest } from 'har-format'
 
 /** Key used to hack around the invalid urls */
 const INVALID_URLS_PREFIX = 'ws://replace.me'
@@ -14,29 +11,9 @@ const INVALID_URLS_PREFIX = 'ws://replace.me'
 export const getSnippet = <T extends TargetId>(
   target: T | 'javascript',
   client: ClientId<T>,
-  {
-    operation,
-    example,
-    server,
-    securitySchemes = [],
-    environment,
-  }: {
-    operation?: Operation | undefined
-    example?: RequestExample | undefined
-    server?: Server | undefined
-    securitySchemes?: SecurityScheme[]
-    environment?: EnvVariables | undefined
-  },
+  harRequest: HarRequest,
 ): ErrorResponse<string> => {
   try {
-    const harRequest = getHarRequest({
-      operation,
-      example,
-      server,
-      securitySchemes,
-      environment,
-    })
-
     if (!harRequest.url) {
       return [new Error('Please enter a URL to see a code snippet'), null]
     }

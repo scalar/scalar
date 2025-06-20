@@ -1,8 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Request as HarRequest } from 'har-format'
 import { describe, it, expect } from 'vitest'
 
-import { processParameters } from './process-parameters'
+import { deReferenceParams, processParameters } from './process-parameters'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
 describe('parameter styles', () => {
   const createHarRequest = (url: string): HarRequest => ({
@@ -18,7 +19,7 @@ describe('parameter styles', () => {
 
   describe('matrix style', () => {
     it('should handle matrix style with explode=false and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -35,15 +36,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users;color=blue')
     })
 
     it('should handle matrix style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -61,15 +66,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users;color=blue,black,brown')
     })
 
     it('should handle matrix style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -91,15 +100,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users;color=R,100,G,200,B,150')
     })
 
     it('should handle matrix style with explode=true and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -116,15 +129,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users;color=blue')
     })
 
     it('should handle matrix style with explode=true and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -142,15 +159,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users;color=blue;color=black;color=brown')
     })
 
     it('should handle matrix style with explode=true and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -172,9 +193,13 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{;color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{;color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users;R=100;G=200;B=150')
     })
@@ -182,7 +207,7 @@ describe('parameter styles', () => {
 
   describe('label style', () => {
     it('should handle label style with explode=false and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -199,15 +224,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users.blue')
     })
 
     it('should handle label style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -225,15 +254,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users.blue,black,brown')
     })
 
     it('should handle label style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -255,15 +288,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users.R,100,G,200,B,150')
     })
 
     it('should handle label style with explode=true and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -280,15 +317,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users.blue')
     })
 
     it('should handle label style with explode=true and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -306,15 +347,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users.blue.black.brown')
     })
 
     it('should handle label style with explode=true and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -336,9 +381,13 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users{.color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users{.color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users.R=100.G=200.B=150')
     })
@@ -346,7 +395,7 @@ describe('parameter styles', () => {
 
   describe('simple style', () => {
     it('should handle simple style with explode=false and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -363,15 +412,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users/blue')
     })
 
     it('should handle simple style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -389,15 +442,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users/blue,black,brown')
     })
 
     it('should handle simple style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -419,15 +476,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users/R,100,G,200,B,150')
     })
 
     it('should handle simple style with explode=true and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -444,15 +505,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: 'blue',
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: 'blue',
+        },
+      )
 
       expect(result.url).toBe('/api/users/blue')
     })
 
     it('should handle simple style with explode=true and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -470,15 +535,19 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: ['blue', 'black', 'brown'],
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: ['blue', 'black', 'brown'],
+        },
+      )
 
       expect(result.url).toBe('/api/users/blue,black,brown')
     })
 
     it('should handle simple style with explode=true and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -500,9 +569,13 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users/{color}'), operation.parameters || [], {
-        color: { R: 100, G: 200, B: 150 },
-      })
+      const result = processParameters(
+        createHarRequest('/api/users/{color}'),
+        deReferenceParams(operation.parameters),
+        {
+          color: { R: 100, G: 200, B: 150 },
+        },
+      )
 
       expect(result.url).toBe('/api/users/R=100,G=200,B=150')
     })
@@ -510,7 +583,7 @@ describe('parameter styles', () => {
 
   describe('form style', () => {
     it('should handle form style with explode=false and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -527,14 +600,16 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], { color: 'blue' })
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
+        color: 'blue',
+      })
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue' }])
     })
 
     it('should handle form style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -552,7 +627,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: ['blue', 'black', 'brown'],
       })
 
@@ -561,7 +636,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -583,7 +658,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: { R: 100, G: 200, B: 150 },
       })
 
@@ -592,7 +667,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and single value', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -609,14 +684,16 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], { color: 'blue' })
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
+        color: 'blue',
+      })
 
       expect(result.url).toBe('/api/users')
       expect(result.queryString).toEqual([{ name: 'color', value: 'blue' }])
     })
 
     it('should handle form style with explode=true and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -634,7 +711,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: ['blue', 'black', 'brown'],
       })
 
@@ -647,7 +724,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle form style with explode=true and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -669,7 +746,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: { R: 100, G: 200, B: 150 },
       })
 
@@ -684,7 +761,7 @@ describe('parameter styles', () => {
 
   describe('spaceDelimited style', () => {
     it('should handle spaceDelimited style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -702,7 +779,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: ['blue', 'black', 'brown'],
       })
 
@@ -711,7 +788,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle spaceDelimited style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -733,7 +810,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: { R: 100, G: 200, B: 150 },
       })
 
@@ -744,7 +821,7 @@ describe('parameter styles', () => {
 
   describe('pipeDelimited style', () => {
     it('should handle pipeDelimited style with explode=false and array values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -762,7 +839,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: ['blue', 'black', 'brown'],
       })
 
@@ -771,7 +848,7 @@ describe('parameter styles', () => {
     })
 
     it('should handle pipeDelimited style with explode=false and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -793,7 +870,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: { R: 100, G: 200, B: 150 },
       })
 
@@ -804,7 +881,7 @@ describe('parameter styles', () => {
 
   describe('deepObject style', () => {
     it('should handle deepObject style with explode=true and object values', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: Dereference<OperationObject> = {
         parameters: [
           {
             name: 'color',
@@ -826,7 +903,7 @@ describe('parameter styles', () => {
         },
       }
 
-      const result = processParameters(createHarRequest('/api/users'), operation.parameters || [], {
+      const result = processParameters(createHarRequest('/api/users'), deReferenceParams(operation.parameters), {
         color: { R: 100, G: 200, B: 150 },
       })
 

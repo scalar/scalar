@@ -1,4 +1,3 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 import type { Request as HarRequest } from 'har-format'
 
@@ -6,28 +5,32 @@ import { processServerUrl } from './process-server-url'
 import { processParameters } from './process-parameters'
 import { processBody } from './process-body'
 import { processSecuritySchemes } from './process-security-schemes'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 export type OperationToHarProps = {
   /** OpenAPI Operation object */
-  operation: OpenAPIV3_1.OperationObject
+  operation: Dereference<OperationObject>
   /** HTTP method of the operation */
   method: HttpMethod
+  /** Path of the operation */
+  path: string
+  /**
+   * requestBody.content[contentType].example to use for the request, it should be pre-selected and discriminated
+   */
+  example?: unknown
   /**
    * Content type of the request
    *
    * @defaults to the first content type in the operation.requestBody.content
    */
   contentType?: string
-  /** Path of the operation */
-  path: string
   /** OpenAPI Server object */
-  server?: OpenAPIV3_1.ServerObject
+  server?: ServerObject | undefined
   /** OpenAPI SecurityScheme objects which are applicable to the operation */
-  securitySchemes?: OpenAPIV3_1.SecuritySchemeObject[]
-  /**
-   * requestBody.content[contentType].example to use for the request, it should be pre-selected and discriminated
-   */
-  example?: unknown
+  securitySchemes?: SecuritySchemeObject[]
 }
 
 /**
@@ -88,7 +91,7 @@ export const operationToHar = ({
   }
 
   // Handle request body
-  if (operation.requestBody?.content && example) {
+  if (!isReference(operation.requestBody) && operation.requestBody?.content && example) {
     const postData = processBody({ operation, contentType, example })
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1

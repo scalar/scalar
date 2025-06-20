@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import {
   ScalarButton,
@@ -10,11 +9,7 @@ import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
 import { ScalarIconCaretDown } from '@scalar/icons'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
-import {
-  type AvailableClients,
-  type ClientId,
-  type TargetId,
-} from '@scalar/snippetz'
+import { type AvailableClients } from '@scalar/snippetz'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
@@ -171,42 +166,26 @@ watch(
   },
 )
 
-/** Generate the code snippet for the selected example OR operation */
-const generateSnippet = () => {
-  // Use the selected custom example
-  if (localSelectedClient.value.id.startsWith('custom')) {
-    return (
-      customRequestExamples.value.find(
-        (example) => generateCustomId(example) === localSelectedClient.value.id,
-      )?.source ?? ''
-    )
-  }
-
-  const clientKey = httpClient.clientKey as ClientId<TargetId>
-  const targetKey = httpClient.targetKey
-
-  // Ensure the selected security is in the security requirements
-  const schemes = filterSecurityRequirements(
-    operation.security || collection.security,
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  )
-
-  const [error, payload] = getSnippet(targetKey, clientKey, {
-    operation,
-    example,
-    server,
-    securitySchemes: schemes,
-  })
-  if (error) {
-    return error.message ?? ''
-  }
-  return payload
-}
-
+/** Generate the code snippet for the selected example */
 const generatedCode = computed<string>(() => {
   try {
-    return generateSnippet()
+    // Use the selected custom example
+    if (localSelectedClient.value.id.startsWith('custom')) {
+      return (
+        customRequestExamples.value.find(
+          (example) =>
+            generateCustomId(example) === localSelectedClient.value.id,
+        )?.source ?? 'Custom example not found'
+      )
+    }
+
+    return generateCodeSnippet({
+      clientId: localSelectedClient.value.id,
+      operation,
+      method,
+      path,
+      example: selectedExampleKey.value,
+    })
   } catch (error) {
     console.error('[generateSnippet]', error)
     return ''
