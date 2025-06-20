@@ -90,7 +90,7 @@ export const WithNestedGroups: Story = {
     indent: { control: 'number' },
   },
   args: {
-    indent: 18,
+    indent: 20,
   },
   render: (args) => ({
     components: {

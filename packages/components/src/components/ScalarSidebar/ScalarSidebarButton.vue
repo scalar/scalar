@@ -36,9 +36,9 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['group/button flex rounded px-1.5 font-medium text-c-2 no-underline'],
+  base: ['group/button flex rounded px-2 font-sidebar text-c-2 no-underline'],
   variants: {
-    selected: { true: 'cursor-auto bg-b-2 text-c-1' },
+    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
     disabled: { true: 'cursor-auto' },
   },
   compoundVariants: [
@@ -68,8 +68,7 @@ const { cx } = useBindCx()
         <slot name="icon">
           <ScalarIconLegacyAdapter
             v-if="icon"
-            :icon="icon"
-            weight="bold" />
+            :icon="icon" />
         </slot>
       </div>
       <slot />
