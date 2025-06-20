@@ -5,7 +5,10 @@ import { defaultFeatures, FeaturesSchema } from '@/schemas/reference-config/feat
 import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
 import { defaultRouting, RoutingSchema } from '@/schemas/reference-config/routing'
 import { defaultSettings, SettingsSchema } from '@/schemas/reference-config/settings'
-import type { MutableArray } from 'vitest'
+
+type MutableArray<T extends readonly any[]> = {
+  -readonly [k in keyof T]: T[k]
+}
 
 export const ReferenceConfigSchema = Type.Partial(
   Type.Object({
