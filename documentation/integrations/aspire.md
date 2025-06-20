@@ -1,4 +1,4 @@
-# .NET Aspire Integration
+# Scalar API Reference for .NET Aspire
 
 The `Scalar.Aspire` package provides a simple way to integrate the Scalar API Reference into your .NET Aspire applications, creating a unified API Reference for all your services.
 
