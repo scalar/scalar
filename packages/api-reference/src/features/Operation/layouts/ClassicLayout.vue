@@ -39,6 +39,7 @@ const { request, transformedOperation } = defineProps<{
   transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
+
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
 

@@ -19,10 +19,14 @@ const {
   collection,
   server,
   schemas,
+  path,
+  method,
 } = defineProps<{
+  document?: OpenAPIV3_1.Document
+  path: string
+  method: OpenAPIV3_1.HttpMethods
   layout?: 'modern' | 'classic'
   id: string
-  document?: OpenAPIV3_1.Document
   /**
    * @deprecated Use `document` instead
    */
@@ -39,6 +43,7 @@ const store = useWorkspace()
 
 // Setup discriminator handling
 const { handleDiscriminatorChange } = useOperationDiscriminator(
+  // TODO: Use new operation object
   transformedOperation,
   schemas,
 )
@@ -50,11 +55,9 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
  *
  * This is what we want to use in the future.
  */
-const newOperation = computed(() => {
-  return document?.paths?.[transformedOperation.path]?.[
-    transformedOperation.httpVerb.toLowerCase()
-  ]
-})
+const operation = computed(
+  () => document?.paths?.[path]?.[method.toLowerCase()],
+)
 
 /**
  * Resolve the matching operation from the store
@@ -66,7 +69,7 @@ const newOperation = computed(() => {
  *
  * @deprecated
  */
-const { operation } = useBlockProps({
+const { operation: request } = useBlockProps({
   store,
   collection,
   location: getPointer([
@@ -78,12 +81,12 @@ const { operation } = useBlockProps({
 
 /** Return operation server if available or fallback to the collection server */
 const operationServer = computed(() => {
-  if (!operation.value) {
+  if (!request.value) {
     return server
   }
 
-  if (operation.value?.selectedServerUid) {
-    const operationServer = store.servers[operation.value.selectedServerUid]
+  if (request.value?.selectedServerUid) {
+    const operationServer = store.servers[request.value.selectedServerUid]
     if (operationServer) {
       return operationServer
     }
@@ -95,15 +98,15 @@ const operationServer = computed(() => {
 </script>
 
 <template>
-  <template v-if="collection && newOperation">
+  <template v-if="collection && operation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
         :id="id"
-        :operation="newOperation"
+        :operation="operation"
         :collection="collection"
         :method="transformedOperation.httpVerb"
         :path="transformedOperation.path"
-        :request="operation"
+        :request="request"
         :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
@@ -115,9 +118,8 @@ const operationServer = computed(() => {
         :collection="collection"
         :method="transformedOperation.httpVerb"
         :path="transformedOperation.path"
-        :request="operation"
-        :operation="newOperation"
-        :transformedOperation="transformedOperation"
+        :request="request"
+        :operation="operation"
         :schemas="schemas"
         :server="operationServer"
         @update:modelValue="handleDiscriminatorChange" />
