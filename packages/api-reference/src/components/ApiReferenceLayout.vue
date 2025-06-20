@@ -239,7 +239,7 @@ watch(dereferencedDocument, (newDoc) => {
  * Temporarily moved this here so we can use the sidebar items
  * Parsed document (legacy data structure)
  */
-const parsedDocument = ref<Spec>(createEmptySpecification())
+const parsedDocument = ref<Spec>(createEmptySpecification() as Spec)
 watch(
   dereferencedDocument,
   async (newDocument) => {
@@ -432,7 +432,7 @@ watch(hash, (newHash, oldHash) => {
         </ScalarErrorBoundary>
       </div>
     </aside>
-    <!-- Swagger file editing -->
+    <!-- Slot for an Editor -->
     <div
       v-show="configuration.isEditable"
       class="references-editor">
@@ -442,7 +442,7 @@ watch(hash, (newHash, oldHash) => {
           name="editor" />
       </div>
     </div>
-    <!-- Rendered reference -->
+    <!-- The Content -->
     <template v-if="showRenderedContent">
       <main
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
@@ -463,7 +463,6 @@ watch(hash, (newHash, oldHash) => {
                 </div>
                 <SearchButton
                   v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar"
                   :searchHotKey="configuration.searchHotKey"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>
@@ -702,9 +701,9 @@ watch(hash, (newHash, oldHash) => {
 }
 </style>
 <style scoped>
-/** 
-* Sidebar CSS for standalone 
-* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component 
+/**
+* Sidebar CSS for standalone
+* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
 * when the new elements are available
 */
 @media (max-width: 1000px) {

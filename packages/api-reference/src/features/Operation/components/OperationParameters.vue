@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Schemas } from '@/features/Operation/types/schemas'

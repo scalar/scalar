@@ -16,12 +16,18 @@ import TagSection from './TagSection.vue'
 const { collection, tags, spec, layout, server } = defineProps<{
   /** Just to set the id for webhooks, for now */
   id?: string
+  document: OpenAPIV3_1.Document
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
   tags: TagType[]
+  /**
+   * @deprecated Use `document` instead
+   */
   spec: Spec
   layout?: 'modern' | 'classic'
   server?: Server
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const { getTagId, hash } = useNavState()
@@ -58,20 +64,23 @@ const isLazy = (index: number) =>
       :spec="spec"
       :tag="tag">
       <Lazy
-        v-for="(operation, operationIndex) in tag.operations"
-        :id="operation.id"
-        :key="operation.id"
+        v-for="(transformedOperation, operationIndex) in tag.operations"
+        :id="transformedOperation.id"
+        :key="transformedOperation.id"
         :isLazy="
           isLazy(index) ||
           (collapsedSidebarItems[getTagId(tag)] && operationIndex > 0)
         ">
         <ScalarErrorBoundary>
           <Operation
+            :path="transformedOperation.path"
+            :method="transformedOperation.httpVerb"
+            :isWebhook="transformedOperation.isWebhook"
+            :id="transformedOperation.id"
+            :document="document"
             :collection="collection"
             :layout="layout"
-            :schemas="schemas"
-            :server="server"
-            :transformedOperation="operation" />
+            :server="server" />
         </ScalarErrorBoundary>
       </Lazy>
     </Component>
