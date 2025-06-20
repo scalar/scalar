@@ -116,7 +116,6 @@ Authentication can be configured globally or per service:
 #### Global Authentication
 
 ```csharp
-```csharp
 var scalar = builder.AddScalarApiReference(options =>
 {
   options
