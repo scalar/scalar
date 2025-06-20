@@ -37,7 +37,7 @@ function createProxyHandler(
        *   - For local references: resolves the reference and continues resolving nested refs
        *   - For all other objects: creates a proxy for lazy resolution
        */
-      const deepResolveNestedRefs = (value: unknown) => {
+      const deepResolveNestedRefs = (value: unknown, originalRef?: string) => {
         if (!isObject(value)) {
           return value
         }
@@ -49,8 +49,13 @@ function createProxyHandler(
             const referencePath = parseJsonPointer(ref)
             const resolvedValue = getValueByPath(sourceDocument, referencePath)
 
-            return deepResolveNestedRefs(resolvedValue)
+            // preserve the first $ref to maintain the original reference
+            return deepResolveNestedRefs(resolvedValue, originalRef ?? ref)
           }
+        }
+
+        if (originalRef) {
+          return createMagicProxy({ ...value, 'x-original-ref': originalRef }, sourceDocument, resolvedProxyCache)
         }
 
         return createMagicProxy(value, sourceDocument, resolvedProxyCache)

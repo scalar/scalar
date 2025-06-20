@@ -297,7 +297,10 @@ describe('create-workspace-store', () => {
     expect(
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
         .items,
-    ).toEqual(getDocument().components.schemas.User)
+    ).toEqual({
+      ...getDocument().components.schemas.User,
+      'x-original-ref': '#/components/schemas/User',
+    })
   })
 
   test('should load files form the remote url', async () => {
@@ -506,6 +509,7 @@ describe('create-workspace-store', () => {
                   'application/json': {
                     'schema': {
                       'items': {
+                        'x-original-ref': '#/components/schemas/Todo',
                         'properties': {
                           'completed': {
                             'type': 'boolean',
