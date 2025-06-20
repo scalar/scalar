@@ -137,6 +137,7 @@ const introCardsSlot = computed(() =>
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList
           v-for="tagGroup in parsedSpec['x-tagGroups']"
+          :document="document"
           :key="tagGroup.name"
           :collection="activeCollection"
           :layout="layout"
@@ -162,6 +163,7 @@ const introCardsSlot = computed(() =>
     <!-- Webhooks -->
     <template v-if="parsedSpec.webhooks?.length && activeCollection">
       <TagList
+        :document="document"
         id="webhooks"
         :collection="activeCollection"
         :layout="layout"

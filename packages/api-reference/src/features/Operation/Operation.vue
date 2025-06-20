@@ -21,6 +21,7 @@ const {
   schemas,
 } = defineProps<{
   layout?: 'modern' | 'classic'
+  id: string
   document?: OpenAPIV3_1.Document
   /**
    * @deprecated Use `document` instead
@@ -94,11 +95,14 @@ const operationServer = computed(() => {
 </script>
 
 <template>
-  <template v-if="collection">
+  <template v-if="collection && newOperation">
     <template v-if="layout === 'classic'">
       <ClassicLayout
+        :id="id"
         :operation="newOperation"
         :collection="collection"
+        :method="transformedOperation.httpVerb"
+        :path="transformedOperation.path"
         :request="operation"
         :transformedOperation="transformedOperation"
         :schemas="schemas"
@@ -107,7 +111,10 @@ const operationServer = computed(() => {
     </template>
     <template v-else>
       <ModernLayout
+        :id="id"
         :collection="collection"
+        :method="transformedOperation.httpVerb"
+        :path="transformedOperation.path"
         :request="operation"
         :operation="newOperation"
         :transformedOperation="transformedOperation"
