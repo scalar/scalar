@@ -141,9 +141,22 @@ public static class ScalarOptionsExtensions
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
     /// <param name="showDownloadButton">Whether to show the download button.</param>
     /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    [Obsolete($"This method is obsolete and will be removed in a future release. Use '{nameof(WithDocumentDownloadType)}' instead.")]
     public static ScalarOptions WithDownloadButton(this ScalarOptions options, bool showDownloadButton = true)
     {
         options.HideDownloadButton = !showDownloadButton;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the document download type for the Scalar API reference.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="documentDownloadType">The document download type to set.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static ScalarOptions WithDocumentDownloadType(this ScalarOptions options, DocumentDownloadType documentDownloadType)
+    {
+        options.DocumentDownloadType = documentDownloadType;
         return options;
     }
 
