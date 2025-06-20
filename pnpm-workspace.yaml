@@ -50,5 +50,5 @@ catalogs:
     vite: 5.4.19
     vitest: ^1.6.0
     vue: ^3.5.12
-    yaml: ^2.4.5
+    yaml: 2.8.0
     zod: 3.24.1
