@@ -12,7 +12,7 @@ import Operation from './Operation.vue'
  *
  * We can use this to test existing components, but we want to move to store-compatible props eventually.
  *
- * @deprecated TODO: We need a helper function to create a store-compatible operation to migrate the tests to it.
+ * @deprecated Don’t use this store anymore.
  */
 function createTransformedOperation(
   requestMethod: OpenAPIV3_1.HttpMethods,
