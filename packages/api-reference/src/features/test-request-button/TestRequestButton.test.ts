@@ -3,14 +3,14 @@ import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 import { computed, ref } from 'vue'
 
-import TestRequestButton from './TestRequestButton.vue'
 import { operationSchema } from '@scalar/oas-utils/entities/spec'
+import TestRequestButton from './TestRequestButton.vue'
 
 const mockClient = ref({
   open: vi.fn(),
 })
 
-vi.mock('@/features/ApiClientModal', () => ({
+vi.mock('@/features/api-client-modal', () => ({
   useApiClient: () => ({
     client: mockClient,
   }),
