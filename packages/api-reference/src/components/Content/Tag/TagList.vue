@@ -16,8 +16,15 @@ import TagSection from './TagSection.vue'
 const { collection, tags, spec, layout, server } = defineProps<{
   /** Just to set the id for webhooks, for now */
   id?: string
+  document: OpenAPIV3_1.Document
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
   tags: TagType[]
+  /**
+   * @deprecated Use `document` instead
+   */
   spec: Spec
   layout?: 'modern' | 'classic'
   server?: Server
@@ -67,6 +74,7 @@ const isLazy = (index: number) =>
         ">
         <ScalarErrorBoundary>
           <Operation
+            :document="document"
             :collection="collection"
             :layout="layout"
             :schemas="schemas"

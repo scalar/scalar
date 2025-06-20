@@ -6,7 +6,7 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
 import { useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -36,10 +36,14 @@ import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
 const { request, transformedOperation } = defineProps<{
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
+  operation?: OpenAPIV3_1.OperationObject
+  transformedOperation: TransformedOperation
   server: Server | undefined
   request: Request | undefined
-  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
 
@@ -92,6 +96,7 @@ const handleDiscriminatorChange = (type: string) => {
       <SectionColumns>
         <SectionColumn>
           <div class="operation-details">
+            fooo {{ operation }}
             <ScalarMarkdown
               :value="transformedOperation.information.description"
               withImages
