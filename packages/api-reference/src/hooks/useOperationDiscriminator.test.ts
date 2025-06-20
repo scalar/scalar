@@ -152,7 +152,7 @@ describe('useOperationDiscriminator', () => {
     expect(() => handleDiscriminatorChange('')).not.toThrow()
   })
 
-  it('updates transformed operation schema when discriminator changes', async () => {
+  it('updates operation schema when discriminator changes', async () => {
     const operation = createOperation(baseSchema)
     const { handleDiscriminatorChange } = useOperationDiscriminator(operation, schemas)
 
