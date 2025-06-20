@@ -8,6 +8,14 @@ packages:
   - '!**/.next/**'
   - '!**/dist/**'
   - '!**/.output/**'
+onlyBuiltDependencies:
+  - '@biomejs/biome'
+  - '@todesktop/cli'
+  - core-js
+  - core-js-pure
+  - electron
+  - lefthook
+  - vue-demi
 catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
