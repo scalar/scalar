@@ -463,7 +463,6 @@ watch(hash, (newHash, oldHash) => {
                 </div>
                 <SearchButton
                   v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar"
                   :searchHotKey="configuration.searchHotKey"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>
