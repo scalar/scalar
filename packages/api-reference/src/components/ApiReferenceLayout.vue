@@ -431,7 +431,7 @@ watch(hash, (newHash, oldHash) => {
         </ScalarErrorBoundary>
       </div>
     </aside>
-    <!-- Swagger file editing -->
+    <!-- Slot for an Editor -->
     <div
       v-show="configuration.isEditable"
       class="references-editor">
@@ -441,7 +441,7 @@ watch(hash, (newHash, oldHash) => {
           name="editor" />
       </div>
     </div>
-    <!-- Rendered reference -->
+    <!-- The Content -->
     <template v-if="showRenderedContent">
       <main
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
