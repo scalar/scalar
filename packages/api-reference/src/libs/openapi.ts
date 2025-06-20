@@ -1,5 +1,4 @@
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { XScalarStability } from '@scalar/types/legacy'
 
 import type { ContentSchema } from '../types'
@@ -64,10 +63,10 @@ function recursiveLogger(obj: ContentSchema): string[] {
 /**
  * Extracts the request body from an operation.
  */
-export function extractRequestBody(operation: TransformedOperation): string[] | boolean {
+export function extractRequestBody(operation: OpenAPIV3_1.OperationObject): string[] | boolean {
   try {
     // Using optional chaining here as well
-    const body = operation?.information?.requestBody?.content?.['application/json']
+    const body = operation?.requestBody?.content?.['application/json']
     if (!body) {
       throw new Error('Body not found')
     }
@@ -81,16 +80,16 @@ export function extractRequestBody(operation: TransformedOperation): string[] | 
 /**
  * Returns all models from the specification, no matter if it’s OpenAPI 3.x.
  */
-export function getModels(spec?: Spec) {
-  if (!spec) {
+export function getModels(document?: OpenAPIV3_1.Document) {
+  if (!document) {
     return {} as Record<string, OpenAPIV3_1.SchemaObject>
   }
 
   const models =
     // OpenAPI 3.x
     (
-      Object.keys(spec?.components?.schemas ?? {}).length
-        ? spec?.components?.schemas
+      Object.keys(document?.components?.schemas ?? {}).length
+        ? document?.components?.schemas
         : // Fallback
           {}
     ) as Record<string, OpenAPIV3_1.SchemaObject>
@@ -108,7 +107,7 @@ export function getModels(spec?: Spec) {
 /**
  * Checks if the OpenAPI document has schemas.
  */
-export const hasModels = (content?: Spec) => {
+export const hasModels = (content?: OpenAPIV3_1.Document) => {
   if (!content) {
     return false
   }
@@ -123,12 +122,12 @@ export const hasModels = (content?: Spec) => {
 /**
  * Checks if the OpenAPI document has webhooks.
  */
-export const hasWebhooks = (content?: Spec) => {
-  if (!content) {
+export const hasWebhooks = (document?: OpenAPIV3_1.Document) => {
+  if (!document) {
     return false
   }
 
-  if (Object.keys(content?.webhooks ?? {}).length) {
+  if (Object.keys(document?.webhooks ?? {}).length) {
     return true
   }
 
@@ -172,7 +171,7 @@ export function createEmptySpecification(partialSpecification?: Partial<OpenAPI.
     },
     servers: [],
     tags: [],
-  }) as Spec
+  }) as OpenAPI.Document
 }
 
 /**

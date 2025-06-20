@@ -2,11 +2,11 @@ import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/lega
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
 
+import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { type ParamMap, useOperation } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
-import { useConfig } from '@/hooks/useConfig'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
@@ -125,7 +125,7 @@ export function useSearchIndex({
           if (tag.operations) {
             tag.operations.forEach((operation) => {
               const { parameterMap } = useOperation(operation)
-              const bodyData = extractRequestBody(operation) || parameterMap.value
+              const bodyData = extractRequestBody(operation.information) || parameterMap.value
               let body = null
               if (typeof bodyData !== 'boolean') {
                 body = bodyData
