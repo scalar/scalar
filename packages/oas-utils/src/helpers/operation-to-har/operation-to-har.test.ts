@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { operationToHar } from './operation-to-har'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 describe('operationToHar', () => {
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -29,7 +31,7 @@ describe('operationToHar', () => {
     it.each(['get', 'post', 'put', 'delete', 'patch'] as HttpMethod[])(
       'should handle %s method correctly',
       (method) => {
-        const operation: OpenAPIV3_1.OperationObject = {
+        const operation: OperationObject = {
           responses: {
             '200': {
               description: 'OK',
@@ -51,7 +53,7 @@ describe('operationToHar', () => {
 
   describe('server configuration', () => {
     it('should include server URL in the final URL', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -59,7 +61,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://api.example.com',
       }
 
@@ -74,7 +76,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -82,7 +84,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -102,7 +104,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with multiple variables', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -110,7 +112,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.{region}.example.com/{version}',
         variables: {
           environment: {
@@ -137,7 +139,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables in path', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -145,7 +147,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://api.example.com/{version}',
         variables: {
           version: {
@@ -165,7 +167,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables and path parameters', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'userId',
@@ -183,7 +185,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -204,7 +206,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables and query parameters', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'filter',
@@ -221,7 +223,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -245,7 +247,7 @@ describe('operationToHar', () => {
 
   describe('request body handling', () => {
     it('should include request body when provided', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         requestBody: {
           content: {
             'application/json': {
@@ -286,7 +288,7 @@ describe('operationToHar', () => {
 
   describe('security handling', () => {
     it('should include security headers when provided', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         security: [
           {
             apiKey: [],
@@ -299,7 +301,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -324,7 +326,7 @@ describe('operationToHar', () => {
 
   describe('data type handling', () => {
     it('should handle various data types in example', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         requestBody: {
           content: {
             'application/json': {
