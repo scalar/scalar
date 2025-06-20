@@ -238,7 +238,7 @@ watch(dereferencedDocument, (newDoc) => {
  * Temporarily moved this here so we can use the sidebar items
  * Parsed document (legacy data structure)
  */
-const parsedDocument = ref<Spec>(createEmptySpecification())
+const parsedDocument = ref<Spec>(createEmptySpecification() as Spec)
 watch(
   dereferencedDocument,
   async (newDocument) => {
