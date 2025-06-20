@@ -28,7 +28,6 @@ const { collection, tags, spec, layout, server } = defineProps<{
   spec: Spec
   layout?: 'modern' | 'classic'
   server?: Server
-  schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
 }>()
 
 const { getTagId, hash } = useNavState()
@@ -81,7 +80,6 @@ const isLazy = (index: number) =>
             :document="document"
             :collection="collection"
             :layout="layout"
-            :schemas="schemas"
             :server="server"
             :transformedOperation="transformedOperation" />
         </ScalarErrorBoundary>

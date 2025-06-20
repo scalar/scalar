@@ -1,5 +1,4 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, provide, ref } from 'vue'
 
 import type { Schemas } from '@/features/Operation/types/schemas'
@@ -25,8 +24,8 @@ function hasDiscriminatorInSchema(schema: OpenAPIV3_1.SchemaObject | undefined):
 }
 
 /** Handling discriminator logic in operations */
-export function useOperationDiscriminator(transformedOperation: TransformedOperation, schemas?: Schemas) {
-  const requestBodySchema = transformedOperation.information?.requestBody?.content?.['application/json']?.schema
+export function useOperationDiscriminator(operation: OpenAPIV3_1.OperationObject, schemas?: Schemas) {
+  const requestBodySchema = operation.requestBody?.content?.['application/json']?.schema
 
   /** Check if discriminator handling is needed */
   const hasSchemaDiscriminator = computed(() => hasDiscriminatorInSchema(requestBodySchema))
@@ -37,8 +36,8 @@ export function useOperationDiscriminator(transformedOperation: TransformedOpera
         schema: requestBodySchema,
         schemas: schemas,
         onSchemaChange: (newSchema) => {
-          if (transformedOperation.information?.requestBody?.content?.['application/json']) {
-            transformedOperation.information.requestBody.content['application/json'].schema = newSchema
+          if (operation.requestBody?.content?.['application/json']) {
+            operation.information.requestBody.content['application/json'].schema = newSchema
           }
         },
       })
