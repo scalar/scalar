@@ -12,9 +12,9 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { SpecificationExtension } from '@/components/SpecificationExtension'
 import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
 import DownloadLink from '@/features/DownloadLink/DownloadLink.vue'
+import { SpecificationExtension } from '@/features/SpecificationExtension'
 import { DEFAULT_INTRODUCTION_SLUG } from '@/features/traverse-schema'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
