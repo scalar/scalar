@@ -70,7 +70,7 @@ export function useDocumentSource({
       const content = normalize(newDocument) as OpenAPI.Document
 
       if (content === undefined) {
-        console.error(`Failed to parse the OpenAPI document: ${newDocument}`)
+        console.error('Failed to parse the OpenAPI document:', newDocument)
         return
       }
 
