@@ -36,8 +36,10 @@ import {
 } from 'vue'
 
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
-import { DocumentSelector } from '@/components/DocumentSelector'
-import { useMultipleDocuments } from '@/hooks/useMultipleDocuments'
+import {
+  DocumentSelector,
+  useMultipleDocuments,
+} from '@/features/MultipleDocuments'
 import { NAV_STATE_SYMBOL } from '@/hooks/useNavState'
 import { onCustomEvent } from '@/v2/events'
 

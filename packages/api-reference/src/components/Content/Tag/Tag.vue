@@ -14,7 +14,7 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { SpecificationExtension } from '@/components/SpecificationExtension'
+import { SpecificationExtension } from '@/features/SpecificationExtension'
 import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 
