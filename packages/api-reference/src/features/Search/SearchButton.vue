@@ -59,6 +59,7 @@ function handleClick() {
   <ScalarSidebarSearchButton
     ref="button"
     class="w-full"
+    :class="$attrs.class"
     @click="handleClick">
     <span class="sr-only">Open Search</span>
     <span

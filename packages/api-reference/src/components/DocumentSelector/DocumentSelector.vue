@@ -38,14 +38,14 @@ const selectedOption = computed({
         v-model="selectedOption"
         :options="listboxOptions"
         resize>
-        <div
-          class="group/dropdown-label hover:bg-b-2 text-c-2 flex w-full cursor-pointer items-center rounded border px-2 py-1.75"
-          tabindex="0">
+        <button
+          class="group/dropdown-label hover:bg-b-2 text-c-2 flex h-8 w-full cursor-pointer items-center rounded border px-2 py-1.75"
+          type="button">
           <ScalarIconCaretUpDown class="mr-1 size-4 text-current" />
           <span class="text-c-1 overflow-hidden text-base text-ellipsis">
             {{ selectedOption?.label || 'Select API' }}
           </span>
-        </div>
+        </button>
       </ScalarListbox>
     </div>
   </template>
