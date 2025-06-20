@@ -23,19 +23,33 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 </script>
 <template>
   <div
-    v-if="!config?.hideDownloadButton"
+    v-if="config?.documentDownloadType !== 'none'"
+    :class="{
+      'download-both': config?.documentDownloadType === 'both',
+    }"
     class="download-container group">
+    <!-- JSON  -->
     <button
       type="button"
       class="download-button"
+      v-if="
+        config?.documentDownloadType === 'json' ||
+        config?.documentDownloadType === 'both'
+      "
       @click.prevent="handleDownloadClick('json')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
       <Badge class="extension hidden group-hover:flex">json</Badge>
     </button>
+
+    <!-- YAML -->
     <button
       type="button"
       class="download-button"
+      v-if="
+        config?.documentDownloadType === 'yaml' ||
+        config?.documentDownloadType === 'both'
+      "
       @click.prevent="handleDownloadClick('yaml')"
       variant="ghost">
       <span> Download OpenAPI Document </span>
@@ -58,7 +72,7 @@ const handleDownloadClick = (format: 'json' | 'yaml') => {
 }
 
 .download-container:has(:focus-visible)::before,
-.download-container:hover::before {
+.download-container.download-both:hover::before {
   content: '';
   width: calc(100% + 24px);
   height: 90px;
