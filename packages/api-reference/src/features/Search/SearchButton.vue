@@ -58,6 +58,7 @@ function handleClick() {
 <template>
   <ScalarSidebarSearchButton
     ref="button"
+    class="w-full"
     @click="handleClick">
     <span class="sr-only">Open Search</span>
     <span
