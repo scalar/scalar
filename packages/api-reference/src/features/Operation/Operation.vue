@@ -59,12 +59,7 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
 /**
  * Resolve the matching operation from the store
  *
- * TODO: In the future, we won’t need this.
- *
- * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
- * instead of using the super custom transformed `parsedSpec` that we’re using now.
- *
- * @deprecated
+ * @deprecated TODO: In the future, we won’t need this. We want to work with more or less plain OpenAPI objects.
  */
 const { operation: request } = useBlockProps({
   store,
