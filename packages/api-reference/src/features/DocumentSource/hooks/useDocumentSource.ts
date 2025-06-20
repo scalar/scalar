@@ -70,7 +70,8 @@ export function useDocumentSource({
       const content = normalize(newDocument) as OpenAPI.Document
 
       if (content === undefined) {
-        throw new Error(`Failed to parse the OpenAPI document: ${newDocument}`)
+        console.error(`Failed to parse the OpenAPI document: ${newDocument}`)
+        return
       }
 
       // Original OpenAPI version (not the one after the upgrade)
