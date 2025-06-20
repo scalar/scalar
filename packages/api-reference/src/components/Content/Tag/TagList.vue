@@ -76,6 +76,7 @@ const isLazy = (index: number) =>
           <Operation
             :path="transformedOperation.path"
             :method="transformedOperation.httpVerb"
+            :isWebhook="transformedOperation.isWebhook"
             :id="transformedOperation.id"
             :document="document"
             :collection="collection"

@@ -202,13 +202,16 @@ onMounted(() => {
         :spec="parsedSpec"
         :tag="tag">
         <Operation
-          v-for="operation in tag.lazyOperations"
-          :key="operation.id"
-          :id="operation.id"
+          v-for="transformedOperation in tag.lazyOperations"
+          :path="transformedOperation.path"
+          :method="transformedOperation.httpVerb"
+          :isWebhook="transformedOperation.isWebhook"
+          :key="transformedOperation.id"
+          :id="transformedOperation.id"
           :collection="collection"
           :layout="layout"
           :server="server"
-          :transformedOperation="operation" />
+          :transformedOperation="transformedOperation" />
       </TagSection>
     </template>
 
