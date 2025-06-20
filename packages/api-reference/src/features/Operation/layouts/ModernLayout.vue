@@ -7,6 +7,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { RequestExample } from '@v2/blocks/scalar-request-example-block'
 import { useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -121,6 +122,15 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="examples">
             <ScalarErrorBoundary>
+              <RequestExample
+                :request="request"
+                :method="transformedOperation.httpVerb"
+                :collection="collection"
+                :path="transformedOperation.path"
+                fallback
+                :operation="transformedOperation.information"
+                :server="server"
+                :schemas="schemas" />
               <ExampleRequest
                 :request="request"
                 :method="transformedOperation.httpVerb"
