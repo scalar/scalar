@@ -1,5 +1,5 @@
-import as, { type AnsiColors } from 'ansis'
 import { exec } from 'node:child_process'
+import as, { type AnsiColors } from 'ansis'
 
 export async function runCommand(command: string, processName: string) {
   return new Promise((resolve, reject) => {
@@ -14,7 +14,7 @@ export async function runCommand(command: string, processName: string) {
       console.log(as[color](`[${processName}]: ${line}`))
     }
 
-    comm.stdout?.on('data', (data) => log(data, 'grey'))
+    comm.stdout?.on('data', (data) => log(data, 'gray'))
     comm.stderr?.on('data', (data) => log(data, 'red'))
     comm.stderr?.on('data', (data) => {
       const line = as.strip(data).trim()
