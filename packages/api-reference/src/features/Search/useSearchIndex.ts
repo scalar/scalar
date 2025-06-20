@@ -211,7 +211,7 @@ export function useSearchIndex({
       }
 
       // Adding models as well
-      const schemas = config.value.hideModels ? {} : getModels(newSpec)
+      const schemas = config.value.hideModels ? {} : getModels(newSpec as OpenAPIV3_1.Document)
       const modelData: FuseData[] = []
 
       if (schemas) {

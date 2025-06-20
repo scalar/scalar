@@ -41,8 +41,9 @@ import { getModels } from '@/libs/openapi'
  * - need to handle case of last operation/model
  * - need to find an event for codemirror loaded, currently using timeout for models
  */
-const props = withDefaults(
+const { document, collection, server, layout, parsedSpec } = withDefaults(
   defineProps<{
+    document: OpenAPIV3_1.Document
     collection: Collection
     server?: Server
     layout?: 'modern' | 'classic'
@@ -59,19 +60,13 @@ const models = ref<string[]>([])
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
 
-const isLoading = ref(
-  !hasLoaded.value && props.layout !== 'classic' && hash.value,
-)
+const isLoading = ref(!hasLoaded.value && layout !== 'classic' && hash.value)
 
 // Ensure we have a spec loaded
 watch(
-  () => props.parsedSpec.tags?.length,
+  () => parsedSpec.tags?.length,
   (tagsLength) => {
-    if (
-      !hash.value ||
-      typeof tagsLength !== 'number' ||
-      !props.parsedSpec.tags
-    ) {
+    if (!hash.value || typeof tagsLength !== 'number' || !parsedSpec.tags) {
       return
     }
 
@@ -81,17 +76,15 @@ watch(
     if (sectionId.startsWith('tag')) {
       let operationIndex = 0
       const tagIndex =
-        props.parsedSpec.tags?.findIndex(
-          (tag) => getTagId(tag) === sectionId,
-        ) ?? 0
+        parsedSpec.tags?.findIndex((tag) => getTagId(tag) === sectionId) ?? 0
 
       // TODO: hash prefix, path routing etc
-      operationIndex = props.parsedSpec.tags[tagIndex]?.operations.findIndex(
+      operationIndex = parsedSpec.tags[tagIndex]?.operations.findIndex(
         ({ id }) => id === hash.value,
       )
 
       // Add a few tags to the loading section
-      const tag = props.parsedSpec.tags[tagIndex]
+      const tag = parsedSpec.tags[tagIndex]
 
       if (!tag) {
         return
@@ -121,7 +114,7 @@ watch(
     }
     // Models
     else if (hash.value.startsWith('model')) {
-      const modelKeys = Object.keys(getModels(props.parsedSpec) ?? {})
+      const modelKeys = Object.keys(getModels(document) ?? {})
       const [, modelKey] = hash.value.toLowerCase().split('/')
 
       // Find the right model to start at
@@ -220,13 +213,13 @@ onMounted(() => {
         v-for="name in models"
         :key="name"
         :label="name">
-        <template v-if="getModels(parsedSpec)?.[name]">
+        <template v-if="getModels(document)?.[name]">
           <SectionContent>
             <SectionHeader>
               <Anchor :id="'lazy-' + getModelId({ name })">
                 <SectionHeaderTag :level="2">
                   {{
-                    (getModels(parsedSpec)?.[name] as OpenAPIV3_1.SchemaObject)
+                    (getModels(document)?.[name] as OpenAPIV3_1.SchemaObject)
                       .title ?? name
                   }}
                 </SectionHeaderTag>
@@ -235,13 +228,14 @@ onMounted(() => {
             <Schema
               :name="name"
               noncollapsible
-              :value="getModels(parsedSpec)?.[name]" />
+              :value="getModels(document)?.[name]" />
           </SectionContent>
         </template>
       </Section>
     </SectionContainer>
   </div>
 </template>
+
 <style>
 .references-loading {
   position: absolute;
@@ -255,12 +249,6 @@ onMounted(() => {
 .references-loading-top-spacer {
   top: -1px;
 }
-/* This doesn't seem to work but leaving here in case we need it */
-/* @media (min-width: 1001px) {
-  .references-loading-top-spacer {
-    top: calc(var(--scalar-custom-header-height, --refs-header-height) - 1px);
-  }
-} */
 .references-loading-hidden-tag .section-container > .section:first-child {
   display: none;
 }
