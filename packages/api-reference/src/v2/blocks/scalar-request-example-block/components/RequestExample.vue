@@ -5,17 +5,12 @@ import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarCombobox,
-  ScalarDropdown,
-  ScalarIcon,
-  type ScalarComboboxOption,
-  type ScalarComboboxOptionGroup,
 } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
 import type { HttpMethod as HttpMethodType } from '@scalar/helpers/http/http-methods'
+import { ScalarIconCaretDown } from '@scalar/icons'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import {
-  AVAILABLE_CLIENTS,
-  snippetz,
   type AvailableClients,
   type ClientId,
   type TargetId,
@@ -32,6 +27,7 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
+import { ExamplePicker } from '@/features/ExampleRequest'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
@@ -122,16 +118,22 @@ const emit = defineEmits<{
 }>()
 
 /** Grab the examples for the given content type */
-const getOperationExamples = computed(() => {
+const operationExamples = computed(() => {
   if (isReference(operation.requestBody)) {
     return {}
   }
 
   const content = operation.requestBody?.content ?? {}
   const contentType = selectedContentType || Object.keys(content)[0]
+  const examples = content[contentType]?.examples ?? {}
 
-  return content[contentType]?.examples ?? {}
+  return examples
 })
+
+/** The currently selected example key */
+const selectedExampleKey = ref<string | null>(
+  Object.keys(operationExamples.value)[0] ?? null,
+)
 
 /** Grab any custom code samples from the operation */
 const customRequestExamples = computed(() => {
@@ -166,12 +168,14 @@ watch(
   },
 )
 
+/** Generate the code snippet for the selected example OR operation */
 const generateSnippet = () => {
-  return 'console.log("Hello, world!")'
   // Use the selected custom example
-  if (localSelectedClient.value.targetKey === 'customExamples') {
+  if (localSelectedClient.value.id.startsWith('custom')) {
     return (
-      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
+      customRequestExamples.value.find(
+        (example) => `custom/${example.lang}` === localSelectedClient.value.id,
+      )?.source ?? ''
     )
   }
 
@@ -248,29 +252,6 @@ const selectClient = (option: ClientOption) => {
   }
 }
 
-/** Update the selected example and the operation ID */
-const handleExampleUpdate = (value: string) => {
-  console.log('handleExampleUpdate', value)
-  // selectedExampleKey.value = value
-  // operationId.value = operation.operationId
-
-  // const example = requestExamples[operation.examples[0]]
-  // const selectedExample = getExamplesFromOperation.value[value]
-
-  // // Update the example body
-  // if (example && selectedExample?.value) {
-  //   try {
-  //     requestExampleMutators.edit(
-  //       example.uid,
-  //       'body.raw.value',
-  //       JSON.stringify(selectedExample.value, null, 2),
-  //     )
-  //   } catch (error) {
-  //     console.error('[handleExampleUpdate]', error)
-  //   }
-  // }
-}
-
 const id = useId()
 </script>
 <template>
@@ -308,9 +289,7 @@ const id = useId()
             fullWidth
             variant="ghost">
             <span>{{ localSelectedClient.title }}</span>
-            <ScalarIcon
-              icon="ChevronDown"
-              size="md" />
+            <ScalarIconCaretDown />
           </ScalarButton>
         </ScalarCombobox>
       </template>
@@ -335,17 +314,19 @@ const id = useId()
 
     <!-- Footer -->
     <CardFooter
-      v-if="customRequestExamples.length || !config.hideTestRequestButton"
+      v-if="
+        Object.keys(operationExamples).length || !config.hideTestRequestButton
+      "
       class="request-card-footer"
       contrast>
       <!-- Example picker -->
       <div
-        v-if="customRequestExamples.length"
+        v-if="Object.keys(operationExamples).length"
         class="request-card-footer-addon">
-        <ScalarDropdown
-          :options="customRequestExamples"
-          :modelValue="selectedExample"
-          @update:modelValue="handleExampleUpdate" />
+        <ExamplePicker
+          class="request-example-selector"
+          :examples="operationExamples"
+          v-model="selectedExampleKey" />
       </div>
 
       <!-- Open API client -->
