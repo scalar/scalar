@@ -6,8 +6,7 @@ export { default as GettingStarted } from '@/components/GettingStarted.vue'
 
 export { createApiReference } from '@/standalone/lib/html-api'
 
-export { Sidebar } from '@/components/Sidebar'
-export { useSidebar } from '@/features/sidebar'
+export { useSidebar, Sidebar } from '@/features/sidebar'
 
 export { Card, CardHeader, CardContent, CardFooter, CardTabHeader, CardTab } from '@/components/Card'
 
