@@ -65,22 +65,24 @@ const isLazy = (index: number) =>
       :spec="spec"
       :tag="tag">
       <Lazy
-        v-for="(operation, operationIndex) in tag.operations"
-        :id="operation.id"
-        :key="operation.id"
+        v-for="(transformedOperation, operationIndex) in tag.operations"
+        :id="transformedOperation.id"
+        :key="transformedOperation.id"
         :isLazy="
           isLazy(index) ||
           (collapsedSidebarItems[getTagId(tag)] && operationIndex > 0)
         ">
         <ScalarErrorBoundary>
           <Operation
-            :id="operation.id"
+            :path="transformedOperation.path"
+            :method="transformedOperation.httpVerb"
+            :id="transformedOperation.id"
             :document="document"
             :collection="collection"
             :layout="layout"
             :schemas="schemas"
             :server="server"
-            :transformedOperation="operation" />
+            :transformedOperation="transformedOperation" />
         </ScalarErrorBoundary>
       </Lazy>
     </Component>

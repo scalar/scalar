@@ -6,7 +6,7 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
@@ -35,7 +35,7 @@ import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { request, transformedOperation, operation, path } = defineProps<{
+const { request, operation, path } = defineProps<{
   id: string
   /**
    * @deprecated Use `document` instead
@@ -44,7 +44,6 @@ const { request, transformedOperation, operation, path } = defineProps<{
   operation: OpenAPIV3_1.OperationObject
   method: OpenAPIV3_1.HttpMethods
   path: string
-  transformedOperation: TransformedOperation
   server: Server | undefined
   request: Request | undefined
   schemas?: Schemas
@@ -62,6 +61,11 @@ const config = useConfig()
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
+
+const isWebhook = computed(() => {
+  // TODO: Write the code
+  return false
+})
 </script>
 
 <template>
@@ -78,7 +82,7 @@ const handleDiscriminatorChange = (type: string) => {
       </Badge>
 
       <Badge
-        v-if="transformedOperation.isWebhook"
+        v-if="isWebhook"
         class="font-code text-green flex w-fit items-center justify-center gap-1">
         <ScalarIconWebhooksLogo weight="bold" />Webhook
       </Badge>
@@ -101,7 +105,7 @@ const handleDiscriminatorChange = (type: string) => {
               withImages
               withAnchors
               transformType="heading"
-              :anchorPrefix="operation?.id" />
+              :anchorPrefix="id" />
             <OperationParameters
               :parameters="operation?.parameters"
               :requestBody="operation?.requestBody"
