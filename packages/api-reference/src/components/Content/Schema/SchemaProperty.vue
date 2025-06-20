@@ -8,7 +8,7 @@ import {
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import type { Schemas } from '@/features/Operation/types/schemas'
-import { SpecificationExtension } from '@/features/SpecificationExtension'
+import { SpecificationExtension } from '@/features/specification-extension'
 import { DISCRIMINATOR_CONTEXT } from '@/hooks/useDiscriminator'
 
 import Schema from './Schema.vue'
