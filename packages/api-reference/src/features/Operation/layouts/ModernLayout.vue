@@ -37,14 +37,14 @@ import OperationResponses from '../components/OperationResponses.vue'
 
 const { request, operation, path, isWebhook } = defineProps<{
   id: string
+  path: string
+  method: OpenAPIV3_1.HttpMethods
+  operation: OpenAPIV3_1.OperationObject
+  isWebhook: boolean
   /**
    * @deprecated Use `document` instead
    */
   collection: Collection
-  operation: OpenAPIV3_1.OperationObject
-  method: OpenAPIV3_1.HttpMethods
-  path: string
-  isWebhook: boolean
   server: Server | undefined
   request: Request | undefined
   schemas?: Schemas
