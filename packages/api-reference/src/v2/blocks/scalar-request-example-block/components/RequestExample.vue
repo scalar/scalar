@@ -29,6 +29,7 @@ import {
   generateClientOptions,
   generateCustomId,
 } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
 import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
 
 type Props = {
@@ -180,11 +181,14 @@ const generatedCode = computed<string>(() => {
     }
 
     return generateCodeSnippet({
-      clientId: localSelectedClient.value.id,
+      clientId: localSelectedClient.value.id as AvailableClients[number],
       operation,
       method,
+      server: selectedServer,
+      securitySchemes: selectedSecuritySchemes,
+      contentType: selectedContentType,
       path,
-      example: selectedExampleKey.value,
+      example: operationExamples.value[selectedExampleKey.value || ''],
     })
   } catch (error) {
     console.error('[generateSnippet]', error)
