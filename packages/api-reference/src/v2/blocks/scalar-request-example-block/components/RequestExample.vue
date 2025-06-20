@@ -23,7 +23,6 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { ExamplePicker } from '@/features/ExampleRequest'
-import { TestRequestButton } from '@/features/TestRequestButton'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
   generateClientOptions,
@@ -64,9 +63,9 @@ type Props = {
    */
   selectedExample?: string
   /**
-   * The currently selected security schemes which are applicable to this operation
+   * The security schemes which are applicable to this operation
    */
-  selectedSecuritySchemes?: SecuritySchemeObject[]
+  securitySchemes?: SecuritySchemeObject[]
   /**
    * HTTP method of the operation
    */
@@ -84,14 +83,13 @@ type Props = {
    */
   fallback?: boolean
   /**
-   * A method to generate the label of the block, defaults to method and path if not provided
+   * A method to generate the label of the block, should return html
    */
-  generateLabel?: string
+  generateLabel?: () => string
   /**
    * Config options for the block
    */
   config?: {
-    hideTestRequestButton?: boolean
     hideClientSelector?: boolean
   }
 }
@@ -102,18 +100,24 @@ const {
   selectedServer,
   selectedContentType,
   selectedExample,
-  selectedSecuritySchemes,
+  securitySchemes,
   method,
   path,
   operation,
+  generateLabel,
   config = {
-    hideTestRequestButton: false,
     hideClientSelector: false,
   },
 } = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:selectedClient': [id: AvailableClients[number]]
+  'update:selectedExample': [name: string]
+}>()
+
+defineSlots<{
+  header: () => unknown
+  footer: () => unknown
 }>()
 
 /** Grab the examples for the given content type */
@@ -126,12 +130,16 @@ const operationExamples = computed(() => {
   const contentType = selectedContentType || Object.keys(content)[0]
   const examples = content[contentType]?.examples ?? {}
 
+  console.log({ contentType })
+  console.log(content)
+  console.log(examples)
+
   return examples
 })
 
 /** The currently selected example key */
-const selectedExampleKey = ref<string | null>(
-  Object.keys(operationExamples.value)[0] ?? null,
+const selectedExampleKey = ref<string>(
+  selectedExample ?? Object.keys(operationExamples.value)[0],
 )
 
 /** Grab any custom code samples from the operation */
@@ -185,7 +193,7 @@ const generatedCode = computed<string>(() => {
       operation,
       method,
       server: selectedServer,
-      securitySchemes: selectedSecuritySchemes,
+      securitySchemes,
       contentType: selectedContentType,
       path,
       example: operationExamples.value[selectedExampleKey.value || ''],
@@ -257,6 +265,9 @@ const id = useId()
           as="span"
           class="request-method"
           :method="method" />
+        <span
+          v-if="generateLabel"
+          v-html="generateLabel()" />
         <slot name="header" />
       </div>
 
@@ -267,7 +278,6 @@ const id = useId()
           class="max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
-          teleport
           placement="bottom-end"
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
@@ -300,9 +310,7 @@ const id = useId()
 
     <!-- Footer -->
     <CardFooter
-      v-if="
-        Object.keys(operationExamples).length || !config.hideTestRequestButton
-      "
+      v-if="Object.keys(operationExamples).length || $slots.footer"
       class="request-card-footer"
       contrast>
       <!-- Example picker -->
@@ -315,10 +323,8 @@ const id = useId()
           v-model="selectedExampleKey" />
       </div>
 
-      <!-- Open API client -->
-      <TestRequestButton
-        :operation="operation"
-        v-if="!config.hideTestRequestButton" />
+      <!-- Footer -->
+      <slot name="footer" />
     </CardFooter>
   </Card>
 

@@ -37,7 +37,7 @@ export const generateClientOptions = (
 
         return {
           id,
-          lang: plugin.client === 'curl' ? 'shell' : group.key,
+          lang: plugin.client === 'curl' ? ('curl' as const) : group.key,
           title: `${capitalize(group.title)} ${plugin.title}`,
           label: plugin.title,
         }
