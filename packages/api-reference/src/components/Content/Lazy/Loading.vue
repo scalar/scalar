@@ -204,6 +204,7 @@ onMounted(() => {
         <Operation
           v-for="operation in tag.lazyOperations"
           :key="operation.id"
+          :id="operation.id"
           :collection="collection"
           :layout="layout"
           :server="server"
