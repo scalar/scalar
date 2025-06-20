@@ -3,6 +3,7 @@ defineProps<{
   level: number
 }>()
 </script>
+
 <template>
   <ul
     class="sidebar-group sidebar-indent-nested"
@@ -10,6 +11,7 @@ defineProps<{
     <slot />
   </ul>
 </template>
+
 <style scoped>
 .sidebar-group {
   list-style: none;
