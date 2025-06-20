@@ -30,7 +30,10 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { ExamplePicker } from '@/features/ExampleRequest'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
-import { generateClientOptions } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
+import {
+  generateClientOptions,
+  generateCustomId,
+} from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
 
 type Props = {
@@ -174,7 +177,7 @@ const generateSnippet = () => {
   if (localSelectedClient.value.id.startsWith('custom')) {
     return (
       customRequestExamples.value.find(
-        (example) => `custom/${example.lang}` === localSelectedClient.value.id,
+        (example) => generateCustomId(example) === localSelectedClient.value.id,
       )?.source ?? ''
     )
   }

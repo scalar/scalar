@@ -3,6 +3,9 @@ import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import { snippetz, type AvailableClients, type TargetId } from '@scalar/snippetz'
 import { capitalize } from 'vue'
 
+/** Helper to generate an ID for custom code samples */
+export const generateCustomId = (example: XCodeSample) => `custom/${example.lang}`
+
 /**
  * Generates client options for the request example block by combining built-in snippets
  * with custom code samples. This function creates a structured list of available
@@ -53,7 +56,7 @@ export const generateClientOptions = (
 
   /** Generate options for any custom code samples */
   const customClients = customRequestExamples.map((sample) => {
-    const id = `custom/${sample.lang}`
+    const id = generateCustomId(sample)
     const label = sample.label || sample.lang || id
 
     return {
