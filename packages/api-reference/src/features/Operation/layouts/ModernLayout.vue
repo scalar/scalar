@@ -35,7 +35,7 @@ import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { request, operation, path } = defineProps<{
+const { request, operation, path, isWebhook } = defineProps<{
   id: string
   /**
    * @deprecated Use `document` instead
@@ -44,6 +44,7 @@ const { request, operation, path } = defineProps<{
   operation: OpenAPIV3_1.OperationObject
   method: OpenAPIV3_1.HttpMethods
   path: string
+  isWebhook: boolean
   server: Server | undefined
   request: Request | undefined
   schemas?: Schemas
@@ -61,11 +62,6 @@ const config = useConfig()
 const handleDiscriminatorChange = (type: string) => {
   emit('update:modelValue', type)
 }
-
-const isWebhook = computed(() => {
-  // TODO: Write the code
-  return false
-})
 </script>
 
 <template>

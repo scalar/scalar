@@ -18,6 +18,7 @@ const {
   transformedOperation,
   collection,
   server,
+  isWebhook,
   schemas,
   path,
   method,
@@ -25,6 +26,7 @@ const {
   document?: OpenAPIV3_1.Document
   path: string
   method: OpenAPIV3_1.HttpMethods
+  isWebhook?: boolean
   layout?: 'modern' | 'classic'
   id: string
   /**
@@ -55,8 +57,10 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
  *
  * This is what we want to use in the future.
  */
-const operation = computed(
-  () => document?.paths?.[path]?.[method.toLowerCase()],
+const operation = computed(() =>
+  isWebhook
+    ? document?.webhooks?.[path]?.[method]
+    : document?.paths?.[path]?.[method],
 )
 
 /**
@@ -72,11 +76,7 @@ const operation = computed(
 const { operation: request } = useBlockProps({
   store,
   collection,
-  location: getPointer([
-    'paths',
-    transformedOperation.path,
-    transformedOperation.httpVerb.toLowerCase(),
-  ]),
+  location: getPointer([isWebhook ? 'webhooks' : 'paths', path, method]),
 })
 
 /** Return operation server if available or fallback to the collection server */
@@ -87,6 +87,7 @@ const operationServer = computed(() => {
 
   if (request.value?.selectedServerUid) {
     const operationServer = store.servers[request.value.selectedServerUid]
+
     if (operationServer) {
       return operationServer
     }
@@ -104,8 +105,9 @@ const operationServer = computed(() => {
         :id="id"
         :operation="operation"
         :collection="collection"
-        :method="transformedOperation.httpVerb"
-        :path="transformedOperation.path"
+        :isWebhook="isWebhook"
+        :method="method"
+        :path="path"
         :request="request"
         :transformedOperation="transformedOperation"
         :schemas="schemas"
@@ -116,8 +118,9 @@ const operationServer = computed(() => {
       <ModernLayout
         :id="id"
         :collection="collection"
-        :method="transformedOperation.httpVerb"
-        :path="transformedOperation.path"
+        :isWebhook="isWebhook"
+        :method="method"
+        :path="path"
         :request="request"
         :operation="operation"
         :schemas="schemas"
