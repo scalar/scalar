@@ -10,11 +10,40 @@ import { reactive } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 
-type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
+/**
+ * Input type for workspace document metadata and configuration.
+ * This type defines the required and optional fields for initializing a document in the workspace.
+ */
+type WorkspaceDocumentMetaInput = {
+  /** Optional metadata about the document like title, description, etc */
+  meta?: WorkspaceDocumentMeta
+  /** Required unique identifier for the document */
+  name: string
+  /** Optional configuration for generating navigation structure */
+  config?: createNavigationOptions
+}
 
-type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
-type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
+/**
+ * Represents a document that is loaded from a URL.
+ * This type extends WorkspaceDocumentMetaInput to include URL-specific properties.
+ */
+type UrlDoc = {
+  /** URL to fetch the OpenAPI document from */
+  url: string
+  /** Optional custom fetch implementation to use when retrieving the document. By default the global fetch implementation will be used */
+  fetch?: (input: string | URL | globalThis.Request, init?: RequestInit) => Promise<Response>
+} & WorkspaceDocumentMetaInput
 
+/** Represents a document that is provided directly as an object rather than loaded from a URL */
+type ObjectDoc = {
+  /** The OpenAPI document object containing the API specification */
+  document: Record<string, unknown>
+} & WorkspaceDocumentMetaInput
+
+/** Union type representing the possible input formats for a workspace document:
+ * - UrlDoc: Document loaded from a URL with optional fetch configuration
+ * - ObjectDoc: Direct document object with metadata
+ */
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 /**
@@ -39,13 +68,24 @@ type WorkspaceDocumentInput = UrlDoc | ObjectDoc
  */
 async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
   if ('url' in workspaceDocument) {
-    return fetchUrls().exec(workspaceDocument.url)
+    return fetchUrls({ fetch: workspaceDocument.fetch }).exec(workspaceDocument.url)
   }
 
   return {
     ok: true as const,
     data: workspaceDocument.document,
   }
+}
+
+/**
+ * Configuration object for initializing a workspace store.
+ * Defines the initial state and documents for the workspace.
+ */
+type WorkspaceProps = {
+  /** Optional metadata for the workspace including theme, active document, etc */
+  meta?: WorkspaceMeta
+  /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
+  documents?: ObjectDoc[]
 }
 
 /**
@@ -59,11 +99,7 @@ async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
  *  this allows atomic awaiting and does not block page load for the store initialization
  * @returns An object containing methods and getters for managing the workspace
  */
-export function createWorkspaceStore(workspaceProps?: {
-  meta?: WorkspaceMeta
-  /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
-  documents?: ObjectDoc[]
-}) {
+export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive<Workspace>({
