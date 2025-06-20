@@ -151,6 +151,7 @@ const introCardsSlot = computed(() =>
       <TagList
         v-else
         :collection="activeCollection"
+        :document="document"
         :layout="layout"
         :schemas="getModels(parsedSpec)"
         :server="activeServer"

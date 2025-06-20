@@ -14,13 +14,21 @@ import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
   layout = 'modern',
+  document,
   transformedOperation,
   collection,
   server,
   schemas,
 } = defineProps<{
   layout?: 'modern' | 'classic'
+  document?: OpenAPIV3_1.Document
+  /**
+   * @deprecated Use `document` instead
+   */
   transformedOperation: TransformedOperation
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
   server: Server | undefined
   schemas?: Record<string, OpenAPIV3_1.SchemaObject> | unknown
@@ -35,12 +43,27 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
 )
 
 /**
+ * NEW: We’re using the dereferenced document to get the operation.
+ *
+ * This will come from the new workspace store soon.
+ *
+ * This is what we want to use in the future.
+ */
+const newOperation = computed(() => {
+  return document?.paths?.[transformedOperation.path]?.[
+    transformedOperation.httpVerb.toLowerCase()
+  ]
+})
+
+/**
  * Resolve the matching operation from the store
  *
  * TODO: In the future, we won’t need this.
  *
  * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
  * instead of using the super custom transformed `parsedSpec` that we’re using now.
+ *
+ * @deprecated
  */
 const { operation } = useBlockProps({
   store,
@@ -74,6 +97,7 @@ const operationServer = computed(() => {
   <template v-if="collection">
     <template v-if="layout === 'classic'">
       <ClassicLayout
+        :operation="newOperation"
         :collection="collection"
         :request="operation"
         :transformedOperation="transformedOperation"
@@ -85,6 +109,7 @@ const operationServer = computed(() => {
       <ModernLayout
         :collection="collection"
         :request="operation"
+        :operation="newOperation"
         :transformedOperation="transformedOperation"
         :schemas="schemas"
         :server="operationServer"
