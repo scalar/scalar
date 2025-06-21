@@ -577,7 +577,7 @@ public static class ScalarOptionsExtensions
         options.PersistentAuthentication = persistAuth;
         return options;
     }
-    
+
     /// <summary>
     /// Sets the document download type for the Scalar API reference.
     /// </summary>
