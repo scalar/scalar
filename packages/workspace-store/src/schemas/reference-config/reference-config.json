@@ -1,0 +1,316 @@
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "slug": {
+      "type": "string"
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "proxyUrl": {
+          "type": "string"
+        },
+        "searchKey": {
+          "type": "string"
+        }
+      }
+    },
+    "tagSort": {
+      "const": "alpha",
+      "type": "string"
+    },
+    "operationSort": {
+      "anyOf": [
+        {
+          "const": "method",
+          "type": "string"
+        },
+        {
+          "const": "alpha",
+          "type": "string"
+        }
+      ]
+    },
+    "routing": {
+      "type": "object",
+      "properties": {
+        "basePath": {
+          "type": "string"
+        },
+        "pathNotFound": {
+          "type": "string"
+        }
+      }
+    },
+    "appearance": {
+      "type": "object",
+      "properties": {
+        "layout": {
+          "anyOf": [
+            {
+              "const": "modern",
+              "type": "string"
+            },
+            {
+              "const": "classic",
+              "type": "string"
+            }
+          ]
+        },
+        "theme": {
+          "type": "string"
+        },
+        "favicon": {
+          "type": "string"
+        },
+        "initialColorMode": {
+          "anyOf": [
+            {
+              "const": "auto",
+              "type": "string"
+            },
+            {
+              "const": "dark",
+              "type": "string"
+            },
+            {
+              "const": "light",
+              "type": "string"
+            }
+          ]
+        },
+        "forceColorMode": {
+          "anyOf": [
+            {
+              "const": "dark",
+              "type": "string"
+            },
+            {
+              "const": "light",
+              "type": "string"
+            }
+          ]
+        },
+        "css": {
+          "type": "string"
+        },
+        "loadDefaultFonts": {
+          "type": "boolean"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "properties": {
+        "showSidebar": {
+          "type": "boolean"
+        },
+        "showModels": {
+          "type": "boolean"
+        },
+        "showDownload": {
+          "type": "boolean"
+        },
+        "showTestRequestButton": {
+          "type": "boolean"
+        },
+        "showSearch": {
+          "type": "boolean"
+        },
+        "showApiClientImport": {
+          "type": "boolean"
+        },
+        "showDarkModeToggle": {
+          "type": "boolean"
+        },
+        "expandAllTagSections": {
+          "type": "boolean"
+        },
+        "persistAuthenticationState": {
+          "type": "boolean"
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ogTitle": {
+          "type": "string"
+        },
+        "ogDescription": {
+          "type": "string"
+        },
+        "ogImage": {
+          "type": "string"
+        },
+        "twitterCard": {
+          "type": "string"
+        }
+      }
+    },
+    "httpClients": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "const": "c/libcurl",
+            "type": "string"
+          },
+          {
+            "const": "clojure/clj_http",
+            "type": "string"
+          },
+          {
+            "const": "csharp/httpclient",
+            "type": "string"
+          },
+          {
+            "const": "csharp/restsharp",
+            "type": "string"
+          },
+          {
+            "const": "go/native",
+            "type": "string"
+          },
+          {
+            "const": "http/http1.1",
+            "type": "string"
+          },
+          {
+            "const": "java/asynchttp",
+            "type": "string"
+          },
+          {
+            "const": "java/nethttp",
+            "type": "string"
+          },
+          {
+            "const": "java/okhttp",
+            "type": "string"
+          },
+          {
+            "const": "java/unirest",
+            "type": "string"
+          },
+          {
+            "const": "js/axios",
+            "type": "string"
+          },
+          {
+            "const": "js/fetch",
+            "type": "string"
+          },
+          {
+            "const": "js/jquery",
+            "type": "string"
+          },
+          {
+            "const": "js/ofetch",
+            "type": "string"
+          },
+          {
+            "const": "js/xhr",
+            "type": "string"
+          },
+          {
+            "const": "kotlin/okhttp",
+            "type": "string"
+          },
+          {
+            "const": "node/axios",
+            "type": "string"
+          },
+          {
+            "const": "node/fetch",
+            "type": "string"
+          },
+          {
+            "const": "node/ofetch",
+            "type": "string"
+          },
+          {
+            "const": "node/undici",
+            "type": "string"
+          },
+          {
+            "const": "objc/nsurlsession",
+            "type": "string"
+          },
+          {
+            "const": "ocaml/cohttp",
+            "type": "string"
+          },
+          {
+            "const": "php/curl",
+            "type": "string"
+          },
+          {
+            "const": "php/guzzle",
+            "type": "string"
+          },
+          {
+            "const": "powershell/restmethod",
+            "type": "string"
+          },
+          {
+            "const": "powershell/webrequest",
+            "type": "string"
+          },
+          {
+            "const": "python/python3",
+            "type": "string"
+          },
+          {
+            "const": "python/requests",
+            "type": "string"
+          },
+          {
+            "const": "python/httpx_sync",
+            "type": "string"
+          },
+          {
+            "const": "python/httpx_async",
+            "type": "string"
+          },
+          {
+            "const": "r/httr",
+            "type": "string"
+          },
+          {
+            "const": "ruby/native",
+            "type": "string"
+          },
+          {
+            "const": "shell/curl",
+            "type": "string"
+          },
+          {
+            "const": "shell/httpie",
+            "type": "string"
+          },
+          {
+            "const": "shell/wget",
+            "type": "string"
+          },
+          {
+            "const": "swift/nsurlsession",
+            "type": "string"
+          },
+          {
+            "const": "dart/http",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  }
+}
