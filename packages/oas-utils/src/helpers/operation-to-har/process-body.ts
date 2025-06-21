@@ -1,7 +1,7 @@
 import type { OperationToHarProps } from '@/helpers/operation-to-har/operation-to-har'
 import type { SchemaObject } from '@scalar/workspace-store/schemas/v3.1/strict/schema'
 import { isReference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
-import type { PostData } from 'har-format'
+import type { Param, PostData } from 'har-format'
 
 type ProcessBodyProps = Pick<OperationToHarProps, 'contentType' | 'operation' | 'example'>
 
@@ -60,14 +60,57 @@ const extractExamplesFromSchema = (schema: ExtendedSchemaObject | undefined, dep
 }
 
 /**
+ * Converts an object to an array of form parameters
+ * @param obj - The object to convert
+ * @returns Array of form parameters with name and value properties
+ */
+const objectToFormParams = (obj: Record<string, unknown>): Param[] => {
+  const params: Param[] = []
+
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined || value === null) {
+      continue
+    }
+
+    // Handle arrays by adding each item with the same key
+    if (Array.isArray(value)) {
+      for (const item of value) {
+        params.push({ name: key, value: String(item) })
+      }
+    }
+    // Handle nested objects by flattening them
+    else if (typeof value === 'object') {
+      const nestedParams = objectToFormParams(value as Record<string, unknown>)
+
+      for (const param of nestedParams) {
+        params.push({ name: `${key}.${param.name}`, value: param.value })
+      }
+    } else {
+      params.push({ name: key, value: String(value) })
+    }
+  }
+
+  return params
+}
+
+/**
  * Processes the request body and returns the processed data
  */
 export const processBody = ({ operation, contentType, example }: ProcessBodyProps): PostData => {
   const content = !operation.requestBody || isReference(operation.requestBody) ? {} : operation.requestBody.content
   const _contentType = contentType || Object.keys(content)[0]
 
+  // Check if this is a form data content type
+  const isFormData = _contentType === 'multipart/form-data' || _contentType === 'application/x-www-form-urlencoded'
+
   // Return the provided top level example
   if (example) {
+    if (isFormData && typeof example === 'object' && example !== null) {
+      return {
+        mimeType: _contentType,
+        params: objectToFormParams(example as Record<string, unknown>),
+      }
+    }
     return {
       mimeType: _contentType,
       text: JSON.stringify(example),
@@ -78,7 +121,14 @@ export const processBody = ({ operation, contentType, example }: ProcessBodyProp
   const contentSchema = content[_contentType]?.schema
   if (contentSchema) {
     const extractedExample = extractExamplesFromSchema(contentSchema as ExtendedSchemaObject)
+
     if (extractedExample !== undefined) {
+      if (isFormData && typeof extractedExample === 'object' && extractedExample !== null) {
+        return {
+          mimeType: _contentType,
+          params: objectToFormParams(extractedExample as Record<string, unknown>),
+        }
+      }
       return {
         mimeType: _contentType,
         text: JSON.stringify(extractedExample),
