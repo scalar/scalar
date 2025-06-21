@@ -28,7 +28,7 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    v-bind="cx('flex flex-col text-base px-3 py-2.5 gap-px')">
+    v-bind="cx('flex flex-col text-base p-3 gap-px')">
     <slot />
   </component>
 </template>
