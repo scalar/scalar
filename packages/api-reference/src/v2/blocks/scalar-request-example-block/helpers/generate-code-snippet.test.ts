@@ -4,6 +4,10 @@ import type { AvailableClients } from '@scalar/snippetz'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 
+// Import the mocked functions
+import { operationToHar as _operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
+import { getSnippet as _getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
+
 // Mock the dependencies
 vi.mock('@scalar/oas-utils/helpers/operation-to-har', () => ({
   operationToHar: vi.fn(),
@@ -12,10 +16,6 @@ vi.mock('@scalar/oas-utils/helpers/operation-to-har', () => ({
 vi.mock('@scalar/api-client/views/Components/CodeSnippet', () => ({
   getSnippet: vi.fn(),
 }))
-
-// Import the mocked functions
-import { operationToHar as _operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
-import { getSnippet as _getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 
 // Cast to Mocks
 const operationToHar = _operationToHar as Mock

@@ -128,6 +128,14 @@ function moveActive(dir: 1 | -1) {
     block: 'nearest',
   })
 }
+
+// Manual autofocus for the input
+const input = ref<HTMLInputElement | null>(null)
+onMounted(() => {
+  setTimeout(() => {
+    input.value?.focus()
+  }, 0)
+})
 </script>
 <template>
   <div class="relative flex">
@@ -135,6 +143,7 @@ function moveActive(dir: 1 | -1) {
       class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3 size-4" />
     <input
       v-model="query"
+      ref="input"
       :aria-activedescendant="active ? getOptionId(active) : undefined"
       aria-autocomplete="list"
       :aria-controls="id"

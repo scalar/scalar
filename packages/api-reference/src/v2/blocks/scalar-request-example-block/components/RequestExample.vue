@@ -253,11 +253,11 @@ const id = useId()
       <template
         #actions
         v-if="!config.hideClientSelector">
-        <!-- TODO: we need to fix the focus scrolling issue OR just use scalarDropdown -->
         <ScalarCombobox
           class="max-h-80"
           :modelValue="localSelectedClient"
           :options="clients"
+          teleport
           placement="bottom-end"
           @update:modelValue="selectClient($event as ClientOption)">
           <ScalarButton
