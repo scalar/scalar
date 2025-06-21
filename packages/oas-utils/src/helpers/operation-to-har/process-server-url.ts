@@ -1,11 +1,11 @@
 import { mergeUrls } from '@scalar/helpers/url/merge-urls'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { replaceVariables } from '@scalar/helpers/regex/replace-variables'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 /**
  * Processes a server URL by replacing variables with their default values and merging with the path
  */
-export const processServerUrl = (server: OpenAPIV3_1.ServerObject, path: string): string => {
+export const processServerUrl = (server: ServerObject, path: string): string => {
   if (!server.url) {
     return path
   }

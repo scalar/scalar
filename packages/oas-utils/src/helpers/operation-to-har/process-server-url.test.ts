@@ -1,11 +1,11 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { processServerUrl } from './process-server-url'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
 
 describe('processServerUrl', () => {
   it('should handle server with no variables', () => {
-    const server: OpenAPIV3_1.ServerObject = {
+    const server: ServerObject = {
       url: 'https://api.example.com',
     }
 
@@ -14,7 +14,7 @@ describe('processServerUrl', () => {
   })
 
   it('should handle server with variables', () => {
-    const server: OpenAPIV3_1.ServerObject = {
+    const server: ServerObject = {
       url: 'https://{environment}.example.com',
       variables: {
         environment: {
@@ -28,7 +28,7 @@ describe('processServerUrl', () => {
   })
 
   it('should handle server with multiple variables', () => {
-    const server: OpenAPIV3_1.ServerObject = {
+    const server: ServerObject = {
       url: 'https://{environment}.{region}.example.com/{version}',
       variables: {
         environment: {
@@ -49,7 +49,7 @@ describe('processServerUrl', () => {
   })
 
   it('should handle server with variables in path', () => {
-    const server: OpenAPIV3_1.ServerObject = {
+    const server: ServerObject = {
       url: 'https://api.example.com/{version}',
       variables: {
         version: {
@@ -63,7 +63,7 @@ describe('processServerUrl', () => {
   })
 
   it('should return path when server url is undefined', () => {
-    const server: OpenAPIV3_1.ServerObject = {}
+    const server = {} as ServerObject
     const result = processServerUrl(server, '/api/users')
     expect(result).toBe('/api/users')
   })

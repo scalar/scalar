@@ -14,7 +14,7 @@ export const ParameterObjectBaseSchema = compose(
      *    - For all other cases, the name corresponds to the parameter name used by the in field. */
     name: Type.String(),
     /** REQUIRED. The location of the parameter. Possible values are "query", "header", "path" or "cookie". */
-    in: Type.String(),
+    in: Type.Union([Type.Literal('query'), Type.Literal('header'), Type.Literal('path'), Type.Literal('cookie')]),
     /** A brief description of the parameter. This could contain examples of use. CommonMark syntax MAY be used for rich text representation. */
     description: Type.Optional(Type.String()),
     /** Determines whether this parameter is mandatory. If the parameter location is "path", this field is REQUIRED and its value MUST be true. Otherwise, the field MAY be included and its default value is false. */
