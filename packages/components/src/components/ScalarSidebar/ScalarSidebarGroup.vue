@@ -52,6 +52,7 @@ const { cx } = useBindCx()
       :open="!!open">
       <ScalarSidebarButton
         is="button"
+        class="group/group-button"
         :aria-expanded="open"
         :indent="level"
         :selected="selected"
@@ -85,7 +86,7 @@ const { cx } = useBindCx()
 @reference "../../style.css";
 
 /* Set the font weight and color of the button when a subitem is selected */
-.group\/item:has(.font-sidebar-active) > .group\/button {
+.group\/item:has(.font-sidebar-active) > .group\/group-button {
   @apply font-sidebar-active text-c-1;
 }
 </style>
