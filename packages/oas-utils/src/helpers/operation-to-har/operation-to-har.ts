@@ -84,14 +84,15 @@ export const operationToHar = ({
 
   // Handle parameters
   if (operation.parameters) {
-    const { url, headers, queryString } = processParameters(harRequest, operation.parameters, example)
+    const { url, headers, queryString, cookies } = processParameters(harRequest, operation.parameters, example)
     harRequest.url = url
     harRequest.headers = headers
     harRequest.queryString = queryString
+    harRequest.cookies = cookies
   }
 
   // Handle request body
-  if (!isReference(operation.requestBody) && operation.requestBody?.content && example) {
+  if (!isReference(operation.requestBody) && operation.requestBody?.content) {
     const postData = processBody({ operation, contentType, example })
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1

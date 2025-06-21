@@ -130,10 +130,6 @@ const operationExamples = computed(() => {
   const contentType = selectedContentType || Object.keys(content)[0]
   const examples = content[contentType]?.examples ?? {}
 
-  console.log({ contentType })
-  console.log(content)
-  console.log(examples)
-
   return examples
 })
 

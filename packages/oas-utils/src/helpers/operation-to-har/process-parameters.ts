@@ -8,6 +8,7 @@ type ProcessedParameters = {
   url: string
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
+  cookies: HarRequest['cookies']
 }
 
 /** Ensures we don't have any references in the parameters */
@@ -51,8 +52,51 @@ export const processParameters = (
 
     // Type guard to check if parameter has style and explode properties
     const hasStyle = 'style' in param
-    const style = hasStyle ? param.style || 'simple' : 'simple'
-    const explode = hasStyle ? (param.explode ?? false) : false
+
+    // Set default styles according to OpenAPI 3.1.1 specification
+    let style: string
+    let explode: boolean
+
+    if (hasStyle && param.style) {
+      style = param.style
+    } else {
+      // Default styles by parameter location
+      switch (param.in) {
+        case 'path':
+          style = 'simple'
+          break
+        case 'query':
+          style = 'form'
+          break
+        case 'header':
+          style = 'simple'
+          break
+        case 'cookie':
+          style = 'form'
+          break
+        default:
+          style = 'simple'
+      }
+    }
+
+    // Set default explode values according to OpenAPI 3.1.1 specification
+    if (hasStyle && param.explode !== undefined) {
+      explode = param.explode
+    } else {
+      // Default explode values by style
+      explode = style === 'form' ? true : false
+    }
+
+    // Validate style restrictions according to OpenAPI 3.1.1 specification
+    if (param.in === 'header' && style !== 'simple') {
+      // Headers only support 'simple' style
+      style = 'simple'
+    }
+
+    if (param.in === 'cookie' && style !== 'form') {
+      // Cookies only support 'form' style
+      style = 'form'
+    }
 
     switch (param.in) {
       case 'path': {
@@ -144,7 +188,98 @@ export const processParameters = (
         break
       }
       case 'header':
-        newHeaders.push({ name: param.name, value: String(paramValue) })
+        // Headers only support 'simple' style according to OpenAPI 3.1.1
+        if (explode) {
+          // Simple explode array: multiple header values
+          if (Array.isArray(paramValue)) {
+            for (const value of paramValue as unknown[]) {
+              newHeaders.push({ name: param.name, value: String(value) })
+            }
+          }
+          // Simple explode object: key=value pairs
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            const values = Object.entries(paramValue as Record<string, unknown>)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(',')
+            newHeaders.push({ name: param.name, value: values })
+          }
+          // Simple explode primitive: single value
+          else {
+            newHeaders.push({ name: param.name, value: String(paramValue) })
+          }
+        }
+        // Simple no explode: all values joined with commas
+        else {
+          // Handle array values without explode
+          if (Array.isArray(paramValue)) {
+            newHeaders.push({ name: param.name, value: (paramValue as unknown[]).join(',') })
+          }
+          // Handle object values without explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            const values = Object.entries(paramValue as Record<string, unknown>)
+              .map(([k, v]) => `${k},${v}`)
+              .join(',')
+            newHeaders.push({ name: param.name, value: values })
+          }
+          // Handle primitive values without explode
+          else {
+            newHeaders.push({ name: param.name, value: String(paramValue) })
+          }
+        }
+        break
+      case 'cookie':
+        // Cookies only support 'form' style according to OpenAPI 3.1.1
+        if (explode) {
+          // Handle array values with explode
+          if (Array.isArray(paramValue)) {
+            for (const value of paramValue as unknown[]) {
+              harRequest.cookies.push({ name: param.name, value: value === null ? 'null' : String(value) })
+            }
+          }
+          // Handle object values with explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            for (const [key, value] of Object.entries(paramValue as Record<string, unknown>)) {
+              harRequest.cookies.push({ name: key, value: value === null ? 'null' : String(value) })
+            }
+          }
+          // Handle primitive values with explode
+          else {
+            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
+          }
+        } else {
+          // Handle array values without explode
+          if (Array.isArray(paramValue)) {
+            const serializedValues = (paramValue as unknown[]).map((v) => (v === null ? 'null' : String(v))).join(',')
+            harRequest.cookies.push({ name: param.name, value: serializedValues })
+          }
+          // Handle object values without explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            // Handle nested objects by recursively flattening them
+            const flattenObject = (obj: Record<string, unknown>): string[] => {
+              const result: string[] = []
+
+              for (const [key, value] of Object.entries(obj)) {
+                // Recursively flatten nested objects
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                  result.push(key, ...flattenObject(value as Record<string, unknown>))
+                }
+                // Handle primitive values
+                else {
+                  result.push(key, value === null ? 'null' : String(value))
+                }
+              }
+
+              return result
+            }
+
+            const values = flattenObject(paramValue as Record<string, unknown>).join(',')
+            harRequest.cookies.push({ name: param.name, value: values })
+          }
+          // Handle primitive values without explode
+          else {
+            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
+          }
+        }
         break
     }
   }
@@ -153,6 +288,7 @@ export const processParameters = (
     url: newUrl,
     headers: newHeaders,
     queryString: newQueryString,
+    cookies: harRequest.cookies,
   }
 }
 

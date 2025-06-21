@@ -29,9 +29,14 @@ export const SchemaObjectSchema = compose(
     /**
      * A free-form field to include an example of an instance for this schema. To represent examples that cannot be naturally represented in JSON or YAML, a string value can be used to contain the example with escaping where necessary.
      *
-     * Deprecated: The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
+     * @deprecated The example field has been deprecated in favor of the JSON Schema examples keyword. Use of example is discouraged, and later versions of this specification may remove it.
      */
     example: Type.Optional(Type.Any()),
+    /**
+     * An array of examples of valid instances for this schema. This keyword follows the JSON Schema Draft 2020-12 specification.
+     * Each example should be a valid instance of the schema.
+     */
+    examples: Type.Optional(Type.Array(Type.Unknown())),
   }),
   ExtensionsSchema,
   SchemaExtensionsSchema,
