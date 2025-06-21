@@ -38,12 +38,6 @@ public class ScalarOptions
     public bool HideModels { get; set; }
 
     /// <summary>
-    /// Gets or sets whether to hide the "Download OpenAPI Specification" button.
-    /// </summary>
-    /// <value>The default value is <c>false</c>.</value>
-    public bool HideDownloadButton { get; set; }
-
-    /// <summary>
     /// Gets or sets whether to hide the "Test Request" button.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
@@ -196,4 +190,10 @@ public class ScalarOptions
     /// When set to <c>true</c>, the authentication state will be stored in the browser's local storage and restored when the user returns to the page.
     /// </remarks>
     public bool PersistentAuthentication { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the type of document download available for the API documentation.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public DocumentDownloadType? DocumentDownloadType { get; set; }
 }

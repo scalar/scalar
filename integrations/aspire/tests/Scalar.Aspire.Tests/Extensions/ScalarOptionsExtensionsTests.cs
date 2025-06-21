@@ -11,7 +11,6 @@ public class ScalarOptionsExtensionsTests
         // Act
         options
             .WithModels(false)
-            .WithDownloadButton(false)
             .WithTestRequestButton(false)
             .WithDarkMode(false)
             .WithSidebar(false)
@@ -37,11 +36,11 @@ public class ScalarOptionsExtensionsTests
             .AddDocuments("v2", "v3")
             .AddDocuments(new ScalarDocument("v4"))
             .WithBaseServerUrl("https://example.com")
+            .WithDocumentDownloadType(DocumentDownloadType.Yaml)
             .WithPersistentAuthentication();
 
         // Assert
         options.HideModels.Should().BeTrue();
-        options.HideDownloadButton.Should().BeTrue();
         options.HideTestRequestButton.Should().BeTrue();
         options.DarkMode.Should().BeFalse();
         options.ShowSidebar.Should().BeFalse();
@@ -68,6 +67,7 @@ public class ScalarOptionsExtensionsTests
         options.Documents.Should().HaveCount(4).And.Contain(x => x.Title == "Version 1");
         options.BaseServerUrl.Should().Be("https://example.com");
         options.PersistentAuthentication.Should().BeTrue();
+        options.DocumentDownloadType.Should().Be(DocumentDownloadType.Yaml);
     }
 
     [Fact]

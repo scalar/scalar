@@ -96,18 +96,6 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
-    /// Sets whether to show the "Download OpenAPI Specification" button.
-    /// </summary>
-    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
-    /// <param name="showDownloadButton">Whether to show the download button.</param>
-    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
-    public static TOptions WithDownloadButton<TOptions>(this TOptions options, bool showDownloadButton = true) where TOptions : ScalarOptions
-    {
-        options.HideDownloadButton = !showDownloadButton;
-        return options;
-    }
-
-    /// <summary>
     /// Sets whether to show the "Test Request" button.
     /// </summary>
     /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
@@ -587,6 +575,18 @@ public static class ScalarOptionsExtensions
     public static TOptions WithPersistentAuthentication<TOptions>(this TOptions options, bool persistAuth = true) where TOptions : ScalarOptions
     {
         options.PersistentAuthentication = persistAuth;
+        return options;
+    }
+    
+    /// <summary>
+    /// Sets the document download type for the Scalar API reference.
+    /// </summary>
+    /// <param name="options">The <see cref="ScalarOptions" /> to configure.</param>
+    /// <param name="documentDownloadType">The document download type to set.</param>
+    /// <returns>The <see cref="ScalarOptions" /> so that additional calls can be chained.</returns>
+    public static TOptions WithDocumentDownloadType<TOptions>(this TOptions options, DocumentDownloadType documentDownloadType) where TOptions : ScalarOptions
+    {
+        options.DocumentDownloadType = documentDownloadType;
         return options;
     }
 }
