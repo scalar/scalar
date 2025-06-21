@@ -1,5 +1,30 @@
 # @scalar/api-reference
 
+## 1.31.18
+
+### Patch Changes
+
+- c907685: fix(api-reference): set search button width
+- cd7e1b1: chore: remove unused fixtures
+- 3abe906: feat: show a console error for invalid documents
+- 42bc960: fix(api-reference): rollback targets to avoid PropertyDefinition in AST
+- 1468280: feat: allow fine gained download button file type control
+- Updated dependencies [c907685]
+- Updated dependencies [b97c82a]
+- Updated dependencies [9f786d5]
+- Updated dependencies [4bbbb32]
+- Updated dependencies [1468280]
+  - @scalar/components@0.14.13
+  - @scalar/workspace-store@0.6.0
+  - @scalar/use-hooks@0.2.3
+  - @scalar/themes@0.13.5
+  - @scalar/types@0.2.4
+  - @scalar/api-client@2.5.12
+  - @scalar/code-highlight@0.1.4
+  - @scalar/oas-utils@0.4.8
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/snippetz@0.3.1
+
 ## 1.31.17
 
 ### Patch Changes
