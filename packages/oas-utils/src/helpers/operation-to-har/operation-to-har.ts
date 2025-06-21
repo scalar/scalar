@@ -96,6 +96,14 @@ export const operationToHar = ({
     const postData = processBody({ operation, contentType, example })
     harRequest.postData = postData
     harRequest.bodySize = postData.text?.length ?? -1
+
+    // Add Content-Type header if not already present
+    if (postData.mimeType && !harRequest.headers.some((header) => header.name.toLowerCase() === 'content-type')) {
+      harRequest.headers.push({
+        name: 'Content-Type',
+        value: postData.mimeType,
+      })
+    }
   }
 
   // Handle security schemes
