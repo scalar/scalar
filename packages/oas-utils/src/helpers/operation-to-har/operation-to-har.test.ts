@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import { operationToHar } from './operation-to-har'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ServerObject } from '@scalar/workspace-store/schemas/v3.1/strict/server'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 describe('operationToHar', () => {
   describe('basic functionality', () => {
     it('should convert a basic operation to HAR format', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -29,7 +31,7 @@ describe('operationToHar', () => {
     it.each(['get', 'post', 'put', 'delete', 'patch'] as HttpMethod[])(
       'should handle %s method correctly',
       (method) => {
-        const operation: OpenAPIV3_1.OperationObject = {
+        const operation: OperationObject = {
           responses: {
             '200': {
               description: 'OK',
@@ -51,7 +53,7 @@ describe('operationToHar', () => {
 
   describe('server configuration', () => {
     it('should include server URL in the final URL', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -59,7 +61,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://api.example.com',
       }
 
@@ -74,7 +76,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -82,7 +84,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -102,7 +104,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with multiple variables', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -110,7 +112,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.{region}.example.com/{version}',
         variables: {
           environment: {
@@ -137,7 +139,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables in path', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         responses: {
           '200': {
             description: 'OK',
@@ -145,7 +147,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://api.example.com/{version}',
         variables: {
           version: {
@@ -165,7 +167,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables and path parameters', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'userId',
@@ -183,7 +185,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -204,7 +206,7 @@ describe('operationToHar', () => {
     })
 
     it('should handle server with variables and query parameters', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         parameters: [
           {
             name: 'filter',
@@ -221,7 +223,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const server: OpenAPIV3_1.ServerObject = {
+      const server: ServerObject = {
         url: 'https://{environment}.example.com',
         variables: {
           environment: {
@@ -245,7 +247,7 @@ describe('operationToHar', () => {
 
   describe('request body handling', () => {
     it('should include request body when provided', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         requestBody: {
           content: {
             'application/json': {
@@ -286,7 +288,7 @@ describe('operationToHar', () => {
 
   describe('security handling', () => {
     it('should include security headers when provided', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         security: [
           {
             apiKey: [],
@@ -299,7 +301,7 @@ describe('operationToHar', () => {
         },
       }
 
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -324,7 +326,7 @@ describe('operationToHar', () => {
 
   describe('data type handling', () => {
     it('should handle various data types in example', () => {
-      const operation: OpenAPIV3_1.OperationObject = {
+      const operation: OperationObject = {
         requestBody: {
           content: {
             'application/json': {
@@ -375,6 +377,551 @@ describe('operationToHar', () => {
       expect(parsed.nullProp).toBeNull()
       expect(parsed.arrayProp).toEqual([1, 2, 3])
       expect(parsed.objectProp).toEqual({ foo: 'bar' })
+    })
+  })
+
+  describe('content type handling', () => {
+    it('should use the first content type when no contentType is specified', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { name: 'John Doe' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/json')
+    })
+
+    it('should use the specified contentType when provided', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        contentType: 'application/xml',
+        example: { name: 'John Doe' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/xml')
+    })
+
+    it('should handle application/x-www-form-urlencoded content type', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                  email: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { name: 'John Doe', email: 'john@example.com' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/x-www-form-urlencoded')
+      expect(result.postData?.params).toEqual([
+        {
+          name: 'name',
+          value: 'John Doe',
+        },
+        {
+          name: 'email',
+          value: 'john@example.com',
+        },
+      ])
+    })
+
+    it('should handle multipart/form-data content type', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  file: { type: 'string', format: 'binary' },
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/upload',
+        example: {
+          file: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+          description: 'Test image',
+        },
+      })
+
+      expect(result.postData?.mimeType).toBe('multipart/form-data')
+      expect(result.postData?.params).toEqual([
+        {
+          name: 'file',
+          value:
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        },
+        {
+          name: 'description',
+          value: 'Test image',
+        },
+      ])
+    })
+
+    it('should handle text/plain content type', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/text',
+        example: 'Hello, World!',
+      })
+
+      expect(result.postData?.mimeType).toBe('text/plain')
+      expect(result.postData?.text).toBe(JSON.stringify('Hello, World!'))
+    })
+
+    it('should handle application/xml content type', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  user: {
+                    type: 'object',
+                    properties: {
+                      name: { type: 'string' },
+                      email: { type: 'string' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { user: { name: 'John Doe', email: 'john@example.com' } },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/xml')
+      expect(result.postData?.text).toBe(JSON.stringify({ user: { name: 'John Doe', email: 'john@example.com' } }))
+    })
+
+    it('should handle custom content types', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/vnd.api+json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  data: {
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string' },
+                      attributes: { type: 'object' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/resources',
+        example: { data: { type: 'users', attributes: { name: 'John' } } },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/vnd.api+json')
+      expect(result.postData?.text).toBe(JSON.stringify({ data: { type: 'users', attributes: { name: 'John' } } }))
+    })
+
+    it('should handle operations with no requestBody', () => {
+      const operation: OperationObject = {
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'get',
+        path: '/api/users',
+      })
+
+      expect(result.postData).toBeUndefined()
+    })
+
+    it('should handle operations with empty content object', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {},
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+      })
+
+      expect(result.postData?.mimeType).toBeUndefined()
+      expect(result.postData?.text).toBe('null')
+    })
+
+    it('should handle contentType parameter with no matching content', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        contentType: 'application/xml',
+        example: { name: 'John Doe' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/xml')
+      expect(result.postData?.text).toBe(JSON.stringify({ name: 'John Doe' }))
+    })
+
+    it('should set Content-Type header when request body is present', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { name: 'John Doe' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/json')
+      expect(result.headers).toContainEqual({
+        name: 'Content-Type',
+        value: 'application/json',
+      })
+    })
+
+    it('should set Content-Type header for different content types', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'application/xml': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { name: 'John Doe' },
+      })
+
+      expect(result.postData?.mimeType).toBe('application/xml')
+      expect(result.headers).toContainEqual({
+        name: 'Content-Type',
+        value: 'application/xml',
+      })
+    })
+
+    it('should not duplicate Content-Type header if it already exists', () => {
+      const operation: OperationObject = {
+        parameters: [
+          {
+            name: 'Content-Type',
+            in: 'header',
+            schema: {
+              type: 'string',
+            },
+          },
+        ],
+        requestBody: {
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/users',
+        example: { name: 'John Doe' },
+      })
+
+      const contentTypeHeaders = result.headers.filter((header) => header.name === 'Content-Type')
+      expect(contentTypeHeaders).toHaveLength(1)
+      expect(contentTypeHeaders[0].value).toBe('application/json')
+    })
+
+    it('should not set Content-Type header when no request body is present', () => {
+      const operation: OperationObject = {
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'get',
+        path: '/api/users',
+      })
+
+      expect(result.postData).toBeUndefined()
+      expect(result.headers).not.toContainEqual(expect.objectContaining({ name: 'Content-Type' }))
+    })
+
+    it('should set Content-Type header for multipart/form-data', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                properties: {
+                  file: { type: 'string', format: 'binary' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/upload',
+        example: { file: 'test-file.txt' },
+      })
+
+      expect(result.postData?.mimeType).toBe('multipart/form-data')
+      expect(result.headers).toContainEqual({
+        name: 'Content-Type',
+        value: 'multipart/form-data',
+      })
+    })
+
+    it('should set Content-Type header for text/plain', () => {
+      const operation: OperationObject = {
+        requestBody: {
+          content: {
+            'text/plain': {
+              schema: {
+                type: 'string',
+              },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'OK',
+          },
+        },
+      }
+
+      const result = operationToHar({
+        operation,
+        method: 'post',
+        path: '/api/text',
+        example: 'Hello, World!',
+      })
+
+      expect(result.postData?.mimeType).toBe('text/plain')
+      expect(result.headers).toContainEqual({
+        name: 'Content-Type',
+        value: 'text/plain',
+      })
     })
   })
 })
