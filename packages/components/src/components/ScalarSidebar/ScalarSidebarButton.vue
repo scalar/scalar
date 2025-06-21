@@ -58,9 +58,9 @@ const { cx } = useBindCx()
     v-bind="cx(variants({ selected, disabled }))">
     <slot name="indent">
       <ScalarSidebarIndent
-        :indent="indent"
-        :selected="selected"
-        :disabled="disabled" />
+        :indent
+        :selected
+        :disabled />
     </slot>
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
