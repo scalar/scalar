@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import {
   ScalarButton,
   ScalarCodeBlock,
@@ -29,6 +28,7 @@ import {
   generateCustomId,
 } from '@/v2/blocks/scalar-request-example-block/helpers/generate-client-options'
 import { generateCodeSnippet } from '@/v2/blocks/scalar-request-example-block/helpers/generate-code-snippet'
+import { getSecrets } from '@/v2/blocks/scalar-request-example-block/helpers/get-secrets'
 import type { ClientOption } from '@/v2/blocks/scalar-request-example-block/types'
 
 type Props = {
@@ -83,7 +83,7 @@ type Props = {
    */
   fallback?: boolean
   /**
-   * A method to generate the label of the block, should return html
+   * A method to generate the label of the block, should return an html string
    */
   generateLabel?: () => string
   /**
@@ -100,11 +100,12 @@ const {
   selectedServer,
   selectedContentType,
   selectedExample,
-  securitySchemes,
+  securitySchemes = [],
   method,
   path,
   operation,
   generateLabel,
+  // TODO: hook this up
   config = {
     hideClientSelector: false,
   },
@@ -201,27 +202,9 @@ const generatedCode = computed<string>(() => {
 })
 
 /**  Block secrets from being shown in the code block */
-const secretCredentials = computed(
-  () => [],
-  // Object.values(securitySchemes).flatMap((scheme) => {
-  //   if (scheme.type === 'apiKey') {
-  //     return scheme.value
-  //   }
-  //   if (scheme?.type === 'http') {
-  //     return [
-  //       scheme.token,
-  //       scheme.password,
-  //       btoa(`${scheme.username}:${scheme.password}`),
-  //     ]
-  //   }
-  //   if (scheme.type === 'oauth2') {
-  //     return Object.values(scheme.flows).map((flow) => flow.token)
-  //   }
+const secretCredentials = computed(() => getSecrets(securitySchemes))
 
-  //   return []
-  // }),
-)
-
+/** Grab the ref to freeze the ui as the clients change so there's no jump as the size of the dom changes */
 const elem = ref<ComponentPublicInstance | null>(null)
 
 /** Set custom example, or update the selected HTTP client globally */

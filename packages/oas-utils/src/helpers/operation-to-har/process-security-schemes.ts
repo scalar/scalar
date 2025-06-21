@@ -1,4 +1,3 @@
-import type { OAuthFlowObject } from '@scalar/workspace-store/schemas/v3.1/strict/oauth-flow'
 import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 import type { Request as HarRequest } from 'har-format'
 
@@ -72,7 +71,7 @@ export const processSecuritySchemes = (securitySchemes: SecuritySchemeObject[]):
 
     // Handle oauth2 type
     if (scheme.type === 'oauth2' && scheme.flows) {
-      const flows = Object.values(scheme.flows) as OAuthFlowObject[]
+      const flows = Object.values(scheme.flows)
 
       // Find the first flow with a token
       const flow = flows.find((f) => f['x-scalar-secret-token'])

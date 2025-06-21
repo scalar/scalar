@@ -5,7 +5,6 @@ import {
   OAuthFlowClientCredentialsSchema,
   OAuthFlowAuthorizationCodeSchema,
 } from './oauth-flow'
-import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
 
 /**
@@ -22,7 +21,6 @@ export const OAuthFlowsObjectSchema = compose(
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0. */
     authorizationCode: Type.Optional(OAuthFlowAuthorizationCodeSchema),
   }),
-  ExtensionsSchema,
 )
 
 export type OAuthFlowsObject = Static<typeof OAuthFlowsObjectSchema>
