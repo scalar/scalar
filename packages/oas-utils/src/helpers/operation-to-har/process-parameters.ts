@@ -20,6 +20,39 @@ export const deReferenceParams = (params: Dereference<OperationObject>['paramete
 }
 
 /**
+ * Get the style and explode values for a parameter according to OpenAPI 3.1.1 specification.
+ * Handles defaults and validation for parameter location restrictions.
+ */
+const getParameterStyleAndExplode = (param: ParameterObject): { style: string; explode: boolean } => {
+  // Headers only support 'simple' style
+  if (param.in === 'header') {
+    const explode = 'explode' in param && param.explode !== undefined ? param.explode : false
+    return { style: 'simple', explode }
+  }
+
+  // Cookies only support 'form' style
+  if (param.in === 'cookie') {
+    const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
+    return { style: 'form', explode }
+  }
+
+  const defaultStyle = {
+    path: 'simple',
+    query: 'form',
+    header: 'simple',
+    cookie: 'form',
+  }[param.in]
+
+  // Use provided style or default based on location
+  const style = 'style' in param && param.style ? param.style : defaultStyle
+
+  // Determine explode value: use provided value or default based on style
+  const explode = 'explode' in param && param.explode !== undefined ? param.explode : style === 'form'
+
+  return { style, explode }
+}
+
+/**
  * Process OpenAPI parameters and return the updated properties.
  * Handles path, query, and header parameters with various styles and explode options.
  *
@@ -50,53 +83,7 @@ export const processParameters = (
       continue
     }
 
-    // Type guard to check if parameter has style and explode properties
-    const hasStyle = 'style' in param
-
-    // Set default styles according to OpenAPI 3.1.1 specification
-    let style: string
-    let explode: boolean
-
-    if (hasStyle && param.style) {
-      style = param.style
-    } else {
-      // Default styles by parameter location
-      switch (param.in) {
-        case 'path':
-          style = 'simple'
-          break
-        case 'query':
-          style = 'form'
-          break
-        case 'header':
-          style = 'simple'
-          break
-        case 'cookie':
-          style = 'form'
-          break
-        default:
-          style = 'simple'
-      }
-    }
-
-    // Set default explode values according to OpenAPI 3.1.1 specification
-    if (hasStyle && param.explode !== undefined) {
-      explode = param.explode
-    } else {
-      // Default explode values by style
-      explode = style === 'form' ? true : false
-    }
-
-    // Validate style restrictions according to OpenAPI 3.1.1 specification
-    if (param.in === 'header' && style !== 'simple') {
-      // Headers only support 'simple' style
-      style = 'simple'
-    }
-
-    if (param.in === 'cookie' && style !== 'form') {
-      // Cookies only support 'form' style
-      style = 'form'
-    }
+    const { style, explode } = getParameterStyleAndExplode(param)
 
     switch (param.in) {
       case 'path': {
