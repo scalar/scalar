@@ -219,6 +219,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@types/har-format": "^1.2.15",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
     "focus-trap": "^7",

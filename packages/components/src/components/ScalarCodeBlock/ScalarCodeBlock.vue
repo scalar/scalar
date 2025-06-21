@@ -5,8 +5,6 @@ import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
-import { ScalarIcon } from '../ScalarIcon'
-
 /**
  * Uses highlight.js for syntax highlighting
  */
