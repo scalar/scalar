@@ -22,7 +22,8 @@
         {
           "name": "Scalar Docs",
           "type": "folder",
-          "icon": "phosphor/regular/brackets-curly",
+          "defaultOpen": false,
+          "icon": "phosphor/regular/book",
           "children": [
             {
               "path": "documentation/guides/docs/getting-started.md",
@@ -38,6 +39,7 @@
         {
           "name": "Scalar SDKs",
           "type": "folder",
+          "defaultOpen": false,
           "icon": "phosphor/regular/package",
           "children": [
             {
@@ -49,6 +51,7 @@
         {
           "name": "Scalar Registry",
           "type": "folder",
+          "defaultOpen": false,
           "icon": "phosphor/regular/seal-check",
           "children": [
             {
@@ -78,6 +81,7 @@
         {
           "name": "Scalar CLI",
           "type": "folder",
+          "defaultOpen": false,
           "icon": "phosphor/regular/terminal",
           "children": [
             {
@@ -93,6 +97,7 @@
         {
           "name": "Scalar API References",
           "type": "folder",
+          "defaultOpen": false,
           "icon": "phosphor/regular/scroll",
           "children": [
             {
@@ -128,6 +133,7 @@
             {
               "name": "Integrations",
               "type": "folder",
+              "defaultOpen": true,
               "icon": "phosphor/regular/plug",
               "children": [{
                   "name": "HTML/JS",

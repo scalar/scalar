@@ -1,7 +1,7 @@
 import { createActiveEntitiesStore, createWorkspaceStore } from '@scalar/api-client/store'
+import { measure } from '@scalar/helpers/testing/measure'
 import { dereference, normalize, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { measure } from '@scalar/helpers/testing/measure'
 import { type ApiReferenceConfiguration, apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { type MaybeRefOrGetter, type Ref, computed, ref, toValue, watch } from 'vue'
 
@@ -68,6 +68,11 @@ export function useDocumentSource({
 
       // Make it an object
       const content = normalize(newDocument) as OpenAPI.Document
+
+      if (content === undefined) {
+        console.error('Failed to parse the OpenAPI document:', newDocument)
+        return
+      }
 
       // Original OpenAPI version (not the one after the upgrade)
       originalOpenApiVersion.value = (typeof content === 'object' && (content.openapi || content.swagger)) || ''

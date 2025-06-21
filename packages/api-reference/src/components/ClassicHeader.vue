@@ -2,7 +2,9 @@
 <template>
   <div class="references-classic-header-container">
     <div class="references-classic-header">
-      <slot />
+      <div class="references-classic-header-content">
+        <slot />
+      </div>
       <slot name="dark-mode-toggle" />
     </div>
   </div>
@@ -11,13 +13,18 @@
 .references-classic-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
 
   max-width: var(--refs-content-max-width);
   margin: auto;
   padding: 12px 0;
 }
+.references-classic-header-content {
+  display: flex;
+  gap: 12px;
+  flex-grow: 1;
+}
+
 .references-classic-header-container {
   padding: 0 60px;
 }

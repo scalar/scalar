@@ -11,7 +11,7 @@ Create a new store in SSR mode
 
 ```ts
 // Create the store
-const store = createServerWorkspaceStore({
+const store = await createServerWorkspaceStore({
   baseUrl: 'example.com',
   mode: 'ssr',
   meta: { 'x-scalar-active-document': 'document-name' },
@@ -44,7 +44,7 @@ const store = createServerWorkspaceStore({
 })
 
 // Add a new document to the store
-store.addDocument({
+await store.addDocument({
   openapi: '3.1.1',
   info: {
     title: 'Hello World',
@@ -82,7 +82,7 @@ Create a new store in static mode
 
 ```ts
 // Create the store
-const store = createServerWorkspaceStore({
+const store = await createServerWorkspaceStore({
   directory: 'assets',
   mode: 'static',
   meta: { 'x-scalar-active-document': 'document-name' },
@@ -115,7 +115,7 @@ const store = createServerWorkspaceStore({
 })
 
 // Add a new document to the store
-store.addDocument({
+await store.addDocument({
   openapi: '3.1.1',
   info: {
     title: 'Hello World',
@@ -145,6 +145,30 @@ store.addDocument({
 const workspace = await store.generateWorkspaceChunks()
 ```
 
+### Load documents from external sources
+```ts
+// Initialize the store with documents from external sources
+const store = await createServerWorkspaceStore({
+  mode: 'static',
+  documents: [
+    {
+      name: 'remoteFile',
+      url: 'http://localhost/document.json'
+    },
+    {
+      name: 'fsFile',
+      path: './document.json'
+    }
+  ]
+})
+
+// Output: { openapi: 'x.x.x', ... }
+console.log(store.getWorkspace().documents.remoteFile)
+
+// Output: { openapi: 'x.x.x', ... }
+console.log(store.getWorkspace().documents.fsFile)
+```
+
 ## Client-Side Workspace Store
 
 A reactive workspace store for managing OpenAPI documents with automatic reference resolution and chunked loading capabilities. Works seamlessly with server-side stores to handle large documents efficiently.
@@ -154,7 +178,7 @@ A reactive workspace store for managing OpenAPI documents with automatic referen
 ```ts
 
 // Initialize a new workspace store with default document
-const store = await createWorkspaceStore({
+const store = createWorkspaceStore({
   documents: [
     {
       name: 'default',
@@ -172,7 +196,7 @@ const store = await createWorkspaceStore({
 })
 
 // Add another OpenAPI document to the workspace
-store.addDocument({
+store.addDocumentSync({
   document: {
     info: {
       title: 'OpenApi document',
@@ -196,4 +220,21 @@ store.updateDocument('active', "x-scalar-active-auth", '<value>')
 
 // Resolve and load document chunks including any $ref references
 await store.resolve(['paths', '/users', 'get'])
+```
+
+#### Load documents from external sources
+
+You can only initialize the store with object literals but if you want to add documents from external sources you can use the addDocument function
+
+```ts
+const store = createWorkspaceStore()
+
+// Load a document into the store from a remote url
+await store.addDocument({
+  name: 'default',
+  url: 'http://localhost/document.json'
+})
+
+// Output: { openapi: 'x.x.x', ... }
+console.log(store.workspace.documents.default)
 ```

@@ -15,7 +15,6 @@ describe('traverseDocument', () => {
     layout: 'modern',
     isEditable: false,
     isLoading: false,
-    hideDownloadButton: false,
     hideTestRequestButton: false,
     hideSearch: false,
     hideDarkModeToggle: false,
@@ -23,6 +22,8 @@ describe('traverseDocument', () => {
     operationsSorter: 'alpha',
     withDefaultFonts: true,
     defaultOpenAllTags: false,
+    documentDownloadType: 'both',
+    hideDownloadButton: false,
   })
 
   const mockOptions: TraverseSpecOptions = {

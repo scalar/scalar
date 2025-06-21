@@ -458,12 +458,12 @@ watch(hash, (newHash, oldHash) => {
               <ClassicHeader v-if="configuration.layout === 'classic'">
                 <div
                   v-if="$slots['document-selector']"
-                  class="w-64 empty:hidden">
+                  class="w-64 *:!p-0 empty:hidden">
                   <slot name="document-selector" />
                 </div>
                 <SearchButton
                   v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar"
+                  class="t-doc__sidebar max-w-64"
                   :searchHotKey="configuration.searchHotKey"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>

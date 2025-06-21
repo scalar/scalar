@@ -15,7 +15,7 @@ public class ScalarOptionsMapperTests
         configuration.ProxyUrl.Should().BeNull();
         configuration.ShowSidebar.Should().BeTrue();
         configuration.HideModels.Should().BeFalse();
-        configuration.HideDownloadButton.Should().BeFalse();
+        configuration.DocumentDownloadType.Should().BeNull();
         configuration.HideTestRequestButton.Should().BeFalse();
         configuration.DarkMode.Should().BeTrue();
         configuration.ForceDarkModeState.Should().BeNull();
@@ -47,7 +47,6 @@ public class ScalarOptionsMapperTests
             ProxyUrl = "http://localhost:8080",
             ShowSidebar = false,
             HideModels = true,
-            HideDownloadButton = true,
             HideTestRequestButton = true,
             DarkMode = false,
             ForceThemeMode = ThemeMode.Light,
@@ -60,9 +59,10 @@ public class ScalarOptionsMapperTests
             Metadata = new Dictionary<string, string> { ["key"] = "value" },
             DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient),
             HiddenClients = true,
+#pragma warning disable CS0618 // Type or member is obsolete
+            HideDownloadButton = true,
             Authentication = new ScalarAuthenticationOptions
             {
-#pragma warning disable CS0618 // Type or member is obsolete
                 PreferredSecurityScheme = "my-scheme",
                 ApiKey = new ApiKeyOptions
                 {
@@ -87,7 +87,7 @@ public class ScalarOptionsMapperTests
         configuration.ProxyUrl.Should().Be("http://localhost:8080");
         configuration.ShowSidebar.Should().BeFalse();
         configuration.HideModels.Should().BeTrue();
-        configuration.HideDownloadButton.Should().BeTrue();
+        configuration.DocumentDownloadType.Should().Be("none");
         configuration.HideTestRequestButton.Should().BeTrue();
         configuration.DarkMode.Should().BeFalse();
         configuration.HideDarkModeToggle.Should().BeTrue();
