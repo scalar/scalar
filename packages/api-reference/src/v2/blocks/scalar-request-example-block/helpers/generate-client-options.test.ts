@@ -36,7 +36,7 @@ describe('generateClientOptions', () => {
 
       const curlOption = shellGroup?.options.find((option) => option.id === 'shell/curl')
       expect(curlOption).toBeDefined()
-      expect(curlOption?.lang).toBe('shell')
+      expect(curlOption?.lang).toBe('curl')
     })
 
     it('should call snippetz clients function', async () => {
