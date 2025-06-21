@@ -49,5 +49,6 @@ export const generateCodeSnippet = ({
   if (error) {
     return error.message ?? 'Error generating code snippet'
   }
+
   return payload
 }

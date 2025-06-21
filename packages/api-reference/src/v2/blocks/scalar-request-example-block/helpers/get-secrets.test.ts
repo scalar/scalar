@@ -30,8 +30,7 @@ describe('getSecrets', () => {
       ]
 
       const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual([undefined])
+      expect(result).toEqual([])
     })
 
     it('should handle multiple apiKey schemes', () => {
@@ -111,9 +110,6 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        undefined,
-        undefined,
-        undefined,
         'dW5kZWZpbmVkOnVuZGVmaW5lZA==', // base64 encoded "undefined:undefined"
       ])
     })
@@ -130,9 +126,7 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        undefined,
         'partialuser',
-        undefined,
         'cGFydGlhbHVzZXI6dW5kZWZpbmVk', // base64 encoded "partialuser:undefined"
       ])
     })
@@ -204,8 +198,7 @@ describe('getSecrets', () => {
       ]
 
       const result = getSecrets(securitySchemes)
-
-      expect(result).toEqual([undefined])
+      expect(result).toEqual([])
     })
 
     it('should handle oauth2 scheme with empty flows object', () => {
@@ -304,18 +297,15 @@ describe('getSecrets', () => {
         {
           type: 'http',
           scheme: 'basic',
-          'x-scalar-secret-token': null as any,
-          'x-scalar-secret-username': null as any,
-          'x-scalar-secret-password': null as any,
+          'x-scalar-secret-token': null,
+          'x-scalar-secret-username': null,
+          'x-scalar-secret-password': null,
         },
       ]
 
       const result = getSecrets(securitySchemes)
 
       expect(result).toEqual([
-        null,
-        null,
-        null,
         'bnVsbDpudWxs', // base64 encoded "null:null"
       ])
     })
@@ -337,7 +327,7 @@ describe('getSecrets', () => {
         '',
         '',
         '',
-        'Ojo=', // base64 encoded ":"
+        'Og==', // base64 encoded ":"
       ])
     })
   })
@@ -356,10 +346,10 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       // Verify the base64 encoded value is correct
-      expect(result[3]).toBe('YWRtaW46c2VjcmV0MTIz') // base64 encoded "admin:secret123"
+      expect(result[2]).toBe('YWRtaW46c2VjcmV0MTIz') // base64 encoded "admin:secret123"
 
       // Verify we can decode it back
-      const decoded = atob(result[3] as string)
+      const decoded = atob(result[2])
       expect(decoded).toBe('admin:secret123')
     })
 
@@ -376,10 +366,10 @@ describe('getSecrets', () => {
       const result = getSecrets(securitySchemes)
 
       // Verify the base64 encoded value is correct
-      expect(result[3]).toBe('dXNlckBkb21haW4uY29tOnBhc3M6d29yZCE=') // base64 encoded "user@domain.com:pass:word!"
+      expect(result[2]).toBe('dXNlckBkb21haW4uY29tOnBhc3M6d29yZCE=') // base64 encoded "user@domain.com:pass:word!"
 
       // Verify we can decode it back
-      const decoded = atob(result[3] as string)
+      const decoded = atob(result[2])
       expect(decoded).toBe('user@domain.com:pass:word!')
     })
   })

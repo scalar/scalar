@@ -105,7 +105,6 @@ const {
   path,
   operation,
   generateLabel,
-  // TODO: hook this up
   config = {
     hideClientSelector: false,
   },
@@ -251,7 +250,9 @@ const id = useId()
       </div>
 
       <!-- Client picker -->
-      <template #actions>
+      <template
+        #actions
+        v-if="!config.hideClientSelector">
         <!-- TODO: we need to fix the focus scrolling issue OR just use scalarDropdown -->
         <ScalarCombobox
           class="max-h-80"
@@ -281,7 +282,6 @@ const id = useId()
         <ScalarCodeBlock
           class="bg-b-2 -outline-offset-2"
           :content="generatedCode"
-          :hideCredentials="secretCredentials"
           :lang="localSelectedClient.lang"
           lineNumbers />
       </div>
