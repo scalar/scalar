@@ -1,12 +1,12 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, it, expect } from 'vitest'
 
 import { processSecuritySchemes } from './process-security-schemes'
+import type { SecuritySchemeObject } from '@scalar/workspace-store/schemas/v3.1/strict/security-scheme'
 
 describe('process-security-schemes', () => {
   describe('apiKey security scheme', () => {
     it('processes apiKey in header', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -26,7 +26,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes apiKey in query', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'api_key',
@@ -46,7 +46,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes apiKey in cookie', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'session',
@@ -68,7 +68,7 @@ describe('process-security-schemes', () => {
 
   describe('http security scheme', () => {
     it('processes basic auth', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'http',
           scheme: 'basic',
@@ -88,7 +88,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes bearer auth', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'http',
           scheme: 'bearer',
@@ -109,7 +109,7 @@ describe('process-security-schemes', () => {
 
   describe('oauth2 security scheme', () => {
     it('processes oauth2 with client credentials flow', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'oauth2',
           flows: {
@@ -136,7 +136,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with password flow', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'oauth2',
           flows: {
@@ -163,7 +163,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with implicit flow', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'oauth2',
           flows: {
@@ -190,7 +190,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with authorization code flow', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'oauth2',
           flows: {
@@ -218,7 +218,7 @@ describe('process-security-schemes', () => {
     })
 
     it('processes oauth2 with multiple flows', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'oauth2',
           flows: {
@@ -250,31 +250,11 @@ describe('process-security-schemes', () => {
         },
       ])
     })
-
-    it('handles oauth2 without token', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
-        {
-          type: 'oauth2',
-          flows: {
-            clientCredentials: {
-              tokenUrl: 'https://oauth.example.com/token',
-              scopes: {
-                'read:users': 'Read user data',
-              },
-            },
-          },
-        },
-      ]
-
-      const result = processSecuritySchemes(securitySchemes)
-
-      expect(result.headers).toHaveLength(0)
-    })
   })
 
   describe('multiple security schemes', () => {
     it('processes multiple security schemes', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
@@ -303,9 +283,9 @@ describe('process-security-schemes', () => {
     })
   })
 
-  describe('edge cases', () => {
+  describe('empty schemes', () => {
     it('handles empty security schemes array', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = []
+      const securitySchemes: SecuritySchemeObject[] = []
 
       const result = processSecuritySchemes(securitySchemes)
 
@@ -314,20 +294,69 @@ describe('process-security-schemes', () => {
       expect(result.cookies).toHaveLength(0)
     })
 
-    it('handles security scheme without x-scalar-secret properties', () => {
-      const securitySchemes: OpenAPIV3_1.SecuritySchemeObject[] = [
+    it('handles apiKeys without x-scalar-secrets', () => {
+      const securitySchemes: SecuritySchemeObject[] = [
         {
           type: 'apiKey',
           name: 'X-API-Key',
           in: 'header',
         },
+        {
+          type: 'apiKey',
+          name: 'api-key',
+          in: 'query',
+        },
+        {
+          type: 'apiKey',
+          name: 'session',
+          in: 'cookie',
+        },
       ]
 
       const result = processSecuritySchemes(securitySchemes)
 
-      expect(result.headers).toHaveLength(0)
-      expect(result.queryString).toHaveLength(0)
-      expect(result.cookies).toHaveLength(0)
+      expect(result.headers).toEqual([{ name: 'X-API-Key', value: 'YOUR_SECRET_TOKEN' }])
+      expect(result.queryString).toEqual([{ name: 'api-key', value: 'YOUR_SECRET_TOKEN' }])
+      expect(result.cookies).toEqual([{ name: 'session', value: 'YOUR_SECRET_TOKEN' }])
+    })
+
+    it('handles http auth without x-scalar-secrets', () => {
+      const securitySchemes: SecuritySchemeObject[] = [
+        {
+          type: 'http',
+          scheme: 'basic',
+        },
+        {
+          type: 'http',
+          scheme: 'bearer',
+        },
+      ]
+
+      const result = processSecuritySchemes(securitySchemes)
+
+      expect(result.headers).toEqual([
+        { name: 'Authorization', value: 'Basic username:password' },
+        { name: 'Authorization', value: 'Bearer YOUR_SECRET_TOKEN' },
+      ])
+    })
+
+    it('handles oauth2 without token', () => {
+      const securitySchemes: SecuritySchemeObject[] = [
+        {
+          type: 'oauth2',
+          flows: {
+            clientCredentials: {
+              tokenUrl: 'https://oauth.example.com/token',
+              scopes: {
+                'read:users': 'Read user data',
+              },
+            },
+          },
+        },
+      ]
+
+      const result = processSecuritySchemes(securitySchemes)
+      expect(result.headers).toEqual([{ name: 'Authorization', value: 'Bearer YOUR_SECRET_TOKEN' }])
     })
   })
 })

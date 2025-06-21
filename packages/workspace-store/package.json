@@ -43,6 +43,16 @@
       "types": "./dist/schemas.d.ts",
       "default": "./dist/schemas.js"
     },
+    "./schemas/v3.1/*": {
+      "import": "./dist/schemas/v3.1/*.js",
+      "types": "./dist/schemas/v3.1/*.d.ts",
+      "default": "./dist/schemas/v3.1/*.js"
+    },
+    "./schemas/v3.1/strict/*": {
+      "import": "./dist/schemas/v3.1/strict/*.js",
+      "types": "./dist/schemas/v3.1/strict/*.d.ts",
+      "default": "./dist/schemas/v3.1/strict/*.js"
+    },
     "./server": {
       "import": "./dist/server.js",
       "types": "./dist/server.d.ts",
