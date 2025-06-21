@@ -1,3 +1,5 @@
+import type { Component } from 'vue'
+
 /**
  * The weight of the icon.
  *
@@ -22,3 +24,10 @@ export type ScalarIconProps = {
    */
   weight?: ScalarIconWeight
 }
+
+/**
+ * A ScalarIcon* component
+ *
+ * Useful for when you want to pass a ScalarIcon component as prop
+ */
+export type ScalarIconComponent = Component<ScalarIconProps>

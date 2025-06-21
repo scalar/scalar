@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
@@ -9,7 +10,7 @@ import { ScalarMenuLink } from './'
 const { is = 'a' } = defineProps<{
   is?: string | Component
   selected?: boolean
-  icon: Icon | Component
+  icon: Icon | ScalarIconComponent
 }>()
 
 defineOptions({ inheritAttrs: false })

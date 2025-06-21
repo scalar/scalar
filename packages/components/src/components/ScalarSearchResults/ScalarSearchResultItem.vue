@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import type { Component } from 'vue'
 
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 defineProps<{
-  icon?: Icon | Component
+  icon?: Icon | ScalarIconComponent
   selected?: boolean
 }>()
 

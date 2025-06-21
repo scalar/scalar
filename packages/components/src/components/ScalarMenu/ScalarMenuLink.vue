@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import { DropdownMenu } from 'radix-vue/namespaced'
 import type { Component } from 'vue'
 
@@ -7,7 +8,7 @@ import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
 
 const { is = DropdownMenu.Item } = defineProps<{
   is?: string | Component
-  icon?: Icon | Component
+  icon?: Icon | ScalarIconComponent
   strong?: boolean
 }>()
 </script>
