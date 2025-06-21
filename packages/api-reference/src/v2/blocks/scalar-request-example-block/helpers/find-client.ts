@@ -39,7 +39,7 @@ export const findClient = (
   clientGroups: ClientOptionGroup[],
   clientId?: AvailableClients[number] | undefined,
 ): ClientOption => {
-  const firstOption = clientGroups[0].options[0]
+  const firstOption = clientGroups[0]?.options[0]
 
   // Client ID is passed in
   if (clientId) {
