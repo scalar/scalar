@@ -490,7 +490,16 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('application/x-www-form-urlencoded')
-      expect(result.postData?.text).toBe(JSON.stringify({ name: 'John Doe', email: 'john@example.com' }))
+      expect(result.postData?.params).toEqual([
+        {
+          name: 'name',
+          value: 'John Doe',
+        },
+        {
+          name: 'email',
+          value: 'john@example.com',
+        },
+      ])
     })
 
     it('should handle multipart/form-data content type', () => {
@@ -526,12 +535,17 @@ describe('operationToHar', () => {
       })
 
       expect(result.postData?.mimeType).toBe('multipart/form-data')
-      expect(result.postData?.text).toBe(
-        JSON.stringify({
-          file: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-          description: 'Test image',
-        }),
-      )
+      expect(result.postData?.params).toEqual([
+        {
+          name: 'file',
+          value:
+            'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
+        },
+        {
+          name: 'description',
+          value: 'Test image',
+        },
+      ])
     })
 
     it('should handle text/plain content type', () => {
