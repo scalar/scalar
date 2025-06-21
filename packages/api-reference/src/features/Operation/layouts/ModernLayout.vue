@@ -122,25 +122,6 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="examples">
             <ScalarErrorBoundary>
-              <RequestExample
-                :method="transformedOperation.httpVerb"
-                :path="transformedOperation.path"
-                fallback
-                :operation="transformedOperation.information"
-                :selectedServer="server">
-                <template #header>
-                  <OperationPath
-                    class="example-path"
-                    :deprecated="transformedOperation.information.deprecated"
-                    :path="transformedOperation.path" />
-                </template>
-                <template
-                  #footer
-                  v-if="request">
-                  <TestRequestButton :operation="request" />
-                </template>
-              </RequestExample>
-
               <ExampleRequest
                 :request="request"
                 :method="transformedOperation.httpVerb"

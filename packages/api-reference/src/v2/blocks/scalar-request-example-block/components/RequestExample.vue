@@ -282,6 +282,7 @@ const id = useId()
         <ScalarCodeBlock
           class="bg-b-2 -outline-offset-2"
           :content="generatedCode"
+          :hideCredentials="secretCredentials"
           :lang="localSelectedClient.lang"
           lineNumbers />
       </div>

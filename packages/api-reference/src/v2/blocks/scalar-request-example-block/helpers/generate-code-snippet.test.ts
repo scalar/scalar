@@ -48,7 +48,7 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([null, "fetch('/users/123')"])
 
       const result = generateCodeSnippet({
-        clientId: 'js/fetch' as AvailableClients[number],
+        clientId: 'js/fetch',
         operation: mockOperation,
         method: 'get',
         path: '/users/{userId}',
@@ -70,7 +70,7 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([{ message: 'Failed to generate snippet' }, null])
 
       const result = generateCodeSnippet({
-        clientId: 'js/fetch' as AvailableClients[number],
+        clientId: 'js/fetch',
         operation: mockOperation,
         method: 'get',
         path: '/users',
@@ -92,7 +92,7 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([{}, null])
 
       const result = generateCodeSnippet({
-        clientId: 'js/fetch' as AvailableClients[number],
+        clientId: 'js/fetch',
         operation: mockOperation,
         method: 'get',
         path: '/users',
@@ -114,7 +114,7 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([null, 'snippet'])
 
       generateCodeSnippet({
-        clientId: 'python/requests' as AvailableClients[number],
+        clientId: 'python/requests',
         operation: mockOperation,
         method: 'post',
         path: '/users',
@@ -147,7 +147,7 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([null, 'snippet'])
 
       generateCodeSnippet({
-        clientId: 'node/axios' as AvailableClients[number],
+        clientId: 'node/axios',
         operation: mockOperation,
         method: 'get',
         path: '/users',
@@ -171,13 +171,13 @@ describe('generate-code-snippet', () => {
       getSnippet.mockReturnValue([null, 'snippet'])
 
       const testCases: Array<{ input: AvailableClients[number]; expectedTarget: string; expectedClient: string }> = [
-        { input: 'js/fetch' as AvailableClients[number], expectedTarget: 'js', expectedClient: 'fetch' },
-        { input: 'python/requests' as AvailableClients[number], expectedTarget: 'python', expectedClient: 'requests' },
-        { input: 'node/axios' as AvailableClients[number], expectedTarget: 'node', expectedClient: 'axios' },
-        { input: 'shell/curl' as AvailableClients[number], expectedTarget: 'shell', expectedClient: 'curl' },
+        { input: 'js/fetch', expectedTarget: 'js', expectedClient: 'fetch' },
+        { input: 'python/requests', expectedTarget: 'python', expectedClient: 'requests' },
+        { input: 'node/axios', expectedTarget: 'node', expectedClient: 'axios' },
+        { input: 'shell/curl', expectedTarget: 'shell', expectedClient: 'curl' },
       ]
 
-      testCases.forEach(({ input, expectedTarget, expectedClient }) => {
+      testCases.forEach(({ input }) => {
         const result = generateCodeSnippet({
           clientId: input,
           operation: mockOperation,
@@ -202,13 +202,7 @@ describe('generate-code-snippet', () => {
 
       getSnippet.mockReturnValue([null, 'snippet'])
 
-      const clientTypes: AvailableClients[number][] = [
-        'js/fetch',
-        'js/axios',
-        'python/requests',
-        'node/fetch',
-        'shell/curl',
-      ] as AvailableClients[number][]
+      const clientTypes = ['js/fetch', 'js/axios', 'python/requests', 'node/fetch', 'shell/curl'] as const
 
       clientTypes.forEach((clientId) => {
         expect(() => {
