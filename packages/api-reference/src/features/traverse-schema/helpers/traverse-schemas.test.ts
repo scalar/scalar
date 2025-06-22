@@ -418,4 +418,61 @@ describe('traverseSchemas', () => {
       })
     })
   })
+
+  describe('title assignment', () => {
+    it('should use schema.title when provided', () => {
+      const content: OpenAPIV3_1.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            User: {
+              type: 'object',
+              title: 'User Profile',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].title).toBe('User Profile')
+      expect(result[0].name).toBe('User')
+    })
+
+    it('should fall back to name when schema.title is not provided', () => {
+      const content: OpenAPIV3_1.Document = {
+        openapi: '3.1.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
+        },
+        components: {
+          schemas: {
+            Product: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                price: { type: 'number' },
+              },
+            },
+          },
+        },
+      }
+
+      const result = traverseSchemas(content, mockTagsMap, mockTitlesMap, mockGetModelId)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].title).toBe('Product')
+      expect(result[0].name).toBe('Product')
+    })
+  })
 })
