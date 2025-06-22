@@ -13,10 +13,10 @@ const createModelEntry = (
 ): TraversedSchema => {
   const id = getModelId({ name }, tag)
   titlesMap.set(id, name)
-
+  const title = schema.title ?? name
   return {
     id,
-    title: name,
+    title,
     name,
     schema,
   }
