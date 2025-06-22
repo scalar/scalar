@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <Title>Scalar.Aspire</Title>
+    <Description>This package provides an easy way to create a unified API reference for all your .NET Aspire services based on their OpenAPI/Swagger documents.</Description>
     <Authors>Scalar</Authors>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/scalar/scalar</RepositoryUrl>
