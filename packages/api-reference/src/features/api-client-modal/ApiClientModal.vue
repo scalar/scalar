@@ -6,6 +6,7 @@ import {
 } from '@scalar/api-client/views/Request/libs'
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ApiClientPlugin } from '@scalar/types/api-client'
 import type { ApiClientConfiguration } from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
@@ -30,10 +31,30 @@ const activeEntities = useActiveEntities()
 const store = useWorkspace()
 const { isIntersectionEnabled } = useNavState()
 
+const OnBeforeRequestPlugin = (): ApiClientPlugin => {
+  return () => {
+    return {
+      name: 'on-before-request',
+      hooks: {
+        async onBeforeRequest() {
+          console.log('onBeforeRequest!!')
+        },
+      },
+    }
+  }
+}
+
 onMounted(() => {
   if (!el.value) {
     return
   }
+
+  // TODO: Only if the hook is configured in the api-reference configuration
+  const addOnBeforeRequestPlugin = true
+
+  configuration.plugins = addOnBeforeRequestPlugin
+    ? [OnBeforeRequestPlugin()]
+    : []
 
   // Initialize the client
   init({
