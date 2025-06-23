@@ -1,7 +1,10 @@
 import type { ICONS } from '../icons'
 import type { LOGOS } from '../logos'
 
+/** @deprecated Use the icons from the `@scalar/icons` package instead. */
 export type Icon = (typeof ICONS)[number]
+
+/** @deprecated Use the icons from the `@scalar/icons` package instead. */
 export type Logo = (typeof LOGOS)[number]
 
 const icons = import.meta.glob<SVGElement>('../icons/*.svg', {

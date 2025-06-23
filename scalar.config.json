@@ -142,7 +142,13 @@
                   "type": "page"
                 },
                 {
-                  "name": ".NET",
+                  "name": ".NET Aspire",
+                  "slug": "aspire",
+                  "path": "documentation/integrations/aspire.md",
+                  "type": "page"
+                },
+                {
+                  "name": ".NET ASP.NET Core",
                   "slug": "dotnet",
                   "path": "documentation/integrations/dotnet.md",
                   "type": "page"

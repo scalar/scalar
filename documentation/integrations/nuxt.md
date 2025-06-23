@@ -50,7 +50,6 @@ export default defineNuxtConfig({
   scalar: {
     darkMode: true,
     hideModels: false,
-    hideDownloadButton: false,
     metaData: {
       title: 'API Documentation by Scalar',
     },

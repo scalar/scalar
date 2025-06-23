@@ -11,6 +11,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { ScalarIconCaretRight } from '@scalar/icons'
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import { cva } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
@@ -27,7 +28,7 @@ const {
   /** Whether or not the toggle is open */
   open?: boolean
   /** Overrides the icon */
-  icon?: Icon | Component
+  icon?: Icon | ScalarIconComponent
 }>()
 
 defineSlots<{

@@ -59,7 +59,6 @@ export default defineConfig({
         max_line_len: 80,
       },
     },
-    target: ['chrome90', 'edge90', 'firefox90', 'safari15'],
     lib: {
       entry: ['src/standalone.ts'],
       name: '@scalar/api-reference',

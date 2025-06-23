@@ -609,6 +609,50 @@ jobs:
         working-directory: integrations/aspnetcore
         run: dotnet test -c Release --no-build
 
+  aspire-build-test:
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    needs: [build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: 22
+          packages: '@scalar/api-reference...'
+
+      - name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: integrations/aspire
+        run: pnpm copy:standalone
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
+        with:
+          dotnet-version: |
+            9.x
+            8.x
+
+      - name: Restore dependencies
+        working-directory: integrations/aspire
+        run: dotnet restore
+
+      - name: Build solution
+        working-directory: integrations/aspire
+        run: dotnet build -c Release --no-restore
+
+      - name: Test solution
+        working-directory: integrations/aspire
+        run: dotnet test -c Release --no-build
+
+      - name: Build Aspire Docker image
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
+        with:
+          context: integrations/aspire
+          file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
+          tags: scalarapi/aspire-api-reference:latest
+
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
     runs-on: blacksmith-2vcpu-ubuntu-2204
@@ -694,4 +738,107 @@ jobs:
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Publish packages
         working-directory: integrations/aspnetcore
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
+
+  aspire-publish:
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+    runs-on: blacksmith-2vcpu-ubuntu-2204
+    timeout-minutes: 10
+    concurrency:
+      group: aspire-publish
+      cancel-in-progress: false
+    needs:
+      [
+        harden_security,
+        build,
+        format,
+        types,
+        test-packages,
+        test-integrations,
+        aspire-build-test,
+      ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - name: Check for Aspire package.json changes
+        id: changed-files
+        uses: step-security/changed-files@3dbe17c78367e7d60f00d78ae6781a35be47b4a1
+        with:
+          files_yaml: |
+            aspire_package:
+              - integrations/aspire/package.json
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: integrations/aspire
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build-blacksmith
+        with:
+          node-version: 22
+          packages: '@scalar/api-reference...'
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: integrations/aspire
+        run: pnpm copy:standalone
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Log in to DockerHub
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Build and push Aspire Docker image
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
+        with:
+          context: integrations/aspire
+          file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
+          push: true
+          tags: |
+            scalarapi/aspire-api-reference:latest
+            scalarapi/aspire-api-reference:${{ env.VERSION }}
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Set version in Constants.cs
+        working-directory: integrations/aspire
+        run: |
+          sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
+          cat src/Scalar.Aspire/Constants.cs
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Setup .NET
+        uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
+        with:
+          dotnet-version: |
+            9.x
+            8.x
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Restore dependencies
+        working-directory: integrations/aspire/src/Scalar.Aspire
+        run: dotnet restore
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Pack Scalar.Aspire NuGet package
+        working-directory: integrations/aspire/src/Scalar.Aspire
+        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
+
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Publish Scalar.Aspire NuGet package
+        working-directory: integrations/aspire/src/Scalar.Aspire
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json

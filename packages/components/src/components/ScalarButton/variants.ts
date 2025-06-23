@@ -2,7 +2,7 @@ import type { VariantProps } from 'cva'
 
 import { cva } from '@scalar/use-hooks/useBindCx'
 
-export const styles: Record<string, Record<string, any>> = {
+export const styles = {
   solid: [
     'scalar-button-solid',
     'bg-b-btn text-c-btn shadow-sm focus-visible:border-c-btn active:bg-b-btn active:shadow-none hover:bg-h-btn outline-offset-1',
@@ -13,7 +13,7 @@ export const styles: Record<string, Record<string, any>> = {
   ],
   ghost: ['scalar-button-ghost', 'bg-transparent text-c-3 active:text-c-1 hover:text-c-1'],
   danger: ['scalar-button-danger', 'bg-c-danger text-white active:brightness-90 hover:brightness-90'],
-}
+} as const
 
 export const variants = cva({
   base: 'scalar-button flex cursor-pointer items-center justify-center rounded font-medium -outline-offset-1',

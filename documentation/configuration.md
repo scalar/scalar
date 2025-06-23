@@ -314,11 +314,23 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 }
 ```
 
+### documentDownloadType?: 'json' | 'yaml' | 'both' | 'none'
+
+Sets the file type of the document to download, set to `none` to hide the download button
+
+`@default 'both'`
+
+```js
+{
+  documentDownloadType: 'json'
+}
+```
+
 ### hideDownloadButton?: boolean
 
 Whether to show the "Download OpenAPI Document" button
 
-`@default false`
+`@deprecated Use documentDownloadType: 'none' instead`
 
 ```js
 {

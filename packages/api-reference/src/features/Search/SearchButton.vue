@@ -4,7 +4,7 @@ import { isMacOS } from '@scalar/helpers/general/is-mac-os'
 import type { Spec } from '@scalar/types/legacy'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { useApiClient } from '@/features/ApiClientModal'
+import { useApiClient } from '@/features/api-client-modal'
 import SearchModal from '@/features/Search/SearchModal.vue'
 
 const props = withDefaults(
@@ -58,6 +58,8 @@ function handleClick() {
 <template>
   <ScalarSidebarSearchButton
     ref="button"
+    class="w-full"
+    :class="$attrs.class"
     @click="handleClick">
     <span class="sr-only">Open Search</span>
     <span
