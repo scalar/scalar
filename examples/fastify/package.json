@@ -35,7 +35,7 @@
   "dependencies": {
     "@fastify/swagger": "catalog:*",
     "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "catalog:*"
+    "fastify": "^4.26.2"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
