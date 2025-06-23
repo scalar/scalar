@@ -1,5 +1,5 @@
 # Use the official Caddy image as a parent image
-FROM caddy:2-alpine
+FROM caddy:2
 
 # Create a non-root user
 RUN adduser -D -u 1000 caddy
