@@ -8,7 +8,7 @@ This .NET package `Scalar.Aspire` provides an easy way to create a unified API r
 
 ## Documentation
 
-[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/aspire)
+[Read the documentation here](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspire)
 
 ## Community
 
