@@ -6,10 +6,7 @@ import {
 } from '@scalar/openapi-types'
 
 defineProps<{
-  value?:
-    | OpenAPIV2.ExternalDocumentationObject
-    | OpenAPIV3.ExternalDocumentationObject
-    | OpenAPIV3_1.ExternalDocumentationObject
+  value?: ExternalDocumentationObject
 }>()
 </script>
 
