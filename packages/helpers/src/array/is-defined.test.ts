@@ -35,6 +35,12 @@ describe('isDefined type', () => {
     // Should be ('foo' | 'bar')[], not string[]
     expectTypeOf(filtered).toEqualTypeOf<('foo' | 'bar')[]>()
   })
+
+  it('should preserve empty strings', () => {
+    const array = ['', ''] as const
+    const filtered = array.filter(isDefined)
+    expect(filtered).toEqual(['', ''])
+  })
 })
 
 describe('isDefined runtime', () => {

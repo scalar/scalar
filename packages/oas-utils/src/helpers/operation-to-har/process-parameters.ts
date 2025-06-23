@@ -1,10 +1,55 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { ParameterObject } from '@scalar/workspace-store/schemas/v3.1/strict/parameter'
+import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
+import type { ReferenceObject } from '@scalar/workspace-store/schemas/v3.1/strict/reference'
+import { isReference, type Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
 import type { Request as HarRequest } from 'har-format'
 
 type ProcessedParameters = {
   url: string
   headers: HarRequest['headers']
   queryString: HarRequest['queryString']
+  cookies: HarRequest['cookies']
+}
+
+/** Ensures we don't have any references in the parameters */
+export const deReferenceParams = (params: Dereference<OperationObject>['parameters']): ParameterObject[] => {
+  if (isReference(params)) {
+    return []
+  }
+  return (params ?? []).filter((param) => !isReference(param)) as ParameterObject[]
+}
+
+/**
+ * Get the style and explode values for a parameter according to OpenAPI 3.1.1 specification.
+ * Handles defaults and validation for parameter location restrictions.
+ */
+const getParameterStyleAndExplode = (param: ParameterObject): { style: string; explode: boolean } => {
+  // Headers only support 'simple' style
+  if (param.in === 'header') {
+    const explode = 'explode' in param && param.explode !== undefined ? param.explode : false
+    return { style: 'simple', explode }
+  }
+
+  // Cookies only support 'form' style
+  if (param.in === 'cookie') {
+    const explode = 'explode' in param && param.explode !== undefined ? param.explode : true
+    return { style: 'form', explode }
+  }
+
+  const defaultStyle = {
+    path: 'simple',
+    query: 'form',
+    header: 'simple',
+    cookie: 'form',
+  }[param.in]
+
+  // Use provided style or default based on location
+  const style = 'style' in param && param.style ? param.style : defaultStyle
+
+  // Determine explode value: use provided value or default based on style
+  const explode = 'explode' in param && param.explode !== undefined ? param.explode : style === 'form'
+
+  return { style, explode }
 }
 
 /**
@@ -15,7 +60,7 @@ type ProcessedParameters = {
  */
 export const processParameters = (
   harRequest: HarRequest,
-  parameters: OpenAPIV3_1.ParameterObject[],
+  parameters: (ParameterObject | ReferenceObject)[],
   example?: unknown,
 ): ProcessedParameters => {
   // Create copies of the arrays to avoid modifying the input
@@ -23,7 +68,10 @@ export const processParameters = (
   const newQueryString = [...harRequest.queryString]
   let newUrl = harRequest.url
 
-  for (const param of parameters) {
+  // Filter out references
+  const deReferencedParams = deReferenceParams(parameters)
+
+  for (const param of deReferencedParams) {
     if (!param.in || !param.name) {
       continue
     }
@@ -35,8 +83,7 @@ export const processParameters = (
       continue
     }
 
-    const style = param.style || 'simple'
-    const explode = param.explode ?? false
+    const { style, explode } = getParameterStyleAndExplode(param)
 
     switch (param.in) {
       case 'path': {
@@ -128,7 +175,98 @@ export const processParameters = (
         break
       }
       case 'header':
-        newHeaders.push({ name: param.name, value: String(paramValue) })
+        // Headers only support 'simple' style according to OpenAPI 3.1.1
+        if (explode) {
+          // Simple explode array: multiple header values
+          if (Array.isArray(paramValue)) {
+            for (const value of paramValue as unknown[]) {
+              newHeaders.push({ name: param.name, value: String(value) })
+            }
+          }
+          // Simple explode object: key=value pairs
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            const values = Object.entries(paramValue as Record<string, unknown>)
+              .map(([k, v]) => `${k}=${v}`)
+              .join(',')
+            newHeaders.push({ name: param.name, value: values })
+          }
+          // Simple explode primitive: single value
+          else {
+            newHeaders.push({ name: param.name, value: String(paramValue) })
+          }
+        }
+        // Simple no explode: all values joined with commas
+        else {
+          // Handle array values without explode
+          if (Array.isArray(paramValue)) {
+            newHeaders.push({ name: param.name, value: (paramValue as unknown[]).join(',') })
+          }
+          // Handle object values without explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            const values = Object.entries(paramValue as Record<string, unknown>)
+              .map(([k, v]) => `${k},${v}`)
+              .join(',')
+            newHeaders.push({ name: param.name, value: values })
+          }
+          // Handle primitive values without explode
+          else {
+            newHeaders.push({ name: param.name, value: String(paramValue) })
+          }
+        }
+        break
+      case 'cookie':
+        // Cookies only support 'form' style according to OpenAPI 3.1.1
+        if (explode) {
+          // Handle array values with explode
+          if (Array.isArray(paramValue)) {
+            for (const value of paramValue as unknown[]) {
+              harRequest.cookies.push({ name: param.name, value: value === null ? 'null' : String(value) })
+            }
+          }
+          // Handle object values with explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            for (const [key, value] of Object.entries(paramValue as Record<string, unknown>)) {
+              harRequest.cookies.push({ name: key, value: value === null ? 'null' : String(value) })
+            }
+          }
+          // Handle primitive values with explode
+          else {
+            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
+          }
+        } else {
+          // Handle array values without explode
+          if (Array.isArray(paramValue)) {
+            const serializedValues = (paramValue as unknown[]).map((v) => (v === null ? 'null' : String(v))).join(',')
+            harRequest.cookies.push({ name: param.name, value: serializedValues })
+          }
+          // Handle object values without explode
+          else if (typeof paramValue === 'object' && paramValue !== null) {
+            // Handle nested objects by recursively flattening them
+            const flattenObject = (obj: Record<string, unknown>): string[] => {
+              const result: string[] = []
+
+              for (const [key, value] of Object.entries(obj)) {
+                // Recursively flatten nested objects
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                  result.push(key, ...flattenObject(value as Record<string, unknown>))
+                }
+                // Handle primitive values
+                else {
+                  result.push(key, value === null ? 'null' : String(value))
+                }
+              }
+
+              return result
+            }
+
+            const values = flattenObject(paramValue as Record<string, unknown>).join(',')
+            harRequest.cookies.push({ name: param.name, value: values })
+          }
+          // Handle primitive values without explode
+          else {
+            harRequest.cookies.push({ name: param.name, value: paramValue === null ? 'null' : String(paramValue) })
+          }
+        }
         break
     }
   }
@@ -137,6 +275,7 @@ export const processParameters = (
     url: newUrl,
     headers: newHeaders,
     queryString: newQueryString,
+    cookies: harRequest.cookies,
   }
 }
 
@@ -153,7 +292,7 @@ export const processParameters = (
  */
 const processPathParameters = (
   url: string,
-  param: OpenAPIV3_1.ParameterObject,
+  param: ParameterObject,
   paramValue: unknown,
   style: string,
   explode: boolean,

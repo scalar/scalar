@@ -1973,6 +1973,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/workspace-store':
+        specifier: workspace:*
+        version: link:../workspace-store
       '@types/har-format':
         specifier: ^1.2.15
         version: 1.2.15
