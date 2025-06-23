@@ -2548,6 +2548,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
         version: 0.34.33

@@ -29,7 +29,8 @@
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "scalar-types-check",
+    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts"
   },
   "type": "module",
   "exports": {
@@ -68,6 +69,7 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",
     "vue": "catalog:*"
