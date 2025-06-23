@@ -9,9 +9,8 @@
 export default {}
 </script>
 <script setup lang="ts">
-import type { ScalarIconProps } from '@scalar/icons/types'
+import type { ScalarIconComponent, ScalarIconProps } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import type { Component } from 'vue'
 
 import ScalarIcon from './ScalarIcon.vue'
 import type { ScalarIconProps as LegacyScalarIconProps } from './types'
@@ -24,7 +23,7 @@ import { variants } from './variants'
 
 defineProps<
   {
-    icon: Icon | Component
+    icon: Icon | ScalarIconComponent
   } & ScalarIconProps &
     Omit<LegacyScalarIconProps, 'icon'>
 >()
