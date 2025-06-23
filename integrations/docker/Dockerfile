@@ -23,4 +23,3 @@ ENV API_REFERENCE_CONFIG=undefined
 
 # Environment variable for CDN URL
 ENV CDN_URL=standalone.js
-
