@@ -12,8 +12,12 @@ const ViewsSchema = z.object({
   'response.section': z.array(SectionViewSchema),
 })
 
-const HooksSchema = z.object({
-  onBeforeRequest: z.function().returns(z.union([z.void(), z.promise(z.void())])),
+export const HooksSchema = z.object({
+  onBeforeRequest: z
+    .function()
+    .args(z.object({ request: z.instanceof(Request) }))
+    .returns(z.union([z.void(), z.promise(z.void())]))
+    .optional(),
   onResponseReceived: z
     .function()
     .args(
@@ -23,7 +27,8 @@ const HooksSchema = z.object({
         operation: z.record(z.any()),
       }),
     )
-    .returns(z.union([z.void(), z.promise(z.void())])),
+    .returns(z.union([z.void(), z.promise(z.void())]))
+    .optional(),
 })
 
 export const ApiClientPluginSchema = z.function().returns(
