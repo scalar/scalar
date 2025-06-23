@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   '*':
+    '@fastify/swagger':
+      specifier: ^8.10.1
+      version: 8.14.0
     '@google-cloud/storage':
       specifier: 7.13.0
       version: 7.13.0
@@ -297,7 +300,7 @@ importers:
   examples/fastify:
     dependencies:
       '@fastify/swagger':
-        specifier: ^8.10.1
+        specifier: catalog:*
         version: 8.14.0
       '@scalar/fastify-api-reference':
         specifier: workspace:*
@@ -722,11 +725,11 @@ importers:
   integrations/aspire/playground/Scalar.Aspire.UserService:
     dependencies:
       '@fastify/swagger':
-        specifier: ^8.15.0
-        version: 8.15.0
+        specifier: catalog:*
+        version: 8.14.0
       fastify:
-        specifier: ^4.29.1
-        version: 4.29.1
+        specifier: ^4.26.2
+        version: 4.28.0
 
   integrations/aspnetcore:
     dependencies:
@@ -841,7 +844,7 @@ importers:
         specifier: ^9.0.0
         version: 9.5.0
       '@fastify/swagger':
-        specifier: ^8.10.1
+        specifier: catalog:*
         version: 8.14.0
       '@scalar/api-reference':
         specifier: workspace:*
@@ -5081,9 +5084,6 @@ packages:
 
   '@fastify/swagger@8.14.0':
     resolution: {integrity: sha512-sGiznEb3rl6pKGGUZ+JmfI7ct5cwbTQGo+IjewaTvtzfrshnryu4dZwEsjw0YHABpBA+kCz3kpRaHB7qpa67jg==}
-
-  '@fastify/swagger@8.15.0':
-    resolution: {integrity: sha512-zy+HEEKFqPMS2sFUsQU5X0MHplhKJvWeohBwTCkBAJA/GDYGLGUWQaETEhptiqxK7Hs0fQB9B4MDb3pbwIiCwA==}
 
   '@firebase/analytics-types@0.4.0':
     resolution: {integrity: sha512-Jj2xW+8+8XPfWGkv9HPv/uR+Qrmq37NPYT352wf7MvE9LrstpLVmFg3LqG6MCRr5miLAom5sen2gZ+iOhVDeRA==}
@@ -10773,9 +10773,6 @@ packages:
 
   fastify@4.28.0:
     resolution: {integrity: sha512-HhW7UHW07YlqH5qpS0af8d2Gl/o98DhJ8ZDQWHRNDnzeOhZvtreWsX8xanjGgXmkYerGbo8ax/n40Dpwqkot8Q==}
-
-  fastify@4.29.1:
-    resolution: {integrity: sha512-m2kMNHIG92tSNWv+Z3UeTR9AWLLuo7KctC7mlFPtMEVrfjIhmQhkQnT9v15qA/BfVq3vvj134Y0jl9SBje3jXQ==}
 
   fastify@5.3.3:
     resolution: {integrity: sha512-nCBiBCw9q6jPx+JJNVgO8JVnTXeUyrGcyTKPQikRkA/PanrFcOIo4R+ZnLeOLPZPGgzjomqfVarzE0kYx7qWiQ==}
@@ -20980,16 +20977,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@fastify/swagger@8.15.0':
-    dependencies:
-      fastify-plugin: 4.5.1
-      json-schema-resolver: 2.0.0
-      openapi-types: 12.1.3
-      rfdc: 1.4.1
-      yaml: 2.6.0
-    transitivePeerDependencies:
-      - supports-color
-
   '@firebase/analytics-types@0.4.0': {}
 
   '@firebase/analytics@0.6.0(@firebase/app-types@0.6.1)(@firebase/app@0.6.11)':
@@ -28965,25 +28952,6 @@ snapshots:
       toad-cache: 3.7.0
 
   fastify@4.28.0:
-    dependencies:
-      '@fastify/ajv-compiler': 3.5.0
-      '@fastify/error': 3.4.1
-      '@fastify/fast-json-stringify-compiler': 4.3.0
-      abstract-logging: 2.0.1
-      avvio: 8.3.2
-      fast-content-type-parse: 1.1.0
-      fast-json-stringify: 5.16.0
-      find-my-way: 8.2.0
-      light-my-request: 5.13.0
-      pino: 9.2.0
-      process-warning: 3.0.0
-      proxy-addr: 2.0.7
-      rfdc: 1.4.1
-      secure-json-parse: 2.7.0
-      semver: 7.7.1
-      toad-cache: 3.7.0
-
-  fastify@4.29.1:
     dependencies:
       '@fastify/ajv-compiler': 3.5.0
       '@fastify/error': 3.4.1

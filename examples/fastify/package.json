@@ -33,7 +33,7 @@
     }
   },
   "dependencies": {
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/swagger": "catalog:*",
     "@scalar/fastify-api-reference": "workspace:*",
     "fastify": "^4.26.2"
   },
