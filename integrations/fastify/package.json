@@ -65,7 +65,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
-    "fastify": "catalog:*",
+    "fastify": "^4.26.2",
     "rollup-plugin-node-externals": "^7.1.2",
     "shx": "^0.4.0",
     "terser": "^5.30.0",
