@@ -17,7 +17,7 @@ import {
 } from '@/components/Card'
 import ScreenReader from '@/components/ScreenReader.vue'
 
-import { ExamplePicker } from '../ExampleRequest'
+import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
 
 /**

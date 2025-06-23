@@ -43,12 +43,11 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
-import { Sidebar } from '@/components/Sidebar'
-import { ApiClientModal } from '@/features/ApiClientModal'
-import { useDocumentSource } from '@/features/DocumentSource'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { ApiClientModal } from '@/features/api-client-modal'
+import { useDocumentSource } from '@/features/document-source'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { SearchButton } from '@/features/Search'
-import { useSidebar } from '@/features/sidebar'
+import { Sidebar, useSidebar } from '@/features/sidebar'
 import { parse } from '@/helpers/parse'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -702,9 +701,9 @@ watch(hash, (newHash, oldHash) => {
 }
 </style>
 <style scoped>
-/** 
-* Sidebar CSS for standalone 
-* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component 
+/**
+* Sidebar CSS for standalone
+* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
 * when the new elements are available
 */
 @media (max-width: 1000px) {

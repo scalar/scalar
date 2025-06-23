@@ -2,15 +2,16 @@
 import { sleep } from '@scalar/helpers/testing/sleep'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
-import SidebarElement from '@/components/Sidebar/SidebarElement.vue'
-import SidebarGroup from '@/components/Sidebar/SidebarGroup.vue'
-import { useSidebar } from '@/features/sidebar'
 import type { TraversedEntry } from '@/features/traverse-schema'
 import type {
   TraversedDescription,
   TraversedTag,
 } from '@/features/traverse-schema/types'
 import { useNavState } from '@/hooks/useNavState'
+
+import { useSidebar } from '../hooks/useSidebar'
+import SidebarElement from './SidebarElement.vue'
+import SidebarGroup from './SidebarGroup.vue'
 
 const { title } = defineProps<{
   title: string

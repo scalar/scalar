@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { HttpMethod } from '../HttpMethod'
+import { HttpMethod } from '@/components/HttpMethod'
 
 defineProps<{
   method: string
   active?: boolean
 }>()
 </script>
+
 <template>
   <HttpMethod
     :class="[
@@ -20,6 +21,7 @@ defineProps<{
     <slot />
   </HttpMethod>
 </template>
+
 <style scoped>
 .sidebar-heading-type {
   display: block;
