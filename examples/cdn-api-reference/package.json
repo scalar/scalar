@@ -26,7 +26,7 @@
   "dependencies": {
     "@fastify/static": "^7.0.1",
     "@scalar/api-reference": "workspace:*",
-    "fastify": "^4.26.2"
+    "fastify": "catalog:*"
   },
   "devDependencies": {
     "@types/node": "catalog:*",

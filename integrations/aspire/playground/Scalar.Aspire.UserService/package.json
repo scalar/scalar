@@ -12,7 +12,7 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "@fastify/swagger": "^8.15.0",
-    "fastify": "^4.29.1"
+    "@fastify/swagger": "catalog:*",
+    "fastify": "catalog:*"
   }
 }

@@ -61,11 +61,11 @@
   "devDependencies": {
     "@fastify/basic-auth": "^5.1.1",
     "@fastify/http-proxy": "^9.0.0",
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
-    "fastify": "^4.26.2",
+    "fastify": "catalog:*",
     "rollup-plugin-node-externals": "^7.1.2",
     "shx": "^0.4.0",
     "terser": "^5.30.0",
