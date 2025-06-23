@@ -94,6 +94,7 @@ jobs:
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
+          load: true
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
@@ -102,15 +103,13 @@ jobs:
         name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
-          scan-type: 'config'
-          scan-ref: 'integrations/docker/Dockerfile'
+          scan-type: 'image'
+          image-ref: 'scalarapi/api-reference:latest'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-          retry-count: 3
-          retry-delay: 30s
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
