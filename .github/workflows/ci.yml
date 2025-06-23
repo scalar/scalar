@@ -62,10 +62,6 @@ jobs:
               - integrations/docker/package.json
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Set up Docker
-        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Get version from package.json
         id: package-version
         working-directory: integrations/docker
