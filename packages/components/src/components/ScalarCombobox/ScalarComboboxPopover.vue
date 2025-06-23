@@ -47,7 +47,6 @@ defineExpose({ popoverButtonRef })
         #floating="{ width }">
         <PopoverPanel
           v-slot="{ close }"
-          focus
           :style="{ width }"
           v-bind="
             cx('relative flex flex-col max-h-[inherit] w-40 rounded text-sm')
