@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@fastify/swagger": "catalog:*",
-    "fastify": "catalog:*"
+    "fastify": "^4.26.2"
   }
 }
