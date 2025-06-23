@@ -813,8 +813,8 @@ jobs:
             scalarapi/aspire-api-reference:latest
             scalarapi/aspire-api-reference:${{ env.VERSION }}
 
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Set Version in Constants.cs
+      - if: steps.changed-files.outputs.aspire_package_any_changed == 'true'
+        name: Set version in Constants.cs
         working-directory: integrations/aspire
         run: |
           sed -i 's/ImageTag = "latest"/ImageTag = "'$VERSION'"/' src/Scalar.Aspire/Constants.cs
