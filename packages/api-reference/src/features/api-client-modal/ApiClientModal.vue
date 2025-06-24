@@ -7,10 +7,13 @@ import {
 import { getServersFromOpenApiDocument } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ApiClientPlugin } from '@scalar/types/api-client'
-import type { ApiClientConfiguration } from '@scalar/types/api-reference'
+import type {
+  ApiClientConfiguration,
+  ApiReferenceConfiguration,
+} from '@scalar/types/api-reference'
 import { watchDebounced } from '@vueuse/core'
 import microdiff from 'microdiff'
-import { onBeforeUnmount, onMounted, ref, toRef, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useNavState } from '@/hooks/useNavState'
 import { useExampleStore } from '@/legacy/stores'
@@ -19,7 +22,8 @@ import { useApiClient } from './useApiClient'
 
 const { configuration, dereferencedDocument } = defineProps<{
   // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn't have to be).
-  configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>>
+  configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>> &
+    Pick<ApiReferenceConfiguration, 'onBeforeRequest'>
   dereferencedDocument: OpenAPIV3_1.Document
 }>()
 
@@ -31,40 +35,26 @@ const activeEntities = useActiveEntities()
 const store = useWorkspace()
 const { isIntersectionEnabled } = useNavState()
 
-const OnBeforeRequestPlugin = (): ApiClientPlugin => {
-  return () => {
-    return {
-      name: 'on-before-request',
-      hooks: {
-        async onBeforeRequest({ request }) {
-          console.log('OnBeforeRequestPlugin', request.headers)
-          request.headers.set('X-Custom-Header', 'test')
-          console.log(
-            'X-Custom-Header:',
-            request.headers.get('X-Custom-Header'),
-          )
-        },
-      },
-    }
-  }
-}
+const OnBeforeRequestPlugin: ApiClientPlugin = () => ({
+  name: 'on-before-request',
+  hooks: {
+    onBeforeRequest: configuration.onBeforeRequest,
+  },
+})
 
 onMounted(() => {
   if (!el.value) {
     return
   }
 
-  // TODO: Only if the hook is configured in the api-reference configuration
-  const addOnBeforeRequestPlugin = true
-
-  configuration.plugins = addOnBeforeRequestPlugin
-    ? [OnBeforeRequestPlugin()]
-    : []
-
   // Initialize the client
   init({
     el: el.value,
-    configuration,
+    configuration: {
+      ...configuration,
+      // If the onBeforeRequest hook is configured, we add the plugin to the API client.
+      plugins: configuration.onBeforeRequest ? [OnBeforeRequestPlugin] : [],
+    },
     store,
   })
 })
