@@ -21,7 +21,7 @@ import { computed, ref, useId, watch, type ComponentPublicInstance } from 'vue'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
-import { ExamplePicker } from '@/features/ExampleRequest'
+import { ExamplePicker } from '@/features/example-request'
 import { findClient } from '@/v2/blocks/scalar-request-example-block/helpers/find-client'
 import {
   generateClientOptions,
