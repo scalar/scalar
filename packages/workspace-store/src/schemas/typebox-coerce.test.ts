@@ -217,7 +217,7 @@ describe('should correctly cast/default values to make the input schema complian
           'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
         },
         'implicit': {
-          'authorizationUrl': '',
+          'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
           'scopes': {
             'read:account': 'read your account information',
             'read:planets': 'read your planets',
