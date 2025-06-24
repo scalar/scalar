@@ -65,7 +65,7 @@ describe('create-workspace-store', () => {
     await server.close()
   })
 
-  it('should correctly update workspace metadata', async () => {
+  it('correctly update workspace metadata', async () => {
     const store = await createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
@@ -80,7 +80,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
-  it('should correctly update document metadata', async () => {
+  it('correctly update document metadata', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -110,7 +110,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-3')
   })
 
-  it('should correctly get the correct document', async () => {
+  it('correctly get the correct document', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -160,7 +160,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should correctly add new documents', async () => {
+  it('correctly add new documents', async () => {
     const store = await createWorkspaceStore({
       documents: [],
     })
@@ -184,7 +184,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should correctly resolve refs on the fly', async () => {
+  it('correctly resolve refs on the fly', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -250,7 +250,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should correctly resolve chunks from the remote server', async () => {
+  it('correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
       const path = req.url
       const contents = serverStore.get(path)
@@ -304,7 +304,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should load files form the remote url', async () => {
+  it('load files form the remote url', async () => {
     const PORT = 9989
     const url = `http://localhost:${PORT}`
 
@@ -332,7 +332,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['new'].info?.title).toEqual(getDocument().info.title)
   })
 
-  it('should handle circular references when we try to resolve all remote chunks recursively', async () => {
+  it('handle circular references when we try to resolve all remote chunks recursively', async () => {
     const getDocument = () => ({
       openapi: '3.0.0',
       info: { title: 'My API', version: '1.0.0' },
@@ -426,7 +426,7 @@ describe('create-workspace-store', () => {
     expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)?.type).toBe('object')
   })
 
-  it('should build the sidebar client side', async () => {
+  it('build the sidebar client side', async () => {
     const store = await createWorkspaceStore({
       documents: [],
     })
@@ -562,7 +562,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should correctly get the config #1', () => {
+  it('correctly get the config #1', () => {
     const store = createWorkspaceStore({
       config: {
         'x-scalar-reference-config': {
@@ -589,7 +589,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  it('should correctly get the config #2', () => {
+  it('correctly get the config #2', () => {
     const store = createWorkspaceStore({
       config: {
         'x-scalar-reference-config': {
