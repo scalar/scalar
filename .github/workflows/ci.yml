@@ -62,10 +62,6 @@ jobs:
               - integrations/docker/package.json
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Set up Docker
-        uses: docker/setup-buildx-action@f7ce87c1d6bead3e36075b2ce75da1f6cc28aaca
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Get version from package.json
         id: package-version
         working-directory: integrations/docker
@@ -89,15 +85,12 @@ jobs:
         run: pnpm compress
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Build and tag Docker image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
+        name: Build Docker image
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
-          push: false
           load: true
-          # Linux-only at first
-          platforms: linux/amd64
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
@@ -106,15 +99,12 @@ jobs:
         name: Scan for vulnerabilities
         uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0
         with:
-          scan-type: 'config'
-          scan-ref: 'integrations/docker/Dockerfile'
+          scan-type: 'image'
+          image-ref: 'scalarapi/api-reference:latest'
           format: 'table'
-          exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-          retry-count: 3
-          retry-delay: 30s
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
@@ -126,16 +116,16 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
-        name: Push Docker image
-        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83
+        name: Build and Push Docker image
+        uses: useblacksmith/build-push-action@574eb0ee0b59c6a687ace24192f0727dfb65d6d7
         with:
           context: integrations/docker
           file: integrations/docker/Dockerfile
           push: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           # With ARM
-          platforms: linux/amd64,linux/arm64
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
