@@ -14,7 +14,7 @@
  * No state updates should be handled in children of this components. When updates are required
  * a custom event should be emitted to the workspace store and handled here.
  */
-import { parseJsonOrYaml } from '@scalar/oas-utils/helpers'
+import { parseJsonOrYaml, redirectToProxy } from '@scalar/oas-utils/helpers'
 import type {
   AnyApiReferenceConfiguration,
   ApiReferenceConfiguration,
@@ -68,29 +68,30 @@ const {
   hashPrefix: ref(''),
 })
 
+/**
+ * Creates a proxy function that redirects requests through a proxy URL.
+ * This is used to handle CORS issues by routing requests through a proxy server.
+ *
+ * @param input - The URL or Request object to proxy
+ * @param init - Optional fetch init parameters
+ * @returns A Promise that resolves to the Response from the proxied request
+ */
+const proxy = (
+  input: string | URL | globalThis.Request,
+  init?: RequestInit,
+) => {
+  return fetch(
+    redirectToProxy(selectedConfiguration.value.proxyUrl, input.toString()),
+    init,
+  )
+}
+
 // Provide the intersection observer which has defaults
 provide(NAV_STATE_SYMBOL, { isIntersectionEnabled, hash, hashPrefix })
 
 // ---------------------------------------------------------------------------
 
 const root = shallowRef<HTMLElement | null>(null)
-
-/**
- * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
- *
- * TODO: Sources should be externalized from the configuration.
- */
-const configs = availableDocuments
-
-// configs.value.forEach((config) => {
-//   if(config.content) {
-//     const obj = typeof config.content === 'string' ? parseJsonOrYaml(config.content) : config.content
-//     store.addDocument({
-//       name: config.slug ?? ,
-//       document: obj,
-//     })
-//   }
-// })
 
 /** Injected workspace store. This is provided as functional getter to avoid converting the original object to a reactive prop object
  *
@@ -102,28 +103,76 @@ const configs = availableDocuments
  */
 const store = props.getWorkspaceStore()
 
+/**
+ * When the useMultipleDocuments hook is deprecated we will need to handle normalizing the configs.
+ *
+ * TODO: Sources should be externalized from the configuration.
+ */
+const configs = availableDocuments
+
+/**
+ * Adds a document to the workspace store based on the provided configuration.
+ * Handles both in-memory documents (via content) and remote documents (via URL).
+ *
+ * @param config - The document configuration containing either content or URL
+ * @returns The result of adding the document to the store, or undefined if skipped
+ */
+const addDocument = (config: (typeof configs.value)[number]) => {
+  // If the document is already in the store we skip it
+  // TODO: Handle cases when the slug is the same but belongs to two different documents?
+  // This can be the case when no slug and no title is provided and we are using index for the slug!
+  if (store.workspace.documents[config.slug ?? 'default'] !== undefined) {
+    return
+  }
+
+  if (config.content) {
+    const obj =
+      typeof config.content === 'string'
+        ? parseJsonOrYaml(config.content)
+        : config.content
+
+    // Add in-memory documents to the store
+    return store.addDocumentSync({
+      name: config.slug ?? 'default',
+      document: typeof obj === 'function' ? obj() : obj,
+    })
+  }
+
+  if (config.url) {
+    return store.addDocument({
+      name: config.slug ?? 'default',
+      url: config.url,
+      fetch: proxy,
+    })
+  }
+}
+
+configs.value.forEach((config) => {
+  if (config.content) {
+    addDocument(config)
+  }
+})
+
 // const staticDocuments = props.configuration
 // props.configuration?.documents?.forEach((document) => {
 
 onServerPrefetch(() => {
   // For SSR we want to preload the active document into the store
-  // store.addDocument({
-  //   name: 'test',
-  //   document: {
-  //     openapi: '3.0.0',
-  //   },
-  // })
+  configs.value.forEach((config) => {
+    if (config.url) {
+      addDocument(config)
+    }
+  })
 })
 
 onMounted(() => {
   // During client side rendering we load the active document from the URL
   // NOTE: The UI MUST handle a case where the document is empty
-  // store.addDocument({
-  //   name: 'test',
-  //   document: {
-  //     openapi: '3.0.0',
-  //   },
-  // })
+  configs.value.forEach((config) => {
+    if (config.url) {
+      addDocument(config)
+    }
+  })
 })
 
 // onCustomEvent(root, 'scalar-update-sidebar', (event) => {
@@ -134,10 +183,9 @@ onCustomEvent(root, 'scalar-update-dark-mode', (event) => {
   store.update('x-scalar-dark-mode', event.data.value)
 })
 
-// onCustomEvent(root, 'scalar-update-active-document', (event) => {
-//   console.log('scalar-update-active-document', event)
-//   store.update('x-scalar-active-document', event.data.value)
-// })
+onCustomEvent(root, 'scalar-update-active-document', (event) => {
+  store.update('x-scalar-active-document', event.data.value)
+})
 
 // ---------------------------------------------------------------------------
 // TODO: Remove this legacy code block. Directly copied from SingleApiReference.vue
@@ -161,6 +209,25 @@ watch(
   () => isDarkMode.value,
   (newValue) => store.update('x-scalar-dark-mode', newValue),
   { immediate: true },
+)
+
+// Temporary mapping of active document until we update the standalone component
+watch(
+  () => selectedDocumentIndex.value,
+  (newValue) =>
+    store.update(
+      'x-scalar-active-document',
+      availableDocuments.value[newValue]?.slug,
+    ),
+  { immediate: true },
+)
+
+/** Add any missing documents when props change */
+watch(
+  () => availableDocuments.value,
+  (newValue) => {
+    newValue.forEach(addDocument)
+  },
 )
 
 if (selectedConfiguration.value.metaData) {
@@ -188,15 +255,21 @@ useFavicon(favicon)
     :isDark="!!store.workspace['x-scalar-dark-mode']"
     @toggleDarkMode="() => toggleColorMode()"
     @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
+    <template #footer>
+      <slot name="footer" />
+    </template>
     <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
+    <template #content-end>
+      <slot name="footer" />
+    </template>
     <template #document-selector>
       <DocumentSelector
         v-model="selectedDocumentIndex"
         :options="availableDocuments" />
     </template>
-    <template #sidebar-start><slot name="sidebar-start" /></template>
+    <template #sidebar-start>
+      <slot name="sidebar-start" />
+    </template>
   </ApiReferenceLayout>
 </template>
 
