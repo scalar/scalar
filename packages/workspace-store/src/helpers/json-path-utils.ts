@@ -28,7 +28,7 @@ export function parseJsonPointer(pointer: string): string[] {
  * { id: '123', name: 'John Doe' }
  * ```
  */
-export function getValueByPath(obj: any, pointer: string[]): unknown {
+export function getValueByPath<R = unknown>(obj: any, pointer: string[]): R {
   return pointer.reduce((acc, part) => {
     if (acc === undefined || acc === null) {
       return undefined
