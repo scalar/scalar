@@ -14,8 +14,6 @@ internal sealed class ScalarConfiguration
 
     public required bool? HideModels { get; init; }
 
-    public required bool? HideDownloadButton { get; init; }
-
     public required bool? HideTestRequestButton { get; init; }
 
     public required bool? DarkMode { get; init; }
@@ -66,7 +64,9 @@ internal sealed class ScalarConfiguration
     [JsonPropertyName("baseServerURL")]
     public required string? BaseServerUrl { get; init; }
 
-    public required bool PersistAuth { get; set; }
+    public required bool PersistAuth { get; init; }
+
+    public required string? DocumentDownloadType { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.4.4
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+
 ## 0.4.3
 
 ### Patch Changes

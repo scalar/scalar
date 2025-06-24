@@ -159,7 +159,6 @@ describe('should correctly cast/default values to make the input schema complian
       'flows': {
         'authorizationCode': {
           'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
           'scopes': {
             'read:account': 'read your account information',
             'write:planets': 'modify planets in your account',
@@ -205,10 +204,9 @@ describe('should correctly cast/default values to make the input schema complian
             'read:planets': 'read your planets',
             'write:planets': 'modify planets in your account',
           },
-          'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+          'tokenUrl': '',
         },
         'clientCredentials': {
-          'authorizationUrl': '',
           'scopes': {
             'read:account': 'read your account information',
             'read:planets': 'read your planets',
@@ -223,10 +221,8 @@ describe('should correctly cast/default values to make the input schema complian
             'read:planets': 'read your planets',
             'write:planets': 'modify planets in your account',
           },
-          'tokenUrl': '',
         },
         'password': {
-          'authorizationUrl': '',
           'scopes': {
             'read:account': 'read your account information',
             'read:planets': 'read your planets',

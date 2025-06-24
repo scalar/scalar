@@ -1,5 +1,37 @@
 # @scalar/scripts
 
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies [c907685]
+- Updated dependencies [4bbbb32]
+  - @scalar/components@0.14.13
+  - @scalar/oas-utils@0.4.8
+
+## 0.0.13
+
+### Patch Changes
+
+- @scalar/components@0.14.12
+- @scalar/oas-utils@0.4.7
+
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [699df60]
+  - @scalar/components@0.14.11
+
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+  - @scalar/components@0.14.10
+
 ## 0.0.10
 
 ### Patch Changes

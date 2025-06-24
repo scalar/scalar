@@ -50,6 +50,59 @@ describe('ScalarCombobox', () => {
       expect(wrapper.emitted('update:modelValue')).toBeTruthy()
       expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([singleOptions[0]])
     })
+
+    it('focuses the input when combobox is opened', async () => {
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: { default: '<button>Toggle</button>' },
+        attachTo: document.body,
+      })
+
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      expect(input.element).toBe(document.activeElement)
+
+      wrapper.unmount()
+    })
+
+    it('closes combobox when tabbing out of the input', async () => {
+      // Create a container with the combobox and another focusable element
+      const container = document.createElement('div')
+      container.innerHTML = '<button id="after-button">After Button</button>'
+      document.body.appendChild(container)
+
+      const wrapper = mount(ScalarCombobox, {
+        props: { options: singleOptions },
+        slots: { default: '<button>Toggle</button>' },
+        attachTo: container,
+      })
+
+      // Open the combobox
+      await wrapper.find('button').trigger('click')
+      await nextTick()
+
+      // Verify it's open by checking if the input is visible
+      const input = wrapper.find('input[type="text"]')
+      expect(input.isVisible()).toBe(true)
+
+      // Move focus to the button outside the combobox to simulate tabbing out
+      const afterButton = document.getElementById('after-button') as HTMLButtonElement
+      afterButton.focus()
+      await nextTick()
+
+      // Wait a bit for the popover to close
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      await nextTick()
+
+      // Check if the popover is closed by looking for the options list
+      const optionsList = wrapper.find('ul[role="listbox"]')
+      expect(optionsList.exists()).toBe(false)
+
+      wrapper.unmount()
+      document.body.removeChild(container)
+    })
   })
 
   describe('with grouped options', () => {
@@ -116,7 +169,6 @@ describe('ScalarComboboxMultiselect', () => {
 
       const emitted = wrapper.emitted('update:modelValue')
       expect(emitted).toBeTruthy()
-      console.log(JSON.stringify(emitted, null, 2))
       expect(emitted?.[emitted.length - 1]?.[0]).toHaveLength(2)
     })
   })
@@ -135,6 +187,20 @@ describe('ScalarComboboxOptions', () => {
       const filteredOptions = wrapper.findAllComponents(ScalarComboboxOption)
       expect(filteredOptions).toHaveLength(1)
       expect(filteredOptions[0].text()).toBe('Option 2')
+    })
+
+    it('focuses the input when component is mounted', async () => {
+      const wrapper = mount(ScalarComboboxOptions, {
+        props: { options: singleOptions },
+        attachTo: document.body,
+      })
+
+      await nextTick()
+
+      const input = wrapper.find('input[type="text"]')
+      expect(input.element).toBe(document.activeElement)
+
+      wrapper.unmount()
     })
   })
 

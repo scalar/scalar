@@ -43,12 +43,11 @@ import ClassicHeader from '@/components/ClassicHeader.vue'
 import { Content } from '@/components/Content'
 import GettingStarted from '@/components/GettingStarted.vue'
 import MobileHeader from '@/components/MobileHeader.vue'
-import { Sidebar } from '@/components/Sidebar'
-import { ApiClientModal } from '@/features/ApiClientModal'
-import { useDocumentSource } from '@/features/DocumentSource'
-import { OPENAPI_VERSION_SYMBOL } from '@/features/DownloadLink'
+import { ApiClientModal } from '@/features/api-client-modal'
+import { useDocumentSource } from '@/features/document-source'
+import { OPENAPI_VERSION_SYMBOL } from '@/features/download-link'
 import { SearchButton } from '@/features/Search'
-import { useSidebar } from '@/features/sidebar'
+import { Sidebar, useSidebar } from '@/features/sidebar'
 import { parse } from '@/helpers/parse'
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
@@ -239,7 +238,7 @@ watch(dereferencedDocument, (newDoc) => {
  * Temporarily moved this here so we can use the sidebar items
  * Parsed document (legacy data structure)
  */
-const parsedDocument = ref<Spec>(createEmptySpecification())
+const parsedDocument = ref<Spec>(createEmptySpecification() as Spec)
 watch(
   dereferencedDocument,
   async (newDocument) => {
@@ -432,7 +431,7 @@ watch(hash, (newHash, oldHash) => {
         </ScalarErrorBoundary>
       </div>
     </aside>
-    <!-- Swagger file editing -->
+    <!-- Slot for an Editor -->
     <div
       v-show="configuration.isEditable"
       class="references-editor">
@@ -442,7 +441,7 @@ watch(hash, (newHash, oldHash) => {
           name="editor" />
       </div>
     </div>
-    <!-- Rendered reference -->
+    <!-- The Content -->
     <template v-if="showRenderedContent">
       <main
         :aria-label="`Open API Documentation for ${dereferencedDocument?.info?.title}`"
@@ -458,12 +457,12 @@ watch(hash, (newHash, oldHash) => {
               <ClassicHeader v-if="configuration.layout === 'classic'">
                 <div
                   v-if="$slots['document-selector']"
-                  class="w-64 empty:hidden">
+                  class="w-64 *:!p-0 empty:hidden">
                   <slot name="document-selector" />
                 </div>
                 <SearchButton
                   v-if="!configuration.hideSearch"
-                  class="t-doc__sidebar"
+                  class="t-doc__sidebar max-w-64"
                   :searchHotKey="configuration.searchHotKey"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>
@@ -702,9 +701,9 @@ watch(hash, (newHash, oldHash) => {
 }
 </style>
 <style scoped>
-/** 
-* Sidebar CSS for standalone 
-* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component 
+/**
+* Sidebar CSS for standalone
+* TODO: @brynn move this to the sidebar block OR the ApiReferenceStandalone component
 * when the new elements are available
 */
 @media (max-width: 1000px) {

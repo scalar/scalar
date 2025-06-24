@@ -1,5 +1,19 @@
 # @scalar/themes
 
+## 0.13.5
+
+### Patch Changes
+
+- 4bbbb32: feat(components): add sidebar sections
+- Updated dependencies [1468280]
+  - @scalar/types@0.2.4
+
+## 0.13.4
+
+### Patch Changes
+
+- ca18c0b: feat(api-reference): update and modernize sidebar design
+
 ## 0.13.3
 
 ### Patch Changes

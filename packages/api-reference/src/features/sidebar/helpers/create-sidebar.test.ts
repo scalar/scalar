@@ -1,9 +1,9 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { describe, expect, it, vi } from 'vitest'
-import { toRef, toValue, ref } from 'vue'
-import { createSidebar } from './create-sidebar'
-import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
 import { useNavState } from '@/hooks/useNavState'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { apiReferenceConfigurationSchema } from '@scalar/types/api-reference'
+import { describe, expect, it, vi } from 'vitest'
+import { ref, toRef, toValue } from 'vue'
+import { createSidebar } from './create-sidebar'
 
 // Mock vue's inject
 vi.mock('vue', () => {
@@ -843,6 +843,30 @@ describe('createSidebar', () => {
       })
     })
 
+    it('uses the path when summary is an empty string', () => {
+      expect(
+        createSidebar(
+          ref({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: '',
+                },
+              },
+            },
+          } as OpenAPIV3_1.Document),
+          mockOptions,
+        ).items.value,
+      ).toMatchObject({
+        entries: [{ title: '/hello' }],
+      })
+    })
+
     it('sorts operations alphabetically with summary', () => {
       const configWithSorter = ref({
         ...config.value,
@@ -1208,6 +1232,30 @@ describe('createSidebar', () => {
             ],
           },
         ],
+      })
+    })
+
+    it('uses the title attribute of the schema', () => {
+      expect(
+        createSidebar(
+          ref({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            components: {
+              schemas: {
+                Planet: {
+                  title: 'Foobar',
+                },
+              },
+            },
+          } as OpenAPIV3_1.Document),
+          mockOptions,
+        ).items.value,
+      ).toMatchObject({
+        entries: [{ title: 'Models', children: [{ title: 'Foobar' }] }],
       })
     })
 

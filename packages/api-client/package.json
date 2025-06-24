@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.5.8",
+  "version": "2.5.12",
   "engines": {
     "node": ">=20"
   },
@@ -219,6 +219,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@types/har-format": "^1.2.15",
     "@vueuse/core": "catalog:*",
     "@vueuse/integrations": "catalog:*",
     "focus-trap": "^7",

@@ -1,4 +1,4 @@
-# ElysiaJS
+# Scalar API Reference for ElysiaJS
 
 The `@elysiajs/swagger` plugin uses our API reference by default:
 

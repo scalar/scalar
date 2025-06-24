@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import { computed, reactive, ref, type Ref } from 'vue'
 import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import { type Ref, computed, reactive, ref } from 'vue'
 
 import type { TraverseSpecOptions } from '@/features/traverse-schema'
 import { traverseDocument } from '@/features/traverse-schema'
@@ -56,7 +56,7 @@ export const createSidebar = (dereferencedDocument: Ref<OpenAPIV3_1.Document>, o
 
   /** Sidebar items */
   const items = computed(() => {
-    const result = measure('traverseDocument', () => traverseDocument(dereferencedDocument.value, options))
+    const result = measure('traverse-document', () => traverseDocument(dereferencedDocument.value, options))
 
     // Open all tags
     if (options.config.value.defaultOpenAllTags) {

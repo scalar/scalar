@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.4.5",
+  "version": "0.4.8",
   "engines": {
     "node": ">=20"
   },
@@ -106,6 +106,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "@scalar/workspace-store": "workspace:*",
     "@types/har-format": "^1.2.15",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",

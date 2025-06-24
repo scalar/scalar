@@ -1,5 +1,28 @@
 # @scalar/oas-utils
 
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies [4bbbb32]
+- Updated dependencies [1468280]
+  - @scalar/themes@0.13.5
+  - @scalar/types@0.2.4
+
+## 0.4.7
+
+### Patch Changes
+
+- Updated dependencies [ca18c0b]
+  - @scalar/themes@0.13.4
+
+## 0.4.6
+
+### Patch Changes
+
+- 979139e: fix: doesn’t create example data for schemas where items in an array don’t have a type
+- aaf90bf: fix: complex auth at the operation level
+
 ## 0.4.5
 
 ### Patch Changes

@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!--Only allow compatible Swashbuckle version. There will be a breaking change in 9.x.x-->
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="[8.0.0,9.0.0)" />
+    <!--Only allow compatible Swashbuckle version. There will be a breaking change in 10.x.x-->
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="[9.0.0,10.0.0)" />
   </ItemGroup>
 
   <ItemGroup>

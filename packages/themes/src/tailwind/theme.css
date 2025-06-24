@@ -40,6 +40,8 @@
   --font-weight-normal: var(--scalar-regular);
   --font-weight-medium: var(--scalar-semibold);
   --font-weight-bold: var(--scalar-bold);
+  --font-weight-sidebar: var(--scalar-sidebar-font-weight, var(--scalar-regular));
+  --font-weight-sidebar-active: var(--scalar-sidebar-font-weight-active, var(--scalar-semibold));
 
   /* Colors */
   --color-\*: initial;

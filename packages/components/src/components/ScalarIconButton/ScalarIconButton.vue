@@ -1,59 +1,62 @@
+<script lang="ts">
+/**
+ * Scalar icon button component
+ *
+ * Should be used in conjunction with an icon from `@scalar/icons`
+ *
+ * @example
+ * import { ScalarIconAcorn } from '@scalar/icons'
+ * ...
+ * <ScalarIconButton
+ *   :icon="ScalarIconAcorn"
+ *   label="It's an acorn"
+ * />
+ */
+export default {}
+</script>
 <script setup lang="ts">
-import type { ScalarIconWeight } from '@scalar/icons/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import { cva } from '@scalar/use-hooks/useBindCx'
-import type { VariantProps } from 'cva'
+import { computed, useTemplateRef } from 'vue'
 
-import { styles } from '../ScalarButton'
 import { type Icon, ScalarIconLegacyAdapter } from '../ScalarIcon'
+import { useTooltip } from '../ScalarTooltip'
+import type { ScalarIconButtonProps } from './types'
+import { variants } from './variants'
 
-type Variants = VariantProps<typeof variants>
-
-withDefaults(
-  defineProps<{
-    label: string
-    icon: Icon
-    disabled?: boolean
-    variant?: Variants['variant']
-    size?: Variants['size']
-    thickness?: string
-    weight?: ScalarIconWeight
-  }>(),
-  {
-    variant: 'ghost',
-    size: 'md',
-  },
-)
+const {
+  label,
+  variant = 'ghost',
+  tooltip,
+} = defineProps<ScalarIconButtonProps>()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 
-const variants = cva({
-  base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
-  variants: {
-    size: {
-      xxs: 'size-3.5 p-0.5',
-      xs: 'size-5 p-1',
-      sm: 'size-6 p-1',
-      md: 'size-10 p-3',
-      full: 'h-full w-full',
-    },
-    disabled: {
-      true: 'cursor-not-allowed shadow-none',
-    },
-    variant: styles,
-  },
+const button = useTemplateRef('ref')
+
+useTooltip({
+  content: computed(() => label),
+  offset: computed(() => (variant === 'ghost' ? 0 : 4)),
+  placement: computed(() =>
+    typeof tooltip === 'boolean' ? undefined : tooltip,
+  ),
+  targetRef: computed(() => (tooltip ? button.value : undefined)),
 })
 </script>
 <template>
   <button
-    :ariaDisabled="disabled || undefined"
+    ref="ref"
+    :aria-disabled="disabled"
     type="button"
     v-bind="cx(variants({ size, variant, disabled }))">
     <ScalarIconLegacyAdapter
       :icon="icon"
       :thickness="thickness"
       :weight="weight" />
-    <span class="sr-only">{{ label }}</span>
+    <span
+      v-if="!tooltip"
+      class="sr-only"
+      >{{ label }}</span
+    >
   </button>
 </template>

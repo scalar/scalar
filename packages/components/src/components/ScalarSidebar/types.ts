@@ -2,13 +2,14 @@ import type { Component } from 'vue'
 
 import type { Icon } from '../ScalarIcon'
 import type { SidebarGroupLevel } from './useSidebarGroups'
+import type { ScalarIconComponent } from '@scalar/icons/types'
 
 /** Scalar Sidebar Item Props */
 export type ScalarSidebarItemProps = {
   /** Overrides the rendered element */
   is?: Component | string
   /** Sets the icon for the item */
-  icon?: Icon | Component
+  icon?: Icon | ScalarIconComponent
   /** Wether or not the item is selected */
   selected?: boolean
   disabled?: boolean

@@ -6,8 +6,8 @@ import type {
   Request,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { TransformedOperation } from '@scalar/types/legacy'
-import { useId } from 'vue'
+import type { OpenAPIV3_1 } from '@scalar/types/legacy'
+import { computed, useId } from 'vue'
 
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
@@ -20,10 +20,9 @@ import {
   SectionHeader,
   SectionHeaderTag,
 } from '@/components/Section'
-import { ExampleRequest } from '@/features/ExampleRequest'
-import { ExampleResponses } from '@/features/ExampleResponses'
-import type { Schemas } from '@/features/Operation/types/schemas'
-import { TestRequestButton } from '@/features/TestRequestButton'
+import { ExampleRequest } from '@/features/example-request'
+import { ExampleResponses } from '@/features/example-responses'
+import { TestRequestButton } from '@/features/test-request-button'
 import { useConfig } from '@/hooks/useConfig'
 import {
   getOperationStability,
@@ -34,14 +33,24 @@ import {
 import Callbacks from '../components/callbacks/Callbacks.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
+import type { Schemas } from '../types/schemas'
 
-const { request, transformedOperation } = defineProps<{
+const { request, operation, path, isWebhook } = defineProps<{
+  id: string
+  path: string
+  method: OpenAPIV3_1.HttpMethods
+  operation: OpenAPIV3_1.OperationObject
+  isWebhook: boolean
+  /**
+   * @deprecated Use `document` instead
+   */
   collection: Collection
   server: Server | undefined
   request: Request | undefined
-  transformedOperation: TransformedOperation
   schemas?: Schemas
 }>()
+
+const operationTitle = computed(() => operation?.summary || path || '')
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
@@ -57,34 +66,29 @@ const handleDiscriminatorChange = (type: string) => {
 
 <template>
   <Section
-    :id="transformedOperation.id"
+    :id="id"
     :aria-labelledby="labelId"
-    :label="transformedOperation.name"
+    :label="operationTitle"
     tabindex="-1">
     <SectionContent :loading="config.isLoading">
       <Badge
-        v-if="getOperationStability(transformedOperation.information)"
-        :class="getOperationStabilityColor(transformedOperation.information)">
-        {{ getOperationStability(transformedOperation.information) }}
+        v-if="getOperationStability(operation)"
+        :class="getOperationStabilityColor(operation)">
+        {{ getOperationStability(operation) }}
       </Badge>
 
       <Badge
-        v-if="transformedOperation.isWebhook"
+        v-if="isWebhook"
         class="font-code text-green flex w-fit items-center justify-center gap-1">
         <ScalarIconWebhooksLogo weight="bold" />Webhook
       </Badge>
-      <div
-        :class="
-          isOperationDeprecated(transformedOperation.information)
-            ? 'deprecated'
-            : ''
-        ">
+      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader>
-          <Anchor :id="transformedOperation.id">
+          <Anchor :id="id">
             <SectionHeaderTag
               :id="labelId"
               :level="3">
-              {{ transformedOperation.name }}
+              {{ operationTitle }}
             </SectionHeaderTag>
           </Anchor>
         </SectionHeader>
@@ -93,26 +97,26 @@ const handleDiscriminatorChange = (type: string) => {
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="transformedOperation.information.description"
+              :value="operation?.description"
               withImages
               withAnchors
               transformType="heading"
-              :anchorPrefix="transformedOperation.id" />
+              :anchorPrefix="id" />
             <OperationParameters
-              :parameters="transformedOperation.information.parameters"
-              :requestBody="transformedOperation.information.requestBody"
+              :parameters="operation?.parameters"
+              :requestBody="operation?.requestBody"
               :schemas="schemas"
               @update:modelValue="handleDiscriminatorChange">
             </OperationParameters>
             <OperationResponses
-              :responses="transformedOperation.information.responses"
+              :responses="operation?.responses"
               :schemas="schemas" />
 
             <!-- Callbacks -->
             <ScalarErrorBoundary>
               <Callbacks
-                v-if="transformedOperation.information.callbacks"
-                :callbacks="transformedOperation.information.callbacks"
+                v-if="operation?.callbacks"
+                :callbacks="operation?.callbacks"
                 :collection="collection"
                 :schemas="schemas" />
             </ScalarErrorBoundary>
@@ -123,18 +127,18 @@ const handleDiscriminatorChange = (type: string) => {
             <ScalarErrorBoundary>
               <ExampleRequest
                 :request="request"
-                :method="transformedOperation.httpVerb"
+                :method="method"
                 :collection="collection"
                 fallback
-                :operation="transformedOperation.information"
+                :operation="operation"
                 :server="server"
                 :schemas="schemas"
                 @update:modelValue="handleDiscriminatorChange">
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="transformedOperation.information.deprecated"
-                    :path="transformedOperation.path" />
+                    :deprecated="operation?.deprecated"
+                    :path="path" />
                 </template>
                 <template
                   #footer
@@ -145,7 +149,7 @@ const handleDiscriminatorChange = (type: string) => {
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses
-                :responses="transformedOperation.information.responses"
+                :responses="operation?.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>

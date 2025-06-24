@@ -2,9 +2,9 @@
 
 Scalar makes for a great alternative to Stoplight thanks to its similar features like:
 
-1. An interactive and customizable API reference builder. 
+1. An interactive and customizable API reference builder.
 2. Team collaboration built-in.
-3. Custom domains, theming, and logos. 
+3. Custom domains, theming, and logos.
 
 On top of this, Scalar provides added benefits like:
 
@@ -19,7 +19,7 @@ If you want to try Scalar, there are two ways of migrating:
 
 ## Using GitHub sync
 
-If you are using Stoplight’s Git project feature, you can migrate easily using Scalar’s GitHub sync feature. It enables you to create and publish an API reference from a GitHub repo with nearly the same structure as Stoplight. 
+If you are using Stoplight’s Git project feature, you can migrate easily using Scalar’s GitHub sync feature. It enables you to create and publish an API reference from a GitHub repo with nearly the same structure as Stoplight.
 
 > **Don’t have an API docs GitHub repo?** You can also create one from the exported Stoplight project ZIP which we detail later.
 
@@ -83,7 +83,7 @@ After adding the `scalar.config.json` file to your repo, head to Scalar. On the 
 
 ![Syncing in Scalar](https://cdn.scalar.com/images/blog/sl-sync.png)
 
-Once the site is built and deployed, you’ll be able to see it at the URL you set in `scalar.config.json`. 
+Once the site is built and deployed, you’ll be able to see it at the URL you set in `scalar.config.json`.
 
 ![Published API Reference](https://cdn.scalar.com/images/blog/sl-api.png)
 
@@ -101,10 +101,10 @@ If you want more control over which OpenAPI documents you migrate, you can also 
 
 At this point, you can either:
 
-1. Set up a GitHub repo with the exported project ZIP or OpenAPI file and follow the instructions to use GitHub sync 
+1. Set up a GitHub repo with the exported project ZIP or OpenAPI file and follow the instructions to use GitHub sync
 2. Manually upload the OpenAPI doc to Scalar
 
-We already covered the first option earlier in this doc, so we will just focus on the second here.  
+We already covered the first option earlier in this doc, so we will just focus on the second here.
 
 ### Manually importing data into Scalar
 

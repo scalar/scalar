@@ -1,5 +1,44 @@
 # @scalar/aspnetcore
 
+## 2.5.0
+
+### Minor Changes
+
+- ca2e48e: feat: add `DocumentDownloadType` configuration and make `HideDownloadButton` obsolete
+
+### Patch Changes
+
+- Updated dependencies [c907685]
+- Updated dependencies [cd7e1b1]
+- Updated dependencies [3abe906]
+- Updated dependencies [42bc960]
+- Updated dependencies [1468280]
+  - @scalar/api-reference@1.31.18
+
+## 2.4.22
+
+### Patch Changes
+
+- Updated dependencies [ca18c0b]
+  - @scalar/api-reference@1.31.17
+
+## 2.4.21
+
+### Patch Changes
+
+- Updated dependencies [699df60]
+  - @scalar/api-reference@1.31.16
+
+## 2.4.20
+
+### Patch Changes
+
+- be9e435: chore: update depdendencies
+- Updated dependencies [5f08a45]
+- Updated dependencies [287eae4]
+- Updated dependencies [161733e]
+  - @scalar/api-reference@1.31.15
+
 ## 2.4.19
 
 ### Patch Changes

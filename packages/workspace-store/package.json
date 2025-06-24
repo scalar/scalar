@@ -16,7 +16,7 @@
     "openapi",
     "scalar"
   ],
-  "version": "0.5.2",
+  "version": "0.6.0",
   "engines": {
     "node": ">=18"
   },
@@ -29,7 +29,8 @@
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "scalar-types-check",
+    "generate-json-schemas": "vite-node ./scripts/generate-json-schemas.ts"
   },
   "type": "module",
   "exports": {
@@ -42,6 +43,16 @@
       "import": "./dist/schemas.js",
       "types": "./dist/schemas.d.ts",
       "default": "./dist/schemas.js"
+    },
+    "./schemas/v3.1/*": {
+      "import": "./dist/schemas/v3.1/*.js",
+      "types": "./dist/schemas/v3.1/*.d.ts",
+      "default": "./dist/schemas/v3.1/*.js"
+    },
+    "./schemas/v3.1/strict/*": {
+      "import": "./dist/schemas/v3.1/strict/*.js",
+      "types": "./dist/schemas/v3.1/strict/*.d.ts",
+      "default": "./dist/schemas/v3.1/strict/*.js"
     },
     "./server": {
       "import": "./dist/server.js",
@@ -58,13 +69,14 @@
     "@scalar/helpers": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",
     "vue": "catalog:*"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "@google-cloud/storage": "catalog:*",
+    "@scalar/build-tooling": "workspace:*",
     "fastify": "catalog:*",
     "vite": "catalog:*",
     "vitest": "catalog:*"
