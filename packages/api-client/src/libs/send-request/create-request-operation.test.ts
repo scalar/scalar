@@ -1173,4 +1173,111 @@ describe('create-request-operation', () => {
       }
     })
   })
+
+  it('executes onBeforeRequest hook when plugin manager is provided', async () => {
+    const mockPluginManager = {
+      executeHook: vi.fn().mockResolvedValue(undefined),
+    }
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+      pluginManager: mockPluginManager,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
+      request: expect.any(Request),
+    })
+    expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not execute onBeforeRequest hook when plugin manager is not provided', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+    )
+
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    // Should not throw any errors related to plugin manager
+    expect(requestError).toBe(null)
+  })
+
+  it('executes onBeforeRequest hook before making the request', async () => {
+    let hookExecuted = false
+
+    const mockPluginManager = {
+      executeHook: vi.fn().mockImplementation(async () => {
+        hookExecuted = true
+        return Promise.resolve()
+      }),
+    }
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+      pluginManager: mockPluginManager,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(hookExecuted).toBe(true)
+    expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
+      request: expect.any(Request),
+    })
+  })
+
+  it('executes onResponseReceived hook when plugin manager is provided', async () => {
+    const mockPluginManager = {
+      executeHook: vi.fn().mockResolvedValue(undefined),
+    }
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+      pluginManager: mockPluginManager,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onResponseReceived', {
+      response: expect.any(Response),
+      operation: expect.any(Object),
+    })
+    expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(2) // onBeforeRequest + onResponseReceived
+  })
 })
