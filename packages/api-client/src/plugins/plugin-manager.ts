@@ -4,7 +4,6 @@ import type { z } from 'zod'
 
 export type { ApiClientPlugin }
 
-// Extract the hook function types from the schema
 type HookFunctions = z.infer<typeof HooksSchema>
 
 type CreatePluginManagerParams = {
@@ -29,8 +28,8 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all components for a specific view
      */
-    getViewComponents: (view: keyof ReturnType<ApiClientPlugin>['views']) => {
-      return Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.views[view] || [])
+    getViewComponents: (view: keyof NonNullable<ReturnType<ApiClientPlugin>['views']>) => {
+      return Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.views?.[view] || [])
     },
 
     /**
@@ -38,14 +37,19 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
      */
     executeHook: <E extends keyof HookFunctions>(
       event: E,
-      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : never
+      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : any
     ) => {
       const hooks = Array.from(registeredPlugins.values()).flatMap(
-        (plugin) => plugin.hooks[event as keyof typeof plugin.hooks] || [],
+        (plugin) => plugin.hooks?.[event as keyof typeof plugin.hooks] || [],
       )
 
       // Execute each hook with the provided arguments
-      return Promise.all(hooks.map((hook) => (hook as HookFunctions[E])(...args)))
+      return Promise.all(
+        hooks
+          .filter((hook) => hook != null)
+          // @ts-expect-error I don't know how to properly type this
+          .map((hook) => (hook as HookFunctions[E])?.(...args)),
+      )
     },
   }
 }

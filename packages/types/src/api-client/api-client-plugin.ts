@@ -34,8 +34,8 @@ export const HooksSchema = z.object({
 export const ApiClientPluginSchema = z.function().returns(
   z.object({
     name: z.string(),
-    views: ViewsSchema,
-    hooks: HooksSchema,
+    views: ViewsSchema.optional(),
+    hooks: HooksSchema.optional(),
   }),
 )
 
