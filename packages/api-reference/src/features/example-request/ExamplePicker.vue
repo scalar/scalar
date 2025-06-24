@@ -8,12 +8,8 @@ const props = defineProps<{
   examples: Record<string, any>
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', v: string): void
-}>()
-
 // Keep track of the selected example
-const selectedExampleKey = ref<string>(Object.keys(props.examples)[0])
+const selectedExampleKey = defineModel<string>()
 function selectExampleKey(key: string) {
   if (key) {
     selectedExampleKey.value = key
@@ -24,20 +20,11 @@ function selectExampleKey(key: string) {
 watch(
   () => props.examples,
   () => {
-    selectExampleKey(Object.keys(props.examples)[0])
-  },
-  { immediate: true },
-)
-
-// Propagate changes
-watch(
-  selectedExampleKey,
-  () => {
-    if (!selectedExampleKey.value) {
+    if (props.examples[selectedExampleKey.value ?? '']) {
       return
     }
 
-    emit('update:modelValue', selectedExampleKey.value)
+    selectExampleKey(Object.keys(props.examples)[0])
   },
   { immediate: true },
 )
@@ -64,7 +51,7 @@ function getLabel(key: string | null) {
       }))
     ">
     <ScreenReader>Selected Example Values:</ScreenReader>
-    {{ getLabel(selectedExampleKey) }}
+    {{ getLabel(selectedExampleKey ?? 'Unknown') }}
   </TextSelect>
 </template>
 <style scoped>
