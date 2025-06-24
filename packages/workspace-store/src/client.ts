@@ -302,3 +302,5 @@ export function createWorkspaceStore(workspaceProps?: {
     },
   }
 }
+
+export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>
