@@ -34,6 +34,9 @@ const document =
         : (await useFetch<string>('/_openapi.json', { responseType: 'text' }))
             .data.value
 
+// Set the fetched spec to the config content to prevent ApiReferenceLayout from fetching it again on the client side
+props.configuration.content = document
+
 // Check for empty spec
 if (!document) {
   throw new Error('You must provide a document for Scalar API References')

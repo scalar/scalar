@@ -6,7 +6,7 @@ Make sure you have created a Scalar Account & are logged in ([see create account
 ## Add an OpenAPI Document
 Now let's add an OpenAPI document to the registry ✨
 
-From the dashboard click Import API from the right hand pane, or navigate to registry in the sidebar under Products then click Create new API
+From the [dashboard](https://dashboard.scalar.com) click Import API from the right hand pane, or navigate to registry in the sidebar under Products then click Create new API
 
 ![Scalar Import OpenAPI Document Modal](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/WnMVG8hrR_f-6t-lOtDYb.png "Scalar Import OpenAPI Document")
 

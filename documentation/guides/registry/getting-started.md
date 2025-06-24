@@ -12,7 +12,7 @@ Once authenticated you will see your dashboard, you have two options to interfac
 - Our [GitHub Workflows](/scalar/scalar-registry/github-workflows)
 
 ## So... Why a Registry?
-Managing OpenAPI cam be difficult; is the source-of-truth: design, implementation, git, cloud? How do you manage versions & access, also how do downstream consumers of your API interact with it? Does it need to be private? 
+Managing OpenAPI can be difficult; is the source-of-truth: design, implementation, Git, cloud? How do you manage versions and access, also how do downstream consumers of your API interact with it? Does it need to be private?
 
 Who is going to update the docs when our API has new endpoints or examples?
 
@@ -27,6 +27,5 @@ World Class SDKs with just a few clicks, all managed by Scalars registry automag
 ![Scalar SDKs](https://api.scalar.com/cdn/images/UCkGjASrXpR8OxgWEj32i/IFjPvoh6_GLT0oVZfLQvl.png "Scalar SDKs")
 
 and so much more!
-
 
 All of this with just a couple clicks or a few API requests! You handle making your API great, and we will handle the rest of the tooling. OpenAPI first.

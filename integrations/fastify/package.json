@@ -17,7 +17,7 @@
     "openapi",
     "swagger"
   ],
-  "version": "1.31.13",
+  "version": "1.31.18",
   "engines": {
     "node": ">=20"
   },
@@ -61,7 +61,7 @@
   "devDependencies": {
     "@fastify/basic-auth": "^5.1.1",
     "@fastify/http-proxy": "^9.0.0",
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/swagger": "catalog:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",

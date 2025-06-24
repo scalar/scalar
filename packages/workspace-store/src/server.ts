@@ -5,23 +5,31 @@ import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema, type OpenApiDocument } from '@/schemas/v3.1/strict/openapi-document'
 import type { PathsObject } from '@/schemas/v3.1/strict/paths'
 import { keyOf } from '@/helpers/general'
-import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
 import type { OperationObject } from '@/schemas/v3.1/strict/path-operations'
+import { fetchUrls, readFiles } from '@scalar/openapi-parser/plugins'
+import { coerceValue } from '@/schemas/typebox-coerce'
+import type { ComponentsObject } from '@/schemas/v3.1/strict/components'
+import type { TraversedEntry } from '@/navigation/types'
 
 const DEFAULT_ASSETS_FOLDER = 'assets'
 export const WORKSPACE_FILE_NAME = 'scalar-workspace.json'
 
-// TODO: support input document from different sources
+type WorkspaceDocumentMetaInput = {
+  name: string
+  meta?: WorkspaceDocumentMeta
+}
+
+type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
+type FileDoc = { path: string } & WorkspaceDocumentMetaInput
+type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
+
+type WorkspaceDocumentInput = UrlDoc | ObjectDoc | FileDoc
+
 type CreateServerWorkspaceStoreBase = {
-  documents: {
-    name: string
-    document: Record<string, unknown> | string
-    meta?: WorkspaceDocumentMeta
-  }[]
+  documents: WorkspaceDocumentInput[]
   meta?: WorkspaceMeta
   config?: createNavigationOptions
 }
@@ -176,33 +184,45 @@ export function externalizePathReferences(
 }
 
 /**
+ * Resolves a workspace document from various input sources (URL, local file, or direct document object).
+ *
+ * @param workspaceDocument - The document input to resolve, which can be:
+ *   - A URL to fetch the document from
+ *   - A local file path to read the document from
+ *   - A direct document object
+ * @returns A promise that resolves to an object containing:
+ *   - ok: boolean indicating if the resolution was successful
+ *   - data: The resolved document data
+ *
+ * @example
+ * // Resolve from URL
+ * const urlDoc = await loadDocument({ name: 'api', url: 'https://api.example.com/openapi.json' })
+ *
+ * // Resolve direct document
+ * const directDoc = await loadDocument({
+ *   name: 'inline',
+ *   document: { openapi: '3.0.0', paths: {} }
+ * })
+ */
+async function loadDocument(workspaceDocument: WorkspaceDocumentInput) {
+  if ('url' in workspaceDocument) {
+    return fetchUrls().exec(workspaceDocument.url)
+  }
+
+  if ('path' in workspaceDocument) {
+    return readFiles().exec(workspaceDocument.path)
+  }
+
+  return {
+    ok: true as const,
+    data: workspaceDocument.document,
+  }
+}
+
+/**
  * Create server state workspace store
  */
-export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
-  const documents = workspaceProps.documents.map((el) => {
-    const document = upgrade(el.document).specification
-
-    const castedDocument = coerceValue(OpenAPIDocumentSchema, document)
-
-    return { ...el, document: castedDocument }
-  })
-
-  /**
-   * A map of document chunks that can be loaded asynchronously by the client.
-   * Each document is split into components and operations to enable lazy loading.
-   * The keys are document names and values contain the components and operations
-   * for that document.
-   */
-  const assets = documents.reduce<
-    Record<string, { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }>
-  >((acc, { name, document }) => {
-    acc[name] = {
-      components: document.components,
-      operations: document.paths && escapePaths(filterHttpMethodsOnly(document.paths)),
-    }
-    return acc
-  }, {})
-
+export async function createServerWorkspaceStore(workspaceProps: CreateServerWorkspaceStore) {
   /**
    * Base workspace document containing essential metadata and document references.
    *
@@ -214,23 +234,91 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
    */
   const workspace = {
     ...workspaceProps.meta,
-    documents: documents.reduce<Record<string, Record<string, unknown>>>((acc, { name, document, meta }) => {
-      const options =
-        workspaceProps.mode === 'ssr'
-          ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
-          : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
-
-      // Transform the original document by setting all the components and paths operations on refs
-      const components = externalizeComponentReferences(document, options)
-      const paths = externalizePathReferences(document, options)
-
-      // Here we create the sidebar
-      const { entries } = createNavigation(document, workspaceProps.config ?? {})
-
-      acc[name] = { ...meta, ...document, components, paths, [extensions.document.navigation]: entries }
-      return acc
-    }, {}),
+    documents: {} as Record<string, OpenApiDocument & { [extensions.document.navigation]: TraversedEntry[] }>,
   }
+
+  /**
+   * A map of document chunks that can be loaded asynchronously by the client.
+   * Each document is split into components and operations to enable lazy loading.
+   * The keys are document names and values contain the components and operations
+   * for that document.
+   */
+  const assets = {} as Record<
+    string,
+    { components?: ComponentsObject; operations?: Record<string, Record<string, OperationObject>> }
+  >
+
+  /**
+   * Adds a new document to the workspace.
+   *
+   * This function processes an OpenAPI document by:
+   * 1. Converting it to OpenAPI 3.1 format if needed
+   * 2. Separating it into reusable components and path operations
+   * 3. Externalizing references based on the workspace mode (SSR or static)
+   * 4. Adding the processed document to the workspace with its metadata
+   *
+   * The resulting document contains minimal information with externalized references
+   * that will be resolved on-demand through the workspace's get() method.
+   *
+   * @param document - The OpenAPI document to process and add
+   * @param meta - Document metadata containing the required name and optional settings
+   */
+  const addDocumentSync = (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
+    const { name, ...documentMeta } = meta
+
+    const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
+
+    // add the assets
+    assets[meta.name] = {
+      components: documentV3.components,
+      operations: documentV3.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
+    }
+
+    const options =
+      workspaceProps.mode === 'ssr'
+        ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
+        : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
+
+    const components = externalizeComponentReferences(documentV3, options)
+    const paths = externalizePathReferences(documentV3, options)
+
+    // Build the sidebar entries
+    const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
+
+    // The document is now a minimal version with externalized references to components and operations.
+    // These references will be resolved asynchronously when needed through the workspace's get() method.
+    workspace.documents[meta.name] = {
+      ...documentMeta,
+      ...documentV3,
+      components,
+      paths,
+      [extensions.document.navigation]: entries,
+    }
+  }
+
+  /**
+   * Adds a new document to the workspace asynchronously.
+   *
+   * This function:
+   * 1. Loads the document using the provided input
+   * 2. Checks if the document loaded successfully
+   * 3. If successful, adds the document to the workspace using addDocumentSync
+   *
+   * @param input - The document input containing the document source and metadata
+   */
+  const addDocument = async (input: WorkspaceDocumentInput) => {
+    const document = await loadDocument(input)
+
+    if (!document.ok) {
+      console.warn(`Failed to load document "${input.name}`)
+      return
+    }
+
+    addDocumentSync(document.data as Record<string, unknown>, { name: input.name, ...input.meta })
+  }
+
+  // Load and process all initial documents in parallel
+  await Promise.all(workspaceProps.documents.map(addDocument))
 
   return {
     /**
@@ -320,48 +408,15 @@ export function createServerWorkspaceStore(workspaceProps: CreateServerWorkspace
       return getValueByPath(assets, parseJsonPointer(pointer))
     },
     /**
-     * Adds a new document to the workspace.
+     * Adds a new document to the workspace asynchronously.
      *
-     * The document will be:
-     * - Upgraded to OpenAPI 3.1 if needed
-     * - Split into components and operations chunks
-     * - Have its references externalized based on the workspace mode
-     * - Added to the workspace with its metadata
+     * This function:
+     * 1. Loads the document using the provided input
+     * 2. Checks if the document loaded successfully
+     * 3. If successful, adds the document to the workspace using addDocumentSync
      *
-     * @param document - The OpenAPI document to add
-     * @param meta - Document metadata including required name and optional settings
+     * @param input - The document input containing the document source and metadata
      */
-    addDocument: (document: Record<string, unknown>, meta: { name: string } & WorkspaceDocumentMeta) => {
-      const { name, ...documentMeta } = meta
-
-      const documentV3 = coerceValue(OpenAPIDocumentSchema, upgrade(document).specification)
-
-      // add the assets
-      assets[meta.name] = {
-        components: documentV3.components,
-        operations: documentV3.paths && escapePaths(filterHttpMethodsOnly(documentV3.paths)),
-      }
-
-      const options =
-        workspaceProps.mode === 'ssr'
-          ? { mode: workspaceProps.mode, name, baseUrl: workspaceProps.baseUrl }
-          : { mode: workspaceProps.mode, name, directory: workspaceProps.directory ?? DEFAULT_ASSETS_FOLDER }
-
-      const components = externalizeComponentReferences(documentV3, options)
-      const paths = externalizePathReferences(documentV3, options)
-
-      // Build the sidebar entries
-      const { entries } = createNavigation(documentV3, workspaceProps.config ?? {})
-
-      // The document is now a minimal version with externalized references to components and operations.
-      // These references will be resolved asynchronously when needed through the workspace's get() method.
-      workspace.documents[meta.name] = {
-        ...documentMeta,
-        ...documentV3,
-        components,
-        paths,
-        [extensions.document.navigation]: entries,
-      }
-    },
+    addDocument,
   }
 }

@@ -1,5 +1,42 @@
 # @scalar/components
 
+## 0.14.13
+
+### Patch Changes
+
+- c907685: fix(components): set sidebar search button leading
+- 4bbbb32: feat(components): add sidebar sections
+- Updated dependencies [4bbbb32]
+  - @scalar/use-hooks@0.2.3
+  - @scalar/themes@0.13.5
+  - @scalar/code-highlight@0.1.4
+  - @scalar/oas-utils@0.4.8
+
+## 0.14.12
+
+### Patch Changes
+
+- Updated dependencies [ca18c0b]
+  - @scalar/themes@0.13.4
+  - @scalar/code-highlight@0.1.4
+  - @scalar/oas-utils@0.4.7
+
+## 0.14.11
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/icons@0.4.4
+
+## 0.14.10
+
+### Patch Changes
+
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+
 ## 0.14.9
 
 ### Patch Changes

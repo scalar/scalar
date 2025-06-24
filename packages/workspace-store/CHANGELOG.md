@@ -1,5 +1,23 @@
 # @scalar/workspace-store
 
+## 0.6.0
+
+### Minor Changes
+
+- b97c82a: feat(workspace-store): server store input document from different sources
+- 9f786d5: feat(workspace-store): preserve the original ref information
+
+### Patch Changes
+
+- @scalar/code-highlight@0.1.4
+- @scalar/openapi-parser@0.18.0
+
+## 0.5.2
+
+### Patch Changes
+
+- 1703e42: fix(workspace-store): relative paths for ssg mode
+
 ## 0.5.1
 
 ### Patch Changes

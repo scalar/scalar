@@ -1,5 +1,54 @@
 # @scalar/api-client
 
+## 2.5.12
+
+### Patch Changes
+
+- Updated dependencies [c907685]
+- Updated dependencies [4bbbb32]
+- Updated dependencies [1468280]
+  - @scalar/components@0.14.13
+  - @scalar/use-hooks@0.2.3
+  - @scalar/themes@0.13.5
+  - @scalar/types@0.2.4
+  - @scalar/use-codemirror@0.12.14
+  - @scalar/oas-utils@0.4.8
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/snippetz@0.3.1
+  - @scalar/postman-to-openapi@0.3.11
+
+## 2.5.11
+
+### Patch Changes
+
+- Updated dependencies [ca18c0b]
+  - @scalar/themes@0.13.4
+  - @scalar/components@0.14.12
+  - @scalar/oas-utils@0.4.7
+  - @scalar/use-codemirror@0.12.13
+  - @scalar/postman-to-openapi@0.3.10
+
+## 2.5.10
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/components@0.14.11
+  - @scalar/icons@0.4.4
+  - @scalar/use-codemirror@0.12.12
+
+## 2.5.9
+
+### Patch Changes
+
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+  - @scalar/components@0.14.10
+  - @scalar/postman-to-openapi@0.3.9
+  - @scalar/use-codemirror@0.12.11
+
 ## 2.5.8
 
 ### Patch Changes

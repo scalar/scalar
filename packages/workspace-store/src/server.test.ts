@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   createServerWorkspaceStore,
   escapePaths,
@@ -9,6 +9,9 @@ import {
 import fs from 'node:fs/promises'
 import { cwd } from 'node:process'
 import { allFilesMatch } from '../test/helpers'
+import { fastify, type FastifyInstance } from 'fastify'
+import { randomUUID } from 'node:crypto'
+import { setTimeout } from 'node:timers/promises'
 
 describe('create-server-store', () => {
   const exampleDocument = () => ({
@@ -40,8 +43,8 @@ describe('create-server-store', () => {
   })
 
   describe('ssr', () => {
-    test('should be able to pass a list of documents and get the workspace', async () => {
-      const store = createServerWorkspaceStore({
+    it('should be able to pass a list of documents and get the workspace', async () => {
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -104,8 +107,8 @@ describe('create-server-store', () => {
       })
     })
 
-    test('should be able to get the document chunks', async () => {
-      const store = createServerWorkspaceStore({
+    it('should be able to get the document chunks', async () => {
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -130,8 +133,8 @@ describe('create-server-store', () => {
       })
     })
 
-    test('should be able to add more documents on the workspace', async () => {
-      const store = createServerWorkspaceStore({
+    it('should be able to add more documents on the workspace', async () => {
+      const store = await createServerWorkspaceStore({
         mode: 'ssr',
         baseUrl: 'https://example.com',
         documents: [
@@ -149,7 +152,7 @@ describe('create-server-store', () => {
         ],
       })
 
-      store.addDocument(exampleDocument(), { name: 'doc-3', 'x-scalar-active-auth': 'test' })
+      await store.addDocument({ name: 'doc-3', meta: { 'x-scalar-active-auth': 'test' }, document: exampleDocument() })
       const workspace = store.getWorkspace()
 
       expect(workspace.documents['doc-1']).toEqual({
@@ -219,10 +222,10 @@ describe('create-server-store', () => {
   })
 
   describe('ssg', () => {
-    test('should generate the workspace file and also all the related chunks', async () => {
+    it('should generate the workspace file and also all the related chunks', async () => {
       const dir = 'temp'
 
-      const store = createServerWorkspaceStore({
+      const store = await createServerWorkspaceStore({
         mode: 'static',
         directory: dir,
         documents: [
@@ -243,10 +246,13 @@ describe('create-server-store', () => {
         },
       })
 
-      store.addDocument(exampleDocument(), {
+      await store.addDocument({
+        document: exampleDocument(),
         name: 'doc-2',
-        'x-scalar-active-auth': 'test',
-        'x-scalar-active-server': 'test',
+        meta: {
+          'x-scalar-active-auth': 'test',
+          'x-scalar-active-server': 'test',
+        },
       })
       await store.generateWorkspaceChunks()
 
@@ -343,10 +349,116 @@ describe('create-server-store', () => {
       await fs.rmdir(basePath, { recursive: true })
     })
   })
+
+  describe('load document on the workspace', () => {
+    describe('load from external urls', () => {
+      let server: FastifyInstance
+      const port = 6287
+      const url = `http://localhost:${port}`
+
+      beforeEach(() => {
+        server = fastify({ logger: false })
+      })
+
+      afterEach(async () => {
+        await server.close()
+        await setTimeout(100)
+      })
+
+      it('should load a document on the workspace from an external url', async () => {
+        server.get('/', () => {
+          return exampleDocument()
+        })
+        await server.listen({ port })
+
+        const store = await createServerWorkspaceStore({
+          baseUrl: url,
+          documents: [
+            {
+              name: 'default',
+              url: url,
+            },
+          ],
+          mode: 'ssr',
+        })
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
+      })
+
+      it('should be able to add a document from an external url', async () => {
+        server.get('/', () => {
+          return exampleDocument()
+        })
+        await server.listen({ port })
+
+        const store = await createServerWorkspaceStore({
+          mode: 'ssr',
+          baseUrl: url,
+          documents: [],
+        })
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(0)
+
+        await store.addDocument({
+          name: 'default',
+          url,
+        })
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
+      })
+    })
+
+    describe('load from file system', () => {
+      it('should load a document on the workspace from the file path', async () => {
+        const fileName = randomUUID()
+        await fs.writeFile(fileName, JSON.stringify(exampleDocument()))
+
+        const store = await createServerWorkspaceStore({
+          baseUrl: 'example.com',
+          documents: [
+            {
+              path: fileName,
+              name: 'default',
+            },
+          ],
+          mode: 'ssr',
+        })
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
+
+        await fs.rm(fileName)
+      })
+
+      it('should add a document to the store from a file path', async () => {
+        const fileName = randomUUID()
+        await fs.writeFile(fileName, JSON.stringify(exampleDocument()))
+
+        const store = await createServerWorkspaceStore({
+          baseUrl: 'example.com',
+          documents: [],
+          mode: 'ssr',
+        })
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(0)
+
+        await store.addDocument({
+          path: fileName,
+          name: 'default',
+        })
+        await fs.rm(fileName)
+
+        expect(Object.keys(store.getWorkspace().documents).length).toBe(1)
+        expect(Object.keys(store.getWorkspace().documents)[0]).toBe('default')
+      })
+    })
+  })
 })
 
 describe('filter-http-methods-only', () => {
-  test('should only keep the http methods', () => {
+  it('should only keep the http methods', () => {
     const result = filterHttpMethodsOnly({
       '/path': {
         get: { description: 'some description' },
@@ -365,13 +477,13 @@ describe('filter-http-methods-only', () => {
 })
 
 describe('escape-paths', () => {
-  test('should correctly escape / paths', () => {
+  it('should correctly escape / paths', () => {
     const result = escapePaths({ '/hello/users': { get: { description: 'some description' } } })
     expect(Object.keys(result)).toEqual(['~1hello~1users'])
     expect(result['~1hello~1users']).toEqual({ get: { description: 'some description' } })
   })
 
-  test('should correctly escape ~ paths', () => {
+  it('should correctly escape ~ paths', () => {
     const result = escapePaths({ '/hello~world/users': { get: { description: 'some description' } } })
     expect(Object.keys(result)).toEqual(['~1hello~0world~1users'])
 
@@ -380,7 +492,7 @@ describe('escape-paths', () => {
 })
 
 describe('externalize-component-references', () => {
-  test('should convert the components with refs correctly for ssr mode', () => {
+  it('should convert the components with refs correctly for ssr mode', () => {
     const result = externalizeComponentReferences(
       {
         info: {
@@ -416,7 +528,7 @@ describe('externalize-component-references', () => {
     })
   })
 
-  test('should convert the components with refs correctly for ssg mode', () => {
+  it('should convert the components with refs correctly for ssg mode', () => {
     const result = externalizeComponentReferences(
       {
         info: {
@@ -454,7 +566,7 @@ describe('externalize-component-references', () => {
 })
 
 describe('externalize-path-references', () => {
-  test('should correctly replace the contents with a ref for ssr mode', () => {
+  it('should correctly replace the contents with a ref for ssr mode', () => {
     const result = externalizePathReferences(
       {
         info: {
@@ -482,7 +594,7 @@ describe('externalize-path-references', () => {
     })
   })
 
-  test('should replace the http methods with the reference while preserving other properties', () => {
+  it('should replace the http methods with the reference while preserving other properties', () => {
     const result = externalizePathReferences(
       {
         paths: {
@@ -512,7 +624,7 @@ describe('externalize-path-references', () => {
     })
   })
 
-  test('should correctly replace the contents with a ref for ssg mode', () => {
+  it('should correctly replace the contents with a ref for ssg mode', () => {
     const result = externalizePathReferences(
       {
         info: {

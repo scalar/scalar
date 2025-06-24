@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { describe, expect, it } from 'vitest'
 
-import { getModelNameFromSchema, getCompositionDisplay, getSchemaNameFromSchemas, getModelName } from './schema-name'
+import { getCompositionDisplay, getModelName, getModelNameFromSchema, getSchemaNameFromSchemas } from './schema-name'
 
 describe('schema-name', () => {
   describe('getModelNameFromSchema', () => {
@@ -18,18 +18,6 @@ describe('schema-name', () => {
     it('prefers title over name', () => {
       const schema = { title: 'Galaxy Planet', name: 'Other Name', type: 'object' } as any
       expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
-    })
-
-    it('finds schema name from schemas dictionary', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'object',
-        properties: { id: { type: 'string' } },
-      }
-      const schemas = {
-        GalaxyPlanet: { type: 'object', properties: { id: { type: 'string' } } },
-        Satellite: { type: 'object', properties: { name: { type: 'string' } } },
-      }
-      expect(getModelNameFromSchema(schema, schemas)).toBe('GalaxyPlanet')
     })
 
     it('handles array types with items', () => {
@@ -249,6 +237,23 @@ describe('schema-name', () => {
       }
       const mockGetDiscriminatorSchemaName = () => 'DiscriminatorModel'
       expect(getModelName(value, {}, false, mockGetDiscriminatorSchemaName)).toBe('array DiscriminatorModel[]')
+    })
+
+    it('returns null when no matching schema found for a primitive type (string)', () => {
+      const value = {
+        type: 'string',
+      }
+      const schemas = {
+        Timestamp: {
+          type: 'string',
+          format: 'date-time',
+          description: 'ISO-8601 Timestamp',
+          example: '2024-11-30T10:04:46+00:00',
+          readOnly: true,
+        },
+      }
+      const result = getModelName(value, schemas)
+      expect(result).toBe(null)
     })
   })
 

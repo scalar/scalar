@@ -260,7 +260,7 @@ describe('create-workspace-store', () => {
     const PORT = 9988
     await server.listen({ port: PORT })
 
-    const serverStore = createServerWorkspaceStore({
+    const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
       baseUrl: `http://localhost:${PORT}`,
       documents: [
@@ -297,7 +297,10 @@ describe('create-workspace-store', () => {
     expect(
       (store.workspace.activeDocument?.paths?.['/users'].get as any).responses[200].content['application/json'].schema
         .items,
-    ).toEqual(getDocument().components.schemas.User)
+    ).toEqual({
+      ...getDocument().components.schemas.User,
+      'x-original-ref': '#/components/schemas/User',
+    })
   })
 
   test('should load files form the remote url', async () => {
@@ -390,7 +393,7 @@ describe('create-workspace-store', () => {
     const PORT = 6672
     await server.listen({ port: PORT })
 
-    const serverStore = createServerWorkspaceStore({
+    const serverStore = await createServerWorkspaceStore({
       mode: 'ssr',
       baseUrl: `http://localhost:${PORT}`,
       documents: [
@@ -506,6 +509,7 @@ describe('create-workspace-store', () => {
                   'application/json': {
                     'schema': {
                       'items': {
+                        'x-original-ref': '#/components/schemas/Todo',
                         'properties': {
                           'completed': {
                             'type': 'boolean',

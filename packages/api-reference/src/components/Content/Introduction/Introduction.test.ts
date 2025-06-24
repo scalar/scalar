@@ -1,10 +1,10 @@
-import { DownloadLink } from '@/features/DownloadLink'
+import { DownloadLink } from '@/features/download-link'
+import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
 import type { Spec } from '@scalar/types/legacy'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
-import { reactive, ref, computed } from 'vue'
-import { useSidebar } from '@/features/sidebar/hooks/useSidebar'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Mock } from 'vitest'
+import { computed, reactive, ref } from 'vue'
 
 import Introduction from './Introduction.vue'
 

@@ -2,7 +2,7 @@
 import { ScalarIconCaretRight } from '@scalar/icons'
 import { requestSchema, type Collection } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3_1, TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPIV3_1 } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { HttpMethod } from '@/components/HttpMethod'

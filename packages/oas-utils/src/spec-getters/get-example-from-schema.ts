@@ -298,7 +298,12 @@ export const getExampleFromSchema = (
       }
     }
 
-    if (schema.items?.type) {
+    // if it has type: 'object', or properties, it’s an object
+    const isObject = schema.items?.type === 'object' || schema.items?.properties !== undefined
+    // if it has type: 'array', or items, it’s an array
+    const isArray = schema.items?.type === 'array' || schema.items?.items !== undefined
+
+    if (schema.items?.type || isObject || isArray) {
       const exampleFromSchema = getExampleFromSchema(schema.items, options, level + 1)
 
       return wrapItems ? [{ [itemsXmlTagName]: exampleFromSchema }] : [exampleFromSchema]

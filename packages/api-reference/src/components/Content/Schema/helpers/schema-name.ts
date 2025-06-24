@@ -1,12 +1,12 @@
-import { stringify } from 'flatted'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Schemas } from '@/features/Operation/types/schemas'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { stringify } from 'flatted'
 
 /**
  * Extract schema name from various schema formats
  * Handles $ref, title, name, type, and schema dictionary lookup
  */
-export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
+export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string | null {
   if (!schema) {
     return null
   }
@@ -18,16 +18,6 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
 
   if ('name' in schema && schema.name) {
     return schema.name
-  }
-
-  // Schema dictionary lookup by comparing stringified objects
-  if (schemas && typeof schemas === 'object') {
-    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
-      // To avoid circular references, stringify the schema and compare
-      if (stringify(schemaValue) === stringify(schema)) {
-        return schemaName
-      }
-    }
   }
 
   // Handle $ref schemas - extract name from reference path
@@ -67,7 +57,8 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject, schemas
  * Find schema name by matching against component schemas
  */
 export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schemas?: Schemas): string | null {
-  if (!schema || !schemas || typeof schemas !== 'object') {
+  // We only want to use this strategy for arrays or objects
+  if (!schema || !schemas || typeof schemas !== 'object' || (schema.type !== 'array' && schema.type !== 'object')) {
     return null
   }
 
@@ -84,17 +75,6 @@ export function getSchemaNameFromSchemas(schema: OpenAPIV3_1.SchemaObject, schem
         stringify(schemaValue.properties) === stringify(schema.properties)
       ) {
         return schemaName
-      }
-
-      // Only return schema name if it has model name
-      if (schema.type !== 'array' && schema.type !== 'object') {
-        const hasAdditionalProperties = Object.keys(schemaValue).some(
-          (key) => key !== 'type' && !['title', 'description'].includes(key),
-        )
-
-        if (hasAdditionalProperties || hasName(schemaName)) {
-          return schemaName
-        }
       }
     }
   }
@@ -131,7 +111,7 @@ export function getModelName(
   }
 
   // First check if the entire schema matches a component schema
-  const modelName = getModelNameFromSchema(value, schemas)
+  const modelName = getModelNameFromSchema(value)
   if (modelName && (value.title || value.name)) {
     return value.type === 'array' ? `array ${modelName}[]` : modelName
   }
@@ -156,7 +136,7 @@ export function getModelName(
       return formatTypeWithModel(value.type, value.items.title || value.items.name)
     }
 
-    const itemModelName = getModelNameFromSchema(value.items, schemas)
+    const itemModelName = getModelNameFromSchema(value.items)
     if (itemModelName && itemModelName !== value.items.type) {
       return formatTypeWithModel(value.type, itemModelName)
     }
@@ -214,7 +194,7 @@ export function getCompositionDisplay(
   }
 
   // Check if base schemas have names
-  const baseNames = baseSchemas.map((schema) => getModelNameFromSchema(schema, schemas))
+  const baseNames = baseSchemas.map((schema) => getModelNameFromSchema(schema))
   const baseHasName = baseNames.some((name) => hasName(name))
 
   // If base schemas have names, use them
@@ -223,7 +203,7 @@ export function getCompositionDisplay(
   }
 
   // Check if composition schemas have names
-  const compositionNames = compositionSchemas.map((schema) => getModelNameFromSchema(schema, schemas))
+  const compositionNames = compositionSchemas.map((schema) => getModelNameFromSchema(schema))
   const compositionHasName = compositionNames.some((name) => hasName(name))
 
   // If composition schemas have names but original don't, use composition

@@ -32,6 +32,7 @@ To get started, overwrite our CSS variables. We won’t judge.
 <style>
   :root {
     --scalar-font: 'Comic Sans MS', 'Comic Sans', cursive;
+    --scalar-font-code: 'Comic Sans MS', 'Comic Sans', cursive;
   }
 </style>
 ```
@@ -39,7 +40,7 @@ To get started, overwrite our CSS variables. We won’t judge.
 > [!NOTE]\
 > By default, we’re using Inter and JetBrains Mono, served by our in-house CDN.
 
-If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` CSS variable. You will also need to provide the source of your new font which can be local or served over the network.
+If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
 
 Here is an example of how to use the `Roboto` font from Google Fonts with the CDN API reference.
 
@@ -55,6 +56,7 @@ Here is an example of how to use the `Roboto` font from Google Fonts with the CD
     <style>
       :root {
         --scalar-font: 'Roboto', sans-serif;
+        --scalar-font-code: 'Roboto', sans-serif;
       }
     </style>
   </head>
@@ -72,7 +74,7 @@ Here is an example of how to use the `Roboto` font from Google Fonts with the CD
 </html>
 ```
 
-You can [use all variables](../packages/themes/src/variables.css) as well as overwrite the color theme.
+You can [use all variables](https://github.com/scalar/scalar/blob/main/packages/themes/src/base/variables.css) as well as overwrite the color theme.
 
 To build your own color themes, overwrite the night mode and day mode variables.
 Here are some basic variables to get you started:

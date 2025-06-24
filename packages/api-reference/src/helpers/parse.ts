@@ -163,7 +163,7 @@ const transformResult = (originalSchema: OpenAPIV3_1.Document, items?: Traversed
       item.children.forEach(parseTag)
     }
     // Tags
-    if ('tag' in item) {
+    else if ('tag' in item) {
       parseTag(item)
     }
     // Webhooks

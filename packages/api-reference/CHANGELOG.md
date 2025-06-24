@@ -1,5 +1,74 @@
 # @scalar/api-reference
 
+## 1.31.18
+
+### Patch Changes
+
+- c907685: fix(api-reference): set search button width
+- cd7e1b1: chore: remove unused fixtures
+- 3abe906: feat: show a console error for invalid documents
+- 42bc960: fix(api-reference): rollback targets to avoid PropertyDefinition in AST
+- 1468280: feat: allow fine gained download button file type control
+- Updated dependencies [c907685]
+- Updated dependencies [b97c82a]
+- Updated dependencies [9f786d5]
+- Updated dependencies [4bbbb32]
+- Updated dependencies [1468280]
+  - @scalar/components@0.14.13
+  - @scalar/workspace-store@0.6.0
+  - @scalar/use-hooks@0.2.3
+  - @scalar/themes@0.13.5
+  - @scalar/types@0.2.4
+  - @scalar/api-client@2.5.12
+  - @scalar/code-highlight@0.1.4
+  - @scalar/oas-utils@0.4.8
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/snippetz@0.3.1
+
+## 1.31.17
+
+### Patch Changes
+
+- ca18c0b: feat(api-reference): update and modernize sidebar design
+- Updated dependencies [ca18c0b]
+  - @scalar/themes@0.13.4
+  - @scalar/api-client@2.5.11
+  - @scalar/code-highlight@0.1.4
+  - @scalar/components@0.14.12
+  - @scalar/oas-utils@0.4.7
+
+## 1.31.16
+
+### Patch Changes
+
+- 699df60: feat(components): sidebar search input / button
+- Updated dependencies [699df60]
+  - @scalar/api-client@2.5.10
+  - @scalar/components@0.14.11
+  - @scalar/icons@0.4.4
+
+## 1.31.15
+
+### Patch Changes
+
+- 5f08a45: fix: looks up wrong name for schemas
+- 287eae4: fix: display correct schema type instead of false name
+- 161733e: docs: new README
+- Updated dependencies [979139e]
+- Updated dependencies [aaf90bf]
+  - @scalar/oas-utils@0.4.6
+  - @scalar/api-client@2.5.9
+  - @scalar/components@0.14.10
+
+## 1.31.14
+
+### Patch Changes
+
+- 0a94952: fix: remove duplicate operations in x-tag-groups
+- 0e67143: fix: show content encoding description in schema
+- Updated dependencies [1703e42]
+  - @scalar/workspace-store@0.5.2
+
 ## 1.31.13
 
 ### Patch Changes

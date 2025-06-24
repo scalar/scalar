@@ -1,5 +1,5 @@
 export { XAdditionalPropertiesNameSchema } from './x-additional-properties-name'
-export { XCodeSamplesSchema, XCodeSampleSchema } from './x-code-samples'
+export { XCodeSamplesSchema, XCodeSampleSchema, type XCodeSample } from './x-code-samples'
 export { XEnumDescriptionsSchema } from './x-enum-descriptions'
 export { XInternalSchema } from './x-internal'
 export { XScalarIconSchema } from './x-scalar-icon'

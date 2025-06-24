@@ -18,6 +18,8 @@ const { indent = 0, selected = false } = defineProps<{
   indent?: SidebarGroupLevel
   /** Whether the indent is selected @default false */
   selected?: boolean
+  /** Whether the indent hover is disabled @default false */
+  disabled?: boolean
 }>()
 
 const indents = computed<number[]>(() => {
@@ -31,7 +33,7 @@ const { cx } = useBindCx()
   <div
     v-bind="
       cx('scalar-sidebar-indent flex justify-center', {
-        'mr-[calc(18px-var(--scalar-sidebar-indent))]': indent > 0,
+        'mr-[calc(20px-var(--scalar-sidebar-indent))]': indent > 0,
         'scalar-sidebar-indent-selected': selected,
       })
     ">
@@ -41,15 +43,17 @@ const { cx } = useBindCx()
       class="relative w-[var(--scalar-sidebar-indent)]">
       <!-- Indent Border -->
       <div
-        class="scalar-sidebar-indent-border absolute left-1.75 inset-y-0 w-border bg-sidebar-indent-border" />
+        class="scalar-sidebar-indent-border absolute left-1.5 inset-y-0 w-border bg-sidebar-indent-border" />
       <!-- Indent Border Active or Hover -->
       <div
         v-if="index === indents.length - 1"
-        class="absolute left-1.75 inset-y-0 w-border"
+        class="absolute left-1.5 inset-y-0 w-border"
         :class="
-          selected
-            ? 'bg-sidebar-indent-active'
-            : 'group-hover/button:bg-sidebar-indent-hover'
+          disabled
+            ? ''
+            : selected
+              ? 'bg-sidebar-indent-border-active'
+              : 'group-hover/button:bg-sidebar-indent-border-hover'
         " />
     </div>
   </div>
