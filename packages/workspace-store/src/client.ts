@@ -9,13 +9,32 @@ import { extensions } from '@/schemas/extensions'
 import { reactive } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
+import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/reference-config'
+import { mergeObjects } from '@/helpers/merge-object'
+import type { DeepTransform } from '@/types'
 
-type WorkspaceDocumentMetaInput = { meta?: WorkspaceDocumentMeta; name: string; config?: createNavigationOptions }
+// TODO: merge navigation options with the document config
+type WorkspaceDocumentMetaInput = {
+  meta?: WorkspaceDocumentMeta
+  name: string
+  config?: Config & Partial<createNavigationOptions>
+}
 
 type UrlDoc = { url: string } & WorkspaceDocumentMetaInput
 type ObjectDoc = { document: Record<string, unknown> } & WorkspaceDocumentMetaInput
 
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
+
+/**
+ * Configuration object for workspace documents.
+ */
+type Config = {
+  'x-scalar-reference-config'?: ReferenceConfig
+}
+
+const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
+  'x-scalar-reference-config': defaultReferenceConfig,
+}
 
 /**
  * Resolves a workspace document from various input sources (URL, local file, or direct document object).
@@ -63,6 +82,7 @@ export function createWorkspaceStore(workspaceProps?: {
   meta?: WorkspaceMeta
   /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
   documents?: ObjectDoc[]
+  config?: Config
 }) {
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -83,6 +103,14 @@ export function createWorkspaceStore(workspaceProps?: {
     },
   })
 
+  /**
+   * A map of document configurations keyed by document name.
+   * This stores the configuration options for each document in the workspace,
+   * allowing for document-specific settings like navigation options, appearance,
+   * and other reference configuration.
+   */
+  const documentConfigs: Record<string, Config> = {}
+
   // Add a document to the store synchronously from and in-mem open api document
   function addDocumentSync(input: ObjectDoc) {
     const { name, meta } = input
@@ -93,6 +121,9 @@ export function createWorkspaceStore(workspaceProps?: {
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
+
+    // Add the document config to the documentConfigs map
+    documentConfigs[name] = input.config ?? {}
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
@@ -249,7 +280,25 @@ export function createWorkspaceStore(workspaceProps?: {
      * })
      */
     addDocumentSync,
+    /**
+     * Returns the merged configuration for the active document.
+     *
+     * This getter merges configurations in the following order of precedence:
+     * 1. Document-specific configuration (highest priority)
+     * 2. Workspace-level configuration
+     * 3. Default configuration (lowest priority)
+     *
+     * The active document is determined by the workspace's activeDocument extension,
+     * falling back to the first document if none is specified.
+     */
+    get config() {
+      const activeDocumentKey =
+        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
+
+      return mergeObjects<typeof defaultConfig>(
+        mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
+        documentConfigs[activeDocumentKey] ?? {},
+      )
+    },
   }
 }
-
-export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>

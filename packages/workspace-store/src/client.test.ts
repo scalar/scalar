@@ -1,7 +1,8 @@
 import { createServerWorkspaceStore } from '@/server'
 import { createWorkspaceStore } from '@/client'
-import { beforeEach, afterEach, describe, expect, test } from 'vitest'
+import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
+import { defaultReferenceConfig } from '@/schemas/reference-config'
 
 // Test document
 const getDocument = () => ({
@@ -64,7 +65,7 @@ describe('create-workspace-store', () => {
     await server.close()
   })
 
-  test('should correctly update workspace metadata', async () => {
+  it('should correctly update workspace metadata', async () => {
     const store = await createWorkspaceStore({
       meta: {
         'x-scalar-theme': 'default',
@@ -79,7 +80,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace['x-scalar-theme']).toBe('saturn')
   })
 
-  test('should correctly update document metadata', async () => {
+  it('should correctly update document metadata', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -109,7 +110,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['default']['x-scalar-active-server']).toBe('server-3')
   })
 
-  test('should correctly get the correct document', async () => {
+  it('should correctly get the correct document', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -159,7 +160,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  test('should correctly add new documents', async () => {
+  it('should correctly add new documents', async () => {
     const store = await createWorkspaceStore({
       documents: [],
     })
@@ -183,7 +184,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  test('should correctly resolve refs on the fly', async () => {
+  it('should correctly resolve refs on the fly', async () => {
     const store = await createWorkspaceStore({
       documents: [
         {
@@ -249,7 +250,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  test('should correctly resolve chunks from the remote server', async () => {
+  it('should correctly resolve chunks from the remote server', async () => {
     server.get('/*', (req, res) => {
       const path = req.url
       const contents = serverStore.get(path)
@@ -303,7 +304,7 @@ describe('create-workspace-store', () => {
     })
   })
 
-  test('should load files form the remote url', async () => {
+  it('should load files form the remote url', async () => {
     const PORT = 9989
     const url = `http://localhost:${PORT}`
 
@@ -331,7 +332,7 @@ describe('create-workspace-store', () => {
     expect(store.workspace.documents['new'].info?.title).toEqual(getDocument().info.title)
   })
 
-  test('should handle circular references when we try to resolve all remote chunks recursively', async () => {
+  it('should handle circular references when we try to resolve all remote chunks recursively', async () => {
     const getDocument = () => ({
       openapi: '3.0.0',
       info: { title: 'My API', version: '1.0.0' },
@@ -425,7 +426,7 @@ describe('create-workspace-store', () => {
     expect((store.workspace.activeDocument?.components?.schemas?.['User'] as any)?.type).toBe('object')
   })
 
-  test('should build the sidebar client side', async () => {
+  it('should build the sidebar client side', async () => {
     const store = await createWorkspaceStore({
       documents: [],
     })
@@ -558,6 +559,76 @@ describe('create-workspace-store', () => {
           type: 'text',
         },
       ],
+    })
+  })
+
+  it('should correctly get the config #1', () => {
+    const store = createWorkspaceStore({
+      config: {
+        'x-scalar-reference-config': {
+          features: {
+            showDownload: false,
+          },
+          appearance: {
+            css: 'body { background: #f0f0f0; }',
+          },
+        },
+      },
+    })
+
+    expect(store.config['x-scalar-reference-config']).toEqual({
+      ...defaultReferenceConfig,
+      features: {
+        ...defaultReferenceConfig.features,
+        showDownload: false,
+      },
+      appearance: {
+        ...defaultReferenceConfig.appearance,
+        css: 'body { background: #f0f0f0; }',
+      },
+    })
+  })
+
+  it('should correctly get the config #2', () => {
+    const store = createWorkspaceStore({
+      config: {
+        'x-scalar-reference-config': {
+          appearance: {
+            css: 'body { background: #f0f0f0; }',
+          },
+        },
+      },
+    })
+
+    store.addDocumentSync({
+      name: 'default',
+      document: {
+        openapi: '3.0.0',
+        info: { title: 'My API', version: '1.0.0' },
+        paths: {},
+      },
+      config: {
+        'x-scalar-reference-config': {
+          features: {
+            showDownload: false,
+          },
+          appearance: {
+            css: 'body { background: #f0f0f0; }\n.scalar-reference { color: red; }',
+          },
+        },
+      },
+    })
+
+    expect(store.config['x-scalar-reference-config']).toEqual({
+      ...defaultReferenceConfig,
+      features: {
+        ...defaultReferenceConfig.features,
+        showDownload: false,
+      },
+      appearance: {
+        ...defaultReferenceConfig.appearance,
+        css: 'body { background: #f0f0f0; }\n.scalar-reference { color: red; }',
+      },
     })
   })
 })

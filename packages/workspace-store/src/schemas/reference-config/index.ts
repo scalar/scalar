@@ -5,10 +5,7 @@ import { defaultFeatures, FeaturesSchema } from '@/schemas/reference-config/feat
 import { AppearanceSchema, defaultAppearance } from '@/schemas/reference-config/appearance'
 import { defaultRouting, RoutingSchema } from '@/schemas/reference-config/routing'
 import { defaultSettings, SettingsSchema } from '@/schemas/reference-config/settings'
-
-type MutableArray<T extends readonly any[]> = {
-  -readonly [k in keyof T]: T[k]
-}
+import type { DeepTransform, MutableArray } from '@/types'
 
 /**
  * ReferenceConfigSchema defines the shape of the configuration object
@@ -42,7 +39,7 @@ export const ReferenceConfigSchema = Type.Partial(
 
 export type ReferenceConfig = Static<typeof ReferenceConfigSchema>
 
-export const defaultReferenceConfig: Required<ReferenceConfig> = {
+export const defaultReferenceConfig: DeepTransform<ReferenceConfig, 'NonNullable'> = {
   title: 'Scalar API Reference',
   slug: 'scalar-api-reference',
   tagSort: 'alpha',
