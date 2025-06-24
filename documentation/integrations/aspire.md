@@ -221,4 +221,4 @@ app.Run();
 - Check that scheme names match between service and Scalar configuration
 
 
-For more configuration options and advanced scenarios, refer to the base [.NET Integration documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net), as most configuration options are shared between the `Scalar.AspNetCore` and `Scalar.Aspire` integration.
+For more configuration options and advanced scenarios, refer to the base [.NET ASP.NET Core documentation](https://guides.scalar.com/scalar/scalar-api-references/integrations/net-aspnet-core#configuration-options), as most configuration options are shared between the `Scalar.AspNetCore` and `Scalar.Aspire` integration.

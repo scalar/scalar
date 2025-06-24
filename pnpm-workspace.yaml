@@ -19,36 +19,36 @@ onlyBuiltDependencies:
 catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
-    '@google-cloud/storage': 7.13.0
+    '@google-cloud/storage': 7.16.0
     '@sinclair/typebox': 0.34.33
     '@tailwindcss/vite': ^4.1.7
-    '@types/express': ^5.0.1
-    '@types/node': ^20.17.10
+    '@types/express': 5.0.3
+    '@types/node': ^22.9.0
     '@types/picomatch': 3.0.1
     '@types/semver': 7.5.8
     '@vitejs/plugin-vue': ^5.0.4
     '@vueuse/core': ^10.10.0
     '@vueuse/integrations': ^11.2.0
-    ansis: 3.16.0
+    ansis: 4.1.0
     chokidar: 4.0.3
     commander: 13.1.0
     concurrently: 9.1.2
     esbuild: 0.25.2
-    express: ^5.1.0
+    express: 5.1.0
     fastify: ^5.3.3
-    nanoid: ^5.1.5
+    nanoid: 5.1.5
     next: ^15.2.3
     picomatch: 4.0.2
     postcss: ^8.4.38
     prettier: 3.5.3
     rollup: 4.40.1
-    semver: 7.6.3
+    semver: 7.7.2
     stdout-update: 4.0.1
     tailwindcss: ^4.1.7
-    type-fest: ^4.20.0
+    type-fest: 4.41.0
     vite-node: 3.1.1
     vite: 5.4.19
     vitest: ^1.6.0
     vue: ^3.5.12
-    yaml: ^2.4.5
+    yaml: 2.8.0
     zod: 3.24.1

@@ -1,11 +1,6 @@
-# .NET Integration
+# Scalar API Reference for .NET ASP.NET Core
 
-The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar API reference into your .NET 8+ application.
-
-## Migration Guide
-
-If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
-If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
+The `Scalar.AspNetCore` NuGet package provides an easy way to render beautiful API References based on OpenAPI/Swagger documents.
 
 ## Basic Setup
 
@@ -37,7 +32,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-For `Swashbuckle`:
+For `Swashbuckle.AspNetCore`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -84,10 +79,16 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-You’re all set! 🎉 Visit `/scalar` to see the API Reference for the default OpenAPI document (`v1`).
+You’re all set! 🎉
 
-If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)).
-To view a specific document, go to `/scalar/{documentName}` (like `/scalar/v1` or `/scalar/v2-beta`).
+By default, navigating to `/scalar` in your browser will display the API Reference for the `v1` OpenAPI document.
+
+To display a different document, simply add it using `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)). You can also access a specific document directly by visiting `/scalar/{documentName}` (for example, `/scalar/v2-beta`).
+
+## Migration Guide
+
+If you are upgrading from `2.1.x` to `2.2.x`, please refer to the [migration guide](https://github.com/scalar/scalar/discussions/5468).
+If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
 
 ## Configuration Options
 
@@ -130,7 +131,7 @@ app.MapScalarApiReference("/api-reference");
 
 ### OpenAPI Document Route
 
-Scalar expects the OpenAPI document to be available at `/openapi/{documentName}.json`, which aligns with the default route used by the `Microsoft.AspNetCore.OpenApi` package. If your OpenAPI document is hosted at a different path (such as when using `Swashbuckle` or `NSwag`), you can specify the correct path or URL using the `OpenApiRoutePattern` property:
+Scalar expects the OpenAPI document to be available at `/openapi/{documentName}.json`, which aligns with the default route used by the `Microsoft.AspNetCore.OpenApi` package. If your OpenAPI document is hosted at a different path (such as when using `Swashbuckle.AspNetCore` or `NSwag`), you can specify the correct path or URL using the `OpenApiRoutePattern` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -205,7 +206,7 @@ Scalar allows you to pre-configure authentication details for your API, making i
 :::scalar-callout{ type=warning }
 **Before you start**: Your OpenAPI document must already include authentication security schemes for Scalar to work with them. Scalar can only pre-fill authentication details for schemes that are already defined in your OpenAPI specification.
 
-The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
+The security schemes are added by your OpenAPI generator (`NSwag`, `Swashbuckle.AspNetCore`, or `Microsoft.AspNetCore.OpenApi`). If you don't see authentication options in Scalar, check your OpenAPI generator's documentation to learn how to properly define security schemes.
 :::
 
 :::scalar-callout{ type=danger }
@@ -579,7 +580,7 @@ app.MapOpenApi();
 app.MapScalarApiReference();
 ```
 
-#### For `Swashbuckle`
+#### For `Swashbuckle.AspNetCore`
 
 ```shell
 dotnet add package Scalar.AspNetCore.Swashbuckle
@@ -702,7 +703,7 @@ This guide explains how to integrate Scalar API Reference into .NET Framework an
 
 ### Prerequisites
 
-- An ASP.NET or ASP.NET Core application with OpenAPI/Swagger support (using Swashbuckle or NSwag)
+- An ASP.NET or ASP.NET Core application with OpenAPI/Swagger support (using `Swashbuckle.AspNetCore` or `NSwag`)
 
 
 ### Step 1: Enable Swagger/OpenAPI in your project

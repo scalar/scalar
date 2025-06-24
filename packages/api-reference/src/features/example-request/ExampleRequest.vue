@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { useWorkspace } from '@scalar/api-client/store'
-import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
+import {
+  getHarRequest,
+  getSnippet,
+} from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
 import { freezeElement } from '@scalar/helpers/dom/freeze-element'
@@ -175,12 +178,14 @@ const generateSnippet = () => {
     securitySchemes,
   )
 
-  const [error, payload] = getSnippet(targetKey, clientKey, {
-    operation: request,
+  const harRequest = getHarRequest({
+    operation: _request,
     example,
     server,
     securitySchemes: schemes,
   })
+
+  const [error, payload] = getSnippet(targetKey, clientKey, harRequest)
   if (error) {
     return error.message ?? ''
   }
