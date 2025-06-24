@@ -8,8 +8,8 @@ const SectionViewSchema = z.object({
 })
 
 const ViewsSchema = z.object({
-  'request.section': z.array(SectionViewSchema),
-  'response.section': z.array(SectionViewSchema),
+  'request.section': z.array(SectionViewSchema).optional(),
+  'response.section': z.array(SectionViewSchema).optional(),
 })
 
 export const HooksSchema = z.object({
