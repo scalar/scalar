@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import {
-  type OpenAPIV2,
-  type OpenAPIV3,
-  type OpenAPIV3_1,
-} from '@scalar/openapi-types'
+import { type OpenAPIV3_1 } from '@scalar/openapi-types'
 
 defineProps<{
-  value?: ExternalDocumentationObject
+  value?: OpenAPIV3_1.ExternalDocumentationObject
 }>()
 </script>
 
