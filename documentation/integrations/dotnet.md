@@ -79,10 +79,11 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-You’re all set! 🎉 Visit `/scalar` to see the API Reference for the default OpenAPI document (`v1`).
+You’re all set! 🎉
 
-If you have multiple OpenAPI documents, you can set them up with `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)).
-To view a specific document, go to `/scalar/{documentName}` (like `/scalar/v1` or `/scalar/v2-beta`).
+By default, navigating to `/scalar` in your browser will display the API Reference for the `v1` OpenAPI document.
+
+To display a different document, simply add it using `AddDocument` or `AddDocuments` (see [Multiple OpenAPI Documents](#multiple-openapi-documents)). You can also access a specific document directly by visiting `/scalar/{documentName}` (for example, `/scalar/v2-beta`).
 
 ## Migration Guide
 
