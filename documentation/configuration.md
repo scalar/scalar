@@ -915,7 +915,7 @@ Or specify a custom function to sort the tags.
 
 Learn more about Array sort functions: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 
-### operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number)
+### operationsSorter?: 'alpha' | 'method' | ((a: OperationSortValue, b: OperationSortValue) => number)
 
 ```js
 {
@@ -928,8 +928,8 @@ Or specify a custom function to sort the operations.
 ```js
 {
   operationsSorter: (a, b) => {
-    const methodOrder = ['GET', 'POST', 'PUT', 'DELETE']
-    const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+    const methodOrder = ['get', 'post', 'put', 'delete']
+    const methodComparison = methodOrder.indexOf(a.method) - methodOrder.indexOf(b.method)
 
     if (methodComparison !== 0) {
       return methodComparison
@@ -939,6 +939,8 @@ Or specify a custom function to sort the operations.
   },
 }
 ```
+
+> Note: `method` is the HTTP method of the operation, represented as a lowercase string.
 
 ### theme?: string
 
