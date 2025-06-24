@@ -628,7 +628,7 @@ To make authentication easier you can prefill the credentials for your users:
             'x-usePkce': 'SHA-256',
             // Preselected scopes
             selectedScopes: ['profile', 'email'],
-            // Set additional query parameters for the Authorization request 
+            // Set additional query parameters for the Authorization request
             'x-scalar-security-query': {
               prompt: 'consent',
               audience: 'scalar'
@@ -800,6 +800,21 @@ Function to handle redirects in the API reference. Receives either:
       return pathWithHash.replace('/v1/tags/user#operation/get-user', '/v1/tags/user/operation/get-user')
     }
     return null
+  }
+}
+```
+
+### onBeforeRequest?: ({ request: Request }) => void | Promise<void>
+
+Callback function that is fired before a request is sent through the API client.
+
+The function receives the request object and can be used to modify the request before it is sent.
+
+```js
+{
+  onBeforeRequest: ({ request }) => {
+    // Add a custom header to all requests
+    request.headers.set('X-Custom-Header', 'test')
   }
 }
 ```
