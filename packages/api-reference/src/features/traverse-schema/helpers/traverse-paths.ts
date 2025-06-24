@@ -2,8 +2,8 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { TraversedEntry, TraversedOperation } from '@/features/traverse-schema/types'
 import type { UseNavState } from '@/hooks/useNavState'
-import { getTag } from './get-tag'
 import { httpMethods } from '@scalar/helpers/http/http-methods'
+import { getTag } from './get-tag'
 
 const createOperationEntry = (
   operation: OpenAPIV3_1.OperationObject,
@@ -14,11 +14,13 @@ const createOperationEntry = (
   getOperationId: UseNavState['getOperationId'],
 ): TraversedOperation => {
   const id = getOperationId({ ...operation, method, path }, tag)
-  titlesMap.set(id, operation.summary ?? path)
+  const title = operation.summary?.trim() ? operation.summary : path
+
+  titlesMap.set(id, title)
 
   return {
     id,
-    title: operation.summary ?? path,
+    title,
     path,
     method: method,
     operation,
