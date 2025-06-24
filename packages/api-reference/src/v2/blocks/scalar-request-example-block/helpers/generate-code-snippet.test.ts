@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
-import { generateCodeSnippet } from './generate-code-snippet'
 import type { AvailableClients } from '@scalar/snippetz'
 import type { OperationObject } from '@scalar/workspace-store/schemas/v3.1/strict/path-operations'
 import type { Dereference } from '@scalar/workspace-store/schemas/v3.1/type-guard'
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
+import { generateCodeSnippet } from './generate-code-snippet'
 
 // Import the mocked functions
-import { operationToHar as _operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 import { getSnippet as _getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
+import { operationToHar as _operationToHar } from '@scalar/oas-utils/helpers/operation-to-har'
 
 // Mock the dependencies
 vi.mock('@scalar/oas-utils/helpers/operation-to-har', () => ({
@@ -37,7 +37,7 @@ describe('generate-code-snippet', () => {
   })
 
   describe('generateCodeSnippet', () => {
-    it('generates code snippet successfully', () => {
+    it('returns generated code snippet when successful', () => {
       operationToHar.mockReturnValue({
         method: 'GET',
         url: 'https://api.example.com/users/123',
@@ -59,7 +59,7 @@ describe('generate-code-snippet', () => {
       expect(result).toBe("fetch('/users/123')")
     })
 
-    it('handles error from getSnippet', () => {
+    it('returns error message when getSnippet fails', () => {
       operationToHar.mockReturnValue({
         method: 'GET',
         url: 'https://api.example.com/users',
@@ -81,7 +81,7 @@ describe('generate-code-snippet', () => {
       expect(result).toBe('Failed to generate snippet')
     })
 
-    it('returns default error message when getSnippet error has no message', () => {
+    it('returns default error message when getSnippet error lacks message property', () => {
       operationToHar.mockReturnValue({
         method: 'GET',
         url: 'https://api.example.com/users',
@@ -103,7 +103,7 @@ describe('generate-code-snippet', () => {
       expect(result).toBe('Error generating code snippet')
     })
 
-    it('passes correct parameters to operationToHar', () => {
+    it('calls operationToHar with all provided parameters', () => {
       operationToHar.mockReturnValue({
         method: 'POST',
         url: 'https://api.example.com/users',
@@ -135,7 +135,7 @@ describe('generate-code-snippet', () => {
       })
     })
 
-    it('passes correct parameters to getSnippet', () => {
+    it('calls getSnippet with split clientId and harRequest', () => {
       const mockHarRequest = {
         method: 'GET',
         url: 'https://api.example.com/users',
@@ -159,8 +159,8 @@ describe('generate-code-snippet', () => {
     })
   })
 
-  describe('splitClientId function', () => {
-    it('correctly splits valid clientId formats', () => {
+  describe('clientId parsing', () => {
+    it('processes different clientId formats without errors', () => {
       operationToHar.mockReturnValue({
         method: 'GET',
         url: 'https://api.example.com/test',
@@ -192,7 +192,7 @@ describe('generate-code-snippet', () => {
       })
     })
 
-    it('handles various client types correctly', () => {
+    it('handles all supported client types successfully', () => {
       operationToHar.mockReturnValue({
         method: 'GET',
         url: 'https://api.example.com/test',

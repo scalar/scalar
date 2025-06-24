@@ -1,11 +1,11 @@
-import { describe, expect, it } from 'vitest'
 import type { XCodeSample } from '@scalar/openapi-types/schemas/extensions'
 import type { AvailableClients } from '@scalar/snippetz'
+import { describe, expect, it } from 'vitest'
 import { generateClientOptions } from './generate-client-options'
 
 describe('generateClientOptions', () => {
   describe('basic functionality', () => {
-    it('should generate client options from built-in snippets without custom examples', () => {
+    it('generates client options from built-in snippets without custom examples', () => {
       const result = generateClientOptions([])
 
       // Should return a non-empty array of client groups
@@ -28,7 +28,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle curl client with special shell language mapping', () => {
+    it('handles curl client with special shell language mapping', () => {
       const result = generateClientOptions([])
 
       const shellGroup = result.find((group) => group.label === 'Shell')
@@ -39,7 +39,7 @@ describe('generateClientOptions', () => {
       expect(curlOption?.lang).toBe('curl')
     })
 
-    it('should call snippetz clients function', async () => {
+    it('calls snippetz clients function', async () => {
       // This test verifies the function works without throwing errors
       // Since we're not mocking, we just ensure it runs successfully
       expect(() => generateClientOptions([])).not.toThrow()
@@ -47,7 +47,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('custom request examples', () => {
-    it('should add custom code samples as a separate group at the top', () => {
+    it('adds custom code samples as a separate group at the top', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -86,7 +86,7 @@ describe('generateClientOptions', () => {
       expect(result[1]).toHaveProperty('options')
     })
 
-    it('should handle custom examples with missing lang property', () => {
+    it('handles custom examples with missing lang property', () => {
       const customExamples: XCodeSample[] = [
         {
           label: 'Custom Example',
@@ -104,7 +104,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle custom examples with missing label property', () => {
+    it('handles custom examples with missing label property', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -122,7 +122,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle custom examples with both lang and label missing', () => {
+    it('handles custom examples with both lang and label missing', () => {
       const customExamples: XCodeSample[] = [
         {
           source: 'console.log("Hello")',
@@ -139,7 +139,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should not add Code Examples group when no custom examples provided', () => {
+    it('does not add Code Examples group when no custom examples provided', () => {
       const result = generateClientOptions([])
 
       expect(result[0].label).not.toBe('Code Examples')
@@ -147,7 +147,7 @@ describe('generateClientOptions', () => {
       expect(result.length).toBeGreaterThan(0)
     })
 
-    it('should handle empty custom examples array', () => {
+    it('handles empty custom examples array', () => {
       const result = generateClientOptions([])
 
       expect(result.length).toBeGreaterThan(0)
@@ -157,7 +157,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('client filtering with allowedClients', () => {
-    it('should filter clients based on allowedClients parameter', () => {
+    it('filters clients based on allowedClients parameter', () => {
       const allowedClients: AvailableClients[number][] = ['js/fetch', 'python/requests']
 
       const result = generateClientOptions([], allowedClients)
@@ -171,7 +171,7 @@ describe('generateClientOptions', () => {
       expect(allIds.length).toBe(2)
     })
 
-    it('should return empty array when no clients are allowed', () => {
+    it('returns empty array when no clients are allowed', () => {
       const allowedClients: AvailableClients[number][] = ['js/nonexistent' as AvailableClients[number]]
 
       const result = generateClientOptions([], allowedClients)
@@ -179,7 +179,7 @@ describe('generateClientOptions', () => {
       expect(result).toEqual([])
     })
 
-    it('should include all clients when allowedClients is undefined', () => {
+    it('includes all clients when allowedClients is undefined', () => {
       const result = generateClientOptions([], undefined)
 
       // Should return all available clients
@@ -188,14 +188,14 @@ describe('generateClientOptions', () => {
       expect(result[0]).toHaveProperty('options')
     })
 
-    it('should include no clients when allowedClients is empty array', () => {
+    it('includes no clients when allowedClients is empty array', () => {
       const result = generateClientOptions([], [])
 
       // Empty array should return all clients (no filtering)
       expect(result.length).toBe(0)
     })
 
-    it('should filter out entire groups when no clients in group are allowed', () => {
+    it('filters out entire groups when no clients in group are allowed', () => {
       const allowedClients: AvailableClients[number][] = ['js/fetch']
 
       const result = generateClientOptions([], allowedClients)
@@ -207,7 +207,7 @@ describe('generateClientOptions', () => {
       expect(result[0].options[0].id).toBe('js/fetch')
     })
 
-    it('should handle partial group filtering', () => {
+    it('handles partial group filtering', () => {
       const allowedClients: AvailableClients[number][] = ['js/fetch', 'js/axios']
 
       const result = generateClientOptions([], allowedClients)
@@ -221,7 +221,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('edge cases and error handling', () => {
-    it('should handle empty clients array from snippetz', () => {
+    it('handles empty clients array from snippetz', () => {
       // This test is not applicable since snippetz always returns clients
       // Instead, test that the function handles the real data correctly
       const result = generateClientOptions([])
@@ -229,7 +229,7 @@ describe('generateClientOptions', () => {
       expect(result.length).toBeGreaterThan(0)
     })
 
-    it('should handle group with empty clients array', () => {
+    it('handles group with empty clients array', () => {
       // This test is not applicable since all groups have clients
       // Instead, test that the function works with real data
       const result = generateClientOptions([])
@@ -239,7 +239,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle groups with null or undefined clients', () => {
+    it('handles groups with null or undefined clients', () => {
       // This test is not applicable since all clients are valid
       // Instead, test that the function works with real data
       const result = generateClientOptions([])
@@ -254,7 +254,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle missing properties in client objects', () => {
+    it('handles missing properties in client objects', () => {
       // This test is not applicable since all clients have required properties
       // Instead, test that the function works with real data
       const result = generateClientOptions([])
@@ -269,7 +269,7 @@ describe('generateClientOptions', () => {
       })
     })
 
-    it('should handle custom examples with special characters in lang', () => {
+    it('handles custom examples with special characters in lang', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'c++',
@@ -302,7 +302,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('integration scenarios', () => {
-    it('should combine custom examples with filtered built-in clients', () => {
+    it('combines custom examples with filtered built-in clients', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -321,7 +321,7 @@ describe('generateClientOptions', () => {
       expect(result[2].label).toBe('Python')
     })
 
-    it('should handle complex filtering with multiple groups and clients', () => {
+    it('handles complex filtering with multiple groups and clients', () => {
       const allowedClients: AvailableClients[number][] = ['js/fetch', 'js/axios', 'python/requests', 'shell/curl']
 
       const result = generateClientOptions([], allowedClients)
@@ -332,7 +332,7 @@ describe('generateClientOptions', () => {
       expect(result[2].options.length).toBe(1) // curl
     })
 
-    it('should maintain correct order: custom examples first, then built-in clients', () => {
+    it('maintains correct order: custom examples first, then built-in clients', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -356,7 +356,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('type safety and validation', () => {
-    it('should handle various TargetId types correctly', () => {
+    it('handles various TargetId types correctly', () => {
       const customExamples: XCodeSample[] = [
         { lang: 'js', source: 'console.log("JS")' },
         { lang: 'python', source: 'print("Python")' },
@@ -372,7 +372,7 @@ describe('generateClientOptions', () => {
       expect(result[0].options[3].lang).toBe('node')
     })
 
-    it('should handle unknown TargetId types gracefully', () => {
+    it('handles unknown TargetId types gracefully', () => {
       const customExamples: XCodeSample[] = [{ lang: 'unknown-language', source: 'console.log("Unknown")' }]
 
       const result = generateClientOptions(customExamples)
@@ -380,7 +380,7 @@ describe('generateClientOptions', () => {
       expect(result[0].options[0].lang).toBe('unknown-language')
     })
 
-    it('should generate correct client IDs for all scenarios', () => {
+    it('generates correct client IDs for all scenarios', () => {
       const customExamples: XCodeSample[] = [{ lang: 'typescript', source: 'console.log("TS")' }]
 
       const allowedClients: AvailableClients[number][] = ['js/fetch']
@@ -393,7 +393,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('performance and memory considerations', () => {
-    it('should handle large number of custom examples efficiently', () => {
+    it('handles large number of custom examples efficiently', () => {
       const customExamples: XCodeSample[] = Array.from({ length: 100 }, (_, i) => ({
         lang: `lang${i}`,
         label: `Language ${i}`,
@@ -406,7 +406,7 @@ describe('generateClientOptions', () => {
       expect(result[0].options[99].id).toBe('custom/lang99')
     })
 
-    it('should handle large number of allowed clients efficiently', () => {
+    it('handles large number of allowed clients efficiently', () => {
       const allowedClients: AvailableClients[number][] = [
         'js/fetch',
         'js/axios',
@@ -428,7 +428,7 @@ describe('generateClientOptions', () => {
   })
 
   describe('real-world scenarios', () => {
-    it('should work with typical API documentation setup', () => {
+    it('works with typical API documentation setup', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -457,7 +457,7 @@ describe('generateClientOptions', () => {
       expect(result[3].options.length).toBe(1)
     })
 
-    it('should handle minimal setup with only custom examples', () => {
+    it('handles minimal setup with only custom examples', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'typescript',
@@ -473,7 +473,7 @@ describe('generateClientOptions', () => {
       expect(result[0].options.length).toBe(1)
     })
 
-    it('should handle enterprise setup with many restrictions', () => {
+    it('handles enterprise setup with many restrictions', () => {
       const customExamples: XCodeSample[] = [
         {
           lang: 'java',
