@@ -20,7 +20,7 @@ catalogs:
   '*':
     '@fastify/swagger': ^8.10.1
     '@google-cloud/storage': 7.16.0
-    '@sinclair/typebox': 0.34.33
+    '@sinclair/typebox': 0.34.37
     '@tailwindcss/vite': ^4.1.7
     '@types/express': 5.0.3
     '@types/node': ^22.9.0

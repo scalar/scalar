@@ -13,8 +13,8 @@ catalogs:
       specifier: 7.16.0
       version: 7.16.0
     '@sinclair/typebox':
-      specifier: 0.34.33
-      version: 0.34.33
+      specifier: 0.34.37
+      version: 0.34.37
     '@tailwindcss/vite':
       specifier: ^4.1.7
       version: 4.1.8
@@ -1725,7 +1725,7 @@ importers:
     dependencies:
       '@sinclair/typebox':
         specifier: catalog:*
-        version: 0.34.33
+        version: 0.34.37
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2556,7 +2556,7 @@ importers:
         version: link:../types
       '@sinclair/typebox':
         specifier: catalog:*
-        version: 0.34.33
+        version: 0.34.37
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
@@ -6880,8 +6880,8 @@ packages:
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
 
-  '@sinclair/typebox@0.34.33':
-    resolution: {integrity: sha512-5HAV9exOMcXRUxo+9iYB5n09XxzCXnfy4VTNW4xnDv+FgjzAGY989C28BIdljKqmF+ZltUwujE3aossvcVtq6g==}
+  '@sinclair/typebox@0.34.37':
+    resolution: {integrity: sha512-2TRuQVgQYfy+EzHRTIvkhv2ADEouJ2xNS/Vq+W5EuuewBdOrvATvljZTxHWZSTYr2sTjTHpGvucaGAt67S2akw==}
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -23559,7 +23559,7 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
-  '@sinclair/typebox@0.34.33': {}
+  '@sinclair/typebox@0.34.37': {}
 
   '@sindresorhus/is@0.14.0': {}
 
