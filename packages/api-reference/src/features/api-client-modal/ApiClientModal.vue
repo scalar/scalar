@@ -36,8 +36,13 @@ const OnBeforeRequestPlugin = (): ApiClientPlugin => {
     return {
       name: 'on-before-request',
       hooks: {
-        async onBeforeRequest() {
-          console.log('onBeforeRequest!!')
+        async onBeforeRequest({ request }) {
+          console.log('OnBeforeRequestPlugin', request.headers)
+          request.headers.set('X-Custom-Header', 'test')
+          console.log(
+            'X-Custom-Header:',
+            request.headers.get('X-Custom-Header'),
+          )
         },
       },
     }

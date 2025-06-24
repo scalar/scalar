@@ -190,6 +190,9 @@ export const createRequestOperation = ({
 
       if (pluginManager) {
         pluginManager.executeHook('onBeforeRequest', { request: proxiedRequest })
+
+        console.log('createRequestOperation', proxiedRequest.headers)
+        console.log('createRequestOperation X-Custom-Header:', proxiedRequest.headers.get('X-Custom-Header'))
       }
 
       // Start timer to get response duration
