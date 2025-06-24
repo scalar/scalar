@@ -1177,6 +1177,7 @@ describe('create-request-operation', () => {
   it('executes onBeforeRequest hook when plugin manager is provided', async () => {
     const mockPluginManager = {
       executeHook: vi.fn().mockResolvedValue(undefined),
+      getViewComponents: vi.fn().mockReturnValue([]),
     }
 
     const [error, requestOperation] = createRequestOperation({
@@ -1193,7 +1194,7 @@ describe('create-request-operation', () => {
       throw error
     }
 
-    const [requestError, result] = await requestOperation.sendRequest()
+    await requestOperation.sendRequest()
 
     expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
       request: expect.any(Request),
@@ -1215,7 +1216,7 @@ describe('create-request-operation', () => {
       throw error
     }
 
-    const [requestError, result] = await requestOperation.sendRequest()
+    const [requestError] = await requestOperation.sendRequest()
 
     // Should not throw any errors related to plugin manager
     expect(requestError).toBe(null)
@@ -1229,6 +1230,7 @@ describe('create-request-operation', () => {
         hookExecuted = true
         return Promise.resolve()
       }),
+      getViewComponents: vi.fn().mockReturnValue([]),
     }
 
     const [error, requestOperation] = createRequestOperation({
@@ -1245,7 +1247,7 @@ describe('create-request-operation', () => {
       throw error
     }
 
-    const [requestError, result] = await requestOperation.sendRequest()
+    await requestOperation.sendRequest()
 
     expect(hookExecuted).toBe(true)
     expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
@@ -1256,6 +1258,7 @@ describe('create-request-operation', () => {
   it('executes onResponseReceived hook when plugin manager is provided', async () => {
     const mockPluginManager = {
       executeHook: vi.fn().mockResolvedValue(undefined),
+      getViewComponents: vi.fn().mockReturnValue([]),
     }
 
     const [error, requestOperation] = createRequestOperation({
@@ -1272,7 +1275,7 @@ describe('create-request-operation', () => {
       throw error
     }
 
-    const [requestError, result] = await requestOperation.sendRequest()
+    await requestOperation.sendRequest()
 
     expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onResponseReceived', {
       response: expect.any(Response),
