@@ -150,7 +150,7 @@
                 {
                   "name": ".NET ASP.NET Core",
                   "slug": "dotnet",
-                  "path": "documentation/integrations/dotnet.md",
+                  "path": "documentation/integrations/aspnetcore.md",
                   "type": "page"
                 },
                 {
