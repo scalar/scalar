@@ -20718,7 +20718,7 @@
                 ]
               }
             },
-            "x-reference-config": {
+            "x-scalar-reference-config": {
               "type": "object",
               "properties": {
                 "title": {
@@ -21038,7 +21038,7 @@
         }
       }
     },
-    "x-reference-config": {
+    "x-scalar-reference-config": {
       "type": "object",
       "properties": {
         "title": {
@@ -21366,5 +21366,9 @@
     "x-scalar-theme": {
       "type": "string"
     }
-  }
+  },
+  "required": [
+    "workspace",
+    "info"
+  ]
 }

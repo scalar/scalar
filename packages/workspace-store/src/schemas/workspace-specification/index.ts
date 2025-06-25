@@ -6,19 +6,19 @@ import { InfoSchema } from '@/schemas/workspace-specification/info'
 import { Type, type Static } from '@sinclair/typebox'
 
 export const WorkspaceSpecificationSchema = compose(
-  Type.Partial(
-    Type.Object({
-      workspace: Type.Union([Type.Literal('1.0.0')]),
-      info: InfoSchema,
-      documents: Type.Record(
+  Type.Object({
+    workspace: Type.Union([Type.Literal('1.0.0')]),
+    info: InfoSchema,
+    documents: Type.Optional(
+      Type.Record(
         Type.String(),
         Type.Object({
           $ref: Type.String(),
         }),
       ),
-      overrides: Type.Record(Type.String(), compose(Type.Partial(OpenAPIDocumentSchema), ConfigSchema)),
-    }),
-  ),
+    ),
+    overrides: Type.Optional(Type.Record(Type.String(), compose(Type.Partial(OpenAPIDocumentSchema), ConfigSchema))),
+  }),
   ConfigSchema,
   WorkspaceMetaSchema,
 )
