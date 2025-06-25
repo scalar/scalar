@@ -702,14 +702,9 @@ jobs:
           path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Rename the standalone.js file
+        name: Rename the standalone.js file and compress assets
         working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
-        run: mv standalone.js scalar.js
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Compress static assets
-        working-directory: integrations/aspnetcore
-        run: pnpm compress
+        run: mv standalone.js scalar.js && gzip --keep --verbose --force scalar.js scalar.aspnetcore.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
