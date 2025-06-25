@@ -597,7 +597,7 @@ jobs:
 
       - name: Test solution
         working-directory: integrations/aspnetcore
-        run: dotnet test -c Release --no-build
+        run: dotnet test -c Release --no-build --results-directory "test-results" --collect "XPlat Code Coverage;Format=opencover"
 
   aspire-build-test:
     runs-on: blacksmith-2vcpu-ubuntu-2204
