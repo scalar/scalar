@@ -216,21 +216,22 @@ const sidebarOpened = ref(false)
 
 // Open a sidebar tag
 watch(dereferencedDocument, (newDoc) => {
-  if (sidebarOpened.value || !newDoc.tags?.length) {
-    return
-  }
-
+  // Scroll to given hash
   if (hash.value) {
     const hashSectionId = getSectionId(hash.value)
     if (hashSectionId) {
       setCollapsedSidebarItem(hashSectionId, true)
     }
-  } else {
+  }
+  // Open the first tag
+  else {
     const firstTag = newDoc.tags?.[0]
+
     if (firstTag) {
       setCollapsedSidebarItem(getTagId(firstTag), true)
     }
   }
+
   sidebarOpened.value = true
 })
 
