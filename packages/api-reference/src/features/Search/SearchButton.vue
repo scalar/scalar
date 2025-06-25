@@ -7,24 +7,19 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useApiClient } from '@/features/api-client-modal'
 import SearchModal from '@/features/Search/SearchModal.vue'
 
-const props = withDefaults(
-  defineProps<{
-    spec: Spec
-    searchHotKey?: string
-  }>(),
-  {
-    searchHotKey: 'k',
-  },
-)
+const { searchHotKey = 'k' } = defineProps<{
+  spec: Spec
+  searchHotKey?: string
+}>()
 
-const button = ref<HTMLButtonElement>()
+const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
 const modalState = useModal()
 const { client } = useApiClient()
 
 const handleHotKey = (e: KeyboardEvent) => {
   if (
     (isMacOS() ? e.metaKey : e.ctrlKey) &&
-    e.key === props.searchHotKey &&
+    e.key === searchHotKey &&
     !client.value?.modalState.open
   ) {
     e.preventDefault()
@@ -39,7 +34,7 @@ watch(
     // Return focus to the button when the modal is closed
     if (!next && prev) {
       nextTick(() => {
-        button.value?.focus()
+        button.value?.$el.focus()
       })
     }
   },
