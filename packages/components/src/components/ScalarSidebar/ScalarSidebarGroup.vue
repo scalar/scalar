@@ -27,7 +27,7 @@ import { type SidebarGroupLevel, useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<ScalarSidebarItemProps>()
 
-const open = defineModel<boolean>()
+const open = defineModel<boolean>({ default: false })
 
 defineSlots<{
   /** The text content of the toggle */
@@ -85,7 +85,7 @@ const { cx } = useBindCx()
 @reference "../../style.css";
 
 /* Set the font weight and color of the button when a subitem is selected */
-.group\/item:has(.font-sidebar-active) > .group\/group-button {
+.group\/item:has(.group\/button-selected) > .group\/group-button {
   @apply font-sidebar-active text-c-1;
 }
 </style>

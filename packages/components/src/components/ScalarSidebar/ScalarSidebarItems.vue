@@ -18,9 +18,13 @@ export default {}
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 import type { Component } from 'vue'
 
+import { useSidebarNestedItems } from './useSidebarNestedItems'
+
 const { is = 'ul' } = defineProps<{
   is?: Component | string
 }>()
+
+const { open } = useSidebarNestedItems()
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
@@ -28,7 +32,12 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    v-bind="cx('relative flex flex-col text-base p-3 gap-px')">
+    v-bind="
+      cx(
+        'relative flex flex-col text-base p-3 gap-px transition-transform duration-300',
+        open ? '-translate-x-full' : 'translate-x-0',
+      )
+    ">
     <slot />
   </component>
 </template>

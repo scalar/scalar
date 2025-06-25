@@ -1,23 +1,23 @@
 <script lang="ts">
 /**
- * Scalar Sidebar Group component
+ * Scalar Sidebar Nested Items component
  *
- * A collapsible ScalarSidebarItem that can contain subitems
+ * A provides list of items thats presented over the parent list
+ * Needs to be nested inside a ScalarSidebarItems component
  *
  * @example
- * <ScalarSidebarGroup v-model="open">
- *   <!-- Group toggle text -->
+ * <ScalarSidebarNestedItems v-model="open">
+ *   <!-- Item text -->
  *   <template #items>
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
  *     <ScalarSidebarItem>...</ScalarSidebarItem>
  *   </template>
- * </ScalarSidebarGroup>
+ * </ScalarSidebarNestedItems>
  */
 export default {}
 </script>
 <script setup lang="ts">
-import type { ScalarSidebarItemProps } from '@/components/ScalarSidebar/types'
 import {
   ScalarIconArrowRight,
   ScalarIconCaretLeft,
@@ -28,11 +28,14 @@ import { ScalarIconLegacyAdapter } from '../ScalarIcon'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarItems from './ScalarSidebarItems.vue'
 import ScalarSidebarSpacer from './ScalarSidebarSpacer.vue'
+import type { ScalarSidebarItemProps } from './types'
 import { useSidebarGroups } from './useSidebarGroups'
+import { useSidebarNestedItem } from './useSidebarNestedItems'
 
 const { icon = ScalarIconListDashes } = defineProps<ScalarSidebarItemProps>()
 
-const open = defineModel<boolean>()
+const open = defineModel<boolean>({ default: false })
+useSidebarNestedItem(open)
 
 defineSlots<{
   /** The text content of the button */
@@ -75,25 +78,27 @@ defineOptions({ inheritAttrs: false })
         </template>
       </ScalarSidebarButton>
     </slot>
-    <ScalarSidebarItems
-      v-if="open"
-      class="absolute inset-0 bg-b-1"
-      v-bind="$attrs">
-      <slot name="back">
-        <ScalarSidebarButton
-          is="button"
-          @click="open = false"
-          class="text-c-1 font-sidebar-active">
-          <template #icon>
-            <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
-          </template>
-          Back
-        </ScalarSidebarButton>
-      </slot>
-      <ScalarSidebarSpacer class="h-3" />
-      <slot
-        name="items"
-        :open="!!open" />
-    </ScalarSidebarItems>
+    <!-- Make sure the div is around for the entire transition -->
+    <Transition :duration="300">
+      <div
+        v-if="open"
+        class="absolute inset-0 translate-x-full">
+        <ScalarSidebarItems v-bind="$attrs">
+          <slot name="back">
+            <ScalarSidebarButton
+              is="button"
+              @click="open = false"
+              class="text-c-1 font-sidebar-active">
+              <template #icon>
+                <ScalarIconCaretLeft class="size-4 -m-px text-c-2" />
+              </template>
+              Back
+            </ScalarSidebarButton>
+          </slot>
+          <ScalarSidebarSpacer class="h-3" />
+          <slot name="items" />
+        </ScalarSidebarItems>
+      </div>
+    </Transition>
   </li>
 </template>
