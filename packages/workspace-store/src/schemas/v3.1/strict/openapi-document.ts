@@ -18,6 +18,8 @@ import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
+import { xScalarEnvironmentsSchema } from '@/schemas/v3.1/strict/x-scalar-environments'
+import { xScalarSecretsSchema } from '@/schemas/v3.1/strict/x-scalar-secrets'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
@@ -29,6 +31,11 @@ const OpenApiExtensionsSchema = Type.Partial(
         TagObjectSchema,
       ),
     ),
+    'x-scalar-active-environment': Type.String(),
+    /** A custom icon representing the collection */
+    'x-scalar-icon': Type.String(),
+    'x-scalar-environments': xScalarEnvironmentsSchema,
+    'x-scalar-secrets': xScalarSecretsSchema,
   }),
 )
 
