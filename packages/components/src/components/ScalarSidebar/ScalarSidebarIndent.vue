@@ -61,20 +61,22 @@ const { cx } = useBindCx()
 <style scoped>
 @reference "../../style.css";
 
-.group\/item
-  > .group\/button
-  > .scalar-sidebar-indent
-  .scalar-sidebar-indent-border {
+/* Add extra height to the indent border to account for the px spacing between the items */
+.group\/item > * > .scalar-sidebar-indent .scalar-sidebar-indent-border {
   @apply -inset-y-px;
 }
+
+/* Push the border down for the first item in a group */
 .group\/item:first-child
-  > .group\/button
+  > *
   > .scalar-sidebar-indent
   .scalar-sidebar-indent-border {
   @apply top-0;
 }
+
+/* Push the border up for the last item in a group */
 .group\/item:last-child
-  > .group\/button
+  > *
   > .scalar-sidebar-indent
   .scalar-sidebar-indent-border {
   @apply bottom-0;
