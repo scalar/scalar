@@ -1,5 +1,20 @@
 # @scalar/aspire
 
+## 0.1.1
+
+### Patch Changes
+
+- 500d079: docs: improve documentation
+- Updated dependencies [533469b]
+- Updated dependencies [a70bcce]
+- Updated dependencies [6ac48c8]
+- Updated dependencies [8d8e427]
+- Updated dependencies [b7ff99a]
+- Updated dependencies [fed71e0]
+- Updated dependencies [a983428]
+- Updated dependencies [3393c83]
+  - @scalar/api-reference@1.32.0
+
 ## 0.1.0
 
 ### Minor Changes

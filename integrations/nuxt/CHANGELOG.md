@@ -1,5 +1,23 @@
 # @scalar/nuxt
 
+## 0.4.24
+
+### Patch Changes
+
+- 81b505d: fix(nuxt): set config content after grabbing spec
+- Updated dependencies [533469b]
+- Updated dependencies [a70bcce]
+- Updated dependencies [6ac48c8]
+- Updated dependencies [8d8e427]
+- Updated dependencies [b7ff99a]
+- Updated dependencies [fed71e0]
+- Updated dependencies [a983428]
+- Updated dependencies [3393c83]
+- Updated dependencies [4f47b3c]
+  - @scalar/api-reference@1.32.0
+  - @scalar/api-client@2.5.13
+  - @scalar/types@0.2.5
+
 ## 0.4.23
 
 ### Patch Changes

@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.5.13
+
+### Patch Changes
+
+- 533469b: refactor: decouple request code block from the state (not in use yet)
+- 4f47b3c: feat(components): scalar icon button cleanup
+- Updated dependencies [533469b]
+- Updated dependencies [3393c83]
+- Updated dependencies [4f47b3c]
+- Updated dependencies [23b150b]
+- Updated dependencies [8e85856]
+  - @scalar/openapi-types@0.3.4
+  - @scalar/components@0.14.14
+  - @scalar/icons@0.4.5
+  - @scalar/oas-utils@0.4.9
+  - @scalar/helpers@0.0.5
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/postman-to-openapi@0.3.12
+  - @scalar/types@0.2.5
+  - @scalar/use-codemirror@0.12.15
+  - @scalar/import@0.4.12
+  - @scalar/snippetz@0.3.1
+  - @scalar/themes@0.13.6
+
 ## 2.5.12
 
 ### Patch Changes

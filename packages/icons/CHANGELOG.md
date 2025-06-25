@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.4.5
+
+### Patch Changes
+
+- 4f47b3c: feat(components): scalar icon button cleanup
+
 ## 0.4.4
 
 ### Patch Changes

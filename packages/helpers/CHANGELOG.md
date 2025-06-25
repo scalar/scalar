@@ -1,5 +1,11 @@
 # @scalar/helpers
 
+## 0.0.5
+
+### Patch Changes
+
+- 23b150b: fix: operation to har helper with real world usecases
+
 ## 0.0.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.4
+
+### Patch Changes
+
+- 533469b: refactor: decouple request code block from the state (not in use yet)
+
 ## 0.3.3
 
 ### Patch Changes
