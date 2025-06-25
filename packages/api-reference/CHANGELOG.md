@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.32.1
+
+### Patch Changes
+
+- 98ff011: fix(api-references): duplicate section ID for tags on page load
+
 ## 1.32.0
 
 ### Minor Changes
