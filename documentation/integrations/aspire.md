@@ -4,6 +4,10 @@ The `Scalar.Aspire` package provides a simple way to integrate the Scalar API Re
 
 ## Basic Setup
 
+:::scalar-callout{ type=info }
+The Scalar Aspire integration requires a container solution such as **Docker** or **Podman** to be installed on your machine.
+:::
+
 1. **Install the package**
 
 ```shell
