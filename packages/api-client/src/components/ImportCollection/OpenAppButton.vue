@@ -3,7 +3,7 @@
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { computed } from 'vue'
 
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import { isUrl } from '@/components/ImportCollection/utils/is-url'
 
 const props = defineProps<{
   source?: string | null
