@@ -19,7 +19,6 @@ export default {}
 <script setup lang="ts">
 import type { ScalarSidebarItemProps } from '@/components/ScalarSidebar/types'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
-import type { Component } from 'vue'
 
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
@@ -55,9 +54,9 @@ const { cx } = useBindCx()
         class="group/group-button"
         :aria-expanded="open"
         :indent="level"
-        :selected="selected"
-        :disabled="disabled"
-        :icon="icon"
+        :selected
+        :disabled
+        :icon
         @click="open = !open">
         <template #indent>
           <ScalarSidebarIndent

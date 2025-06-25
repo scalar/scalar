@@ -52,9 +52,7 @@ const { cx } = useBindCx()
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ open }))">
     <slot :open="open">
-      <ScalarIconLegacyAdapter
-        :icon="icon"
-        weight="bold" />
+      <ScalarIconLegacyAdapter :icon="icon" />
     </slot>
     <span class="sr-only">
       <slot

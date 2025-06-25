@@ -9,6 +9,7 @@ import { ScalarIconFileArchive, ScalarIconFileAudio, ScalarIconFileText } from '
 import ScalarSidebarSearchButton from './ScalarSidebarSearchButton.vue'
 import ScalarSidebarSection from './ScalarSidebarSection.vue'
 import ScalarSidebarPlayground from './ScalarSidebarPlayground.vue'
+import ScalarSidebarNestedItems from './ScalarSidebarNestedItems.vue'
 
 const meta: Meta = {
   component: ScalarSidebar,
@@ -111,6 +112,73 @@ export const WithNestedGroups: Story = {
   }),
 }
 
+export const WithNestedSidebars: Story = {
+  argTypes: { indent: { control: 'number' } },
+  args: { indent: 20 },
+  render: (args) => ({
+    components: {
+      ScalarSidebar,
+      ScalarSidebarItem,
+      ScalarSidebarItems,
+      ScalarSidebarGroup,
+      ScalarSidebarNestedItems,
+      ScalarSidebarPlayground,
+    },
+    setup() {
+      const selected = ref('')
+      return { args, selected }
+    },
+    template: `
+<ScalarSidebarPlayground v-model:selected="selected" :indent="args.indent">
+  <ScalarSidebarItems>
+    <ScalarSidebarNestedItems>
+      Nested Items
+      <template #items>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Nested 1'" @click="selected = 'Nested 1'">Nested 1</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Nested 2'" @click="selected = 'Nested 2'">Nested 2</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Nested 3'" @click="selected = 'Nested 3'">Nested 3</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Nested 4'" @click="selected = 'Nested 4'">Nested 4</ScalarSidebarItem>
+      </template>
+    </ScalarSidebarNestedItems>
+
+    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 1'" @click="selected = 'Item 1'">Item 1</ScalarSidebarItem>
+    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 2'" @click="selected = 'Item 2'">Item 2</ScalarSidebarItem>
+
+    <ScalarSidebarGroup>
+      Sidebar Group
+      <template #items>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 5'" @click="selected = 'Subitem 5'">Subitem 5</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 6'" @click="selected = 'Subitem 6'">Subitem 6</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 7'" @click="selected = 'Subitem 7'">Subitem 7</ScalarSidebarItem>
+        <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Subitem 8'" @click="selected = 'Subitem 8'">Subitem 8</ScalarSidebarItem>
+      </template>
+    </ScalarSidebarGroup>
+    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 3'" @click="selected = 'Item 3'">Item 3</ScalarSidebarItem>
+    <ScalarSidebarItem is="button" :icon="args.icon" :selected="selected === 'Item 4'" @click="selected = 'Item 4'">Item 4</ScalarSidebarItem>
+  </ScalarSidebarItems>
+</ScalarSidebarPlayground>
+`,
+  }),
+}
+
+export const WithFooterContent: Story = {
+  render: (args) => ({
+    components: { ScalarSidebarPlayground, ScalarSidebarFooter },
+    setup() {
+      return { args }
+    },
+    template: `
+<ScalarSidebarPlayground>
+  <template #footer>
+    <ScalarSidebarFooter v-bind="args">
+      <span class="placeholder">Extra footer content</span>
+    </ScalarSidebarFooter>
+  </template>
+</ScalarSidebarPlayground>
+`,
+  }),
+}
+
 export const WithSections: Story = {
   render: (args) => ({
     components: {
@@ -161,24 +229,6 @@ export const WithSections: Story = {
       </template>
     </ScalarSidebarSection>
   </ScalarSidebarItems>
-</ScalarSidebarPlayground>
-`,
-  }),
-}
-
-export const WithFooterContent: Story = {
-  render: (args) => ({
-    components: { ScalarSidebarPlayground, ScalarSidebarFooter },
-    setup() {
-      return { args }
-    },
-    template: `
-<ScalarSidebarPlayground>
-  <template #footer>
-    <ScalarSidebarFooter v-bind="args">
-      <span class="placeholder">Extra footer content</span>
-    </ScalarSidebarFooter>
-  </template>
 </ScalarSidebarPlayground>
 `,
   }),
