@@ -26,8 +26,8 @@
 </h1>
 
 <p>
-	<img width="830" height="520" src="https://github.com/user-attachments/assets/7c4d4971-a6d9-457d-a7ab-11894889f6f9#gh-light-mode-only">
-	<img width="830" height="520" src="https://github.com/user-attachments/assets/0e3ffca5-8912-487a-a390-fef0e8222c35#gh-dark-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/d9f90c51-82d4-4948-9365-658ccc7d78c4#gh-light-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/e7c2023e-dfbc-428c-bc85-c06d8a6e4b67#gh-dark-mode-only">
 </p>
 
 ### An offline first API Client built for OpenAPI
@@ -49,8 +49,8 @@
 <!-- end minimal line break-->
 
 <p>
-	<img width="830" height="520" src="https://github.com/user-attachments/assets/718201bf-421a-4802-b0b0-2b016ee3f1b4#gh-light-mode-only">
-	<img width="830" height="520" src="https://github.com/user-attachments/assets/28b4b80c-2c12-4501-b403-1c1e4949941c#gh-dark-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/8711d868-a00d-452a-aece-32d4187aab35#gh-light-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/e8df4374-bd5f-4d5a-9730-4a91dcafb9b6#gh-dark-mode-only">
 </p>
 
 <h3>Interactive API Reference from OpenAPI/Swagger</h3>
