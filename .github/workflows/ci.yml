@@ -42,6 +42,13 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages: './{packages,integrations}/**'
+      - name: Upload standalone.js artifact
+        if: matrix.node-version == 22
+        uses: actions/upload-artifact@de65e23aa2b7e23d713bb51fbfcb6d502f8667d8
+        with:
+          name: standalone-js
+          path: packages/api-reference/dist/browser/standalone.js
+          retention-days: 1
 
   docker:
     name: Build and Tag Docker Image
@@ -566,15 +573,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download standalone.js artifact
+        uses: actions/download-artifact@448e3f862ab3ef47aa50ff917776823c9946035b
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
-      - name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspnetcore
-        run: pnpm copy:standalone
+      - name: Rename the standalone.js file
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: mv standalone.js scalar.js
 
       - name: Compress static assets
         working-directory: integrations/aspnetcore
@@ -688,16 +695,16 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+        name: Download standalone.js artifact
+        uses: actions/download-artifact@448e3f862ab3ef47aa50ff917776823c9946035b
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspnetcore
-        run: pnpm copy:standalone
+        name: Rename the standalone.js file
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore/StaticAssets
+        run: mv standalone.js scalar.js
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Compress static assets
