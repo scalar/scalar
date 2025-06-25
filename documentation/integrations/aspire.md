@@ -180,6 +180,7 @@ var scalar = builder.AddScalarApiReference(options =>
 ```
 
 ## Service Requirements
+
 To integrate with Scalar Aspire, each service must expose OpenAPI/Swagger documents over HTTP. Ensure your service serves OpenAPI documentation at a reachable endpoint.
 
 Additionally, only HTTP-based services are supported. Any resource you want to include in the API reference must implement the `IResourceWithServiceDiscovery` interface and define an endpoint named **"http"**.
