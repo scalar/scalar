@@ -52,7 +52,6 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    :aria-level="indent"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ selected, disabled }))">
@@ -74,7 +73,9 @@ const { cx } = useBindCx()
       </div>
       <slot />
     </div>
-    <div v-if="$slots.aside">
+    <div
+      v-if="$slots.aside"
+      class="flex items-center">
       <slot name="aside" />
     </div>
   </component>
