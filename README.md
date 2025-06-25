@@ -49,8 +49,8 @@
 <!-- end minimal line break-->
 
 <p>
-	<img width="830" height="auto" src="https://github.com/user-attachments/assets/8711d868-a00d-452a-aece-32d4187aab35#gh-light-mode-only">
-	<img width="830" height="auto" src="https://github.com/user-attachments/assets/e8df4374-bd5f-4d5a-9730-4a91dcafb9b6#gh-dark-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/3a24fc5c-5d3c-4be4-8b9e-399bd49e4fb7#gh-light-mode-only">
+	<img width="830" height="auto" src="https://github.com/user-attachments/assets/76f123ae-f458-409f-84d3-b9ad14fd3fb2#gh-dark-mode-only">
 </p>
 
 <h3>Interactive API Reference from OpenAPI/Swagger</h3>
