@@ -614,7 +614,7 @@ jobs:
         uses: actions/download-artifact@448e3f862ab3ef47aa50ff917776823c9946035b
         with:
           name: standalone-js
-          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot/standalone.js
+          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
 
       - name: Compress assets
         working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
