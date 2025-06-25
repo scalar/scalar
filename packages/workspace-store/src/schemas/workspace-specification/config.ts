@@ -3,7 +3,7 @@ import { Type, type Static } from '@sinclair/typebox'
 
 export const ConfigSchema = Type.Partial(
   Type.Object({
-    'x-reference-config': ReferenceConfigSchema,
+    'x-scalar-reference-config': ReferenceConfigSchema,
   }),
 )
 

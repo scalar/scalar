@@ -53,7 +53,7 @@ type ObjectDoc = {
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
-  'x-reference-config': defaultReferenceConfig,
+  'x-scalar-reference-config': defaultReferenceConfig,
 }
 
 /**
@@ -96,6 +96,7 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
   documents?: ObjectDoc[]
+  /** Workspace configuration */
   config?: Config
 }
 
