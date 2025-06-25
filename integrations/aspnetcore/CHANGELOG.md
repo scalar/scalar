@@ -1,5 +1,20 @@
 # @scalar/aspnetcore
 
+## 2.5.1
+
+### Patch Changes
+
+- 5938c71: docs: simplified Readme
+- Updated dependencies [533469b]
+- Updated dependencies [a70bcce]
+- Updated dependencies [6ac48c8]
+- Updated dependencies [8d8e427]
+- Updated dependencies [b7ff99a]
+- Updated dependencies [fed71e0]
+- Updated dependencies [a983428]
+- Updated dependencies [3393c83]
+  - @scalar/api-reference@1.32.0
+
 ## 2.5.0
 
 ### Minor Changes

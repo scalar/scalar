@@ -1,5 +1,24 @@
 # @scalar/workspace-store
 
+## 0.7.0
+
+### Minor Changes
+
+- a05d638: feat(workspace-store): create types and validator for reference config schema
+- 8d8e427: feat(api-reference): load documents on the new store
+- dbbdd70: feat(workspace-store) add configuration mapping to the workspace store
+
+### Patch Changes
+
+- 23b150b: fix: export and fix up some types from workspace store
+- Updated dependencies [533469b]
+- Updated dependencies [23b150b]
+  - @scalar/openapi-types@0.3.4
+  - @scalar/helpers@0.0.5
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/types@0.2.5
+  - @scalar/code-highlight@0.1.4
+
 ## 0.6.0
 
 ### Minor Changes

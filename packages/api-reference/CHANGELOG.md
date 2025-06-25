@@ -1,5 +1,42 @@
 # @scalar/api-reference
 
+## 1.32.0
+
+### Minor Changes
+
+- 8d8e427: feat(api-reference): load documents on the new store
+
+### Patch Changes
+
+- 533469b: refactor: decouple request code block from the state (not in use yet)
+- a70bcce: refactor: move more code to features folders
+- 6ac48c8: fix: uses empty operation summary for the sidebar entry
+- b7ff99a: refactor: render regular OpenAPI Operation Object
+- fed71e0: fix: does not scroll to anchor on load
+- a983428: feat: use schema title for the sidebar, if available
+- 3393c83: fix: focus is not defined in search
+- Updated dependencies [533469b]
+- Updated dependencies [a05d638]
+- Updated dependencies [8d8e427]
+- Updated dependencies [3393c83]
+- Updated dependencies [23b150b]
+- Updated dependencies [4f47b3c]
+- Updated dependencies [dbbdd70]
+- Updated dependencies [23b150b]
+- Updated dependencies [8e85856]
+  - @scalar/openapi-types@0.3.4
+  - @scalar/api-client@2.5.13
+  - @scalar/components@0.14.14
+  - @scalar/workspace-store@0.7.0
+  - @scalar/icons@0.4.5
+  - @scalar/oas-utils@0.4.9
+  - @scalar/helpers@0.0.5
+  - @scalar/openapi-parser@0.18.0
+  - @scalar/types@0.2.5
+  - @scalar/snippetz@0.3.1
+  - @scalar/themes@0.13.6
+  - @scalar/code-highlight@0.1.4
+
 ## 1.31.18
 
 ### Patch Changes
