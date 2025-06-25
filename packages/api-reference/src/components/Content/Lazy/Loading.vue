@@ -193,6 +193,7 @@ onMounted(() => {
         v-if="tag.operations && tag.operations.length > 0"
         :collection="collection"
         :spec="parsedSpec"
+        id="lazy-{{ getTagId(tag) }}"
         :tag="tag">
         <Operation
           v-for="transformedOperation in tag.lazyOperations"
