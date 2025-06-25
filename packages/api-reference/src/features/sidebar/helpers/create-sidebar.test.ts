@@ -843,6 +843,30 @@ describe('createSidebar', () => {
       })
     })
 
+    it('uses the path when summary is an empty string', () => {
+      expect(
+        createSidebar(
+          ref({
+            openapi: '3.1.0',
+            info: {
+              title: 'Hello World',
+              version: '1.0.0',
+            },
+            paths: {
+              '/hello': {
+                get: {
+                  summary: '',
+                },
+              },
+            },
+          } as OpenAPIV3_1.Document),
+          mockOptions,
+        ).items.value,
+      ).toMatchObject({
+        entries: [{ title: '/hello' }],
+      })
+    })
+
     it('sorts operations alphabetically with summary', () => {
       const configWithSorter = ref({
         ...config.value,

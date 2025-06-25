@@ -238,3 +238,49 @@ await store.addDocument({
 // Output: { openapi: 'x.x.x', ... }
 console.log(store.workspace.documents.default)
 ```
+
+#### Configuration
+
+You can pass configuration object to the workspace store which is going to be applied to all the documents
+
+```ts
+const store = createWorkspaceStore({
+  config: {
+    "x-scalar-reference-config": {
+      features: {
+        showModels: true,
+      },
+      appearance: {
+        layout: 'modern'
+      },
+    }
+  }
+})
+```
+
+You can override specific document configuration when you add the document to the store
+
+```ts
+store.addDocumentSync({
+  name: 'example',
+  document: {
+    openapi: '3.0.0',
+    info: { title: 'Example API', version: '1.0.0' },
+    paths: {},
+  },
+  config: {
+    features: {
+      showModels: false,
+    },
+  }
+})
+```
+
+To get the active document configuration you can use config getter\
+
+```ts
+// Get the configuration for the active document
+console.log(store.config['x-scalar-reference-config'].features.showModels)
+```
+
+When no configuration is provided it will return the default configuration

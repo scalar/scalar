@@ -9,7 +9,6 @@ import { computed } from 'vue'
 
 import { BaseUrl } from '@/features/base-url'
 import { useConfig } from '@/hooks/useConfig'
-import { getModels, hasModels } from '@/libs/openapi'
 
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
@@ -84,6 +83,7 @@ const introCardsSlot = computed(() =>
     <slot name="start" />
     <Loading
       v-if="activeCollection"
+      :document="document"
       :collection="activeCollection"
       :layout="layout"
       :parsedSpec="parsedSpec"
@@ -137,6 +137,7 @@ const introCardsSlot = computed(() =>
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList
           v-for="tagGroup in parsedSpec['x-tagGroups']"
+          :document="document"
           :key="tagGroup.name"
           :collection="activeCollection"
           :layout="layout"
@@ -151,8 +152,8 @@ const introCardsSlot = computed(() =>
       <TagList
         v-else
         :collection="activeCollection"
+        :document="document"
         :layout="layout"
-        :schemas="getModels(parsedSpec)"
         :server="activeServer"
         :spec="parsedSpec"
         :tags="parsedSpec.tags" />
@@ -161,10 +162,10 @@ const introCardsSlot = computed(() =>
     <!-- Webhooks -->
     <template v-if="parsedSpec.webhooks?.length && activeCollection">
       <TagList
+        :document="document"
         id="webhooks"
         :collection="activeCollection"
         :layout="layout"
-        :schemas="getModels(parsedSpec)"
         :server="activeServer"
         :spec="parsedSpec"
         :tags="[
@@ -177,23 +178,25 @@ const introCardsSlot = computed(() =>
       </TagList>
     </template>
 
-    <template v-if="hasModels(parsedSpec) && !config.hideModels">
+    <template v-if="document?.components?.schemas && !config.hideModels">
       <ModelsAccordion
         v-if="layout === 'classic'"
-        :schemas="getModels(parsedSpec)" />
+        :schemas="document?.components?.schemas" />
       <Models
         v-else
-        :schemas="getModels(parsedSpec)" />
+        :schemas="document?.components?.schemas" />
     </template>
     <slot name="end" />
   </div>
 </template>
+
 <style>
 .narrow-references-container {
   container-name: narrow-references-container;
   container-type: inline-size;
 }
 </style>
+
 <style scoped>
 .render-loading {
   height: calc(var(--full-height) - var(--refs-header-height));
