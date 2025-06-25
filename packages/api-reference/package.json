@@ -37,7 +37,7 @@
     "playground:ssr": "cd ./playground/ssr && pnpm dev",
     "playground:vue": "vite ./playground/vue -c ./playground/vue/vite.config.ts",
     "preview": "vite preview",
-    "test": "vitest",
+    "test": "vitest  --coverage",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"
   },

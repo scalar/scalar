@@ -213,6 +213,10 @@ jobs:
         run: |
           pnpm script wait -p 5051 5052 &&
           pnpm test:packages:ci
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: packages/api-reference/coverage/lcov.info
 
   test-integrations:
     needs: [build]
