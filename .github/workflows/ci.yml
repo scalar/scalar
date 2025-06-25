@@ -610,15 +610,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build-blacksmith
+      - name: Download standalone.js artifact
+        uses: actions/download-artifact@448e3f862ab3ef47aa50ff917776823c9946035b
         with:
-          node-version: 22
-          packages: '@scalar/api-reference...'
+          name: standalone-js
+          path: integrations/aspire/src/Scalar.Aspire.Service/wwwroot/standalone.js
 
-      - name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: integrations/aspire
-        run: pnpm copy:standalone
+      - name: Compress assets
+        working-directory: integrations/aspire/src/Scalar.Aspire.Service/wwwroot
+        run: gzip --keep --verbose --force standalone.js
 
       - name: Setup .NET
         uses: actions/setup-dotnet@3951f0dfe7a07e2313ec93c75700083e2005cbab
