@@ -131,7 +131,7 @@ export const createRequestOperation = ({
     const urlParams = new URLSearchParams([..._urlParams, ...security.urlParams])
 
     // If we are running in Electron, we need to add a custom header
-    // that’s then forwarded as a `User-Agent` header.
+    // that's then forwarded as a `User-Agent` header.
     if (isElectron() && headers['user-agent']) {
       headers['X-Scalar-User-Agent'] = headers['user-agent']
     }
@@ -145,14 +145,14 @@ export const createRequestOperation = ({
     if (cookieHeader) {
       /**
        * If we are running in Electron, we need to add a custom header
-       * that’s then forwarded as a `Cookie` header.
+       * that's then forwarded as a `Cookie` header.
        */
       const useCustomCookieHeader = isElectron() || shouldUseProxy(proxyUrl, url)
 
-      // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
+      // Add a custom header for the proxy (that's then forwarded as `Cookie`)
       if (useCustomCookieHeader) {
         console.warn(
-          'We’re using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.',
+          "We're using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.",
         )
 
         headers['X-Scalar-Cookie'] = cookieHeader
@@ -160,7 +160,7 @@ export const createRequestOperation = ({
       // or stick to the original header (which might be removed by the browser)
       else {
         console.warn(
-          `We’re trying to add a Cookie header, but browsers often omit them for cross-origin requests for various security reasons. If it’s not working, that’s probably why. Here are the requirements for it to work:
+          `We're trying to add a Cookie header, but browsers often omit them for cross-origin requests for various security reasons. If it's not working, that's probably why. Here are the requirements for it to work:
 
           - The browser URL must be on the same domain as the server URL.
           - The connection must be made over HTTPS.

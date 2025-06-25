@@ -48,7 +48,7 @@ export function resolveReferences(
   // Detach from input
   const clonedInput = structuredClone(input)
 
-  // Make it a filesystem, even if it’s just one file
+  // Make it a filesystem, even if it's just one file
   const filesystem = makeFilesystem(clonedInput)
 
   // Get the main file

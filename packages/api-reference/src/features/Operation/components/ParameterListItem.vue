@@ -54,7 +54,7 @@ const shouldCollapse = computed<boolean>(() => {
 })
 
 /**
- * We’re showing request data, read-only parameters should not be shown.
+ * We're showing request data, read-only parameters should not be shown.
  */
 const shouldShowParameter = computed(() => {
   if (props.parameter.readOnly === true) {

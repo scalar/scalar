@@ -29,7 +29,7 @@ declare global {
 
 export type CreateWorkspaceStoreOptions = {
   /**
-   * When true, changes made to the store will be saved in the browser’s localStorage.
+   * When true, changes made to the store will be saved in the browser's localStorage.
    *
    * @default true
    */
@@ -40,7 +40,7 @@ export type CreateWorkspaceStoreOptions = {
  * Factory function for creating the centralized store for the API client.
  *
  * This store manages all data and state for the application.
- * It should be instantiated once and injected into the app’s root component.
+ * It should be instantiated once and injected into the app's root component.
  */
 export const createWorkspaceStore = ({
   useLocalStorage = true,

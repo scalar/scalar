@@ -1,8 +1,8 @@
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { describe, expect, it } from 'vitest'
 
-import { getCookieHeader, matchesDomain, setRequestCookies } from './set-request-cookies'
 import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
+import { getCookieHeader, matchesDomain, setRequestCookies } from './set-request-cookies'
 
 describe('setRequestCookies', () => {
   it('should set local and global cookies', () => {
@@ -69,7 +69,7 @@ describe('matchesDomain', () => {
     expect(matchesDomain('https://void.scalar.com', '.scalar.com')).toBe(true)
   })
 
-  it('shouldn’t match the current host without a wildcard', () => {
+  it("shouldn't match the current host without a wildcard", () => {
     expect(matchesDomain('https://void.scalar.com', 'scalar.com')).toBe(false)
   })
 })

@@ -33,7 +33,7 @@ const history = computed(() =>
 
 function handleHistoryClick(requestHistoryItem: RequestEvent) {
   console.warn(
-    'Restoring from the request history doesn’t work yet. Request History Item:',
+    "Restoring from the request history doesn't work yet. Request History Item:",
     requestHistoryItem,
   )
   // TODO: Restore the request data with the history item

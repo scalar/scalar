@@ -11,7 +11,7 @@ These tools streamline the development process, ensure consistency across packag
 
 ## Usage
 
-By default, all dependencies are externalized, and we don’t bundle anything for internal modules.
+By default, all dependencies are externalized, and we don't bundle anything for internal modules.
 
 For deployed web applications, alternative build methods should be used to provide a complete client bundle. This ensures that all necessary dependencies are included for the end-user.
 
@@ -49,7 +49,7 @@ For non-Vue projects, we use Rollup for builds due to its superior tree-shaking 
 
 Our Rollup configuration provides out-of-the-box support for importing JSON, YAML, and CSS files. Additionally, you can easily copy static files by specifying entries in the `copy` parameter.
 
-Here’s an example of a basic `rollup.config.ts` file:
+Here's an example of a basic `rollup.config.ts` file:
 
 ```typescript
 import type { RollupOptions } from 'rollup'

@@ -21,11 +21,11 @@ If you really want to become friends you should install the CLI:
 npm -g install @scalar/cli
 ```
 
-Otherwise just prefix all commands with `npx @scalar/cli` instead of `scalar`. That’s fine, too.
+Otherwise just prefix all commands with `npx @scalar/cli` instead of `scalar`. That's fine, too.
 
 ### Conflict: EXIST: file already exists
 
-There’s another `scalar` CLI, which is bundled with `git`. If you run into naming conflicts, but never use the other CLI anyway, you can replace it like this:
+There's another `scalar` CLI, which is bundled with `git`. If you run into naming conflicts, but never use the other CLI anyway, you can replace it like this:
 
 ```bash
 npm -g --force install @scalar/cli

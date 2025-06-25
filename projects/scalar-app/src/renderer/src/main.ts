@@ -35,7 +35,7 @@ if (window.electron) {
     }
 
     trackPageview({
-      // We don’t need to know the path, the name of the route is enough.
+      // We don't need to know the path, the name of the route is enough.
       url: `https://scalar-${os}/${route.name}`,
     })
   })
@@ -78,7 +78,7 @@ async function drop(e: DragEvent) {
 
   // Check if the user dropped a file
   for (const f of e.dataTransfer?.files ?? []) {
-    // @ts-expect-error TypeScript doesn’t know about the types in the preload script yet
+    // @ts-expect-error TypeScript doesn't know about the types in the preload script yet
     const fileContent = await window.api.readFile(f.path)
 
     if (fileContent) {

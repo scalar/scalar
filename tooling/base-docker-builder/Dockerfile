@@ -26,5 +26,5 @@ RUN pnpm turbo \
   run build \
   --filter='./packages/*' \
   --filter='./integrations/*' \
-  # … don’t build too many in parallel, we don’t want to hit a memory limit.
+  # … don't build too many in parallel, we don't want to hit a memory limit.
   --concurrency=2

@@ -33,7 +33,7 @@ describe('httpHttp11', () => {
     expect(result).toBe('GET / HTTP/1.1\r\n' + 'Host: example.com\r\n' + 'Content-Type: application/json\r\n' + '\r\n')
   })
 
-  it('it doesn’t add the JSON header twice', () => {
+  it("doesn't add the JSON header twice", () => {
     const result = httpHttp11.generate({
       url: 'https://example.com',
       method: 'post',

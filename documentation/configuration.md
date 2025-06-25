@@ -7,7 +7,7 @@ You can pass a — what we call — universal configuration object to fine-tune 
 It is universal, because it works in all environments. You can pass it to the JS API directly, or you can use it in one
 of our integrations.
 
-Let’s say you are working with just an HTML file, that’s how you pass the configuration:
+Let's say you are working with just an HTML file, that's how you pass the configuration:
 
 ```ts
 Scalar.createApiReference('#app', {
@@ -46,7 +46,7 @@ Scalar.createApiReference('#app', {
 
 This can be JSON or YAML.
 
-It’s the recommended way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
+It's the recommended way to pass your OpenAPI document. In most cases, the OpenAPI document can be cached by the browser
 and subsequent requests are pretty fast then, even if the document grows over time.
 
 > No OpenAPI document? All backend frameworks have some kind of OpenAPI generator. Just

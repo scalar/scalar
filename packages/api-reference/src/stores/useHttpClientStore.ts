@@ -63,10 +63,10 @@ export function filterHiddenClients(targets: Target[], exclude: Ref<HiddenClient
     // Example: ['fetch', 'xhr']
     if (Array.isArray(exclude.value)) {
       target.clients = target.clients.filter(
-        // @ts-expect-error Typescript, chill. It’s all good. It has to be an array.
+        // @ts-expect-error Typescript, chill. It's all good. It has to be an array.
         (client) => !exclude.value.includes(client.client),
       )
-      // Remove targets that don’t have any clients left
+      // Remove targets that don't have any clients left
       if (!target.clients.length) {
         return []
       }
@@ -84,13 +84,13 @@ export function filterHiddenClients(targets: Target[], exclude: Ref<HiddenClient
     if (Array.isArray(exclude.value[target.key])) {
       target.clients = target.clients.filter((client) => {
         return !(
-          // @ts-expect-error We checked whether it’s an Array already.
+          // @ts-expect-error We checked whether it's an Array already.
           exclude.value[target.key].includes(client.client)
         )
       })
     }
 
-    // Remove targets that don’t have any clients left
+    // Remove targets that don't have any clients left
     if (!target?.clients?.length) {
       return []
     }

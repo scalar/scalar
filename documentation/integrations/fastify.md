@@ -33,7 +33,7 @@ fastify.register(import('@scalar/fastify-api-reference'), {
 })
 ```
 
-With [@fastify/swagger], we’re picking it up automatically, so this would be enough:
+With [@fastify/swagger], we're picking it up automatically, so this would be enough:
 
 ```ts
 await fastify.register(import('@scalar/fastify-api-reference'), {
@@ -47,7 +47,7 @@ The fastify plugin takes our universal configuration object, [read more about co
 
 ## Themes
 
-By default, we’re using a custom Fastify theme and it’s beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:
+By default, we're using a custom Fastify theme and it's beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:
 
 ```ts
 await fastify.register(import('@scalar/fastify-api-reference'), {
@@ -71,11 +71,11 @@ fastify.register(import('@scalar/fastify-api-reference'), {
 
 ## Guide
 
-Fastify is a pretty popular server for Node.js, a lot of people consider it to be the modern successor of Express. Anyway, if you’re working with Fastify, there’s great support for the OpenAPI standard. And with our package you can render an interactive API reference with just a few additional lines of code.
+Fastify is a pretty popular server for Node.js, a lot of people consider it to be the modern successor of Express. Anyway, if you're working with Fastify, there's great support for the OpenAPI standard. And with our package you can render an interactive API reference with just a few additional lines of code.
 
 ### Create a new Fastify project (optional)
 
-If you’re starting ~~on a white sheet of paper~~ fresh, let’s install Fastify first:
+If you're starting ~~on a white sheet of paper~~ fresh, let's install Fastify first:
 
 ```bash
 npm init
@@ -109,7 +109,7 @@ fastify.listen({ port: 3000 }, function (err, address) {
 })
 ```
 
-If you start to run this script, it’ll fail though, because we’re using the “new” way to _import_ EcmaScript Modules here. The fix should be straight-forward. We need to add the highlighted lines to our package.json:
+If you start to run this script, it'll fail though, because we're using the “new” way to _import_ EcmaScript Modules here. The fix should be straight-forward. We need to add the highlighted lines to our package.json:
 
 ```diff
 {
@@ -126,7 +126,7 @@ If you start to run this script, it’ll fail though, because we’re using the 
 }
 ```
 
-The `"type": "module"` is important to make Node work with the “new” EcmaScript Modules. The `dev` script is just for convenience. The other lines of your package.json might look different, that’s okay.
+The `"type": "module"` is important to make Node work with the “new” EcmaScript Modules. The `dev` script is just for convenience. The other lines of your package.json might look different, that's okay.
 
 Time to run it:
 
@@ -136,11 +136,11 @@ npm run dev
 
 This should output the URL the server is running on: <http://localhost:3000> Try opening this in your browser and you should see the example JSON.
 
-Congratulations, you’ve set up your (first?) Fastify project!
+Congratulations, you've set up your (first?) Fastify project!
 
 ### Set up Fastify Swagger (optional)
 
-Wait … _Swagger_, isn’t that the outdated standard? Yes, you’re right! Rest assured, this is what the official package is called to generate OpenAPI 3.0 files.
+Wait … _Swagger_, isn't that the outdated standard? Yes, you're right! Rest assured, this is what the official package is called to generate OpenAPI 3.0 files.
 
 In order to use it, we need to install the official package first:
 
@@ -148,7 +148,7 @@ In order to use it, we need to install the official package first:
 npm install @fastify/swagger
 ```
 
-Okay, you’ve got this. To actually set up the package, there’s a some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
+Okay, you've got this. To actually set up the package, there's a some boilerplate code required. **Replace the content** of our previous `index.js` with the following:
 
 ```js
 import FastifySwagger from '@fastify/swagger'
@@ -249,14 +249,14 @@ fastify.listen({ port: 3000 }, function (err, address) {
 })
 ```
 
-Oh, that’s a ton, right? Here’s the TL;DR of what it does:
+Oh, that's a ton, right? Here's the TL;DR of what it does:
 
 1. Register the Swagger plugin
 2. Define a few global things, like the name of your API
 3. Register a route with an example OpenAPI definition for that route
 4. Add a route that returns just the generated OpenAPI as a JSON file
 
-Your server should be restarted automatically (that’s what we added `nodemon` in the `package.json` for). If you haven’t already set up something like `nodemon` to restart your process, you need to manually do this:
+Your server should be restarted automatically (that's what we added `nodemon` in the `package.json` for). If you haven't already set up something like `nodemon` to restart your process, you need to manually do this:
 
 ```bash
 npm run dev
@@ -264,11 +264,11 @@ npm run dev
 
 If all went well, this should give you a pretty decent OpenAPI file on <http://localhost:3000/openapi.json>
 
-Did it work? OMG, this is so cool! It didn’t? [Create a new issue](https://github.com/scalar/scalar/issues/new/choose) so we can improve this guide here — I mean, that’s the beauty of open source, isn’t it?
+Did it work? OMG, this is so cool! It didn't? [Create a new issue](https://github.com/scalar/scalar/issues/new/choose) so we can improve this guide here — I mean, that's the beauty of open source, isn't it?
 
 ### Render your OpenAPI reference with Scalar
 
-Congratulations, you’ve come really far. And I have good news for you, you’re just a few lines of code away from a stunning API reference for your Fastify project. Time to pull our package:
+Congratulations, you've come really far. And I have good news for you, you're just a few lines of code away from a stunning API reference for your Fastify project. Time to pull our package:
 
 ```bash
 npm install @scalar/fastify-api-reference
@@ -298,14 +298,14 @@ await fastify.register(ScalarApiReference, {
 ```
 
 :::scalar-callout{ type=info }
-It’s not really a problem to have an `import` statement in the middle of your file, it’s not really common, though. Feel free to move it to the top of your files, where `import` statements usually live.
+It's not really a problem to have an `import` statement in the middle of your file, it's not really common, though. Feel free to move it to the top of your files, where `import` statements usually live.
 :::
 
-Wow, this is it already. Restart the server, if it didn’t already and take a look at your new API reference:
+Wow, this is it already. Restart the server, if it didn't already and take a look at your new API reference:
 
 <http://localhost:3000/reference>
 
-That’s it, you made it! You can keep adding routes to Fastify now and the reference will keep in sync with them.
+That's it, you made it! You can keep adding routes to Fastify now and the reference will keep in sync with them.
 
 For Additional hooks you can learn more about [route's options](https://fastify.dev/docs/latest/Reference/Routes/#routes-options) interface.
 
@@ -326,14 +326,14 @@ await fastify.register(ScalarApiReference, {
 })
 ```
 
-TypeScript should give you a nice autocomplete for all options. If you’re more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/documentation/configuration.md>
+TypeScript should give you a nice autocomplete for all options. If you're more into reading an actual reference, you can read about all options here: <https://github.com/scalar/scalar/tree/main/documentation/configuration.md>
 
 ### Advanced: Handcrafted OpenAPI files
 
-Auto-generated OpenAPI files are great, but some OpenAPI purists argue it’s worth to handcraft your OpenAPI files. If you’re one of them, feel free to just pass an URL to your existing OpenAPI file:
+Auto-generated OpenAPI files are great, but some OpenAPI purists argue it's worth to handcraft your OpenAPI files. If you're one of them, feel free to just pass an URL to your existing OpenAPI file:
 
 :::scalar-callout{ type=info }
-If you don’t use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
+If you don't use `@fastify/swagger` to generate and serve an OpenAPI specification, you need to serve it manually. [To serve static files, try @fastify/static](https://github.com/fastify/fastify-static).
 :::
 
 ```js

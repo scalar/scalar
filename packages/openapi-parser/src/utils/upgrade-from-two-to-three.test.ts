@@ -86,7 +86,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    // @ts-expect-error it’s fine
+    // @ts-expect-error it's fine
     expect(result.components?.schemas).toStrictEqual({
       Category: {
         type: 'object',
@@ -435,7 +435,7 @@ describe('upgradeFromTwoToThree', () => {
 
     const result = upgradeFromTwoToThree(input)
 
-    // @ts-expect-error it’s fine
+    // @ts-expect-error it's fine
     expect(result.components.securitySchemes).toStrictEqual({
       api_key: {
         type: 'apiKey',
@@ -536,7 +536,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    // @ts-expect-error it’s fine
+    // @ts-expect-error it's fine
     expect(result.components.securitySchemes.basic_auth).toStrictEqual({
       type: 'http',
       scheme: 'basic',

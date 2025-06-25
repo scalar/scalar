@@ -1,5 +1,5 @@
-import type { ApiReferenceConfigurationWithSources } from './api-reference-configuration'
 import { z } from 'zod'
+import type { ApiReferenceConfigurationWithSources } from './api-reference-configuration'
 
 /**
  * Zod schema for HTML rendering configuration
@@ -24,7 +24,7 @@ export const htmlRenderingConfigurationSchema = z.object({
 /**
  * The configuration for the static HTML rendering using the CDN.
  *
- * It’s the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
+ * It's the ApiReferenceConfiguration, but extended with the `pageTitle` and `cdn` options.
  */
 export type HtmlRenderingConfiguration = Partial<ApiReferenceConfigurationWithSources> &
   z.infer<typeof htmlRenderingConfigurationSchema>

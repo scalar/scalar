@@ -40,7 +40,7 @@ const handleClick = () => {
     <span>Test Request</span>
     <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
   </button>
-  <!-- Render whitespace, so the container doesn’t collapse -->
+  <!-- Render whitespace, so the container doesn't collapse -->
   <template v-else>&nbsp;</template>
 </template>
 <style scoped>

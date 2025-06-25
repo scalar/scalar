@@ -14,7 +14,7 @@ const fields = [
   { label: 'Name', key: 'name', placeholder: 'session_id' },
   { label: 'Value', key: 'value', placeholder: 'my-cookie-session-id' },
   { label: 'Domain', key: 'domain', placeholder: 'example.com' },
-  // TODO: We don’t check the path (yet), so we don’t need to show it.
+  // TODO: We don't check the path (yet), so we don't need to show it.
   // { label: 'Path', key: 'path', placeholder: '/' },
 ]
 

@@ -1,6 +1,6 @@
 # Scalar API Reference for Rust
 
-There’s [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already.
+There's [a wonderful package to generate OpenAPI files for Rust](https://github.com/tamasfe/aide) already.
 Set the `api_route` to use `Scalar` to get started:
 
 ```rust

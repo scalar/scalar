@@ -17,7 +17,7 @@ import { useExampleStore } from '@/legacy/stores'
 import { useApiClient } from './useApiClient'
 
 const { configuration, dereferencedDocument } = defineProps<{
-  // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn’t have to be).
+  // The plugins for @scalar/api-reference and @scalar/api-client are different (as of now, doesn't have to be).
   configuration: Partial<Omit<ApiClientConfiguration, 'plugins'>>
   dereferencedDocument: OpenAPIV3_1.Document
 }>()

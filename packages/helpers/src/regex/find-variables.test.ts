@@ -19,7 +19,7 @@ describe('findVariables', () => {
     expect(findVariables('http://{Example123_}/foobar')).toEqual(['Example123_'])
   })
 
-  it('returns an empty array if there’s no variable', async () => {
+  it("returns an empty array if there's no variable", async () => {
     expect(findVariables('http://example.com/foobar')).toEqual([])
   })
 })

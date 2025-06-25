@@ -722,7 +722,7 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('doesn’t wrap items when not needed', () => {
+  it(`doesn't wrap items when not needed`, () => {
     expect(
       getExampleFromSchema(
         {
@@ -834,7 +834,7 @@ describe('getExampleFromSchema', () => {
     ).toBe('foobar')
   })
 
-  it('doesn’t return readOnly attributes in write mode', () => {
+  it(`doesn't return readOnly attributes in write mode`, () => {
     expect(
       getExampleFromSchema(
         {
@@ -871,7 +871,7 @@ describe('getExampleFromSchema', () => {
     ).toBe('foobar')
   })
 
-  it('doesn’t return writeOnly attributes in read mode', () => {
+  it(`doesn't return writeOnly attributes in read mode`, () => {
     expect(
       getExampleFromSchema(
         {
@@ -1057,7 +1057,7 @@ describe('getExampleFromSchema', () => {
       // Create a circular reference
       schema.properties.foobar = schema
 
-      // 10 levels deep, that’s enough. It should return null then.
+      // 10 levels deep, that's enough. It should return null then.
       expect(getExampleFromSchema(schema)).toStrictEqual({
         foobar: {
           foobar: {
@@ -1167,7 +1167,7 @@ describe('getExampleFromSchema', () => {
         'type': 'array',
         'description': "The summary of user's quality of service (QoS) information.",
         'items': {
-          // no `type: 'object'` here, but it’s an object
+          // no `type: 'object'` here, but it's an object
           'properties': {
             'type': {
               'type': 'string',
@@ -1187,7 +1187,7 @@ describe('getExampleFromSchema', () => {
             'foobar': {
               'type': 'array',
               'items': {
-                // no `type: 'array'` here, but it’s an array
+                // no `type: 'array'` here, but it's an array
                 'items': {
                   'type': 'string',
                   'example': 'foobar',

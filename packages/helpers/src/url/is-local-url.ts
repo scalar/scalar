@@ -10,7 +10,7 @@ export function isLocalUrl(url: string) {
 
     return LOCAL_HOSTNAMES.includes(hostname)
   } catch {
-    // If it’s not a valid URL, we can’t use the proxy anyway,
+    // If it's not a valid URL, we can't use the proxy anyway,
     // but it also covers cases like relative URLs (e.g. `openapi.json`).
     return true
   }

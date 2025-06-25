@@ -30,7 +30,7 @@ describe('createFetchHeaders', () => {
     })
   })
 
-  it('doesn’t include multipart/form-data Content-Type header', () => {
+  it("doesn't include multipart/form-data Content-Type header", () => {
     const example: Pick<RequestExample, 'parameters'> = {
       parameters: {
         path: [],

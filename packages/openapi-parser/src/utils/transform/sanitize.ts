@@ -13,7 +13,7 @@ export { DEFAULT_TITLE, DEFAULT_VERSION } from './utils/addInfoObject'
 /**
  * Make an OpenAPI document a valid and clean OpenAPI document
  *
- * @deprecated We’re about to drop this from the package.
+ * @deprecated We're about to drop this from the package.
  */
 export function sanitize(definition: AnyObject): OpenAPI.Document {
   const transformers = [

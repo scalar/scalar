@@ -231,9 +231,9 @@ const handleKeyDown = (key: string, event: KeyboardEvent) => {
 
 const defaultType = computed(() => {
   return Array.isArray(props.type)
-    ? // Find the first type, that’s not 'null'
+    ? // Find the first type, that's not 'null'
       (props.type.find((type) => type !== 'null') ?? 'string')
-    : // If it’s not an array, just return the type
+    : // If it's not an array, just return the type
       props.type
 })
 

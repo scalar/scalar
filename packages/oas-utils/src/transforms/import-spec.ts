@@ -584,7 +584,7 @@ export function getServersFromOpenApiDocument(
         // Must be good, return it
         return parsedSchema
       } catch (error) {
-        console.warn('Oops, that’s an invalid server configuration.')
+        console.warn("Oops, that's an invalid server configuration.")
         console.warn('Server:', server)
         console.warn('Error:', error)
 

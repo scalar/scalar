@@ -9,7 +9,7 @@ export function isAuthenticationRequired(security?: OpenAPIV3.SecurityRequiremen
     return false
   }
 
-  // Don’t require auth if security is just an empty array []
+  // Don't require auth if security is just an empty array []
   if (Array.isArray(security) && !security.length) {
     return false
   }

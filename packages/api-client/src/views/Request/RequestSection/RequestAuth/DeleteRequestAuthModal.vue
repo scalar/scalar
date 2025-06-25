@@ -29,7 +29,7 @@ const deleteScheme = () => {
     :state="state"
     title="Delete Security Scheme">
     <p class="text-c-2 mb-4 text-sm leading-normal">
-      This cannot be undone. You’re about to delete the
+      This cannot be undone. You're about to delete the
       {{ scheme?.label }} security scheme from the collection.
     </p>
     <div class="flex justify-between gap-2">

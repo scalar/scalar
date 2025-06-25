@@ -11,7 +11,7 @@ import { ReferenceObjectSchema } from '../unprocessed/reference-object'
 import { ResponseObjectSchema } from '../unprocessed/response-object'
 import { ResponsesObjectSchema } from '../unprocessed/responses-object'
 
-// For these tests, I’ve gone through the OpenAPI Specification and found places where the “Reference Object” is used.
+// For these tests, I've gone through the OpenAPI Specification and found places where the “Reference Object” is used.
 
 describe('reference-object', () => {
   describe('ReferenceObjectSchema', () => {

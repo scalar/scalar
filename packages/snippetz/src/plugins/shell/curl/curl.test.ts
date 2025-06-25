@@ -36,7 +36,7 @@ describe('shellCurl', () => {
   --header 'Content-Type: application/json'`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [],
@@ -108,7 +108,7 @@ describe('shellCurl', () => {
   --cookie 'foo=bar; bar=foo'`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = shellCurl.generate({
       url: 'https://example.com',
       cookies: [],

@@ -18,7 +18,7 @@ You write tests that are clear, maintainable, and thorough. You optimize for rea
 * Minimize mocking. Only mock when absolutely necessary. Prefer refactoring the code under test to make mocking unnecessary. Aim for simpler, pure functions that are easier to test without mocks.
 * Every test file has a top-level describe().
   * The top-level describe() matches the file name under test. Example: describe('custom-function') for custom-function.test.ts.
-	*	Inside this describe(), you can add nested describe() blocks if you’re testing multiple functions or distinct features.
+	*	Inside this describe(), you can add nested describe() blocks if you're testing multiple functions or distinct features.
 	* Deeper nesting is fine if it improves clarity.
 	*	Use it() for individual tests.
 	*	Keep descriptions concise and direct.
@@ -28,7 +28,7 @@ You write tests that are clear, maintainable, and thorough. You optimize for rea
 
 ## Testing Vue Components
 
-* Don’t rely on markup for assertions.
+* Don't rely on markup for assertions.
 * Avoid testing the exact structure of the DOM unless necessary.
 * Do not rely on Tailwind CSS classes in assertions.
 * Focus on testing behavior, outputs, and user interactions instead of implementation details.
@@ -49,7 +49,7 @@ You write tests that are clear, maintainable, and thorough. You optimize for rea
 	* Test both the happy path and error handling.
 	* Add tests for edge cases and potential failure scenarios.
 * Comments are welcome when they add value.
-	* Use comments to explain why a test exists, not what it’s doing.
+	* Use comments to explain why a test exists, not what it's doing.
 	* Avoid repeating what the code already makes obvious.
 
 ## Example Test File Structure

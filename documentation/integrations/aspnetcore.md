@@ -79,7 +79,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-You’re all set! 🎉
+You're all set! 🎉
 
 By default, navigating to `/scalar` in your browser will display the API Reference for the `v1` OpenAPI document.
 

@@ -5,9 +5,9 @@ import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
 
+import tailwindcss from '@tailwindcss/vite'
 import licenseBannerTemplate from './license-banner-template.txt'
 import { name, version } from './package.json'
-import tailwindcss from '@tailwindcss/vite'
 
 function replaceVariables(template: string, variables: Record<string, string>) {
   return Object.entries(variables).reduce((content, [key, value]) => {
@@ -50,7 +50,7 @@ export default defineConfig({
     cssCodeSplit: false,
     minify: 'terser',
     // With the default terserOptions, highlight.js breaks the build.
-    // * They’re using terser, too.
+    // * They're using terser, too.
     // * Copying their options fixes the build.
     // * `max_line_len: 80` is the one setting that makes the difference.
     //

@@ -5,7 +5,7 @@ contact_links:
     about: Suggest any ideas you have using our discussion forums.
   - name: 🤗 Get help
     url: https://github.com/scalar/scalar/discussions/new?category=q-a
-    about: If you can’t get something to work the way you expect, open a question in our discussion forums.
+    about: If you can't get something to work the way you expect, open a question in our discussion forums.
   - name: 💬 Chat with us
     url: https://discord.gg/scalar
     about: Join our Discord to chat with us and other people from the community.

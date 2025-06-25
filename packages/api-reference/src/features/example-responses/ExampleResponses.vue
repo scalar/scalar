@@ -21,7 +21,7 @@ import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
 
 /**
- * TODO: copyToClipboard isn’t using the right content if there are multiple examples
+ * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
 const { responses } = defineProps<{ responses: Operation['responses'] }>()
@@ -158,7 +158,7 @@ const showSchema = ref(false)
             :id="id"
             :response="currentResponseWithExample" />
         </template>
-        <!-- Without Schema: Don’t show tabs -->
+        <!-- Without Schema: Don't show tabs -->
         <ExampleResponse
           v-else
           :id="id"

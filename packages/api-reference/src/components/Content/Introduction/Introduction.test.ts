@@ -136,7 +136,7 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('v2.0.0')
   })
 
-  it('doesn’t prefix version with v when version is not a number', () => {
+  it(`doesn't prefix version with v when version is not a number`, () => {
     const example = {
       openapi: '3.1.1',
       info: {
@@ -156,7 +156,7 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('beta')
   })
 
-  it('doesn’t prefix version with v when version is already prefixed', () => {
+  it(`doesn't prefix version with v when version is already prefixed`, () => {
     const example = {
       openapi: '3.1.1',
       info: {
@@ -196,7 +196,7 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('v1')
   })
 
-  it('doesn’t output the version if something is wrong with the version', () => {
+  it(`doesn't output the version if something is wrong with the version`, () => {
     const example = {
       openapi: '3.1.1',
       info: {

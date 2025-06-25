@@ -268,7 +268,7 @@ describe('combineRenameDiffs', () => {
       tags: ['Planets'],
       summary: 'Put all planets',
       description:
-        'It’s easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.',
+        "It's easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.",
       operationId: 'putAllData',
       security: [{}],
       responses: {

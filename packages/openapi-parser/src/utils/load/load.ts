@@ -44,7 +44,7 @@ export type LoadOptions = {
 export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
-  // Don’t load a reference twice, check the filesystem before fetching something
+  // Don't load a reference twice, check the filesystem before fetching something
   if (options?.filesystem?.find((entry) => entry.filename === value)) {
     return {
       specification: getEntrypoint(options.filesystem)?.specification,
@@ -124,7 +124,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     // Find a matching plugin
     const otherPlugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(reference))
 
-    // Skip if no plugin is found (internal references don’t need a plugin for example)
+    // Skip if no plugin is found (internal references don't need a plugin for example)
     if (!otherPlugin) {
       continue
     }
@@ -132,7 +132,7 @@ export async function load(value: AnyApiDefinitionFormat, options?: LoadOptions)
     const target =
       otherPlugin.check(reference) && otherPlugin.resolvePath ? otherPlugin.resolvePath(value, reference) : reference
 
-    // Don’t load a reference twice, check the filesystem before fetching something
+    // Don't load a reference twice, check the filesystem before fetching something
     if (filesystem.find((entry) => entry.filename === reference)) {
       continue
     }
