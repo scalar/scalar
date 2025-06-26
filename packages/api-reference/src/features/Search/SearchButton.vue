@@ -8,7 +8,7 @@ import { useApiClient } from '@/features/api-client-modal'
 import SearchModal from '@/features/Search/SearchModal.vue'
 
 const { searchHotKey = 'k' } = defineProps<{
-  spec: Spec
+  parsedDocument: Spec
   searchHotKey?: string
 }>()
 
@@ -73,5 +73,5 @@ function handleClick() {
   </ScalarSidebarSearchButton>
   <SearchModal
     :modalState="modalState"
-    :parsedSpec="spec" />
+    :parsedDocument="parsedDocument" />
 </template>

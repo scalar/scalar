@@ -23,11 +23,11 @@ import { useSidebar } from '@/features/sidebar'
 import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue'
 
 const props = defineProps<{
-  parsedSpec: Spec
+  parsedDocument: Spec
   modalState: ModalState
 }>()
 
-const specification = toRef(props, 'parsedSpec')
+const specification = toRef(props, 'parsedDocument')
 
 /** Base id for the search form */
 const id = nanoid()

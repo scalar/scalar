@@ -398,8 +398,8 @@ watch(hash, (newHash, oldHash) => {
                 v-if="!configuration.hideSearch"
                 class="scalar-api-references-standalone-search">
                 <SearchButton
-                  :searchHotKey="configuration?.searchHotKey"
-                  :spec="parsedDocument" />
+                  :hotKey="configuration?.searchHotKey"
+                  :parsedDocument="parsedDocument" />
               </div>
               <!-- Sidebar Start -->
               <slot
