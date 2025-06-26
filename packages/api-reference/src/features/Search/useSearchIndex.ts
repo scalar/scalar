@@ -218,9 +218,9 @@ export function useSearchIndex({
         Object.keys(schemas).forEach((k) => {
           modelData.push({
             type: 'model',
-            title: 'Model',
+            title: `${(schemas[k] as any).title ?? k}`,
             href: `#${getModelId({ name: k })}`,
-            description: (schemas[k] as any).title ?? k,
+            description: 'Model',
             tag: k,
             body: '',
           })
