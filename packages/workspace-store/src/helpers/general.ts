@@ -32,3 +32,14 @@ export function isLocalRef(value: string): boolean {
 export function keyOf<T extends Record<string, unknown>>(value: T) {
   return Object.keys(value) as (keyof T)[]
 }
+
+/**
+ * Deep clones a value using JSON serialization.
+ *
+ * @param value - The value to deep clone
+ * @template T - The type of the value
+ * @returns A deep clone of the value
+ */
+export const deepClone = <T>(value: T): T => {
+  return JSON.parse(JSON.stringify(value)) as T
+}

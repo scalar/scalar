@@ -72,7 +72,8 @@
     "@scalar/types": "workspace:*",
     "@sinclair/typebox": "catalog:*",
     "github-slugger": "^2.0.0",
-    "vue": "catalog:*"
+    "vue": "catalog:*",
+    "yaml": "catalog:*"
   },
   "devDependencies": {
     "@google-cloud/storage": "catalog:*",

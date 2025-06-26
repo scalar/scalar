@@ -1,6 +1,6 @@
 import type { WorkspaceMeta, WorkspaceDocumentMeta, Workspace } from './schemas/workspace'
-import { createMagicProxy } from './helpers/proxy'
-import { isObject } from '@/helpers/general'
+import { createMagicProxy, getRaw } from './helpers/proxy'
+import { deepClone, isObject } from '@/helpers/general'
 import { getValueByPath } from '@/helpers/json-path-utils'
 import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
@@ -12,6 +12,7 @@ import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/reference-config'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { DeepTransform } from '@/types'
+import YAML from 'yaml'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -117,6 +118,15 @@ type WorkspaceProps = {
  * @returns An object containing methods and getters for managing the workspace
  */
 export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
+  /**
+   * Stores the original, unmodified documents before they are wrapped in reactive proxies.
+   * These are the input documents in their raw form - not dereferenced, not bundled.
+   * This preserves the original document structure.
+   * The documents in this map are deep clones to prevent mutations from affecting the original data.
+   * We keep these original documents so we can write them back to the registry when needed.
+   */
+  const originalDocuments = {} as Workspace['documents']
+
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
   const workspace = reactive<Workspace>({
@@ -144,7 +154,18 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
    */
   const documentConfigs: Record<string, Config> = {}
 
-  // Add a document to the store synchronously from and in-mem open api document
+  /**
+   * Returns the name of the currently active document in the workspace.
+   * The active document is determined by the 'x-scalar-active-document' metadata field,
+   * falling back to the first document in the workspace if no active document is specified.
+   *
+   * @returns The name of the active document or an empty string if no document is found
+   */
+  function getActiveDocumentName() {
+    return workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
+  }
+
+  // Add a document to the store synchronously from an in-memory OpenAPI document
   function addDocumentSync(input: ObjectDoc) {
     const { name, meta } = input
 
@@ -157,6 +178,9 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
+
+    // Create a deep clone of the document with metadata to preserve original structure
+    originalDocuments[name] = deepClone({ ...document, ...meta })
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
@@ -207,12 +231,7 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       key: K,
       value: WorkspaceDocumentMeta[K],
     ) {
-      const currentDocument =
-        workspace.documents[
-          name === 'active'
-            ? (workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? '')
-            : name
-        ]
+      const currentDocument = workspace.documents[name === 'active' ? getActiveDocumentName() : name]
 
       if (!currentDocument) {
         throw 'Please select a valid document'
@@ -325,13 +344,61 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      * falling back to the first document if none is specified.
      */
     get config() {
-      const activeDocumentKey =
-        workspace[extensions.workspace.activeDocument] ?? Object.keys(workspace.documents)[0] ?? ''
-
       return mergeObjects<typeof defaultConfig>(
         mergeObjects(defaultConfig, workspaceProps?.config ?? {}),
-        documentConfigs[activeDocumentKey] ?? {},
+        documentConfigs[getActiveDocumentName()] ?? {},
       )
+    },
+    /**
+     * Downloads the active document in the specified format.
+     * 
+     * This method serializes the original, unmodified document (before any reactive wrapping)
+     * to either JSON or YAML format. The original document is used to preserve the
+     * initial structure without any external references or modifications.
+     * 
+     * @param format - The output format: 'json' for JSON string or 'yaml' for YAML string
+     * @returns A string representation of the document in the requested format
+     * 
+     * @example
+     * // Download as JSON
+     * const jsonString = store.download('json')
+     * 
+     * // Download as YAML
+     * const yamlString = store.download('yaml')
+     */
+    download: (format: 'json' | 'yaml') => {
+      if (format === 'json') {
+        return JSON.stringify(originalDocuments[getActiveDocumentName()])
+      }
+
+      return YAML.stringify(originalDocuments[getActiveDocumentName()])
+    },
+    /**
+     * Saves the current state of the active document back to the original documents map.
+     * 
+     * This method takes the current reactive document state and persists it to the
+     * originalDocuments map, which stores the unmodified documents before reactive wrapping.
+     * The document is deep cloned to prevent mutations from affecting the reactive state.
+     * 
+     * Note: Currently, external references are not filtered out when saving.
+     * TODO: Implement traversal to discard external references before writing back.
+     * 
+     * @returns void - Returns early if no active document is available
+     * 
+     * @example
+     * // Save the current document state
+     * store.save()
+     */
+    save() {
+      // Early return if no active document is available
+      if (!workspace.activeDocument) {
+        return
+      }
+
+      // Write back to the original document any changes made to the reactive document
+      // The document is deep cloned to preserve the original structure and prevent mutations
+      // TODO: traverse the object and discard any external ref's from writing back
+      originalDocuments[getActiveDocumentName()] = deepClone(getRaw(workspace.activeDocument))
     },
   }
 }
