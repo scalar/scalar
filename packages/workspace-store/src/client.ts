@@ -13,7 +13,7 @@ import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/referenc
 import { mergeObjects } from '@/helpers/merge-object'
 import type { DeepTransform } from '@/types'
 import YAML from 'yaml'
-import { updateOriginalDocument } from '@/helpers/update-original-document'
+import { applySelectiveUpdates } from '@/helpers/apply-selective-updates'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -127,6 +127,13 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
    * We keep these original documents so we can write them back to the registry when needed.
    */
   const originalDocuments = {} as Workspace['documents']
+  /**
+   * A map of document configurations keyed by document name.
+   * This stores the configuration options for each document in the workspace,
+   * allowing for document-specific settings like navigation options, appearance,
+   * and other reference configuration.
+   */
+  const documentConfigs: Record<string, Config> = {}
 
   // Create a reactive workspace object with proxied documents
   // Each document is wrapped in a proxy to enable reactive updates and reference resolution
@@ -148,14 +155,6 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
   })
 
   /**
-   * A map of document configurations keyed by document name.
-   * This stores the configuration options for each document in the workspace,
-   * allowing for document-specific settings like navigation options, appearance,
-   * and other reference configuration.
-   */
-  const documentConfigs: Record<string, Config> = {}
-
-  /**
    * Returns the name of the currently active document in the workspace.
    * The active document is determined by the 'x-scalar-active-document' metadata field,
    * falling back to the first document in the workspace if no active document is specified.
@@ -174,14 +173,13 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 
     // Create a deep clone of the document with metadata to preserve original structure
     originalDocuments[name] = deepClone({ ...document, ...meta })
+    // Add the document config to the documentConfigs map
+    documentConfigs[name] = input.config ?? {}
 
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
     }
-
-    // Add the document config to the documentConfigs map
-    documentConfigs[name] = input.config ?? {}
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
@@ -383,11 +381,11 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
      *
      * Note: Currently, external references are not filtered out when saving.
      *
-     * @returns void - Returns early if no active document is available
+     * @returns An array of diffs that were excluded from being applied (changes to excluded keys) or undefined if no active document is available
      *
      * @example
      * // Save the current document state
-     * store.save()
+     * const excludedDiffs = store.save()
      */
     save() {
       // Early return if no active document is available
@@ -398,7 +396,8 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       const updatedDocument = toRaw(getRaw(workspace.activeDocument))
 
       // Update the original document with the current state of the active document
-      updateOriginalDocument(originalDocument, updatedDocument)
+      const excludedDiffs = applySelectiveUpdates(originalDocument, updatedDocument)
+      return excludedDiffs
     },
   }
 }

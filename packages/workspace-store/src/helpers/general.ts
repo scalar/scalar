@@ -43,3 +43,36 @@ export function keyOf<T extends Record<string, unknown>>(value: T) {
 export const deepClone = <T>(value: T): T => {
   return JSON.parse(JSON.stringify(value)) as T
 }
+
+/**
+ * Splits an array into two arrays based on a condition.
+ *
+ * This function takes an array and a predicate function, then returns a tuple containing
+ * two arrays: the first contains elements that pass the condition, and the second contains
+ * elements that fail the condition.
+ *
+ * @param array - The array to split
+ * @param condition - A predicate function that determines which array each element belongs to
+ * @returns A tuple of two arrays: [passingElements, failingElements]
+ *
+ * @example
+ * ```ts
+ * const numbers = [1, 2, 3, 4, 5, 6]
+ * const [evens, odds] = split(numbers, (n) => n % 2 === 0)
+ * // evens: [2, 4, 6]
+ * // odds: [1, 3, 5]
+ *
+ * const words = ['apple', 'banana', 'cherry', 'date']
+ * const [longWords, shortWords] = split(words, (word) => word.length > 5)
+ * // longWords: ['banana', 'cherry']
+ * // shortWords: ['apple', 'date']
+ * ```
+ */
+export const split = <T>(array: T[], condition: (element: T) => boolean) => {
+  return array.reduce<[T[], T[]]>(
+    ([pass, fail], item) => {
+      return condition(item) ? [[...pass, item], fail] : [pass, [...fail, item]]
+    },
+    [[], []],
+  )
+}

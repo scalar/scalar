@@ -3,7 +3,6 @@ import { createWorkspaceStore } from '@/client'
 import { beforeEach, afterEach, describe, expect, it } from 'vitest'
 import fastify, { type FastifyInstance } from 'fastify'
 import { defaultReferenceConfig } from '@/schemas/reference-config'
-import { createNavigation } from '@/navigation'
 import { setTimeout } from 'node:timers/promises'
 
 // Test document
@@ -634,7 +633,7 @@ describe('create-workspace-store', () => {
   })
 
   describe('download original document', () => {
-    it('gets the original document from the store', async () => {
+    it('gets the original document from the store json', async () => {
       const store = createWorkspaceStore({
         documents: [
           {
@@ -645,11 +644,24 @@ describe('create-workspace-store', () => {
       })
 
       const originalDocument = store.download('json')
-      expect(originalDocument).toEqual(
-        JSON.stringify({
-          ...getDocument('3.1.1'),
-          'x-scalar-navigation': createNavigation(getDocument('3.1.1'), {}).entries,
-        }),
+      expect(originalDocument).toBe(
+        '{"openapi":"3.1.1","info":{"title":"My API","version":"1.0.0"},"components":{"schemas":{"User":{"type":"object","properties":{"id":{"type":"string","description":"The user ID"},"name":{"type":"string","description":"The user name"},"email":{"type":"string","format":"email","description":"The user email"}}}}},"paths":{"/users":{"get":{"summary":"Get all users","responses":{"200":{"description":"Successful response","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/User"}}}}}}}}}}',
+      )
+    })
+
+    it('gets the original document from the store yaml', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      const originalDocument = store.download('yaml')
+      expect(originalDocument).toBe(
+        `openapi: 3.1.1\ninfo:\n  title: My API\n  version: 1.0.0\ncomponents:\n  schemas:\n    User:\n      type: object\n      properties:\n        id:\n          type: string\n          description: The user ID\n        name:\n          type: string\n          description: The user name\n        email:\n          type: string\n          format: email\n          description: The user email\npaths:\n  /users:\n    get:\n      summary: Get all users\n      responses:\n        "200":\n          description: Successful response\n          content:\n            application/json:\n              schema:\n                type: array\n                items:\n                  $ref: "#/components/schemas/User"\n`,
       )
     })
   })
