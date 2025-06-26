@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.3.2
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.3.1
 
 ### Patch Changes

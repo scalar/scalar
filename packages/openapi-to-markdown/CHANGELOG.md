@@ -1,5 +1,18 @@
 # @scalar/openapi-to-markdown
 
+## 0.2.18
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/openapi-types@0.3.5
+  - @scalar/oas-utils@0.4.10
+  - @scalar/snippetz@0.3.2
+  - @scalar/types@0.2.6
+  - @scalar/components@0.14.15
+
 ## 0.2.17
 
 ### Patch Changes

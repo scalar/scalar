@@ -1,5 +1,17 @@
 # @scalar/components
 
+## 0.14.15
+
+### Patch Changes
+
+- Updated dependencies [2d7f995]
+  - @scalar/code-highlight@0.1.5
+  - @scalar/oas-utils@0.4.10
+  - @scalar/use-hooks@0.2.4
+  - @scalar/themes@0.13.7
+  - @scalar/icons@0.4.6
+  - @scalar/use-toasts@0.8.0
+
 ## 0.14.14
 
 ### Patch Changes

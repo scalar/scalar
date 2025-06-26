@@ -1,5 +1,14 @@
 # @scalar/scripts
 
+## 0.0.16
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/oas-utils@0.4.10
+  - @scalar/components@0.14.15
+
 ## 0.0.15
 
 ### Patch Changes

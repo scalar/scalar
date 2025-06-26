@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.5.2
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.5.1
 
 ### Patch Changes

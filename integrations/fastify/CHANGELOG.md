@@ -1,5 +1,15 @@
 # @scalar/fastify-api-reference
 
+## 1.32.2
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/openapi-types@0.3.5
+  - @scalar/core@0.3.6
+
 ## 1.32.1
 
 ## 1.32.0

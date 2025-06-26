@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.12.16
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+  - @scalar/components@0.14.15
+
 ## 0.12.15
 
 ### Patch Changes

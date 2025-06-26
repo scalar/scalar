@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.18.1
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.18.0
 
 ### Minor Changes
