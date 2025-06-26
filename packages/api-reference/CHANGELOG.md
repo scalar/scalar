@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.32.3
+
+### Patch Changes
+
+- 08e1e84: refactor: decouple search from useConfig
+
 ## 1.32.2
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/aspire
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [08e1e84]
+  - @scalar/api-reference@1.32.3
+
 ## 0.1.3
 
 ### Patch Changes
