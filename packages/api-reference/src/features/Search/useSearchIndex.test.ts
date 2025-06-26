@@ -12,11 +12,13 @@ vi.mock('@/hooks/useNavState', () => ({
   useNavState: vi.fn().mockReturnValue({
     getTagId: vi.fn(),
     getOperationId: vi.fn(),
+    getModelId: vi.fn((model) => `model/${model?.name || 'models'}`),
+    getHeadingId: vi.fn(),
   }),
 }))
 
 describe('useSearchIndex', () => {
-  it('should create the search index from an OpenAPI document', async () => {
+  it('creates search index from OpenAPI document and finds matching operations', async () => {
     const { schema: dereferencedDocument } = await dereference(
       createEmptySpecification({
         paths: {
@@ -76,5 +78,161 @@ describe('useSearchIndex', () => {
         },
       },
     ])
+  })
+
+  describe('hideModels', () => {
+    it('includes models in search index when hideModels is false', async () => {
+      const { schema: dereferencedDocument } = await dereference(
+        createEmptySpecification({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                },
+              },
+              Product: {
+                type: 'object',
+                title: 'Product Model',
+                properties: {
+                  id: { type: 'string' },
+                  price: { type: 'number' },
+                },
+              },
+            },
+          },
+        }),
+      )
+
+      const items: TraversedEntry[] = []
+
+      const specification = await parse(dereferencedDocument as OpenAPIV3_1.Document, items)
+
+      const { searchResultsWithPlaceholderResults } = useSearchIndex({
+        specification: toRef(specification),
+        hideModels: false,
+      })
+
+      // Wait for the watcher to process the specification
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Should include models in the search results
+      const modelResults = searchResultsWithPlaceholderResults.value.filter((result) => result.item.type === 'model')
+
+      expect(modelResults).toHaveLength(2)
+      expect(modelResults).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            item: expect.objectContaining({
+              type: 'model',
+              title: 'Model',
+              description: 'User Model',
+              tag: 'User',
+            }),
+          }),
+          expect.objectContaining({
+            item: expect.objectContaining({
+              type: 'model',
+              title: 'Model',
+              description: 'Product Model',
+              tag: 'Product',
+            }),
+          }),
+        ]),
+      )
+    })
+
+    it('excludes models from search index when hideModels is true', async () => {
+      const { schema: dereferencedDocument } = await dereference(
+        createEmptySpecification({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                },
+              },
+              Product: {
+                type: 'object',
+                title: 'Product Model',
+                properties: {
+                  id: { type: 'string' },
+                  price: { type: 'number' },
+                },
+              },
+            },
+          },
+        }),
+      )
+
+      const items: TraversedEntry[] = []
+
+      const specification = await parse(dereferencedDocument as OpenAPIV3_1.Document, items)
+
+      const { searchResultsWithPlaceholderResults } = useSearchIndex({
+        specification: toRef(specification),
+        hideModels: true,
+      })
+
+      // Wait for the watcher to process the specification
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Should not include any models in the search results
+      const modelResults = searchResultsWithPlaceholderResults.value.filter((result) => result.item.type === 'model')
+
+      expect(modelResults).toHaveLength(0)
+    })
+
+    it('includes models by default', async () => {
+      const { schema: dereferencedDocument } = await dereference(
+        createEmptySpecification({
+          components: {
+            schemas: {
+              User: {
+                type: 'object',
+                title: 'User Model',
+                properties: {
+                  id: { type: 'string' },
+                  name: { type: 'string' },
+                },
+              },
+            },
+          },
+        }),
+      )
+
+      const items: TraversedEntry[] = []
+
+      const specification = await parse(dereferencedDocument as OpenAPIV3_1.Document, items)
+
+      const { searchResultsWithPlaceholderResults } = useSearchIndex({
+        specification: toRef(specification),
+        // hideModels not specified, should default to false
+      })
+
+      // Wait for the watcher to process the specification
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Should include models in the search results (default behavior)
+      const modelResults = searchResultsWithPlaceholderResults.value.filter((result) => result.item.type === 'model')
+
+      expect(modelResults).toHaveLength(1)
+      expect(modelResults[0]).toEqual(
+        expect.objectContaining({
+          item: expect.objectContaining({
+            type: 'model',
+            title: 'Model',
+            description: 'User Model',
+            tag: 'User',
+          }),
+        }),
+      )
+    })
   })
 })

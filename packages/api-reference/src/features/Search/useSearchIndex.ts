@@ -27,10 +27,10 @@ export type FuseData = {
  */
 export function useSearchIndex({
   specification,
-  hideModels,
+  hideModels = false,
 }: {
   specification: Ref<Spec>
-  hideModels: boolean
+  hideModels?: boolean
 }) {
   const { getHeadingId, getModelId, getTagId } = useNavState()
 
