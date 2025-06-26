@@ -7,9 +7,10 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useApiClient } from '@/features/api-client-modal'
 import SearchModal from '@/features/Search/SearchModal.vue'
 
-const { searchHotKey = 'k' } = defineProps<{
+const { searchHotKey = 'k', hideModels = false } = defineProps<{
   spec: Spec
   searchHotKey?: string
+  hideModels?: boolean
 }>()
 
 const button = ref<InstanceType<typeof ScalarSidebarSearchButton>>()
@@ -73,5 +74,6 @@ function handleClick() {
   </ScalarSidebarSearchButton>
   <SearchModal
     :modalState="modalState"
+    :hideModels="hideModels"
     :parsedSpec="spec" />
 </template>

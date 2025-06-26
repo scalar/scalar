@@ -1,17 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { toRef } from 'vue'
 
+import type { TraversedEntry } from '@/features/traverse-schema'
 import { parse } from '@/helpers/parse'
 import { createEmptySpecification } from '@/libs/openapi'
 import { dereference } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { TraversedEntry } from '@/features/traverse-schema'
 import { useSearchIndex } from './useSearchIndex'
-
-// Mock the useConfig hook
-vi.mock('@/hooks/useConfig', () => ({
-  useConfig: vi.fn().mockReturnValue({ value: {} }),
-}))
 
 vi.mock('@/hooks/useNavState', () => ({
   useNavState: vi.fn().mockReturnValue({
