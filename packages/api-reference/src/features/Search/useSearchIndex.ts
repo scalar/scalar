@@ -198,9 +198,9 @@ export function useSearchIndex({
         webhooks.forEach((webhook) => {
           webhookData.push({
             type: 'webhook',
-            title: 'Webhook',
+            title: `${webhook.name}`,
             href: `#${webhook.id}`,
-            description: `${webhook.name}`,
+            description: 'Webhook',
             httpVerb: webhook.httpVerb,
             tag: webhook.name,
             body: '',
