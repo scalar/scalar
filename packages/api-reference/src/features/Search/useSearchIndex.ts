@@ -1,13 +1,11 @@
-import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/legacy'
-import Fuse, { type FuseResult } from 'fuse.js'
-import { type Ref, computed, ref, watch } from 'vue'
-
-import { useConfig } from '@/hooks/useConfig'
 import { useNavState } from '@/hooks/useNavState'
 import { type ParamMap, useOperation } from '@/hooks/useOperation'
 import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
+import type { OpenAPIV3_1, Spec, TransformedOperation } from '@scalar/types/legacy'
+import Fuse, { type FuseResult } from 'fuse.js'
+import { type Ref, computed, ref, watch } from 'vue'
 
 const MAX_SEARCH_RESULTS = 25
 
@@ -31,11 +29,12 @@ export type FuseData = {
  */
 export function useSearchIndex({
   specification,
+  hideModels = false,
 }: {
   specification: Ref<Spec>
+  hideModels?: boolean
 }) {
   const { getHeadingId, getModelId, getTagId } = useNavState()
-  const config = useConfig()
 
   const fuseDataArray = ref<FuseData[]>([])
   const searchResults = ref<FuseResult<FuseData>[]>([])
@@ -196,6 +195,7 @@ export function useSearchIndex({
           }
         })
       }
+
       // Handle paths with no tags - super hacky but we'll fix it on new store
       // @ts-expect-error not sure why spec doesn't have paths, but at this point I'm too afraid to ask
       else if (newSpec?.paths) {
@@ -234,7 +234,7 @@ export function useSearchIndex({
         })
       }
 
-      // Adding webhooks
+      // Webhooks
       const webhooks = newSpec?.webhooks
       const webhookData: FuseData[] = []
 
@@ -254,8 +254,8 @@ export function useSearchIndex({
         })
       }
 
-      // Adding models as well
-      const schemas = config.value.hideModels ? {} : getModels(newSpec as OpenAPIV3_1.Document)
+      // Schemas
+      const schemas = hideModels ? {} : getModels(newSpec as OpenAPIV3_1.Document)
       const modelData: FuseData[] = []
 
       if (schemas) {

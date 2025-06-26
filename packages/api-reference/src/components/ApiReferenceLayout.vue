@@ -399,6 +399,7 @@ watch(hash, (newHash, oldHash) => {
                 class="scalar-api-references-standalone-search">
                 <SearchButton
                   :searchHotKey="configuration?.searchHotKey"
+                  :hideModels="configuration?.hideModels"
                   :spec="parsedDocument" />
               </div>
               <!-- Sidebar Start -->
@@ -465,6 +466,7 @@ watch(hash, (newHash, oldHash) => {
                   v-if="!configuration.hideSearch"
                   class="t-doc__sidebar max-w-64"
                   :searchHotKey="configuration.searchHotKey"
+                  :hideModels="configuration?.hideModels"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>
                   <ScalarColorModeToggleIcon

@@ -25,6 +25,7 @@ import SidebarHttpBadge from '@/features/sidebar/components/SidebarHttpBadge.vue
 const props = defineProps<{
   parsedSpec: Spec
   modalState: ModalState
+  hideModels: boolean
 }>()
 
 const specification = toRef(props, 'parsedSpec')
@@ -47,6 +48,7 @@ const {
   searchText,
 } = useSearchIndex({
   specification,
+  hideModels: props.hideModels,
 })
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
