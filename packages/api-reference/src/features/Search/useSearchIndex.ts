@@ -97,8 +97,8 @@ export function useSearchIndex({
         headings.forEach((heading) => {
           headingsData.push({
             type: 'heading',
-            title: `Info > ${heading.value}`,
-            description: '',
+            title: heading.value,
+            description: 'Introduction',
             href: `#${getHeadingId(heading)}`,
             tag: heading.slug,
             body: '',
