@@ -34,10 +34,27 @@ const { cx } = useBindCx()
     :is="is"
     v-bind="
       cx(
-        'relative flex flex-col text-base p-3 gap-px transition-transform duration-300',
+        'group/items relative flex flex-col text-base p-3 gap-px transition-transform duration-300',
         open ? '-translate-x-full' : 'translate-x-0',
       )
     ">
     <slot />
   </component>
 </template>
+<style>
+@reference "../../style.css";
+
+.group\/items > .group\/item:not(.group\/nested-items) > * {
+  max-height: calc(infinity * 1px);
+}
+
+.group\/items.-translate-x-full > .group\/item:not(.group\/nested-items) > * {
+  /* Squish the items so they don't affect the scrolling */
+  max-height: 0;
+
+  /* Delay the max height transition so it's after transform */
+  transition-property: max-height;
+  transition-duration: 0s;
+  transition-delay: 300ms;
+}
+</style>

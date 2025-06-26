@@ -55,7 +55,7 @@ const { level } = useSidebarGroups({ reset: true })
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <li class="group/item contents">
+  <li class="group/item group/nested-items contents">
     <slot name="button">
       <ScalarSidebarButton
         is="button"
