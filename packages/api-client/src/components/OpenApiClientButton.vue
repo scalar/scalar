@@ -37,7 +37,7 @@ const href = computed((): string | undefined => {
     isDevelopment ? 'http://localhost:5065' : 'https://client.scalar.com',
   )
 
-  // URL that we’d like to import
+  // URL that we'd like to import
   link.searchParams.set('url', absoluteUrl)
 
   // Integration identifier

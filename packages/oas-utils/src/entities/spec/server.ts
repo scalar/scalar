@@ -41,7 +41,7 @@ const extendedServerVariableSchema = oasServerVariableSchema
       delete data.enum
     }
 
-    // Always return true since we’ve modified the data to be valid
+    // Always return true since we've modified the data to be valid
     return true
   })
 

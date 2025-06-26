@@ -1,8 +1,8 @@
 # OpenAPI Specification
 
-We’re expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
+We're expecting the passed OpenAPI document to adhere to [the Swagger 2.0, OpenAPI 3.0 or OpenAPI 3.1 specification](https://github.com/OAI/OpenAPI-Specification).
 
-On top of that, we’ve added a few things for your convenience:
+On top of that, we've added a few things for your convenience:
 
 ## Custom Specification Extensions
 

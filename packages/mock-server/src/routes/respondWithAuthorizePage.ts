@@ -81,7 +81,7 @@ function generateAuthorizationHtml(redirectUrl: string, deniedUrl: string, title
                 This application is requesting access to your account. By granting authorization, you allow the application to perform certain actions on your behalf.
               </p>
               <p>
-                If you’re comfortable with the access being requested, click the button below to grant authorization:
+                If you're comfortable with the access being requested, click the button below to grant authorization:
               </p>
             </div>
             <div class="px-6 py-4 pt-0 flex justify-between">

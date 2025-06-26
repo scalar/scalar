@@ -318,7 +318,7 @@ describe('SchemaPropertyHeading', () => {
     expect(detailsElement.text()).toContain('array Planet[]')
   })
 
-  it('doesn’t show model name when hideModelNames is true', () => {
+  it("doesn't show model name when hideModelNames is true", () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
         value: {

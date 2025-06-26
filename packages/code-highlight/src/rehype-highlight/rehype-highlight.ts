@@ -1,6 +1,6 @@
 import type { Element, ElementContent, Root } from 'hast'
 import { toText } from 'hast-util-to-text'
-import { createLowlight, type LanguageFn } from 'lowlight'
+import { type LanguageFn, createLowlight } from 'lowlight'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
@@ -83,7 +83,7 @@ export function rehypeHighlight(options?: Readonly<HighlightOptions> | null | un
         const cause = error as Error
 
         if (lang && /Unknown language/.test(cause.message)) {
-          file.message('Cannot highlight as `' + lang + '`, it’s not registered', {
+          file.message(`Cannot highlight as \`${lang}\`, it's not registered`, {
             ancestors: [parent, node],
             cause,
             place: node.position,

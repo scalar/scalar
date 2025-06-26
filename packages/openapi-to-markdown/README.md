@@ -64,7 +64,7 @@ serve(app)
 This is not really the purpose of the package, but maybe good to know: This package actually renders HTML at first, and
 transforms the HTML to Markdown then.
 
-So if you’d like to have a really light-weight HTML API Reference, here you are:
+So if you'd like to have a really light-weight HTML API Reference, here you are:
 
 ```ts
 import { Hono } from 'hono'
@@ -99,7 +99,7 @@ serve(app)
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

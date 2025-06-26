@@ -81,7 +81,7 @@
 
 ### Quickstart
 
-You’re just one HTML file away from having an awesome API reference:
+You're just one HTML file away from having an awesome API reference:
 
 ```html
 <!doctype html>
@@ -115,7 +115,7 @@ You’re just one HTML file away from having an awesome API reference:
 
 > Need a Custom Header? Check out this example: https://codepen.io/scalarorg/pen/VwOXqam
 
-And there’s an ever-growing list of plugins and integrations:
+And there's an ever-growing list of plugins and integrations:
 
 ### Integrations
 
@@ -158,7 +158,7 @@ The following frameworks have chosen Scalar API Reference as their default OpenA
 
 ### Managed Hosting
 
-We’re offering a free and paid managed hosting on the edge, too:
+We're offering a free and paid managed hosting on the edge, too:
 
 - Write your API documentation and publish your API references (free)
 - Get SSL and a super cool `*.apidocumentation.com` subdomain (free)
@@ -198,7 +198,7 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 ### Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 <br>
 

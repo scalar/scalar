@@ -165,9 +165,9 @@ export type Schema = {
 
 /**
  * This is a very strange and custom way to represent the operation object.
- * It’s the outcome of the `parse` helper.
+ * It's the outcome of the `parse` helper.
  *
- * @deprecated This is evil. Stop using it. We’ll transition to use the new store.
+ * @deprecated This is evil. Stop using it. We'll transition to use the new store.
  */
 export type TransformedOperation = Operation & {
   pathParameters?: Parameter[]
@@ -249,7 +249,7 @@ export type Definitions = OpenAPIV2.DefinitionsObject
 /**
  * Webhook (after our super custom transformation process)
  *
- * @deprecated Let’s get rid of those super custom transformed entities and use the store instead.
+ * @deprecated Let's get rid of those super custom transformed entities and use the store instead.
  */
 export type Webhooks = Record<
   string,

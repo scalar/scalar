@@ -46,7 +46,7 @@ ofetch('https://example.com', {
 })`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = nodeOfetch.generate({
       url: 'https://example.com',
       headers: [],
@@ -129,7 +129,7 @@ ofetch('https://example.com', {
 })`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = nodeOfetch.generate({
       url: 'https://example.com',
       cookies: [],

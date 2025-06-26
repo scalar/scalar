@@ -19,12 +19,12 @@ export const OpenApiVersions = Object.keys(OpenApiSpecifications) as OpenApiVers
  * List of error messages used in the Validator
  */
 export const ERRORS = {
-  EMPTY_OR_INVALID: 'Can’t find JSON, YAML or filename in data.',
+  EMPTY_OR_INVALID: "Can't find JSON, YAML or filename in data.",
   // URI_MUST_BE_STRING: 'uri parameter or $id attribute must be a string',
   OPENAPI_VERSION_NOT_SUPPORTED:
-    'Can’t find supported Swagger/OpenAPI version in the provided document, version must be a string.',
-  INVALID_REFERENCE: 'Can’t resolve reference: %s',
-  EXTERNAL_REFERENCE_NOT_FOUND: 'Can’t resolve external reference: %s',
+    "Can't find supported Swagger/OpenAPI version in the provided document, version must be a string.",
+  INVALID_REFERENCE: "Can't resolve reference: %s",
+  EXTERNAL_REFERENCE_NOT_FOUND: "Can't resolve external reference: %s",
   FILE_DOES_NOT_EXIST: 'File does not exist: %s',
   NO_CONTENT: 'No content found',
 } as const

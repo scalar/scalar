@@ -9,7 +9,7 @@ export async function resolveOld(specification: AnyObject) {
       }
 
       if (result === undefined) {
-        reject('Couldn’t parse the Swagger file.')
+        reject("Couldn't parse the Swagger file.")
 
         return
       }

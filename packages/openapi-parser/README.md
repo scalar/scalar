@@ -293,7 +293,7 @@ const { specification } = filter(
 
 ### Upgrade your OpenAPI document
 
-There’s an `upgrade` command to upgrade all your OpenAPI documents to the latest OpenAPI version.
+There's an `upgrade` command to upgrade all your OpenAPI documents to the latest OpenAPI version.
 
 ```ts
 import { upgrade } from '@scalar/openapi-parser'
@@ -320,7 +320,7 @@ and adds them to the global tags array and normalizes security scheme types.
 This makes your document as OpenAPI-compliant as possible with minimal effort, handling many common specification
 requirements automatically.
 
-> ⚠️ This doesn’t support Swagger 2.0 documents.
+> ⚠️ This doesn't support Swagger 2.0 documents.
 
 ```ts
 import { sanitize } from '@scalar/openapi-parser'
@@ -336,7 +336,7 @@ console.log(result)
 
 ### Then/Catch syntax
 
-If you’re more the then/catch type of guy, that’s fine:
+If you're more the then/catch type of guy, that's fine:
 
 ```ts
 import { validate } from '@scalar/openapi-parser'
@@ -400,7 +400,7 @@ const { filesystem } = await load('./openapi.yaml', {
 const result = await dereference(filesystem)
 ```
 
-As you see, `load()` supports plugins. You can write your own plugin, if you’d like to fetch API defintions from another data source, for example your database. Look at the source code of the `readFiles` to learn how this could look like.
+As you see, `load()` supports plugins. You can write your own plugin, if you'd like to fetch API defintions from another data source, for example your database. Look at the source code of the `readFiles` to learn how this could look like.
 
 #### Directly load URLs
 
@@ -421,7 +421,7 @@ const { filesystem } = await load(
 
 #### Intercept HTTP requests
 
-If you’re using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
+If you're using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
 
 ```ts
 import { dereference, load } from '@scalar/openapi-parser'
@@ -442,15 +442,15 @@ const { filesystem } = await load(
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## Thank you!
 
 Thanks a ton for all the help and inspiration:
 
-- [@philsturgeon](https://github.com/philsturgeon) to make sure we build something we won’t hate.
+- [@philsturgeon](https://github.com/philsturgeon) to make sure we build something we won't hate.
 - We took a lot of inspiration from [@seriousme](https://github.com/seriousme) and his package [openapi-schema-validator](https://github.com/seriousme/openapi-schema-validator) early-on.
-- You could consider this package the modern successor of [@apidevtools/swagger-parser](https://github.com/APIDevTools/swagger-parser), we even test against it to make sure we’re getting the same results (where intended).
+- You could consider this package the modern successor of [@apidevtools/swagger-parser](https://github.com/APIDevTools/swagger-parser), we even test against it to make sure we're getting the same results (where intended).
 - We stole a lot of example specification from [@mermade](https://github.com/mermade) to test against.
 
 ## License

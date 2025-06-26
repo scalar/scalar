@@ -1,4 +1,4 @@
-// TODO: This is copied from @scalar/import, because the import (haha) of the package doesn’t work.
+// TODO: This is copied from @scalar/import, because the import (haha) of the package doesn't work.
 /**
  * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.

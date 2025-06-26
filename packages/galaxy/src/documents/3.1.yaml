@@ -2,7 +2,7 @@ openapi: 3.1.1
 info:
   title: Scalar Galaxy
   description: |
-    The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It’s a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
+    The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It's a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
 
     ## Resources
 
@@ -12,7 +12,7 @@ info:
 
     ## Markdown Support
 
-    All descriptions *can* contain ~~tons of text~~ **Markdown**. [If GitHub supports the syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax), chances are we’re supporting it, too. You can even create [internal links to reference endpoints](#tag/authentication/POST/user/signup).
+    All descriptions *can* contain ~~tons of text~~ **Markdown**. [If GitHub supports the syntax](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax), chances are we're supporting it, too. You can even create [internal links to reference endpoints](#tag/authentication/POST/user/signup).
 
     <details>
       <summary>Examples</summary>
@@ -38,7 +38,7 @@ info:
 
       **Images**
 
-      Yes, there’s support for images, too!
+      Yes, there's support for images, too!
 
       ![Empty placeholder image showing the width/height](https://images.placeholders.dev/?width=1280&height=720)
 
@@ -93,7 +93,7 @@ paths:
       tags:
         - Planets
       summary: Get all planets
-      description: It’s easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.
+      description: It's easy to say you know them all, but do you really? Retrieve all the planets and check whether you missed one.
       operationId: getAllData
       security:
         - {}
@@ -130,7 +130,7 @@ paths:
       tags:
         - Planets
       summary: Create a planet
-      description: Time to play god and create a new planet. What do you think? Ah, don’t think too much. What could go wrong anyway?
+      description: Time to play god and create a new planet. What do you think? Ah, don't think too much. What could go wrong anyway?
       operationId: createPlanet
       callbacks:
         planetCreated:
@@ -198,7 +198,7 @@ paths:
       tags:
         - Planets
       summary: Get a planet
-      description: You’ll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.
+      description: You'll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.
       operationId: getPlanet
       security:
         - {}
@@ -420,7 +420,7 @@ paths:
       tags:
         - Authentication
       summary: Get authenticated user
-      description: Find yourself they say. That’s what you can do here.
+      description: Find yourself they say. That's what you can do here.
       operationId: getMe
       security:
         - basicAuth: []

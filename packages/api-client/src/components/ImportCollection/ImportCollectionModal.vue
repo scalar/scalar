@@ -238,7 +238,7 @@ function handleImportFinished() {
         class="m-auto flex w-full max-w-[380px] flex-col items-center rounded-xl border px-8 py-8 transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
         <!-- Prefetch error -->
-        <!-- Or: Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <!-- Or: Document doesn't even have an OpenAPI/Swagger version, something is probably wrong -->
         <template
           v-if="
             prefetchResult.error && prefetchResult.state === 'idle' && !version

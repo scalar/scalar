@@ -1,6 +1,6 @@
 import type { UnknownObject } from '@scalar/types/utils'
-import type { CompositionKeyword } from './schema-composition'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
+import type { CompositionKeyword } from './schema-composition'
 
 export const compositions: CompositionKeyword[] = ['oneOf', 'anyOf', 'allOf', 'not']
 
@@ -18,7 +18,7 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
   // Find the composition keyword
   const composition = compositions.find((keyword) => newValue?.[keyword])
 
-  // If there’s no composition keyword, return the original value
+  // If there's no composition keyword, return the original value
   if (!composition) {
     return newValue
   }
@@ -61,7 +61,7 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
   // Remove objects with type 'null' from the schemas
   const newSchemas = processedSchemas.filter((schema: any) => !(schema.type === 'null'))
 
-  // If there’s only one schema, overwrite the original value with the schema
+  // If there's only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.
   if (newSchemas.length === 1 && newValue?.[composition]) {
     newValue = { ...newValue, ...newSchemas[0] }

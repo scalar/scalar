@@ -188,7 +188,7 @@ const deleteWorkspace = async () => {
       title="Delete workspace">
       <DeleteSidebarListElement
         :variableName="tempName"
-        warningMessage="This cannot be undone. You’re about to delete the workspace and everything inside it."
+        warningMessage="This cannot be undone. You're about to delete the workspace and everything inside it."
         @close="deleteModal.hide()"
         @delete="deleteWorkspace" />
     </ScalarModal>

@@ -1,7 +1,7 @@
 import type { Context } from 'hono'
 
 /**
- * Get the body of a request, no matter if it’s JSON or text
+ * Get the body of a request, no matter if it's JSON or text
  */
 export async function getBody(c: Context) {
   const contentType = c.req.header('Content-Type')

@@ -314,7 +314,7 @@ describe('ExampleResponses', () => {
 
     await copyButton.trigger('click')
 
-    // Since we can’t test clipboard directly in jsdom, we can verify the click handler was called
+    // Since we can't test clipboard directly in jsdom, we can verify the click handler was called
     expect(wrapper.emitted()).toBeDefined()
   })
 

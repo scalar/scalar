@@ -12,7 +12,7 @@ const results = ref<TestResult[]>([
 ])
 
 describe('TestResults', () => {
-  it('doesn’t render when no results are provided', () => {
+  it("doesn't render when no results are provided", () => {
     const wrapper = mount(TestResults, {
       props: {
         results: undefined,

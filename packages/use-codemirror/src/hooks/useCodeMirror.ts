@@ -1,5 +1,6 @@
 import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { indentWithTab, insertNewline } from '@codemirror/commands'
+import { history, historyKeymap } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'
@@ -24,7 +25,6 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
-import { history, historyKeymap } from '@codemirror/commands'
 import { ScalarIcon } from '@scalar/components'
 import { type MaybeRefOrGetter, type Ref, computed, h, onBeforeUnmount, ref, render, toValue, watch } from 'vue'
 
@@ -144,7 +144,7 @@ export const useCodeMirror = (
     placeholder: toValue(params.placeholder),
   }))
 
-  // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
+  // Unmounts CodeMirror if it's mounted already, and mounts CodeMirror, if the given ref exists.
   watch(
     params.codeMirrorRef,
     () => {

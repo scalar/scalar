@@ -40,7 +40,7 @@ describe('jsFetch', () => {
 })`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = jsFetch.generate({
       url: 'https://example.com',
       headers: [],
@@ -161,7 +161,7 @@ describe('jsFetch', () => {
 })`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = jsFetch.generate({
       url: 'https://example.com',
       cookies: [],

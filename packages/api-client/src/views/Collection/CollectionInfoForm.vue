@@ -36,7 +36,7 @@ const updateCollectionTitle = (value: string) => {
 }
 
 /**
- * Alias for the data that we’d like to display.
+ * Alias for the data that we'd like to display.
  */
 const data = computed(() => {
   return {

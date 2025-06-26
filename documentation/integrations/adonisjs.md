@@ -2,17 +2,17 @@
 
 AdonisJS is a TypeScript-first web framework for building web apps and API servers. It comes with support for testing, modern tooling, an ecosystem of official packages, and more.
 
-And you know what? There’s also a great [community package to add OpenAPI support](https://github.com/ad-on-is/adonis-autoswagger) and it comes with the Scalar API reference by default.
+And you know what? There's also a great [community package to add OpenAPI support](https://github.com/ad-on-is/adonis-autoswagger) and it comes with the Scalar API reference by default.
 
 ## Create a new AdonisJS project (optional)
 
-If you’re starting on a green field, you’ll first need to [initialize a new AdonisJS project](https://docs.adonisjs.com/guides/installation):
+If you're starting on a green field, you'll first need to [initialize a new AdonisJS project](https://docs.adonisjs.com/guides/installation):
 
 ```bash
 npm init adonisjs@latest my-awesome-app
 ```
 
-You’ll be asked a few questions. Pick whatever feels right to you. If you’re feeling overwhelmed, use the following options for the sake of this guide:
+You'll be asked a few questions. Pick whatever feels right to you. If you're feeling overwhelmed, use the following options for the sake of this guide:
 
 ```plaintext
 Which starter kit would you like to use?
@@ -28,7 +28,7 @@ Do you want us to install dependencies using "npm"?
 ❯ Yes
 ```
 
-Wow, you’re half way there already. Jump into the directory and start the devlopment server:
+Wow, you're half way there already. Jump into the directory and start the devlopment server:
 
 ```bash
 cd my-awesome-app
@@ -45,7 +45,7 @@ Time to set up the community package to add OpenAPI support to your AdonisJS pro
 npm add adonis-autoswagger
 ```
 
-We’ll also need to add a configuration file:
+We'll also need to add a configuration file:
 
 ```ts
 // config/openapi.ts
@@ -100,6 +100,6 @@ router.get('/docs', async () => {
 })
 ```
 
-Boom, that’s it. Go to <http://localhost:3333/docs> and see your new OpenAPI-based reference.
+Boom, that's it. Go to <http://localhost:3333/docs> and see your new OpenAPI-based reference.
 
-You’ll notice there isn’t that much in there. To actually make this useful, you’ll need to work with [Controllers in AdonisJS](https://docs.adonisjs.com/guides/controllers) and [learn about the syntax that Adonis Autoswagger uses](https://github.com/ad-on-is/adonis-autoswagger) to add information about your endpoints.
+You'll notice there isn't that much in there. To actually make this useful, you'll need to work with [Controllers in AdonisJS](https://docs.adonisjs.com/guides/controllers) and [learn about the syntax that Adonis Autoswagger uses](https://github.com/ad-on-is/adonis-autoswagger) to add information about your endpoints.

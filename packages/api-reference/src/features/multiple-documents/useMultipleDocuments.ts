@@ -35,7 +35,7 @@ export const normalizeConfigurations = (
     return []
   }
 
-  // Make it an array, even if it’s a single configuration
+  // Make it an array, even if it's a single configuration
   const configs = Array.isArray(configuration) ? configuration : [configuration]
 
   // Flatten all configurations and their sources into a single array
@@ -53,7 +53,7 @@ export const normalizeConfigurations = (
       return configSources?.map((source) => ({ ...rest, ...source })) ?? []
     }
 
-    // If config doesn’t have sources array, treat the config itself as a source
+    // If config doesn't have sources array, treat the config itself as a source
     return [config]
   })
 
@@ -137,7 +137,7 @@ export const useMultipleDocuments = ({
     const url = new URL(window.location.href)
     const parameter = url.searchParams.get(QUERY_PARAMETER)
 
-    // If there’s a query parameter, try to find the matching document
+    // If there's a query parameter, try to find the matching document
     if (parameter) {
       // Try finding by slug first
       const indexBySlug = availableDocuments.value.findIndex((option) => option.slug === parameter)

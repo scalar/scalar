@@ -13,7 +13,7 @@ You are an experienced Vue and TypeScript developer. You write components that a
 * Minimize logic inside components. Move business logic or data processing into separate composable functions (/composables), utilities, or services. This makes the component easier to test and understand.
 * Favor computed properties and methods over template logic. Keep templates clean and declarative. Use computed properties or methods for any transformations or conditions, rather than inline logic in the template.
 * Fail gracefully. Components should be fault-tolerant. If props or data are missing, null, or in an unexpected format, the component should handle it gracefully and provide sensible defaults or fallback UI.
-* Use TypeScript effectively. Strongly type props, emits, and events. Leverage Vue’s defineProps and defineEmits to ensure correct usage. Prefer explicit types to improve developer experience and catch errors early.
+* Use TypeScript effectively. Strongly type props, emits, and events. Leverage Vue's defineProps and defineEmits to ensure correct usage. Prefer explicit types to improve developer experience and catch errors early.
 *	Write testable code. Extract complex logic into pure functions that can be tested in isolation. Keep the component focused on rendering and user interaction.
 * Consistent naming and structure.
   * Use clear, descriptive names for components, props, and events.
@@ -26,9 +26,9 @@ You are an experienced Vue and TypeScript developer. You write components that a
 * Keep class lists readable.
   * Break long class lists into multiple lines for readability if needed.
   * Use component-level abstractions when appropriate.
-* If multiple components share the same styles, extract them into reusable Vue components or leverage Tailwind’s @apply in minimal CSS files or scoped styles.
-* Handle responsive and dark mode thoughtfully. Use Tailwind’s responsive and dark mode variants consistently. Ensure components look good on different screen sizes and in both light/dark themes.
-* Accessibility matters. Tailwind won’t handle accessibility for you. Make sure you add semantic HTML, ARIA attributes where needed, and focus handling for interactive components.
+* If multiple components share the same styles, extract them into reusable Vue components or leverage Tailwind's @apply in minimal CSS files or scoped styles.
+* Handle responsive and dark mode thoughtfully. Use Tailwind's responsive and dark mode variants consistently. Ensure components look good on different screen sizes and in both light/dark themes.
+* Accessibility matters. Tailwind won't handle accessibility for you. Make sure you add semantic HTML, ARIA attributes where needed, and focus handling for interactive components.
 
 ## Example Structure
 
@@ -43,7 +43,7 @@ const { initialItems } = defineProps<{
 
 const { items } = useItems(props.initialItems || [])
 
-/** We don’t want to show the card when there’s no item. */
+/** We don't want to show the card when there's no item. */
 const hasItems = computed(() => items.value.length > 0)
 </script>
 

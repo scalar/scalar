@@ -78,7 +78,7 @@ export function extractRequestBody(operation: OpenAPIV3_1.OperationObject): stri
 }
 
 /**
- * Returns all models from the specification, no matter if it’s OpenAPI 3.x.
+ * Returns all models from the specification, no matter if it's OpenAPI 3.x.
  */
 export function getModels(document?: OpenAPIV3_1.Document) {
   if (!document) {

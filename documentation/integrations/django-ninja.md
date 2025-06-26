@@ -91,7 +91,7 @@ urlpatterns = [
 
 ```
 
-We’ll save running it for after we install Scalar in the next section.
+We'll save running it for after we install Scalar in the next section.
 
 ### Installing the Scalar API Reference
 

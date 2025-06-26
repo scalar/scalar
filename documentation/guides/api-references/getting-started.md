@@ -38,15 +38,15 @@ Our most simplest example is using the CDN integration of our API References
 
 ### Customization
 
-| Topic                                           | Description                          |
-| ----------------------------------------------- | ------------------------------------ |
+| Topic                          | Description                          |
+| ------------------------------ | ------------------------------------ |
 | [Themes](themes)               | Predefined themes, layouts & styling |
 | [Configuration](configuration) | The universal configuration object   |
 | [Plugins](plugins)             | Extend the functionality             |
 | [OpenAPI](openapi)             | OpenAPI and our extensions to it     |
 | [Markdown](markdown)           | The supported Markdown syntax        |
 
-And there’s an ever-growing list of plugins and integrations:
+And there's an ever-growing list of plugins and integrations:
 
 ### Integrations
 

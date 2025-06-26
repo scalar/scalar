@@ -3,7 +3,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import type { Context } from 'hono'
 import { accepts } from 'hono/accepts'
 import type { StatusCode } from 'hono/utils/http-status'
-// @ts-expect-error Doesn’t come with types
+// @ts-expect-error Doesn't come with types
 import objectToXML from 'object-to-xml'
 
 import type { MockServerOptions } from '@/types'

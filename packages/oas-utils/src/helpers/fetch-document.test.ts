@@ -16,7 +16,7 @@ beforeAll(async () => {
   } catch (_error) {
     throw new Error(`
 
-[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+[sendRequest.test.ts] Looks like you're not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it's required for this test file.
 
 Try to run it like this:
 

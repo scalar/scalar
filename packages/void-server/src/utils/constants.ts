@@ -21,7 +21,7 @@ export const errors: Partial<Record<StatusCode, string>> = {
   '415': 'Unsupported Media Type',
   '416': 'Requested Range Not Satisfiable',
   '417': 'Expectation Failed',
-  '418': 'I’m a teapot',
+  '418': "I'm a teapot",
   '421': 'Unprocessable Entity',
   '422': 'Misdirected Request',
   '423': 'Locked',

@@ -47,7 +47,7 @@ $ pnpm todesktop:build && pnpm todesktop:release
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

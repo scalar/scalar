@@ -1,5 +1,5 @@
-import { clone } from '../clone'
 import { describe, expect, it } from 'vitest'
+import { clone } from '../clone'
 
 import { setNestedValue } from './nested'
 
@@ -23,8 +23,7 @@ const nestedObj = {
 const request = {
   tags: ['Planets'],
   summary: 'Get a planet',
-  description:
-    'You’ll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.',
+  description: `You'll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.`,
   operationId: 'getPlanet',
   security: [{}],
   parameters: [

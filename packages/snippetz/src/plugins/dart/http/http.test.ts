@@ -53,7 +53,7 @@ void main() async {
 }`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = dartHttp.generate({
       url: 'https://example.com',
       headers: [],
@@ -149,7 +149,7 @@ void main() async {
 }`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = dartHttp.generate({
       url: 'https://example.com',
       cookies: [],

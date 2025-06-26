@@ -17,9 +17,9 @@ import SchemaDiscriminator from './SchemaDiscriminator.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
 /**
- * Note: We’re taking in a prop called `value` which should be a JSON Schema.
+ * Note: We're taking in a prop called `value` which should be a JSON Schema.
  *
- * We’re using `optimizeValueForDisplay` to merge null types in compositions (anyOf, allOf, oneOf, not).
+ * We're using `optimizeValueForDisplay` to merge null types in compositions (anyOf, allOf, oneOf, not).
  * So you should basically use the optimizedValue everywhere in the component.
  */
 

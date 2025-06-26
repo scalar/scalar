@@ -13,8 +13,8 @@ import type { Node } from 'unist'
 import { SKIP, visit } from 'unist-util-visit'
 
 import { standardLanguages } from '@/languages'
-import { rehypeHighlight } from '@/rehype-highlight'
 import { rehypeAlert } from '@/rehype-alert'
+import { rehypeHighlight } from '@/rehype-highlight'
 type Options = {
   transform?: (node: Record<string, any>) => Record<string, any>
   type?: string
@@ -75,7 +75,7 @@ export function htmlFromMarkdown(
     // Removes disallowed tags
     .use(rehypeSanitize, {
       ...defaultSchema,
-      // Don’t prefix the heading ids
+      // Don't prefix the heading ids
       clobberPrefix: '',
       // Makes it even more strict
       tagNames,
