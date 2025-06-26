@@ -1,5 +1,15 @@
 # @scalar/postman-to-openapi
 
+## 0.3.13
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/openapi-types@0.3.5
+  - @scalar/oas-utils@0.4.10
+  - @scalar/helpers@0.0.6
+
 ## 0.3.12
 
 ### Patch Changes

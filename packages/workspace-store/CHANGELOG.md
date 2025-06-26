@@ -1,5 +1,16 @@
 # @scalar/workspace-store
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated dependencies [2d7f995]
+  - @scalar/code-highlight@0.1.5
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/openapi-types@0.3.5
+  - @scalar/helpers@0.0.6
+  - @scalar/types@0.2.6
+
 ## 0.7.0
 
 ### Minor Changes

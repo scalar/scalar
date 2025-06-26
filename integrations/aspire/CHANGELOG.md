@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.1.3
+
+### Patch Changes
+
+- 8d63f89: chore: minor improvements
+- Updated dependencies [4e0caa1]
+- Updated dependencies [4d29320]
+- Updated dependencies [2d7f995]
+  - @scalar/api-reference@1.32.2
+
 ## 0.1.2
 
 ### Patch Changes

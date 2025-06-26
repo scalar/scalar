@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.3.5
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.3.4
 
 ### Patch Changes

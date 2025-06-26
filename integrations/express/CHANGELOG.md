@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.8.8
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/core@0.3.6
+
 ## 0.8.7
 
 ### Patch Changes

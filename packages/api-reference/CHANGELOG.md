@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.32.2
+
+### Patch Changes
+
+- 4e0caa1: fix: withDefaults is used with destructured props
+- 4d29320: feat: improve search accuracy
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/code-highlight@0.1.5
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/openapi-types@0.3.5
+  - @scalar/api-client@2.5.14
+  - @scalar/oas-utils@0.4.10
+  - @scalar/use-hooks@0.2.4
+  - @scalar/snippetz@0.3.2
+  - @scalar/helpers@0.0.6
+  - @scalar/themes@0.13.7
+  - @scalar/icons@0.4.6
+  - @scalar/types@0.2.6
+  - @scalar/components@0.14.15
+  - @scalar/workspace-store@0.7.1
+  - @scalar/use-toasts@0.8.0
+
 ## 1.32.1
 
 ### Patch Changes
