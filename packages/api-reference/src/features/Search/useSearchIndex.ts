@@ -9,6 +9,8 @@ import { getHeadingsFromMarkdown } from '@/libs/markdown'
 import { extractRequestBody, getModels } from '@/libs/openapi'
 import { isHttpMethod } from '@scalar/helpers/http/is-http-method'
 
+const MAX_SEARCH_RESULTS = 25
+
 export type EntryType = 'req' | 'webhook' | 'model' | 'heading' | 'tag'
 
 export type FuseData = {
@@ -41,7 +43,52 @@ export function useSearchIndex({
   const searchText = ref<string>('')
 
   const fuse = new Fuse(fuseDataArray.value, {
-    keys: ['title', 'description', 'body'],
+    // Define searchable fields with weights to prioritize more important matches
+    keys: [
+      // Highest weight - titles are most descriptive
+      { name: 'title', weight: 0.7 },
+      // Medium weight - helpful but often verbose
+      { name: 'description', weight: 0.3 },
+      // Lowest weight - can be very long and noisy
+      { name: 'body', weight: 0.2 },
+      // High weight - unique identifiers for operations
+      { name: 'operationId', weight: 0.6 },
+      // Good weight - endpoint paths are searchable
+      { name: 'path', weight: 0.5 },
+      // Medium-high weight - helps with categorization
+      { name: 'tag', weight: 0.4 },
+      // Medium weight - useful for filtering by method
+      { name: 'httpVerb', weight: 0.3 },
+    ],
+
+    // Threshold controls how strict the matching is (0.0 = perfect match, 1.0 = very loose)
+    // 0.3 allows for some typos and partial matches while maintaining relevance
+    threshold: 0.3,
+
+    // Maximum distance between characters that can be matched
+    // Higher values allow matches even when characters are far apart in long text
+    distance: 100,
+
+    // Include the match score in results for debugging and potential UI enhancements
+    includeScore: true,
+
+    // Include detailed match information showing which parts of the text matched
+    includeMatches: true,
+
+    // Minimum number of characters that must match to be considered a result
+    // Prevents single-character matches that are usually noise
+    minMatchCharLength: 2,
+
+    // Don't require matches to be at the beginning of strings
+    // Makes search more flexible and user-friendly
+    ignoreLocation: true,
+
+    // Enable advanced search syntax like 'exact' for exact matches or !exclude for exclusions
+    useExtendedSearch: true,
+
+    // Find all possible matches in each item, not just the first one
+    // Ensures comprehensive search results
+    findAllMatches: true,
   })
 
   const fuseSearch = (): void => {
@@ -64,18 +111,15 @@ export function useSearchIndex({
   }
 
   const searchResultsWithPlaceholderResults = computed<FuseResult<FuseData>[]>((): FuseResult<FuseData>[] => {
-    // Rendering a lot of items is slow, so we limit the results.
-    const LIMIT = 25
-
     if (searchText.value.length === 0) {
-      return fuseDataArray.value.slice(0, LIMIT).map((item) => {
+      return fuseDataArray.value.slice(0, MAX_SEARCH_RESULTS).map((item) => {
         return {
           item: item,
         } as FuseResult<FuseData>
       })
     }
 
-    return searchResults.value.slice(0, LIMIT)
+    return searchResults.value.slice(0, MAX_SEARCH_RESULTS)
   })
 
   const selectedSearchResult = computed<FuseResult<FuseData> | undefined>(() =>
