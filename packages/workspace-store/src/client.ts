@@ -6,13 +6,14 @@ import { bundle, upgrade } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins-browser'
 import { createNavigation, type createNavigationOptions } from '@/navigation'
 import { extensions } from '@/schemas/extensions'
-import { reactive } from 'vue'
+import { reactive, toRaw } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/reference-config'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { DeepTransform } from '@/types'
 import YAML from 'yaml'
+import { updateOriginalDocument } from '@/helpers/update-original-document'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -171,6 +172,9 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 
     const document = coerceValue(OpenAPIDocumentSchema, upgrade(input.document).specification)
 
+    // Create a deep clone of the document with metadata to preserve original structure
+    originalDocuments[name] = deepClone({ ...document, ...meta })
+
     // Skip navigation generation if the document already has a server-side generated navigation structure
     if (document[extensions.document.navigation] === undefined) {
       document[extensions.document.navigation] = createNavigation(document, input.config ?? {}).entries
@@ -178,9 +182,6 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
 
     // Add the document config to the documentConfigs map
     documentConfigs[name] = input.config ?? {}
-
-    // Create a deep clone of the document with metadata to preserve original structure
-    originalDocuments[name] = deepClone({ ...document, ...meta })
 
     workspace.documents[name] = createMagicProxy({ ...document, ...meta })
   }
@@ -351,18 +352,18 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
     },
     /**
      * Downloads the active document in the specified format.
-     * 
+     *
      * This method serializes the original, unmodified document (before any reactive wrapping)
      * to either JSON or YAML format. The original document is used to preserve the
      * initial structure without any external references or modifications.
-     * 
+     *
      * @param format - The output format: 'json' for JSON string or 'yaml' for YAML string
      * @returns A string representation of the document in the requested format
-     * 
+     *
      * @example
      * // Download as JSON
      * const jsonString = store.download('json')
-     * 
+     *
      * // Download as YAML
      * const yamlString = store.download('yaml')
      */
@@ -375,16 +376,15 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
     },
     /**
      * Saves the current state of the active document back to the original documents map.
-     * 
+     *
      * This method takes the current reactive document state and persists it to the
      * originalDocuments map, which stores the unmodified documents before reactive wrapping.
      * The document is deep cloned to prevent mutations from affecting the reactive state.
-     * 
+     *
      * Note: Currently, external references are not filtered out when saving.
-     * TODO: Implement traversal to discard external references before writing back.
-     * 
+     *
      * @returns void - Returns early if no active document is available
-     * 
+     *
      * @example
      * // Save the current document state
      * store.save()
@@ -394,11 +394,11 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       if (!workspace.activeDocument) {
         return
       }
+      const originalDocument = originalDocuments[getActiveDocumentName()]
+      const updatedDocument = toRaw(getRaw(workspace.activeDocument))
 
-      // Write back to the original document any changes made to the reactive document
-      // The document is deep cloned to preserve the original structure and prevent mutations
-      // TODO: traverse the object and discard any external ref's from writing back
-      originalDocuments[getActiveDocumentName()] = deepClone(getRaw(workspace.activeDocument))
+      // Update the original document with the current state of the active document
+      updateOriginalDocument(originalDocument, updatedDocument)
     },
   }
 }

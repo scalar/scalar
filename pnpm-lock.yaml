@@ -2545,6 +2545,9 @@ importers:
       '@scalar/helpers':
         specifier: workspace:*
         version: link:../helpers
+      '@scalar/json-diff':
+        specifier: workspace:*
+        version: link:../json-diff
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
