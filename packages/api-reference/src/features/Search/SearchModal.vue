@@ -63,8 +63,8 @@ const ENTRY_LABELS: { [x in EntryType]: string } = {
   heading: 'Document Heading',
   req: 'Request',
   tag: 'Tag',
-  model: '', // The title of the entry is already "Model"
-  webhook: '', // The title of the entry is already "Webhook"
+  model: 'Model',
+  webhook: 'Webhook',
 }
 
 const searchModalRef = ref<HTMLElement | null>(null)
@@ -239,7 +239,7 @@ function onSearchResultEnter() {
             aria-hidden="true"
             :method="entry.item.httpVerb ?? 'get'" />
           <span class="sr-only">
-            HTTP Method: {{ entry.item.httpVerb ?? 'get' }},
+            HTTP Method: {{ entry.item.httpVerb ?? 'get' }}
           </span>
         </template>
       </ScalarSearchResultItem>

@@ -140,8 +140,8 @@ export function useSearchIndex({
         headings.forEach((heading) => {
           headingsData.push({
             type: 'heading',
-            title: `Info > ${heading.value}`,
-            description: '',
+            title: heading.value,
+            description: 'Introduction',
             href: `#${getHeadingId(heading)}`,
             tag: heading.slug,
             body: '',
@@ -242,9 +242,9 @@ export function useSearchIndex({
         webhooks.forEach((webhook) => {
           webhookData.push({
             type: 'webhook',
-            title: 'Webhook',
+            title: `${webhook.name}`,
             href: `#${webhook.id}`,
-            description: `${webhook.name}`,
+            description: 'Webhook',
             httpVerb: webhook.httpVerb,
             tag: webhook.name,
             body: '',
@@ -262,9 +262,9 @@ export function useSearchIndex({
         Object.keys(schemas).forEach((k) => {
           modelData.push({
             type: 'model',
-            title: 'Model',
+            title: `${(schemas[k] as any).title ?? k}`,
             href: `#${getModelId({ name: k })}`,
-            description: (schemas[k] as any).title ?? k,
+            description: 'Model',
             tag: k,
             body: '',
           })
