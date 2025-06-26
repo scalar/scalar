@@ -1,8 +1,44 @@
 import type { UnknownObject } from '@scalar/types/utils'
-import type { CompositionKeyword } from './schema-composition'
 import { mergeAllOfSchemas } from './merge-all-of-schemas'
+import type { CompositionKeyword } from './schema-composition'
 
 export const compositions: CompositionKeyword[] = ['oneOf', 'anyOf', 'allOf', 'not']
+
+/**
+ * Add missing types based on properties or items presence
+ */
+function addMissingTypes(schema: any): any {
+  if (!schema || typeof schema !== 'object') {
+    return schema
+  }
+
+  const result = { ...schema }
+
+  // If schema has properties but no type, it's an object
+  if (result.properties !== undefined && !result.type) {
+    result.type = 'object'
+  }
+
+  // If schema has items but no type, it's an array
+  if (result.items !== undefined && !result.type) {
+    result.type = 'array'
+  }
+
+  // Recursively process nested schemas
+  if (result.properties) {
+    for (const key in result.properties) {
+      if (result.properties[key]) {
+        result.properties[key] = addMissingTypes(result.properties[key])
+      }
+    }
+  }
+
+  if (result.items) {
+    result.items = addMissingTypes(result.items)
+  }
+
+  return result
+}
 
 /**
  * Optimize the value by removing nulls from compositions.
@@ -12,13 +48,13 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
     return value
   }
 
-  // Clone the value to avoid mutating the original value
-  let newValue = { ...value }
+  // Add missing types first and clone the value to avoid mutating the original
+  let newValue = addMissingTypes({ ...value })
 
   // Find the composition keyword
   const composition = compositions.find((keyword) => newValue?.[keyword])
 
-  // If there’s no composition keyword, return the original value
+  // If there's no composition keyword, return the original value
   if (!composition) {
     return newValue
   }
@@ -61,7 +97,7 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined): Recor
   // Remove objects with type 'null' from the schemas
   const newSchemas = processedSchemas.filter((schema: any) => !(schema.type === 'null'))
 
-  // If there’s only one schema, overwrite the original value with the schema
+  // If there's only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.
   if (newSchemas.length === 1 && newValue?.[composition]) {
     newValue = { ...newValue, ...newSchemas[0] }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { optimizeValueForDisplay } from './optimizeValueForDisplay'
+import { optimizeValueForDisplay } from './optimize-value-for-display'
 
 describe('optimizeValueForDisplay', () => {
   it('should return the original value if it is not an object', () => {
@@ -110,5 +110,91 @@ describe('optimizeValueForDisplay', () => {
 
     expect(result?.oneOf[0].title).toBe('Planet')
     expect(result?.oneOf[1].title).toBe('Satellite')
+  })
+
+  it('adds object type when properties are present but no explicit type', () => {
+    const input = {
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+    }
+    expect(optimizeValueForDisplay(input)).toEqual({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+        age: { type: 'number' },
+      },
+    })
+  })
+
+  it('adds array type when items are present but no explicit type', () => {
+    const input = {
+      items: {
+        type: 'string',
+      },
+    }
+    expect(optimizeValueForDisplay(input)).toEqual({
+      type: 'array',
+      items: {
+        type: 'string',
+      },
+    })
+  })
+
+  it('preserves existing type when both type and properties/items are present', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    }
+    expect(optimizeValueForDisplay(input)).toEqual(input)
+  })
+
+  it('handles nested type inference in array items', () => {
+    const input = {
+      type: 'array',
+      items: {
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+        },
+      },
+    }
+    expect(optimizeValueForDisplay(input)).toEqual({
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'number' },
+          name: { type: 'string' },
+        },
+      },
+    })
+  })
+
+  it('handles nested type inference in object properties', () => {
+    const input = {
+      type: 'object',
+      properties: {
+        tags: {
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    }
+    expect(optimizeValueForDisplay(input)).toEqual({
+      type: 'object',
+      properties: {
+        tags: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+      },
+    })
   })
 })
