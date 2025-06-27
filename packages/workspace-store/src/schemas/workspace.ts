@@ -16,7 +16,7 @@ export const WorkspaceDocumentSchema = compose(WorkspaceDocumentMetaSchema, Open
 
 export type WorkspaceDocument = Static<typeof WorkspaceDocumentSchema>
 
-const WorkspaceMetaSchema = Type.Partial(
+export const WorkspaceMetaSchema = Type.Partial(
   Type.Object({
     [extensions.workspace.darkMode]: Type.Boolean(),
     [extensions.workspace.defaultClient]: Type.String(),
