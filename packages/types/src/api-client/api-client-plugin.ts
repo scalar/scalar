@@ -8,12 +8,16 @@ const SectionViewSchema = z.object({
 })
 
 const ViewsSchema = z.object({
-  'request.section': z.array(SectionViewSchema),
-  'response.section': z.array(SectionViewSchema),
+  'request.section': z.array(SectionViewSchema).optional(),
+  'response.section': z.array(SectionViewSchema).optional(),
 })
 
-const HooksSchema = z.object({
-  onBeforeRequest: z.function().returns(z.union([z.void(), z.promise(z.void())])),
+export const HooksSchema = z.object({
+  onBeforeRequest: z
+    .function()
+    .args(z.object({ request: z.instanceof(Request) }))
+    .returns(z.union([z.void(), z.promise(z.void())]))
+    .optional(),
   onResponseReceived: z
     .function()
     .args(
@@ -23,14 +27,15 @@ const HooksSchema = z.object({
         operation: z.record(z.any()),
       }),
     )
-    .returns(z.union([z.void(), z.promise(z.void())])),
+    .returns(z.union([z.void(), z.promise(z.void())]))
+    .optional(),
 })
 
 export const ApiClientPluginSchema = z.function().returns(
   z.object({
     name: z.string(),
-    views: ViewsSchema,
-    hooks: HooksSchema,
+    views: ViewsSchema.optional(),
+    hooks: HooksSchema.optional(),
   }),
 )
 

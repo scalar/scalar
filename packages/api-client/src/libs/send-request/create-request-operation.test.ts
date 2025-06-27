@@ -1173,4 +1173,165 @@ describe('create-request-operation', () => {
       }
     })
   })
+
+  it('executes onBeforeRequest hook when plugin manager is provided', async () => {
+    const mockPluginManager = {
+      executeHook: vi.fn().mockResolvedValue(undefined),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: 'https://api.example.com' },
+        requestPayload: {
+          path: '/test',
+        },
+      }),
+      pluginManager: mockPluginManager,
+    })
+
+    if (error) {
+      throw error
+    }
+
+    await requestOperation.sendRequest()
+
+    expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
+      request: expect.any(Request),
+    })
+    expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not execute onBeforeRequest hook when plugin manager is not provided', async () => {
+    // Store original fetch
+    const originalFetch = global.fetch
+    try {
+      // Mock fetch to return a successful response
+      const mockResponse = new Response('{"test": "data"}', {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'application/json',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation(
+        createRequestPayload({
+          serverPayload: { url: 'https://api.example.com' },
+          requestPayload: {
+            path: '/test',
+          },
+        }),
+      )
+
+      if (error) {
+        throw error
+      }
+
+      const [requestError] = await requestOperation.sendRequest()
+
+      // Should not throw any errors related to plugin manager
+      expect(requestError).toBe(null)
+    } finally {
+      // Restore original fetch
+      global.fetch = originalFetch
+    }
+  })
+
+  it('executes onBeforeRequest hook before making the request', async () => {
+    let hookExecuted = false
+
+    const mockPluginManager = {
+      executeHook: vi.fn().mockImplementation(async () => {
+        hookExecuted = true
+        return Promise.resolve()
+      }),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    // Store original fetch
+    const originalFetch = global.fetch
+    try {
+      // Mock fetch to return a successful response
+      const mockResponse = new Response('{"test": "data"}', {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'application/json',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: 'https://api.example.com' },
+          requestPayload: {
+            path: '/test',
+          },
+        }),
+        pluginManager: mockPluginManager,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      await requestOperation.sendRequest()
+
+      expect(hookExecuted).toBe(true)
+      expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onBeforeRequest', {
+        request: expect.any(Request),
+      })
+    } finally {
+      // Restore original fetch
+      global.fetch = originalFetch
+    }
+  })
+
+  it('executes onResponseReceived hook when plugin manager is provided', async () => {
+    const mockPluginManager = {
+      executeHook: vi.fn().mockResolvedValue(undefined),
+      getViewComponents: vi.fn().mockReturnValue([]),
+    }
+
+    // Store original fetch
+    const originalFetch = global.fetch
+    try {
+      // Mock fetch to return a successful response
+      const mockResponse = new Response('{"test": "data"}', {
+        status: 200,
+        headers: new Headers({
+          'content-type': 'application/json',
+        }),
+      })
+
+      global.fetch = vi.fn().mockResolvedValue(mockResponse)
+
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: 'https://api.example.com' },
+          requestPayload: {
+            path: '/test',
+          },
+        }),
+        pluginManager: mockPluginManager,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      await requestOperation.sendRequest()
+
+      expect(mockPluginManager.executeHook).toHaveBeenCalledWith('onResponseReceived', {
+        response: expect.any(Response),
+        operation: expect.any(Object),
+      })
+      expect(mockPluginManager.executeHook).toHaveBeenCalledTimes(2) // onBeforeRequest + onResponseReceived
+    } finally {
+      // Restore original fetch
+      global.fetch = originalFetch
+    }
+  })
 })

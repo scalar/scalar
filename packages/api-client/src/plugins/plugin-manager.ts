@@ -1,7 +1,10 @@
-import type { ApiClientPlugin } from '@scalar/types/api-client'
+import type { ApiClientPlugin, HooksSchema } from '@scalar/types/api-client'
 import type { InjectionKey } from 'vue'
+import type { z } from 'zod'
 
 export type { ApiClientPlugin }
+
+type HookFunctions = z.infer<typeof HooksSchema>
 
 type CreatePluginManagerParams = {
   plugins?: ApiClientPlugin[]
@@ -25,22 +28,27 @@ export const createPluginManager = ({ plugins = [] }: CreatePluginManagerParams)
     /**
      * Get all components for a specific view
      */
-    getViewComponents: (view: keyof ReturnType<ApiClientPlugin>['views']) => {
-      return Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.views[view] || [])
+    getViewComponents: (view: keyof NonNullable<ReturnType<ApiClientPlugin>['views']>) => {
+      return Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.views?.[view] || [])
     },
 
     /**
      * Execute a hook for a specific event
      */
-    executeHook: <E extends keyof ReturnType<ApiClientPlugin>['hooks']>(
+    executeHook: <E extends keyof HookFunctions>(
       event: E,
-      ...args: Parameters<ReturnType<ApiClientPlugin>['hooks'][E]>
+      ...args: HookFunctions[E] extends z.ZodFunction<infer Args, any> ? z.infer<Args> : any
     ) => {
-      const hooks = Array.from(registeredPlugins.values()).flatMap((plugin) => plugin.hooks[event] || [])
+      const hooks = Array.from(registeredPlugins.values()).flatMap(
+        (plugin) => plugin.hooks?.[event as keyof typeof plugin.hooks] || [],
+      )
 
       // Execute each hook with the provided arguments
       return Promise.all(
-        hooks.map((hook) => (hook as (...args: Parameters<ReturnType<ApiClientPlugin>['hooks'][E]>) => void)(...args)),
+        hooks
+          .filter((hook) => hook != null)
+          // @ts-expect-error I don't know how to properly type this
+          .map((hook) => (hook as HookFunctions[E])?.(...args)),
       )
     },
   }

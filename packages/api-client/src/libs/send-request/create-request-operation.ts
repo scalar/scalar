@@ -189,7 +189,7 @@ export const createRequestOperation = ({
       status?.emit('start')
 
       if (pluginManager) {
-        pluginManager.executeHook('onBeforeRequest')
+        pluginManager.executeHook('onBeforeRequest', { request: proxiedRequest })
       }
 
       // Start timer to get response duration

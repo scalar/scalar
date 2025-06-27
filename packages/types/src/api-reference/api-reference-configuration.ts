@@ -318,6 +318,12 @@ const _apiReferenceConfigurationSchema = apiClientConfigurationSchema.merge(
     onDocumentSelect: z.function().returns(z.void().or(z.void().promise())).optional(),
     /** Callback fired when the reference is fully loaded */
     onLoaded: z.function().returns(z.void().or(z.void().promise())).optional(),
+    /** onBeforeRequest is fired before the request is sent. You can modify the request here. */
+    onBeforeRequest: z
+      .function()
+      .args(z.object({ request: z.instanceof(Request) }))
+      .returns(z.void().or(z.void().promise()))
+      .optional(),
     /**
      * onShowMore is fired when the user clicks the "Show more" button on the references
      * @param tagId - The ID of the tag that was clicked

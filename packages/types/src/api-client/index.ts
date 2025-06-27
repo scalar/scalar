@@ -1,1 +1,1 @@
-export { type ApiClientPlugin, ApiClientPluginSchema } from './api-client-plugin'
+export { type ApiClientPlugin, ApiClientPluginSchema, HooksSchema } from './api-client-plugin'
