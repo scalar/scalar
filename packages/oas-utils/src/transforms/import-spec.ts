@@ -186,7 +186,11 @@ export async function importSpecToWorkspace(
   // Add the base server url to collection servers
   const collectionServers: Server[] = getServersFromOpenApiDocument(configuredServers || schema.servers, {
     baseServerURL,
+    documentUrl,
   })
+
+  console.log('documentUrl', documentUrl)
+  console.log('collectionServers', collectionServers)
 
   // Store operation servers
   const operationServers: Server[] = []
@@ -546,12 +550,35 @@ export async function importSpecToWorkspace(
 }
 
 /**
+ * Extracts the base URL (protocol + hostname) from a document URL.
+ * Falls back to the original URL if it's not a valid URL.
+ */
+function getBaseUrlFromDocumentUrl(documentUrl: string): string {
+  try {
+    const url = new URL(documentUrl)
+    return `${url.protocol}//${url.hostname}`
+  } catch {
+    // If the documentUrl is not a valid URL, fall back to using it as-is
+    return documentUrl
+  }
+}
+
+/**
  * Retrieves a list of servers from an OpenAPI document and converts them to a list of Server entities.
  */
 export function getServersFromOpenApiDocument(
   servers: OpenAPIV3_1.ServerObject[] | undefined,
-  { baseServerURL }: Pick<ApiReferenceConfiguration, 'baseServerURL'> = {},
+  {
+    baseServerURL,
+    documentUrl,
+  }: Pick<ApiReferenceConfiguration, 'baseServerURL'> & Pick<ImportSpecToWorkspaceArgs, 'documentUrl'> = {},
 ): Server[] {
+  // If the document doesn't have any servers, try to use the documentUrl as the default server.
+  if (!servers?.length && documentUrl) {
+    return [serverSchema.parse({ url: getBaseUrlFromDocumentUrl(documentUrl) })]
+  }
+
+  // If the servers are not an array, return an empty array.
   if (!servers || !Array.isArray(servers)) {
     return []
   }
@@ -567,6 +594,12 @@ export function getServersFromOpenApiDocument(
           // Use the base server URL (if provided)
           if (baseServerURL) {
             parsedSchema.url = combineUrlAndPath(baseServerURL, parsedSchema.url)
+
+            return parsedSchema
+          }
+
+          if (documentUrl) {
+            parsedSchema.url = combineUrlAndPath(getBaseUrlFromDocumentUrl(documentUrl), parsedSchema.url)
 
             return parsedSchema
           }
