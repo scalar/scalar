@@ -7,7 +7,7 @@ import { Type, type Static } from '@sinclair/typebox'
 
 export const WorkspaceSpecificationSchema = compose(
   Type.Object({
-    workspace: Type.Union([Type.Literal('1.0.0')]),
+    workspace: Type.Union([Type.Literal('draft')]),
     info: InfoSchema,
     documents: Type.Optional(
       Type.Record(
