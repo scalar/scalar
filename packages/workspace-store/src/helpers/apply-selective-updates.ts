@@ -1,5 +1,5 @@
 import { split, type UnknownObject } from '@/helpers/general'
-import { apply, diff } from '@scalar/json-diff'
+import { apply, diff, type Difference } from '@scalar/json-diff'
 
 // Keys to exclude from the diff - these are metadata fields that should not be persisted
 // when applying updates to the original document
@@ -19,7 +19,7 @@ const excludeKeys = new Set(['x-scalar-navigation', 'x-ext', 'x-ext-urls', '$ref
  * @returns A tuple: [the updated original document, array of excluded diffs that were not applied]
  */
 export const applySelectiveUpdates = (originalDocument: UnknownObject, updatedDocument: UnknownObject) => {
-  const diffs = diff(originalDocument, updatedDocument)
+  const diffs: Difference[] = diff(originalDocument, updatedDocument)
 
   const [writableDiffs, excludedDiffs] = split(diffs, (d) => !d.path.some((p) => excludeKeys.has(p)))
 
