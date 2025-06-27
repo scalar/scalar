@@ -4,10 +4,16 @@ import {
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
-  type Icon,
   type ModalState,
 } from '@scalar/components'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
+import {
+  ScalarIconBracketsCurly,
+  ScalarIconTag,
+  ScalarIconTerminalWindow,
+  ScalarIconTextAlignLeft,
+} from '@scalar/icons'
+import type { ScalarIconComponent } from '@scalar/icons/types'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
@@ -51,12 +57,12 @@ const {
   hideModels: props.hideModels,
 })
 
-const ENTRY_ICONS: { [x in EntryType]: Icon } = {
-  heading: 'DocsPage',
-  model: 'Brackets',
-  req: 'Terminal',
-  tag: 'CodeFolder',
-  webhook: 'Terminal',
+const ENTRY_ICONS: { [x in EntryType]: ScalarIconComponent } = {
+  heading: ScalarIconTextAlignLeft,
+  model: ScalarIconBracketsCurly,
+  req: ScalarIconTerminalWindow,
+  tag: ScalarIconTag,
+  webhook: ScalarIconTerminalWindow,
 }
 
 const ENTRY_LABELS: { [x in EntryType]: string } = {
@@ -223,24 +229,24 @@ function onSearchResultEnter() {
             entry.item.path !== entry.item.title
           "
           #description>
-          <span class="sr-only">Path:&nbsp;</span>
-          {{ entry.item.path }}
+          <span class="inline-flex items-center gap-1">
+            <template v-if="entry.item.type === 'req'">
+              <SidebarHttpBadge
+                aria-hidden="true"
+                :method="entry.item.httpVerb ?? 'get'" />
+              <span class="sr-only">
+                HTTP Method: {{ entry.item.httpVerb ?? 'get' }}
+              </span>
+            </template>
+            <span class="sr-only">Path:&nbsp;</span>
+            {{ entry.item.path }}
+          </span>
         </template>
         <template
           v-else-if="entry.item.description"
           #description>
           <span class="sr-only">Description:&nbsp;</span>
           {{ entry.item.description }}
-        </template>
-        <template
-          v-if="entry.item.type === 'req'"
-          #addon>
-          <SidebarHttpBadge
-            aria-hidden="true"
-            :method="entry.item.httpVerb ?? 'get'" />
-          <span class="sr-only">
-            HTTP Method: {{ entry.item.httpVerb ?? 'get' }}
-          </span>
         </template>
       </ScalarSearchResultItem>
       <template #query>
