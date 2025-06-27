@@ -7,6 +7,7 @@ import {
   type Icon,
   type ModalState,
 } from '@scalar/components'
+import { isDefined } from '@scalar/helpers/array/is-defined'
 import { scrollToId } from '@scalar/helpers/dom/scroll-to-id'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
@@ -155,7 +156,7 @@ function getFullUrlFromHash(href: string) {
 }
 
 function onSearchResultEnter() {
-  if (!selectedSearchIndex.value) {
+  if (!isDefined(selectedSearchIndex.value)) {
     return
   }
 
