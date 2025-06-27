@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.5.15
+
+### Patch Changes
+
+- 74fdc0e: feat: use documentUrl as fallback server
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- Updated dependencies [74fdc0e]
+- Updated dependencies [3fdc2f2]
+  - @scalar/oas-utils@0.4.11
+  - @scalar/components@0.14.16
+  - @scalar/themes@0.13.8
+  - @scalar/postman-to-openapi@0.3.14
+  - @scalar/use-codemirror@0.12.17
+
 ## 2.5.14
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/scripts
 
+## 0.0.17
+
+### Patch Changes
+
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- Updated dependencies [74fdc0e]
+- Updated dependencies [3fdc2f2]
+  - @scalar/oas-utils@0.4.11
+  - @scalar/components@0.14.16
+
 ## 0.0.16
 
 ### Patch Changes

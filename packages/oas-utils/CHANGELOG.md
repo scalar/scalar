@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.4.11
+
+### Patch Changes
+
+- 74fdc0e: feat: use documentUrl as fallback server
+- Updated dependencies [909cf33]
+- Updated dependencies [3fdc2f2]
+  - @scalar/workspace-store@0.8.0
+  - @scalar/themes@0.13.8
+
 ## 0.4.10
 
 ### Patch Changes

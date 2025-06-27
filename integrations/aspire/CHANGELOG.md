@@ -1,5 +1,15 @@
 # @scalar/aspire
 
+## 0.1.5
+
+### Patch Changes
+
+- ede220d: feat: add support for multi-platform docker build
+- Updated dependencies [67d8b9a]
+- Updated dependencies [2dc9f8d]
+- Updated dependencies [3fdc2f2]
+  - @scalar/api-reference@1.32.4
+
 ## 0.1.4
 
 ### Patch Changes

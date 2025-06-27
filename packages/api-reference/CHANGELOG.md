@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.32.4
+
+### Patch Changes
+
+- 67d8b9a: fix: updates defined value check in search modal enter action
+- 2dc9f8d: style: improve search result rendering
+- 3fdc2f2: feat(api-reference): unify inconsistent font styles across scalar client and ref, and improve consistency"
+- Updated dependencies [909cf33]
+- Updated dependencies [74fdc0e]
+- Updated dependencies [3fdc2f2]
+  - @scalar/workspace-store@0.8.0
+  - @scalar/api-client@2.5.15
+  - @scalar/oas-utils@0.4.11
+  - @scalar/components@0.14.16
+  - @scalar/themes@0.13.8
+  - @scalar/code-highlight@0.1.5
+
 ## 1.32.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/workspace-store
 
+## 0.8.0
+
+### Minor Changes
+
+- 909cf33: feat(workspace-store): add workspace specification schema
+
+### Patch Changes
+
+- @scalar/code-highlight@0.1.5
+
 ## 0.7.1
 
 ### Patch Changes
