@@ -565,7 +565,7 @@ describe('create-workspace-store', () => {
   it('correctly get the config #1', () => {
     const store = createWorkspaceStore({
       config: {
-        'x-scalar-reference-config': {
+        'x-scalar-api-reference-config': {
           features: {
             showDownload: false,
           },
@@ -576,7 +576,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    expect(store.config['x-scalar-reference-config']).toEqual({
+    expect(store.config['x-scalar-api-reference-config']).toEqual({
       ...defaultReferenceConfig,
       features: {
         ...defaultReferenceConfig.features,
@@ -592,7 +592,7 @@ describe('create-workspace-store', () => {
   it('correctly get the config #2', () => {
     const store = createWorkspaceStore({
       config: {
-        'x-scalar-reference-config': {
+        'x-scalar-api-reference-config': {
           appearance: {
             css: 'body { background: #f0f0f0; }',
           },
@@ -608,7 +608,7 @@ describe('create-workspace-store', () => {
         paths: {},
       },
       config: {
-        'x-scalar-reference-config': {
+        'x-scalar-api-reference-config': {
           features: {
             showDownload: false,
           },
@@ -619,7 +619,7 @@ describe('create-workspace-store', () => {
       },
     })
 
-    expect(store.config['x-scalar-reference-config']).toEqual({
+    expect(store.config['x-scalar-api-reference-config']).toEqual({
       ...defaultReferenceConfig,
       features: {
         ...defaultReferenceConfig.features,

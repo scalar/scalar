@@ -12,7 +12,7 @@ import type { DeepTransform, MutableArray } from '@/types'
  * for the API Reference. All properties are optional due to Type.Partial.
  * This schema is used for validating and typing the configuration.
  */
-export const ReferenceConfigSchema = Type.Partial(
+export const ApiReferenceConfigSchema = Type.Partial(
   Type.Object({
     /** Document level title */
     title: Type.String(),
@@ -37,7 +37,7 @@ export const ReferenceConfigSchema = Type.Partial(
   }),
 )
 
-export type ReferenceConfig = Static<typeof ReferenceConfigSchema>
+export type ReferenceConfig = Static<typeof ApiReferenceConfigSchema>
 
 export const defaultReferenceConfig: DeepTransform<ReferenceConfig, 'NonNullable'> = {
   title: 'Scalar API Reference',

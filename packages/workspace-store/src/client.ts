@@ -53,7 +53,7 @@ type ObjectDoc = {
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
-  'x-scalar-reference-config': defaultReferenceConfig,
+  'x-scalar-api-reference-config': defaultReferenceConfig,
 }
 
 /**

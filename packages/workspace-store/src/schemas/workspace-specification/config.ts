@@ -1,9 +1,9 @@
-import { ReferenceConfigSchema } from '@/schemas/reference-config'
+import { ApiReferenceConfigSchema } from '@/schemas/reference-config'
 import { Type, type Static } from '@sinclair/typebox'
 
 export const ConfigSchema = Type.Partial(
   Type.Object({
-    'x-scalar-reference-config': ReferenceConfigSchema,
+    'x-scalar-api-reference-config': ApiReferenceConfigSchema,
   }),
 )
 
