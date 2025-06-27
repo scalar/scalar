@@ -482,4 +482,44 @@ describe('shellCurl', () => {
   "simple": "value"
 }'`)
   })
+
+  it('handles URLs with dollar sign characters', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/path$with$dollars',
+    })
+
+    expect(result).toBe(`curl 'https://example.com/path$with$dollars'`)
+  })
+
+  it('handles URLs with dollar signs in query parameters', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'price',
+          value: '$100',
+        },
+        {
+          name: 'currency',
+          value: 'USD$',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://example.com?price=%24100&currency=USD%24'`)
+  })
+
+  it('handles URLs with dollar signs in path and query', () => {
+    const result = shellCurl.generate({
+      url: 'https://example.com/api$v1/prices',
+      queryString: [
+        {
+          name: 'amount',
+          value: '$50.00',
+        },
+      ],
+    })
+
+    expect(result).toBe(`curl 'https://example.com/api$v1/prices?amount=%2450.00'`)
+  })
 })
