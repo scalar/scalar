@@ -397,7 +397,7 @@ describe('load', async () => {
     expect(errors).toMatchObject([
       {
         code: 'EXTERNAL_REFERENCE_NOT_FOUND',
-        message: 'Can’t resolve external reference: INVALID',
+        message: "Can't resolve external reference: INVALID",
       },
     ])
   })
@@ -408,6 +408,6 @@ describe('load', async () => {
         plugins: [readFiles(), fetchUrls()],
         throwOnError: true,
       })
-    }).rejects.toThrowError('Can’t resolve external reference: INVALID')
+    }).rejects.toThrowError("Can't resolve external reference: INVALID")
   })
 })

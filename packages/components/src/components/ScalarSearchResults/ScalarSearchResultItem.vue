@@ -19,7 +19,7 @@ const { cx } = useBindCx()
     tabindex="-1"
     v-bind="
       cx(
-        'group flex cursor-pointer gap-2.5 rounded px-3 py-1.5 no-underline hover:bg-b-2',
+        'group flex cursor-pointer gap-2 rounded px-2 py-1.5 no-underline hover:bg-b-2',
         { 'bg-b-2': selected },
       )
     ">
@@ -31,8 +31,7 @@ const { cx } = useBindCx()
         <ScalarIconLegacyAdapter
           v-if="icon"
           :icon="icon"
-          size="sm"
-          weight="bold" />
+          class="size-4" />
       </slot>
       <span>&hairsp;</span>
     </div>
@@ -40,18 +39,18 @@ const { cx } = useBindCx()
     <div class="flex min-w-0 flex-1 flex-col gap-0.75">
       <div class="flex items-center gap-1">
         <div
-          class="flex-1 truncate zoomed:!whitespace-normal break-words text-sm font-medium">
+          class="flex-1 truncate zoomed:!whitespace-normal break-words text-base font-medium">
           <slot />
         </div>
         <div
           v-if="$slots.addon"
-          class="text-sm text-c-2">
+          class="text-base text-c-2">
           <slot name="addon" />
         </div>
       </div>
       <div
         v-if="$slots.description"
-        class="truncate zoomed:!whitespace-normal break-words text-sm text-c-2">
+        class="truncate zoomed:!whitespace-normal break-words text-base text-c-2">
         <slot name="description" />
       </div>
     </div>

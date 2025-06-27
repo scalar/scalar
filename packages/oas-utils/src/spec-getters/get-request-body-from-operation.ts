@@ -74,7 +74,7 @@ export function getRequestBodyFromOperation(
   /** Examples */
   const examples = content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
-  // Let’s use the first example
+  // Let's use the first example
   const selectedExample = examples?.[selectedExampleKey ?? Object.keys(examples ?? {})[0] ?? '']
 
   if (selectedExample) {

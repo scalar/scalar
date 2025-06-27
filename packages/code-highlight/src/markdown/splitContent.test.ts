@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { splitContent } from './markdown'
 
 describe('splitContent', () => {
-  it('returns a single document if there’s no heading', () => {
+  it("returns a single document if there's no heading", () => {
     const sections = splitContent('Foobar')
 
     expect(sections).toMatchObject(['Foobar'])

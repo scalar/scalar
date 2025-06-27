@@ -17,7 +17,7 @@ npm install @scalar/scripts
 
 ## Usage
 
-> ⚠️ This is not published yet, it’s still work in progress.
+> ⚠️ This is not published yet, it's still work in progress.
 
 ```ts
 import { createApiClientWeb } from '@scalar/api-client/layouts/Web'
@@ -38,7 +38,7 @@ createApiClientWeb(
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

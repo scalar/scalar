@@ -45,7 +45,7 @@ This will also update / override the exports in the index file at `src/index.ts`
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

@@ -94,7 +94,7 @@ func isBlockedHost(host string) bool {
 }
 
 // Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
-// behave like server-side requests (or let’s say like `curl`).
+// behave like server-side requests (or let's say like `curl`).
 func main() {
 	// The default port
 	port := ":1337"
@@ -321,7 +321,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		return err
 	}
 
-	// Copy the headers but exclude Origin. It’s not required and might confuse some target servers.
+	// Copy the headers but exclude Origin. It's not required and might confuse some target servers.
 	for key, values := range r.Header {
 		if !strings.EqualFold(strings.ToLower(key), "origin") {
 			outreq.Header[key] = values

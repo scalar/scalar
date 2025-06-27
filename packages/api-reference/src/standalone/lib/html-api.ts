@@ -2,8 +2,8 @@ import type { ReferenceProps } from '@/types'
 import {
   type AnyApiReferenceConfiguration,
   type ApiReferenceConfiguration,
-  apiReferenceConfigurationSchema,
   type CreateApiReference,
+  apiReferenceConfigurationSchema,
 } from '@scalar/types/api-reference'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
@@ -37,7 +37,7 @@ export function getConfigurationFromDataAttributes(doc: Document): ApiReferenceC
   }
 
   const getUrl = () => {
-    // Let’s first check if the user passed a spec URL in the configuration.
+    // Let's first check if the user passed a spec URL in the configuration.
     if (getConfiguration().url) {
       return getConfiguration().url
     }

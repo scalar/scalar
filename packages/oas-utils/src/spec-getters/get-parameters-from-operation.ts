@@ -23,7 +23,7 @@ export function getParametersFromOperation(
   const params = parameters
     // query, path, header, cookie?
     .filter((parameter) => parameter.in === where)
-    // don’t add optional parameters
+    // don't add optional parameters
     .filter((parameter) => (requiredOnly && parameter.required) || !requiredOnly)
     // transform them
     .map((parameter) => ({

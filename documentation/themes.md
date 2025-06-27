@@ -1,6 +1,6 @@
 # Themes
 
-You don’t like the color scheme? We’ve prepared some themes for you:
+You don't like the color scheme? We've prepared some themes for you:
 
 ```vue
 /* theme?: 'alternate' | 'default' | 'moon' | 'purple' | 'solarized' |
@@ -12,7 +12,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 > The `default` theme is … the default theme.
 > If you want to make sure **no** theme is applied, pass `none`.
 
-Wow, still nothing that fits your brand? Reach out to <support@scalar.com> and we’ll make you a custom theme, just for you.
+Wow, still nothing that fits your brand? Reach out to <support@scalar.com> and we'll make you a custom theme, just for you.
 
 ## Layouts
 
@@ -24,9 +24,9 @@ We support two layouts at the moment, a `modern` layout (the default) and a Swag
 ## Advanced: Styling
 
 You can pretty much style everything you see.
-[Here’s an extreme example of what’s possible.](https://windows98.apidocumentation.com/)
+[Here's an extreme example of what's possible.](https://windows98.apidocumentation.com/)
 
-To get started, overwrite our CSS variables. We won’t judge.
+To get started, overwrite our CSS variables. We won't judge.
 
 ```html
 <style>
@@ -38,7 +38,7 @@ To get started, overwrite our CSS variables. We won’t judge.
 ```
 
 > [!NOTE]\
-> By default, we’re using Inter and JetBrains Mono, served by our in-house CDN.
+> By default, we're using Inter and JetBrains Mono, served by our in-house CDN.
 
 If you want use a different font or want to use Google Fonts, pass `withDefaultFonts: false` to the configuration and overwrite the `--scalar-font` and `--scalar-font-code` CSS variables. You will also need to provide the source of your new font which can be local or served over the network.
 

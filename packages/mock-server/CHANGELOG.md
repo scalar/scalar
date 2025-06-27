@@ -1,5 +1,25 @@
 # @scalar/mock-server
 
+## 0.5.13
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/openapi-parser@0.18.1
+  - @scalar/openapi-types@0.3.5
+  - @scalar/oas-utils@0.4.10
+
+## 0.5.12
+
+### Patch Changes
+
+- Updated dependencies [533469b]
+- Updated dependencies [23b150b]
+  - @scalar/openapi-types@0.3.4
+  - @scalar/oas-utils@0.4.9
+  - @scalar/openapi-parser@0.18.0
+
 ## 0.5.11
 
 ### Patch Changes

@@ -52,7 +52,7 @@ app.get('/scalar', Scalar({
 
 ### Custom page title
 
-There’s one additional option to set the page title:
+There's one additional option to set the page title:
 
 ```ts
 import { Scalar } from '@scalar/hono-api-reference'

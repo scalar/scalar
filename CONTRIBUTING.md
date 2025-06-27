@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions are welcome. We’re using [pnpm](https://pnpm.io/).
+Contributions are welcome. We're using [pnpm](https://pnpm.io/).
 
 ## Development setup
 
@@ -38,7 +38,7 @@ These scripts use [`turbo`](https://turbo.build/) to build all the dependencies 
 
 Most packages have a bunch of tests, mostly for all the helper functions we use.
 
-It’s worth to check the tests locally before sending contributions: `$ pnpm test`
+It's worth to check the tests locally before sending contributions: `$ pnpm test`
 
 If you want to add a test and only run your test file, you can filter the test suite like this: `$ pnpm test your-test`
 
@@ -50,7 +50,7 @@ pnpm dev:proxy-server
 ```
 ## PRs
 
-Don’t worry, we’ll help you to get your PR in. But here is how you can help us:
+Don't worry, we'll help you to get your PR in. But here is how you can help us:
 
 ### Semantic PR titles
 

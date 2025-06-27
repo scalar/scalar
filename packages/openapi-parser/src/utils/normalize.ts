@@ -7,7 +7,7 @@ import { isFilesystem } from './is-filesystem'
 /**
  * Normalize the OpenAPI document (YAML, JSON, object) to a JavaScript object.
  *
- * Doesn’t modify the object if it’s a `Filesystem` (multiple files) already.
+ * Doesn't modify the object if it's a `Filesystem` (multiple files) already.
  */
 export function normalize(content: string | UnknownObject | Filesystem): UnknownObject | Filesystem {
   if (content === null) {

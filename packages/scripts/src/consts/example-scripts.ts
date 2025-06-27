@@ -20,7 +20,7 @@ export const EXAMPLE_SCRIPTS: ExampleScript[] = [
       body: { success: true },
     },
   },
-  // TODO: We didn’t add the proper response duration yet.
+  // TODO: We didn't add the proper response duration yet.
   //   {
   //     title: 'Check response time',
   //     script: `pm.test("Response time is acceptable", () => {

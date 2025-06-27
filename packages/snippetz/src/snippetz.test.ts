@@ -80,7 +80,7 @@ describe('hasPlugin', async () => {
     expect(result).toBe(true)
   })
 
-  it('returns false if it doesn’t know the plugin', async () => {
+  it("returns false if it doesn't know the plugin", async () => {
     const result = snippetz().hasPlugin('node', 'fantasy')
 
     expect(result).toBe(false)

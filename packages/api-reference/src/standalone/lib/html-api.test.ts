@@ -247,11 +247,11 @@ describe('html-api', () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('The [data-spec-url] HTML API is deprecated'))
     })
 
-    // We can’t log an error anymore, otherwise it would always show for people using the new JS-based API.
+    // We can't log an error anymore, otherwise it would always show for people using the new JS-based API.
     it.skip('handles missing spec elements with error', () => {
       expect(getConfigurationFromDataAttributes(document)).toStrictEqual(baseConfig)
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
+        "Couldn't find a [data-spec], [data-spec-url] or <script id='api-reference' /> element. Try adding it like this: %c<div data-spec-url='https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml' />",
         'font-family: monospace;',
       )
     })

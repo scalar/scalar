@@ -1,5 +1,11 @@
 # @scalar/react-renderer
 
+## 0.2.1
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.2.0
 
 ### Minor Changes

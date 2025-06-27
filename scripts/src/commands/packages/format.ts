@@ -3,8 +3,8 @@ import path from 'node:path'
 import prettier from 'prettier'
 
 import { getWorkspaceRoot } from '@/helpers'
-import { Command } from 'commander'
 import as from 'ansis'
+import { Command } from 'commander'
 
 const command = new Command('format')
 
@@ -50,7 +50,7 @@ export async function formatJson(json: string) {
  * Sorts, defaults and overrides keys as specified in the definitions below
  */
 
-/** While we strive to make everything ESM, we just accept that some packages aren’t ESM. */
+/** While we strive to make everything ESM, we just accept that some packages aren't ESM. */
 const NO_MODULE_PACKAGES = [
   'scalar-app',
   '@scalar/docusaurus',

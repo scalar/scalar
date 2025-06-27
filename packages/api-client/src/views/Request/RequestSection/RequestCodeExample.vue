@@ -272,6 +272,6 @@ const customCodeContent = computed(() => {
 </template>
 <style scoped>
 :deep(code.hljs *) {
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
 }
 </style>

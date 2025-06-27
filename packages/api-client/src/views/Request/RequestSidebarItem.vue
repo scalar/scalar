@@ -106,7 +106,7 @@ const item = computed<SidebarItem>(() => {
             }
           : undefined,
       warning:
-        'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
+        "This cannot be undone. You're about to delete the collection and all folders and requests inside it.",
       edit: (name: string, icon?: string) => {
         collectionMutators.edit(collection.uid, 'info.title', name)
         if (icon) {
@@ -128,7 +128,7 @@ const item = computed<SidebarItem>(() => {
       resourceTitle: 'Tag',
       children: tag.children,
       warning:
-        'This cannot be undone. You’re about to delete the tag and all requests inside it',
+        "This cannot be undone. You're about to delete the tag and all requests inside it",
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
       delete: () =>
         parentUids[0] &&
@@ -149,7 +149,7 @@ const item = computed<SidebarItem>(() => {
       method: request.method,
       entity: request,
       resourceTitle: 'Request',
-      warning: 'This cannot be undone. You’re about to delete the request.',
+      warning: "This cannot be undone. You're about to delete the request.",
       children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
@@ -174,7 +174,7 @@ const item = computed<SidebarItem>(() => {
       entity: requestExample,
       resourceTitle: 'Example',
       warning:
-        'This cannot be undone. You’re about to delete the example from the request.',
+        "This cannot be undone. You're about to delete the example from the request.",
       children: [],
       edit: (name: string) =>
         requestExampleMutators.edit(requestExample.uid, 'name', name),
@@ -398,7 +398,7 @@ const shouldShowItem = computed(() => {
       :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
-      class="gap-1/2 flex flex-1 flex-col text-sm"
+      class="gap-1/2 flex flex-1 flex-col text-base"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
@@ -422,10 +422,10 @@ const shouldShowItem = computed(() => {
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
-              ? 'bg-sidebar-b-active text-sidebar-c-active transition-none'
+              ? 'bg-sidebar-b-active text-sidebar-c-active font-medium transition-none'
               : 'text-sidebar-c-2',
           ]">
-          <span class="line-clamp-1 w-full pl-2 font-medium break-all">
+          <span class="line-clamp-1 w-full pl-2 break-all">
             {{ item.title || 'Untitled' }}
           </span>
           <div class="flex flex-row items-center gap-1">

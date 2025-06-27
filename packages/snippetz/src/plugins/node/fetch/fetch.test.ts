@@ -40,7 +40,7 @@ describe('nodeFetch', () => {
 })`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = nodeFetch.generate({
       url: 'https://example.com',
       headers: [],
@@ -143,7 +143,7 @@ describe('nodeFetch', () => {
 })`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = nodeFetch.generate({
       url: 'https://example.com',
       cookies: [],

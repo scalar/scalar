@@ -7,7 +7,7 @@
 
 An Hono server that responds with the request data. Kind of a mirror for HTTP requests.
 
-It’s running on <https://void.scalar.com>, feel free to use it.
+It's running on <https://void.scalar.com>, feel free to use it.
 
 ## Examples
 
@@ -48,7 +48,7 @@ serve(
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

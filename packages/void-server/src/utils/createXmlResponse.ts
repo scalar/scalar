@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-// @ts-expect-error Doesn’t come with types
+// @ts-expect-error Doesn't come with types
 import objectToXML from 'object-to-xml'
 
 /**

@@ -1,7 +1,7 @@
 import path from 'node:path'
 /**
  * This file has some simple tests to cover the basics of the resolveReferences function.
- * Doesn’t cover all edge cases, doesn’t have big files, but if this works you’re almost there.
+ * Doesn't cover all edge cases, doesn't have big files, but if this works you're almost there.
  */
 import SwaggerParser from '@apidevtools/swagger-parser'
 import { describe, expect, it } from 'vitest'
@@ -43,7 +43,7 @@ describe('resolveReferences', () => {
     expect(schema.paths['/foobar'].post.requestBody.content).not.toBe(undefined)
   })
 
-  it('returns an error when a reference can’t be found', async () => {
+  it("returns an error when a reference can't be found", async () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -64,12 +64,12 @@ describe('resolveReferences', () => {
     // Assertion
     expect(errors).not.toBe(undefined)
     expect(errors).not.toStrictEqual([])
-    expect(errors[0].message).toBe('Can’t resolve reference: #/components/WrongReference')
+    expect(errors[0].message).toBe("Can't resolve reference: #/components/WrongReference")
     expect(errors.length).toBe(1)
     expect(valid).toBe(false)
   })
 
-  it('returns an error when an external reference can’t be found', async () => {
+  it("returns an error when an external reference can't be found", async () => {
     const specification = {
       openapi: '3.1.0',
       info: {},
@@ -90,7 +90,7 @@ describe('resolveReferences', () => {
     // Assertion
     expect(errors).not.toBe(undefined)
     expect(errors).not.toStrictEqual([])
-    expect(errors[0].message).toBe('Can’t resolve external reference: foo/bar/foobar.yaml')
+    expect(errors[0].message).toBe("Can't resolve external reference: foo/bar/foobar.yaml")
     expect(errors.length).toBe(1)
     expect(valid).toBe(false)
   })
@@ -125,7 +125,7 @@ describe('resolveReferences', () => {
         }
 
         if (result === undefined) {
-          reject('Couldn’t parse the Swagger file.')
+          reject("Couldn't parse the Swagger file.")
 
           return
         }
@@ -179,7 +179,7 @@ describe('resolveReferences', () => {
         }
 
         if (result === undefined) {
-          reject('Couldn’t parse the Swagger file.')
+          reject("Couldn't parse the Swagger file.")
 
           return
         }
@@ -382,7 +382,7 @@ describe('resolveReferences', () => {
 
     const { schema } = resolveReferences(partialSpecification)
 
-    // Circular references can’t be JSON.stringify’d (easily)
+    // Circular references can't be JSON.stringify'd (easily)
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
 
     // Sky is the limit
@@ -412,10 +412,10 @@ describe('resolveReferences', () => {
       },
     }
 
-    // Typecasting: We’re misusing the function and pass a partial specification only.
+    // Typecasting: We're misusing the function and pass a partial specification only.
     const { schema } = resolveReferences(partialSpecification) as any
 
-    // Circular references can’t be JSON.stringify’d (easily)
+    // Circular references can't be JSON.stringify'd (easily)
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
 
     // Sky is the liit
@@ -448,7 +448,7 @@ describe('resolveReferences', () => {
     expect(schema.properties.element.properties.element.type).toBe('object')
     expect(schema.properties.element.properties.element.properties.element.type).toBe('object')
 
-    // Circular references can’t be JSON.stringify’d (easily)
+    // Circular references can't be JSON.stringify'd (easily)
     expect(() => JSON.stringify(schema, null, 2)).toThrow()
   })
 

@@ -1,5 +1,35 @@
 # @scalar/oas-utils
 
+## 0.4.10
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/openapi-types@0.3.5
+  - @scalar/object-utils@1.2.2
+  - @scalar/helpers@0.0.6
+  - @scalar/themes@0.13.7
+  - @scalar/types@0.2.6
+  - @scalar/workspace-store@0.7.1
+
+## 0.4.9
+
+### Patch Changes
+
+- 23b150b: fix: operation to har helper with real world usecases
+- Updated dependencies [533469b]
+- Updated dependencies [a05d638]
+- Updated dependencies [8d8e427]
+- Updated dependencies [23b150b]
+- Updated dependencies [dbbdd70]
+- Updated dependencies [23b150b]
+  - @scalar/openapi-types@0.3.4
+  - @scalar/workspace-store@0.7.0
+  - @scalar/helpers@0.0.5
+  - @scalar/types@0.2.5
+  - @scalar/themes@0.13.6
+
 ## 0.4.8
 
 ### Patch Changes

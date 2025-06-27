@@ -96,7 +96,7 @@ npx @scalar/cli document serve ./src/documents/3.1.yaml --watch
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

@@ -54,7 +54,7 @@ OpenApiObjectSchema.parse({
 })
 ```
 
-What’s “unprocessed”? It’s for the content of a “raw” OpenAPI document, that might still contain `$ref`s (references).
+What's “unprocessed”? It's for the content of a “raw” OpenAPI document, that might still contain `$ref`s (references).
 
 We also provide Zod schemas for processed OpenAPI documents, where the `$ref`s are resolved already:
 
@@ -88,7 +88,7 @@ const MyCustomSchema = OpenApiObjectSchema
   })
 ```
 
-This will get a little bit more complex when you want to add a property to something that’s deeply nested:
+This will get a little bit more complex when you want to add a property to something that's deeply nested:
 
 ```ts
 import { OpenApiObjectSchema } from '@scalar/openapi-types/schemas/3.1/unprocessed'
@@ -106,7 +106,7 @@ const MyCustomSchema = OpenApiObjectSchema
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

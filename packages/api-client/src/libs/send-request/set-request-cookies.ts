@@ -1,5 +1,5 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
-import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
@@ -84,23 +84,23 @@ export function setRequestCookies({
 const determineCookieDomain = (url: string) => {
   const hostname = new URL(url.startsWith('http') ? url : `http://${url}`).hostname
 
-  // If it’s an IP, just return it
+  // If it's an IP, just return it
   if (hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
     return hostname
   }
 
-  // If it’s IPv6, just return it
+  // If it's IPv6, just return it
   if (hostname.match(/^[a-fA-F0-9:]+$/)) {
     return hostname
   }
 
-  // If it’s a hostname, return it with a dot
+  // If it's a hostname, return it with a dot
   return hostname.startsWith('.') ? hostname : `.${hostname}`
 }
 
 /**
  * Matches, when:
- * - Isn’t scoped to a domain, or
+ * - Isn't scoped to a domain, or
  * - matches the current host, or
  * - or ends with the current host, or
  * - matches the current host with a wildcard.
@@ -117,7 +117,7 @@ export const matchesDomain = (givenUrl?: string, configuredHostname?: string): b
     // Get just the hostname
     const givenHostname = new URL(urlWithProtocol).hostname
 
-    // Let’s see if the configured hostname matches the given hostname in some way
+    // Let's see if the configured hostname matches the given hostname in some way
     const noHostnameConfigured = !configuredHostname
     const hostnameMatches = configuredHostname === givenHostname
     const domainMatchesWildcard = configuredHostname.startsWith('.') && configuredHostname === `.${givenHostname}`

@@ -8,7 +8,7 @@ Scalar makes for a great alternative to Stoplight thanks to its similar features
 
 On top of this, Scalar provides added benefits like:
 
-- **Better pricing.** Most of the features of Scalar can be used for free and the pro plan is only $12/month compared to Stoplight’s $52/month.
+- **Better pricing.** Most of the features of Scalar can be used for free and the pro plan is only $12/month compared to Stoplight's $52/month.
 - **Open source.** Scalar is fully open source and self-hostable.
 - **Built-in API client.** Scalar has also built an API client into the API reference, enabling users to send test requests straight from the docs.
 
@@ -19,11 +19,11 @@ If you want to try Scalar, there are two ways of migrating:
 
 ## Using GitHub sync
 
-If you are using Stoplight’s Git project feature, you can migrate easily using Scalar’s GitHub sync feature. It enables you to create and publish an API reference from a GitHub repo with nearly the same structure as Stoplight.
+If you are using Stoplight's Git project feature, you can migrate easily using Scalar's GitHub sync feature. It enables you to create and publish an API reference from a GitHub repo with nearly the same structure as Stoplight.
 
-> **Don’t have an API docs GitHub repo?** You can also create one from the exported Stoplight project ZIP which we detail later.
+> **Don't have an API docs GitHub repo?** You can also create one from the exported Stoplight project ZIP which we detail later.
 
-To start, sign up and subscribe to [Scalar’s Pro plan](https://dashboard.scalar.com/?plans). Afterwards, in your API doc’s GitHub repo, create a `scalar.config.json` file. Add the details on your subdomain like `very-cool-api`, guides like `How-to-be-cool.md`, and OpenAPI document like `galaxy.json` like this:
+To start, sign up and subscribe to [Scalar's Pro plan](https://dashboard.scalar.com/?plans). Afterwards, in your API doc's GitHub repo, create a `scalar.config.json` file. Add the details on your subdomain like `very-cool-api`, guides like `How-to-be-cool.md`, and OpenAPI document like `galaxy.json` like this:
 
 ```json
 {
@@ -83,15 +83,15 @@ After adding the `scalar.config.json` file to your repo, head to Scalar. On the 
 
 ![Syncing in Scalar](https://cdn.scalar.com/images/blog/sl-sync.png)
 
-Once the site is built and deployed, you’ll be able to see it at the URL you set in `scalar.config.json`.
+Once the site is built and deployed, you'll be able to see it at the URL you set in `scalar.config.json`.
 
 ![Published API Reference](https://cdn.scalar.com/images/blog/sl-api.png)
 
 ## Manually exporting data from Stoplight
 
-If you aren’t using Stoplight’s Git projects feature or just want to customize the migration details, you can manually export your Stoplight project data and add it to Scalar.
+If you aren't using Stoplight's Git projects feature or just want to customize the migration details, you can manually export your Stoplight project data and add it to Scalar.
 
-To start with this, go to your project’s studio page, click the three line drop down in the top right, and click **Download project ZIP**.
+To start with this, go to your project's studio page, click the three line drop down in the top right, and click **Download project ZIP**.
 
 ![Downloading the project ZIP](https://cdn.scalar.com/images/blog/sl-zip.png)
 
@@ -112,7 +112,7 @@ If you only want to upload and use the OpenAPI document as a reference, you can 
 
 1. [Sign up for a Scalar account](https://dashboard.scalar.com/register).
 2. In Scalar, create a new documentation project.
-3. Once created, select the **reference** tab, upload your exported OpenAPI doc, and you’ll have a fully functional and customizable API reference set up.
+3. Once created, select the **reference** tab, upload your exported OpenAPI doc, and you'll have a fully functional and customizable API reference set up.
 
 ![Editing the OpenAPI doc](https://cdn.scalar.com/images/blog/sl-edit.png)
 

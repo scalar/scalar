@@ -35,7 +35,7 @@ describe('ApiReference', () => {
       wrapper.unmount()
     })
 
-    it('doesn’t render the select when there is only one configuration', async () => {
+    it(`doesn't render the select when there is only one configuration`, async () => {
       const wrapper = mount(ApiReference, {
         props: {
           configuration: [
@@ -59,7 +59,7 @@ describe('ApiReference', () => {
       expect(wrapper.findAllComponents({ name: 'ApiReferenceWorkspace' })).toHaveLength(1)
       const documentSelector = wrapper.findComponent({ name: 'DocumentSelector' })
 
-      // Check whether it doesn’t render the select
+      // Check whether it doesn't render the select
       expect(documentSelector.html()).toBe('<!--v-if-->')
       wrapper.unmount()
     })

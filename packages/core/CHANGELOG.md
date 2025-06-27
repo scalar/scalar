@@ -1,5 +1,19 @@
 # @scalar/core
 
+## 0.3.6
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/types@0.2.6
+
+## 0.3.5
+
+### Patch Changes
+
+- @scalar/types@0.2.5
+
 ## 0.3.4
 
 ### Patch Changes

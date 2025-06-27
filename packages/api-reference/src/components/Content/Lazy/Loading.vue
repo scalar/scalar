@@ -41,16 +41,19 @@ import { getModels } from '@/libs/openapi'
  * - need to handle case of last operation/model
  * - need to find an event for codemirror loaded, currently using timeout for models
  */
-const { document, collection, server, layout, parsedSpec } = withDefaults(
-  defineProps<{
-    document: OpenAPIV3_1.Document
-    collection: Collection
-    server?: Server
-    layout?: 'modern' | 'classic'
-    parsedSpec: Spec
-  }>(),
-  { layout: 'modern' },
-)
+const {
+  document,
+  collection,
+  server,
+  layout = 'modern',
+  parsedSpec,
+} = defineProps<{
+  document: OpenAPIV3_1.Document
+  collection: Collection
+  server?: Server
+  layout?: 'modern' | 'classic'
+  parsedSpec: Spec
+}>()
 
 const hideTag = ref(false)
 
@@ -193,6 +196,7 @@ onMounted(() => {
         v-if="tag.operations && tag.operations.length > 0"
         :collection="collection"
         :spec="parsedSpec"
+        id="lazy-{{ getTagId(tag) }}"
         :tag="tag">
         <Operation
           v-for="transformedOperation in tag.lazyOperations"

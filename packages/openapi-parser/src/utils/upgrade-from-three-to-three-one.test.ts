@@ -23,7 +23,7 @@ describe('isSchemaPath', () => {
 
 describe('upgradeFromThreeToThreeOne', () => {
   describe('version', () => {
-    it('doesn’t modify Swagger 2.0 files', async () => {
+    it(`doesn't modify Swagger 2.0 files`, async () => {
       const result = upgradeFromThreeToThreeOne({
         swagger: '2.0',
         info: {
@@ -204,10 +204,10 @@ describe('upgradeFromThreeToThreeOne', () => {
         in: 'query',
         schema: {
           type: 'integer',
-          // array, because it’s in a schema
+          // array, because it's in a schema
           examples: [10],
         },
-        // object, because it’s not in a schema
+        // object, because it's not in a schema
         examples: {
           default: {
             value: 10,
@@ -216,7 +216,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
     })
 
-    it('doesn’t transform arrays into objects', () => {
+    it(`doesn't transform arrays into objects`, () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {

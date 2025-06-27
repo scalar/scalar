@@ -45,7 +45,7 @@ describe('normalize', () => {
     expect(normalize(obj)).toBe(obj)
   })
 
-  it('doesn’t freak out on invalid JSON strings ', () => {
+  it("doesn't freak out on invalid JSON strings ", () => {
     // Missing quotes around property name
     const malformedJson = '{ foo: "bar" }'
     expect(normalize(malformedJson)).toEqual(undefined)

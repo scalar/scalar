@@ -11,7 +11,7 @@ describe('prettyPrintJson', () => {
     expect(prettyPrintJson({ foo: 'bar' })).toMatch(`{\n  "foo": "bar"\n}`)
   })
 
-  it('doesn’t touch regular strings', async () => {
+  it("doesn't touch regular strings", async () => {
     expect(prettyPrintJson('foo')).toBe('foo')
   })
 

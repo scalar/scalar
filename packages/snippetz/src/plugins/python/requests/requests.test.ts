@@ -37,7 +37,7 @@ describe('pythonRequests', () => {
 )`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',
       headers: [],
@@ -120,7 +120,7 @@ describe('pythonRequests', () => {
 )`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',
       cookies: [],
@@ -299,7 +299,7 @@ describe('pythonRequests', () => {
     expect(result).toBe('requests.get("")')
   })
 
-  it('doesn’t add a line break for a short URL', () => {
+  it(`doesn't add a line break for a short URL`, () => {
     const result = pythonRequests.generate({
       url: 'https://example.com',
     })

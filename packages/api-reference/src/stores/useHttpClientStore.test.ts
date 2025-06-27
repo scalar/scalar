@@ -107,7 +107,7 @@ describe('useHttpClientStore', () => {
     ])
   })
 
-  it('doesn’t filter anything', () => {
+  it("doesn't filter anything", () => {
     expect(
       filterHiddenClients(
         [

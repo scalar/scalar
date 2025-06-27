@@ -103,7 +103,7 @@ const deleteWorkspace = async () => {
 
 <template>
   <div>
-    <div class="flex w-[inherit] items-center text-sm">
+    <div class="flex w-[inherit] items-center text-base">
       <ScalarDropdown>
         <ScalarButton
           class="text-c-1 hover:bg-b-2 line-clamp-1 h-full w-fit justify-start px-1.5 py-1.5 font-normal"
@@ -188,7 +188,7 @@ const deleteWorkspace = async () => {
       title="Delete workspace">
       <DeleteSidebarListElement
         :variableName="tempName"
-        warningMessage="This cannot be undone. You’re about to delete the workspace and everything inside it."
+        warningMessage="This cannot be undone. You're about to delete the workspace and everything inside it."
         @close="deleteModal.hide()"
         @delete="deleteWorkspace" />
     </ScalarModal>

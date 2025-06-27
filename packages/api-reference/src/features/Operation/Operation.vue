@@ -36,7 +36,7 @@ const {
 const store = useWorkspace()
 
 /**
- * NEW: We’re using the dereferenced document to get the operation.
+ * NEW: We're using the dereferenced document to get the operation.
  *
  * This will come from the new workspace store soon.
  *
@@ -59,7 +59,7 @@ const { handleDiscriminatorChange } = useOperationDiscriminator(
 /**
  * Resolve the matching operation from the store
  *
- * @deprecated TODO: In the future, we won’t need this. We want to work with more or less plain OpenAPI objects.
+ * @deprecated TODO: In the future, we won't need this. We want to work with more or less plain OpenAPI objects.
  */
 const { operation: request } = useBlockProps({
   store,

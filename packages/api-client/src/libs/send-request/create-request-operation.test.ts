@@ -11,8 +11,8 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
-import { createRequestOperation } from './create-request-operation'
 import * as electron from '../electron'
+import { createRequestOperation } from './create-request-operation'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -66,7 +66,7 @@ beforeAll(async () => {
   } catch (_error) {
     throw new Error(`
 
-[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+[sendRequest.test.ts] Looks like you're not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it's required for this test file.
 
 Try to run it like this:
 
@@ -84,7 +84,7 @@ $ pnpm dev:proxy-server
   } catch (_error) {
     throw new Error(`
 
-[sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
+[sendRequest.test.ts] Looks like you're not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it's required for this test file.
 
 Try to run it like this:
 
@@ -488,7 +488,7 @@ describe('create-request-operation', () => {
     })
   })
 
-  it('doesn’t have any query parameters', async () => {
+  it(`doesn't have any query parameters`, async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: {
@@ -684,9 +684,9 @@ describe('create-request-operation', () => {
    * the void-server doesn't receive the body properly.
    * It does work on other echo servers such as https://echo.free.beeceptor.com
    *
-   * It’s not clear to me, whether we need to make the void-server handle that, or
+   * It's not clear to me, whether we need to make the void-server handle that, or
    * if we should disable the streaming, or
-   * if there’s another way to test this properly.
+   * if there's another way to test this properly.
    *
    * - @hanspagel
    */

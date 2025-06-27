@@ -21,7 +21,7 @@ const props = withDefaults(
       | OpenAPIV3_1.SchemaObject
       | OpenAPIV3_1.ArraySchemaObject
       | OpenAPIV3_1.NonArraySchemaObject
-    /** Track how deep we’ve gone */
+    /** Track how deep we've gone */
     level?: number
     /* Show as a heading */
     name?: string

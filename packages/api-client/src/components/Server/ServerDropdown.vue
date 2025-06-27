@@ -95,7 +95,7 @@ const updateServerVariable = (key: string, value: string) => {
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] p-0 text-sm"
+    class="max-h-[inherit] p-0 text-base"
     focus
     :offset="0"
     placement="bottom-start"
@@ -103,7 +103,7 @@ const updateServerVariable = (key: string, value: string) => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="z-context-plus hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-xs whitespace-nowrap lg:text-sm"
+      class="z-context-plus hover:bg-b-2 font-code text-c-2 ml-0.75 h-auto gap-0.75 rounded border px-1.5 text-base whitespace-nowrap"
       variant="ghost">
       <template
         v-if="operation?.selectedServerUid || collection.selectedServerUid">

@@ -142,7 +142,7 @@ const inDevelopment = import.meta.env.DEV
       <PageLink href="http://localhost:5100">
         <template #title>Components</template>
         <template #description>
-          The design system we’re using throughout our packages.
+          The design system we're using throughout our packages.
         </template>
       </PageLink>
     </div>

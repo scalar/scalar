@@ -216,21 +216,22 @@ const sidebarOpened = ref(false)
 
 // Open a sidebar tag
 watch(dereferencedDocument, (newDoc) => {
-  if (sidebarOpened.value || !newDoc.tags?.length) {
-    return
-  }
-
+  // Scroll to given hash
   if (hash.value) {
     const hashSectionId = getSectionId(hash.value)
     if (hashSectionId) {
       setCollapsedSidebarItem(hashSectionId, true)
     }
-  } else {
+  }
+  // Open the first tag
+  else {
     const firstTag = newDoc.tags?.[0]
+
     if (firstTag) {
       setCollapsedSidebarItem(getTagId(firstTag), true)
     }
   }
+
   sidebarOpened.value = true
 })
 
@@ -398,6 +399,7 @@ watch(hash, (newHash, oldHash) => {
                 class="scalar-api-references-standalone-search">
                 <SearchButton
                   :searchHotKey="configuration?.searchHotKey"
+                  :hideModels="configuration?.hideModels"
                   :spec="parsedDocument" />
               </div>
               <!-- Sidebar Start -->
@@ -464,6 +466,7 @@ watch(hash, (newHash, oldHash) => {
                   v-if="!configuration.hideSearch"
                   class="t-doc__sidebar max-w-64"
                   :searchHotKey="configuration.searchHotKey"
+                  :hideModels="configuration?.hideModels"
                   :spec="parsedDocument" />
                 <template #dark-mode-toggle>
                   <ScalarColorModeToggleIcon

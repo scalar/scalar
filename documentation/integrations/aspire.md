@@ -4,6 +4,10 @@ The `Scalar.Aspire` package provides a simple way to integrate the Scalar API Re
 
 ## Basic Setup
 
+:::scalar-callout{ type=info }
+The Scalar Aspire integration requires a container solution such as **Docker** or **Podman** to be installed on your machine.
+:::
+
 1. **Install the package**
 
 ```shell
@@ -177,7 +181,9 @@ var scalar = builder.AddScalarApiReference(options =>
 
 ## Service Requirements
 
-For services to work with Scalar Aspire integration, they should expose OpenAPI documents. Each service should generate and serve OpenAPI/Swagger documents.
+To integrate with Scalar Aspire, each service must expose OpenAPI/Swagger documents over HTTP. Ensure your service serves OpenAPI documentation at a reachable endpoint.
+
+Additionally, only HTTP-based services are supported. Any resource you want to include in the API reference must implement the `IResourceWithServiceDiscovery` interface and define an endpoint named **"http"**.
 
 ### Example Service Configuration
 
