@@ -128,16 +128,16 @@ describe('useSearchIndex', () => {
           expect.objectContaining({
             item: expect.objectContaining({
               type: 'model',
-              title: 'Model',
-              description: 'User Model',
+              title: 'User Model',
+              description: 'Model',
               tag: 'User',
             }),
           }),
           expect.objectContaining({
             item: expect.objectContaining({
               type: 'model',
-              title: 'Model',
-              description: 'Product Model',
+              title: 'Product Model',
+              description: 'Model',
               tag: 'Product',
             }),
           }),
@@ -227,8 +227,8 @@ describe('useSearchIndex', () => {
         expect.objectContaining({
           item: expect.objectContaining({
             type: 'model',
-            title: 'Model',
-            description: 'User Model',
+            title: 'User Model',
+            description: 'Model',
             tag: 'User',
           }),
         }),
