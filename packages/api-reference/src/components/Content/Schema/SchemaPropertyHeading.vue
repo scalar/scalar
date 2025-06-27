@@ -1,16 +1,16 @@
 <script lang="ts" setup>
 import { isDefined } from '@scalar/helpers/array/is-defined'
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
-import SchemaPropertyExamples from '@/components/Content/Schema/SchemaPropertyExamples.vue'
+import { Badge } from '@/components/Badge'
 import ScreenReader from '@/components/ScreenReader.vue'
 import type { Schemas } from '@/features/Operation/types/schemas'
 import { getDiscriminatorSchemaName } from '@/hooks/useDiscriminator'
 
-import { Badge } from '../../Badge'
+import { getSchemaType } from './helpers/get-schema-type'
 import { getModelName } from './helpers/schema-name'
 import SchemaPropertyDetail from './SchemaPropertyDetail.vue'
+import SchemaPropertyExamples from './SchemaPropertyExamples.vue'
 
 const {
   value,
@@ -66,27 +66,6 @@ const constValue = computed(() => {
   return null
 })
 
-/** Computes the human-readable type for a schema property. */
-const displayType = computed(() => {
-  if (Array.isArray(value?.type)) {
-    return value.type.join(' | ')
-  }
-
-  if (value?.title) {
-    return value.title
-  }
-
-  if (value?.name) {
-    return value.name
-  }
-
-  if (value?.type && value.contentEncoding) {
-    return `${value.type} • ${value.contentEncoding}`
-  }
-
-  return value?.type ?? ''
-})
-
 /** Gets the model name */
 const modelName = computed(() => {
   if (!value) {
@@ -119,24 +98,21 @@ const modelName = computed(() => {
     </div>
     <template v-if="value">
       <SchemaPropertyDetail v-if="value?.type">
-        <ScreenReader>Type:</ScreenReader>
-        <template v-if="modelName">
-          {{ modelName }}
-        </template>
+        <ScreenReader>Type: </ScreenReader>
+        <template v-if="modelName">{{ modelName }}</template>
         <template v-else>
-          {{ displayType }}
-          {{ value?.nullable ? ' | nullable' : '' }}
+          {{ getSchemaType(value) }}
         </template>
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.minItems || value.maxItems">
         {{ value.minItems }}&hellip;{{ value.maxItems }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.minLength">
-        <template #prefix>min:</template>
+        <template #prefix>min: </template>
         {{ value.minLength }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.maxLength">
-        <template #prefix>max:</template>
+        <template #prefix>max: </template>
         {{ value.maxLength }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="value.uniqueItems">
@@ -148,26 +124,26 @@ const modelName = computed(() => {
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="isDefined(value.minimum) && value.exclusiveMinimum">
-        <template #prefix>greater than:</template>
+        <template #prefix>greater than: </template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="isDefined(value.minimum) && !value.exclusiveMinimum">
-        <template #prefix>min:</template>
+        <template #prefix>min: </template>
         {{ value.minimum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="isDefined(value.maximum) && value.exclusiveMaximum">
-        <template #prefix>less than:</template>
+        <template #prefix>less than: </template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
         v-if="isDefined(value.maximum) && !value.exclusiveMaximum">
-        <template #prefix>max:</template>
+        <template #prefix>max: </template>
         {{ value.maximum }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="isDefined(value.multipleOf)">
-        <template #prefix>multiple of:</template>
+        <template #prefix>multiple of: </template>
         {{ value.multipleOf }}
       </SchemaPropertyDetail>
       <SchemaPropertyDetail
@@ -181,7 +157,7 @@ const modelName = computed(() => {
       <SchemaPropertyDetail
         v-if="value.default !== undefined"
         truncate>
-        <template #prefix>default:</template>
+        <template #prefix>default: </template>
         {{ flattenDefaultValue(value) }}
       </SchemaPropertyDetail>
     </template>
@@ -207,7 +183,7 @@ const modelName = computed(() => {
       v-if="isDefined(constValue)"
       class="property-const">
       <SchemaPropertyDetail truncate>
-        <template #prefix>const:</template>
+        <template #prefix>const: </template>
         {{ constValue }}
       </SchemaPropertyDetail>
     </div>

@@ -136,7 +136,7 @@ describe('SchemaComposition', () => {
       })
 
       const tab = wrapper.find('.composition-selector-label')
-      expect(tab.text()).toBe('Array of string')
+      expect(tab.text()).toBe('array string[]')
     })
   })
 

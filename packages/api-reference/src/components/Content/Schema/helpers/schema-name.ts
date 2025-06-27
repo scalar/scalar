@@ -30,26 +30,6 @@ export function getModelNameFromSchema(schema: OpenAPIV3_1.SchemaObject): string
     }
   }
 
-  // Handle array types with items
-  if ('type' in schema && schema.type === 'array' && 'items' in schema && schema.items) {
-    const itemType = ('type' in schema.items && schema.items.type) || 'any'
-
-    return `Array of ${itemType}`
-  }
-
-  // Fallback to type
-  if ('type' in schema && schema.type) {
-    return Array.isArray(schema.type) ? schema.type.join(' | ') : schema.type
-  }
-
-  // Last resort: use first object key
-  if (typeof schema === 'object') {
-    const keys = Object.keys(schema)
-    if (keys.length > 0) {
-      return keys[0]
-    }
-  }
-
   return null
 }
 
@@ -104,9 +84,6 @@ export function getModelName(
   }
 
   if (hideModelNames) {
-    if (value.type === 'array' && value.items?.type) {
-      return `array ${value.items.type}[]`
-    }
     return null
   }
 
@@ -114,11 +91,6 @@ export function getModelName(
   const modelName = getModelNameFromSchema(value)
   if (modelName && (value.title || value.name)) {
     return value.type === 'array' ? `array ${modelName}[]` : modelName
-  }
-
-  const schemaName = getSchemaNameFromSchemas(value, schemas)
-  if (schemaName) {
-    return value.type === 'array' ? `array ${schemaName}[]` : schemaName
   }
 
   // Handle array types with item references only if no full schema match was found

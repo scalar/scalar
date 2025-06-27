@@ -20,39 +20,6 @@ describe('schema-name', () => {
       expect(getModelNameFromSchema(schema)).toBe('Galaxy Planet')
     })
 
-    it('handles array types with items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'array',
-        items: { type: 'string' },
-      }
-      expect(getModelNameFromSchema(schema)).toBe('Array of string')
-    })
-
-    it('handles array types with any items', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        type: 'array',
-        items: {},
-      }
-      expect(getModelNameFromSchema(schema)).toBe('Array of any')
-    })
-
-    it('returns type when no other name available', () => {
-      const schema: OpenAPIV3_1.SchemaObject = { type: 'string' }
-      expect(getModelNameFromSchema(schema)).toBe('string')
-    })
-
-    it('handles union types', () => {
-      const schema: OpenAPIV3_1.SchemaObject = { type: ['string', 'null'] }
-      expect(getModelNameFromSchema(schema)).toBe('string | null')
-    })
-
-    it('returns first object key as fallback', () => {
-      const schema: OpenAPIV3_1.SchemaObject = {
-        properties: { name: { type: 'string' } },
-      }
-      expect(getModelNameFromSchema(schema)).toBe('properties')
-    })
-
     it('returns null for empty object', () => {
       const schema: OpenAPIV3_1.SchemaObject = {}
       expect(getModelNameFromSchema(schema)).toBe(null)
@@ -143,12 +110,12 @@ describe('schema-name', () => {
       expect(getModelName(value)).toBe(null)
     })
 
-    it('returns array type when hideModelNames is true', () => {
+    it('returns nothing when hideModelNames is true', () => {
       const value = {
         type: 'array',
         items: { type: 'string' },
       }
-      expect(getModelName(value, {}, true)).toBe('array string[]')
+      expect(getModelName(value, {}, true)).toBe(null)
     })
 
     it('returns null when hideModelNames is true and not array', () => {
@@ -170,26 +137,6 @@ describe('schema-name', () => {
         title: 'PlanetArray',
       }
       expect(getModelName(value)).toBe('array PlanetArray[]')
-    })
-
-    it('finds schema name from component schemas', () => {
-      const value = {
-        type: 'object',
-        properties: {
-          name: { type: 'string' },
-          email: { type: 'string' },
-        },
-      }
-      const schemas = {
-        User: {
-          type: 'object',
-          properties: {
-            name: { type: 'string' },
-            email: { type: 'string' },
-          },
-        },
-      }
-      expect(getModelName(value, schemas)).toBe('User')
     })
 
     it('handles array with item title', () => {
