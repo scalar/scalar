@@ -38,7 +38,9 @@ defineSlots<ScalarSidebarItemSlots>()
 const variants = cva({
   base: ['group/button flex rounded px-2 font-sidebar text-c-2 no-underline'],
   variants: {
-    selected: { true: 'cursor-auto bg-b-2 text-c-1 font-sidebar-active' },
+    selected: {
+      true: 'group/button-selected cursor-auto bg-b-2 text-c-1 font-sidebar-active',
+    },
     disabled: { true: 'cursor-auto' },
   },
   compoundVariants: [
@@ -52,7 +54,6 @@ const { cx } = useBindCx()
 <template>
   <component
     :is="is"
-    :aria-level="indent"
     :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ selected, disabled }))">
@@ -74,7 +75,9 @@ const { cx } = useBindCx()
       </div>
       <slot />
     </div>
-    <div v-if="$slots.aside">
+    <div
+      v-if="$slots.aside"
+      class="flex items-center">
       <slot name="aside" />
     </div>
   </component>
