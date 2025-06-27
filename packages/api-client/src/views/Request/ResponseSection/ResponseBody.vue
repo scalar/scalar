@@ -80,6 +80,6 @@ const mediaConfig = computed(() => getMediaTypeConfig(mimeType.value.essence))
 </template>
 <style scoped>
 .scalar-code-block:deep(.hljs *) {
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
 }
 </style>

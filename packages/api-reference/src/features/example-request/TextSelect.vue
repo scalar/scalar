@@ -92,7 +92,7 @@ const count = computed(
   appearance: none;
 }
 .text-select span {
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   color: var(--scalar-color-2);
   font-weight: var(--scalar-semibold);
   white-space: nowrap;

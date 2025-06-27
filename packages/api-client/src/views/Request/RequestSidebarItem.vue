@@ -398,7 +398,7 @@ const shouldShowItem = computed(() => {
       :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
-      class="gap-1/2 flex flex-1 flex-col text-sm"
+      class="gap-1/2 flex flex-1 flex-col text-base"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
@@ -422,10 +422,10 @@ const shouldShowItem = computed(() => {
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
-              ? 'bg-sidebar-b-active text-sidebar-c-active transition-none'
+              ? 'bg-sidebar-b-active text-sidebar-c-active font-medium transition-none'
               : 'text-sidebar-c-2',
           ]">
-          <span class="line-clamp-1 w-full pl-2 font-medium break-all">
+          <span class="line-clamp-1 w-full pl-2 break-all">
             {{ item.title || 'Untitled' }}
           </span>
           <div class="flex flex-row items-center gap-1">

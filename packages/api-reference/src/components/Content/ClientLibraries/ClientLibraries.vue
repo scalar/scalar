@@ -159,7 +159,7 @@ const installationInstructions = computed(() => {
 <style scoped>
 .selected-client {
   color: var(--scalar-color-1);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   font-family: var(--scalar-font-code);
   padding: 9px 12px;
   border-top: none;
@@ -173,8 +173,8 @@ const installationInstructions = computed(() => {
   min-height: fit-content;
 }
 .client-libraries-heading {
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  font-weight: var(--scalar-font-medium);
   color: var(--scalar-color-1);
   padding: 9px 12px;
   background-color: var(--scalar-background-2);

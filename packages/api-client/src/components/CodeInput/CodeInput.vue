@@ -430,7 +430,7 @@ export default {
   background-color: transparent;
   border-right: none;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   line-height: 1.44;
   border-radius: 0 0 0 3px;
 }
@@ -514,7 +514,7 @@ export default {
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   background: color-mix(in srgb, var(--tw-bg-base), transparent 94%) !important;
 }
 .cm-pill.bg-grey {

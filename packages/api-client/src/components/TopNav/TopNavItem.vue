@@ -52,7 +52,7 @@ defineEmits<{
               :icon="icon"
               size="xs"
               thickness="2.5" />
-            <span class="custom-scroll nav-item-copy text-xs">{{ label }}</span>
+            <span class="custom-scroll nav-item-copy text-sm">{{ label }}</span>
           </div>
           <button
             class="nav-item-close"
