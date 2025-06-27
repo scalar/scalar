@@ -799,6 +799,10 @@ jobs:
           context: integrations/aspire
           file: integrations/aspire/src/Scalar.Aspire.Service/Dockerfile
           push: true
+          # With ARM
+          platforms: |
+            linux/amd64
+            linux/arm64
           tags: |
             scalarapi/aspire-api-reference:latest
             scalarapi/aspire-api-reference:${{ env.VERSION }}
