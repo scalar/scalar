@@ -58,7 +58,7 @@ useCodeMirror({
 
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   padding: 8px 2px;
 }
 

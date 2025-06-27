@@ -125,6 +125,7 @@ const onAnchorClick = async (ev: Event) => {
           &hairsp;
           <span class="sr-only">HTTP Method:&nbsp;</span>
           <SidebarHttpBadge
+            class="min-w-9.75 justify-end text-right"
             :active="isActive"
             :method="item.method">
             <template #default>
