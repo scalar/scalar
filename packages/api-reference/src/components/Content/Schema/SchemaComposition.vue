@@ -91,24 +91,12 @@ const processSchema = (schema: any): any => {
 }
 
 const schemaComposition = computed(() => {
-  const schemas = value[composition]
-  const schemaWithComposition = getSchemaWithComposition(schemas)
-
-  // No nested compositions, just process each schema
-  if (
-    !schemaWithComposition ||
-    (composition !== 'allOf' && schemaWithComposition.allOf)
-  ) {
-    return schemas.map(processSchema)
+  if (value[composition]) {
+    return value[composition].map((schema: any) =>
+      schema.allOf ? mergeAllOfSchemas(schema.allOf) : schema,
+    )
   }
-
-  // Handle nested compositions (like allOf containing oneOf)
-  const nestedComposition =
-    schemaWithComposition.oneOf ||
-    schemaWithComposition.anyOf ||
-    schemaWithComposition.allOf
-
-  return nestedComposition.map(processSchema)
+  return []
 })
 
 /** Humanizes composition keyword name e.g. oneOf -> One of */

@@ -46,7 +46,7 @@ export function mergeAllOfSchemas(schemas: SchemaObject[], depth = 0): SchemaObj
         mergedResult.items = mergeArrayItems(mergedResult.items || {}, schema.items, depth + 1)
       }
       // Special case for objects with items.allOf
-      else if (schema.type === 'object' && schema.items.allOf) {
+      else if (typeof schema.type === 'string' && ['object', 'string'].includes(schema.type) && schema.items.allOf) {
         const mergedItems = mergeAllOfSchemas(schema.items.allOf, depth + 1)
         mergedResult.properties = mergeProperties(
           mergedResult.properties || {},

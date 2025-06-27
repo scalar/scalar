@@ -349,6 +349,7 @@ describe('SchemaPropertyHeading', () => {
         hideModelNames: false,
         schemas: {
           Planet: {
+            title: 'Planet',
             type: 'array',
             items: { type: 'string' },
           },
@@ -356,7 +357,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
     const detailsElement = wrapper.find('.property-heading')
-    expect(detailsElement.text()).toContain('array Planet[]')
+    expect(detailsElement.text()).toContain('Type: array Planet[]')
   })
 
   it('renders multipleOf property', () => {
