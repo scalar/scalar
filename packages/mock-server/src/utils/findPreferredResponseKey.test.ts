@@ -7,7 +7,7 @@ describe('findPreferredResponseKey', () => {
     expect(findPreferredResponseKey(['default', '200'])).toBe('default')
   })
 
-  it('returns 201 if it’s the only one', () => {
+  it(`returns 201 if it's the only one`, () => {
     expect(findPreferredResponseKey(['201'])).toBe('201')
   })
 
@@ -15,11 +15,11 @@ describe('findPreferredResponseKey', () => {
     expect(findPreferredResponseKey(['200', '201'])).toBe('200')
   })
 
-  it('uses what’s there', () => {
+  it(`uses what's there`, () => {
     expect(findPreferredResponseKey(['301'])).toBe('301')
   })
 
-  it('doesn’t return anything if there’s no key at all', () => {
+  it(`doesn't return anything if there's no key at all`, () => {
     expect(findPreferredResponseKey([])).toBe(undefined)
   })
 })

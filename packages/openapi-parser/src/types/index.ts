@@ -2,7 +2,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { ERRORS, OpenApiVersion } from '@/configuration'
 
-// TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
+// TODO: I'd expect merge to overwrite the other way around (overwrite A, keep B)
 /**
  * Merge types with each other
  */
@@ -69,7 +69,7 @@ export type AjvOptions = {
 export type Filesystem = FilesystemEntry[]
 
 /**
- * Holds all information about a single file (doesn’t have to be a literal file, see Filesystem).
+ * Holds all information about a single file (doesn't have to be a literal file, see Filesystem).
  */
 export type FilesystemEntry = {
   dir: string

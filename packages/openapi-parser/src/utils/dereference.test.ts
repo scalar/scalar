@@ -87,7 +87,7 @@ describe('dereference', async () => {
     expect(result.version).toBe('2.0')
   })
 
-  it('doesn’t return version 4.0', async () => {
+  it(`doesn't return version 4.0`, async () => {
     const result = await dereference(`{
       "openapi": "4.0",
       "info": {
@@ -180,7 +180,7 @@ describe('dereference', async () => {
           throwOnError: true,
         },
       )
-    }).rejects.toThrowError('Can’t resolve reference: #/components/requestBodies/DoesNotExist')
+    }).rejects.toThrowError("Can't resolve reference: #/components/requestBodies/DoesNotExist")
   })
 
   it('resolves external file references', async () => {

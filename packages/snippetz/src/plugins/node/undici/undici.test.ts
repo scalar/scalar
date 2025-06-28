@@ -54,7 +54,7 @@ const { statusCode, body } = await request('https://example.com', {
 })`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = nodeUndici.generate({
       url: 'https://example.com',
       headers: [],
@@ -138,7 +138,7 @@ const { statusCode, body } = await request('https://example.com', {
 })`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = nodeUndici.generate({
       url: 'https://example.com',
       cookies: [],

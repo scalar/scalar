@@ -40,7 +40,7 @@ const OpenApiSpecification =
   )
 ```
 
-Recommended: If you’re serving an OpenAPI/Swagger file already, you can pass an URL, too:
+Recommended: If you're serving an OpenAPI/Swagger file already, you can pass an URL, too:
 
 ```ts
 import { apiReference } from '@scalar/nestjs-api-reference'

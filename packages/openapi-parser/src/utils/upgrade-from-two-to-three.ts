@@ -21,7 +21,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
     specification.openapi = '3.0.4'
     delete specification.swagger
   } else {
-    // Skip if it’s something else than 3.0.x
+    // Skip if it's something else than 3.0.x
     return specification
   }
 

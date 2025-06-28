@@ -9,7 +9,7 @@ It provides composables that handle document fetching, dereferencing, and worksp
 - The system automatically upgrades older OpenAPI versions to 3.1
 - External references are currently not supported (TODO)
 - Error handling for document processing could be better
-- The feature is designed to work with Vue’s reactivity system
+- The feature is designed to work with Vue's reactivity system
 
 ## Core Components
 

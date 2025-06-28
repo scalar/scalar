@@ -26,7 +26,7 @@ export const MediaTypeObjectSchemaWithoutEncoding = z.object({
    * an example, the examples value SHALL override the example provided by the schema.
    */
   examples: z.record(z.string(), ExampleObjectSchema).optional(),
-  // Note: Don’t add `encoding` here.
-  // The MediaTypeObjectSchema is used in multiple places. And when it’s used in headers, we don’t want the encoding.
-  // That’s what the OpenAPI specification says.
+  // Note: Don't add `encoding` here.
+  // The MediaTypeObjectSchema is used in multiple places. And when it's used in headers, we don't want the encoding.
+  // That's what the OpenAPI specification says.
 })

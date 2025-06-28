@@ -21,7 +21,7 @@ import { ExamplePicker } from '../example-request'
 import ExampleResponse from './ExampleResponse.vue'
 
 /**
- * TODO: copyToClipboard isn’t using the right content if there are multiple examples
+ * TODO: copyToClipboard isn't using the right content if there are multiple examples
  */
 
 const { responses } = defineProps<{ responses: Operation['responses'] }>()
@@ -158,7 +158,7 @@ const showSchema = ref(false)
             :id="id"
             :response="currentResponseWithExample" />
         </template>
-        <!-- Without Schema: Don’t show tabs -->
+        <!-- Without Schema: Don't show tabs -->
         <ExampleResponse
           v-else
           :id="id"
@@ -267,8 +267,8 @@ const showSchema = ref(false)
   min-height: 17px;
   cursor: pointer;
   user-select: none;
-  font-weight: var(--scalar-semibold);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  font-weight: var(--scalar-font-normal);
   color: var(--scalar-color-2);
   width: fit-content;
   white-space: nowrap;
@@ -300,6 +300,7 @@ const showSchema = ref(false)
 }
 .scalar-card-checkbox:has(.scalar-card-checkbox-input:checked) {
   color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
 }
 
 .scalar-card-checkbox

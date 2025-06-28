@@ -6,7 +6,7 @@ namespace Scalar.Aspire;
 /// Represents all available options for the Scalar API reference.
 /// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
 /// </summary>
-public class ScalarOptions
+public abstract class ScalarOptions
 {
     internal List<ScalarDocument> Documents { get; } = [];
 

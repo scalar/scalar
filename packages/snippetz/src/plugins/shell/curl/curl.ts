@@ -33,7 +33,7 @@ export const shellCurl: Plugin = {
           .join('&')
       : ''
     const url = `${normalizedRequest.url}${queryString}`
-    const hasSpecialChars = /[\s<>[\]{}|\\^%]/.test(url)
+    const hasSpecialChars = /[\s<>[\]{}|\\^%$]/.test(url)
     const urlPart = queryString || hasSpecialChars ? `'${url}'` : url
     parts[0] = `curl ${urlPart}`
 

@@ -40,7 +40,7 @@ describe('pythonHttpxAsync', () => {
     )`)
   })
 
-  it('doesn’t add empty headers', () => {
+  it(`doesn't add empty headers`, () => {
     const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       headers: [],
@@ -127,7 +127,7 @@ describe('pythonHttpxAsync', () => {
     )`)
   })
 
-  it('doesn’t add empty cookies', () => {
+  it(`doesn't add empty cookies`, () => {
     const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
       cookies: [],
@@ -316,7 +316,7 @@ describe('pythonHttpxAsync', () => {
     await client.get("")`)
   })
 
-  it('doesn’t add a line break for a short URL', () => {
+  it(`doesn't add a line break for a short URL`, () => {
     const result = pythonHttpxAsync.generate({
       url: 'https://example.com',
     })

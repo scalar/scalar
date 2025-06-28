@@ -1,8 +1,8 @@
 # Markdown
 
 You can use Markdown in various places, for example in `info.description`, in your tag descriptions, in your operation
-descriptions, in your parameter descriptions and in a lot of other places. We’re using GitHub-flavored Markdown.
-What’s working here, is probably also working in the API reference:
+descriptions, in your parameter descriptions and in a lot of other places. We're using GitHub-flavored Markdown.
+What's working here, is probably also working in the API reference:
 
 - bullet lists, numbered lists
 - _italic_, **bold**, ~~striked~~ text

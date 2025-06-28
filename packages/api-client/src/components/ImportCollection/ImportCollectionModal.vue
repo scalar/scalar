@@ -17,9 +17,9 @@ import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPref
 import ImportNowButton from '@/components/ImportCollection/ImportNowButton.vue'
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
-import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
-import { isDocument } from '@/components/ImportCollection/utils/isDocument'
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import { getOpenApiVersion } from '@/components/ImportCollection/utils/get-openapi-version'
+import { isDocument } from '@/components/ImportCollection/utils/is-document'
+import { isUrl } from '@/components/ImportCollection/utils/is-url'
 import WorkspaceSelector from '@/components/ImportCollection/WorkspaceSelector.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -62,7 +62,7 @@ const title = computed(() => openApiDocument.value?.info?.title)
 
 /** The OpenAPI/Swagger version */
 const version = computed(() =>
-  getOpenApiDocumentVersion(prefetchResult.content || props.source || ''),
+  getOpenApiVersion(prefetchResult.content || props.source || ''),
 )
 
 const { darkLightMode } = useColorMode()
@@ -122,7 +122,7 @@ watch(
 
     if (!value) {
       modalState.hide()
-    } else if (isDocument(value) && getOpenApiDocumentVersion(value)) {
+    } else if (isDocument(value) && getOpenApiVersion(value)) {
       modalState.show()
     } else {
       modalState.hide()
@@ -238,7 +238,7 @@ function handleImportFinished() {
         class="m-auto flex w-full max-w-[380px] flex-col items-center rounded-xl border px-8 py-8 transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
         <!-- Prefetch error -->
-        <!-- Or: Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <!-- Or: Document doesn't even have an OpenAPI/Swagger version, something is probably wrong -->
         <template
           v-if="
             prefetchResult.error && prefetchResult.state === 'idle' && !version

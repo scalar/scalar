@@ -1,5 +1,32 @@
 # @scalar/components
 
+## 0.14.15
+
+### Patch Changes
+
+- Updated dependencies [2d7f995]
+  - @scalar/code-highlight@0.1.5
+  - @scalar/oas-utils@0.4.10
+  - @scalar/use-hooks@0.2.4
+  - @scalar/themes@0.13.7
+  - @scalar/icons@0.4.6
+  - @scalar/use-toasts@0.8.0
+
+## 0.14.14
+
+### Patch Changes
+
+- 533469b: refactor: decouple request code block from the state (not in use yet)
+- 3393c83: fix: focus is not defined in search
+- 4f47b3c: feat(components): scalar icon button cleanup
+- 8e85856: fix: autofocus scroll on popover panel
+- Updated dependencies [4f47b3c]
+- Updated dependencies [23b150b]
+  - @scalar/icons@0.4.5
+  - @scalar/oas-utils@0.4.9
+  - @scalar/themes@0.13.6
+  - @scalar/code-highlight@0.1.4
+
 ## 0.14.13
 
 ### Patch Changes

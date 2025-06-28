@@ -6,7 +6,7 @@ public class ScalarOptionsMapperTests
     public void ToScalarConfigurations_ShouldReturnCorrectDefaultConfiguration()
     {
         // Arrange
-        ScalarOptions[] options = [new()];
+        ScalarTestOptions[] options = [new()];
 
         // Act
         var configurations = options.ToScalarConfigurations();
@@ -43,7 +43,7 @@ public class ScalarOptionsMapperTests
     public void ToConfiguration_ShouldReturnCorrectCustomConfiguration()
     {
         // Arrange
-        var options = new ScalarOptions
+        var options = new ScalarTestOptions
         {
             ProxyUrl = "http://localhost:8080",
             ShowSidebar = false,
@@ -104,7 +104,7 @@ public class ScalarOptionsMapperTests
     public void GetHiddenClients_ShouldReturnNull_WhenEnabledTargetsAndEnabledClientsAreEmpty()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         var hiddenClients = options.ToScalarConfiguration().HiddenClients;
@@ -117,7 +117,7 @@ public class ScalarOptionsMapperTests
     public void GetHiddenClients_ShouldReturnTrue_WhenHiddenClientsIsTrue()
     {
         // Arrange
-        var options = new ScalarOptions { HiddenClients = true };
+        var options = new ScalarTestOptions { HiddenClients = true };
 
         // Act
         var hiddenClients = (bool) options.ToScalarConfiguration().HiddenClients!;
@@ -130,7 +130,7 @@ public class ScalarOptionsMapperTests
     public void GetHiddenClients_ShouldReturnFilteredClients_WhenEnabledTargetsIsNotEmpty()
     {
         // Arrange
-        var options = new ScalarOptions { EnabledTargets = [ScalarTarget.CSharp] };
+        var options = new ScalarTestOptions { EnabledTargets = [ScalarTarget.CSharp] };
 
         // Act
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
@@ -144,7 +144,7 @@ public class ScalarOptionsMapperTests
     public void GetHiddenClients_ShouldReturnFilteredClients_WhenEnabledClientsIsNotEmpty()
     {
         // Arrange
-        var options = new ScalarOptions { EnabledClients = [ScalarClient.HttpClient, ScalarClient.Python3] };
+        var options = new ScalarTestOptions { EnabledClients = [ScalarClient.HttpClient, ScalarClient.Python3] };
 
         // Act
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
@@ -161,7 +161,7 @@ public class ScalarOptionsMapperTests
     public void GetHiddenClients_ShouldNotReturnTarget_WhenAllClientsAreEnabled()
     {
         // Arrange
-        var options = new ScalarOptions { EnabledClients = [ScalarClient.OkHttp] }; // All Kotlin clients are enabled
+        var options = new ScalarTestOptions { EnabledClients = [ScalarClient.OkHttp] }; // All Kotlin clients are enabled
 
         // Act
         var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
@@ -175,7 +175,7 @@ public class ScalarOptionsMapperTests
     public void GetSources_ShouldUseCorrectPattern_WhenCustomPatternIsProvided()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
         options
             .AddDocument("default")
             .AddDocument("custom", routePattern: "/external/{documentName}.json");

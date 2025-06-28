@@ -1,5 +1,17 @@
 # @scalar/icons
 
+## 0.4.6
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
+## 0.4.5
+
+### Patch Changes
+
+- 4f47b3c: feat(components): scalar icon button cleanup
+
 ## 0.4.4
 
 ### Patch Changes

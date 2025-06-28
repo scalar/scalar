@@ -9,8 +9,8 @@ export type ApiReferenceConfiguration = HtmlRenderingConfiguration
 
 export type FastifyApiReferenceOptions = {
   /**
-   * If you’re prefixing Fastify with a path, you can set it here.
-   * It’ll be added to the JavaScript URL and the route.
+   * If you're prefixing Fastify with a path, you can set it here.
+   * It'll be added to the JavaScript URL and the route.
    *
    * Example: `${publicPath}${routePrefix}/js/scalar.js`
    * @deprecated We don't use this anymore.

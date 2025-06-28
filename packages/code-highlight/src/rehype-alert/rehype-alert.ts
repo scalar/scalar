@@ -1,6 +1,6 @@
-import { visit } from 'unist-util-visit'
 import type { Element } from 'hast'
 import type { Root } from 'mdast'
+import { visit } from 'unist-util-visit'
 
 const ALERT_TYPES = ['note', 'tip', 'important', 'warning', 'caution', 'success'] as const
 
@@ -75,7 +75,7 @@ export function rehypeAlert() {
       ) {
         text.value = text.value.slice(end + 2)
       } else {
-        // Remove the alert marker if it’s not followed by a newline or a non-whitespace character
+        // Remove the alert marker if it's not followed by a newline or a non-whitespace character
         text.value = text.value.replace(/^\s*\[!.*?\]\s*/, '')
       }
 

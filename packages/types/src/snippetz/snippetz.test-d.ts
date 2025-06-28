@@ -9,10 +9,10 @@ describe('TargetId', () => {
     assertType<TargetId>(target)
   })
 
-  it('target doesn’t exist', () => {
+  it(`target doesn't exist`, () => {
     const target = 'foo'
 
-    // @ts-expect-error target doesn’t exist
+    // @ts-expect-error target doesn't exist
     assertType<TargetId>(target)
   })
 
@@ -22,17 +22,17 @@ describe('TargetId', () => {
     assertType<ClientId<'node'>>(client)
   })
 
-  it('client doesn’t exist', () => {
+  it(`client doesn't exist`, () => {
     const client = 'does-not-exist'
 
-    // @ts-expect-error client doesn’t exist
+    // @ts-expect-error client doesn't exist
     assertType<ClientId<'node'>>(client)
   })
 
-  it('client exists, but target doesn’t', () => {
+  it(`client exists, but target doesn't`, () => {
     const client = 'undici'
 
-    // @ts-expect-error client exists, but target doesn’t
+    // @ts-expect-error client exists, but target doesn't
     assertType<ClientId<'foobar'>>(client)
   })
 

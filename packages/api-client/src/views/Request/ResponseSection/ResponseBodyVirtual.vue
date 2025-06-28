@@ -34,7 +34,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
         :type="mimeType.essence" />
     </template>
     <div class="font-code text-xxs rounded-t border border-b-0 px-2.5 py-1.5">
-      This response body is massive! Syntax highlighting won’t work here.
+      This response body is massive! Syntax highlighting won't work here.
     </div>
     <ScalarVirtualText
       containerClass="custom-scroll scalar-code-block border rounded-b flex flex-1 max-h-screen"

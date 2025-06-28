@@ -13,7 +13,7 @@ A plugin for FastAPI to render a reference for your OpenAPI document.
 
 ## Community
 
-We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+We are API nerds. You too? Let's chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

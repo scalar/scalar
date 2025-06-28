@@ -1,5 +1,19 @@
 # @scalar/sveltekit
 
+## 0.1.12
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/core@0.3.6
+
+## 0.1.11
+
+### Patch Changes
+
+- @scalar/core@0.3.5
+
 ## 0.1.10
 
 ### Patch Changes

@@ -183,7 +183,7 @@ const setProxy = (newProxy: string | undefined) =>
         <SettingsSection>
           <template #title> Themes </template>
           <template #description>
-            We’ve got a whole rainbow of themes for you to play with:
+            We've got a whole rainbow of themes for you to play with:
           </template>
 
           <div class="flex flex-col gap-2">
@@ -241,7 +241,7 @@ const setProxy = (newProxy: string | undefined) =>
           <template #title> Framework Themes </template>
           <template #description>
             Are you a real fan? Show your support by using your favorite
-            framework’s theme!
+            framework's theme!
           </template>
 
           <div class="grid grid-cols-2 gap-2">

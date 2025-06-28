@@ -12,7 +12,7 @@ Use your existing [GitHub](https://github.com/) repository, or create a new one 
 
 #### Add some content
 
-If you have a few Markdown files already, that’s awesome. Otherwise, just create a new `docs` folder and add at least one [Markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax):
+If you have a few Markdown files already, that's awesome. Otherwise, just create a new `docs` folder and add at least one [Markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax):
 
 ```bash
 # Create a docs/ folder
@@ -22,7 +22,7 @@ mkdir docs
 echo "# Hello World" > docs/introduction.md
 ```
 
-That should be enough to prepare your content. Time to configure your project, let’s create a Scalar configuration file:
+That should be enough to prepare your content. Time to configure your project, let's create a Scalar configuration file:
 
 ```bash
 touch scalar.config.json
@@ -57,7 +57,7 @@ Make sure to commit and push the changes to your repository.
 
 Create a free Scalar account here: https://dashboard.scalar.com/register
 
-Once signed in, click on “Link GitHub Account”. You’ll be redirected to GitHub, where you can connect your account, then you’ll be redirected back to Scalar.
+Once signed in, click on “Link GitHub Account”. You'll be redirected to GitHub, where you can connect your account, then you'll be redirected back to Scalar.
 
 Find your repository and click on “Link Repository”.
 
@@ -65,11 +65,11 @@ Find your repository and click on “Link Repository”.
 
 To publish your site for the first time, click on “Publish". Now sit back and relax, your documentation is being generated for you and deployed to our super fast edge servers, this will take a few minutes.
 
-Once done, you’ll see "Deployment Live" in the right hand column and a link to your new documentation site. Congratulations, you’ve made it!
+Once done, you'll see "Deployment Live" in the right hand column and a link to your new documentation site. Congratulations, you've made it!
 
 ## Advanced configuration
 
-There’s definitely more to configure. Here are some more options for you:
+There's definitely more to configure. Here are some more options for you:
 
 ### Add an OpenAPI reference
 
@@ -86,7 +86,7 @@ Add an OpenAPI/Swagger file to your configuration file:
 }
 ```
 
-That’s it. :) The next time your documentation is published, it’ll include a super cool API reference.
+That's it. :) The next time your documentation is published, it'll include a super cool API reference.
 
 ### Deploy on merge
 
@@ -100,7 +100,7 @@ You can use the UI on https://dashboard.scalar.com or the Scalar configuration f
 
 ### Use a custom theme
 
-You don’t like how the documentation looks? Just try a few of our themes:
+You don't like how the documentation looks? Just try a few of our themes:
 
 ```json
 {
@@ -123,7 +123,7 @@ Available themes:
 
 ### Use a custom domain
 
-Okay, this requires [a subscription](https://scalar.com#pricing), but it’s pretty neat: You can add a custom domain to stay fully on brand and we’ll make sure to deploy your documentation, get a SSL certificate and all that.
+Okay, this requires [a subscription](https://scalar.com#pricing), but it's pretty neat: You can add a custom domain to stay fully on brand and we'll make sure to deploy your documentation, get a SSL certificate and all that.
 
 ```json
 {
@@ -131,7 +131,7 @@ Okay, this requires [a subscription](https://scalar.com#pricing), but it’s pre
 }
 ```
 
-Head to your domain name provider (Namecheap, GoDaddy, …) and add the following DNS records to the domain name you’d like to publish to:
+Head to your domain name provider (Namecheap, GoDaddy, …) and add the following DNS records to the domain name you'd like to publish to:
 
 | Type    | Host                                         | Value            |
 | ------- | -------------------------------------------- | ---------------- |

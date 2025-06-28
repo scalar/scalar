@@ -20,7 +20,7 @@ export default function getMetaFromPath(jsonAst, dataPath, includeIdentifierLoca
         // Unexpected type
         // console.log(obj)
 
-        // Anyway, if there’s location, let’s just use it.
+        // Anyway, if there's location, let's just use it.
         if (obj.loc) {
           return obj
         }

@@ -1,7 +1,7 @@
-import { screens } from './constants'
 import { useMediaQuery } from '@vueuse/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
+import { screens } from './constants'
 
 import { useBreakpoints } from './useBreakpoints'
 
@@ -47,12 +47,12 @@ describe('useBreakpoints', () => {
     // @ts-expect-error
     delete global.window
 
-    // Mock useMediaQuery to return false since there’s no window
+    // Mock useMediaQuery to return false since there's no window
     vi.mocked(useMediaQuery).mockImplementation(() => ref(false))
 
     const { screens: exposedScreens, mediaQueries, breakpoints } = useBreakpoints()
 
-    // Screens should still be exposed since they’re static
+    // Screens should still be exposed since they're static
     expect(exposedScreens).toEqual(screens)
 
     // Media queries should all be false without window

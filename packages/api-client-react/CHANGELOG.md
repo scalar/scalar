@@ -1,5 +1,23 @@
 # @scalar/api-client-react
 
+## 1.3.19
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+- Updated dependencies [2d7f995]
+  - @scalar/api-client@2.5.14
+  - @scalar/types@0.2.6
+
+## 1.3.18
+
+### Patch Changes
+
+- Updated dependencies [533469b]
+- Updated dependencies [4f47b3c]
+  - @scalar/api-client@2.5.13
+  - @scalar/types@0.2.5
+
 ## 1.3.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.1.5
+
+### Patch Changes
+
+- 2d7f995: refactor: use more common straight apostrophe ' instead of the real apostrophe ’
+
 ## 0.1.4
 
 ### Patch Changes

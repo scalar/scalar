@@ -2,7 +2,7 @@
 import { ScalarIconMagnifyingGlass } from '@scalar/icons'
 import { useBindCx } from '@scalar/use-hooks/useBindCx'
 
-const { hotKey } = defineProps<{
+defineProps<{
   hotKey?: string
 }>()
 

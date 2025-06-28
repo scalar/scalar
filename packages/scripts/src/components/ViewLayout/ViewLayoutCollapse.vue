@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // TODO: This is a copy of the ViewLayoutCollapse component in the API client.
-// I’ve copied it here, so we can move the scripts to a separate package.
+// I've copied it here, so we can move the scripts to a separate package.
 // But maybe we can move the component to a shared package?
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'

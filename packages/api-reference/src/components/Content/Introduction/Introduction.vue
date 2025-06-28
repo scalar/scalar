@@ -34,8 +34,8 @@ const oasVersion = inject<Ref<string | undefined>>(OPENAPI_VERSION_SYMBOL)
 
 /** Format the version number to be displayed in the badge */
 const version = computed(() => {
-  // Prefix the version with “v” if the first character is a number, don’t prefix if it’s not.
-  // Don’t output anything when version is not a string.
+  // Prefix the version with “v” if the first character is a number, don't prefix if it's not.
+  // Don't output anything when version is not a string.
   return typeof document.info?.version === 'string'
     ? document.info.version.toString().match(/^\d/)
       ? `v${document.info.version}`

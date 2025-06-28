@@ -6,7 +6,7 @@ public class ScalarOptionsExtensionsTests
     public void Extensions_ShouldSetAllPropertiesCorrectly()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options
@@ -74,7 +74,7 @@ public class ScalarOptionsExtensionsTests
     public void AddDefaultScopes_ShouldAddScopesToScheme()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
         string[] scopes = ["scope1", "scope2"];
 
         // Act
@@ -94,7 +94,7 @@ public class ScalarOptionsExtensionsTests
     public void AddDefaultScopes_ShouldUpdateExistingScheme()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
         string[] initialScopes = ["scope1"];
         string[] updatedScopes = ["scope2", "scope3"];
         options.AddDefaultScopes("oauth2Scheme", initialScopes);
@@ -111,7 +111,7 @@ public class ScalarOptionsExtensionsTests
     public void AddOAuth2Flows_ShouldConfigureFlows()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddOAuth2Flows("oauth2Scheme", flows =>
@@ -154,7 +154,7 @@ public class ScalarOptionsExtensionsTests
     public void AddClientCredentialsFlow_ShouldConfigureClientCredentialsFlow()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddClientCredentialsFlow("oauth2Scheme", flow =>
@@ -183,7 +183,7 @@ public class ScalarOptionsExtensionsTests
     public void AddAuthorizationCodeFlow_ShouldConfigureAuthorizationCodeFlow()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddAuthorizationCodeFlow("oauth2Scheme", flow =>
@@ -210,7 +210,7 @@ public class ScalarOptionsExtensionsTests
     public void AddImplicitFlow_ShouldConfigureImplicitFlow()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddImplicitFlow("oauth2Scheme", flow =>
@@ -237,7 +237,7 @@ public class ScalarOptionsExtensionsTests
     public void AddPasswordFlow_ShouldConfigurePasswordFlow()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddPasswordFlow("oauth2Scheme", flow =>
@@ -270,7 +270,7 @@ public class ScalarOptionsExtensionsTests
     public void AddApiKeyAuthentication_ShouldConfigureApiKeyAuthentication()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddApiKeyAuthentication("apiKeyScheme", header =>
@@ -293,7 +293,7 @@ public class ScalarOptionsExtensionsTests
     public void AddHttpAuthentication_ShouldConfigureHttpAuthentication()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddHttpAuthentication("httpScheme", http =>
@@ -318,7 +318,7 @@ public class ScalarOptionsExtensionsTests
     public void AddHttpAuthentication_ShouldUpdateExistingHttpScheme()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
         options.AddHttpAuthentication("httpScheme", http =>
         {
             http.Username = "olduser";
@@ -342,7 +342,7 @@ public class ScalarOptionsExtensionsTests
     public void MultipleAuthMethods_ShouldAllWork()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options
@@ -369,7 +369,7 @@ public class ScalarOptionsExtensionsTests
     public void AddOAuth2Authentication_ShouldConfigureOAuth2Authentication()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddOAuth2Authentication("oauth2Scheme", scheme =>
@@ -398,7 +398,7 @@ public class ScalarOptionsExtensionsTests
     public void AddOAuth2Authentication_ShouldUpdateExistingScheme()
     {
         // Arrange
-        var options = new ScalarOptions();
+        var options = new ScalarTestOptions();
 
         // Act
         options.AddOAuth2Flows("oauth2Scheme", flows =>

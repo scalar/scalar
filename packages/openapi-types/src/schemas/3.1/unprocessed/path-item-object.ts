@@ -20,8 +20,8 @@ export const PathItemObjectSchema = BasePathItemObjectSchema.extend({
    * Note: The behavior of $ref with adjacent properties is likely to change in future versions of this specification to
    * bring it into closer alignment with the behavior of the Reference Object.
    *
-   * Q: Why don’t we just use `ReferenceObjectSchema`?
-   * A: References work a little bit different here. It’s the only place where they can be combined with other
+   * Q: Why don't we just use `ReferenceObjectSchema`?
+   * A: References work a little bit different here. It's the only place where they can be combined with other
    *    properties.
    */
   '$ref': z.string().optional(),

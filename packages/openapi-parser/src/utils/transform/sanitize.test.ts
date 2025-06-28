@@ -17,7 +17,7 @@ describe('sanitize', () => {
       })
     })
 
-    it('doesn’t overwrite existing properties', () => {
+    it(`doesn't overwrite existing properties`, () => {
       const result = sanitize({
         openapi: '3.0.0',
         info: {
@@ -34,7 +34,7 @@ describe('sanitize', () => {
       })
     })
 
-    it('throws an error when it’s a swagger document', () => {
+    it("throws an error when it's a swagger document", () => {
       expect(() =>
         sanitize({
           swagger: '2.0',

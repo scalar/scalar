@@ -106,7 +106,7 @@ function createWindow(): void {
     callback({ requestHeaders })
   })
 
-  // Add wildcard CORS headers to all responses (so we don’t need a proxy)
+  // Add wildcard CORS headers to all responses (so we don't need a proxy)
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     const { responseHeaders } = details
 
@@ -293,7 +293,7 @@ function createWindow(): void {
     },
   ]
 
-  // @ts-expect-error Types doesn’t seem to be correct
+  // @ts-expect-error Types doesn't seem to be correct
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 }
@@ -375,7 +375,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-// In this file you can include the rest of your app’s specific main process
+// In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
 /**
@@ -477,7 +477,7 @@ async function openAppLink(appLink?: string) {
   // Strip `scalar://`, decode URI
   const url = decodeURIComponent(appLink.replace('scalar://', ''))
 
-  // Check whether it’s an URL
+  // Check whether it's an URL
   if (!url.length) {
     return
   }

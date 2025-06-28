@@ -100,7 +100,7 @@ export const getExampleFromSchema = (
     return resultCache.get(schema)
   }
 
-  // Check whether it’s a circular reference
+  // Check whether it's a circular reference
   if (level === MAX_LEVELS_DEEP + 1) {
     try {
       // Fails if it contains a circular reference
@@ -114,7 +114,7 @@ export const getExampleFromSchema = (
   // But if `emptyString` is  set, we do want to see some values.
   const makeUpRandomData = !!options?.emptyString
 
-  // If the property is deprecated anyway, we don’t want to show it.
+  // If the property is deprecated anyway, we don't want to show it.
   if (schema.deprecated) {
     return undefined
   }
@@ -128,7 +128,7 @@ export const getExampleFromSchema = (
   if (schema['x-variable']) {
     const value = options?.variables?.[schema['x-variable']]
 
-    // Return the value if it’s defined
+    // Return the value if it's defined
     if (value !== undefined) {
       // Type-casting
       if (schema.type === 'number' || schema.type === 'integer') {
@@ -139,17 +139,17 @@ export const getExampleFromSchema = (
     }
   }
 
-  // Use the first example, if there’s an array
+  // Use the first example, if there's an array
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
     return cache(schema, schema.examples[0])
   }
 
-  // Use an example, if there’s one
+  // Use an example, if there's one
   if (schema.example !== undefined) {
     return cache(schema, schema.example)
   }
 
-  // Use a default value, if there’s one
+  // Use a default value, if there's one
   if (schema.default !== undefined) {
     return cache(schema, schema.default)
   }
@@ -298,9 +298,9 @@ export const getExampleFromSchema = (
       }
     }
 
-    // if it has type: 'object', or properties, it’s an object
+    // if it has type: 'object', or properties, it's an object
     const isObject = schema.items?.type === 'object' || schema.items?.properties !== undefined
-    // if it has type: 'array', or items, it’s an array
+    // if it has type: 'array', or items, it's an array
     const isArray = schema.items?.type === 'array' || schema.items?.items !== undefined
 
     if (schema.items?.type || isObject || isArray) {
