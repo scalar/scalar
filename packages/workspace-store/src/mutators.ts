@@ -1,14 +1,15 @@
 import type { WorkspaceStore } from '@/client'
+import type { XScalarClientConfigRequestExample } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
 import { isReference } from '@/schemas/v3.1/type-guard'
 import type { HttpMethod } from '@scalar/helpers/http/http-methods'
 
-type RequestIdentifier = {
+type OperationIdentifier = {
   path: string
   method: Exclude<HttpMethod, 'connect' | 'head' | 'options'>
 }
 
-const requestMutators = (store: WorkspaceStore, documentName: string) => {
-  const getOperation = ({ path, method }: RequestIdentifier) => {
+const requestExampleMutators = (store: WorkspaceStore, documentName: string) => {
+  const getOperation = ({ path, method }: OperationIdentifier) => {
     const document = store.workspace.documents[documentName]
 
     if (!document) {
@@ -31,30 +32,50 @@ const requestMutators = (store: WorkspaceStore, documentName: string) => {
     return operation
   }
 
-  const addRequest = ({ path, method }: RequestIdentifier) => {
+  const addRequestExample = ({
+    path,
+    method,
+    slug,
+    request,
+  }: OperationIdentifier & { slug: string; request: XScalarClientConfigRequestExample }) => {
     const operation = getOperation({ path, method })
 
-    // TODO: Implement the logic to add the request to the store
-    operation?.summary
+    if (!operation) {
+      return
+    }
+
+    if (!operation['x-scalar-client-config-request-example']) {
+      operation['x-scalar-client-config-request-example'] = {}
+    }
+
+    operation['x-scalar-client-config-request-example'][slug] = request
   }
 
-  const deleteRequest = ({ path, method }: RequestIdentifier) => {
+  const deleteRequestExample = ({ path, method, slug }: OperationIdentifier & { slug: string }) => {
     const operation = getOperation({ path, method })
 
-    // TODO: implement the logic to delete the request from the store
-    operation?.summary
+    if (!operation) {
+      return
+    }
+
+    if (!operation['x-scalar-client-config-request-example']) {
+      return
+    }
+
+    // Delete the request example by slug
+    delete operation['x-scalar-client-config-request-example'][slug]
   }
 
   return {
-    addRequest,
-    deleteRequest,
+    addRequestExample,
+    deleteRequestExample,
   }
 }
 
 export function generateClientMutators(store: WorkspaceStore) {
   const mutators = (documentName: string) => {
     return {
-      requestMutators: requestMutators(store, documentName),
+      requestExampleMutators: requestExampleMutators(store, documentName),
     }
   }
 
