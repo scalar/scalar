@@ -379,7 +379,7 @@ watch(
   background-color: transparent;
   display: flex;
   font-family: var(--scalar-font);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   padding: 6px 8px;
   width: 100%;
 }

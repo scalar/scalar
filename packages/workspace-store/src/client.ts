@@ -9,9 +9,10 @@ import { extensions } from '@/schemas/extensions'
 import { reactive } from 'vue'
 import { coerceValue } from '@/schemas/typebox-coerce'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
-import { defaultReferenceConfig, type ReferenceConfig } from '@/schemas/reference-config'
+import { defaultReferenceConfig } from '@/schemas/reference-config'
 import { mergeObjects } from '@/helpers/merge-object'
 import type { DeepTransform } from '@/types'
+import type { Config } from '@/schemas/workspace-specification/config'
 
 /**
  * Input type for workspace document metadata and configuration.
@@ -50,13 +51,6 @@ type ObjectDoc = {
  * - ObjectDoc: Direct document object with metadata
  */
 type WorkspaceDocumentInput = UrlDoc | ObjectDoc
-
-/**
- * Configuration object for workspace documents.
- */
-type Config = {
-  'x-scalar-reference-config'?: ReferenceConfig
-}
 
 const defaultConfig: DeepTransform<Config, 'NonNullable'> = {
   'x-scalar-reference-config': defaultReferenceConfig,
@@ -102,6 +96,7 @@ type WorkspaceProps = {
   meta?: WorkspaceMeta
   /** In-mem open api documents. Async source documents (like URLs) can be loaded after initialization */
   documents?: ObjectDoc[]
+  /** Workspace configuration */
   config?: Config
 }
 

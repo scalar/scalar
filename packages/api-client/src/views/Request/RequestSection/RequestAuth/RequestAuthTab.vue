@@ -262,12 +262,12 @@ const dataTableInputProps = {
       <DataTableRow>
         <div
           v-if="Object.keys(scheme.flows).length > 1"
-          class="flex min-h-8 border-t text-sm">
+          class="flex min-h-8 border-t text-base">
           <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
               v-for="(_, key, ind) in scheme?.flows"
               :key="key"
-              class="floating-bg text-c-3 relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
+              class="floating-bg text-c-3 relative cursor-pointer border-b-[1px] border-transparent py-1 text-base font-medium"
               :class="{
                 '!text-c-1 !rounded-none border-b-[1px] !border-current':
                   layout !== 'reference' &&
@@ -301,7 +301,7 @@ const dataTableInputProps = {
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t border-b-0 px-4 text-sm"
+        class="text-c-3 bg-b-1 flex min-h-[calc(4rem+1px)] items-center justify-center border-t border-b-0 px-4 text-base"
         :class="{ 'rounded-b-lg': layout === 'reference' }">
         Coming soon
       </div>

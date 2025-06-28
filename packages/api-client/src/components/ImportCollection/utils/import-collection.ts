@@ -1,6 +1,6 @@
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import { isUrl } from '@/components/ImportCollection/utils/is-url'
 import type { WorkspaceStore } from '@/store'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 

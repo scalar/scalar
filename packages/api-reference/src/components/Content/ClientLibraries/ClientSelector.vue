@@ -235,14 +235,14 @@ const isSelectedClient = (language: HttpClientState) => {
   }
 }
 .client-libraries .client-libraries-text {
-  font-size: var(--scalar-mini);
-  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-small);
   position: relative;
   display: flex;
   align-items: center;
 }
 .client-libraries__active .client-libraries-text {
   color: var(--scalar-color-1);
+  font-weight: var(--scalar-semibold);
 }
 .client-libraries__select select {
   background: var(--scalar-background-3);

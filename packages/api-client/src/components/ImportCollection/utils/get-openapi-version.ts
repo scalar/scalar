@@ -1,10 +1,10 @@
-import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { parse } from 'yaml'
+import { isDocument } from './is-document'
 
 /**
  * Get the Swagger/OpenAPI version and format from the given string
  */
-export function getOpenApiDocumentVersion(input: string | null) {
+export function getOpenApiVersion(input: string | null) {
   if (!isDocument(input)) {
     return false
   }

@@ -19,11 +19,11 @@ import { Tab } from '@headlessui/vue'
 .tab {
   background: none;
   border: none;
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   font-family: var(--scalar-font);
+  font-weight: var(--scalar-font-normal);
   color: var(--scalar-color-2);
-  font-weight: var(--scalar-semibold);
-  line-height: calc(var(--scalar-mini) + 2px);
+  line-height: calc(var(--scalar-small) + 2px);
   white-space: nowrap;
   cursor: pointer;
   padding: 0;
@@ -57,7 +57,15 @@ import { Tab } from '@headlessui/vue'
 }
 .tab-selected {
   color: var(--scalar-color-1);
-  text-decoration: underline;
-  text-underline-offset: var(--scalar-micro);
+  font-weight: var(--scalar-semibold);
+}
+.tab-selected:after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+  width: 100%;
+  left: 0;
+  height: 1px;
+  bottom: calc(var(--tab-list-padding-y) * -1);
 }
 </style>
