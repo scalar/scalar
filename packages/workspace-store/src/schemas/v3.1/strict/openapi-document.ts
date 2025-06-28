@@ -18,8 +18,8 @@ import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
-import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/x-scalar-client-config-environments'
-import { xScalarClientConfigSecretsSchema } from '@/schemas/v3.1/strict/x-scalar-client-config-secrets'
+import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import { xScalarClientConfigSecretsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-secrets'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
