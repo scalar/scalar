@@ -1,6 +1,6 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'
 
 /** Describes a single request body. */

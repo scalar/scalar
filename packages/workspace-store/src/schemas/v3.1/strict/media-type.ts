@@ -2,7 +2,7 @@ import { Type, type TSchema } from '@sinclair/typebox'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { SchemaObjectSchema } from '@/schemas/v3.1/strict/schema'
 
 export const mediaTypeObjectSchemaBuilder = <E extends TSchema>(encoding: E) =>

@@ -8,7 +8,7 @@ import { RequestBodyObjectSchema } from './request-body'
 import { SecuritySchemeObjectSchema } from './security-scheme'
 import { LinkObjectSchema } from './link'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { HeaderObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'
 import { CallbackObjectSchema, PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
 

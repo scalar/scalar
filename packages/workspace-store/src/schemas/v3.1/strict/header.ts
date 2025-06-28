@@ -1,4 +1,4 @@
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { ExampleObjectSchema } from '@/schemas/v3.1/strict/example'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { ReferenceObjectSchema } from '@/schemas/v3.1/strict/reference'

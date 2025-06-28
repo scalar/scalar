@@ -1,7 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { OAuthFlowsObjectSchema } from './oauthflows'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 export const DescriptionSchema = compose(
   Type.Object({

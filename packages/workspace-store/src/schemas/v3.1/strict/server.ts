@@ -1,7 +1,7 @@
 import { Type, type Static } from '@sinclair/typebox'
 import { ServerVariableObjectSchema } from './server-variable'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 /** An object representing a Server. */
 export const ServerObjectSchema = compose(

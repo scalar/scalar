@@ -1,4 +1,4 @@
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { OpenAPIDocumentSchema } from '@/schemas/v3.1/strict/openapi-document'
 import { WorkspaceMetaSchema } from '@/schemas/workspace'
 import { ConfigSchema } from '@/schemas/workspace-specification/config'

@@ -2,7 +2,7 @@ import { Type, type Static } from '@sinclair/typebox'
 import { ContactObjectSchema } from './contact'
 import { LicenseObjectSchema } from './license'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 /**
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed, and MAY be presented in editing or documentation generation tools for convenience.

@@ -5,7 +5,7 @@ import {
   OAuthFlowClientCredentialsSchema,
   OAuthFlowAuthorizationCodeSchema,
 } from './oauth-flow'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 /**
  * Allows configuration of the supported OAuth Flows.

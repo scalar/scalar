@@ -1,4 +1,4 @@
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { Type, type Static } from '@sinclair/typebox'
 

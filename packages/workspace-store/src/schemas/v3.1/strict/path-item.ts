@@ -3,7 +3,7 @@ import { ParameterObjectSchema } from './parameter'
 import { ReferenceObjectSchema } from './reference'
 import { ServerObjectSchema } from './server'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 export const pathItemObjectSchemaBuilder = <O extends TSchema>(operation: O) =>
   compose(
