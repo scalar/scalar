@@ -8,6 +8,13 @@ import { SecurityRequirementObjectSchema } from './security-requirement'
 import { ServerObjectSchema } from './server'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
 import { compose } from '@/schemas/v3.1/compose'
+import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
+
+const OperationExtensionsSchema = Type.Partial(
+  Type.Object({
+    'x-scalar-client-config-request-example': Type.Record(Type.String(), xScalarClientConfigRequestExampleSchema),
+  }),
+)
 
 export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
   Type.Union([
@@ -38,6 +45,7 @@ export const operationObjectSchemaBuilder = <C extends TSchema>(callback: C) =>
         /** A map of possible out-of band callbacks related to the parent operation. The key is a unique identifier for the Callback Object. Each value in the map is a Callback Object that describes a request that may be initiated by the API provider and the expected responses. */
         callbacks: Type.Optional(Type.Record(Type.String(), Type.Union([callback, ReferenceObjectSchema]))),
       }),
+      OperationExtensionsSchema,
       ExtensionsSchema,
     ),
     ReferenceObjectSchema,
