@@ -1,6 +1,6 @@
 import { Type, type TSchema } from '@sinclair/typebox'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 export const callbackObjectSchemaBuilder = <P extends TSchema>(pathItem: P) =>
   compose(

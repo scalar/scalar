@@ -16,8 +16,11 @@ import { SecurityRequirementObjectSchema } from './security-requirement'
 import { TagObjectSchema } from './tag'
 import { ExternalDocumentationObjectSchema } from './external-documentation'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { PathItemObjectSchema } from '@/schemas/v3.1/strict/path-operations'
+import { xScalarClientConfigEnvironmentsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-environments'
+import { xScalarClientConfigSecretsSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-secrets'
+import { xScalarClientConfigCookiesSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-cookies'
 
 const OpenApiExtensionsSchema = Type.Partial(
   Type.Object({
@@ -29,6 +32,12 @@ const OpenApiExtensionsSchema = Type.Partial(
         TagObjectSchema,
       ),
     ),
+    'x-scalar-client-config-active-environment': Type.String(),
+    /** A custom icon representing the collection */
+    'x-scalar-client-config-icon': Type.String(),
+    'x-scalar-client-config-environments': xScalarClientConfigEnvironmentsSchema,
+    'x-scalar-client-config-secrets': xScalarClientConfigSecretsSchema,
+    'x-scalar-client-config-cookies': Type.Array(xScalarClientConfigCookiesSchema),
   }),
 )
 

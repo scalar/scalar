@@ -1,7 +1,7 @@
 import { Type, type TSchema } from '@sinclair/typebox'
 import { ReferenceObjectSchema } from './reference'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 export const encodingObjectSchemaBuilder = <H extends TSchema>(header: H) =>
   compose(

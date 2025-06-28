@@ -2,7 +2,7 @@ import { Type, type Static } from '@sinclair/typebox'
 import { ReferenceObjectSchema } from './reference'
 import { LinkObjectSchema } from './link'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { HeaderObjectSchema, MediaTypeObjectSchema } from '@/schemas/v3.1/strict/media-header-encoding'
 
 export const ResponseObjectSchema = compose(
