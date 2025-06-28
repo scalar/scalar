@@ -2,7 +2,7 @@ import { Type, type Static } from '@sinclair/typebox'
 import { ReferenceObjectSchema } from './reference'
 import { ResponseObjectSchema } from './response'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 
 /**
  * A container for the expected responses of an operation. The container maps a HTTP response code to the expected response.

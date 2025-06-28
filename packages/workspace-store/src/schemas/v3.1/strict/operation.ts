@@ -7,7 +7,7 @@ import { ResponsesObjectSchema } from './responses'
 import { SecurityRequirementObjectSchema } from './security-requirement'
 import { ServerObjectSchema } from './server'
 import { ExtensionsSchema } from '@/schemas/v3.1/strict/extensions'
-import { compose } from '@/schemas/v3.1/compose'
+import { compose } from '@/schemas/compose'
 import { xScalarClientConfigRequestExampleSchema } from '@/schemas/v3.1/strict/client-config-extensions/x-scalar-client-config-request-example'
 
 const OperationExtensionsSchema = Type.Partial(
