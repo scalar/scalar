@@ -37,15 +37,17 @@ const xScalarExampleParameterSchema = Type.Optional(Type.Record(Type.String(), T
 
 export type XScalarExampleParameter = Static<typeof xScalarExampleParameterSchema>
 
-export const xScalarClientConfigRequestExampleSchema = Type.Object({
-  name: Type.Optional(Type.String()),
-  body: Type.Optional(xScalarExampleBodySchema),
-  parameters: Type.Object({
-    path: xScalarExampleParameterSchema,
-    query: xScalarExampleParameterSchema,
-    header: xScalarExampleParameterSchema,
-    cookie: xScalarExampleParameterSchema,
+export const xScalarClientConfigRequestExampleSchema = Type.Partial(
+  Type.Object({
+    name: Type.String(),
+    body: xScalarExampleBodySchema,
+    parameters: Type.Object({
+      path: xScalarExampleParameterSchema,
+      query: xScalarExampleParameterSchema,
+      header: xScalarExampleParameterSchema,
+      cookie: xScalarExampleParameterSchema,
+    }),
   }),
-})
+)
 
 export type XScalarClientConfigRequestExample = Static<typeof xScalarClientConfigRequestExampleSchema>
