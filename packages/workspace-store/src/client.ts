@@ -395,6 +395,33 @@ export function createWorkspaceStore(workspaceProps?: WorkspaceProps) {
       const excludedDiffs = applySelectiveUpdates(originalDocument, updatedDocument)
       return excludedDiffs
     },
+    /**
+     * Reverts the active document to its original state.
+     *
+     * This method restores the active document to its initial state by copying
+     * the original document (before any modifications) back to the active document.
+     * The original document is retrieved from the originalDocuments map and applied
+     * to the current reactive document state.
+     *
+     * Note: This operation will discard all unsaved changes to the active document.
+     *
+     * @returns void
+     *
+     * @example
+     * // Revert the active document to its original state
+     * store.revert()
+     */
+    revert() {
+      if (!workspace.activeDocument) {
+        return
+      }
+
+      const originalDocument = originalDocuments[getActiveDocumentName()]
+      const updatedDocument = toRaw(getRaw(workspace.activeDocument))
+
+      // Update the original document with the current state of the active document
+      applySelectiveUpdates(updatedDocument, originalDocument)
+    },
   }
 }
 

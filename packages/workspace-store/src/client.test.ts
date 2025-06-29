@@ -734,4 +734,28 @@ describe('create-workspace-store', () => {
       )
     })
   })
+
+  describe('revert', () => {
+    it('should revert the changes made to the active document', async () => {
+      const store = createWorkspaceStore({
+        documents: [
+          {
+            name: 'default',
+            document: getDocument(),
+          },
+        ],
+      })
+
+      if (store.workspace.activeDocument?.info?.title) {
+        store.workspace.activeDocument.info.title = 'Updated API'
+      }
+
+      expect(store.workspace?.activeDocument?.info?.title).toBe('Updated API')
+
+      // Revert the changes
+      store.revert()
+
+      expect(store.workspace?.activeDocument?.info?.title).toBe('My API')
+    })
+  })
 })
