@@ -94,6 +94,11 @@ watch(
  * If the tooltip is already initialized it will be ignored
  */
 export function initializeTooltipElement() {
+  if (typeof document === 'undefined' || typeof window === 'undefined') {
+    // Skip tooltip initialization during SSR
+    return
+  }
+
   if (el.value) {
     // Tooltip already initialized
     return
